@@ -1,0 +1,61 @@
+## DESCRIPTION
+##
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('tolerance')
+
+# updated to full problem by Peter Staab (06/01/2023)
+# from the problem on https://webwork.maa.org/wiki/AdaptiveParameters
+
+#:% name = Adaptive Parameters
+#:% type=technique
+#:% categories=[adaptive parameters]
+#:% section=preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+#:% section=setup
+#: This technique is used for a formula with a general parameter.  The general solution
+#: to this differential equation is \(y = c e^x - 1\), but a student could also write it as
+#: something like \(y = e^c e^x - 1\). We use the adaptive parameter to find the value of the
+#: constant.
+#:
+#: Then in the answer, we define a custom answer checker that creates a copy of the `Context`
+#: in which an adaptive parameter is allowed, redefines the student and correct answers in
+#: that context, and checks that the answers match with the adaptive parameter.
+#:
+#: Again, note that if we just want to allow a solution to differ by an additive constant
+#: from the answer in the problem, we can use the existing MathObjects infrastructure, as
+#: discussed on the formulas up to constants techniques page.
+$ans = Compute('e^x - 1')->cmp(
+	checker => sub {
+		my ($correct, $student, $self) = @_;
+		if ($self->{_filter_name} ne 'produce_equivalence_message') {
+			my $context = Context()->copy;
+			$context->flags->set(no_parameters => 0);
+			$context->variables->add('C0' => 'Parameter');
+			$student = Formula($context, $student);
+			$correct = Formula($context, "C0 * e^x - 1");
+		}
+		return $correct == $student;
+	}
+);
+#:% section=statement
+BEGIN_PGML
+Find any solution to the differential equation [``\frac{dy}{dx} = y + 1. ``]
+
+[` y =`] [_____]{$ans}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

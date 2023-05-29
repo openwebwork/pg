@@ -2,7 +2,6 @@
 ## Multiple choice template
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
@@ -13,14 +12,15 @@
 ## MO(1)
 ## KEYWORDS('multiple choice', 'template')
 
+#:% name = Multiple Choice with Popup
+#:% type = Sample
 #:% categories=[multiple choice, misc]
+
 #:% section=preamble
 #: The macro `parserPopUp.pl` must be loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','parserPopUp.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGcourse.pl');
 
 #:% section=setup
 #:To create a radio object, use `$popup = PopUp([choices,...],correct);`
@@ -34,14 +34,13 @@ TEXT(beginproblem());
 #:Note: setting the `$showPartialCorrectAnswers` to 0 is often desirable for
 #:multiple choice problems so students don't know which part is incorrect and
 #:could therefore just guess the answer.
-Context('Numeric');
 $showPartialCorrectAnswers = 0;
 
-$popup = PopUp(["?",'Red','Blue','Green'],'Blue');
+$popup = PopUp([ "?", 'Red', 'Blue', 'Green' ], 'Blue');
 
-$dropdown1 = DropDown(['Red','Blue','Green'],'Green');
+$dropdown1 = DropDown([ 'Red', 'Blue', 'Green' ], 'Green');
 
-$dropdown2 = DropDown(['Red','Blue','Green'],'Red', placeholder => 'Select One');
+$dropdown2 = DropDown([ 'Red', 'Blue', 'Green' ], 'Red', placeholder => 'Select One');
 
 #:% section=statement
 BEGIN_PGML
@@ -57,12 +56,12 @@ Select my favorite color [__]{$dropdown2}
 
 END_PGML
 
-
 #:% section=solution
 BEGIN_PGML_SOLUTION
-* The first correct answer is [$popup->correct_ans()].
-* The second correct answer is [$dropdown1->correct_ans()].
-* The third correct answer is [$dropdown2->correct_ans()].
+
+* The first correct answer is [@ $popup->correct_ans() @].
+*The second correct answer is [@ $dropdown1->correct_ans() @].
+*The third correct answer is [@ $dropdown2->correct_ans() @].
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

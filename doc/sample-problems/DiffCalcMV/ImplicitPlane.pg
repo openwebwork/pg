@@ -2,7 +2,6 @@
 ## Multivariable differential calculus: answer is an equation for a plane
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
@@ -12,17 +11,18 @@
 ## MO(1)
 ## KEYWORDS('multivariable differential calculus', 'answer is an equation for a plane')
 
-#:% categories=[multivariate calculus, implicit functions]
+#:% name = Implicit Plane
+#:% type = Sample
+#:% subject = multivariate calculus
+#:% categories=[implicit function]
+
 #:% section=preamble
 #: * The parserVectorUtils.pl macro is used for the non_zero_point3D function below.
 #: * The parserImplicitPlane.pl macro includes the context and the ImplicitPlane
 #:   function to parse and create implicit planes.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','parserImplicitPlane.pl','parserVectorUtils.pl',
-	'PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserImplicitPlane.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: The first answer is a standard mulitivariable calculus question. There are several
@@ -36,28 +36,30 @@ TEXT(beginproblem());
 #: constant equation such as `x=3`), you can use the `ImplicitPlane` context to reliably
 #: check these answers.
 Context('ImplicitPlane');
-Context()->variables->are(x=>'Real',y=>'Real', z=> 'Real');
+Context()->variables->are(x => 'Real', y => 'Real', z => 'Real');
 
-$A = non_zero_point3D(-5,5,1);
-$N = non_zero_vector3D(-5,5,1);
+$A = non_zero_point3D(-5, 5, 1);
+$N = non_zero_vector3D(-5, 5, 1);
 
-$ans1 = ImplicitPlane($A,$N);
+$ans1 = ImplicitPlane($A, $N);
 $ans2 = ImplicitPlane("4x+3y=12");
 $ans3 = ImplicitPlane("x=3");
 
 #:% section=statement
 BEGIN_PGML
-a. Enter an equation for the plane through the point [` [$A] `] and perpendicular to [` [$N] `].
 
-    + [______________]{$ans1}
+a. Enter an equation for the plane through the point [` [$A] `] and perpendicular to [` [$N] `] .
 
-b. Enter an equation for the line in the [` xy `]-plane with [` x `]-intercept [` 3 `] and [` y `]-intercept [` 4 `].
+	[______________]{$ans1}
 
-    + [______________]{$ans2}
+b. Enter an equation for the line in the [` xy `] -plane with [` x `] -intercept [` 3 `]
+	and [` y `] -intercept [` 4 `].
 
-c. Enter an equation for the vertical line in the [` xy `]-plane through the point [` (3,1) `].
+	[______________]{$ans2}
 
-    + [______________]{$ans3}
+c. Enter an equation for the vertical line in the [` xy `] -plane through the point [` (3,1) `].
+
+	[______________]{$ans3}
 END_PGML
 
 #:% section=solution

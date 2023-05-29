@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Precalculus: dynamically generated graph of a function
+## dynamically generated graph of a function
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -11,32 +11,35 @@
 ## MO(1)
 ## KEYWORDS('precalculus', 'dynamic graph')
 
-#:% categories=[precalculus, graph]
+#:% name = Dynamic Graph
+#:% subject = [algebra, precalculus]
+#:% type = Sample
+#:% categories=[graph]
+
 #:% section=preamble
 #: The dynamic graph is generated with `PGtikz.pl`, so this is needed.
 #: If you want the a fresh graph generated each time, set `$refreshCachedImages = 1`,
 #: otherwise a cached image may be used.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','PGtikz.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section=setup
-#: Details on using tikz in problems are located in the POD or in other sample problems.
+#: The code between `$graph->BEGIN_TIKZ` and `END_TIKZ` are tikz commands.  Information
+#: on tikz can be found at the [homepage for tikz](https://tikz.dev) and details on
+#: using tikz within pg problems can be found in PODLINK('PGtikz.pl').
 $refreshCachedImages = 1;
 Context('Numeric');
 
-$a = random(2,3,1); # left x-intercept
-$b = random(2,4,2); # right x-intercept
-$c = random(3,6,1); # y-intercept
+$a = random(2, 3, 1);    # left x-intercept
+$b = random(2, 4, 2);    # right x-intercept
+$c = random(3, 6, 1);    # y-intercept
 
-$k = -($c)/($a * $b);
+$k = -($c) / ($a * $b);
 
 $A = $k;
-$B = $k*($a - $b);
+$B = $k * ($a - $b);
 $C = -($k * $a * $b);
-
 
 $graph = createTikZImage();
 $graph->BEGIN_TIKZ

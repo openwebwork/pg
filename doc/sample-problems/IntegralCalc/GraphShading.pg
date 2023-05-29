@@ -1,0 +1,78 @@
+## DESCRIPTION
+## Differential calculus: dynamically generated graph of a function with shading
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('calculus', 'dynamic graph with shading')
+
+#:% name = Graph Shading
+#:% type = Sample
+#:% subject = integral calculus
+#:% categories=[plots]
+#:% section=preamble
+#: The macro `PGikz.pl` is used to create the plot and `unionTables.pl` is used
+#: for formatting the question into two columns.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'unionTables.pl', 'PGcourse.pl');
+
+$refreshCachedImages = 1;
+
+#:% section=setup
+#: We create a randomly transformed version of `sqrt(x)` as the function with a
+#: reasonably straightforward answer.
+#:
+#: The `nicestring` function is useful for printing polynomials in a nice way.
+#:
+#: The graph is created with `PGtikz.pl`, a very robust plotting package. The
+#: shading in done with the `\filldraw` command with the `fill opacity=0.5`. Also
+#: note that one of the sides of the filled area is the square root function.
+Context('Numeric');
+
+$a    = random(-4, 2);
+$b    = random(1,  4);
+$g    = Compute("$b+sqrt(x-$a)");
+$gtex = "$b+\sqrt{" . nicestring([ 1, -$a ]) . "}";
+$ans  = Compute("3*$b + 14/3");
+
+$graph = createTikZImage();
+$graph->BEGIN_TIKZ
+\draw[thin] (-6,-2) grid (6,7);
+\draw[->] (-6,0) -- (6,0) node[above right] {\(x\)};
+\foreach \x in {-5,-4,...,-1,1,2,...,5} \draw(\x,0.1) -- (\x,-0.1) node [below right] {\x};
+\draw[->] (0,-1) -- (0,8) node[above right] {\(y\)};
+\foreach \y in {-1,1,2,...,6} \draw (0.1,\y) -- (-0.1,\y) node[below left] {\y};
+\filldraw[draw=blue,fill=blue!50!white, fill opacity = 0.5] ({$a+1},0) -- ({$a+1},{$b+1})
+  -- plot[domain={$a+1}:{$a+4},samples=100] (\x,{$b+sqrt(\x-$a)})
+  -- ({$a+4},0) -- cycle;
+\draw[blue, thick, ->] plot[domain={$a}:6, samples = 100] (\x,{$b+sqrt(\x-$a)});
+END_TIKZ
+
+$column1 = PGML::Format(<<END_PGML);
+Use the graph to find the area of the shaded
+region under [`` f(x) = $gtex ``].
+
+Area = [______________]{$ans}
+
+END_PGML
+
+$column2 = image($graph, width => 400, tex_size => 800) . $BR . $BCENTER . $BR .
+  "Graph of \( y = f(x) \)" . $ECENTER;
+
+#:% section=statement
+#: Since the output is just the two columns, we don't need a BEGIN_PGML/END_PGML
+#: pair.
+TEXT(ColumnTable($column1, $column2, indent => 0, separation => 30, valign => 'TOP'));
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

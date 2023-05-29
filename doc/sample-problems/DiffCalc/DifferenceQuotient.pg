@@ -2,7 +2,6 @@
 ## Differential calculus: difference quotients
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
@@ -13,22 +12,21 @@
 ## MO(1)
 ## KEYWORDS('differential calculus', 'difference quotients')
 
-#:% categories=[differential calculus, difference quotient]
+#:% name = Difference Quotient
+#:% type = Sample
+#:% subject = differential calculus
+#:% categories=[difference quotient]
 
 #:% section=preamble
 #: We need to include the macros file `parserDifferenceQuotient.pl`.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl','parserDifferenceQuotient.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserDifferenceQuotient.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: The routine DifferenceQuotient("function","variable") takes the simplified function
 #: and a variable name. If the variable is omitted, dx is used by default.
-Context('Numeric');
-
-$limit = DifferenceQuotient("2*x+h",'h');
+$limit = DifferenceQuotient("2*x+h", 'h');
 
 $fp = Compute("2 x");
 
@@ -36,17 +34,9 @@ $fp = Compute("2 x");
 BEGIN_PGML
 Simplify and then evaluate the limit.
 
-[``
-\frac{d}{dx} \big( x^2 \big)
-=
-\lim_{h \to 0} \frac{(x+h)^2-x^2}{h}
-=
-\lim_{h \to 0}
-\big(
-``]
-[_______________]{$limit}
-[`` \big) = ``]
-[_______________]{$fp}
+[`` \frac{d}{dx}\big(x ^ 2 \big) = \lim_ { h \to 0 } \frac { (x +h) ^ 2 -x ^ 2 }{h}
+		= \lim_{h \to 0}\big(``]
+[_______________]{$limit} [`` \big) = ``] [_______________]{$fp}
 END_PGML
 
 #:% section=solution

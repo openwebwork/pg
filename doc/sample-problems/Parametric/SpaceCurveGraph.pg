@@ -1,0 +1,44 @@
+## DESCRIPTION
+## Parametric equations: graphing a parametric curve in space
+## ENDDESCRIPTION
+
+## KEYWORDS('parametric', 'curve in space')
+
+## DBsubject('WeBWorK')
+## DBchapter(WeBWorK tutorial)
+## DBsection(Fort Lewis tutorial 2011)
+## Date('01/30/2011')
+## Author('Paul Pearson')
+## Institution('Fort Lewis College')
+
+#:% name = Space Curve Graph
+#:% subject = parametric
+#:% type = Sample
+
+#:% section=preamble
+#: The macro `plotly3D.pl` is used to produce the graph.
+DOCUMENT();
+loadMacros('PGstandard.pl','PGML.pl','plotly3D.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: A `plotly3D` graph is created with the `Graph3D` function. There are many options as
+#: decribed in PODLINK('the POD','plotly3D.pl'), but to get started include the `height` and `width`.
+#:
+#: A parametric curve (space curve) is added to the graph with the `addCurve` method,
+#: which takes an array ref of length 3.  These are strings as javascript function in the
+#: variable `t`.  The second array ref is `[tmin, tmax, samples]`.
+$graph = Graph3D(
+    height => 300,
+    width  => 300,
+    title  => 'Spiral in 3D',
+);
+
+$graph->addCurve(['t*cos(t)','t*sin(t)','t'],[0,6*pi,150]);
+
+#:% section=statement
+#: This just prints the graph.  No question is asked.
+BEGIN_PGML
+[@ $graph->Print @]*
+END_PGML
+
+ENDDOCUMENT();

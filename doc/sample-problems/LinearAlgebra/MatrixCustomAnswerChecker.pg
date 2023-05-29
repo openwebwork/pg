@@ -1,0 +1,66 @@
+## DESCRIPTION
+## Answer is a pair of matrices that require a custom answer checker
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('matrix','custom answer checker','multianswer')
+
+#:% name = Custom Matrix Answer Checker
+#:% subject = linear algebra
+#:% type = Sample
+#:% categories=[answer, matrix]
+
+#:% section=preamble
+#: Since the answer will depend on the two matrices input, we need to use `parserMultiAnswer.pl`.
+
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+$showPartialCorrectAnswers = 0;
+
+#:% section=setup
+#: Construct two matrices `$A` and `$B` that do not commute and therefore serve as a correct answer.
+#: Use a $multians object with a custom answer checker subroutine. The answer checker uses
+#: `my ( $correct, $student, $answerHash ) = @_;` to grab the inputs (the correct answer,
+#: the student answer, and the answer hash table info). Then, put the student's
+#: two answers into an array using `my @s = @{$student};`. Make sure the student's
+#: first matrix `$s[0]` is converted to a `MathObject` matrix using `$s0 = Matrix($s[0]);`
+#: and similarly for the student's second matrix. The return value, which is boolean, is
+#: the truth value of the statement `$s0 * $s1 != $s1 * $s0`.
+Context('Matrix');
+
+$A = Matrix([ [ 1, 1 ], [ 0, 1 ] ]);
+$B = Matrix([ [ 1, 0 ], [ 1, 1 ] ]);
+
+$multians = MultiAnswer($A, $B)->with(
+	singleResult => 1,
+	checker      => sub {
+		my ($correct, $student, $answerHash) = @_;
+		my @s = @{$student};
+		$s0 = Matrix($s[0]);
+		$s1 = Matrix($s[1]);
+		return $s0 * $s1 != $s1 * $s0;
+	}
+);
+
+#:% section=statement
+#:  Make sure that both answer arrays are called as methods on the `$multians` object
+BEGIN_PGML
+Give an example of two [` 2 \times 2 `] matrices [` A `] and [` B `] such that [` AB \ne BA `] .
+
+	[` A = `][_____]*{$multians}
+
+	[` B = `][_____]*{$multians}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

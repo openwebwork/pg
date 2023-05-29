@@ -16,12 +16,9 @@ DOCUMENT();
 
 loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl','PGcourse.pl');
 
-TEXT(beginproblem());
 #:%setup
 #:We use `do { $b = random(2,9,1); } until ( $b != $a );` to generate distinct
 #:random numbers.
-Context("Numeric");
-
 $a = non_zero_random(-9,9,1);
 do { $b = random(2,9,1); } until ( $b != $a );
 

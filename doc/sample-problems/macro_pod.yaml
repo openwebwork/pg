@@ -11,6 +11,10 @@ macros:
   contextLimitedPowers.pl: contexts/contextLimitedPowers.html
   contextPolynomialFactors.pl: contexts/contextPolynomialFactors.html
   contextReaction.pl: contexts/contextReaction.html
+  contextTrigDegrees.pl: contexts/contextTrigDegrees.pl
+
+  draggableSubsets.pl: math/draggableSubsets.html
+  draggableProof.pl: math/draggableProof.html
 
   niceTables.pl: ui/niceTables.html
 
@@ -18,13 +22,16 @@ macros:
   parserCheckboxList.pl: parsers/parserCheckboxList.html
   parserDifferenceQuotient.pl: parsers/parserDifferenceQuotient.html
   parserFormulaWithUnits.pl: parsers/parserFormulaWithUnits.html
+  parserFormulaUpToConstant.pl: parsers/parserFormulaUpToConstant.html
   parserFunction.pl: parsers/parserFunction.html
   parserImplicitEquation.pl: parsers/parserImplicitEquation.html
   parserImplicitPlane.pl: parsers/parserImplicitPlane.html
   parserMultiAnswer.pl: parsers/parserMultiAnswer.html
   parserNumberWithUnits.pl: parsers/parserNumberWithUnits.html
+  parserParametricLine.pl: parsers/parserParametricLine.html
   parserPopUp.pl: parsers/parserPopUp.html
   parserRadioButtons.pl: parsers/parserRadioButtons.html
+  parserRadioMultiAnswer.pl: parsers/parserRadioMultiAnswer.html
   parserSolutionFor.pl: parsers/parserSolutionFor.html
   parserVectorUtils.pl: parsers/parserVectorUtils.html
 
@@ -33,6 +40,13 @@ macros:
   PGgraders.pl: answers/PGgraders.html
   PGtikz.pl: graph/PGtikz.html
 
+  plotly3D.pl: graph/plotly3D.html
+
   scaffold.pl: core/scaffold.html
 
   unionTables.pl: ui/unionTables.html
+  unorderedAnswer.pl: answers/unorderedAnswer.html
+
+  LiveGraphicsVectorField3D.pl: graph/LiveGraphicsVectorField3D.html
+
+  weightedGrader.pl: core/weightedGrader.html

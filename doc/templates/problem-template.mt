@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/theme/tomorrow-night-eighties.min.css">
 	<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/addon/runmode/runmode-standalone.min.js" defer>
 	</script>
-	<script src="../PG.js" defer></script>
+	<script src="<%=$home%>/PG.js" defer></script>
 
 	<style>
 		.explanation {
@@ -37,7 +37,7 @@
 
 <body class="p-3">
 	<div class="container-fluid">
-		<h1><%= $filename %></h1>
+		<h1><%= $name %></h1>
 		<p><%= $description %></p>
 		<h2>POD for Macro Files</h2>
 		<ul>
@@ -57,7 +57,7 @@
 			<div class="row">
 				<div class="col-sm-12 col-md-6 order-md-first order-last p-0 position-relative overflow-x-hidden">
 					<button class="clipboard-btn btn btn-sm btn-dark position-absolute top-0 end-0 me-1 mt-1"
-						type="button" data-code="<%== $_->{code} %>" aria-label="copy to clipboard">
+						style="z-index: 10" type="button" data-code="<%== $_->{code} %>" aria-label="copy to clipboard">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
 							class="bi bi-clipboard" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
 							<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>

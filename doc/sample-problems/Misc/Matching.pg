@@ -11,16 +11,16 @@
 ## Institution(Hope College)
 ## Author(Paul Pearson)
 
+#:% name = Matching Problem
+#:% type = Sample
 #:% categories=[multiple choice, misc]
+
 #:% section=preamble
 #:We use `PGchoicemacros.pl` to construct the list of matching object, and the
 #:custom problem grader fluid from `PGgraders.pl` for incremental grading.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','PGchoicemacros.pl','PGgraders.pl',
-  'unionTables.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGchoicemacros.pl', 'PGgraders.pl', 'unionTables.pl', 'PGcourse.pl');
 
 #:% section=setup
 #:Since we are choosing 6 questions and 2 extra answers and have 1 entry in `makeLast`, we must create a popup list with 9 entries A through I.
@@ -31,28 +31,37 @@ TEXT(beginproblem());
 $ml = new_match_list();
 $ml->rf_print_q(~~&pop_up_list_print_q);
 $ml->ra_pop_up_list([
-"No answer" => "?",
-'A' => 'A', 'B' => 'B', 'C' => 'C',
-'D' => 'D', 'E' => 'E', 'F' => 'F',
-'G' => 'G', 'H' => 'H', 'I' => 'I',
+	"No answer" => "?",
+	'A'         => 'A',
+	'B'         => 'B',
+	'C'         => 'C',
+	'D'         => 'D',
+	'E'         => 'E',
+	'F'         => 'F',
+	'G'         => 'G',
+	'H'         => 'H',
+	'I'         => 'I',
 ]);
 
 # Add correct questions and answers
 $ml->qa(
-"Question a?", "Answer a",
-"Question b?", "Answer b",
-"Question c?", "Answer c",
-"Question d?", "Answer d",
-"Question e?", "Answer e",
-"Question f?", "Answer f",
+	"Question a?",
+	"Answer a",
+	"Question b?",
+	"Answer b",
+	"Question c?",
+	"Answer c",
+	"Question d?",
+	"Answer d",
+	"Question e?",
+	"Answer e",
+	"Question f?",
+	"Answer f",
 );
 $ml->choose(6);
 
 # Add extra incorrect answers
-$ml->extra(
-"Extra answer 1",
-"Extra answer 2",
-);
+$ml->extra("Extra answer 1", "Extra answer 2",);
 $ml->choose_extra(2);
 
 $ml->makeLast("None of the above");
@@ -82,20 +91,21 @@ $showPartialCorrectAnswers = 0;
 
 # Incremental grader
 install_problem_grader(~~&custom_problem_grader_fluid);
-$ENV{'grader_numright'} = [2,4,6];
-$ENV{'grader_scores'} = [0.3,0.6,1];
-$ENV{'grader_message'} = "You can earn " .
-"30% partial credit for 2 - 3 correct answers, and ".
-"60% partial credit for 4 - 5 correct answers.";
+$ENV{'grader_numright'} = [ 2,   4,   6 ];
+$ENV{'grader_scores'}   = [ 0.3, 0.6, 1 ];
+$ENV{'grader_message'} =
+	"You can earn "
+	. "30% partial credit for 2 - 3 correct answers, and "
+	. "60% partial credit for 4 - 5 correct answers.";
 
 # All or nothing grader
 # install_problem_grader(~~&std_problem_grader);
 
-ANS( str_cmp( $ml->ra_correct_ans ) );
+ANS(str_cmp($ml->ra_correct_ans));
 
 #:% section=solution
 #: Extract the correct answers from the MatchList object and reformat.
-@correct = @{$ml->ra_correct_ans()};
+@correct      = @{ $ml->ra_correct_ans() };
 $answerstring = join(", ", @correct);
 
 BEGIN_PGML_SOLUTION

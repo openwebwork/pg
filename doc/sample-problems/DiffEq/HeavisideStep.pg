@@ -11,28 +11,58 @@
 ## MO(1)
 ## KEYWORDS('differential equations', 'adding the Heaviside function to the context')
 
-#:% categories=[differential equations]
+#:% name = Heaviside or Step Function
+#:% type = Sample
+#:% subject = differential equations
+#:% categories=[heaviside/step]
+
 #:% section=preamble
-#: We load parserFunction.pl to make adding a named function to the context easier.
+#: We load `parserFunction.pl` to make adding a named function to the context easier.
 #: Please see the POD documentation `parserFunction.pl`.
 DOCUMENT();
 
-loadMacros("PGstandard.pl", "MathObjects.pl", "AnswerFormatHelp.pl", "parserFunction.pl", "PGML.pl", "PGcourse.pl");
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 
 #:% section=setup
-#: We add the step function to the context with the name `step`. The function `step(t)` is
-#: the Heaviside function and takes the value 1 when t > 0, and the value 0 when
-#: t &leq; 0. We will use the function `step` when evaluating the Heaviside function to
-#: obtain an answer that is a number.
+#: We add the step function to the context with the name step. The function
+#: `step(t)` is the Heaviside function and takes the value 1 when $t > 0$, and the value
+#: 0 when $t \leq 0$. We will use the function step when evaluating the Heaviside function
+#: to obtain an answer that is a number.
 #:
 #: For more details on adding the Heaviside function to the context, see the forum
-#: discussion on the
-#: <a href="https://webwork.maa.org/moodle/mod/forum/discuss.php?d=458">
-#: Heaviside step function</a>.
-Context("Numeric");
-Context()->variables->are(t => "Real");
+#: discussion on the Heaviside step function
+#:
+#: For the second question, since answers are checked numerically by comparing the student
+#: answer to the correct answer at several randomly points in the domain (the default is 5 points)
+#: in an interval (the default is `[-1,1]`), the function `step(t) = u(t)` is not very robust when
+#: checking answers using these defaults. For example, if a student types in the answer `u(t-0.1)` and
+#: the correct answer is u(t), there is a good chance that the student's answer will be marked correct,
+#: since the probability that a test point was chosen in the interval (0,0.1) is much less than 100%.
+#: Also, if the correct answer were u(t-5), then a student could enter the answer 0 and be marked correct
+#: because the correct answer is identically zero on the interval `[-1,1]`.
+#:
+#: To make the answer checking robust, in $answer2 we specify a larger domain centered at $a using limits,
+#: we require four of the test points always be used, and that there should be 10 test points total (the
+#: four we specified and six others generated at random). Notice that we used the construction `$f->with(...)`
+#: to do this (using `$f->{test_at} = [[1],[2]]` would generate an error because the functions we added to the
+#: context aren't "blessed" with enough permissions to modify $f in that way).
+#:
+#: In part (b), since the students never actually see the values of the function u(t),
+#: we could have defined the function as
+#:
+#: ```parserFunction("u(t)" =>
+#:  "1.5 * sin(e*t) + 5*pi/3 + arctan(t)"
+#: );```
+#: If we had defined `u(t)` this way, we would not have had to add the function `step(t)` to the context
+#: and we could have used the defaults for the answer checker. Notice that the function `u(t)` is never
+#: zero, is not constant, is differentiable, and takes moderately sized values, which makes its answer
+#: checking very robust using the defaults for the answer checker. Further, because of the arctangent,
+#: it is not periodic and so `u(t)-u(t-a)` should never be identically zero. Also, the formula for `u(t)` is
+#: not something students are likely to input as an answer out of nowhere. The function `u(t)` is great as a
+#: named function that stands in for the Heaviside function when the answer is a function. However, if the
+#: answer is a number obtained by evaluating the Heaviside function, then step(t) should be used or the function
+#: `u(t)` should be properly defined as the Heaviside function for obvious reasons.
+Context('Numeric')->variables->are(t => 'Real');
 Context()->functions->add(
 	step => {
 		class => 'Parser::Legacy::Numeric',
@@ -42,13 +72,12 @@ Context()->functions->add(
 
 parserFunction("u(t)" => "step(t)");
 
-$a = 3;
-
+$a = random(3, 6);
 $f = Formula("5 u(t-$a)");
 
-$answer1 = List($f->eval(t => 2), $f->eval(t => 3), $f->eval(t => 4));
+$ans1 = List($f->eval(t => $a - 1), $f->eval(t => $a), $f->eval(t => $a + 1));
 
-$answer2 = $f->with(
+$ans2 = $f->with(
 	limits     => [ $a - 5,     $a + 5 ],
 	test_at    => [ [ $a - 1 ], [ $a - 0.0000001 ], [$a], [ $a + 0.0000001 ], [ $a + 1 ] ],
 	num_points => 10,
@@ -57,23 +86,19 @@ $answer2 = $f->with(
 #:% section=statement
 BEGIN_PGML
 Let [` u(t) `] be the Heaviside step function defined by
-[` \displaystyle
-u(t) =
-\left\lbrace
-\begin{array}{lcl}
-0 && \mbox{ if } x \leq 0, \\
-1 && \mbox{ if } x > 0.
-\end{array}
-\right.
-`]
+[`` u(t) =\left\{\begin{array}{lcl}
+	0 && \mbox {if}\quad x \leq 0, \\
+	1 && \mbox {if}\quad x > 0.
+\end{array}\right . ``]
 
-a. Evaluate the function [` [$f] `] when [` t `] is [` 2 `], [` 3 `], and [` 4 `] and enter your answers as a comma separated list.
+a. Evaluate the function [`[$f]`] when [`t`] is [`[$a-1], [$a] `],
+and [` [$a+1] `] and enter your answers as a comma separated list.
 
-    + [________________]{ $answer1->cmp(ordered=>1) } [@ AnswerFormatHelp("numbers") @]*
+	[________________]{$ans1->cmp(ordered => 1)}
 
-b. Suppose the answer is the function [` [$f] `].
+b. Suppose the answer is the function [` [$f] `] .
 
-    + [________________]{ $answer2 } [@ AnswerFormatHelp("formulas") @]*
+	[________________]{$ans2}
 END_PGML
 
 #:% section=solution

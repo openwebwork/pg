@@ -2,7 +2,6 @@
 ## Algebra: algebraic fraction answer requiring simplification
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
@@ -12,15 +11,16 @@
 ## MO(1)
 ## KEYWORDS('algebra', 'algebraic fraction answer')
 
-#:% categories=[fraction, algebra]
+#:% name = Fraction Answer
+#:% subject = [algebra, precalculus]
+#:% type = Sample
+#:% categories=[fraction]
 
 #:%section=preamble
 #: We include the macros file `unionTables.pl` to be able to display the answer boxes on top of each other (as a fraction).
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','unionTables.pl','parserMultiAnswer.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
 
 #:%section=setup
 #:We define a string $fraction that will be displayed in TeX mode. We define MathObjects
@@ -65,14 +65,14 @@ TEXT(beginproblem());
 #:}
 #:\)
 #:```
-Context('Numeric')->variables->are(y=>'Real');
+Context('Numeric')->variables->are(y => 'Real');
 Context()->{error}{msg}{"Operands of '*' can't be words"} = " ";
 
-$a = random(2,8,2);
-$b = random(3,9,2);
-$c = random(1,9,1);
+$a = random(2, 8, 2);
+$b = random(3, 9, 2);
+$c = random(1, 9, 1);
 
-while ($c == $b/$a) { $c = random(1,9,1); }
+while ($c == $b / $a) { $c = random(1, 9, 1); }
 
 $fraction = "\frac{$a y}{y-$c} + \frac{$b}{$c - y} ";
 
@@ -83,64 +83,63 @@ $numbogus = Formula("$a*y+$b");
 $denbogus = Formula("(y-$c)*($c-y)");
 
 $multians = MultiAnswer($num, $den)->with(
-  singleResult => 0,
-  allowBlankAnswers => 1,
-  checker => sub {
-      my ( $correct, $student, $self ) = @_;
-      my ( $f1stu, $f2stu ) = @{$student};
-      my ( $f1, $f2 ) = @{$correct};
+	singleResult      => 0,
+	allowBlankAnswers => 1,
+	checker           => sub {
+		my ($correct, $student, $self) = @_;
+		my ($f1stu, $f2stu) = @{$student};
+		my ($f1,    $f2)    = @{$correct};
 
-      if ( ( $f1==$f1stu &&  $f2==$f2stu) ||
-           (-$f1==$f1stu && -$f2==$f2stu) ) {
-          return [1,1];
-      } elsif ( $f1==$f1stu || -$f1==$f1stu) {
-          return [1,0];
-      } elsif ( ($numbogus==$f1stu || -$numbogus==$f1stu) ||
-                ($denbogus==$f2stu || -$denbogus==$f2stu) ) {
-          $self->setMessage(1,"Find a common denominator first");
-          $self->setMessage(2,"Find a common denominator first");
-          return [0,0];
-      } elsif ( $f2==$f2stu || -$f2==$f2stu ) {
-          return [0,1];
-      } elsif ( $f1*$f2stu==$f1stu*$f2 ) {
-          $self->setMessage(1,"Simplify your answer further");
-          $self->setMessage(2,"Simplify your answer further");
-          return [0,0];
-      } else {
-          return [0,0];
-      }
-  }
+		if (($f1 == $f1stu && $f2 == $f2stu)
+			|| (-$f1 == $f1stu && -$f2 == $f2stu))
+		{
+			return [ 1, 1 ];
+		} elsif ($f1 == $f1stu || -$f1 == $f1stu) {
+			return [ 1, 0 ];
+		} elsif (($numbogus == $f1stu || -$numbogus == $f1stu)
+			|| ($denbogus == $f2stu || -$denbogus == $f2stu))
+		{
+			$self->setMessage(1, "Find a common denominator first");
+			$self->setMessage(2, "Find a common denominator first");
+			return [ 0, 0 ];
+		} elsif ($f2 == $f2stu || -$f2 == $f2stu) {
+			return [ 0, 1 ];
+		} elsif ($f1 * $f2stu == $f1stu * $f2) {
+			$self->setMessage(1, "Simplify your answer further");
+			$self->setMessage(2, "Simplify your answer further");
+			return [ 0, 0 ];
+		} else {
+			return [ 0, 0 ];
+		}
+	}
 );
-
-
 
 # Display the fraction and answer blanks nicely
 Context()->texStrings;
 if ($displayMode eq 'TeX') {
-  $showfraction =
-  "\[ $fraction = ".$multians->ans_rule(10).$multians->ans_rule(10)." \]";
+	$showfraction = "\[ $fraction = " . $multians->ans_rule(10) . $multians->ans_rule(10) . " \]";
 } else {
-  $showfraction =
-  ColumnTable(
-  "\( \displaystyle $fraction = \)",
-  $multians->ans_rule(20).$BR.$HR.$multians->ans_rule(20),
-  indent => 0, separation => 10, valign => 'MIDDLE'
-  );
+	$showfraction = ColumnTable(
+		"\( \displaystyle $fraction = \)",
+		$multians->ans_rule(20) . $BR . $HR . $multians->ans_rule(20),
+		indent     => 0,
+		separation => 10,
+		valign     => 'MIDDLE'
+	);
 }
 Context()->normalStrings;
-
 
 #:% section = statement
 #:Everything is as usual. Insert the fraction and answer blanks using `$showfraction`.
 BEGIN_PGML
-Perform the indicated operations.
-Express your answer in reduced form.
+Perform the indicated operations.  Express your answer in reduced form.
 
 [$showfraction]***
 END_PGML
 
 #:% section = answer
-ANS( $multians->cmp() );
+#: Because we use `ans_rule` to produce answer blanks, we need to check answers with `ANS`.
+ANS($multians->cmp());
 
 #:% section = solution
 BEGIN_PGML_SOLUTION

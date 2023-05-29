@@ -2,7 +2,6 @@
 ## Algebra: answer is an inequality
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
@@ -12,28 +11,31 @@
 ## MO(1)
 ## KEYWORDS('algebra', 'answer is an inequality')
 
-#:% categories=[algebra, fraction]
+#:% name = Answer as an Inequality
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories=[fraction]
+
 #:% section=preamble
 #: We must load `contextInequalities.pl`.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','contextInequalities.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
 
 #:% section=setup
-#: We require students to use inequalities by using `Context('Inequalities-Only')``.
+#: We require students to use inequalities by using `Context('Inequalities-Only')`.
 #: If we had used `Context('Inequalities')` instead, then students could also enter
-#: their answer using interval notation. For more details, please see `contextInequalities.pl`
+#: their answer using interval notation. For more details, please see
+#: PODLINK('contextInequalities.pl').
 #:
 #: We use `formatStudentAnswer=>'parsed'` and `Compute()` so that the student's
 #: answer are left as fractions rather than reduced to decimals.
 Context("Inequalities-Only");
-Context()->flags->set(formatStudentAnswer=>'parsed');
+Context()->flags->set(formatStudentAnswer => 'parsed');
 
-$a = random(3,9,1);
+$a = random(3, 9, 1);
 
-$ineq = "-$a x \leq 10";  # TeX
+$ineq = "-$a x \leq 10";    # TeX
 
 $answer = Compute("x >= -10 / $a");
 
@@ -44,7 +46,7 @@ Enter your answer using inequality notation.
 
 [_________________]{$answer}
 
-[@ helpLine('inequalities') @]*
+[@ helpLink('inequalities') @]*
 END_PGML
 
 #:% section=solution
@@ -53,3 +55,4 @@ Solution explanation goes here.
 END_PGML_SOLUTION
 
 ENDDOCUMENT();
+

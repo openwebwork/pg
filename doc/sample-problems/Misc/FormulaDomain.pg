@@ -11,19 +11,21 @@
 ## MO(1)
 ## KEYWORDS('formula answer', 'template')
 
-#:% categories=[algebra, domain]
+#:% name = Setting the Domain for Answer Checking
+#:% subject = [algebra, precalculus]
+#:% type = Sample
+#:% categories=[domain, answer]
+
 #:% section=preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section=setup
-#:We restrict the domain of function evaluation using `$answer1->{limits} = [$a+1,$a+4];`,
+#:We restrict the domain of function evaluation using `$ans1->{limits} = [$a+1,$a+4];`,
 #:which will choose test points at random in the interval `[$a+1,$a+4]`.
 #:
-#:The domain for `$answer2` is all real numbers except for `0` and `$a`, and
+#:The domain for `$ans2` is all real numbers except for `0` and `$a`, and
 #:we would like to stay away from these vertical asymptotes because answer evaluators
 #:don't work well when the function values are very large or very small.  Thus, we
 #:explicitly list those test points in the domain that will be used when the function is evaluated.
@@ -32,15 +34,13 @@ TEXT(beginproblem());
 #:context.  For more details, please see
 #:<a rel="nofollow" class="external text" href="http://webwork.maa.org/wiki/FormulaTestPoints">formula
 #:test points</a> in the index of problem techniques.
-Context('Numeric');
+$a = random(2, 5, 1);
 
-$a = random(2,5,1);
+$ans1 = Compute("sqrt(x-$a)");
+$ans1->{limits} = [ $a + 1, $a + 4 ];
 
-$answer1 = Compute("sqrt(x-$a)");
-$answer1->{limits} = [$a+1,$a+4];
-
-$answer2 = Compute("ln(abs( x / (x-$a) ))");
-$answer2->{test_points} = [[-5],[-4],[1],[$a-1],[7],[8]];
+$ans2 = Compute("ln(abs( x / (x-$a) ))");
+$ans2->{test_points} = [ [-5], [-4], [1], [ $a - 1 ], [7], [8] ];
 
 #:% section=statement
 #:Notice that in this multipart question we have grouped the text for each part
@@ -49,7 +49,7 @@ $answer2->{test_points} = [[-5],[-4],[1],[$a-1],[7],[8]];
 #:question easy to read both in HTML and PDF format.
 #:
 #:It is possible to get diagnostic information about the answer checker if one
-#:replaces the `{$answer1}` with `{$answer1-&gt;cmp(diagnostics=&gt;1)}`.
+#:replaces the `{$ans1}` with `{$ans1->cmp(diagnostics=>1)}`.
 #:When diagnostics are turned on and a student answer is submitted, you will get a graph
 #:of the correct answer and the student answer on the same graph, as well as a table that
 #:specifies which test points were used by the answer checker, and how much of a difference
@@ -58,9 +58,9 @@ $answer2->{test_points} = [[-5],[-4],[1],[$a-1],[7],[8]];
 #:button on your browser several times after a student answer has been submitted,
 #:since reloading changes the test points used.
 BEGIN_PGML
-a. Enter the answer [`` [$answer1]= ``] [__]{$answer1}
+a. Enter the answer [`` [$ans1] = ``] [__]{$ans1}
 
-b. Enter the answer [`` [$answer2]= ``] [__]{$answer2}
+b. Enter the answer [`` [$ans2] = ``] [__]{$ans2}
 
 END_PGML
 

@@ -2,7 +2,6 @@
 ## Algebra: answers can be entered in any order into answer blanks
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
@@ -12,35 +11,31 @@
 ## MO(1)
 ## KEYWORDS('algebra', 'answers can be entered in any order')
 
-#:% categories=[algebra]
+#:% name = Unordered Answers
+#:% type = Sample
+#:% categories=[answer]
+#:% subject = [algebra, precalculus]
 #:% section=preamble
-#: We must load unorderedAnswer.pl.
+#: The macro `unorderedAnswer.pl` must be loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','unorderedAnswer.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'unorderedAnswer.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: Because the answers have the variables x, y, and z, add the latter two.
-Context('Numeric')->variables->add(y=>'Real',z=>'Real');
+Context('Numeric')->variables->add(y => 'Real', z => 'Real');
 
-$a = random(2,9,1);
+$a = random(2, 9, 1);
 
-$answer1 = Compute("x^$a");
-$answer2 = Compute("y^$a");
-$answer3 = Compute("z^$a");
+$ans1 = Compute("x^$a");
+$ans2 = Compute("y^$a");
+$ans3 = Compute("z^$a");
 
 #:% section=statement
 BEGIN_PGML
-Rewrite the following expression without parentheses.  Simplify your answer as much as possible.
+Rewrite the following expression without parentheses. Simplify your answer as much as possible.
 
-[` (xyz)^{ [$a] } = `]
-[_____]
-[` \cdot `]
-[_____]
-[` \cdot `]
-[_____]
+[` (xyz)^{ [$a] } = `] [_____] [` \cdot `] [_____] [` \cdot `] [_____]
 END_PGML
 
 #:% section=answer
@@ -50,14 +45,7 @@ END_PGML
 #: only when everything is correct.
 
 $showPartialCorrectAnswers = 0;
-install_problem_grader(~~&std_problem_grader);
-
-
-UNORDERED_ANS(
-$answer1->cmp(),
-$answer2->cmp(),
-$answer3->cmp(),
-);
+UNORDERED_ANS($ans1->cmp(), $ans2->cmp(), $ans3->cmp());
 
 #:% section=solution
 BEGIN_PGML_SOLUTION

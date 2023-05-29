@@ -2,7 +2,6 @@
 ## A Simple draggable proof.
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(Fort Lewis tutorial 2011)
@@ -12,23 +11,20 @@
 ## MO(1)
 ## KEYWORDS('draggable proof', 'template')
 
-
-###########################
-#  Initialization
-
+#:% name = Draggable Proof
+#:% subject = proof
+#:% type = Sample
 #:% categories=[proof, draggable]
 #:% section=preamble
-#:Details of the `draggableProof.pl` macro can be found in [the POD].
+#: The macro `draggableProof.pl` needs to be loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','draggableProof.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
 
 #:% section=setup
-#:The `DraggableProof` function takes an arrayref of correct statements,
-#:followed (optionally) by extra statements. See the POD for more options.
-# These are the statements of the proof in the correct order.
+#: The `DraggableProof` function takes an arrayref of correct statements,
+#: followed (optionally) by extra statements. See PODLINK('the POD','draggableProof.pl')
+#: for more options. These are the statements of the proof in the correct order.
 $statements = [
 	'Assume \(\sqrt{2}=\frac{a}{b}\) where \(a,b\) are integers, with \(\text{gcd}(a,b)=1\) ',
 	'\(2 = \frac{a^2}{b^2}\)',
@@ -39,34 +35,21 @@ $statements = [
 	'Therefore \(b^2\) is even, so \(b\) is also even',
 	'If \(a\) and \(b\) are both even, then the initial assumption that  \(\text{gcd}(a,b)=1\) is contradicted.',
 	'\(\sqrt{2}\) is therefore not rational.'
- ];
+];
 
 # These are extra statements that are not needed.
- $extra = [
- 'Then \(a\) is odd',
- '\(b^2\) cannot be rational.',
- 'therefore \(a = 2b\)'
- ];
+$extra = [ 'Then \(a\) is odd', '\(b^2\) cannot be rational.', 'therefore \(a = 2b\)' ];
 
- $proof = DraggableProof(
- 	$statements,
- 	$extra
- );
-
+$proof = DraggableProof($statements, $extra);
 
 #:% section=statement
 #:The line `[@ $proof->Print @]*` prints the statement and options in the proof.
 BEGIN_PGML
 
-Prove that [`\sqrt{2}`] is irrational.
+Prove that [`\sqrt{2}`] is irrational .
 
-[@ $proof->Print @]*
+[___]{$proof}
 END_PGML
-
-
-#:% section=answer
-ANS($proof->cmp);
-
 
 #:% section=solution
 BEGIN_PGML_SOLUTION

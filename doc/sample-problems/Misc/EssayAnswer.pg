@@ -2,7 +2,6 @@
 ## Essay answer template
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
@@ -15,7 +14,8 @@
 # References:
 # http://webworkgoehle.blogspot.com/2012/09/essay-answers-in-webwork.html
 
-
+#:% name = Essay Answer
+#:% type = Sample
 #:% categories=[essay]
 
 #:% section=preamble
@@ -33,21 +33,16 @@
 #:50 percent credit to students who answer the multiple choice
 #:question correct.
 DOCUMENT();
-loadMacros('PGstandard.pl','PGML.pl','parserPopUp.pl',
-  'PGessaymacros.pl','PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGessaymacros.pl', 'PGcourse.pl');
 
-TEXT(beginproblem());
 $showPartialCorrectAnswers = 0;
 
 #:% section=setup
 Context('Numeric');
 
-$popup = PopUp(
-[ 'Choose', 'True', 'False' ], # choices
-'False' # corect answer
-);
+$pop = DropDownTF('F');
 
-$a = random(2,5,1);
+$a = random(2, 5, 1);
 
 $f1 = Compute("ln(x (x-$a))");
 $f2 = Compute("ln(x) + ln(x-$a)");
@@ -61,13 +56,12 @@ Answer the following true / false question and
 then explain your answer.  Your answers will be
 read and graded manually at a later time.
 
-[@ $popup->menu() @]*
+[___]{$pop}
 For all real numbers [` x `], [` [$f1] = [$f2] `].
 
 Please explain your reasoning in the answer box below.
 [@ essay_box(8,60) @]*
 END_PGML
-
 
 #:% section=answer
 #:The essay answer is graded manually by the professor.  Hand grading is done
@@ -88,9 +82,7 @@ END_PGML
 #:Note that `essay_cmp()` is not associated with any object (i.e.,it is **not**
 #: `$essay->cmp()`).
 #:
-ANS( $popup->cmp() );
-ANS( essay_cmp() );
-
+ANS(essay_cmp());
 
 ENDDOCUMENT();
 

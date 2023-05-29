@@ -1,0 +1,50 @@
+## DESCRIPTION
+## Parametric equations: graphing a parametric curve in space
+## ENDDESCRIPTION
+
+## KEYWORDS('parametric', 'curve in space')
+
+## DBsubject('WeBWorK')
+## DBchapter(WeBWorK tutorial)
+## DBsection(Fort Lewis tutorial 2011)
+## Date('01/30/2011')
+## Author('Paul Pearson')
+## Institution('Fort Lewis College')
+
+#:% name = Surface Graph
+#:% subject = parametric
+#:% type = Sample
+
+#:% section=preamble
+#: The macro `plotly3D.pl` is used to produce the graph.
+DOCUMENT();
+loadMacros('PGstandard.pl','PGML.pl','plotly3D.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: A `plotly3D` graph is created with the `Graph3D` function. There are many option
+#: (see PODLINK('the POD','plotly3D.pl')), but to get started include the `height` and `width`.
+#:
+#: A parametric surface is added to the graph with the `addSurface` method,
+#: which takes 3 array refs, each of length 3.
+#: 1. These are strings as javascript function in the variables `u` and `v`.
+#: 2. The parametric range in `u` or `[umin, umax, samples]`.
+#: 3. The parametric range in `v` or `[vmin, vmax, samples]`.
+$graph = Graph3D(
+    height => 300,
+    width  => 300,
+    title  => 'Sphere',
+);
+
+$graph->addSurface(
+        ['3*sin(v)*cos(u)', '3*sin(v)*sin(u)', '3*cos(v)'],
+        [0, 2*pi, 30],
+        [0, pi, 30]
+    );
+
+#:% section=statement
+#: This just prints the graph.  No question is asked.
+BEGIN_PGML
+[@ $graph->Print @]*
+END_PGML
+
+ENDDOCUMENT();

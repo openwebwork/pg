@@ -2,7 +2,6 @@
 ## Algebra: factored polynomial
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
@@ -13,15 +12,16 @@
 ## MO(1)
 ## KEYWORDS('algebra', 'factored polynomial')
 
-#:% categories=[algebra, polynomial]
+#:% name = Factored Polynomial
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories=[polynomial]
+
 #:% section=preamble
 #: We require additional contexts provided by `contextPolynomialFactors.pl` and `contextLimitedPowers.pl`
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextPolynomialFactors.pl','contextLimitedPowers.pl',
-  'PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextPolynomialFactors.pl', 'contextLimitedPowers.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: For the factored form we need to change to the `PolynomialFactors-Strict` context
@@ -35,24 +35,22 @@ TEXT(beginproblem());
 #: the quadratic could have any nonzero leading coefficient. We set `singleFactors=>0`
 #: so that repeated, non-simplified factors do not generate errors.
 # Expanded form
-Context('Numeric');
 $poly = Compute("8x^2+28x+12");
 
 # Factored form
 Context("PolynomialFactors-Strict");
-Context()->flags->set(singleFactors=>0);
+Context()->flags->set(singleFactors => 0);
 LimitedPowers::OnlyIntegers(
-minPower => 0, maxPower => 1,
-message => "either 0 or 1",
+	minPower => 0,
+	maxPower => 1,
+	message  => "either 0 or 1",
 );
 $factored = Compute("4(2x+1)(x+3)");
 
 #:% section=statement
 #: We should explicitly tell students to enter answers in the form `k(ax+b)(cx+d)`.
 BEGIN_PGML
-Write the quadratic expression [` [$poly] `]
-in factored form
-[` k(ax+b)(cx+d) `].
+Write the quadratic expression [` [$poly] `] in factored form [` k(ax+b)(cx+d) `].
 
 [____________________]{$factored}
 END_PGML

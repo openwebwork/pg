@@ -11,15 +11,15 @@
 ## Institution(Hope College)
 ## Author(Paul Pearson)
 
-
+#:% name = Multiple Choice with Checkbox
+#:% type = Sample
 #:% categories=[multiple choice, misc]
+
 #:% section=preamble
 #: Include `parserCheckboxList.pl` in the `loadMacros`.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','parserCheckboxList.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserCheckboxList.pl', 'PGcourse.pl');
 
 #:% section=setup
 #:To setup, `CheckboxList` creates a new object. The format is
@@ -35,32 +35,40 @@ TEXT(beginproblem());
 #:a horizontal checklist.
 #:
 #:Lastly, see the POD for more options.
-$checks1 = CheckboxList([
-"\( e^{x^2} e^{1/x} \)",
-"\(e^{x^2} e^{x^{-1}}\)",
-"\(\displaystyle\frac{e^{x^2} }{ e^x }\)",
-'None of the above'
-],[0,1]);
+$checks1 = CheckboxList(
+	[
+		"\( e^{x^2} e^{1/x} \)",
+		"\(e^{x^2} e^{x^{-1}}\)",
+		"\(\displaystyle\frac{e^{x^2} }{ e^x }\)",
+		'None of the above'
+	],
+	[ 0, 1 ]
+);
 
-$checks2 = CheckboxList([[
-"\( e^{x^2} e^{1/x} \)",
-"\(e^{x^2} e^{x^{-1}}\)",
-"\(\displaystyle\frac{e^{x^2} }{ e^x }\)"],
-'None of the above'
-],[0,1]);
+$checks2 = CheckboxList(
+	[
+		[ "\( e^{x^2} e^{1/x} \)", "\(e^{x^2} e^{x^{-1}}\)", "\(\displaystyle\frac{e^{x^2} }{ e^x }\)" ],
+		'None of the above'
+	],
+	[ 0, 1 ]
+);
 
 # This makes the checkbox list horizontal.
-$checks3 = CheckboxList([
-"\( e^{x^2} e^{1/x} \)",
-"\(e^{x^2} e^{x^{-1}}\)",
-"\(\displaystyle\frac{e^{x^2} }{ e^x }\)",
-'None of the above'
-],[0,1], separator => '&nbsp;&nbsp;');
+$checks3 = CheckboxList(
+	[
+		"\( e^{x^2} e^{1/x} \)",
+		"\(e^{x^2} e^{x^{-1}}\)",
+		"\(\displaystyle\frac{e^{x^2} }{ e^x }\)",
+		'None of the above'
+	],
+	[ 0, 1 ],
+	separator => '&nbsp;&nbsp;'
+);
 
 #:% section=statement
 BEGIN_PGML
-Select all expressions that are equivalent to  [`e^{x^2 + 1/x}`].
-There may be more than one correct answer.
+Select all expressions that are equivalent to [`e^{x^2 + 1/x}`] . There may be more
+than one correct answer.
 
 [__]{$checks1}
 
@@ -76,7 +84,7 @@ END_PGML
 
 #:% section=solution
 BEGIN_PGML_SOLUTION
-
+Solution explanation goes here.
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

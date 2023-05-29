@@ -2,7 +2,6 @@
 ## Multiple choice template
 ## ENDDESCRIPTION
 
-
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
@@ -12,15 +11,15 @@
 ## MO(1)
 ## KEYWORDS('multiple choice', 'template')
 
+#:% name = Multiple Choice with Radio Buttons
+#:% type = Sample
 #:% categories=[multiple choice, misc]
 
 #:% section=preamble color:blue
 #:The macro `parserRadioButtons.pl` must be loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','parserRadioButtons.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserRadioButtons.pl', 'PGcourse.pl');
 
 #:% section=setup
 #:To create a radio object, use `$radio = RadioButtons([choices,...],correct,options);`
@@ -30,34 +29,35 @@ TEXT(beginproblem());
 Context('Numeric');
 
 $radio1 = RadioButtons(
-  ['Red','Blue','Green',"None of these"],
-  'Blue', # correct answer
-  last => ["None of these"], # can be a list
+	[ 'Red', 'Blue', 'Green', "None of these" ],
+	'Blue',                       # correct answer
+	last => ["None of these"],    # can be a list
 );
 
 $radio2 = RadioButtons(
-  ['Red','Blue','Green',"None of these"],
-  2, # correct answer as an index (starting at 0)
-  last => ["None of these"], # can be a list
-  separator => '&nbsp;'
+	[ 'Red', 'Blue', 'Green', "None of these" ],
+	2,                                 # correct answer as an index (starting at 0)
+	last      => ["None of these"],    # can be a list
+	separator => '&nbsp;'
 );
 
 #:% section=statement
 BEGIN_PGML
+
 My favorite color is
 
 [__]{$radio1}
 
-Another layout method:
+The same question with options horizontally.
 
 My favorite color is [__]{$radio2}
 END_PGML
 
 #:% section=solution
 BEGIN_PGML_SOLUTION
-The correct answer to the first is [$radio1->correct_ans()].
+* The correct answer to the first is [@ $radio1->correct_ans() @] .
 
-The correct answer to the first is [$radio2->correct_ans()].
+* The correct answer to the first is [@ $radio2->correct_ans() @].
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

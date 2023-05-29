@@ -1,0 +1,52 @@
+## DESCRIPTION
+##   Shows how to check that the answer is the composition of two functions.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('composition')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Composing Functions
+#:% type=technique
+#:% categories=[composition]
+#:% section=preamble
+#: We need to include the macros file `answerComposition.pl`
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'answerComposition.pl', 'PGcourse.pl');
+
+#:% section=setup
+Context('Numeric')->variables->are(x => 'Real', y => 'Real', u => 'Real');
+
+$a = random(2, 9);
+
+$f = Formula("sqrt(u)");
+$g = Formula("x^2+$a");
+
+#:% section=statement
+BEGIN_PGML
+Express the function [` y = \sqrt{ x^2 + [$a] } `] as a composition [` y = f(g(x)) `]
+of two simpler functions [` y = f(u) `] and [` u = g(x) `].
+
+	-[` f(u)= `] [___]
+
+	-[` g(x)= `] [___]
+END_PGML
+
+#:% section=answer
+#: This must be called with the method `COMPOSITION_ANS` with the arguments that
+#: will test for `f(g(x))`
+COMPOSITION_ANS($f, $g);
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

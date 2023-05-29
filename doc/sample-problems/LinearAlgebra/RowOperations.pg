@@ -1,0 +1,58 @@
+## DESCRIPTION
+## Row operations on a Matrix
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('matrix','row operation')
+
+#:% name = Row Operations
+#:% subject = linear algebra
+#:% type = Sample
+#:% categories=[matrix, row operation]
+
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: Construct a matrix with three distinct rows. Create a string $op of Tex code that
+#: describes the row operation. Use `$A->row(i)` to extract the ith row of the matrix A
+#: as a MathObject. Use `$A->row(1) + $k*$A->row(2)` to perform the row operation and
+#: place it into the first row of the answer matrix.
+#:
+#: The do-until loop ensures that no two rows are identical.  This is not necessary
+#: for this problem, but can be helpful in other situations.
+Context('Matrix');
+
+do {
+	$A = Matrix([
+		[ non_zero_random(-5, 5), non_zero_random(-5, 5) ],
+		[ non_zero_random(-5, 5), non_zero_random(-5, 5) ],
+		[ non_zero_random(-5, 5), non_zero_random(-5, 5) ],
+	]);
+} until (($A->row(1) != $A->row(2)) && ($A->row(1) != $A->row(3)) && ($A->row(2) != $A->row(3)));
+
+$k  = random(2, 9);
+$op = "R_{1} + $k R_{2} \rightarrow R_{1}";
+
+$ans = Matrix([ $A->row(1) + $k * ($A->row(2)), $A->row(2), $A->row(3), ]);
+
+#:% section=statement
+#: Remember when using a matrix answer blank in PGML, to append a *
+BEGIN_PGML
+Give the result of applying the row operation [` [$op] `] to the given matrix .
+
+[`` [$A] \mathop { \longrightarrow } ^ { [$op] } ``] [_____]*{$ans}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -11,34 +11,36 @@
 ## MO(1)
 ## KEYWORDS('integral calculus', 'sequences')
 
+#:% name = Explicit Sequence
+#:% subject = Sequences and Series
+#:% type = Sample
 #:% categories=[sequence]
+
 #:% section=preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: We set the test points to be positive integers to avoid errors when evaluating
 #: the answer. Even if you expect students to enter answers such as `cos(pi * n) / n!`,
 #: you should still restrict the domain to positive integers, because some students
 #: may simplify this to `(-1)^n / n!` and receive errors because the answer checker
-#: is substituting things such as n=0.5 into their formula.
+#: is substituting things such as `n=0.5` into their formula.
 Context('Numeric');
-Context()->variables->are(n=>'Real');
+Context()->variables->are(n => 'Real');
 
 $answer = Compute('(-1)^n / n!');
-$answer->{test_points} = [[1],[2],[3],[4],[5],[6]];
+$answer->{test_points} = [ [1], [2], [3], [4], [5], [6] ];
 
 @seq = (
-"a_0 = 1",
-"a_1 = -1",
-"a_2 = \frac{1}{2}",
-"a_3 = -\frac{1}{6}",
-"a_4 = \frac{1}{24}",
-"a_5 = -\frac{1}{120}",
-"\ldots"
+	"a_0 = 1",
+	"a_1 = -1",
+	"a_2 = \frac{1}{2}",
+	"a_3 = -\frac{1}{6}",
+	"a_4 = \frac{1}{24}",
+	"a_5 = -\frac{1}{120}",
+	"\ldots"
 );
 
 $sequence = join(", ", @seq);

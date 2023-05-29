@@ -1,0 +1,70 @@
+## DESCRIPTION
+##  This shows how to setup a set of draggable items to sort.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('draggable')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Draggable Subsets
+#:% type=technique
+#:% categories=[draggable]
+#:% section=preamble
+#: The `draggableSubsets.pl` macro must be loaded.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: The DraggableSubsets call visually creates a set of regions called buckets that
+#: labelled boxes can be dragged between. The general form is
+#: ```
+#: $draggable = DraggableSubsets(
+#:        $full_set,
+#:        $answer_sets,
+#:        options
+#:    );
+#:```
+#:
+#: where `$full_set` is the set of all labelled boxes.  The `$answer_sets` is a nested
+#: array reference of distribution of the correct subsets.  There are many options. The
+#: example here shows the use of `DefaultSubsets` which shows how to label and initialize
+#: the buckets. The `AllowNewBuckets` option allows the student in add a new bucket (1)
+#: or not (0).
+#:
+#: See the [DraggableProofs](../Misc/DraggableProof.html) for an example of using
+#: `DraggableSubsets` with proofs.
+$draggable = DraggableSubsets(
+	[
+		'mouse',  'ebola bacteria', 'flu virus',    'krill',    'house cat',  'emu',
+		'coyote', 'tapir',          'hippopotamus', 'elephant', 'blue whale', 'eagle'
+	],
+	[ [], [ 0, 4, 6, 7, 8, 9, 10 ], [ 5, 11 ], [ 1, 2, 3 ] ],
+	# ['mouse','house cat','coyote','tapir','hippopatamus','elephant']
+	DefaultSubsets => [
+		{ label => 'Animals', indices => [ 0 .. 11 ] },
+		{ label => 'Mammals', indices => [] },
+		{ label => 'Birds',   indices => [] },
+		{ label => 'Other',   indices => [] }
+	],
+	AllowNewBuckets => 0
+);
+#:% section=statement
+BEGIN_PGML
+Move all animals from the "Animals" bucket into its appropriate bucket.
+
+[__]{$draggable}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

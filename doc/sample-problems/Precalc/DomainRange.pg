@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Precalculus: domain and range using inequalities
+## domain and range of a function
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -11,42 +11,63 @@
 ## MO(1)
 ## KEYWORDS('precalculus', 'domain and range using inequalities')
 
-#:% categories=[precalculus, domain]
+#:% name = Domain and Range of a Function
+#:% subject = [precalculus]
+#:% type = Sample
+#:% categories=[domain]
+
 #:% section=preamble
 #: We use the macro `contextInequalities.pl`.
 DOCUMENT();
 
-loadMacros( 'PGstandard.pl', 'PGML.pl', 'contextInequalities.pl',  'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
 
-TEXT(beginproblem());
+#:% section=setup
+#: For the first part, We specify the context in a way that requires students to enter
+#: their answer using inequalities and the variable x. If we had used `Context("Inequalities")`
+#: instead, then students would also be able to enter answers using interval notation. For more
+#: details, please see `contextInequalities.pl`
+#:
+#: We use `formatStudentAnswer=>'parsed'` and `Compute()` so that the student's answer are left
+#: as fractions rather than reduced to decimals.
+#:
+#: For the domain, since the variable is now y, we must reset the context and the variable so
+#: that students must enter the variable y in their answer.
+#:
+#: For the second part, we use Intervals instead, so we switch contexts with the
+#: `Context('Interval')`. Note that `inf` is built-in for infinte intervals.
+$a=random(1,6);
+$f = Compute("sqrt(x-[$a])");
 
-#:% section=setup1
-Context('Numeric');
+Context('Inequalities-Only')->variables->are(x => 'Real');
+Context()->flags->set(formatStudentAnswer => 'parsed');
 
-$f = Compute("sqrt(x-4)");
+$domain = Compute("x >= $a");
 
-Context('Inequalities-Only')->variables->are(x=>'Real');
-Context()->flags->set(formatStudentAnswer=>'parsed');
+Context("Inequalities-Only")->variables->are(y => 'Real');
+Context()->flags->set(formatStudentAnswer => 'parsed');
 
-$domain = Compute('x >= 4');
+$range = Compute("y >= 0");
 
-#:% section=statement1
+# interval version of the same domain/range
+Context('Interval');
+$domain_interval = Compute("[$a,inf)");
+$range_interval = Compute("[0,inf)");
+
+
+#:% section=statement
 BEGIN_PGML
-Suppose [` f(x) = [$f] `].  Enter inequalities for the
-domain and range of [` f `].
+Suppose [` f(x) = [$f] `] . Enter inequalities for the domain and range of [` f `] .
 
 Domain: [_________________]{$domain}
-END_PGML
 
-#:% section=setup2
-Context("Inequalities-Only")->variables->are(y=>'Real');
-Context()->flags->set(formatStudentAnswer=>'parsed');
-
-$range  = Compute("y >= 0");
-
-#:% section=statement2
-BEGIN_PGML
 Range: [_________________]{$range}
+
+Using interval notation, find the following:
+
+Domain: [____]{$domain_interval}
+
+Range: [____]{$range_interval}
 END_PGML
 
 #:% section=solution

@@ -15,34 +15,32 @@
 
 DOCUMENT();
 
-loadMacros('PGstandard.pl','MathObjects.pl','PGML.pl');
+loadMacros('PGstandard.pl', 'PGML.pl');
 
-TEXT(beginproblem());
-
-#:% categories=[algebra]
+#:% name = Formula Answer
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories=[answer]
 
 #:% section=setup
 #:We use `do { $b = random(2,9,1); } until ( $b != $a );` to generate distinct
 #:random numbers.
-Context("Numeric");
+$a = non_zero_random(-9, 9);
+do { $b = random(2, 9); } until ($b != $a);
 
-$a = non_zero_random(-9,9,1);
-do { $b = random(2,9,1); } until ( $b != $a );
-
-$answer1 = Compute("$a");
-$answer2 = Compute("($a x^($b) + $b)/x")->reduce();
-
+$ans1 = Compute("$a");
+$ans2 = Compute("($a x^($b) + $b)/x")->reduce();
 
 #:% section=statement
 BEGIN_PGML
-Enter [`[$answer1]`]: [____]{$answer1}
+Enter [`[$ans1]`] : [____]{$ans1}
 
-Enter [``[$answer2]``]: [____]{$answer2}
+Enter [`` [$ans2] ``]: [____]{$ans2}
 END_PGML
 
 #:% section=solution
 BEGIN_PGML_SOLUTION
-
 Solution explanation goes here.
 END_PGML_SOLUTION
+
 ENDDOCUMENT();

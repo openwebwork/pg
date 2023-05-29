@@ -11,13 +11,14 @@
 ## MO(1)
 ## KEYWORDS('precalculus', 'answer is a string or other data type')
 
-#:% categories=[precalculus]
+#:% name = String or Other Type
+#:% subject = [algebra, precalculus]
+#:% type = Sample
+
 #:% section=preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: There are several predefined strings, such as NONE, DNE, INF, INFINITY. If you
@@ -32,22 +33,17 @@ TEXT(beginproblem());
 #: the answer is a string, no error message will appear.
 Context('Numeric');
 
-$y = random(0,4,1);
+$y = random(0, 4, 1);
 
-if ($y < 4) {
-   $answer = String('none')->cmp( typeMatch=>Formula('x') );
-} else {
-   $answer = Formula("2*x")->cmp( typeMatch=>Formula('x') );
-}
+$ans = $y < 4 ? String('none')->cmp(typeMatch => Formula('x')) :
+	Formula("2*x")->cmp(typeMatch => Formula('x'));
 
 #:% section=statement
 BEGIN_PGML
-Is there a line through the points [` (0,0) `],
-[` (1,2) `], and [` (2,[$y]) `]?  If there is,
-enter the equation for this line.  If not, enter
-_NONE_.
+Is there a line through the points [` (0,0) `], [` (1,2) `], and [` (2,[$y]) `]?
+If there is, enter the equation for this line . If not, enter _NONE_.
 
-[` y = `] [_______________]{$answer}
+[` y = `] [_______________]{$ans}
 END_PGML
 
 #:% section=solution

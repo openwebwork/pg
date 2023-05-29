@@ -11,13 +11,15 @@
 ## MO(1)
 ## KEYWORDS('integral calculus', 'answer is an ordered list')
 
-#:% categories=[sequence]
+#:% name = Ordered List
+#:% subject = Sequences and Series
+#:% type = Sample
+#:% categories=[answer]
+
 #:% section=preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl','PGML.pl','PGcourse.pl');
-
-TEXT(beginproblem());
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: We create an empty array `@seq` and then fill it with scalars using direct assignment
@@ -30,23 +32,21 @@ TEXT(beginproblem());
 #: specify that the answer checker use `ordered=>1`.
 Context('Numeric');
 
-@seq = ();
+@seq    = ();
 $seq[0] = 1;
 $seq[1] = 1;
-for $i (2..6) {
-  $seq[$i] = $seq[$i-1] + $seq[$i-2];
+for $i (2 .. 6) {
+	$seq[$i] = $seq[ $i - 1 ] + $seq[ $i - 2 ];
 }
 
-$answer_string = join(", ",@seq);
-$answer_cmp = Compute("$answer_string")->cmp(ordered=>1);
+$answer_string = join(", ", @seq);
+$answer_cmp    = Compute("$answer_string")->cmp(ordered => 1);
 
 #:% section=statement
 BEGIN_PGML
-If [` s_1 = [$seq[0]] `], [` s_2 = [$seq[1]] `], and
-[` s_n = s_{n-1} + s_{n-2} `], find the first seven
-terms of this sequence, including [` s_1 `] and
-[` s_2 `].  Enter your answer as a comma separated
-list of numbers.
+If [` s_1 = [$seq[0]] `], [` s_2 = [$seq[1]] `], and [` s_n = s_{n-1} + s_{n-2} `],
+find the first seven terms of this sequence, including [` s_1 `] and [` s_2 `].
+Enter your answer as a comma separated list of numbers.
 
 Sequence = [___________________]{$answer_cmp}
 END_PGML
