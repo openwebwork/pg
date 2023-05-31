@@ -14,8 +14,8 @@
 
 =pod
 
-      Adds the string "All real numbers" to the Inequalities context
- NOT WORKING: Adds the string "No solution" to the Inequalities context
+Adds the string "All real numbers" to the Inequalities context
+NOT WORKING: Adds the string "No solution" to the Inequalities context
 
 =cut
 

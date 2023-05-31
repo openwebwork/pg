@@ -26,7 +26,7 @@ allowed, or whether products of rational functions are allowed.
 
 Select the context using:
 
-	Context("RationalFunction");
+    Context("RationalFunction");
 
 The RationalFunction context supports all the flags of the
 PolynomialFactors context, except for strictDivision, since rational
@@ -40,7 +40,7 @@ student answer to be as a single fraction.
 Finally, there is also a strict context that does not allow
 operations even within the coefficients.  Select it using:
 
-	Context("RationalFunction-Strict");
+    Context("RationalFunction-Strict");
 
 In addition to disallowing operations within the coefficients, this
 context does not reduce constant operations (since they are not

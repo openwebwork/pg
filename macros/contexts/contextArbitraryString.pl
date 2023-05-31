@@ -25,10 +25,10 @@ literal string, and not parsed further.  The real answer checking
 should be performed in a custom checker passed to the answer
 string's C<cmp()> method.  E.g.,
 
-      loadMacros("contextArbitraryString.pl");
-      Context("ArbitraryString");
+    loadMacros("contextArbitraryString.pl");
+    Context("ArbitraryString");
 
-      ANS(Compute("The string I want")->cmp(checker => sub {
+    ANS(Compute("The string I want")->cmp(checker => sub {
         my ($correct,$student,$ans) = @_;
         $correct = $correct->value; # get perl string from String object
         $student = $student->value; # ditto
@@ -37,8 +37,8 @@ string's C<cmp()> method.  E.g.,
         # or false if incorrect.  For example
         #   return $correct eq $student;
 
-      return $score;
-     }));
+        return $score;
+    }));
 
 The default checker is essentially that given above, so if you want
 the student answer to match the correct one exactly (spacing and

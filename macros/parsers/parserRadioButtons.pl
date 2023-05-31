@@ -26,7 +26,7 @@ with PGML.
 
 To create a RadioButtons object, use
 
-	$radio = RadioButtons([choices,...],correct,options);
+    $radio = RadioButtons([choices,...],correct,options);
 
 where "choices" are the strings for the items in the radio buttons,
 "correct" is the choice that is the correct answer for the group (or
@@ -61,14 +61,14 @@ but you can cause some or all of them to be ordered randomly by
 enclosing those that should be randomized within a second set of
 brackets.  For example
 
-        $radio = RadioButtons(
-                   [
-                     "First Item",
-                     ["Random 1","Random 2","Random 3"],
-                     "Last Item"
-                   ],
-                   "Random 3"
-                 );
+    $radio = RadioButtons(
+                          [
+                            "First Item",
+                            ["Random 1","Random 2","Random 3"],
+                            "Last Item"
+                          ],
+                          "Random 3"
+                        );
 
 will make a list of radio buttons that has the first item always on
 top, the next three ordered randomly, and the last item always on the
@@ -220,13 +220,13 @@ first one), or the strings themselves.
 
 To insert the radio buttons into the problem text, use
 
-	BEGIN_TEXT
-	\{$radio->buttons\}
-	END_TEXT
+    BEGIN_TEXT
+    \{$radio->buttons\}
+    END_TEXT
 
 and then
 
-	ANS($radio->cmp);
+    ANS($radio->cmp);
 
 to get the answer checker for the radion buttons.
 

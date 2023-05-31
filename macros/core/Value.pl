@@ -49,10 +49,10 @@ MathObject types (classes) -- defined in Value.pl
         This MathObject is more complicated than the ones above.
 
 Constructing MathObjects
-	$a = Real(3.5);
-	$a = Real("345/45");
-	$c = Complex(5,4);
-	$c = Complex("5+4i");
+    $a = Real(3.5);
+    $a = Real("345/45");
+    $c = Complex(5,4);
+    $c = Complex("5+4i");
 
 See Value.pm for MathObject methods
 

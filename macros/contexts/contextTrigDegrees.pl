@@ -30,11 +30,11 @@ should alert the student in their text.
 
 =head1 USAGE
 
-	Context("TrigDegrees")
-	
-	$a = 60;
-        $b = Compute("cos($a)");
-	ANS($b->cmp);
+    Context("TrigDegrees")
+
+    $a = 60;
+    $b = Compute("cos($a)");
+    ANS($b->cmp);
 
 =head1 AUTHORS
 

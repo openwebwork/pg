@@ -33,7 +33,7 @@ sub _answerComposition_init { };    # don't reload this file
 
 =head2 COMPOSITION_ANS
 
-	COMPOSITION_ANS($f, $g, %options)
+    COMPOSITION_ANS($f, $g, %options)
 
 An answer checked to see if $f composed with $g matches a given function,where
 $f and $g are one possible decomposition of the target function, and options are
@@ -49,11 +49,11 @@ specifies the answer blanks explicitly.)
 
 Example:
 
-	BEGIN_TEXT
-	\(f\circ g = (1+x)^2\) when
-	\(f(x)\) = \{ans_rule(20)\} and \(g(x)\) = \{ans_rule(20)\}
-	END_TEXT
-	COMPOSITION_ANS("x^2","1+x");
+    BEGIN_TEXT
+    \(f\circ g = (1+x)^2\) when
+    \(f(x)\) = \{ans_rule(20)\} and \(g(x)\) = \{ans_rule(20)\}
+    END_TEXT
+    COMPOSITION_ANS("x^2","1+x");
 
 =cut
 

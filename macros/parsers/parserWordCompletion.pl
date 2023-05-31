@@ -19,44 +19,44 @@ parserWordCompletion.pl
 
 =head1 DESCRIPTION
 
-Provides free response, fill in the blank questions with interactive help.  
-As a student types their answer into the answer blank, jQuery's 
-autocomplete feature generates a drop-down list of allowable answers 
+Provides free response, fill in the blank questions with interactive help.
+As a student types their answer into the answer blank, jQuery's
+autocomplete feature generates a drop-down list of allowable answers
 that match what has already been typed.  When the student presses
 the "Check Answers" or "Submit Answers" button, jQuery generates a
-warning message if the student answer is not one of the allowable 
-answers.  Choices in the drop-down list and the correct answer are 
-specified by the problem author.  WordCompletion objects are compatible 
-with Value objects, and in particular, can be used with MultiAnswer 
+warning message if the student answer is not one of the allowable
+answers.  Choices in the drop-down list and the correct answer are
+specified by the problem author.  WordCompletion objects are compatible
+with Value objects, and in particular, can be used with MultiAnswer
 objects.
 
 To create a WordCompletion object, use
 
-	$w = WordCompletion([choices,...],correct);
+    $w = WordCompletion([choices,...],correct);
 
-where "choices" are the strings for the allowable answers in the 
+where "choices" are the strings for the allowable answers in the
 drop-down list and "correct" is the correct answer from the list.
 
 To insert the WordCompletion into the problem text, use
 
-	BEGIN_TEXT
-	\{ $w->ans_rule(40) \}
-	END_TEXT
+    BEGIN_TEXT
+    \{ $w->ans_rule(40) \}
+    END_TEXT
 
-You can explicitly list all of the choices using 
+You can explicitly list all of the choices using
 
-	\{ $w->choices_text \}
+    \{ $w->choices_text \}
 
 for a comma separated list of the choices (inline, text style) and
 
-	\{ $w->choices_list \}
+    \{ $w->choices_list \}
 
-for an unordered list (display style).  Use 
+for an unordered list (display style).  Use
 
-	ANS( $wb->cmp );
+    ANS( $wb->cmp );
 
 to get the answer checker for the WordCompletion object.  Note: the way
-to construct and use WordCompletion objects is exactly the same as 
+to construct and use WordCompletion objects is exactly the same as
 PopUp objects (see parserPopUp.pl), and you can use C<menu> instead of
 C<ans_rule>.
 
@@ -148,7 +148,7 @@ sub menu {
 	main::POST_HEADER_TEXT(main::MODES(
 		TeX  => "",
 		HTML => qq(
-    <!-- jQuery script to enable autocompletion drop-down menu -->  
+    <!-- jQuery script to enable autocompletion drop-down menu -->
     <script>
     \$(function() {
         var allowed = [ $list_string ]; // create a JavaScript array of allowed choices.

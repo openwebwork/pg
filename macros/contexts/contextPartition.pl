@@ -30,21 +30,21 @@ are equal.
 
 =head1 USAGE
 
-	loadMacros("contextPartition.pl");
-	
-	Context("Partition");
-	
-	$P1 = Compute("3 + 2 + 5");
-	$P2 = Partition(3,2,5);          # same as $P1
-	
-	$P1->canonical;                  # produces "2 + 3 + 5"
-	
-	$P3 = Compute("5 + 3 + 2");
-        $P4 = Compute("5 + 3 + 1 + 1");
-        $P3 == $P1;                      # true
-        $P3 == $P4;                      # false
-	
-	$P3->sum;                        # returns 10
+    loadMacros("contextPartition.pl");
+
+    Context("Partition");
+
+    $P1 = Compute("3 + 2 + 5");
+    $P2 = Partition(3,2,5);          # same as $P1
+
+    $P1->canonical;                  # produces "2 + 3 + 5"
+
+    $P3 = Compute("5 + 3 + 2");
+    $P4 = Compute("5 + 3 + 1 + 1");
+    $P3 == $P1;                      # true
+    $P3 == $P4;                      # false
+
+    $P3->sum;                        # returns 10
 
 =cut
 

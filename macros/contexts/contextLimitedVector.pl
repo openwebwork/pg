@@ -35,9 +35,9 @@ we've already OKed.
 You control which format to use by setting the context
 to one of the following:
 
-	 Context("LimitedVector-coordinate");
-	 Context("LimitedVector-ijk");
-	 Context("LimitedVector");      # either one
+    Context("LimitedVector-coordinate");
+    Context("LimitedVector-ijk");
+    Context("LimitedVector");      # either one
 
 =cut
 

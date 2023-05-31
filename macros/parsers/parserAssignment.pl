@@ -23,7 +23,7 @@ This file implements an assignment operator that allows only a single
 variable reference on the left and any value on the right.  You can use
 this to require students to enter things like
 
-	y = 3x + 1
+    y = 3x + 1
 
 rather than making the "y = " part of the text of the question.  This
 also allows you to ask for lists of assignments more easily.
@@ -32,20 +32,20 @@ To use it, load the macro file, select the Context you want to use,
 add any variables you may need, and enable the assignment operator as
 in the following example:
 
-	loadMacros(
-	  "PGstandard.pl",
-	  "MathObjects.pl",
-	  "parserAssignment.pl",
-	);
+    loadMacros(
+        "PGstandard.pl",
+        "MathObjects.pl",
+        "parserAssignment.pl",
+    );
 
-	Context("Numeric")->variables->add(y=>'Real');
-	parser::Assignment->Allow;
+    Context("Numeric")->variables->add(y=>'Real');
+    parser::Assignment->Allow;
 
 Now you can use the equal sign in Formula() objects to create assignments.
 
-	$f = Formula("y = 3x + 1");
-	...
-	ANS($f->cmp);
+    $f = Formula("y = 3x + 1");
+    ...
+    ANS($f->cmp);
 
 The student will have to make an assignment to the same variable in
 order to get credit.  For example, he or she could enter y = 1+3x to get
@@ -53,29 +53,29 @@ credit for the answer above.
 
 The left-hand side of an assignment must be a single variable, so
 
-	$f = Formula("3y = 2x");
+    $f = Formula("3y = 2x");
 
 will produce an error.  The right-hand side can not include the
 variable being assigned on the left, so
 
-	$f = Formula("x = 2x+1");
+    $f = Formula("x = 2x+1");
 
 also is not allowed.
 
 You can produce lists of assignments just as easily:
 
-	$f = Formula("y = 3x, y = 2x-1");
+    $f = Formula("y = 3x, y = 2x-1");
 
 and the assignment can be of any type of MathObject.  For example:
 
-	Context("Vector")->variables->add(p=>'Vector3D');
-	parser::Assignment->Allow;
+    Context("Vector")->variables->add(p=>'Vector3D');
+    parser::Assignment->Allow;
 
-	$f = Formula("p = <1,2x,1-x>");
+    $f = Formula("p = <1,2x,1-x>");
 
 To produce a constant assignment, use Compute(), as in:
 
-	$p = Compute("p = <1,2,3>");
+    $p = Compute("p = <1,2,3>");
 
 (in fact, Compute() could be used for in place of Formula() in the
 examples above as well, since it returns a Formula when the value is
@@ -84,23 +84,23 @@ one).
 The left-hand side of an assignment can also be a function
 declaration, as in
 
-	f(x) = 3x + 1
+    f(x) = 3x + 1
 
 To allow this, use
 
-	parser::Assignment->Function("f");
+    parser::Assignment->Function("f");
 
 You can supply more than one function name if you want.  E.g.,
 
-	parser::Assignment->Function("f","g");
+    parser::Assignment->Function("f","g");
 
 The number of variables for these functions is determined by the
 assignment itself, so after declaring f to be a function, you can use
 either
 
-	f(x) = x+1
+    f(x) = x+1
 or
-	f(x,y) = x^2 + y^2
+    f(x,y) = x^2 + y^2
 
 provided the variables are defined in the current context.
 
@@ -114,9 +114,9 @@ of the variables must match the professor's answer; however, the
 names of the variables don't have to match, as long as the function
 returns the same results for the same inputs.  So
 
-	f(x) = x + 1
+    f(x) = x + 1
 and
-	f(y) = y + 1
+    f(y) = y + 1
 
 will be marked as equal.
 

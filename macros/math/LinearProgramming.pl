@@ -22,12 +22,12 @@ problems.
 
 Macros related to the simplex method for Linear Programming.
 
-	lp_pivot_element(...); # find the pivot element from a tableau
-	lp_solve(...);         # pivot until done
-	lp_current_value(...); # given a tableau, find the value of a requested variable
-	lp_display(...);       # display a tableau
-	lp_display_mm(...);    # display a tableau while in math mode
-	lp_pivot(...);         # perform one pivot on a tableau
+    lp_pivot_element(...); # find the pivot element from a tableau
+    lp_solve(...);         # pivot until done
+    lp_current_value(...); # given a tableau, find the value of a requested variable
+    lp_display(...);       # display a tableau
+    lp_display_mm(...);    # display a tableau while in math mode
+    lp_pivot(...);         # perform one pivot on a tableau
 
 Matrix display makes use of macros from PGmatrixmacros.pl, so it must be
 included too.
@@ -40,10 +40,10 @@ problems.  The tableau is a reference to an array of arrays, which looks like,
 
 Tableaus are expected to be legal for the simplex method, such as
 
-	[[0,  3, -4,  5, 1, 0, 0, 28],
-	 [0,  2,  0,  1, 0, 1, 0, 11],
-	 [0,  1,  2,  3, 0, 0, 1,  3],
-	 [1, -1,  2, -3, 0, 0, 0,  0]]
+    [[0,  3, -4,  5, 1, 0, 0, 28],
+     [0,  2,  0,  1, 0, 1, 0, 11],
+     [0,  1,  2,  3, 0, 0, 1,  3],
+     [1, -1,  2, -3, 0, 0, 0,  0]]
 
 or something similar which arises after pivoting.
 
@@ -57,13 +57,13 @@ tableau can be any matrix in the form reference to array of arrays, such as
 can be specified to indicate that the matrix has entries of type Fraction (and
 then all entries should be of type Fraction).
 
-	$m = [[1,2,3],[4,5,6]];
-	lp_pivot($m, 0,2);
+    $m = [[1,2,3],[4,5,6]];
+    lp_pivot($m, 0,2);
 
 This function is destructive - it changes the values of its matrix rather than
 making a copy, and also returns the matrix, so
 
-	$m = lp_pivot([[1,2,3],[4,5,6]], 0, 2);
+    $m = lp_pivot([[1,2,3],[4,5,6]], 0, 2);
 
 will have the same result as the example above.
 
@@ -191,12 +191,12 @@ success, 0 for unbounded.
 
 Example:
 
-	$m = [[0,  3, -4,  5, 1, 0, 0, 28],
-	      [0,  2,  0,  1, 0, 1, 0, 11],
-	      [0,  1,  2,  3, 0, 0, 1,  3],
-	      [1, -1,  2, -3, 0, 0, 0,  0]];
+    $m = [[0,  3, -4,  5, 1, 0, 0, 28],
+          [0,  2,  0,  1, 0, 1, 0, 11],
+          [0,  1,  2,  3, 0, 0, 1,  3],
+          [1, -1,  2, -3, 0, 0, 0,  0]];
 
-	($m, $endcode, $pivcount) = lp_solve($m, pivot_limit=>200);
+    ($m, $endcode, $pivcount) = lp_solve($m, pivot_limit=>200);
 
 =cut
 
@@ -253,8 +253,8 @@ sub lp_solve {
 =head2 lp_current_value
 
 Takes a simplex tableau and returns the value of a particular variable.
-Variables are associated to column numbers which are indexed starting with 0. 
-So, usually this means that the objective function is 0, x_1 is 1, and so on. 
+Variables are associated to column numbers which are indexed starting with 0.
+So, usually this means that the objective function is 0, x_1 is 1, and so on.
 This can be used for slack variables too (assuming you know what columns they
 are in).
 
@@ -309,14 +309,14 @@ sub lp_current_value {
 
 Display a simplex tableau while in math mode.
 
-	$m = [[0,  3, -4,  5, 1, 0, 0, 28],
-	      [0,  2,  0,  1, 0, 1, 0, 11],
-	      [0,  1,  2,  3, 0, 0, 1,  3],
-	      [1, -1,  2, -3, 0, 0, 0,  0]];
-	
-	BEGIN_TEXT
-	\[ \{ lp_display_mm($m) \} \]
-	END_TEXT
+    $m = [[0,  3, -4,  5, 1, 0, 0, 28],
+          [0,  2,  0,  1, 0, 1, 0, 11],
+          [0,  1,  2,  3, 0, 0, 1,  3],
+          [1, -1,  2, -3, 0, 0, 0,  0]];
+
+    BEGIN_TEXT
+    \[ \{ lp_display_mm($m) \} \]
+    END_TEXT
 
 Accepts the same optional arguments as lp_display (see below), and produces
 nicer looking results.  However, it cannot have answer rules in the tableau
@@ -325,9 +325,9 @@ nicer looking results.  However, it cannot have answer rules in the tableau
 To use with a MathObject matrix use
 
     \[ \{lp_display_mm([$matrix->value]) \} \]
-    
-    FIXME?  I've added an adaptor that allows you to use $matrix directly -- MEG 
-    
+
+    FIXME?  I've added an adaptor that allows you to use $matrix directly -- MEG
+
 $matrix->value outputs an array (usually an array of array references) so placing it inside
 square bracket produces and array reference (of array references) which is what lp_display_mm() is
 seeking.
@@ -368,14 +368,14 @@ sub lp_clone {
 
 Display a simplex tableau while not in math mode.
 
-	$m = [[0,  3, -4,  5, 1, 0, 0, 28],
-	      [0,  2,  0,  1, 0, 1, 0, 11],
-	      [0,  1,  2,  3, 0, 0, 1,  3],
-	      [1, -1,  2, -3, 0, 0, 0,  0]];
-	
-	BEGIN_TEXT
-	\{ lp_display($m)\}
-	END_TEXT
+    $m = [[0,  3, -4,  5, 1, 0, 0, 28],
+          [0,  2,  0,  1, 0, 1, 0, 11],
+          [0,  1,  2,  3, 0, 0, 1,  3],
+          [1, -1,  2, -3, 0, 0, 0,  0]];
+
+    BEGIN_TEXT
+    \{ lp_display($m)\}
+    END_TEXT
 
 Takes the same optional arguments as display_matrix.  The default for column
 alignment as "augmentation line" before the last column. It also adds a

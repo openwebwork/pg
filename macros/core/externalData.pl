@@ -31,15 +31,15 @@ and the purpose is to store in the database.
 
 Make a List object, but the contents doesn't matter.
 
-  $ans = List(0);
+    $ans = List(0);
 
 Then in the visible problem block add the following
 
-  BEGIN_PGML
-  Enter a list of values as a vector.
+    BEGIN_PGML
+    Enter a list of values as a vector.
 
-  [_____]{$ans->cmp(list_checker => store_number_list('my_list')}
-  END_PGML
+    [_____]{$ans->cmp(list_checker => store_number_list('my_list')}
+    END_PGML
 
 Note that you will need to add a key as an argument to the C<store_number_list>
 (this should be unique for the problem set)
@@ -73,19 +73,19 @@ This is a answer checker that checks for a string to be saved in the database.
 If you are storing a string, the student will probably enter in an arbitrary string,
 either use the contextArbitraryString macro or add possible strings to the current context.
 
-  loadMacros('contextArbitraryString.pl');
-  Context('ArbitraryString');
+    loadMacros('contextArbitraryString.pl');
+    Context('ArbitraryString');
 
 Make a String object, but the contents doesn't matter.
 
-  $ans = String('');
+    $ans = String('');
 
 Then in the visible problem block add the following
 
-  BEGIN_PGML
-  Enter a string
-  [_____]{$ans->cmp(checker => store_string('my_string')}
-  END_PGML
+    BEGIN_PGML
+    Enter a string
+    [_____]{$ans->cmp(checker => store_string('my_string')}
+    END_PGML
 
 Note that you will need to add a key as an argument to C<store_string> and it
 should be unique for the set.
@@ -116,14 +116,14 @@ This is a answer checker that checks for a number to be saved in the database.
 
 To store a number, create a C<Real> MathObject with any value
 
-  $num = Real(0);
+    $num = Real(0);
 
 Then in the visible problem block add the following
 
-  BEGIN_PGML
-  Enter a number
-  [_____]{$num->cmp(checker => store_real('my_string')}
-  END_PGML
+    BEGIN_PGML
+    Enter a number
+    [_____]{$num->cmp(checker => store_real('my_string')}
+    END_PGML
 
 Note that you will need to add a key as an argument to C<store_number> and it
 should be unique for the set.

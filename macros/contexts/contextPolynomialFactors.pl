@@ -25,18 +25,18 @@ powers of polynomials
 
 Select the context using:
 
-	Context("PolynomialFactors");
+    Context("PolynomialFactors");
 
 If you set the "singlePowers" flag, then only one monomial of each
 degree can be included in each factor polynomial:
 
-	Context("PolynomialFactors")->flags->set(singlePowers=>1);
+    Context("PolynomialFactors")->flags->set(singlePowers=>1);
 
 If you set the "singleFactors" flag, then factors can not be repeated.
 For example,
 
-	Context("PolynomialFactors")->flags->set(singleFactors=>1);
-	Formula("(x+1)^2*(x+1)");
+    Context("PolynomialFactors")->flags->set(singleFactors=>1);
+    Formula("(x+1)^2*(x+1)");
 
 will generate an error indicating that factors can appear only once.
 Note, however, that this only catches factors that appear exactly the
@@ -57,7 +57,7 @@ strictDivision and strictPowers.  By default, strictDivisions is 0, so
 Finally, there is also a strict context that does not allow
 operations even within the coefficients.  Select it using:
 
-	Context("PolynomialFactors-Strict");
+    Context("PolynomialFactors-Strict");
 
 In addition to disallowing operations within the coefficients, this
 context does not reduce constant operations (since they are not

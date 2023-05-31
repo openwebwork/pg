@@ -22,7 +22,7 @@ answer to a list of variable names.
 
 =head2 variable_cmp
 
- ANS(variable_cmp($var_string, %options))
+    ANS(variable_cmp($var_string, %options))
 
 This answer checker compares the student answer to a list of
 variable names (so, for example, you can ask for what values a
@@ -39,14 +39,14 @@ can be any of the flags appropriate for List() answer checker.
 
 Usage examples:
 
-	addVariables('x','y','z');
-	ANS(variable_cmp("(x,y)"));
+    addVariables('x','y','z');
+    ANS(variable_cmp("(x,y)"));
 
-	addVariables('x','y','z','s','t,);
-	ANS(variable_cmp("s,t"));
+    addVariables('x','y','z','s','t,);
+    ANS(variable_cmp("s,t"));
 
-	addVariables('x','y','z');
-	ANS(variable_cmp("(x)",showHints=>0,showLengthHints=>0));
+    addVariables('x','y','z');
+    ANS(variable_cmp("(x)",showHints=>0,showLengthHints=>0));
 
 =cut
 

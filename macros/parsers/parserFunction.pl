@@ -28,14 +28,14 @@ To create a function that can be used in Formula() calls (and by
 students in their answers), use the parserFunction() routine, as
 in the following examples:
 
-	parserFunction(f => "sqrt(x+1)-2");
+    parserFunction(f => "sqrt(x+1)-2");
 
-	$x = Formula('x');
-	parserFunction(f => sqrt($x+1)-2);
+    $x = Formula('x');
+    parserFunction(f => sqrt($x+1)-2);
 
-	parserFunction("f(x)" => "sqrt(x+1)-2");
+    parserFunction("f(x)" => "sqrt(x+1)-2");
 
-	parserFunction("f(x,y)" => "sqrt(x*y)");
+    parserFunction("f(x,y)" => "sqrt(x*y)");
 
 The first parameter to parserFunction is the name of the function
 or the name with its argument list.  In the first case, the

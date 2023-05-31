@@ -28,53 +28,56 @@ based on settings.
 
 There are three contexts included here: C<Context("Congruence")>, which
 allows both types of solutions, C<Context("Congruence-General-Solution")>, which
-requires the general solution, and C<Context("Congruence-All-Solutions")>, which 
+requires the general solution, and C<Context("Congruence-All-Solutions")>, which
 requires all solutions to be entered.
 
-Congruences must be created with three paramters (a, b, m) from ax ≡ b (mod m). 
+Congruences must be created with three paramters (a, b, m) from ax ≡ b (mod m).
 
 =head1 USAGE
 
 
-	loadMacros("contextCongruence.pl");
-	
-	Context("Congruence");
+    loadMacros("contextCongruence.pl");
 
-  ax ≡ b (mod m)
-  can initialize with Congruence(a, b, m);
+    Context("Congruence");
 
-  #ex: 15x ≡ 10 (mod 25)
-	$C1 = Congruence(15, 10, 25); 
-  $general_answer = Compute("4+5k");
-  $all_answers = Compute("4+25k,9+25k,14+25k,19+25k,24+25k");
-  $all_answers_diff_order = Compute("9+25k,4+25k,14+25k,19+25k,24+25k");
+ax ≡ b (mod m)
 
-  $C1->compare($general_answer); # is true
-  $C1->compare($all_answers); # is true
-  $C1->compare($all_answers_diff_order); # is true
+Can initialize with Congruence(a, b, m);
 
-  Can an force general solution only with
+    #ex: 15x ≡ 10 (mod 25)
+    $C1 = Congruence(15, 10, 25);
+    $general_answer = Compute("4+5k");
+    $all_answers = Compute("4+25k,9+25k,14+25k,19+25k,24+25k");
+    $all_answers_diff_order = Compute("9+25k,4+25k,14+25k,19+25k,24+25k");
 
-	Context()->flags->set(requireGeneralSolution => 1);
-  $C1->compare($general_answer); # is true
-  $C1->compare($all_answers); # is false
+    $C1->compare($general_answer); # is true
+    $C1->compare($all_answers); # is true
+    $C1->compare($all_answers_diff_order); # is true
+
+Can an force general solution only with
+
+    Context()->flags->set(requireGeneralSolution => 1);
+    $C1->compare($general_answer); # is true
+    $C1->compare($all_answers); # is false
 
 
-  Can an force all solutions only with
+Can an force all solutions only with
 
-	Context()->flags->set(requireAllSolutions => 1);
-  $C1->compare($general_answer); # is false
-  $C1->compare($all_answers); # is true
+    Context()->flags->set(requireAllSolutions => 1);
+    $C1->compare($general_answer); # is false
+    $C1->compare($all_answers); # is true
 
-  Students can enter 'none' when there is no solution
-  #ex: 15x ≡ 10 (mod 24)
-	$C2 = Congruence(15, 10, 24); 
-  $none = Compute("None");
-  $n = Compute("n");
+Students can enter 'none' when there is no solution
 
-  $C2->compare($none); # is true
-  $C2->compare($n); # is true
-  $C1->compare($none); # is false
+ex: 15x ≡ 10 (mod 24)
+
+    $C2 = Congruence(15, 10, 24);
+    $none = Compute("None");
+    $n = Compute("n");
+
+    $C2->compare($none); # is true
+    $C2->compare($n); # is true
+    $C1->compare($none); # is false
 
 =cut
 

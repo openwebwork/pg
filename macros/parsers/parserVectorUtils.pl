@@ -29,7 +29,7 @@ sub _parserVectorUtils_init { };    # don't reload this file
 
 =head2 Overline
 
-	Overline($vectorName)
+    Overline($vectorName)
 
 formats a vector name (should be used in math mode)
 
@@ -53,7 +53,7 @@ sub Overline {
 
 =head2 BoldMath
 
-	BoldMath($vectorName)
+    BoldMath($vectorName)
 
 This gets a bold letter in TeX as well as HTML modes.
 Although \boldsymbol{} works fine on screen in latex2html mode,
@@ -78,11 +78,11 @@ sub BoldMath {
 
 =head2 $GRAD
 
-	TEXT($GRAD)
+    TEXT($GRAD)
 
-	BEGIN_TEXT
-	$GRAD
-	END_TEXT
+    BEGIN_TEXT
+    $GRAD
+    END_TEXT
 
 Grad symbol.
 
@@ -92,7 +92,7 @@ $GRAD = '\nabla ';
 
 =head2 non_zero_point
 
-	non_zero_point($Dim,$L_bound,$U_bound,$step)
+    non_zero_point($Dim,$L_bound,$U_bound,$step)
 
 Create a non-zero point with the given number of coordinates
 with the given random range (which defaults to (-5,5,1)).
@@ -121,11 +121,11 @@ sub non_zero_point3D { non_zero_point(3, @_) }
 
 =head2 non_zero_vector, non_zero_vector2D, non_zero_vector3D
 
-	non_zero_vector($Dim,$L_bound,$U_bound,$step)
+    non_zero_vector($Dim,$L_bound,$U_bound,$step)
 
-	non_zero_vector2D($L_bound,$U_bound,$step)
+    non_zero_vector2D($L_bound,$U_bound,$step)
 
-	non_zero_vector3D($L_bound,$U_bound,$step)
+    non_zero_vector3D($L_bound,$U_bound,$step)
 
 Functions the same as non_zero_point but for Vectors. non_zero_vector2D and
 non_zero_vector3D automatically set Dimension to 2 and 3 respectively.
@@ -138,11 +138,11 @@ sub non_zero_vector3D { non_zero_vector(3, @_) }
 
 =head2 Line
 
-	$P = Point(@coords1);
-	$V = Vector(@coords2);
-	$t = 't';
-	Line($P,$V);
-	Line($P,$V,$t);
+    $P = Point(@coords1);
+    $V = Vector(@coords2);
+    $t = 't';
+    Line($P,$V);
+    Line($P,$V,$t);
 
 Form the vector-parametric form for a line given its point and vector, where $P
 is the point and $V the direction vector for the line, and $t is the variable to
@@ -150,8 +150,8 @@ use (default is 't').
 
 For example:
 
-	Line([1,-3],[2,1]);            # produces Vector("1+2t","-3+t").
-	Line(Point(1,-3),Vector(2,1)); # produces Vector("1+2t","-3+t").
+    Line([1,-3],[2,1]);            # produces Vector("1+2t","-3+t").
+    Line(Point(1,-3),Vector(2,1)); # produces Vector("1+2t","-3+t").
 
 (It may be better to use the ParametricLine class from
 parserParametricLine.pl).
@@ -172,7 +172,7 @@ sub Line {
 
 =head2 Plane
 
-	Plane($point,$NormalVector)
+    Plane($point,$NormalVector)
 
 Creates a displayable string for a plane given its
 normal vector and a point on the plane.  (Better to use

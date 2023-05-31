@@ -12,11 +12,11 @@ and =, and the only letters allowed are the ones you specify explicitly.
 
 To access the context, you must include
 
-	loadMacros("contextOrdering.pl");
+    loadMacros("contextOrdering.pl");
 
 at the top of your problem file, and then specify the Ordering context:
 
-	Context("Ordering");
+    Context("Ordering");
 
 There are two main ways to use the Ordering context.  The first is to
 use the Ordering() command to generate your ordering.  This command
@@ -24,11 +24,11 @@ creates a context in which the proper letters are defined, and returns
 a MathObject that represents the ordering you have provided.  For
 example,
 
-	$ans = Ordering("B > A > C");
+    $ans = Ordering("B > A > C");
 
 or
 
-	$ans = Ordering(A => 2, B => 2.5, C => 1);
+    $ans = Ordering(A => 2, B => 2.5, C => 1);
 
 would both produce the same ordering.  The first form gives the
 ordering as the student must type it, and the second gives the
@@ -37,13 +37,13 @@ induce the resulting order.  Note that equality is determined using
 the default tolerances for the Ordering context.  You can change these
 using commands like the following:
 
-	Context("Ordering");
-	Context()->flags->set(tolerance => .01, tolType => 'absolute');
+    Context("Ordering");
+    Context()->flags->set(tolerance => .01, tolType => 'absolute');
 
 If you want to allow lists of orderings, use the Ordering-List context:
 
-	Context("Ordering-List");
-	$ans = Ordering("A > B , B = C");
+    Context("Ordering-List");
+    $ans = Ordering("A > B , B = C");
 
 Note that each Ordering() call uses its own copy of the current
 context.  If you need to modify the actual context used, then use the
@@ -53,10 +53,10 @@ The second method of generating orderings is to declare the letters
 you wish to use explicitly, and then build the Ordering objects using
 the standard Compute() method:
 
-	Context("Ordering");
-	Letters("A","B","C","D");
-	$a = Compute("A > B = C");
-	$b = Compute("C > D");
+    Context("Ordering");
+    Letters("A","B","C","D");
+    $a = Compute("A > B = C");
+    $b = Compute("C > D");
 
 Note that in this case, D is still a valid letter that students can
 enter in response to an answer checker for $a, and similarly for A and
@@ -70,7 +70,7 @@ the student, then that also produces a warning message.  The latter
 can be controlled by the showMissingLetterHints flag to the cmp()
 method.  For example:
 
-	ANS(Ordering("A > B > C")->cmp(showMissingLetterHints => 0));
+    ANS(Ordering("A > B > C")->cmp(showMissingLetterHints => 0));
 
 would prevent the message from being issued if the student submitted
 just "A > B".

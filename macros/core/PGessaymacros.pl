@@ -24,17 +24,22 @@ PGessaymacros.pl - Macros for building answer evaluators.
 
 Answer Evaluators:
 
-	essay_cmp()   -
+    essay_cmp()
 
 Answer Boxes
 
-        essay_box()
+    essay_box()
 
-    To use essay answers just put an essay_box() into your problem file wherever you want the input box to go and then use essay_cmp() for the corresponding checker.  You will then need grade the problem manually.  The grader can be found in the "Detail Set List".
+To use essay answers just put an C<essay_box()> into your problem file wherever you want the
+input box to go and then use C<essay_cmp()> for the corresponding checker.  You will then need
+grade the problem manually.  The grader can be found in the "Detail Set List".
 
-        explanation_box()
+    explanation_box()
 
-    Like an essay_box(), except can be turned off at a configuration level. Intended for two-part questions where the first answer is automatically assessible, and the second part is an explanation or "showing your work". An instructor may want to turn these off to use the problem but without the manual grading component. These necessarily supply their own essay_cmp().
+Like an C<essay_box()>, except can be turned off at a configuration level. Intended for two-part
+questions where the first answer is automatically assessible, and the second part is an explanation
+or "showing your work". An instructor may want to turn these off to use the problem but without the
+manual grading component. These necessarily supply their own C<essay_cmp()>.
 =cut
 
 sub _PGessaymacros_init {

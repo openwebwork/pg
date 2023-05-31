@@ -34,35 +34,35 @@ were more than one.
 To use FormulaAnyVar objects, load this macro file at the
 top of your problem:
 
-	loadMacros("parserFormulaAnyVar.pl");
+    loadMacros("parserFormulaAnyVar.pl");
 
 then create a formula as follows:
 
-	$f = FormulaAnyVar("x sin(x) + 3x^2");
+    $f = FormulaAnyVar("x sin(x) + 3x^2");
 
 The FormulaAnyVar should work like any normal Formula, and in
 particular, you use $f->cmp to get its answer checker.
 
-	ANS($f->cmp);
+    ANS($f->cmp);
 
 Note that the FormulaAnyVar object creates its own private copy of the
 current Context (so that it can add variables without affecting the
 rest of the problem).  You should not notice this in general, but if
 you need to access that context, use $f->{context}.  E.g.
 
-	Context($f->{context});
+    Context($f->{context});
 
 would make the current context the one being used by the
 FormulaAnyVar, while
 
-	$f->{context}->variables->names
+    $f->{context}->variables->names
 
 would return a list of the variables in the private context.
 
 The name of the variable used in the FormulaAnyVar object is available
 as
 
-        $f->{x}
+    $f->{x}
 
 in case you want to use it in error messages, for example.
 

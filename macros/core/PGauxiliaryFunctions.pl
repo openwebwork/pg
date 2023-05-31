@@ -22,21 +22,21 @@ A set of auxiliary functions that are often used in PG problems.
 
 This macro creates the following functions that are available for PG:
 
-	step($number)
-	ceil($number)
-	floor($number)
-	max(@listNumbers)
-	min(@listNumbers)
-	round($number)
-	lcm(@listNumbers)
-	gcf(@listNumbers)
-	gcd(@listNumbers)
-	isPrime($number)
-	reduce($numerator,$denominator)
-	preformat($scalar, "QuotedString")
-	random_pairwise_coprime($ar1, $ar2, ... )
-	random_coprime($ar1, $ar2, ... )
-	random_subset($n, @set)
+    step($number)
+    ceil($number)
+    floor($number)
+    max(@listNumbers)
+    min(@listNumbers)
+    round($number)
+    lcm(@listNumbers)
+    gcf(@listNumbers)
+    gcd(@listNumbers)
+    isPrime($number)
+    reduce($numerator,$denominator)
+    preformat($scalar, "QuotedString")
+    random_pairwise_coprime($ar1, $ar2, ... )
+    random_coprime($ar1, $ar2, ... )
+    random_subset($n, @set)
 =cut
 
 # ^uses loadMacros
@@ -50,14 +50,14 @@ sub _PGauxiliaryFunctions_init {
 
 =pod
 
-	Usage: step(x);
+Usage: C<step(x);>
 
 returns the step function (or Heaviside function) with jump at x=0.  That is when x<0, it returns 0,
 when x>=0 the function returns 1.
 
 Example:
 
-	step(3.14159) returns 1
+    step(3.14159) returns 1
 
 =cut
 
@@ -70,14 +70,14 @@ sub step {    # Heaviside function (1 or x>0)
 
 =pod
 
-	Usage: ceil(x);
+Usage: C<ceil(x);>
 
 returns the ceiling function of x.  This rounds up to the nearest integer.
 
 Examples:
 
-	ceil(3.14159) returns 4
-	ceil(-9.75) return -9
+    ceil(3.14159) returns 4
+    ceil(-9.75) return -9
 
 =cut
 
@@ -90,14 +90,14 @@ sub ceil {
 
 =pod
 
-	Usage: floor(x);
+Usage: C<floor(x);>
 
 returns the floor function of x.  This rounds down to the nearest integer.
 
 Examples:
 
-	floor(3.14159) returns 3
-	floor(-9.75) return -10
+    floor(3.14159) returns 3
+    floor(-9.75) return -10
 
 =cut
 
@@ -112,13 +112,13 @@ sub floor {
 
 =pod
 
-	Usage: max(@arr);
+Usage: C<max(@arr);>
 
 returns the maximum of the values in the array @arr.
 
 Example
 
-	max(1,2,3,4,5,6,7) returns 7
+    max(1,2,3,4,5,6,7) returns 7
 
 =cut
 
@@ -139,13 +139,13 @@ sub max {
 
 =pod
 
-	Usage: min(@arr);
+Usage: C<min(@arr);>
 
 returns the minimum of the values in the array @arr.
 
 Example
 
-	min(1,2,3,4,5,6,7) returns 1
+    min(1,2,3,4,5,6,7) returns 1
 
 =cut
 
@@ -168,13 +168,13 @@ sub min {
 
 =pod
 
-	Usage: round(x);
+Usage: C<round(x);>
 
 returns integer nearest x.
 
 Example:
 
-	round(3.14159) returns 3
+    round(3.14159) returns 3
 
 =cut
 
@@ -189,17 +189,17 @@ sub round {
 
 =pod
 
-	Usage: Round(x);
+Usage: C<Round(x);>
 
 returns integer nearest x.
 
-	Usage: Round(x,n);
+Usage: C<Round(x,n);>
 
 returns the number rounded to n digits.
 
 Example:
 
-	Round(1.789,2) returns 1.79
+    Round(1.789,2) returns 1.79
 
 =cut
 
@@ -213,13 +213,13 @@ sub Round {
 
 =pod
 
-	Usage: lcm(@arr);
+Usage: C<lcm(@arr);>
 
 returns the lowest common multiple of the array @arr of integers.
 
 Example:
 
-	lcm(3,4,5,6) returns 60.
+    lcm(3,4,5,6) returns 60.
 
 Note: it checks for an empty array, however doesn't check if the inputs are integers.
 
@@ -239,13 +239,13 @@ sub lcm {
 
 =pod
 
-	Usage: gcf(@arr);
+Usage: C<gcf(@arr);>
 
 returns the greatest common factor of the array @arr of integers.
 
 Example:
- 
- 	gcf(20,30,45) returns 5.
+
+    gcf(20,30,45) returns 5.
 
 Note: it checks for an empty array, however doesn't check if the inputs are integers.
 
@@ -272,13 +272,13 @@ sub gcf {
 
 =pod
 
-	Usage: gcd(@arr);
+C<Usage: gcd(@arr);>
 
 returns the greatest common divisor of the array @arr of integers.
 
 Example:
 
-	gcd(20,30,45) returns 5.
+    gcd(20,30,45) returns 5.
 
 Note: this is just an alias for gcf.
 
@@ -292,7 +292,7 @@ sub gcd {
 
 =pod
 
-	Usage: random_coprime(array of array_refs);
+Usage: C<random_coprime(array of array_refs);>
 
 returns relatively prime integers.  The arguments should be references to arrays of integers.  This returns an
 n-tuple of relatively prime integers, each one coming from the corresponding array. Random selection is uniform
@@ -305,13 +305,13 @@ In array context, returns an array. Otherwise, an array ref.
 
 Examples:
 
-	random_coprime([1..9],[1..9]) may return (2,9) or (1,1) but not (6,8)
-	random_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
+    random_coprime([1..9],[1..9]) may return (2,9) or (1,1) but not (6,8)
+    random_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
 
 Note: in the example above (-2,2,3) is valid because not all three share a factor greater than 1.
 If you don't want to allow pairs of numbers to have a common factor, see random_pairwise_coprime.
 
-	random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4) or (-1,1,1) but not (-2,2,3)
+    random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4) or (-1,1,1) but not (-2,2,3)
 
 WARNING: random_coprime() will use a lot of memory and CPU resources if used with too many/too large arguments.
 For example, random_coprime([-20..20],[-20..20],[-20..20],[-20..20],[-20..20]) involves processing 41^5 arrays.
@@ -389,15 +389,15 @@ sub random_coprime {
 
 =pod
 
-	Usage: random_pairwise_coprime($arr);
+Usage: C<random_pairwise_coprime($arr);>
 
 This is similar to the random_coprime function with the additional constraint that all pairs of numbers are
 also coprime.
 
 Examples:
 
-	random_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
-	random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4) or (-1,1,1) but not (-2,2,3) or (3,5,6)
+    random_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4), (-1,1,1), or (-2,2,3) but not (-2,2,4)
+    random_pairwise_coprime([-9..-1,1..9],[1..9],[1..9]) may return (-3,7,4) or (-1,1,1) but not (-2,2,3) or (3,5,6)
 
 =cut
 
@@ -449,14 +449,14 @@ sub random_pairwise_coprime {
 
 =pod
 
-	Usage: isPrime(n);
+Usage: C<isPrime(n);>
 
 returns 1 if n is prime and 0 otherwise.
 
 Example:
 
-	isPrime(7) returns 1.
-	isPrime(8) returns 0
+    isPrime(7) returns 1.
+    isPrime(8) returns 0
 
 Note: this doesn't check if n is negative.
 
@@ -476,13 +476,13 @@ sub isPrime {
 
 =pod
 
-	Usage: reduce(num,den);
+Usage: C<reduce(num,den);>
 
 returns the fraction num/den as an array with first entry as the numerator and second as the denominator.
 
 Example:
 
-	reduce(15,20) returns (3,4)
+    reduce(15,20) returns (3,4)
 
 =cut
 
@@ -508,14 +508,14 @@ sub reduce {
 
 =pod
 
-	Usage: preFormat($scalar, "quoted string");
+Usage: C<preFormat($scalar, "quoted string");>
 
 returns the string preformatted with the $scalar as 0, 1, or -1.
 takes a number and fixed object, as in "$a x" and formats
 
-Example:  
+Example:
 
-	preformat(-1, "\pi") returns "-\pi"
+    preformat(-1, "\pi") returns "-\pi"
 
 =cut
 
@@ -543,15 +543,15 @@ sub fact {
 
 =pod
 
-	Usage: random_subset($n, @set);
+Usage: C<random_subset($n, @set);>
 
 This function returns a randomly ordered array of $n elements selected from the array @set
 without replacement. Accepts either an array or an array reference for @set.
 
 Example to choose 3 random elements (both do the same thing):
 
-	random_subset(3, 'first', 'second', 'third', 'fourth', 'fifth')
-	random_subset(3, ['first', 'second', 'third', 'fourth', 'fifth'])
+    random_subset(3, 'first', 'second', 'third', 'fourth', 'fifth')
+    random_subset(3, ['first', 'second', 'third', 'fourth', 'fifth'])
 
 =cut
 

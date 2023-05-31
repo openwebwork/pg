@@ -26,17 +26,17 @@ the results table) will list all the possibilities.
 
 To use it, load the macro file, and create a OneOf() object:
 
-	loadMacros(
-	  "PGstandard.pl",
-	  "MathObjects.pl",
-	  "parserOneOf.pl",
-	);
-	
-	$ans = OneOf(pi,"2x+1");
+    loadMacros(
+        "PGstandard.pl",
+        "MathObjects.pl",
+        "parserOneOf.pl",
+    );
+
+    $ans = OneOf(pi,"2x+1");
 
 and create the answer checker as usual:
 
-	ANS($ans->cmp);
+    ANS($ans->cmp);
 
 If the student answers either "pi" or "2x+1" (or answers equivalent to
 those), the answer will be marked correct.

@@ -10,44 +10,46 @@ sub _sage_init {
 
 package sage;
 
-=head3 Sage cell 
+=head3 Sage cell
 
-	usage: Sage( SageCode => 'print 1+2; record_answer(3)', 
-	             ButtonText => 'Start/Restart the Interactive Cell', 
-	             ShowAnswerBlank => # "hidden" (default) or "visible" or 'none'
-	             CellServerAddress => 'https://sagecell.sagemath.org'
-	            );
-	        NAMED_ANS(sageAnswer => Compute('3')->cmp);
+Usage:
+
+    Sage( SageCode => 'print 1+2; record_answer(3)',
+        ButtonText => 'Start/Restart the Interactive Cell',
+        ShowAnswerBlank => # "hidden" (default) or "visible" or 'none'
+        CellServerAddress => 'https://sagecell.sagemath.org'
+    );
+    NAMED_ANS(sageAnswer => Compute('3')->cmp);
 
 The arguments are all optional but usually you will want to supply your own SageCode.
 
 This method of calling sage was designed specially for presenting sage "interacts", applet
 like creations in SageMath, although it may be useful for other purposes also. If the answer blank
-is hidden then the interact fills in the answer as a result of manipulations on the applet 
-performed by the student and the student cannot override the answer. 
+is hidden then the interact fills in the answer as a result of manipulations on the applet
+performed by the student and the student cannot override the answer.
 
 To return answers from the sage interact:
 
 The function record_answer(answer_list) called from within the SageCode
-creates a NAMED_ANS_RULE or NAMED_HIDDEN_ANS_RULE with 
+creates a C<NAMED_ANS_RULE> or C<NAMED_HIDDEN_ANS_RULE> with
 the values of the answer_list inserted. If ShowAnswerBlank is "hidden" then the HIDDEN answer rule is
-used; if ShowAnswerBlank is 'none' then no answer blank is inserted. 
+used; if ShowAnswerBlank is 'none' then no answer blank is inserted.
 
-For the current implementation the Sage interact can create only one answer blank. 
+For the current implementation the Sage interact can create only one answer blank.
 
 When the sage interact creates an answer blank it must be checked by WeBWorK using the construction
 
-C<NAMED_ANS(sageAnswer =E<gt> $correctAnswer-E<gt>cmp)>
+    NAMED_ANS(sageAnswer => $correctAnswer->cmp)
 
-where 'sageAnswer' is the SageAnswerName  and   $correctAnswer is a MathObject.
+where 'sageAnswer' is the C<SageAnswerName>  and   C<$correctAnswer> is a MathObject.
 
-By default the sage created answer blanks are hidden, but it is visible if ShowAnswerBlank is set to 
+By default the sage created answer blanks are hidden, but it is visible if ShowAnswerBlank is set to
 'visible'. When visible the answer blanks occur within the borders which define the output
-of the sage applet.  The answer blanks are 15 spaces long. 
-   
+of the sage applet.  The answer blanks are 15 spaces long.
 
 
-=cut 
+
+=cut
 
 sub new {
 	my $self  = shift;
@@ -184,8 +186,8 @@ sub sagePrint {
         sagecell.makeSagecell({
            inputLocation:     '#sagecell',
            template:              sagecell.templates.minimal,
-           autoeval:               $self->{AutoEvaluateCell}, 
-           linked:                   true,        
+           autoeval:               $self->{AutoEvaluateCell},
+           linked:                   true,
            evalButtonText:    '$self->{ButtonText}'
          });
        });
@@ -197,13 +199,13 @@ SAGE_PRINT
 =head3 sageCalculatorPad code.
 
 
-This is a simple interface for embedding a sage calculation cell in any problem. 
+This is a simple interface for embedding a sage calculation cell in any problem.
 Details for this can be found at
 L<https://sagecell.sagemath.org/static/about.html?v=98b56535a5f3e54e272938b62c79287c>
 and for more detail:
 L<https://github.com/sagemath/sagecell/blob/master/doc/embedding.rst>.
 
-The latter reference provides information for embedding a customized sageCell with more 
+The latter reference provides information for embedding a customized sageCell with more
 options than are provided by sageCalculatorPad()
 
 =cut
@@ -211,12 +213,12 @@ options than are provided by sageCalculatorPad()
 =head3 Sample sageCalculatorPad
 
 	sageCalculatorHeader();  # set up javaScript needed for the sageCalculatorPad
-	                         
+
 
 	Context()->texStrings;
 	TEXT(
-	   sageCalculatorPad( "Use this calculator pad to make calculations",  
-	q!                                                                          
+	   sageCalculatorPad( "Use this calculator pad to make calculations",
+	q!
 	data = [1, 3, 4, 1, 7, 4, 2, 3, 2, 4, 2, 5, 4, 1, 3, 3, 2]
 	n = len(data); print "Number of data values =",n
 	s = sum(data); print "          Sum of data = ",s

@@ -25,39 +25,39 @@ the number of decimal places, and whether mathematical operations are allowed.
 
 To use the context, put
 
-	loadMacros("contextPercent.pl");
+    loadMacros("contextPercent.pl");
 
 at the top of your problem file, and then issue the
 
-	Context("Percent");
+    Context("Percent");
 
 command to select the context.  To create a Percent value, use
 
-	$m = Compute("10%");
+    $m = Compute("10%");
 
 or
 
-	$m = Percent(.1);
+    $m = Percent(.1);
 
 and so on.  Both of these produce equivalent values (10%).
 
 There are also three limited contexts that can be obtained using one of the
 following:
 
-	Context("LimitedPercent");
-	Context("LimitedPercent-strict");
-        Context("Percent-strict");
+    Context("LimitedPercent");
+    Context("LimitedPercent-strict");
+    Context("Percent-strict");
 
 The C<Percent> context allows you to use percentages rather freely
 within an expression.  For example
 
-	Compute("10% + 20%");
+    Compute("10% + 20%");
 
 would produce the same result as C<Compute("30%")>, and so would
 either of
 
-	Compute("10% + .2");
-	Compute("(5+5)% + (2^2*ln(e**5))%");
+    Compute("10% + .2");
+    Compute("(5+5)% + (2^2*ln(e**5))%");
 
 In this way, C<n%> is treated essentially as C<(n/100)>.
 
@@ -78,19 +78,19 @@ expression.  For example, C<10% + 5%> is allowed, but not C<(10+5)%>.
 As with all MathObjects, you obtain an answer checker for a Percent
 object via the C<cmp> method, e.g.,
 
-	ANS($m->cmp);
+    ANS($m->cmp);
 
 There are a number of options that you can supply to control the
 details of the answer checker, listed below.  These can also be set as
 flags within the Context so that they affect all Percent objects that
 you create.  For example,
 
-	ANS($m->cmp(forceDecimals=>1));
+    ANS($m->cmp(forceDecimals=>1));
 
 or
 
-	Context()->flags->set(forceDecimals => 1);
-	ANS($m->cmp)
+    Context()->flags->set(forceDecimals => 1);
+    ANS($m->cmp)
 
 would both produce answer checkers for C<$m> where the student would
 have to enter decimals that include any trailing zeros.
@@ -106,10 +106,10 @@ C<tolerance> is set by default to be C<.0005>, so if you change the
 number of decimal places, you should change the C<tolerance> to
 correspond to it (two more zeros than C<decimalPlaces>).  For example
 
-	Context()->flags->set(
-	  decimalPlaces => 2,
-	  tolerance => .00005,
-	);
+    Context()->flags->set(
+        decimalPlaces => 2,
+        tolerance => .00005,
+    );
 
 The default value is 1 decimal place.
 
@@ -175,7 +175,7 @@ C<reduceConstantFunctions> to 0 as well.
 The default C<tolerance> of .0005 works properly only if your original
 percent values have no more than 1 decimal place.  If you were to do
 
-	$m = Compute("10.15%");
+    $m = Compute("10.15%");
 
 for example, then $m would print as C<10.2%>, but neither a student
 answer of C<10.1%> nor of C<10.2%> would be marked correct.  That is
@@ -186,8 +186,8 @@ you may want to round or truncate them.  Percent objects have two
 methods for accomplishing this: C<round()> and C<truncate()>, which
 produce rounded or truncated copies of the original Percent object:
 
-	$m = Compute("34.127%")->round;    # produces 34.13%
-	$m = Compute("34.127%")->truncate; # produces 34.12%
+    $m = Compute("34.127%")->round;    # produces 34.13%
+    $m = Compute("34.127%")->truncate; # produces 34.12%
 
 These are particularly helpful if you are producing percentages via
 computations.

@@ -48,7 +48,7 @@ sub listVariables {
 
 =head4 listFormVariables()
 
-	Called by listVariables to print out the input form variables.
+Called by C<listVariables> to print out the input form variables.
 
 =cut
 
@@ -61,7 +61,7 @@ sub listFormVariables {
 
 =head4 listEnvironmentVariables()
 
-	Called by listVariables to print out the environment variables (in %envir).
+	Called by C<listVariables> to print out the environment variables (in %envir).
 
 =cut
 
@@ -104,7 +104,7 @@ sub listContext {    # include
 
 	Usage:  pp(Hash );
 	        pp(Object);
-	        
+
 
 	Prints out the contents of Hash or the instance variables of Object
 

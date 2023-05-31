@@ -32,18 +32,18 @@ parameter for the line.
 
 Usage examples:
 
-	$L = ParametricLine(Point(3,-1,2),Vector(1,1,3));
-	$L = ParametricLine([3,-1,2],[1,1,3]);
-	$L = ParametricLine("<t,1-t,2t-3>");
+    $L = ParametricLine(Point(3,-1,2),Vector(1,1,3));
+    $L = ParametricLine([3,-1,2],[1,1,3]);
+    $L = ParametricLine("<t,1-t,2t-3>");
 
-	$p = Point(3,-1,2); $v = Vector(1,1,3);
-	$L = ParametricLine($p,$v);
+    $p = Point(3,-1,2); $v = Vector(1,1,3);
+    $L = ParametricLine($p,$v);
 
-	$t = Formula('t'); $p = Point(3,-1,2); $v = Vector(1,1,3);
-	$L = ParametricLine($p+$t*$v);
+    $t = Formula('t'); $p = Point(3,-1,2); $v = Vector(1,1,3);
+    $L = ParametricLine($p+$t*$v);
 
-	Context()->constants->are(a=>1+pi^2); # won't guess this value
-	$L = ParametricLine("(a,2a,-1) + t <1,a,a^2>");
+    Context()->constants->are(a=>1+pi^2); # won't guess this value
+    $L = ParametricLine("(a,2a,-1) + t <1,a,a^2>");
 
 Then use
 

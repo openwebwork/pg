@@ -42,28 +42,24 @@ represent the point (y,x) rather than the default (x,y).
 
 Usage examples:
 
-	Context("Vector")->variables->are(x=>'Real',y=>'Real');
-	$f = SolutionFor("x^2 = cos(y)","(1,0)");
-	$f = SolutionFor("x^2 - y = 0",[2,4]);
-	$f = SolutionFor("x^2 - y = 0",Point(4,2),vars=>['y','x']);
+    Context("Vector")->variables->are(x=>'Real',y=>'Real');
+    $f = SolutionFor("x^2 = cos(y)","(1,0)");
+    $f = SolutionFor("x^2 - y = 0",[2,4]);
+    $f = SolutionFor("x^2 - y = 0",Point(4,2),vars=>['y','x']);
 
 Then use
 
-	ANS($f->cmp);
+    ANS($f->cmp);
 
 to get the answer checker for $f.
 
 You can use $f->{f} to get the Formula object for the equality used
 in the object, and $f->f(point) to determine if the given point is
-a solution to the equality or not.  For example, if you want to include
-the TeX version of a formula within the text of a problem, you can use:
+a solution to the equality or not.  For example:
 
-	Context()->texStrings;
-	BEGIN_TEXT
-	A solution to \($f->{f}\) is \((x,y)\) = \{ans_rule(30)\}.
-	END_TEXT
-	Context()->normalStrings;
-	ANS($f->cmp);
+    BEGIN_PGML
+    A solution to [` $f->{f} `] is [`(x,y)=`] [____]{$f}
+    END_PGML
 
 =cut
 
