@@ -45,7 +45,7 @@ my $code      = '```';
 my $pre       = ':   ';
 my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?=.)|\bq[qr]?(?=\W)';
 my $emphasis  = '\*+|_+';
-my $chars     = '\\\\.|[{}[\]()\'"]';
+my $chars     = '\\\\.|[{}[\]()\'"`]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
 my $open      = '\[(?:[!<%@$]|::?:?|``?`?|\|+ ?)';
 my $close     = '(?:[!>%@$]|::?:?|``?`?| ?\|+)\]';
@@ -195,6 +195,7 @@ sub All {
 		/<</           && do { return $self->Center($token) };
 		/>>/           && do { return $self->Align($token) };
 		/```/          && do { return $self->Code($token) };
+		/`/            && do { return $self->Backtick($token) };
 		/:   /         && do { return $self->Preformatted($token) };
 		$self->Text($token);
 	}
@@ -502,6 +503,12 @@ sub Code {
 	$self->Begin($token, "```");
 }
 
+sub Backtick {
+	my $self  = shift;
+	my $token = shift;
+	$self->Item("backtick", $token);
+}
+
 sub Preformatted {
 	my $self  = shift;
 	my $token = shift;
@@ -711,11 +718,12 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		combine     => { align => "align", par => 1 },
 		noIndent    => -1
 	},
-	"#"      => { type => 'heading', parseAll => 1, breakInside => 1, combine => { heading => "n" } },
-	"*"      => { type => 'bold',    parseAll => 1, cancelPar   => 1 },
-	"_"      => { type => 'italic',  parseAll => 1, cancelPar   => 1 },
-	"bullet" => { type => 'bullet',  parseAll => 1 },
-	"list"   => { type => 'list',    parseAll => 1, combine => { list => "bullet", par => 1 }, noIndent => -1 },
+	"#"      => { type => 'heading',  parseAll => 1, breakInside => 1, combine => { heading => "n" } },
+	"`"      => { type => 'backtick', parseAll => 1 },
+	"*"      => { type => 'bold',     parseAll => 1, cancelPar => 1 },
+	"_"      => { type => 'italic',   parseAll => 1, cancelPar => 1 },
+	"bullet" => { type => 'bullet',   parseAll => 1 },
+	"list"   => { type => 'list',     parseAll => 1, combine => { list => "bullet", par => 1 }, noIndent => -1 },
 );
 
 ######################################################################
@@ -1198,6 +1206,7 @@ sub string {
 			/quote/    && do { $string = $self->Quote($item, $strings[-1] || ''); last };
 			/rule/     && do { $string = $self->Rule($item);                      last };
 			/code/     && do { $string = $self->Code($item);                      last };
+			/backtick/ && do { $string = $self->Backtick($item);                  last };
 			/pre/      && do { $string = $self->Pre($item);                       last };
 			/verbatim/ && do { $string = $self->Verbatim($item);                  last };
 			/break/    && do { $string = $self->Break($item);                     last };
@@ -1231,6 +1240,7 @@ sub Heading  { return "" }
 sub Quote    { return "" }
 sub Rule     { return "" }
 sub Code     { return "" }
+sub Backtick { return "" }
 sub Pre      { return "" }
 sub Verbatim { return "" }
 sub Break    { return "" }
@@ -1434,6 +1444,13 @@ sub Code {
 	return $self->nl . '<pre style="margin:0"><code' . $class . '>' . $self->string($item) . "</code></pre>\n";
 }
 
+sub Backtick {
+	my $self = shift;
+	my $item = shift;
+	# prevent MathJax AsciiMath processing
+	return '<span>`</span>';
+}
+
 sub Pre {
 	my $self = shift;
 	my $item = shift;
@@ -1504,7 +1521,7 @@ sub Verbatim {
 	my $item = shift;
 	my $text = $self->Escape($item->{text});
 	$text = "<code>$text</code>" if $item->{hasStar};
-	return $text;
+	return "<span class='tex2jax_ignore'>$text</span>";
 }
 
 sub Math {
@@ -1579,6 +1596,12 @@ sub Code {
 	my $self = shift;
 	my $item = shift;
 	return $self->nl . "{\\pgmlPreformatted\\ttfamily%\n" . $self->string($item) . "\\par}%\n";
+}
+
+sub Backtick {
+	my $self = shift;
+	my $item = shift;
+	return '\\`{}';
 }
 
 sub Pre {
@@ -1725,6 +1748,12 @@ sub Code {
 	$code =~ s/<less\/>/&lt;/g;
 	$code =~ s/<greater\/>/>/g;
 	return $code;
+}
+
+sub Backtick {
+	my $self = shift;
+	my $item = shift;
+	return '`';
 }
 
 sub Pre {
