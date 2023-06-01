@@ -58,16 +58,14 @@ use YAML::XS qw/LoadFile/;
 sub new ($invocant, $courseName = '___') {
 	my $class = ref $invocant || $invocant;
 
-	my $pg_root;
+	my $pg_root = $ENV{PG_ROOT};
+	die 'The pg directory must be defined in PG_ROOT.' unless -d $pg_root;
+
 	my $ce;
 
 	eval {
 		require WeBWorK::CourseEnvironment;
-		$ce      = WeBWorK::CourseEnvironment->new({ webwork_dir => $ENV{WEBWORK_ROOT}, courseName => $courseName });
-		$pg_root = $ce->{pg_root};
-	} or do {
-		$pg_root = $ENV{PG_ROOT};
-		die 'The pg directory must be defined in PG_ROOT.' unless -d $pg_root;
+		$ce = WeBWorK::CourseEnvironment->new({ webwork_dir => $ENV{WEBWORK_ROOT}, courseName => $courseName });
 	};
 
 	# First load the pg config dist file (used for default values).
