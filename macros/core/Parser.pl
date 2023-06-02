@@ -47,9 +47,9 @@ loadMacros("PGcommonFunctions.pl");
 
 =head1 MACROS
 
-=head1 Formula
+=head2 Formula
 
-	Formula("formula");
+Usage: C<Formula("formula");>
 
 The main way to get a MathObject Formula object (an equation that depends on one
 or more variables).

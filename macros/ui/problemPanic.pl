@@ -57,7 +57,7 @@ second hint.
         \{Panic::Button(label => "Another Hint", penalty => .25)\}
         (costing an additional 25%)
       END_TEXT
-      
+
       if ($panicked > 1) {
         BEGIN_TEXT
         Additional Hint: one of the factors is \(x+$a)\).

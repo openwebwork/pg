@@ -19,7 +19,6 @@ C<Context("AlternateDecimal")> - Provides a context that allows the
 entry of decimal numbers using a comma for the decimal indicator
 rather than a dot (e.g., C<3,14159> rather than C<3.14159>).
 
-
 =head1 DESCRIPTION
 
 This macro file defines contexts in which decimal numbers can be
@@ -27,7 +26,6 @@ entered using a comma rather than a period as the decimal separator.
 Both forms are always recognized, but you can determine whether one or
 the other form produces an error message when used.  You can also
 force the display of numbers to use one or the other form.
-
 
 =head1 USAGE
 

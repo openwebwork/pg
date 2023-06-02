@@ -19,13 +19,7 @@
 
 =head1 NAME
 
-	More macros for handling multivalued functions of a complex variable
-
-=head1 SYNPOSIS
-
-
-
-=head1 DESCRIPTION
+More macros for handling multivalued functions of a complex variable
 
 =cut
 

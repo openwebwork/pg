@@ -16,7 +16,7 @@ sub _PGcommonFunctions_init { }
 #
 package CommonFunction;
 
-=head3 NOTE
+=head2 NOTE
 
 #
 #  Either call Parser (if it has been loaded) or

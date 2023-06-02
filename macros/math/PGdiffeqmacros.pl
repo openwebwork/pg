@@ -32,16 +32,16 @@ sub complexmult {
 	($R, $I);    #this returns ($R,$I) from the subroutine
 }
 
-=head3 addtwo($1stAddend,$1stIndicator,$2ndAddend,$2ndIndicator)
+=head2 addtwo($1stAddend,$1stIndicator,$2ndAddend,$2ndIndicator)
 
-##########					
+##########
 # sub addtwo adds two strings formally
 # An "indicator"  for a string is a
-#  number ,e.g. coefficient,which indicates 
-# whether the string is to be 
-# added or is to be regarded as zero. 
+#  number ,e.g. coefficient,which indicates
+# whether the string is to be
+# added or is to be regarded as zero.
 # The  non-zero terms are formally added as strings.
-# The input is an array 
+# The input is an array
 # ($1staddend, $1stindicator,$2ndaddend,$2ndindicator)
 # The return is an array
 # (formal sum, indicator of formal sum)
@@ -66,14 +66,14 @@ sub addtwo {
 	($out, $ind);
 }
 
-=head3 add($1stAddend,$1stIndicator,$2ndAddend,$2ndIndicator,...)
+=head2 add($1stAddend,$1stIndicator,$2ndAddend,$2ndIndicator,...)
 
 ########
 # sub add generalizes sub addtwo to more addends.
-# It formally adds the nonzero terms. 
+# It formally adds the nonzero terms.
 # The input is an array of even length
 # consisting of each addend,a string,
-# followed by its indicator.  
+# followed by its indicator.
 
 =cut
 
@@ -94,10 +94,10 @@ sub add {
 	@sum;
 }
 
-=head3 diffop($a,$b,$c)
+=head2 diffop($a,$b,$c)
 
 #######
-# sub diffop cleans up the typed expression 
+# sub diffop cleans up the typed expression
 # of a diff. operator.
 # input @diffop =($A,$B,$C) is the coefficients.
 # input is given as arguments viz difftop($A,$B,$C);
@@ -132,7 +132,7 @@ sub diffop {
 	$L;
 }
 
-=head3 rad($num1,$num2,$num3)
+=head2 rad($num1,$num2,$num3)
 
 ########
 # sub rad simplifies (a/b)*(sqrt(c))
@@ -250,7 +250,7 @@ sub frac {
 }
 ##########
 
-=head3 simpleexp($r,$ind)
+=head2 simpleexp($r,$ind)
 
 ####
 # sub exp simplifies exp($r*t) in form for writing perl
@@ -480,14 +480,14 @@ sub undeterminedExp {
 
 }
 
-=head3 undeterminedSin($A,$B,$C,$r,$w,$q1,$q0,$r1,$r0)
+=head2 undeterminedSin($A,$B,$C,$r,$w,$q1,$q0,$r1,$r0)
 
 #################
-# undeterminedSin is a subroutine to solve 
+# undeterminedSin is a subroutine to solve
 # undetermined coefficient problems that have
-# sines and cosines. 
+# sines and cosines.
 # The input is an array ($A,$B,$C,$r,$w,$q1,$q0,$r1,$r0)
-# given as arguments on undeterminedSin 
+# given as arguments on undeterminedSin
 # $L =$A y'' + $B y' + $C y
 # $rhs = ($q1 t + $q0) cos($w t)exp($r t) +
 #        ($r1 t + $r0) sin($w t)exp($r t)
@@ -644,10 +644,10 @@ sub check_eigenvector {
 =pod
 
     rungeKutta4a
-    
+
 	Answer checker filter for comparing to an integral curve of a vector field.
-	
-	
+
+
 =cut
 
 sub rungeKutta4a {

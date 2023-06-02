@@ -17,8 +17,6 @@
 
 PGmiscevaluators.pl - Some miscellaneous answer macros.
 
-=head1 SYNOPSIS
-
 =head1 DESCRIPTION
 
 Currently contains answer evaluators for radio buttons and checkboxes.

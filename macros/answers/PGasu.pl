@@ -2,24 +2,23 @@
 
 =head1 NAME
 
-        PGasu.pl -- located in the pg/macros directory
+PGasu.pl -- located in the pg/macros directory
 
 =head1 SYNPOSIS
 
-
-	Macros contributed by John Jones
+Macros contributed by John Jones
 
 =cut
 
 # Answer evaluator which always marks things correct
 
-=head3 auto_right()
+=head2 auto_right()
 
-=pod
+Usage: C<ANS(auto_right());>
 
-	Usage: ANS(auto_right());
-          or
-               ANS(auto_right("this answer can be left blank"));
+or
+
+    ANS(auto_right("this answer can be left blank"));
 
 This answer checker marks any answer correct.  It is useful when you want
 to leave multiple answer blanks, only some of which will be used.  If you
@@ -57,9 +56,7 @@ sub auto_right_checker {
 	return ($ans);
 }
 
-=head3	no_decs()
-
-=pod
+=head2	C<no_decs()>
 
 Can be wrapped around an numerical evaluation.  It marks the answer wrong
 if it contains a decimal point.  Usage:
@@ -85,9 +82,7 @@ sub no_decs {
 	return $old_evaluator;
 }
 
-=head3     must_include()
-
-=pod
+=head2  C<must_include()>
 
 Wrapper for other answer evaluators.  It insists that a string is part of
 the answer to be marked right.
@@ -108,7 +103,7 @@ sub must_include {
 	return $old_evaluator;
 }
 
-=head3      no_trig_fun()
+=head2      no_trig_fun()
 
 Wrapper for other answer evaluators.  It marks the answer wrong if
 it contains one of the six basic trig functions.
@@ -142,7 +137,7 @@ sub no_trig_fun {
 	return $new_eval;
 }
 
-=head3      no_trig()
+=head2      no_trig()
 
 
 
@@ -167,7 +162,7 @@ sub no_trig {
 	return $new_eval;
 }
 
-=head3      exact_no_trig()
+=head2      exact_no_trig()
 
 
 
@@ -192,7 +187,7 @@ sub exact_no_trig {
 	return $new_eval;
 }
 
-=head3      must_have_filter()
+=head2      must_have_filter()
 
 =pod
 
@@ -269,7 +264,7 @@ sub must_have_filter {
 	return $newfilt;
 }
 
-=head3      catch_errors_filter()
+=head2      catch_errors_filter()
 
 =cut
 
@@ -287,7 +282,7 @@ sub catch_errors_filter {
 	$rh_ans;
 }
 
-=head3      raw_student_answer_filter()
+=head2      raw_student_answer_filter()
 
 
 
@@ -304,7 +299,7 @@ sub raw_student_answer_filter {
 	return $rh_ans;
 }
 
-=head3      no_decimal_list()
+=head2      no_decimal_list()
 
 
 
@@ -338,7 +333,7 @@ sub no_decimal_list {
 	return $answer_evaluator;
 }
 
-=head3      no_decimals()
+=head2      no_decimals()
 
 
 
@@ -372,7 +367,7 @@ sub no_decimals {
 	return $answer_evaluator;
 }
 
-=head3      with_comments()
+=head2      with_comments()
 
 
 	# Wrapper for an answer evaluator which can also supply comments
@@ -411,7 +406,7 @@ sub with_comments {
 	$ans_evaluator;
 }
 
-=head3      pc_evaluator()
+=head2      pc_evaluator()
 
 
 		# Wrapper for multiple answer evaluators, it takes a list of the following as inputs
@@ -467,7 +462,7 @@ sub pc_evaluator {
 	$ans_evaluator;
 }
 
-=head3      weighted_partial_grader
+=head2      weighted_partial_grader
 
 =pod
 

@@ -1,6 +1,4 @@
-# This file     is PGcomplexmacros.pl
-# This includes the subroutines for the ANS macros, that
-# is, macros allowing a more flexible answer checking
+
 ################################################################################
 # WeBWorK Online Homework Delivery System
 # Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
@@ -18,13 +16,7 @@
 
 =head1 NAME
 
-	Macros for complex numbers for the PG language
-
-=head1 SYNPOSIS
-
-
-
-=head1 DESCRIPTION
+Macros for complex numbers for the PG language
 
 =cut
 
@@ -68,7 +60,7 @@ foreach my $f (@Complex1::EXPORT) {
 # number format used frequently in strict prefilters
 my $number = '([+-]?)(?=\d|\.\d)\d*(\.\d*)?(E([+-]?\d+))?';
 
-=head3 cplx_cmp
+=head2 cplx_cmp
 
  #	This subroutine compares complex numbers.
  #	Available prefilters include:
@@ -229,7 +221,7 @@ sub cplx_cmp {
 	$answer_evaluator;
 }
 
-=head3 compare_cplx
+=head2 compare_cplx
 
  #      This is a filter: it accepts and returns an AnswerHash object.
  #
@@ -273,23 +265,23 @@ sub compare_cplx {
 	$rh_ans;
 }
 
-=head3 multi_cmp
+=head2 multi_cmp
 
- #	
+ #
  #	Checks a comma separated string of  items against an array of evaluators.
  #	For example this is useful for checking all of the complex roots of an equation.
  #	Each student answer must be evaluated as correct by a DISTINCT answer evalutor.
- #	
+ #
  #	This answer checker will only work reliably if each answer checker corresponds
  #	to a distinct correct answer.  For example if one answer checker requires
  #	any positive number, and the second requires the answer 1, then 1,2 might
  #	be judged incorrect since 1, satisifes the first answer checker, but 2 doesn't
  #	satisfy the second.  2,1 would work however. Avoid this type of use!!
- #	
+ #
  #	Including backtracking to fit the answers as best possible to each answer evaluator
  #	in the best possible way, is beyond the ambitions of this evaluator.
 
-=cut 
+=cut
 
 sub multi_cmp {
 	my $ra_answer_evaluators = shift;                      # array of evaluators
@@ -375,7 +367,7 @@ sub cplx_constants {
 	}
 }
 
-=head2 Utility functions 
+=head2 Utility functions
 
  #	for checking the form of a number or of the <student_ans> field in an answer hash
 
@@ -551,7 +543,7 @@ sub is_a_polar {
 	}
 }
 
-=head4 single_term()
+=head2 single_term()
 
  #	This subroutine takes in a string, which is a mathematical expresion, and determines whether or not
  #	it is a single term. This is accoplished using a stack. Open parenthesis pluses and minuses are all
@@ -561,7 +553,7 @@ sub is_a_polar {
  #	Of course, the unary operator "-" must be handled... if it is a unary operator, and not a regular -
  #	the only place it could occur unambiguously without being surrounded by parenthesis, is the very
  #	first position. So that case is checked before the loop begins.
-	
+
 =cut
 
 sub single_term {

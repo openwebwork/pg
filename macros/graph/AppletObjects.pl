@@ -31,9 +31,9 @@ sub _AppletObjects_init {
 	ADD_JS_FILE("js/apps/AppletSupport/ww_applet_support.js");
 }
 
-=head3  GeogebraWebApplet
+=head2  GeogebraWebApplet
 
-    Useage:    $applet = GeogebraWebApplet(...);
+Usage:    C<$applet = GeogebraWebApplet(...);>
 
 =cut
 
@@ -67,10 +67,11 @@ This method is defined in this file because it uses methods in PG.pl and PGbasic
 are not available to Applet.pm when it is compiled (at the time the apache child process is
 first initialized).
 
-=head3  insertAll
+=head2 insertAll
 
-    Useage:  TEXT($applet->insertAll());
-             \{ $applet->insertAll() \}  (used within BEGIN_TEXT/END_TEXT blocks)
+Usage:  C<S<< TEXT($applet->insertAll()); >>>
+
+    \{ $applet->insertAll() \}  (used within BEGIN_TEXT/END_TEXT blocks)
 
 Inserts applet at this point in the HTML code.  (In TeX mode a message "Applet" is written.)
 This method also adds the applets header material into the header portion of the HTML page. It

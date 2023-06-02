@@ -46,9 +46,7 @@ sub _PGauxiliaryFunctions_init {
 
 }
 
-=head3 step function
-
-=pod
+=head2 step function
 
 Usage: C<step(x);>
 
@@ -66,9 +64,7 @@ sub step {    # Heaviside function (1 or x>0)
 	($x > 0) ? 1 : 0;
 }
 
-=head3 ceil Function
-
-=pod
+=head2 ceil Function
 
 Usage: C<ceil(x);>
 
@@ -86,9 +82,7 @@ sub ceil {
 	-floor(-$x);
 }
 
-=head3 floor Function
-
-=pod
+=head2 floor Function
 
 Usage: C<floor(x);>
 
@@ -108,9 +102,7 @@ sub floor {
 	$out;
 }
 
-=head3 max function
-
-=pod
+=head2 max function
 
 Usage: C<max(@arr);>
 
@@ -135,7 +127,7 @@ sub max {
 
 }
 
-=head3 min function
+=head2 min function
 
 =pod
 
@@ -164,9 +156,7 @@ sub min {
 
 # round added 6/12/2000 by David Etlinger. Edited by AKP 3-6-03
 
-=head3 round function
-
-=pod
+=head2 round function
 
 Usage: C<round(x);>
 
@@ -185,9 +175,7 @@ sub round {
 	$out;
 }
 
-=head3 Round function
-
-=pod
+=head2 Round function
 
 Usage: C<Round(x);>
 
@@ -209,9 +197,7 @@ sub Round {
 	elsif (@_ == 2) { $_[0] > 0 ? Round($_[0] * 10**$_[1]) / 10**$_[1] : Round($_[0] * 10**$_[1]) / 10**$_[1] }
 }
 
-=head3 lcm function
-
-=pod
+=head2 lcm function
 
 Usage: C<lcm(@arr);>
 
@@ -235,7 +221,7 @@ sub lcm {
 	return lcm($a * $b / gcf($a, $b), @_);
 }
 
-=head3 gcf function
+=head2 gcf function
 
 =pod
 
@@ -268,7 +254,7 @@ sub gcf {
 	return gcf($b, @_);
 }
 
-=head3 gcd function
+=head2 gcd function
 
 =pod
 
@@ -288,7 +274,7 @@ sub gcd {
 	return gcf(@_);
 }
 
-=head3 random_coprime function
+=head2 random_coprime function
 
 =pod
 
@@ -385,9 +371,7 @@ sub random_coprime {
 	}
 }
 
-=head3 random_pairwise_coprime function
-
-=pod
+=head2 random_pairwise_coprime function
 
 Usage: C<random_pairwise_coprime($arr);>
 
@@ -445,9 +429,7 @@ sub random_pairwise_coprime {
 	}
 }
 
-=head3 isPrime function
-
-=pod
+=head2 isPrime function
 
 Usage: C<isPrime(n);>
 
@@ -472,9 +454,7 @@ sub isPrime {
 	return 1;
 }
 
-=head3 reduce function
-
-=pod
+=head2 reduce function
 
 Usage: C<reduce(num,den);>
 
@@ -504,9 +484,7 @@ sub reduce {
 	@frac;
 }
 
-=head3 preFormat function
-
-=pod
+=head2 preFormat function
 
 Usage: C<preFormat($scalar, "quoted string");>
 
@@ -539,9 +517,7 @@ sub fact {
 	P($_[0], $_[0]);
 }
 
-=head3 random_subset function
-
-=pod
+=head2 random_subset function
 
 Usage: C<random_subset($n, @set);>
 

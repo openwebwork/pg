@@ -19,9 +19,9 @@ PGstringevaluators.pl - Macros that generate string answer evaluators.
 
 =head1 SYNOPSIS
 
-	ANS(str_cmp("increasing"));
-	
-	ANS(unordered_str_cmp("A C E"));
+    ANS(str_cmp("increasing"));
+
+    ANS(unordered_str_cmp("A C E"));
 
 =head1 DESCRIPTION
 

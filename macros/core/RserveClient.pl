@@ -3,12 +3,12 @@
 
 RserveClient.pl - Macros for evaluating R code on an Rserve server
 
-=head1 SYNPOSIS
-
 =head1 SYNOPSIS
 
+Here's a basic way to call the R server:
+
     loadMacros('RserveClient.pl');
-    
+
     rserve_start();
     my @rnorm = rserve_eval("rnorm(15, mean=$m, sd=$sd)");
     rserve_eval(data(stackloss));
@@ -21,7 +21,7 @@ RserveClient.pl - Macros for evaluating R code on an Rserve server
 The macros in this file provide access to facilities of L<R
 statistical computing environment|http://www.r-project.org>,
 optionally located on another server, by using the
-L<Rserve|http://www.rforge.net/Rserve/> protocol. 
+L<Rserve|http://www.rforge.net/Rserve/> protocol.
 
 B<IMPORTANT:> Before you can use these macros, you will need to
 configure the location of your Rserve host by adding it to

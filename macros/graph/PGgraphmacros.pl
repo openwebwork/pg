@@ -1,15 +1,28 @@
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
 =head1 NAME
 
-	PGgraphmacros -- in courseScripts directory
+PGgraphmacros -- in courseScripts directory
 
 =head1 SYNPOSIS
 
-
-#		use Fun;
-#		use Label;
-#		use Circle;
-#		use WWPlot;
+    use Fun;
+    use Label;
+    use Circle;
+    use WWPlot;
 
 =head1 DESCRIPTION
 
@@ -409,7 +422,7 @@ Another common usage is:
 which inserts the URL pointing to the picture.
 
 alias() converts the directory address to a URL when serving HTML pages and insures that
-an eps file is generated when creating TeX code for downloading. (Image, automatically applies alias to its input 
+an eps file is generated when creating TeX code for downloading. (Image, automatically applies alias to its input
 in order to obtain the URL.)
 
 See the documentation in F<PGcore.pl> for the latest details.

@@ -1,15 +1,11 @@
 
 =head1 DESCRIPTION
 
- #
- #  Declares constructors for MathObjects
- #
+ Declares constructors for MathObjects
 
 =cut
 
-=head3 Constructors for the various Mathobject types
-
-=pod
+=head2 Constructors for the various Mathobject types
 
 MathObjects are objects which behave much like you would expect
 their true mathematical counterparts to behave.

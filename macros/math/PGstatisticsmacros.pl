@@ -13,7 +13,7 @@ sub _PGstatisticsmacros_init {
 
 =head1 Statistics Macros
 
-=head3 Normal distribution
+=head2 Normal distribution
 
 =pod
 
@@ -69,7 +69,7 @@ sub normal_prob {
 	return $prob;
 }
 
-=head3 "Inverse" of normal distribution
+=head2 "Inverse" of normal distribution
 
 =pod
 
@@ -107,7 +107,7 @@ sub normal_distr {
 	$b;
 }
 
-=head3 Mean function
+=head2 Mean function
 
 =pod
 
@@ -131,7 +131,7 @@ sub stats_mean {
 
 }
 
-=head3 Standard Deviation function
+=head2 Standard Deviation function
 
 =pod
 
@@ -153,7 +153,7 @@ sub stats_sd {
 
 }
 
-=head3 Sum and Sum of Squares
+=head2 Sum and Sum of Squares
 
 =pod
 
@@ -177,7 +177,7 @@ sub stats_SX_SXX {
 	($sum_x, $sum_squares);
 }
 
-=head3 Function to trim the decimal numbers in a floating point number.
+=head2 Function to trim the decimal numbers in a floating point number.
 
 =pod
 
@@ -204,7 +204,7 @@ sub significant_decimals {
 	return (int($x * $power + 0.5) / $power);
 }
 
-=head3 Function to generate normally distributed random numbers
+=head2 Function to generate normally distributed random numbers
 
 =pod
 
@@ -251,7 +251,7 @@ sub urand {    # generate normally dist. random numbers
 	return @numbers;
 }
 
-=head3 Function to generate exponentially distributed random numbers
+=head2 Function to generate exponentially distributed random numbers
 
 =pod
 
@@ -286,13 +286,13 @@ sub exprand {    # generate exponentially dist. numbers  Exp(x,lambda)
 
 }
 
-=head3 Function to generate Poisson distributed random numbers
+=head2 Function to generate Poisson distributed random numbers
 
 =pod
 
 	Usage: poissonrand(lambda,N)
 
-Generates N Poisson distributed random numbers with the given parameter, lambda. 
+Generates N Poisson distributed random numbers with the given parameter, lambda.
 
 =cut
 
@@ -333,7 +333,7 @@ sub poissonrand {    # generate random, Poisson dist. numbers  Pois(lambda)
 
 }
 
-=head3 Function to generate Binomial distributed random numbers
+=head2 Function to generate Binomial distributed random numbers
 
 =pod
 
@@ -388,14 +388,14 @@ sub binomrand {    # generate random, binomial dist. numbers  Bin(n,p)
 
 }
 
-=head3 Function to generate Bernoulli distributed random numbers
+=head2 Function to generate Bernoulli distributed random numbers
 
 =pod
 
 	Usage: bernoullirand(p,num,{"success"=>"1","failure"=>"0"})
 
-Generates num Bernoulli distributed random numbers with  parameter p. The 
-value for a success is given by the optional "success" parameter. The 
+Generates num Bernoulli distributed random numbers with  parameter p. The
+value for a success is given by the optional "success" parameter. The
 value for a failure is given by the optional "failure" parameter.
 
 =cut
@@ -447,7 +447,7 @@ sub bernoullirand {    # generate random, Bernoulli dist. numbers  B(p)
 
 }
 
-=head3 Generate random values from a discrete distribution.
+=head2 Generate random values from a discrete distribution.
 
 =pod
 
@@ -521,7 +521,7 @@ sub discreterand {    # generate random, values based on a given table
 	@result;
 }
 
-=head3 Chi Squared statistic for a two way table
+=head2 Chi Squared statistic for a two way table
 
 =pod
 
@@ -612,14 +612,14 @@ sub chisqrTable {    # Given a two-way frequency table calculates the chi-square
 	($chiSquared, ($rows - 1) * ($columns - 1));
 }
 
-=head3 Calc the results of a t-test.
+=head2 Calc the results of a t-test.
 
 =pod
 
 	Usage: ($t,$df,$p) = t_test(t_test(mu,@data);                       # Perform a two-sided t-test.
-  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'right'});     # Perform a right sided t-test 
-  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'left'});      # Perform a left sided t-test 
-  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'two-sided'}); # Perform a left sided t-test 
+  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'right'});     # Perform a right sided t-test
+  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'left'});      # Perform a left sided t-test
+  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'two-sided'}); # Perform a left sided t-test
 
 Computes the t-statistic, the number of degrees of freedom, and the
 p-value after performing a t-test on the given data. the value of mu
@@ -690,14 +690,14 @@ sub t_test {
 	($t, $N - 1, $p);
 }
 
-=head3 Calc the results of a two sample t-test.
+=head2 Calc the results of a two sample t-test.
 
 =pod
 
 	Usage: ($t,$df,$p) = two_sample_t_test(\@data1,\@data2);                       # Perform a two-sided t-test.
-  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'right'});     # Perform a right sided t-test 
-  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'left'});      # Perform a left sided t-test 
-  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'two-sided'}); # Perform a left sided t-test 
+  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'right'});     # Perform a right sided t-test
+  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'left'});      # Perform a left sided t-test
+  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'two-sided'}); # Perform a left sided t-test
 
 Computes the t-statistic, the number of degrees of freedom, and the
 p-value after performing a two sample t-test on the given data.  The
@@ -787,13 +787,13 @@ sub two_sample_t_test {
 	($t, $df, $p);
 }
 
-=head3 Create a data file and make a link to it.
+=head2 Create a data file and make a link to it.
 
 =pod
 
 	Usage: insertDataLink($PG,linkText,@dataRefs)
 
-Writes the given data to a file and creates a link to the data file. The string headerTitle is the label used in the anchor link. 
+Writes the given data to a file and creates a link to the data file. The string headerTitle is the label used in the anchor link.
 		$PG is a ref to an instance of a PGcore object. (Generally just use $PG in a problem)
     linkText is the text to appear in the anchor/link.
     @dataRefs is a list of references. Each reference is assumed to be ref to an array.
@@ -837,7 +837,7 @@ sub insertDataLink {
 	"<a href=\"$url\">$linkText</a>";
 }
 
-=head3 Five Point Summary function
+=head2 Five Point Summary function
 
 =pod
 
@@ -988,7 +988,7 @@ sub five_point_summary {
 
 }
 
-=head3 Function to calculate the Pearson's sample correlation
+=head2 Function to calculate the Pearson's sample correlation
 
 =pod
 
@@ -1028,7 +1028,7 @@ sub sample_correlation {
 	(($N * $sumXY - $sumX * $sumY) / sqrt(($N * $sumX2 - $sumX * $sumX) * ($N * $sumY2 - $sumY * $sumY)));
 }
 
-=head3 Function to calculate the linear least squares estimate for the linear relationship between two data sets
+=head2 Function to calculate the linear least squares estimate for the linear relationship between two data sets
 
 =pod
 
@@ -1082,7 +1082,7 @@ sub linear_regression {
 	($slope, $intercept, $var, $SXX);
 }
 
-=head3 Function to calculate the frequencies for the factors in a given data set.
+=head2 Function to calculate the frequencies for the factors in a given data set.
 
 =pod
 

@@ -29,7 +29,7 @@
 
 =cut
 
-=head3 ValidPoly(@PolynomialCoeffs)
+=head2 ValidPoly(@PolynomialCoeffs)
 
 
 
@@ -41,7 +41,7 @@ sub ValidPoly {
 	else                    { return 0; }
 }
 
-=head3 PolyAdd(@Polyn1,@Polyn2)
+=head2 PolyAdd(@Polyn1,@Polyn2)
 
 #
 # Takes two arrays of polynomial coefficients representing
@@ -65,7 +65,7 @@ sub PolyAdd {
 	return @sum;
 }
 
-=head3 PolySub(@Polyn1,@Polyn2)
+=head2 PolySub(@Polyn1,@Polyn2)
 
 #
 # Takes two arrays of polynomial coefficients representing
@@ -89,7 +89,7 @@ sub PolySub {
 	return @diff;
 }
 
-=head3 PolyMult(~~@coefficientArray1,~~@coefficientArray2)
+=head2 PolyMult(~~@coefficientArray1,~~@coefficientArray2)
 
 #
 # Accepts two arrays containing coefficients in descending order
@@ -111,7 +111,7 @@ sub PolyMult {
 	return @result;
 }
 
-=head3 (@quotient,$remainder) = SynDiv(~~@dividend,~~@divisor)
+=head2 (@quotient,$remainder) = SynDiv(~~@dividend,~~@divisor)
 
 #
 # Performs synthetic division on two polynomials returning
@@ -132,7 +132,7 @@ sub SynDiv {
 	return @quotient;
 }
 
-=head3 (@quotient,@remainder) = LongDiv($dividendref,$divisorref)
+=head2 (@quotient,@remainder) = LongDiv($dividendref,$divisorref)
 
 #
 # Performs long division on two polynomials
@@ -159,7 +159,7 @@ sub LongDiv {
 	return (\@quotient, \@remainder);
 }
 
-=head3 UpBound(~~@polynomial)
+=head2 UpBound(~~@polynomial)
 
 #
 # Accepts a reference to an array containing the coefficients, in descending
@@ -190,7 +190,7 @@ sub UpBound {
 	return $bound;
 }
 
-=head3 LowBound(~~@polynomial)
+=head2 LowBound(~~@polynomial)
 
 #
 # Accepts a reference to an array containing the coefficients, in descending
@@ -226,7 +226,7 @@ sub LowBound {
 	return $bound;
 }
 
-=head3 PolyString(~~@coefficientArray,x)
+=head2 PolyString(~~@coefficientArray,x)
 
 #
 # Accepts an array containing the coefficients of a polynomial
@@ -306,7 +306,7 @@ sub PolyFunc {
 	return $func;
 }
 
-=head3 ($maxpos,$maxneg) = Descartes(~~@poly)
+=head2 ($maxpos,$maxneg) = Descartes(~~@poly)
 
 #
 # Accepts an array containing the coefficients, in descending order, of a

@@ -1,32 +1,34 @@
-
-#use strict;
-
-###########
-#use Carp;
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
 =head1 NAME
 
-	Numerical methods for the PG language
-
-=head1 SYNPOSIS
-
-
-
-=head1 DESCRIPTION
-
-=cut
+Numerical methods for the PG language
 
 =head2 Interpolation  methods
 
 =head3 Plotting a list of points (piecewise linear interpolation)
 
+Usage:
 
-    Usage:  plot_list([x0,y0,x1,y1,...]);
-	    	plot_list([(x0,y0),(x1,y1),...]);
-	    	plot_list(\x_y_array);
+    plot_list([x0,y0,x1,y1,...]);
+    plot_list([(x0,y0),(x1,y1),...]);
+    plot_list(\x_y_array);
 
-            plot_list([x0,x1,x2...], [y0,y1,y2,...]);
-            plot_list(\@xarray,\@yarray);
+    plot_list([x0,x1,x2...], [y0,y1,y2,...]);
+    plot_list(\@xarray,\@yarray);
 
 
 =cut
@@ -88,13 +90,15 @@ sub plot_list {
 	$fun;
 }
 
-=head3 Horner polynomial/ Newton polynomial
+=head2 Horner polynomial/ Newton polynomial
 
+Usage:
 
+    $fn = horner([x0,x1,x2],[q0,q1,q2]);
 
-	Usege:  $fn = horner([x0,x1,x2],[q0,q1,q2]);
-		Produces the newton polynomial
-		&$fn(x) = q0 + q1*(x-x0) +q2*(x-x1)*(x-x0);
+Produces the newton polynomial
+
+    &$fn(x) = q0 + q1*(x-x0) +q2*(x-x1)*(x-x0);
 
 Generates a subroutine which evaluates a polynomial passing through the points C<(x0,q0), (x1,q1),
 ... > using Horner's method.
@@ -117,16 +121,14 @@ sub horner {
 	$fn;
 }
 
-=head3 Hermite polynomials
+=head2 Hermite polynomials
 
+Usage:
 
-=pod
+    $poly = hermit([x0,x1...],[y0,y1...],[yp0,yp1,...]);
 
-	Usage:  $poly = hermit([x0,x1...],[y0,y1...],[yp0,yp1,...]);
-		Produces a reference to polynomial function
-		with the specified values and first derivatives
-		at (x0,x1,...).
-		&$poly(34) gives a number
+Produces a reference to polynomial function with the specified values and first derivatives
+at (x0,x1,...). C<&$poly(34)> gives a number
 
 Generates a subroutine which evaluates a polynomial passing through the specified points
 with the specified derivatives: (x0,y0,yp0) ...
@@ -164,19 +166,19 @@ sub hermite {
 	horner(\@zvals, \@output);
 }
 
-=head3 Hermite splines
+=head2 Hermite splines
 
+Usage
 
-	Usage:  $spline = hermit_spline([x0,x1...],[y0,y1...],[yp0,yp1,...]);
-		Produces a reference to a piecewise cubic hermit spline
-		with the specified values and first derivatives
-		at (x0,x1,...).
+    $spline = hermit_spline([x0,x1...],[y0,y1...],[yp0,yp1,...]);
 
-		&$spline(45) evaluates to a number.
+Produces a reference to a piecewise cubic hermit spline with the specified values
+and first derivatives at (x0,x1,...).
+
+C<&$spline(45)> evaluates to a number.
 
 Generates a subroutine which evaluates a piecewise cubic polynomial
-passing through the specified points
-with the specified derivatives: (x0,y0,yp0) ...
+passing through the specified points with the specified derivatives: (x0,y0,yp0) ...
 
 An object oriented version of this is defined in Hermite.pm
 
@@ -226,38 +228,37 @@ sub hermite_spline {
 	$hermite_spline_sub;
 }
 
-=head3 Cubic spline approximation
+=head2 Cubic spline approximation
 
+Usage:
 
-
-    Usage:
-		     $fun_ref = cubic_spline(~~@x_values, ~~@y_values);
+    $fun_ref = cubic_spline(~~@x_values, ~~@y_values);
 
 Where the x and y value arrays come from the function to be approximated.
 The function reference will take a single value x and produce value y.
 
-    	$y = &$fun_ref($x);
+    $y = &$fun_ref($x);
 
 You can also generate javaScript which defines a cubic spline:
 
-    		$function_string = javaScript_cubic_spline(~~@_x_values, ~~@y_values,
-    		          name =>  'myfunction1',
-    		          llimit => -3,
-    		          rlimit => 3,
-    		          );
+    $function_string = javaScript_cubic_spline(~~@_x_values, ~~@y_values,
+        name =>  'myfunction1',
+        llimit => -3,
+        rlimit => 3,
+    );
 
-The string contains
+This will return
 
-	<SCRIPT LANGUAGE="JavaScript">
-	<!-- Begin
-	function myfunction1(x) {
-	...etc...
-	}
-	</SCRIPT>
+    <SCRIPT LANGUAGE="JavaScript">
+    <!-- Begin
+    function myfunction1(x) {
+    ...etc...
+    }
+    </SCRIPT>
 
 and can be placed in the header of the HTML output using
 
-	HEADER_TEXT($function_string);
+    HEADER_TEXT($function_string);
 
 =cut
 
@@ -392,12 +393,13 @@ END_OF_JAVA_TEXT
 
 =head3 Integration by Left Hand Sum
 
-=pod
+Usage:
 
-	Usage:  lefthandsum(function_reference, start, end, steps=>30 );
+    lefthandsum(function_reference, start, end, steps=>30 );
 
 Implements the Left Hand sum using 30 intervals between 'start' and 'end'.
-The first three arguments are required.  The final argument (number of steps) is optional and defaults to 30.
+The first three arguments are required.  The final argument (number of steps) is
+optional and defaults to 30.
 
 =cut
 
@@ -421,12 +423,13 @@ sub lefthandsum {
 
 =head3 Integration by Right Hand Sum
 
-=pod
+Usage:
 
-	Usage:  righthandsum(function_reference, start, end, steps=>30 );
+    righthandsum(function_reference, start, end, steps=>30 );
 
 Implements the right hand sum using 30 intervals between 'start' and 'end'.
-The first three arguments are required.  The final argument (number of steps) is optional and defaults to 30.
+The first three arguments are required.  The final argument (number of steps)
+is optional and defaults to 30.
 
 =cut
 
@@ -450,12 +453,13 @@ sub righthandsum {
 
 =head3 Integration by Midpoint rule
 
-=pod
+Usage:
 
-	Usage:  midpoint(function_reference, start, end, steps=>30 );
+    midpoint(function_reference, start, end, steps=>30 );
 
 Implements the Midpoint rule using 30 intervals between 'start' and 'end'.
-The first three arguments are required.  The final argument (number of steps) is optional and defaults to 30.
+The first three arguments are required.  The final argument (number of steps)
+is optional and defaults to 30.
 
 =cut
 
@@ -479,13 +483,11 @@ sub midpoint {
 
 =head3 Integration by Simpson's rule
 
-=pod
-
-	Usage:  simpson(function_reference, start, end, steps=>30 );
+    Usage:  simpson(function_reference, start, end, steps=>30 );
 
 Implements Simpson's rule using 30 intervals between 'start' and 'end'.
-The first three arguments are required.  The final argument (number of steps) is optional and defaults to 30,
-but must be even.
+The first three arguments are required.  The final argument (number of steps) is
+optional and defaults to 30, but must be even.
 
 =cut
 
@@ -516,9 +518,9 @@ sub simpson {
 
 =head3 Integration by trapezoid rule
 
-=pod
+Usage:
 
-	Usage:  trapezoid(function_reference, start, end, steps=>30 );
+    trapezoid(function_reference, start, end, steps=>30 );
 
 Implements the trapezoid rule using 30 intervals between 'start' and 'end'.
 The first three arguments are required.  The final argument (number of steps)
@@ -547,9 +549,9 @@ sub trapezoid {
 
 =head3  Romberg method of integration
 
-=pod
+Usage:
 
-        Usage:  romberg(function_reference, x0, x1, level);
+    romberg(function_reference, x0, x1, level);
 
 Implements the Romberg integration routine through 'level' recursive steps.  Level defaults to 6.
 
@@ -586,9 +588,9 @@ sub romberg_iter {
 
 =head3 Inverse Romberg
 
-=pod
+Usage:
 
-        Usage: inv_romberg(function_reference, a, value);
+    inv_romberg(function_reference, a, value);
 
 Finds b such that the integral of the function from a to b is equal to value.
 Assumes that the function is continuous and doesn't take on the zero value.
@@ -624,26 +626,26 @@ sub inv_romberg {
 	$b;
 }
 
-#########################################################
+=head2 Differential Equation Methods
 
-=pod
+=head3 rungeKutta4
 
-    rungeKutta4
-    
-    Finds integral curve of a vector field using the 4th order Runge Kutta method.
-    
-	Useage:  rungeKutta4( &vectorField(t,x),%options);
-	
-    Returns:  \@array of points [t,y})  
-    
+Finds integral curve of a vector field using the 4th order Runge Kutta method.
+
+Usage:
+
+    rungeKutta4( &vectorField(t,x),%options);
+
+    Returns:  \@array of points [t,y})
+
     Default %options:
     			'initial_t'					=>	1,
 			    'initial_y'					=>	1,
 			    'dt'						=>  .01,
 			    'num_of_points'				=>  10,     #number of reported points
 			    'interior_points'			=>  5,      # number of 'interior' steps between reported points
-			    'debug'			
-    
+			    'debug'
+
 =cut
 
 sub rungeKutta4 {

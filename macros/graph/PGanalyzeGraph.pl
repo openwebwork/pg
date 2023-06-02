@@ -15,18 +15,16 @@ analysis of  graphical input from students.
 
 =cut
 
-=head4  detect_intervals
+=head2  detect_intervals
 
+input:   C<$pointDisplayString >
 
+return: C<(\@combined_intervals, \@values)>
 
-   input:   $pointDisplayString 
-         
-   return: (\@combined_intervals, \@values)
-           @values contains the y values of the function in order
-           @combined_intervals contains anonymous arrays of the form
-               [ $slope, $left_x, $right_x]  indicating the gradient on that segment.
-               successive intervals will have different slopes.
-               
+    @values contains the y values of the function in order
+    @combined_intervals contains anonymous arrays of the form
+    [ $slope, $left_x, $right_x]  indicating the gradient on that segment.
+    successive intervals will have different slopes.
 
 =cut
 

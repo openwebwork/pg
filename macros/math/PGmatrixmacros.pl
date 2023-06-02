@@ -1,14 +1,22 @@
 
-###########
-#use Carp;
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
 =head1 NAME
 
-        Matrix macros for the PG language
-
-=head1 SYNPOSIS
-
-
+Matrix macros for the PG language
 
 =head1 DESCRIPTION
 
@@ -18,10 +26,10 @@ its variants.
 Frequently it will be
 most useful to use the MathObjects Matrix (defined in Value::Matrix.pm)
 and Vector types which
-have more capabilities and more error checking than the subroutines in 
-this file. These macros have no object orientation and 
-work with vectors and matrices 
-stored as perl anonymous arrays. 
+have more capabilities and more error checking than the subroutines in
+this file. These macros have no object orientation and
+work with vectors and matrices
+stored as perl anonymous arrays.
 
 There are also Matrix objects defined in
 RealMatrix.pm and Matrix.pm but in almost all cases the
@@ -39,9 +47,9 @@ sub _PGmatrixmacros_init {
 
 ############
 
-=head4  display_matrix
+=head2  display_matrix
 
-	Usage  
+	Usage
 	       \{ display_matrix( [ [1, '\(\sin x\)'], [ans_rule(5), 6] ]) \}
 	       \{ display_matrix($A, align=>'crvl') \}
 	       \[ \{   display_matrix_mm($A)  \} \]
@@ -562,7 +570,7 @@ sub dm_mat_row {
 	$out;
 }
 
-=head4 side_labels
+=head2 side_labels
 
 Produces an array that can be used to add labels outside a matrix.  useful
 for presenting tableaus. Entries are set in mathmode
@@ -592,7 +600,7 @@ sub side_labels {
 	$outputstring .= "\\end{array}";
 }
 
-=head4  mbox
+=head2  mbox
 
                 Usage        \{ mbox(thing1, thing2, thing3) \}
           \{ mbox([thing1, thing2, thing3], valign=>'top') \}
@@ -649,7 +657,7 @@ sub mbox {
 	return $out;
 }
 
-=head4   ra_flatten_matrix
+=head2   ra_flatten_matrix
 
                 Usage:   ra_flatten_matrix($A)
                         returns:  [a11, a12,a21,a22]
@@ -675,11 +683,11 @@ sub ra_flatten_matrix {
 	\@array;
 }
 
-=head4 apl_matrix_mult() 
+=head2 apl_matrix_mult()
 
-	# This subroutine is probably obsolete and not generally useful.  
+	# This subroutine is probably obsolete and not generally useful.
 	# It was patterned after the APL
-	# constructs for multiplying matrices. It might come in handy 
+	# constructs for multiplying matrices. It might come in handy
 	# for non-standard multiplication of
 	# of matrices (e.g. mod 2) for indice matrices.
 
@@ -734,7 +742,7 @@ sub make_matrix {
 	$ra_out;
 }
 
-=head4 create2d_matrix
+=head2 create2d_matrix
 
 This can be a useful method for quickly entering small matrices by hand.
  --MEG
@@ -785,7 +793,7 @@ sub convert_to_array_ref {
 	$input;
 }
 
-=head4 check_matrix_from_ans_box_cmp
+=head2 check_matrix_from_ans_box_cmp
 
 An answer checker factory built on create2d_matrix.  This still needs
 work.  It is not feature complete, particularly with regard to error messages
@@ -819,13 +827,13 @@ sub check_matrix_from_ans_box_cmp {
 	$string_matrix_cmp;
 }
 
-=head4 zero_check (deprecated -- use MathObjects matrices and vectors)
+=head2 zero_check (deprecated -- use MathObjects matrices and vectors)
 
 	# this subroutine zero_check is not very well designed below -- if it is used much it should receive
 	# more work -- particularly for checking relative tolerance.  More work needs to be done if this is
 	# actually used.
 
-=cut 
+=cut
 
 sub zero_check {
 	my $array   = shift;
@@ -844,7 +852,7 @@ sub zero_check {
 	($max < $tol) ? 1 : 0;    # 1 if the array is close to zero;
 }
 
-=head4 vec_dot() (deprecated -- use MathObjects vectors and matrices)
+=head2 vec_dot() (deprecated -- use MathObjects vectors and matrices)
 
 sub vec_dot{
         my $vec1 = shift;
@@ -860,7 +868,7 @@ sub vec_dot{
         $sum;
 }
 
-=head4 proj_vect (deprecated -- use MathObjects vectors and matrices)
+=head2 proj_vect (deprecated -- use MathObjects vectors and matrices)
 
 =cut
 
@@ -874,7 +882,7 @@ sub proj_vec {
 	$matrix * transpose($matrix) * $vec;
 }
 
-=head4 vec_cmp (deprecated -- use MathObjects vectors and matrices)
+=head2 vec_cmp (deprecated -- use MathObjects vectors and matrices)
 
 =cut
 
