@@ -692,10 +692,9 @@ parser::GraphTool->addGraphObjects(
 			code => sub {
 				my $gt = shift;
 				my ($x, $y) = @{ $_->{data}[1]{data} };
-				my $point = "($x,$y)";
 				return (
-					"\\draw[line width=4pt,blue,fill=red] $point circle[radius=5pt];",
-					[ $point, sub { return ($_[0] - $x)**2 + ($_[1] - $y)**2; } ]
+					"\\draw[line width=4pt,blue,fill=red] ($x,$y) circle[radius=5pt];",
+					[ '', sub { return ($_[0] - $x)**2 + ($_[1] - $y)**2; } ]
 				);
 			}
 		},
