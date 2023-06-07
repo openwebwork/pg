@@ -1366,11 +1366,7 @@ sub Image {
 	my $width    = $item->{width}  || 100;
 	my $height   = $item->{height} || '';
 	my $tex_size = $width / 600 * 1000;
-	if (ref $source eq 'parser::GraphTool') {
-		return ($source->generateAnswerGraph(ariaDescription => $text));
-	} else {
-		return (main::image($source, alt => $text, width => $width, height => $height, tex_size => $tex_size));
-	}
+	return (main::image($source, alt => $text, width => $width, height => $height, tex_size => $tex_size));
 }
 
 ######################################################################
