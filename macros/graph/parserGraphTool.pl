@@ -671,13 +671,13 @@ parser::GraphTool->addGraphObjects(
 						[
 							$cubic
 								. (
-									$a > 0
+									$c3 > 0
 									? ("-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1])"
 										. "-- ($gt->{bBox}[0],$gt->{bBox}[3]) -- cycle")
 									: ("-- ($gt->{bBox}[2],$gt->{bBox}[3]) -- ($gt->{bBox}[0],$gt->{bBox}[3])"
 										. "-- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle")
 								),
-							sub { return $a * ($_[1] - $cubic_function->($_[0])); }
+							sub { return $c3 * ($_[1] - $cubic_function->($_[0])); }
 						]
 					);
 				}
