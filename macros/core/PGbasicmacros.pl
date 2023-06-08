@@ -3022,6 +3022,10 @@ sub image {
 	my @output_list = ();
 	while (@image_list) {
 		my $image_item = shift @image_list;
+		if (ref $image_item eq 'parser::GraphTool') {
+			push(@output_list, $image_item->generateAnswerGraph(ariaDescription => shift @alt_list // ''));
+			next;
+		}
 		$image_item = insertGraph($image_item)
 			if (ref $image_item eq 'WWPlot' || ref $image_item eq 'PGlateximage' || ref $image_item eq 'PGtikz');
 		my $imageURL = alias($image_item) // '';

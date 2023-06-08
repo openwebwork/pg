@@ -185,6 +185,7 @@ sub All {
 		/\{/           && do { return $self->Brace($token) };
 		/\[]/          && do { return $self->NOOP($token) };
 		/\[\|/         && do { return $self->Verbatim($token) };
+		/\[!/          && do { return $self->Image($token) };
 		/\[./          && do { return $self->Answer($token) };
 		/_/            && do { return $self->Emphasis($token) };
 		/\*/           && do { return $self->Star($token) };
@@ -367,6 +368,11 @@ sub Verbatim {
 	$bars =~ s/[^|]//g;
 	$bars = "\\" . join("\\", split('', $bars));
 	$self->Begin($token, ' [|', { terminator => qr/ ?$bars\]/ });
+}
+
+sub Image {
+	my ($self, $token) = @_;
+	$self->Item("image", $token);
 }
 
 sub Answer {
@@ -629,7 +635,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		terminator         => qr/!\]/,
 		terminateMethod    => 'terminateGetString',
 		cancelNL           => 1,
-		options            => ["title"]
+		options            => [ "source", "width", "height" ]
 	},
 	"[<" => {
 		type               => 'link',
@@ -1200,6 +1206,7 @@ sub string {
 			/code/     && do { $string = $self->Code($item);                      last };
 			/pre/      && do { $string = $self->Pre($item);                       last };
 			/verbatim/ && do { $string = $self->Verbatim($item);                  last };
+			/image/    && do { $string = $self->Image($item);                     last };
 			/break/    && do { $string = $self->Break($item);                     last };
 			/forced/   && do { $string = $self->Forced($item);                    last };
 			/comment/  && do { $string = $self->Comment($item);                   last };
@@ -1350,6 +1357,16 @@ sub Text {
 	my $text = $self->{parser}->replaceText($item);
 	$text =~ s/^\n+// if substr($text, 0, 1) eq "\n" && $self->nl eq "";
 	return $self->Escape($text);
+}
+
+sub Image {
+	my ($self, $item) = @_;
+	my $text     = $item->{text};
+	my $source   = $item->{source};
+	my $width    = $item->{width}  || 100;
+	my $height   = $item->{height} || '';
+	my $tex_size = $width / 600 * 1000;
+	return (main::image($source, alt => $text, width => $width, height => $height, tex_size => $tex_size));
 }
 
 ######################################################################
