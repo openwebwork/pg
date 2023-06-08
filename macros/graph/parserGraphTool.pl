@@ -112,9 +112,64 @@ that is interpreted into a MathObject infinity.  However, for static graph objec
 
 The student answers that are returned by the JavaScript will be a list of the list objects
 discussed above and will be parsed by WeBWorK and passed to the checker as such.  The default
-grader is the default list_checker.  Most of the time that will not work as desired, and you
-will need to provide your own list_checker.  This can either be passed as part of the
-C<cmpOptions> hash discussed below, or directly to the GraphTool object's C<cmp()> method.
+checker is designed to grade the graph based on appearance.  This means that if a student graphs
+duplicate objects, then the duplicates are ignored.  Furthermore, if two objects are graphed
+whose only difference is that one is solid and the other is dashed (in this case the dashed
+object is covered by the solid object and only the solid object is really visible), then the
+dashed object is ignored.
+
+A custom list_checker may be provided instead of using the default checker. This can either be
+passed as part of the C<cmpOptions> hash discussed below, or directly to the GraphTool object's
+C<cmp()> method.  The variable C<$graphToolObjectCmps> can be used in a custom checker and
+contains a hash whose keys are the types of the objects described above, and whose values are
+methods that can be called passing a MathObject list constructed from one of the objects
+described above.  When one of these methods is called it will return two methods.  The first
+method when called passing a MathObject point will return 0 if the point satisfies the equation
+of the object, -1 if the equation evaluated at the point is negative, and 1 if the equation
+evaluated at the point is positive.  The second method when called passing another MathObject
+list constructed from one of the objects described as above will return 1 if the two objects are
+exactly the same, and 0 otherwise.  A second parameter may be passed and if that parameter is 1,
+then the method will return 1 if the two objects are the same ignoring if the two objects are
+solid or dashed, and 0 otherwise.  In the following example, the C<$lineCmp> method is defined
+to be the second method (indexed by 1) that is returned by calling the C<'line'> method on the
+first correct answer in the example.
+
+    $m = 2 * random(1, 4);
+
+    $gt = GraphTool("{line, solid, ($m / 2, 0), (0, -$m)}")->with(
+        bBox       => [ -11, 11, 11, -11 ],
+        cmpOptions => {
+            list_checker => sub {
+                my ($correct, $student, $ans, $value) = @_;
+                return 0 if $ans->{isPreview};
+
+                my $score = 0;
+                my @errors;
+
+                my $lineCmp = ($graphToolObjectCmps->{line}->($correct->[0]))[1];
+
+             for (0 .. $#$student) {
+                    if ($lineCmp->($student->[$_])) { ++$score; next; }
+
+                    my $nth = Value::List->NameForNumber($_ + 1);
+
+                    if ($student->[$_]->extract(1) ne 'line') {
+                        push(@errors, "The $nth object graphed is not a line.");
+                        next;
+                    }
+
+                    if ($student->[$_]->extract(2) ne 'solid') {
+                        push(@errors, "The $nth object graphed should be a solid line.");
+                        next;
+                    }
+
+                    push(@errors, "The $nth object graphed is incorrect.");
+                }
+
+                return ($score, @errors);
+            }
+        }
+    }
 
 =head1 OPTIONS
 
@@ -298,12 +353,14 @@ sub _parserGraphTool_init {
 	ADD_JS_FILE('js/apps/GraphTool/cubictool.js',                0, { defer => undef });
 	ADD_JS_FILE('js/apps/GraphTool/intervaltools.js',            0, { defer => undef });
 
-	main::PG_restricted_eval('sub GraphTool { parser::GraphTool->new(@_) }');
-
 	return;
 }
 
 loadMacros('MathObjects.pl', 'PGtikz.pl');
+
+sub GraphTool { parser::GraphTool->new(@_) }
+
+$graphToolObjectCmps = \%parser::GraphTool::graphObjectCmps;
 
 package parser::GraphTool;
 our @ISA = qw(Value::List);
@@ -490,6 +547,117 @@ my %graphObjectTikz = (
 	}
 );
 
+our %graphObjectCmps = (
+	line => sub {
+		my ($line) = @_;
+
+		my $solid_dashed = $line->{data}[1];
+		my ($x1, $y1) = $line->{data}[2]->value;
+		my ($x2, $y2) = $line->{data}[3]->value;
+
+		# These are the coefficients a, b, and c in ax + by + c = 0.
+		my @stdform = ($y1 - $y2, $x2 - $x1, $x1 * $y2 - $x2 * $y1);
+
+		my $linePointCmp = sub {
+			my $point = shift;
+			my ($x, $y) = $point->value;
+			return $stdform[0] * $x + $stdform[1] * $y + $stdform[2] <=> 0;
+		};
+
+		return (
+			$linePointCmp,
+			sub {
+				my ($other, $fuzzy) = @_;
+				return
+					$other->{data}[0] eq 'line'
+					&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
+					&& $linePointCmp->($other->{data}[2]) == 0
+					&& $linePointCmp->($other->{data}[3]) == 0;
+			}
+		);
+	},
+	circle => sub {
+		my $circle = shift;
+
+		my $solid_dashed = $circle->{data}[1];
+		my $center       = $circle->{data}[2];
+		my ($cx, $cy) = $center->value;
+		my ($px, $py) = $circle->{data}[3]->value;
+		my $r_squared = ($cx - $px)**2 + ($cy - $py)**2;
+
+		my $circlePointCmp = sub {
+			my $point = shift;
+			my ($x, $y) = $point->value;
+			return ($x - $cx)**2 + ($y - $cy)**2 <=> $r_squared;
+		};
+
+		return (
+			$circlePointCmp,
+			sub {
+				my ($other, $fuzzy) = @_;
+				return
+					$other->{data}[0] eq 'circle'
+					&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
+					&& $other->{data}[2] == $center
+					&& $circlePointCmp->($other->{data}[3]) == 0;
+			}
+		);
+	},
+	parabola => sub {
+		my $parabola = shift;
+
+		my $solid_dashed        = $parabola->{data}[1];
+		my $vertical_horizontal = $parabola->{data}[2];
+		my $vertex              = $parabola->{data}[3];
+		my ($h, $k)   = $vertex->value;
+		my ($px, $py) = $parabola->{data}[4]->value;
+
+		my $x_pow = $vertical_horizontal eq 'vertical' ? 2 : 1;
+		my $y_pow = $vertical_horizontal eq 'vertical' ? 1 : 2;
+
+		my $parabolaPointCmp = sub {
+			my $point = shift;
+			my ($x, $y) = $point->value;
+			return ($px - $h)**$x_pow * ($y - $k)**$y_pow <=> ($py - $k)**$y_pow * ($x - $h)**$x_pow;
+		};
+
+		return (
+			$parabolaPointCmp,
+			sub {
+				my ($other, $fuzzy) = @_;
+				return
+					$other->{data}[0] eq 'parabola'
+					&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
+					&& $other->{data}[2] eq $vertical_horizontal
+					&& $other->{data}[3] == $vertex
+					&& $parabolaPointCmp->($other->{data}[4]) == 0;
+			}
+		);
+	},
+	fill => sub {
+		my ($fill, $object_fill_cmps) = @_;
+
+		my $fill_point = $fill->{data}[1];
+
+		my $pointInFillRegion = sub {
+			my $point = shift;
+
+			for (@$object_fill_cmps) {
+				return 0 if $_->($fill_point) != $_->($point);
+			}
+			return 1;
+		};
+
+		return (
+			$pointInFillRegion,
+			sub {
+				my $other = shift;
+				return $other->{data}[0] eq 'fill' && $pointInFillRegion->($other->{data}[1]);
+			}
+		);
+	}
+);
+
 my $customGraphObjects = '';
 my $customTools        = '';
 
@@ -497,12 +665,14 @@ sub addGraphObjects {
 	my ($self, %objects) = @_;
 	$customGraphObjects .= join(',', map {"$_: $objects{$_}{js}"} keys %objects) . ',';
 
-	# Add the object's name and any other custom strings to the context strings, and add the
-	# code for generating the object in print to the %graphObjectTikz hash.
+	# Add the object's name and any other custom strings to the context strings, add the
+	# code for generating the object in print to the %graphObjectTikz hash, and add the
+	# cmp subroutine to the %graphObjectCmps hash.
 	for (keys %objects) {
 		$contextStrings{$_}  = {};
 		$contextStrings{$_}  = {} for (@{ $objects{$_}{strings} });
 		$graphObjectTikz{$_} = $objects{$_}{tikz} if defined $objects{$_}{tikz};
+		$graphObjectCmps{$_} = $objects{$_}{cmp}  if ref($objects{$_}{cmp}) eq 'CODE';
 	}
 
 	return;
@@ -528,6 +698,19 @@ parser::GraphTool->addGraphObjects(
 					[ $point, sub { return ($_[0] - $x)**2 + ($_[1] - $y)**2; } ]
 				);
 			}
+		},
+		cmp => sub {
+			my $pointObject = shift;
+
+			my $point = $pointObject->{data}[1];
+
+			return (
+				sub { return 1 },
+				sub {
+					my $other = shift;
+					return $other->{data}[0] eq 'point' && $point == $other->{data}[1];
+				}
+			);
 		}
 	},
 	# A three point quadratic graph object.
@@ -573,6 +756,37 @@ parser::GraphTool->addGraphObjects(
 					);
 				}
 			}
+		},
+		cmp => sub {
+			my $quadratic = shift;
+
+			my $solid_dashed = $quadratic->{data}[1];
+			my ($x1, $y1) = $quadratic->{data}[2]->value;
+			my ($x2, $y2) = $quadratic->{data}[3]->value;
+			my ($x3, $y3) = $quadratic->{data}[4]->value;
+
+			my @coeffs = (($x1 - $x2) * $y3, ($x1 - $x3) * $y2, ($x2 - $x3) * $y1);
+			my $den    = ($x1 - $x2) * ($x1 - $x3) * ($x2 - $x3);
+
+			my $quadraticPointCmp = sub {
+				my $point = shift;
+				my ($x, $y) = $point->value;
+				return ($x - $x2) * ($x - $x3) * $coeffs[2] - ($x - $x1) * ($x - $x3) * $coeffs[1] +
+					($x - $x1) * ($x - $x2) * $coeffs[0] <=> $den * $y;
+			};
+
+			return (
+				$quadraticPointCmp,
+				sub {
+					my ($other, $fuzzy) = @_;
+					return
+						$other->{data}[0] eq 'quadratic'
+						&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
+						&& $quadraticPointCmp->($other->{data}[2]) == 0
+						&& $quadraticPointCmp->($other->{data}[3]) == 0
+						&& $quadraticPointCmp->($other->{data}[4]) == 0;
+				}
+			);
 		}
 	},
 	# A four point cubic graph object.
@@ -682,6 +896,46 @@ parser::GraphTool->addGraphObjects(
 					);
 				}
 			}
+		},
+		cmp => sub {
+			my $cubic = shift;
+
+			my $solid_dashed = $cubic->{data}[1];
+			my ($x1, $y1) = $cubic->{data}[2]->value;
+			my ($x2, $y2) = $cubic->{data}[3]->value;
+			my ($x3, $y3) = $cubic->{data}[4]->value;
+			my ($x4, $y4) = $cubic->{data}[5]->value;
+
+			my @coeffs = (
+				($x1 - $x2) * ($x1 - $x3) * ($x2 - $x3) * $y4,
+				($x1 - $x2) * ($x1 - $x4) * ($x2 - $x4) * $y3,
+				($x1 - $x3) * ($x1 - $x4) * ($x3 - $x4) * $y2,
+				($x2 - $x3) * ($x2 - $x4) * ($x3 - $x4) * $y1
+			);
+			my $den = ($x1 - $x2) * ($x1 - $x3) * ($x1 - $x4) * ($x2 - $x3) * ($x2 - $x4) * ($x3 - $x4);
+
+			my $cubicPointCmp = sub {
+				my $point = shift;
+				my ($x, $y) = $point->value;
+				return ($x - $x2) * ($x - $x3) * ($x - $x4) * $coeffs[3] -
+					($x - $x1) * ($x - $x3) * ($x - $x4) * $coeffs[2] +
+					($x - $x1) * ($x - $x2) * ($x - $x4) * $coeffs[1] -
+					($x - $x1) * ($x - $x2) * ($x - $x3) * $coeffs[0] <=> $den * $y;
+			};
+
+			return (
+				$cubicPointCmp,
+				sub {
+					my ($other, $fuzzy) = @_;
+					return
+						$other->{data}[0] eq 'cubic'
+						&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
+						&& $cubicPointCmp->($other->{data}[2]) == 0
+						&& $cubicPointCmp->($other->{data}[3]) == 0
+						&& $cubicPointCmp->($other->{data}[4]) == 0
+						&& $cubicPointCmp->($other->{data}[5]) == 0;
+				}
+			);
 		}
 	},
 	# The interval graph object.
@@ -723,6 +977,19 @@ parser::GraphTool->addGraphObjects(
 					[ '', sub { return 0; } ]
 				);
 			}
+		},
+		cmp => sub {
+			my $intervalObj = shift;
+
+			my $interval = $intervalObj->{data}[1];
+
+			return (
+				sub { return 1 },
+				sub {
+					my $other = shift;
+					return $other->{data}[0] eq 'interval' && $interval == $other->{data}[1];
+				}
+			);
 		}
 	},
 );
@@ -1042,6 +1309,133 @@ END_ANS
 sub cmp {
 	my ($self, %options) = @_;
 	my $cmp = $self->SUPER::cmp(non_tex_preview => 1, %{ $self->{cmpOptions} }, %options);
+
+	unless (ref($cmp->{rh_ans}{list_checker}) eq 'CODE' || ref($cmp->{rh_ans}{checker}) eq 'CODE') {
+		$cmp->{rh_ans}{list_checker} = sub {
+			my ($correct, $student, $ans, $value) = @_;
+			return 0 if $ans->{isPreview};
+
+			# If there are no correct answers, then the answer is correct if the student doesn't graph anything, and is
+			# incorrect if the student does graph something.  Although, this checker won't actually be called if the
+			# student doesn't graph anything.  So if it is desired for that to be correct, then that must be handled in
+			# a post filter.
+			return @$student ? 0 : 1 if !@$correct;
+
+			# If the student graphed multiple objects, then remove the duplicates.  Note that a fuzzy comparison is
+			# done.  This means that the solid/dashed status of the objects is ignored for the comparison. Only the
+			# solid variant is kept if both appear.  The idea is that solid covers dashed.  Fills are all kept and
+			# the duplicates dealt with later.
+			my @student;
+		ANSWER: for my $answer (@$student) {
+				my $answer_type = $answer->{data}[0];
+				unless ($answer_type eq 'fill') {
+					for (0 .. $#student) {
+						my $other_type = $student[$_]{data}[0];
+						next unless $other_type eq $answer_type;
+						if (($graphObjectCmps{ $student[$_]{data}[0] }->($student[$_]))[1]->($answer, 1)) {
+							$student[$_] = $answer if $answer->{data}[1] eq 'solid';
+							next ANSWER;
+						}
+					}
+				}
+				push(@student, $answer);
+			}
+
+			# Cache the correct graph object comparison methods.  Also cache the correct graph object fill comparison
+			# methods.  These must be passed to the fill compare method generator.  Fills need to have all of these to
+			# determine the correct regions of the graph that are to be filled.  Note that the fill comparison methods
+			# for static objects are added to this list later.
+			my @object_cmps;
+			my @object_fill_cmps;
+			for (@$correct) {
+				my $type = $_->{data}[0];
+				next if $type eq 'fill' || ref($graphObjectCmps{$type}) ne 'CODE';
+				my ($fill_cmp, $object_cmp) = $graphObjectCmps{$type}->($_);
+				push(@object_cmps,      $object_cmp);
+				push(@object_fill_cmps, $fill_cmp);
+			}
+
+			my @object_scores = (0) x @object_cmps;
+			my @incorrect_objects;
+
+		ENTRY: for my $student_index (0 .. $#student) {
+				my $student_type = $student[$student_index]{data}[0];
+
+				# Grading of fills is deferred until after the other objects, and is only done if they are all correct.
+				next if $student_type eq 'fill';
+
+				for (0 .. $#object_cmps) {
+					if ($object_cmps[$_]->($student[$student_index])) {
+						++$object_scores[$_];
+						next ENTRY;
+					}
+				}
+
+				push(@incorrect_objects, $student[$student_index]);
+			}
+
+			my $object_score = 0;
+			for (@object_scores) { ++$object_score if $_; }
+
+			my $fill_score = 0;
+			my @fill_scores;
+			my @incorrect_fill_cmps;
+
+			# Now check the fills if all of the objects were correctly graphed.
+			if ($object_score == @object_scores) {
+				# Add the fill comparison methods for the static graph objects.
+				for (@{ $self->SUPER::new($self->{context}, @{ $self->{staticObjects} })->{data} }) {
+					my $type = $_->{data}[0];
+					next if $type eq 'fill';
+					push(@object_fill_cmps, ($graphObjectCmps{$type}->($_))[0])
+						if ref($graphObjectCmps{$type}) eq 'CODE';
+				}
+
+				# Cache the correct fill comparison methods.
+				my @fill_cmps;
+				for (@$correct) {
+					next unless $_->{data}[0] eq 'fill';
+					push(@fill_cmps, ($graphObjectCmps{fill}->($_, \@object_fill_cmps))[1]);
+				}
+
+				@fill_scores = (0) x @fill_cmps;
+
+			ENTRY: for my $student_index (0 .. $#student) {
+					my $student_type = $student[$student_index]{data}[0];
+					next unless $student_type eq 'fill';
+
+					for (0 .. $#fill_cmps) {
+						if ($fill_cmps[$_]->($student[$student_index])) {
+							++$fill_scores[$_];
+							next ENTRY;
+						}
+					}
+
+					# Skip incorrect fills in the same region as another incorrect fill.
+					for (@incorrect_fill_cmps) { next ENTRY if $_->($student[$student_index]); }
+
+					# Cache comparison methods for incorrect fills.
+					push(
+						@incorrect_fill_cmps,
+						(
+							$graphObjectCmps{ $student[$student_index]{data}[0] }
+								->($student[$student_index], \@object_fill_cmps)
+						)[1]
+					);
+				}
+
+				for (@fill_scores) { ++$fill_score if $_; }
+			}
+
+			my $score =
+				($object_score + $fill_score) /
+				(@$correct +
+					(@incorrect_objects   ? (@incorrect_objects - (@object_scores - $object_score)) : 0) +
+					(@incorrect_fill_cmps ? (@incorrect_fill_cmps - (@fill_scores - $fill_score))   : 0));
+
+			return $score > 0 ? main::Round($score * (@$student > @$correct ? @$student : @$correct), 2) : 0;
+		};
+	}
 
 	if ($main::displayMode ne 'TeX' && $main::displayMode ne 'PTX') {
 		my $ans_name = $self->ANS_NAME;
