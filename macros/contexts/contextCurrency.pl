@@ -329,17 +329,6 @@ sub addToken    { }    # no tokens are needed (only uses fixed pattern)
 sub removeToken { }
 
 #
-#  Do the usual set() method, but make sure patterns are
-#  updated, since the settings may affect the currency
-#  pattern.
-#
-sub set {
-	my $self = shift;
-	$self->SUPER::set(@_);
-	$self->update;
-}
-
-#
 #  Create, set and remove extra currency symbols
 #
 sub addSymbol {
