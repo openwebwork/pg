@@ -3006,18 +3006,16 @@ sub image {
 				display_options2(%known_options);
 		}
 	}
-	my $width    = $out_options{width};
-	my $height   = $out_options{height};
-	my $tex_size = $out_options{tex_size};
-	# sanity check some of the above
-	$width    = ''  unless ($width    =~ /[1-9]\d*/);
-	$height   = ''  unless ($height   =~ /[1-9]\d*/);
-	$tex_size = ''  unless ($tex_size =~ /[1-9]\d*/);
-	$width    = 200 unless ($width || $height);
-	if (!$tex_size) {
-		$tex_size = ($width ? int($width / 0.6) : 800);
-	}
-	$tex_size = 1000 if ($tex_size > 1000);
+
+	# Get options for width, height, and tex_size, with a sanity check for integer values.
+	my $width    = $out_options{width}    =~ /[1-9]\d*/ ? $out_options{width}    : '';
+	my $height   = $out_options{height}   =~ /[1-9]\d*/ ? $out_options{height}   : '';
+	my $tex_size = $out_options{tex_size} =~ /[1-9]\d*/ ? $out_options{tex_size} : '';
+	$width = 200 unless ($width || $height);
+
+	$tex_size = $width ? int($width / 0.6) : 800 unless $tex_size;
+	$tex_size = 1000 if $tex_size > 1000;
+
 	my $alt         = $out_options{alt};
 	my $width_ratio = $tex_size * (.001);
 	my @image_list  = ();
@@ -3045,7 +3043,8 @@ sub image {
 			push(
 				@output_list,
 				$image_item->generateAnswerGraph(
-					$out_options{width} || $out_options{height} ? (width => $width, height => $height) : (),
+					$out_options{width}    || $out_options{height} ? (width   => $width, height => $height) : (),
+					$out_options{tex_size} || $out_options{width}  ? (texSize => $tex_size)                 : (),
 					ariaDescription => shift @alt_list // ''
 				)
 			);

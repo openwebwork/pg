@@ -371,8 +371,8 @@ A css class that will be added to the containing div. The default value is
 'graphtool-solution-container'. Note that this default class is provided in the graphtool.css file.
 A custom class may also be used, and injected into the header via HEADER_TEXT. It is recommended
 that this class be prefixed with the graph tool answer name to avoid possible conflict with other
-problems. This may be obtained with C<$gt->ANS_NAME>. This class must set the width and height of
-the div.graphtool-graph contained within, or the div.graphtool-number-line contained within if
+problems. This may be obtained with C<< $gt->ANS_NAME >>. This class must set the width and height
+of the div.graphtool-graph contained within, or the div.graphtool-number-line contained within if
 numberLine is set. Note that this option is only used in HTML output.
 
 =item C<ariaDescription>
@@ -383,6 +383,17 @@ that this option is only used in HTML output.
 =item C<objects>
 
 Additional objects to display in the graph. The default value is the empty string.
+
+=item C<width> and C<height>
+
+The width and height of the answer graph in HTML output.  If neither of these are given, then the
+css class will be used instead.  If only one of these is given, then the other will be computed from
+the given value.
+
+=item C<texSize>
+
+This is the size of the image that will be output when a hard copy of the problem is generated.
+The default value is the value of the graph tool object C<texSize> option which defaults to 400.
 
 =back
 
@@ -1346,6 +1357,21 @@ sub generateHTMLAnswerGraph {
 	my $ans_name = $self->ANS_NAME;
 	$self->constructJSXGraphOptions;
 
+	if ($options{width} || $options{height}) {
+		# This enforces a sane minimum width and height for the image.  The minimum width is 200 pixels.  The minimum
+		# height is the 200 pixels for two dimensional graphs, and is 50 pixels for number line graphs.  Two is added to
+		# the width and height to account for the container border, and so that the graph image will be the given width
+		# and height.
+		my $width =
+			main::max($options{width} || ($self->{numberLine} ? ($options{height} / 0.1625) : $options{height}), 200) +
+			2;
+		my $height = main::max($options{height} || ($self->{numberLine} ? (0.1625 * $options{width}) : $options{width}),
+			$self->{numberLine} ? 50 : 200) + 2;
+
+		main::HEADER_TEXT(
+			"<style>#${ans_name}_$idSuffix .graphtool-graph{width:${width}px;height:${height}px;}</style>");
+	}
+
 	return << "END_SCRIPT";
 <div id="${ans_name}_$idSuffix" class="$cssClass"></div>
 <script>
@@ -1381,7 +1407,9 @@ END_SCRIPT
 
 sub generateTeXGraph {
 	my ($self, %options) = @_;
+
 	$options{showCorrect} //= 1;
+	$options{texSize}     //= $self->{texSize};
 
 	return &{ $self->{printGraph} } if ref($self->{printGraph}) eq 'CODE';
 
@@ -1529,7 +1557,7 @@ END_TIKZ
 		main::insertGraph($graph),
 		width    => $size[0],
 		height   => $size[1],
-		tex_size => $self->{texSize}
+		tex_size => $options{texSize}
 	);
 }
 
