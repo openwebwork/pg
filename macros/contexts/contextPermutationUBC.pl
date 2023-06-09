@@ -37,30 +37,30 @@ are written in canonical form (as described below).
 
 =head1 USAGE
 
-	loadMacros("contextPermutationUBC.pl");
-	
-	Context("Permutation");
-	
-	$P1 = Compute("(1 4 2)(3 5)");
-	$P2 = Permutation([1,4,2],[3,5]);  # same as $P1
-        $C1 = Cycle(1,4,2);
-        $P3 = Cycle(1,4,2)*Cycle(3,5);     # same as $P1
-        
-        $n = 3 * $P1;                      # sets $n to 5
-        $m = Compute("3 (2 4 3 1)");       # sets $m to 1
-	
-	$P4 = Compute("(1 2 3)^2");        # square a cycle
-        $P5 = Compute("((1 2)(3 4))^2");   # square a permutation
-        $I = Comptue("(1 2 3)^-1");        # inverse
-	
-	$L = Compute("(1 2),(1 3 2)");     # list of permutations
-	
-	$P = $P1->inverse;                 # inverse
-	$P = $P1->canonical;               # canonical representation
-	
-	$P1 = Compute("(1 2 3)(4 5)");
-	$P2 = Compute("(5 4)(3 1 2)");
-	$P1 == $P2;                        # is true
+    loadMacros("contextPermutationUBC.pl");
+
+    Context("Permutation");
+
+    $P1 = Compute("(1 4 2)(3 5)");
+    $P2 = Permutation([1,4,2],[3,5]);  # same as $P1
+    $C1 = Cycle(1,4,2);
+    $P3 = Cycle(1,4,2)*Cycle(3,5);     # same as $P1
+
+    $n = 3 * $P1;                      # sets $n to 5
+    $m = Compute("3 (2 4 3 1)");       # sets $m to 1
+
+    $P4 = Compute("(1 2 3)^2");        # square a cycle
+    $P5 = Compute("((1 2)(3 4))^2");   # square a permutation
+    $I = Comptue("(1 2 3)^-1");        # inverse
+
+    $L = Compute("(1 2),(1 3 2)");     # list of permutations
+
+    $P = $P1->inverse;                 # inverse
+    $P = $P1->canonical;               # canonical representation
+
+    $P1 = Compute("(1 2 3)(4 5)");
+    $P2 = Compute("(5 4)(3 1 2)");
+    $P1 == $P2;                        # is true
 
 Cycles and permutations can be multiplied to obtain the permutation
 that consists of one followed by the other, or multiplied on the left
@@ -74,19 +74,19 @@ power).
 There are times when you might not want to allow inverses to be
 computed automatically.  In this case, set
 
-	Context()->flags->set(noInverses => 1);
+    Context()->flags->set(noInverses => 1);
 
 This will cause an error message if a student enters a negative power
 for a cycle or permutation.
 
 If you don't want to allow any powers at all, then set
 
-	Context()->flags->set(noPowers => 1);
+    Context()->flags->set(noPowers => 1);
 
 Similarly, if you don't want to allow grouping of cycles via
 parentheses (e.g., "((1 2)(3 4))^2 (5 6)"), then use
 
-	Context()->flags->set(noGroups => 1);
+    Context()->flags->set(noGroups => 1);
 
 The comparison between permutations is done by comparing the
 canonical forms, so even if they are entered in different orders or
@@ -97,7 +97,7 @@ custom error checker could be used.
 You can require that permutations be entered using disjoint cycles by
 setting
 
-	Context()->flags->set(requireDisjoint => 1);
+    Context()->flags->set(requireDisjoint => 1);
 
 When this is set, Compute("(1 2) (1 3)") will produce an error
 indicating that the permutation doesn't have disjoint cycles.
@@ -107,15 +107,15 @@ form.  The canonical form has each cycle listed with its lowest entry
 first, and with the cycles ordered by their initial entries.  So the
 canonical form for
 
-	(5 4 6) (3 1 2)
+    (5 4 6) (3 1 2)
 
 is
 
-	(1 2 3) (4 6 5)
+    (1 2 3) (4 6 5)
 
 To require that permutations be entered in canonical form, use
 
-	Context()->flags->set(requireCanonical => 1);
+    Context()->flags->set(requireCanonical => 1);
 
 The C<Permutation-Strict> context has C<noInverses>, C<noPowers>, C<noGroups>, and
 C<requireDisjoint> all set to 1, while the C<Permutation-Canonical> has

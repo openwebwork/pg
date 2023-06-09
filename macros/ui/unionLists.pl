@@ -14,12 +14,14 @@
 
 sub _unionLists_init { };    # don't reload this file
 
-=head2 unionLists.pl
+=head1 unionLists.pl
 
-  Usage:  BeginList(type,options);
+Usage:
 
-  Produces <OL> and <UL> lists.  Type must be either "OL" or "UL",
-  (and defaults to "OL").  The options are
+    BeginList(type,options);
+
+Produces <OL> and <UL> lists.  Type must be either "OL" or "UL",
+(and defaults to "OL").  The options are
 
     type => "type"            Specifies the type of marker
                               (default is none specified)
@@ -34,7 +36,7 @@ sub _unionLists_init { };    # don't reload this file
                               in TeX mode
                               (default is 0)
 
-  Example:
+Example:
 
     BEGIN_TEXT
       \{BeginList("OL")\}

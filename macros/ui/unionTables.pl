@@ -16,13 +16,15 @@
 
 sub _unionTables_init { };    # don't reload this file
 
-=head2 unionTables.pl
+=head1 unionTables.pl
 
-  Make a two-column table in HTML and Latex2HTML modes
+Make a two-column table in HTML and Latex2HTML modes
 
-  Usage:  ColumnTable(col1,col2,[options])
+Usage:
 
-  Options can be taken from:
+    ColumnTable(col1,col2,[options])
+
+Options can be taken from:
 
       indent => n           the width to indent the first column
                             (default is 0)
@@ -68,14 +70,14 @@ sub ColumnTable {
 	);
 }
 
-=pod
+=head2 ColumnMatchTable
 
-  Use columns for a match-list output
+Use columns for a match-list output
 
-  Usage:  ColumnMatchTable($ml,options)
+Usage:  C<ColumnMatchTable($ml,options)>
 
-  where $ml is a math list reference and options are those
-  allowed for ColumnTable above.
+where C<$ml> is a math list reference and options are those
+allowed for ColumnTable above.
 
 =cut
 
@@ -85,13 +87,13 @@ sub ColumnMatchTable {
 	ColumnTable($ml->print_q, $ml->print_a, @_);
 }
 
-=pod 
+=head2 BeginTable
 
-  Command for tables with no borders.
+Command for tables with no borders.
 
-  Usage:  BeginTable(options);
+Usage:  C<BeginTable(options);>
 
-  Options are taken from:
+Options are taken from:
 
     border => n           value for BORDER attribute (default 0)
     spacing => n          value for CELLSPACING attribute (default 0)
@@ -130,11 +132,11 @@ sub BeginTable {
 	);
 }
 
-=pod
+=head2 EndTable
 
-  Usage:  EndTable(options)
+Usage:  C<EndTable(options)>
 
-  where options are taken from:
+where options are taken from:
 
      tex_border => dimen     extra vertical space in TeX mode (default 0pt)
 
@@ -150,15 +152,15 @@ sub EndTable {
 	);
 }
 
-=pod
+=head2 Row
 
-  Creates a row in the table
+Creates a row in the table
 
-  Usage:  Row([item1,item2,...],options);
+Usage:  C<Row([item1,item2,...],options);>
 
-  Each item appears as a separate entry in the table.
+Each item appears as a separate entry in the table.
 
-  Options control how the row is displayed:
+Options control how the row is displayed:
 
     indent => num           Specifies size of blank column on the left
                             (default:  indent => 0)
@@ -215,11 +217,11 @@ sub Row {
 	);
 }
 
-=pod
+=head2 AlignedRow
 
   AlignedRow([item1,item2,...],options);
 
-  Options control how the row is displayed:
+Options control how the row is displayed:
 
     indent => num           Specifies size of blank column on the left
                             (default:  indent => 0)
@@ -275,14 +277,14 @@ sub AlignedRow {
 	);
 }
 
-=pod
+=head2 TableSpace
 
-  Add extra space between rows of a table
+Add extra space between rows of a table
 
-  Usage:  TableSpace(pixels,points)
+Usage:  C<TableSpace(pixels,points)>
 
-  where pixels is the number of pixels of space in HTML mode and
-  points is the number of points to use in TeX mode.
+where pixels is the number of pixels of space in HTML mode and
+points is the number of points to use in TeX mode.
 
 =cut
 
@@ -298,11 +300,11 @@ sub TableSpace {
 	);
 }
 
-=pod
+=head2 TableLine
 
-  A horizontal rule within a table.  (Could have been a variable,
-  but all the other table commands are subroutines, so kept it
-  one to be consistent.)
+A horizontal rule within a table.  (Could have been a variable,
+but all the other table commands are subroutines, so kept it
+one to be consistent.)
 
 =cut
 

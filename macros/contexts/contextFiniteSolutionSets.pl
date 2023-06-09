@@ -1,7 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2018 The WeBWorK Project, http://openwebwork.sf.net/
-# $CVSHeader$
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -19,21 +18,25 @@
 contextFiniteSolutionSets.pl - Allows several common input forms for a finite
 solution set.
 
+=head1 DESCRIPTION
+
 After setting the context to "FiniteSolutionSets", make an answer like:
-Formula("1,2")
-Formula("1/2,2/3,3/4")
-Formula("sqrt(2),(1+sqrt(2))/3, -(sqrt(2)+3sqrt(5))/6")
-List(Formula("1"))
+
+    Formula("1,2")
+    Formula("1/2,2/3,3/4")
+    Formula("sqrt(2),(1+sqrt(2))/3, -(sqrt(2)+3sqrt(5))/6")
+    List(Formula("1"))
 
 Note that if it is a singleton, the structure is different.
 
 Then students can enter the answer in any number of ways. Like:
-1,2
-x=1,2
-x=1,x=2
-x=1 or 2
-x=1 or x=2
-{1,2}
+
+    1,2
+    x=1,2
+    x=1,x=2
+    x=1 or 2
+    x=1 or x=2
+    {1,2}
 
 The "x" should be the only context variable, and it should be what the student
 needed to solve for.
@@ -42,13 +45,11 @@ If the answer is not submitted like {1,2}, and if the flag preferSetNotation is
 set to 1 (which is the default) then there is a message that this is the
 preferred form (but the student still gets credit).
 
-Answers like 2/3 and (1+sqrt(2))/3 need to be in that form, so the problem
-author needs to be careful to not do things like Formula("1/2,$a/$b,3/4")
-where $a and $b have a nontrivial common divisor.
+Answers like C<2/3> and C<(1+sqrt(2))/3> need to be in that form, so the problem
+author needs to be careful to not do things like C<Formula("1/2,$a/$b,3/4")>
+where C<$a> and C<$b> have a nontrivial common divisor.
 
 No decimals are allowed.
-
-=head1 DESCRIPTION
 
 =cut
 

@@ -28,7 +28,7 @@ sub _answerCustom_init { };    # don't reload this file
 
 =head2 custom_cmp
 
-	ANS(custom_cmp($correct_ans, $ans_checker, %options))
+    ANS(custom_cmp($correct_ans, $ans_checker, %options))
 
 This answer checker provides an easy method for creating an answer
 checker with a custom subroutine that performs the check for
@@ -84,10 +84,10 @@ student's answer, and the answer evaluator object, in that order.
 For example, the following checks if a student entered
 a unit vector (any unit vector in R^3 will do):
 
-	ANS(custom_cmp("<1,0,0>",sub {
-		my ($correct,$student,$ans) = @_;
-		return norm($student) == 1;
-	},showCoordinateHints => 0));
+    ANS(custom_cmp("<1,0,0>",sub {
+    	my ($correct,$student,$ans) = @_;
+    	return norm($student) == 1;
+    },showCoordinateHints => 0));
 
 The checker subroutine can call Value::Error(message) to generate
 an error message that will be reported in the table at the top of
@@ -129,11 +129,11 @@ sub custom_cmp {
 
 =head2 custom_list_cmp
 
- ANS(custom_list_cmp($correct_ans, $ans_checker, %options))
+    ANS(custom_list_cmp($correct_ans, $ans_checker, %options))
 
 This one installs a custom list-based answer checker (for the
 List and Union classes).  Basically it is just a shell that makes
-it a little easier to do, and provides an interface similar to 
+it a little easier to do, and provides an interface similar to
 custom_cmp.
 
 You pass the correct answer (as a string or as a List or Union

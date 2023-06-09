@@ -24,8 +24,8 @@ This is a Parser class that implements parametric planes in 3D as a
 subclass of the Formula class.  To use it, load this macro file, and
 set the context to the ParametricPlane context:
 
-	loadMacros("parserParametricPlane.pl");
-	Context("ParametricPlane");
+    loadMacros("parserParametricPlane.pl");
+    Context("ParametricPlane");
 
 Use ParametricPlane(point,vector1,vector2) or ParametricPlane(formula)
 to create a ParametricPlane object.  You can pass two optional
@@ -34,19 +34,19 @@ parameter for the line (these are s and t by default).
 
 Usage examples:
 
-	$P = ParametricPlane(Point(3,-1,2),Vector(1,1,3),Vector(-1,2,0));
-	$P = ParametricPlane([3,-1,2],[1,1,3],[-1,2,0]);
-	$P = ParametricPlane("<3+t-s,t+2s-1,2+2t>");
+    $P = ParametricPlane(Point(3,-1,2),Vector(1,1,3),Vector(-1,2,0));
+    $P = ParametricPlane([3,-1,2],[1,1,3],[-1,2,0]);
+    $P = ParametricPlane("<3+t-s,t+2s-1,2+2t>");
 
-	$p = Point(3,-1,2); $v1 = Vector(1,1,3); $v2 = Vector(-1,2,0)
-	$P = ParametricPlane($p,$v1,$v2);
+    $p = Point(3,-1,2); $v1 = Vector(1,1,3); $v2 = Vector(-1,2,0)
+    $P = ParametricPlane($p,$v1,$v2);
 
-	$s = Formula('s'); $t = Formula('t');
+    $s = Formula('s'); $t = Formula('t');
         $p = Point(3,-1,2); $v1 = Vector(1,1,3); $v2 = Vector(-1,2,0);
-	$P = ParametricPlane($p+$s*$v1+$t*$v2);
+    $P = ParametricPlane($p+$s*$v1+$t*$v2);
 
-	Context()->constants->are(a=>1+pi^2); # won't guess this value
-	$P = ParametricPlane("(a,2a,-1) + t <1,a,a^2> + s <2a,0,1-a>");
+    Context()->constants->are(a=>1+pi^2); # won't guess this value
+    $P = ParametricPlane("(a,2a,-1) + t <1,a,a^2> + s <2a,0,1-a>");
 
 Then use
 

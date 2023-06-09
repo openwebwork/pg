@@ -2,21 +2,21 @@
 
 =head1 NAME
 
-	PGstatisticsGraphMacros -- in courseScripts directory
+PGstatisticsGraphMacros -- in courseScripts directory
 
 =head1 SYNPOSIS
 
-#		use Fun;
-#		use Label;
-#		use Circle;
-#		use WWPlot;
+    use Fun;
+    use Label;
+    use Circle;
+    use WWPlot;
 
 =head1 DESCRIPTION
 
 This collection of macros provides easy access for statistics graphs
 using the facilities provided by the graph module WWPlot and the
 modules for objects which can be drawn on a graph: functions (Fun.pm)
-labels (Label.pm) and images.  
+labels (Label.pm) and images.
 
 These macros provide an easy ability to produce simple graphs for
 describing data sets.  More complicated projects may require direct

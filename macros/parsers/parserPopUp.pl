@@ -25,9 +25,9 @@ PGML.
 
 To create a PopUp object, use one of:
 
-	$popup = PopUp([choices,...], correct);
-	$dropdown = DropDown([choices,...], correct);
-	$truefalse = DropDownTF(correct);
+    $popup = PopUp([choices,...], correct);
+    $dropdown = DropDown([choices,...], correct);
+    $truefalse = DropDownTF(correct);
 
 where "choices" are the strings for the items in the popup menu,
 and "correct" is the choice that is the correct answer for the
@@ -48,8 +48,7 @@ but you can cause some or all of them to be ordered randomly by
 enclosing those that should be randomized within a second set of
 brackets.  For example
 
-        $radio = PopUp(
-                   [
+    $radio = PopUp([
                      "First Item",
                      ["Random 1","Random 2","Random 3"],
                      "Last Item"
@@ -61,7 +60,7 @@ will make a pop-up menu that has the first item always on top, the
 next three ordered randomly, and the last item always on the bottom.
 In this example
 
-        $radio = PopUp([["Random 1","Random 2","Random 3"]],2);
+    $radio = PopUp([["Random 1","Random 2","Random 3"]],2);
 
 all the entries are randomized, and the correct answer is "Random 3"
 (the one with index 2 in the original, unrandomized list).  You can
@@ -75,13 +74,13 @@ graphics.
 
 To insert the pop-up menu into the problem text, use
 
-	BEGIN_TEXT
-	\{$popup->menu\}
-	END_TEXT
+    BEGIN_TEXT
+    \{$popup->menu\}
+    END_TEXT
 
 and then
 
-	ANS($popup->cmp);
+    ANS($popup->cmp);
 
 to get the answer checker for the popup.
 

@@ -25,16 +25,16 @@ here.  For example, you can make vectors display using
 ijk notation (and force students to use it for entering
 vectors) by using:
 
-	$context{Vector} = Parser::Context->getCopy("Vector");
-	$context{Vector}->flags->set(ijk=>1);
-	$context{Vector}->parens->remove('<');
+    $context{Vector} = Parser::Context->getCopy("Vector");
+    $context{Vector}->flags->set(ijk=>1);
+    $context{Vector}->parens->remove('<');
 
 To allow vectors to be entered with parens (and displayed with
 parens) rather than angle-brakets, use
 
-	$context{Vector} = Parser::Context->getCopy("Vector");
-	$context{Vector}->{cmpDefaults}{Vector} = {promotePoints => 1};
-	$context{Vector}->lists->set(Vector=>{open=>'(', close=>')'});
+    $context{Vector} = Parser::Context->getCopy("Vector");
+    $context{Vector}->{cmpDefaults}{Vector} = {promotePoints => 1};
+    $context{Vector}->lists->set(Vector=>{open=>'(', close=>')'});
 
 (This actually just turns points into vectors in the answer checker
 for vectors, and displays vectors using parens rather than angle

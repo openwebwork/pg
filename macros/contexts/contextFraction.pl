@@ -8,7 +8,7 @@ contextFraction.pl - Implements a MathObject class for Fractions.
 This context implements a Fraction object that works like a Real, but
 keeps the numerator and denominator separate.  It provides methods for
 reducing the fractions, and for allowing fractions with a whole-number
-preceding it, as in 4 1/2 for "four and one half".  The answer
+preceding it, as in C<4 1/2> for "four and one half".  The answer
 checker can require that students reduce their results, and there are
 contexts that don't allow entery of decimal values (only fractions),
 and that don't allow any operators or functions (other than division
@@ -16,17 +16,17 @@ and negation).
 
 To use these contexts, first load the contextFraction.pl file:
 
-	loadMacros("contextFraction.pl");
+    loadMacros("contextFraction.pl");
 
 and then select the appropriate context -- one of the following:
 
-	Context("Fraction");
-	Context("Fraction-NoDecimals");
-	Context("LimitedFraction");
-        Context("LimitedProperFraction");
+    Context("Fraction");
+    Context("Fraction-NoDecimals");
+    Context("LimitedFraction");
+    Context("LimitedProperFraction");
 
 The first is the most general, and allows fractions to be intermixed
-with real numbers, so 1/2 + .5 would be allowed.  Also, 1/2.5 is
+with real numbers, so C<1/2 + .5> would be allowed.  Also, C<1/2.5> is
 allowed, though it produces a real number, not a fraction, since this
 fraction class only implements fractions of integers.  All operators
 and functions are defined, so there are no restrictions on what is
@@ -34,7 +34,7 @@ allowed by the student.
 
 The second does not allow decimal numbers to be entered, but they can
 still be produced as the result of function calls, or by named
-constants such as "pi".  For example, 1/sqrt(2) is allowed (and
+constants such as "pi".  For example, C<1/sqrt(2)> is allowed (and
 produces a real number result).  All functions and operations are
 defined, and the only real difference between this and the previous
 context is that decimal numbers can't be typed in explicitly.
@@ -42,86 +42,86 @@ context is that decimal numbers can't be typed in explicitly.
 The third context limits the operations that can be performed: in
 addition to not being able to type decimal numbers, no operations
 other than division and negation are allowed, and no function calls at
-all.  Thus 1/sqrt(2) would be illegal, as would 1/2 + 2.  The student
+all.  Thus C<1/sqrt(2)> would be illegal, as would C<1/2 + 2>.  The student
 must enter a whole number or a fraction in this context.  It is also
-permissible to enter a whole number WITH a fraction, as in 2 1/2 for
-"two and one half", or 5/2.
+permissible to enter a whole number WITH a fraction, as in C<2 1/2> for
+"two and one half", or C<5/2>.
 
 The fourth is the same as LimiteFraction, but students must enter proper
 fractions, and results are shown as proper fractions.
 
-You can use the Compute() function to generate fraction objects, or
-the Fraction() constructor to make one explicitly.  For example:
+You can use the C<Compute()> function to generate fraction objects, or
+the C<Fraction()> constructor to make one explicitly.  For example:
 
-	Context("Fraction");
-	$a = Compute("1/2");
-	$b = Compute("4 - 1/6");
-	$c = Compute("(4/9)^(1/2)");
-	
-	Context("LimitedFraction");
-	$d = Compute("4 2/3");
-	$e = Compute("-1 1/2");
-	
-	$f = Fraction(-2,5);
+    Context("Fraction");
+    $a = Compute("1/2");
+    $b = Compute("4 - 1/6");
+    $c = Compute("(4/9)^(1/2)");
 
-Note that $c will be 2/3, $d will be 14/3, $e will be -3/2, and $f
-will be -2/5.
+    Context("LimitedFraction");
+    $d = Compute("4 2/3");
+    $e = Compute("-1 1/2");
+
+    $f = Fraction(-2,5);
+
+Note that C<$c> will be C<2/3>, $d will be C<14/3>, $e will be C<-3/2>, and C<$f>
+will be C<-2/5>.
 
 Once you have created a fraction object, you can use it as you would
 any real number.  For example:
 
-	Context("Fraction");
-	$a = Compute("1/2");
-	$b = Compute("1/3");
-	$c = $a - $b;
-	$d = asin($a);
-	$e = $b**2;
+    Context("Fraction");
+    $a = Compute("1/2");
+    $b = Compute("1/3");
+    $c = $a - $b;
+    $d = asin($a);
+    $e = $b**2;
 
-Here $c will be the equivalent of Compute("1/6"), $d will be
-equivalent to Compute("pi/6"), and $e will be the same as Compute("1/9");
+Here C<$c> will be the equivalent of C<Compute("1/6")>, C<$d> will be
+equivalent to C<Compute("pi/6")>, and C<$e> will be the same as C<Compute("1/9");>
 
 You can an answer checker for a fraction in the same way as you do for
-ALL MathObjects -- via its cmp() method:
+ALL C<MathObjects> -- via its C<cmp()> method:
 
-	ANS(Compute("1/2")->cmp);
+    ANS(Compute("1/2")->cmp);
 
 or
 
-	$b = Compute("1/2");
-	ANS($b->cmp);
+    $b = Compute("1/2");
+    ANS($b->cmp);
 
-There are several options to the cmp() method that control how the
+There are several options to the C<cmp()> method that control how the
 answer checker will work.  The first is controls whether unreduced
 fractions are accepted as correct.  Unreduced fractions are allowed in
-the Fraction and Fraction-NoDecimals contexts, but not in the
-LimitedFraction context.  You can control this using the
-studentsMustReduceFractions option:
+the C<Fraction> and C<Fraction-NoDecimals> contexts, but not in the
+C<LimitedFraction> context.  You can control this using the
+C<studentsMustReduceFractions> option:
 
-	Context("Fraction");
-	ANS(Compute("1/2")->cmp(studentsMustReduceFractions=>1));
+    Context("Fraction");
+    ANS(Compute("1/2")->cmp(studentsMustReduceFractions=>1));
 
 or
 
-	Context("LimitedFraction");
-	ANS(Compute("1/2")->cmp(studentsMustReduceFractions=>0));
+    Context("LimitedFraction");
+    ANS(Compute("1/2")->cmp(studentsMustReduceFractions=>0));
 
 The second controls whether warnings are issued when students don't
 reduce their answers, or to mark the answer incorrect silently.  This
-is specified by the showFractionReductionWarnings option.  The default
+is specified by the C<showFractionReductionWarnings> option.  The default
 is to report the warnings, but this option has an effect only when
-studentsMustReduceFractions is 1, and so only in the LimitedFraction
+C<studentsMustReduceFractions> is 1, and so only in the C<LimitedFraction>
 context.  For example,
 
-	Context("LimitedFraction");
-	ANS(Compute("1/2")->cmp(showFractionReductionWarnings=>0));
+    Context("LimitedFraction");
+    ANS(Compute("1/2")->cmp(showFractionReductionWarnings=>0));
 
 turns off these warnings.
 
 The final option, requireFraction, specifies whether a fraction MUST
-be entered (e.g. one would have to enter 2/1 for a whole number).  The
+be entered (e.g. one would have to enter C<2/1> for a whole number).  The
 default is 0.
 
-In addition to these options for cmp(), there are Context flags that
+In addition to these options for C<cmp()>, there are Context flags that
 control how fractions are handled.  These include the following.
 
 =over
@@ -130,21 +130,21 @@ control how fractions are handled.  These include the following.
 
 This determines whether fractions are reduced automatically when they
 are created.  The default is to reduce fractions (except when
-studentsMustReduceFractions is set), so Compute("4/6") would produce
-the fraction 2/3.  To leave fractions unreduced, set
-reduceFractions=>0.  The LimitedFraction context has
-studentsMustReduceFractions set, so reduceFractions is unset
+C<studentsMustReduceFractions> is set), so C<Compute("4/6")> would produce
+the fraction C<2/3>.  To leave fractions unreduced, set
+C<S<< reduceFractions => 0 >>>.  The C<LimitedFraction> context has
+C<studentsMustReduceFractions> set, so reduceFractions is unset
 automatically for students, but not for correct answers, so
-Fraction(2,4) would still produce 1/2, even though 2/4 would not be
+C<Fraction(2,4)> would still produce C<1/2>, even though C<2/4> would not be
 allowed in a student answer.
 
 =item S<C<< strictFractions >>>
 
 This determines whether division is allowed only between integers or
 not.  If you want to prevent division from accepting non-integers,
-then set strictFractions=>1 (and also strictMinus=>1 and
-strictMultiplication=>1).  These are all three 0 by default in the
-Fraction and Fraction-NoDecimals contexts, but 1 in LimitedFraction.
+then set C<S<< strictFractions => 1 >>> (and also C<S<< strictMinus => 1 >>> and
+C<S<< strictMultiplication => 1 >>>).  These are all three 0 by default in the
+C<Fraction> and C<Fraction-NoDecimals> contexts, but 1 in C<LimitedFraction>.
 
 =item S<C<< allowMixedNumbers >>>
 
@@ -152,18 +152,18 @@ This determines whether a space between a whole number and a fraction
 is interpretted as implicit multiplication (as it usually would be in
 WeBWorK), or as addition, allowing "4 1/2" to mean "4 and 1/2".  By
 default, it acts as multiplication in the Fraction and
-Fraction-NoDecimals contexts, and as addition in LimitedFraction.  If
-you set allowMixedNumbers=>1 you should also set reduceConstants=>0.
-This parameter used to be named allowProperFractions, which is
+C<Fraction-NoDecimals> contexts, and as addition in C<LimitedFraction>.  If
+you set C<S<< allowMixedNumbers => 1 >>> you should also set C<S<< reduceConstants => 0 >>>.
+This parameter used to be named C<allowProperFractions>, which is
 deprecated, but you can still use it for backward-compatibility.
 
 =item S<C<< showMixedNumbers >>>
 
 This controls whether fractions are displayed as proper fractions or
-not.  When set, 5/2 will be displayed as 2 1/2 in the answer preview
-area, otherwise it will be displayed as 5/2.  This flag is 0 by
+not.  When set, C<5/2> will be displayed as C<2 1/2> in the answer preview
+area, otherwise it will be displayed as C<5/2>.  This flag is 0 by
 default in the Fraction and Fraction-NoDecimals contexts, and 1 in
-LimitedFraction.  This parameter used to be named showProperFractions,
+C<LimitedFraction>.  This parameter used to be named C<showProperFractions>,
 which is deprecated, but you can still use it for
 backward-compatibility.
 
@@ -172,49 +172,49 @@ backward-compatibility.
 This determines whether fractions MUST be entered as proper fractions.
 It is 0 by default, meaning improper fractions are allowed.  When set,
 you will not be able to enter 5/2 as a fraction, but must use "2 1/2".
-This flag is allowed only when strictFractions is in effect.  Set it
-to 1 only when you also set allowMixedNumbers, or you will not be able
+This flag is allowed only when C<strictFractions> is in effect.  Set it
+to 1 only when you also set C<allowMixedNumbers>, or you will not be able
 to specify fractions bigger than one.  It is off by default in all
-four contexts.  You should not set both requireProperFractions and
-requirePureFractions to 1.
+four contexts.  You should not set both C<requireProperFractions> and
+C<requirePureFractions> to 1.
 
 =item S<C<< requirePureFractions >>>
 
 This determines whether fractions MUST be entered as pure fractions
-rather than mixed numbers.  If allowMixedNumbers is also set, then
+rather than mixed numbers.  If C<allowMixedNumbers> is also set, then
 mixed numbers will be properly interpretted, but will produce a
-warning message and be marked incorrect; that is, 2 3/4 would be
-recognized as 2+3/4 rather than 2*3/4, but would generate a message
+warning message and be marked incorrect; that is, C<2 3/4> would be
+recognized as C<2+3/4> rather than C<2*3/4>, but would generate a message
 indicating that mixed numbers are not allowed.  This flag is off by
 default in all four contexts.  You should not set both
-requirePureFractions and requireProperFractions to 1.
+C<requirePureFractions> and C<requireProperFractions> to 1.
 
 =back
 
 Fraction objects have two methods that can be useful when
-reduceFractions is set to 0.  The reduce() method will reduce a
-fraction to lowest terms, and the isReduced() method returns true when
+C<reduceFractions> is set to 0.  The C<reduce()> method will reduce a
+fraction to lowest terms, and the C<isReduced()> method returns true when
 the fraction is reduced and false otherwise.
 
 If you wish to convert a fraction to its numeric (real number) form,
-use the Real() constructor to coerce it to a real.  E.g.,
+use the C<Real()> constructor to coerce it to a real.  E.g.,
 
-	$a = Compute("1/2");
-	$r = Real($a);
+    $a = Compute("1/2");
+    $r = Real($a);
 
-would set $r to the value 0.5.  Similarly, use Fraction() to convert a
+would set $r to the value 0.5.  Similarly, use C<Fraction()> to convert a
 real number to (an approximating) fraction.  E.g.,
 
-	$r = Real(.5);
-	$a = Fraction($r);
+    $r = Real(.5);
+    $a = Fraction($r);
 
-would set $a to be 1/2.  The fraction produced is good to about 6
+would set C<$a> to be C<1/2>.  The fraction produced is good to about 6
 decimal places, so it can't be used for numbers that are too small.
 
-A side-effect of using the Fraction context is that fractions can be
+A side-effect of using the C<Fraction> context is that fractions can be
 used to take powers of negative numbers when the reduced form of the
-fraction has an odd denominator.  Thus (-8)^(1/3) will produce -2 as a
-result, while in the standard Numeric context it would produce an
+fraction has an odd denominator.  Thus C<(-8)^(1/3)> will produce -2 as a
+result, while in the standard C<Numeric> context it would produce an
 error.
 
 =cut

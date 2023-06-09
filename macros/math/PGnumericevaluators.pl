@@ -19,27 +19,27 @@ PGnumericevaluators.pl - Macros that generate numeric answer evaluators.
 
 =head1 SYNOPSIS
 
-	ANS(num_cmp($answer_or_answer_array_ref, %options_hash));
-	
-	ANS(std_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
-	ANS(std_num_cmp_abs($correctAnswer, $absTol, $format));
-	ANS(std_num_cmp_list($relTol, $format, @answerList));
-	ANS(std_num_cmp_abs_list($absTol, $format, @answerList));
-	
-	ANS(arith_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
-	ANS(arith_num_cmp_abs($correctAnswer, $absTol, $format));
-	ANS(arith_num_cmp_list($relTol, $format, @answerList));
-	ANS(arith_num_cmp_abs_list($absTol, $format, @answerList));
-	
-	ANS(strict_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
-	ANS(strict_num_cmp_abs($correctAnswer, $absTol, $format));
-	ANS(strict_num_cmp_list($relTol, $format, @answerList));
-	ANS(strict_num_cmp_abs_list($absTol, $format, @answerList));
-	
-	ANS(frac_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
-	ANS(frac_num_cmp_abs($correctAnswer, $absTol, $format));
-	ANS(frac_num_cmp_list($relTol, $format, @answerList));
-	ANS(frac_num_cmp_abs_list($absTol, $format, @answerList));
+    ANS(num_cmp($answer_or_answer_array_ref, %options_hash));
+
+    ANS(std_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
+    ANS(std_num_cmp_abs($correctAnswer, $absTol, $format));
+    ANS(std_num_cmp_list($relTol, $format, @answerList));
+    ANS(std_num_cmp_abs_list($absTol, $format, @answerList));
+
+    ANS(arith_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
+    ANS(arith_num_cmp_abs($correctAnswer, $absTol, $format));
+    ANS(arith_num_cmp_list($relTol, $format, @answerList));
+    ANS(arith_num_cmp_abs_list($absTol, $format, @answerList));
+
+    ANS(strict_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
+    ANS(strict_num_cmp_abs($correctAnswer, $absTol, $format));
+    ANS(strict_num_cmp_list($relTol, $format, @answerList));
+    ANS(strict_num_cmp_abs_list($absTol, $format, @answerList));
+
+    ANS(frac_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
+    ANS(frac_num_cmp_abs($correctAnswer, $absTol, $format));
+    ANS(frac_num_cmp_list($relTol, $format, @answerList));
+    ANS(frac_num_cmp_abs_list($absTol, $format, @answerList));
 
 =head1 DESCRIPTION
 
@@ -92,7 +92,7 @@ sub _PGnumericevaluators_init {
 
 =head1 num_cmp
 
-	ANS(num_cmp($answer_or_answer_array_ref, %options));
+    ANS(num_cmp($answer_or_answer_array_ref, %options));
 
 num_cmp() returns one or more answer evaluators (subroutine references) that
 compare the student's answer to a numeric value. Evaluation options are
@@ -165,15 +165,15 @@ The full list of formatters can be found in the manpage for printf(3), or by
 typing "perldoc -f sprintf" at a terminal prompt. The following is a brief
 summary of the most frequent formatters:
 
-	%d     decimal number
-	%ld    long decimal number
-	%u     unsigned decimal number
-	%lu    long unsigned decimal number
-	%x     hexadecimal number
-	%o     octal number
-	%e     floating point number in scientific notation
-	%f     floating point number
-	%g     either %e or %f, whichever takes less space
+    %d     decimal number
+    %ld    long decimal number
+    %u     unsigned decimal number
+    %lu    long unsigned decimal number
+    %x     hexadecimal number
+    %o     octal number
+    %e     floating point number in scientific notation
+    %f     floating point number
+    %g     either %e or %f, whichever takes less space
 
 Technically, %g will use %e if the exponent is less than -4 or greater than or
 equal to the precision. Trailing zeros are removed in this mode.
@@ -201,7 +201,7 @@ tolerance of 1 indicates that the student answer must be within 1% of the
 correct answer to qualify as correct. In other words, a student answer is
 correct when
 
-	abs(studentAnswer - correctAnswer) <= abs(.01*relTol*correctAnswer)
+    abs(studentAnswer - correctAnswer) <= abs(.01*relTol*correctAnswer)
 
 tol and relTol are mutually exclusive. reltol is also accpeted as a synonym for
 relTol.
@@ -215,7 +215,7 @@ If the correct answer has an absolute value less than or equal to zeroLevel,
 then the student answer must be, in absolute terms, within zeroLevelTol of
 correctAnswer, i.e.,
 
-	abs(studentAnswer - correctAnswer) <= zeroLevelTol
+    abs(studentAnswer - correctAnswer) <= zeroLevelTol
 
 In other words, if the correct answer is very near zero, an absolute tolerance
 will be used. One must do this to handle floating point answers very near zero,
@@ -242,25 +242,25 @@ If set to 1, extra debugging information will be output.
 
 =head2 Examples
 
-	# correct answer is 5, using defaults for all options
-	num_cmp(5);
+    # correct answer is 5, using defaults for all options
+    num_cmp(5);
 
-	# correct answers are 5, 6, and 7, using defaults for all options
-	num_cmp([5,6,7]);
+    # correct answers are 5, 6, and 7, using defaults for all options
+    num_cmp([5,6,7]);
 
-	# correct answer is 5, mode is strict
-	num_cmp(5, mode=>'strict');
+    # correct answer is 5, mode is strict
+    num_cmp(5, mode=>'strict');
 
-	# correct answers are 5 and 6, both with 5% relative tolerance
-	num_cmp([5,6], relTol=>5);
+    # correct answers are 5 and 6, both with 5% relative tolerance
+    num_cmp([5,6], relTol=>5);
 
-	# correct answer is 6, "Inf", "Minf", and "NaN" recognized as valid, but
-	# incorrect answers.
-	num_cmp(6, strings=>["Inf", "Minf", "NaN"]);
+    # correct answer is 6, "Inf", "Minf", and "NaN" recognized as valid, but
+    # incorrect answers.
+    num_cmp(6, strings=>["Inf", "Minf", "NaN"]);
 
-	# correct answer is "-INF", "INF" and numerical expressions recognized as
-	# valid, but incorrect answers.
-	num_cmp("-INF", strings => ["INF", "-INF"]);
+    # correct answer is "-INF", "INF" and numerical expressions recognized as
+    # valid, but incorrect answers.
+    num_cmp("-INF", strings => ["INF", "-INF"]);
 
 =cut
 
@@ -446,23 +446,23 @@ list) and whether relative or absolute tolerances are used. Each group contains
 four functions, one for each evaluation mode. See the mode option to num_cmp()
 above for details about each mode.
 
-	 GROUP:|    "normal"    |       "list"        |       "abs"        |        "abs_list"       |
-	       | single answer  |   list of answers   |   single answer    |     list of answers     |
-	MODE:  | relative tol.  | relative tolerance  | absolute tolerance |    absolute tolerance   |
-	-------+----------------+---------------------+--------------------+-------------------------+
-	   std |    std_num_cmp |    std_num_cmp_list |    std_num_cmp_abs |    std_num_cmp_abs_list |
-	  frac |   frac_num_cmp |   frac_num_cmp_list |   frac_num_cmp_abs |   frac_num_cmp_abs_list |
-	strict | strict_num_cmp | strict_num_cmp_list | strict_num_cmp_abs | strict_num_cmp_abs_list |
-	 arith |  arith_num_cmp |  arith_num_cmp_list |  arith_num_cmp_abs |  arith_num_cmp_abs_list |
+     GROUP:|    "normal"    |       "list"        |       "abs"        |        "abs_list"       |
+           | single answer  |   list of answers   |   single answer    |     list of answers     |
+    MODE:  | relative tol.  | relative tolerance  | absolute tolerance |    absolute tolerance   |
+    -------+----------------+---------------------+--------------------+-------------------------+
+       std |    std_num_cmp |    std_num_cmp_list |    std_num_cmp_abs |    std_num_cmp_abs_list |
+      frac |   frac_num_cmp |   frac_num_cmp_list |   frac_num_cmp_abs |   frac_num_cmp_abs_list |
+    strict | strict_num_cmp | strict_num_cmp_list | strict_num_cmp_abs | strict_num_cmp_abs_list |
+     arith |  arith_num_cmp |  arith_num_cmp_list |  arith_num_cmp_abs |  arith_num_cmp_abs_list |
 
 The functions in each group take the same arguments.
 
 =head2 The normal group
 
-	ANS(std_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
-	ANS(arith_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
-	ANS(strict_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
-	ANS(frac_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
+    ANS(std_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
+    ANS(arith_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
+    ANS(strict_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
+    ANS(frac_num_cmp($correctAnswer, $relTol, $format, $zeroLevel, $zeroLevelTol));
 
 This group of functions produces answer evaluators for a single correct answer
 using relative tolerances. The first argument, $correctAnswer, is required. The
@@ -471,10 +471,10 @@ to num_cmp(), above.
 
 =head2 The list group
 
-	ANS(std_num_cmp_list($relTol, $format, @answerList));
-	ANS(arith_num_cmp_list($relTol, $format, @answerList));
-	ANS(strict_num_cmp_list($relTol, $format, @answerList));
-	ANS(frac_num_cmp_list($relTol, $format, @answerList));
+    ANS(std_num_cmp_list($relTol, $format, @answerList));
+    ANS(arith_num_cmp_list($relTol, $format, @answerList));
+    ANS(strict_num_cmp_list($relTol, $format, @answerList));
+    ANS(frac_num_cmp_list($relTol, $format, @answerList));
 
 This group of functions produces answer evaluators for a list of correct answers
 using relative tolerances. $relTol and $format are equivelent to the
@@ -485,10 +485,10 @@ relative tolerance and format specified.
 
 =head2 The abs group
 
-	ANS(std_num_cmp_abs($correctAnswer, $absTol, $format));
-	ANS(arith_num_cmp_abs($correctAnswer, $absTol, $format));
-	ANS(strict_num_cmp_abs($correctAnswer, $absTol, $format));
-	ANS(frac_num_cmp_abs($correctAnswer, $absTol, $format));
+    ANS(std_num_cmp_abs($correctAnswer, $absTol, $format));
+    ANS(arith_num_cmp_abs($correctAnswer, $absTol, $format));
+    ANS(strict_num_cmp_abs($correctAnswer, $absTol, $format));
+    ANS(frac_num_cmp_abs($correctAnswer, $absTol, $format));
 
 This group of functions produces answer evaluators for a single correct answer
 using absolute tolerances. The first argument, $correctAnswer, is required. The
@@ -497,10 +497,10 @@ to num_cmp(), above.
 
 =head2 The abs_list group
 
-	ANS(std_num_cmp_abs_list($absTol, $format, @answerList));
-	ANS(arith_num_cmp_abs_list($absTol, $format, @answerList));
-	ANS(strict_num_cmp_abs_list($absTol, $format, @answerList));
-	ANS(frac_num_cmp_abs_list($absTol, $format, @answerList));
+    ANS(std_num_cmp_abs_list($absTol, $format, @answerList));
+    ANS(arith_num_cmp_abs_list($absTol, $format, @answerList));
+    ANS(strict_num_cmp_abs_list($absTol, $format, @answerList));
+    ANS(frac_num_cmp_abs_list($absTol, $format, @answerList));
 
 This group of functions produces answer evaluators for a list of correct answers
 using absolute tolerances. $absTol and $format are equivelent to the
@@ -511,26 +511,26 @@ absolute tolerance and format specified.
 
 =head2 Examples
 
-	# The student answer must be a number in decimal or scientific notation
-	# which is within .1 percent of 3.14159. This assumes
-	# $numRelPercentTolDefault has been set to .1.
-	ANS(strict_num_cmp(3.14159));
+    # The student answer must be a number in decimal or scientific notation
+    # which is within .1 percent of 3.14159. This assumes
+    # $numRelPercentTolDefault has been set to .1.
+    ANS(strict_num_cmp(3.14159));
 
-	# The student answer must be a number within .01 percent of $answer (e.g. #
-	3.14159 if $answer is 3.14159 or $answer is "pi" or $answer is 4*atan(1)).
-	ANS(strict_num_cmp($answer, .01));
+    # The student answer must be a number within .01 percent of $answer (e.g. #
+    3.14159 if $answer is 3.14159 or $answer is "pi" or $answer is 4*atan(1)).
+    ANS(strict_num_cmp($answer, .01));
 
-	# The student answer can be a number or fraction, e.g. 2/3.
-	ANS(frac_num_cmp($answer)); # or
-	ANS(frac_num_cmp($answer, .01));
+    # The student answer can be a number or fraction, e.g. 2/3.
+    ANS(frac_num_cmp($answer)); # or
+    ANS(frac_num_cmp($answer, .01));
 
-	# The student answer can be an arithmetic expression, e.g. (2+3)/7-2^.5 .
-	ANS(arith_num_cmp($answer)); # or
-	ANS(arith_num_cmp($answer, .01));
+    # The student answer can be an arithmetic expression, e.g. (2+3)/7-2^.5 .
+    ANS(arith_num_cmp($answer)); # or
+    ANS(arith_num_cmp($answer, .01));
 
-	# The student answer can contain elementary functions, e.g. sin(.3+pi/2)
-	ANS(std_num_cmp($answer)); # or
-	ANS(std_num_cmp( $answer, .01));
+    # The student answer can contain elementary functions, e.g. sin(.3+pi/2)
+    ANS(std_num_cmp($answer)); # or
+    ANS(std_num_cmp( $answer, .01));
 
 =cut
 
@@ -922,11 +922,11 @@ sub strict_num_cmp_abs_list {    # compare numbers
 
 =head2 [DEPRECATED] numerical_compare_with_units
 
-	ANS(numerical_compare_with_units($correct_ans_with_units, %options))	
+    ANS(numerical_compare_with_units($correct_ans_with_units, %options))
 
 This function is deprecated. Use num_cmp with the units option instead:
 
-	ANS(num_cmp($correct_ans, units=>$units));
+    ANS(num_cmp($correct_ans, units=>$units));
 
 =cut
 
@@ -961,11 +961,11 @@ sub numerical_compare_with_units {
 
 =head2 [DEPRECATED] std_num_str_cmp()
 
-	ANS(std_num_str_cmp($correctAnswer, $ra_legalStrings, $relTol, $format, $zeroLevel, $zeroLevelTol))
+    ANS(std_num_str_cmp($correctAnswer, $ra_legalStrings, $relTol, $format, $zeroLevel, $zeroLevelTol))
 
 This function is deprecated. Use num_cmp() with the strings option instead:
 
-	ANS(num_cmp($correctAnswer, strings=>$ra_legalStrings, ...));
+    ANS(num_cmp($correctAnswer, strings=>$ra_legalStrings, ...));
 
 =cut
 

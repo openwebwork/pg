@@ -91,25 +91,25 @@ one in the list is used.
 
 Example:
 
-	ANS(Vector(1,2,3)->cmp(showCoordinateHints=>0)->withPostFilter(AnswerHints(
-		Vector(0,0,0) => "The zero vector is not a valid solution",
-		"-<1,2,3>" => "Try the opposite direction",
-		"<1,2,3>" => "Well done!",
-		["<1,1,1>","<2,2,2>","<3,3,3>"] => "Don't just guess!",
-		sub {
-			my ($correct,$student,$ans) = @_;
-			return $correct . $student == 0;
-		} => "Your answer is perpendicular to the correct one",
-		Vector(1,2,3) => [
-			"You have the right direction, but not length",
-			cmp_options => [parallel=>1],
-		],
-		0 => ["Careful, your answer should be a vector!", checkTypes => 0, replaceMessage => 1],
-		sub {
-			my ($correct,$student,$ans) = @_;
-			return norm($correct-$student) < .1;
-		} => ["Close!  Keep trying.", score => .25],
-	)));
+    ANS(Vector(1,2,3)->cmp(showCoordinateHints=>0)->withPostFilter(AnswerHints(
+        Vector(0,0,0) => "The zero vector is not a valid solution",
+        "-<1,2,3>" => "Try the opposite direction",
+        "<1,2,3>" => "Well done!",
+        ["<1,1,1>","<2,2,2>","<3,3,3>"] => "Don't just guess!",
+        sub {
+            my ($correct,$student,$ans) = @_;
+            return $correct . $student == 0;
+        } => "Your answer is perpendicular to the correct one",
+        Vector(1,2,3) => [
+            "You have the right direction, but not length",
+            cmp_options => [parallel=>1],
+        ],
+        0 => ["Careful, your answer should be a vector!", checkTypes => 0, replaceMessage => 1],
+        sub {
+            my ($correct,$student,$ans) = @_;
+            return norm($correct-$student) < .1;
+        } => ["Close!  Keep trying.", score => .25],
+    )));
 
 =cut
 

@@ -28,20 +28,20 @@ blank.
 To create a MultiAnswer pass a list of answers to MultiAnswer() in the
 order they will appear in the problem.  For example:
 
-	$mp = MultiAnswer("x^2",-1,1);
+    $mp = MultiAnswer("x^2",-1,1);
 
 or
 
-	$mp = MultiAnswer(Vector(1,1,1),Vector(2,2,2))->with(singleResult=>1);
+    $mp = MultiAnswer(Vector(1,1,1),Vector(2,2,2))->with(singleResult=>1);
 
 Then, use $mp->ans_rule to create answer blanks for the various parts
 just as you would ans_rule.  You can pass the width of the blank, which
 defaults to 20 otherwise.  For example:
 
-	BEGIN_TEXT
-	\(f(x)\) = \{$mp->ans_rule(20)\} produces the same value
-	at \(x\) = \{$mp->ans_rule(10)\} as it does at \(x\) = \{$mp->ans_rule(10)\}.
-	END_TEXT
+    BEGIN_TEXT
+    \(f(x)\) = \{$mp->ans_rule(20)\} produces the same value
+    at \(x\) = \{$mp->ans_rule(10)\} as it does at \(x\) = \{$mp->ans_rule(10)\}.
+    END_TEXT
 
 Finally, call $mp->cmp to produce the answer checker(s) used in the MultiAnswer.
 You need to provide a checker routine that will be called to determine if the
@@ -58,7 +58,7 @@ as a whole (every answer blank will be given the same score), or a reference
 to an array of scores, one for each blank.  The routine can set error messages
 via the MultiAnswer's setMessage() method (e.g.,
 
-	$mp->setMessage(1,"The function can't be the identity");
+    $mp->setMessage(1,"The function can't be the identity");
 
 would set the message for the first answer blank of the MultiAnswer), or can
 call Value::Error() to generate an error and die.
@@ -66,29 +66,29 @@ call Value::Error() to generate an error and die.
 The checker routine can be supplied either when the MultiAnswer is created, or
 when the cmp() method is called.  For example:
 
-	$mp = MultiAnswer("x^2",1,-1)->with(
-		singleResult => 1,
-		checker => sub {
-			my ($correct,$student,$self) = @_;  # get the parameters
-			my ($f,$x1,$x2) = @{$student};      # extract the student answers
-			Value::Error("Function can't be the identity") if ($f == 'x');
-			Value::Error("Function can't be constant") if ($f->isConstant);
-			return $f->eval(x=>$x1) == $f->eval(x=>$x2);
-		},
-	);
-	ANS($mp->cmp);
+    $mp = MultiAnswer("x^2",1,-1)->with(
+        singleResult => 1,
+        checker => sub {
+            my ($correct,$student,$self) = @_;  # get the parameters
+            my ($f,$x1,$x2) = @{$student};      # extract the student answers
+            Value::Error("Function can't be the identity") if ($f == 'x');
+            Value::Error("Function can't be constant") if ($f->isConstant);
+            return $f->eval(x=>$x1) == $f->eval(x=>$x2);
+        },
+    );
+    ANS($mp->cmp);
 
 or
 
-	$mp = MultiAnswer("x^2",1,-1)->with(singleResult=>1);
-	sub check {
-		my ($correct,$student,$self) = @_;  # get the parameters
-		my ($f,$x1,$x2) = @{$student};      # extract the student answers
-		Value::Error("Function can't be the identity") if ($f == 'x');
-		Value::Error("Function can't be constant") if ($f->isConstant);
-		return $f->eval(x=>$x1) == $f->eval(x=>$x2);
-	};
-	ANS($mp->cmp(checker=>~~&check));
+    $mp = MultiAnswer("x^2",1,-1)->with(singleResult=>1);
+    sub check {
+        my ($correct,$student,$self) = @_;  # get the parameters
+        my ($f,$x1,$x2) = @{$student};      # extract the student answers
+        Value::Error("Function can't be the identity") if ($f == 'x');
+        Value::Error("Function can't be constant") if ($f->isConstant);
+        return $f->eval(x=>$x1) == $f->eval(x=>$x2);
+    };
+    ANS($mp->cmp(checker=>~~&check));
 
 =cut
 

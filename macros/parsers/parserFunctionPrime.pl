@@ -44,11 +44,11 @@ and then call parser::FunctionPrime->Enable() command after having
 selected the Context that you want to use.  For example:
 
     loadMacros(
-      "PGstandard.pl",
-      "parserFunctionPrime.pl",
-      "PGcourse.pl",
+        "PGstandard.pl",
+        "parserFunctionPrime.pl",
+        "PGcourse.pl",
     );
-    
+
     Context("Numeric");
     parser::FunctionPrime->Enable();
 

@@ -199,61 +199,50 @@ in that case no extra numbering is added regardless of this option.
 
 Some useful configurations are:
 
-    #
-    #  The defaults:
-    #    only the active section is open, but students can open
-    #    previous correct sections if they want.
-    #
+The defaults:
+only the active section is open, but students can open
+previous correct sections if they want.
+
     Scaffold::Begin(
-      can_open => "when_previous_correct",
-      is_open  => "first_incorrect"
+        can_open => "when_previous_correct",
+        is_open  => "first_incorrect"
     );
 
-    #
-    #  Sections stay open as the student works through
-    #  the problem.
-    #
+Sections stay open as the student works through the problem.
+
     Scaffold::Begin(
-      can_open => "when_previous_correct",
-      is_open  => "correct_or_first_incorrect"
+        can_open => "when_previous_correct",
+        is_open  => "correct_or_first_incorrect"
     );
 
-    #
-    #  Students work through the problem seeing only
-    #  one section at a time, and can't go back to
-    #  previous sections.
-    #
+Students work through the problem seeing only one section at a time, and can't go back to
+previous sections.
+
     Scaffold::Begin(
-      can_open => "first_incorrect",
-      is_open  => "first_incorrect"
+        can_open => "first_incorrect",
+        is_open  => "first_incorrect"
     );
 
-    #
-    #  Students can view and work on any section,
-    #  but only the first incorrect one is shown initially.
-    #
+Students can view and work on any section, but only the first incorrect one is shown initially.
+
     Scaffold::Begin(
-      can_open => "always",
-      is_open  => "first_incorrect"
+        can_open => "always",
+        is_open  => "first_incorrect"
     );
 
-    #
-    #  Students see all the parts initially, but the
-    #  sections close as the student gets them correct.
-    #
+Students see all the parts initially, but the sections close as the student gets them correct.
+
     Scaffold::Begin(
-      can_open => "always",
-      is_open  => "incorrect"
+        can_open => "always",
+        is_open  => "incorrect"
     );
 
-    #
-    #  Students see all the parts initially, but the
-    #  sections close as the student gets them correct,
-    #  and can't be reopened.
-    #
+Students see all the parts initially, but the sections close as the student gets them correct,
+and can't be reopened.
+
     Scaffold::Begin(
-      can_open => "incorrect",
-      is_open  => "incorrect"
+        can_open => "incorrect",
+        is_open  => "incorrect"
     );
 
 The C<Section::Begin()> macro also accepts the options C<can_open>,

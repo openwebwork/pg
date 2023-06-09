@@ -1,3 +1,26 @@
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+
+=head1 NAME
+
+More matrix macros for the PG language
+
+=head1 DESCRIPTION
+
+Generate random matrices with some features.
+
+=cut
 
 BEGIN {
 	be_strict();
@@ -13,7 +36,7 @@ our $ArRaY = $main::PG->{ARRAY_PREFIX};
 
 sub _PGmorematrixmacros_init { }
 
-=head4 random_inv_matrix
+=head2 random_inv_matrix
 
 ## Builds and returns a random invertible \$row by \$col matrix.
 
@@ -40,7 +63,7 @@ sub random_inv_matrix {
 	return $A;
 }
 
-=head4 random_diag_matrix
+=head2 random_diag_matrix
 
 This method returns a random nxn diagonal matrix.
 
@@ -67,7 +90,7 @@ sub random_diag_matrix {    ## Builds and returns a random diagonal \$n by \$n m
 	return $D;
 }
 
-=head4 swap_rows ($matrix, $row1, $row2)
+=head2 swap_rows ($matrix, $row1, $row2)
 
 	(deprecated use MathObject Matrix instead)
 
@@ -98,7 +121,7 @@ sub swap_rows {
 	return $B;
 }
 
-=head4  row_mult ($matrix, $scaler, $row)
+=head2  row_mult ($matrix, $scaler, $row)
 
 	(deprecated use MathObject Matrix instead)
 
@@ -123,7 +146,7 @@ sub row_mult {
 	return $B;
 }
 
-=head4 linear_combo($matrix, $scalar, $row1, $row2)
+=head2 linear_combo($matrix, $scalar, $row1, $row2)
 
 	(deprecated use MathObject Matrix instead)
 
@@ -338,7 +361,7 @@ sub BASIS_CMP {
 	$answer_evaluator;
 }
 
-=head4 compare_basis
+=head2 compare_basis
 
     compare_basis( $ans_hash,
         %options
@@ -554,7 +577,7 @@ sub vec_list_string {
 	$rh_ans;
 }
 
-=head4 ans_array_filter
+=head2 ans_array_filter
 
 	(this filter is not necessary when using MathObjects.  It may someday be useful
 	again if the AnswerEvaluator pipeline is used to its fullest extent. )

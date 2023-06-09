@@ -24,37 +24,37 @@ PGanswermacros.pl - Macros for building answer evaluators.
 
 Number Answer Evaluators:
 
-	num_cmp()	--	uses an input hash to determine parameters
-	
-	std_num_cmp(), std_num_cmp_list(), std_num_cmp_abs, std_num_cmp_abs_list()
-	frac_num_cmp(), frac_num_cmp_list(), frac_num_cmp_abs, frac_num_cmp_abs_list()
-	arith_num_cmp(), arith_num_cmp_list(), arith_num_cmp_abs, arith_num_cmp_abs_list()
-	strict_num_cmp(), strict_num_cmp_list(), strict_num_cmp_abs, strict_num_cmp_abs_list()
-	
-	numerical_compare_with_units()	--	requires units as part of the answer
-	std_num_str_cmp()	--	also accepts a set of strings as possible answers
+    num_cmp()	--	uses an input hash to determine parameters
+
+    std_num_cmp(), std_num_cmp_list(), std_num_cmp_abs, std_num_cmp_abs_list()
+    frac_num_cmp(), frac_num_cmp_list(), frac_num_cmp_abs, frac_num_cmp_abs_list()
+    arith_num_cmp(), arith_num_cmp_list(), arith_num_cmp_abs, arith_num_cmp_abs_list()
+    strict_num_cmp(), strict_num_cmp_list(), strict_num_cmp_abs, strict_num_cmp_abs_list()
+
+    numerical_compare_with_units()	--	requires units as part of the answer
+    std_num_str_cmp()	--	also accepts a set of strings as possible answers
 
 Function Answer Evaluators:
 
-	fun_cmp()	--	uses an input hash to determine parameters
-	
-	function_cmp(), function_cmp_abs()
-	function_cmp_up_to_constant(), function_cmp_up_to_constant_abs()
-	multivar_function_cmp()
+    fun_cmp()	--	uses an input hash to determine parameters
+
+    function_cmp(), function_cmp_abs()
+    function_cmp_up_to_constant(), function_cmp_up_to_constant_abs()
+    multivar_function_cmp()
 
 String Answer Evaluators:
 
-	str_cmp()	--	uses an input hash to determine parameters
-	
-	std_str_cmp(), std_str_cmp_list(), std_cs_str_cmp(), std_cs_str_cmp_list()
-	strict_str_cmp(), strict_str_cmp_list()
-	ordered_str_cmp(), ordered_str_cmp_list(), ordered_cs_str_cmp(), ordered_cs_str_cmp_list()
-	unordered_str_cmp(), unordered_str_cmp_list(), unordered_cs_str_cmp(), unordered_cs_str_cmp_list()
+    str_cmp()	--	uses an input hash to determine parameters
+
+    std_str_cmp(), std_str_cmp_list(), std_cs_str_cmp(), std_cs_str_cmp_list()
+    strict_str_cmp(), strict_str_cmp_list()
+    ordered_str_cmp(), ordered_str_cmp_list(), ordered_cs_str_cmp(), ordered_cs_str_cmp_list()
+    unordered_str_cmp(), unordered_str_cmp_list(), unordered_cs_str_cmp(), unordered_cs_str_cmp_list()
 
 Miscellaneous Answer Evaluators:
 
-	checkbox_cmp()
-	radio_cmp()
+    checkbox_cmp()
+    radio_cmp()
 
 =head1 DESCRIPTION
 
@@ -69,14 +69,14 @@ representing the results of the comparison. Part of the answer hash is a score,
 which is a number between 0 and 1 representing the correctness of the student's
 answer. The fields of an AnswerHash are as follows:
 
-	score                => $correctQ,
-	correct_ans          => $originalCorrEqn,
-	student_ans          => $modified_student_ans,
-	original_student_ans => $original_student_answer,
-	ans_message		     => $PGanswerMessage,
-	type                 => 'typeString',
-	preview_text_string  => $preview_text_string,
-	preview_latex_string => $preview_latex_string, # optional
+    score                => $correctQ,
+    correct_ans          => $originalCorrEqn,
+    student_ans          => $modified_student_ans,
+    original_student_ans => $original_student_answer,
+    ans_message		     => $PGanswerMessage,
+    type                 => 'typeString',
+    preview_text_string  => $preview_text_string,
+    preview_latex_string => $preview_latex_string, # optional
 
 =over
 
@@ -360,7 +360,7 @@ sub prfmt {
 A filter is a short subroutine with the following structure.  It accepts an
 AnswerHash, followed by a hash of options.  It returns an AnswerHash
 
-	$ans_hash = filter($ans_hash, %options);
+    $ans_hash = filter($ans_hash, %options);
 
 See the AnswerHash.pm file for a list of entries which can be expected to be found
 in an AnswerHash, such as 'student_ans', 'score' and so forth.  Other entries
@@ -372,30 +372,30 @@ are more robust than the method of copying existing answer evaluators and modify
 
 Here is an outline of how a filter is constructed:
 
-	sub filter{
-		my $rh_ans = shift;
-		my %options = @_;
-		assign_option_aliases(\%options,
-				'alias1'	=> 'option5'
-				'alias2'	=> 'option7'
-		);
-		set_default_options(\%options,
-				'_filter_name'	=>	'filter',
-				'option5'		=>  .0001,
-				'option7'		=>	'ascii',
-				'allow_unknown_options	=>	0,
-		}
-		.... body code of filter .......
-			if ($error) {
-				$rh_ans->throw_error("FILTER_ERROR", "Something went wrong");
-				# see AnswerHash.pm for details on using the throw_error method.
+    sub filter{
+        my $rh_ans = shift;
+        my %options = @_;
+        assign_option_aliases(\%options,
+                'alias1'    => 'option5'
+                'alias2'    => 'option7'
+        );
+        set_default_options(\%options,
+                '_filter_name'    =>    'filter',
+                'option5'        =>  .0001,
+                'option7'        =>    'ascii',
+                'allow_unknown_options    =>    0,
+        }
+        .... body code of filter .......
+            if ($error) {
+                $rh_ans->throw_error("FILTER_ERROR", "Something went wrong");
+                # see AnswerHash.pm for details on using the throw_error method.
 
-		$rh_ans;  #reference to an AnswerHash object is returned.
-	}
+        $rh_ans;  #reference to an AnswerHash object is returned.
+    }
 
 =cut
 
-=head4 compare_numbers
+=head3 compare_numbers
 
 
 =cut
@@ -436,10 +436,10 @@ sub compare_numbers {
 	$rh_ans;
 }
 
-=head4 std_num_filter
+=head3 std_num_filter
 
-	std_num_filter($rh_ans, %options)
-	returns $rh_ans
+    std_num_filter($rh_ans, %options)
+    returns $rh_ans
 
 Replaces some constants using math_constants, then evaluates a perl expression.
 
@@ -472,7 +472,7 @@ sub std_num_filter {
 	$rh_ans;
 }
 
-=head4 std_num_array_filter
+=head3 std_num_array_filter
 
 	std_num_array_filter($rh_ans, %options)
 	returns $rh_ans
@@ -522,7 +522,7 @@ sub std_num_array_filter {
 	$rh_ans;
 }
 
-=head4 function_from_string2
+=head2 function_from_string2
 
 
 
@@ -622,7 +622,7 @@ sub function_from_string2 {
 	$rh_ans;
 }
 
-=head4 is_zero_array
+=head2 C<is_zero_array>
 
 
 =cut
@@ -667,17 +667,17 @@ sub is_zero_array {
 	$rh_ans;
 }
 
-=head4 best_approx_parameters
+=head2 C<best_approx_parameters>
 
-	best_approx_parameters($rh_ans,%options);   #requires the following fields in $rh_ans
-	                      {rf_student_ans}    	# reference to the test answer
-	                      {rf_correct_ans}    	# reference to the comparison answer
-	                      {evaluation_points},  # an array of row vectors indicating the points
-	                             				# to evaluate when comparing the functions
+    best_approx_parameters($rh_ans,%options);   # requires the following fields in $rh_ans
+                          {rf_student_ans}      # reference to the test answer
+                          {rf_correct_ans}      # reference to the comparison answer
+                          {evaluation_points},  # an array of row vectors indicating the points
+                                                # to evaluate when comparing the functions
 
-	                       %options				# debug => 1   gives more error answers
-	                       						# param_vars => ['']  additional parameters used to adapt to function
-	                       )
+                           %options             # debug => 1   gives more error answers
+                                                # param_vars => ['']  additional parameters used to adapt to function
+                           )
 
 
 The parameters for the comparison function which best approximates the test_function are stored
@@ -692,10 +692,6 @@ by the array reference  \@rows_of_test_points.  This is assumed to be an array o
 determining a test point.
 
 The comparison function should have $dim_of_params_space more input variables than the test function.
-
-
-
-
 
 =cut
 
@@ -848,22 +844,22 @@ sub best_approx_parameters {
 	$rh_ans;
 }
 
-=head4 calculate_difference_vector
+=head4 C<calculate_difference_vector>
 
-	calculate_difference_vector( $ans_hash, %options);
+    calculate_difference_vector( $ans_hash, %options);
 
-	   			      {rf_student_ans},     # a reference to the test function
-	                             {rf_correct_ans},	    # a reference to the correct answer function
-	                             {evaluation_points},   # an array of row vectors indicating the points
-	                              			    # to evaluate when comparing the functions
-	                             {ra_parameters}        # these are the (optional) additional inputs to
-	                                                    # the comparison function which adapt it properly
-	                                                    # to the problem at hand.
+        {rf_student_ans},     # a reference to the test function
+        rf_correct_ans},      # a reference to the correct answer function
+        evaluation_points},   # an array of row vectors indicating the points
+                              # to evaluate when comparing the functions
+        ra_parameters}        # these are the (optional) additional inputs to
+                              # the comparison function which adapt it properly
+                              # to the problem at hand.
 
-	                             %options               # mode => 'rel'  specifies that each element in the
-	                                                    # difference matrix is divided by the correct answer.
-	                                                    # unless the correct answer is nearly 0.
-	                            )
+        %options               # mode => 'rel'  specifies that each element in the
+                               # difference matrix is divided by the correct answer.
+                               # unless the correct answer is nearly 0.
+
 
 =cut
 
@@ -968,7 +964,7 @@ sub calculate_difference_vector {
 	$rh_ans;
 }
 
-=head4 fix_answer_for_display
+=head3 C<fix_answer_for_display>
 
 =cut
 
@@ -996,7 +992,7 @@ sub fix_answers_for_display {
 	$rh_ans;
 }
 
-=head4 evaluatesToNumber
+=head3 C<evaluatesToNumber>
 
 =cut
 
@@ -1036,7 +1032,7 @@ sub is_a_numeric_expression {
 	$is_a_numeric_expression;
 }
 
-=head4 is_a_number
+=head3 C<is_a_number>
 
 =cut
 
@@ -1074,7 +1070,7 @@ sub is_a_number {
 	}
 }
 
-=head4 is_a_fraction
+=head3 C<is_a_fraction>
 
 =cut
 
@@ -1112,9 +1108,12 @@ sub is_a_fraction {
 	}
 }
 
-=head4 phase_pi
-	I often discovered that the answers I was getting, when using the arctan function would be off by phases of
-	pi, which for the tangent function, were equivalent values. This method allows for this.
+=head3 C<phase_pi>
+
+I often discovered that the answers I was getting, when using the arctan function
+would be off by phases of pi, which for the tangent function, were equivalent
+values. This method allows for this.
+
 =cut
 
 # ^function phase_pi
@@ -1135,7 +1134,7 @@ sub phase_pi {
 	$rh_ans;
 }
 
-=head4 is_an_arithemetic_expression
+=head4 C<is_an_arithemetic_expression>
 
 =cut
 
@@ -1177,7 +1176,7 @@ sub is_an_arithmetic_expression {
 
 #
 
-=head4 math_constants
+=head3 C<math_constants>
 
 replaces pi, e, and ^ with their Perl equivalents
 if useBaseTenLog is non-zero, convert log to logten
@@ -1210,10 +1209,13 @@ sub math_constants {
 	}
 }
 
-=head4 is_array
+=head3 C<is_array>
 
-	is_array($rh_ans)
-		returns: $rh_ans.   Throws error "NOTARRAY" if this is not an array
+C<is_array($rh_ans)>
+
+returns:
+
+C<$rh_ans>.   Throws error "NOTARRAY" if this is not an array
 
 =cut
 
@@ -1226,10 +1228,11 @@ sub is_array {
 	$rh_ans;
 }
 
-=head4 check_syntax
+=head3 C<check_syntax>
 
-	check_syntax( $rh_ans, %options)
-		returns an answer hash.
+C<check_syntax( $rh_ans, %options)>
+
+returns an answer hash.
 
 latex2html preview code are installed in the answer hash.
 The input has been transformed, changing 7pi to 7*pi  or 7x to 7*x.
@@ -1286,10 +1289,11 @@ sub check_syntax {
 
 }
 
-=head4 check_strings
+=head3 C<check_strings>
 
-	check_strings ($rh_ans, %options)
-		returns $rh_ans
+C<check_strings ($rh_ans, %options)>
+
+returns $rh_ans
 
 =cut
 
@@ -1360,11 +1364,11 @@ sub check_strings {
 		$rh_ans;
 }
 
-=head4 check_units
+=head3 C<check_units>
 
-	check_strings ($rh_ans, %options)
-		returns $rh_ans
+C<check_strings ($rh_ans, %options)>
 
+returns C<$rh_ans>
 
 =cut
 
@@ -1436,14 +1440,14 @@ sub check_units {
 	return $rh_ans;
 }
 
-=head4 std_problem_grader
+=head3 C<std_problem_grader>
 
 This is an all-or-nothing grader.  A student must get all parts of the problem write
 before receiving credit.  You should make sure to use this grader on multiple choice
 and true-false questions, otherwise students will be able to deduce how many
 answers are correct by the grade reported by webwork.
 
-	install_problem_grader(~~&std_problem_grader);
+    install_problem_grader(~~&std_problem_grader);
 
 =cut
 
@@ -1501,14 +1505,14 @@ sub std_problem_grader {
 	(\%problem_result, \%problem_state);
 }
 
-=head4 std_problem_grader2
+=head3 C<std_problem_grader2>
 
 This is an all-or-nothing grader.  A student must get all parts of the problem write
 before receiving credit.  You should make sure to use this grader on multiple choice
 and true-false questions, otherwise students will be able to deduce how many
 answers are correct by the grade reported by webwork.
 
-	install_problem_grader(~~&std_problem_grader2);
+    install_problem_grader(~~&std_problem_grader2);
 
 The only difference between the two versions
 is at the end of the subroutine, where std_problem_grader2
@@ -1582,7 +1586,7 @@ sub std_problem_grader2 {
 	return (\%problem_result, \%problem_state);
 }
 
-=head4 avg_problem_grader
+=head3 C<avg_problem_grader>
 
 This grader gives a grade depending on how many questions from the problem are correct.  (The highest
 grade is the one that is kept.  One can never lower the recorded grade on a problem by repeating it.)
@@ -1644,11 +1648,12 @@ sub avg_problem_grader {
 
 =head2 Utility subroutines
 
-=head4 pretty_print
+=head3 C<pretty_print>
 
-	Usage: warn pretty_print( $rh_hash_input)
-		   TEXT(pretty_print($ans_hash));
-		   TEXT(~~%envir);
+Usage: C<warn pretty_print( $rh_hash_input)>
+
+    TEXT(pretty_print($ans_hash));
+    TEXT(~~%envir);
 
 This can be very useful for printing out messages about objects while debugging
 

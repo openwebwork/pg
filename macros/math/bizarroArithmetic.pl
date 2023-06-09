@@ -14,7 +14,7 @@ set, and the two answers should be compared again.
 
 The bizarro arithmetic is basically defined as:
 
-  a bizarro+ b = f(g(a) regular+ g(b))
+    a bizarro+ b = f(g(a) regular+ g(b))
 
 where f and g are inverse functions defined on all of R, and are odd functions. There is
 also bizarro-, bizarro*, bizarro/, and bizarro^. f(x) = x^3+3x is a good choice for f.
@@ -23,30 +23,30 @@ This has been extended below to a choice for f that works with complex numbers t
 To enable the bizarro arithmetic operators, load this file with the macros, and then use
 any subset of:
 
-Context()->operators->set(
-'+' => {class => 'bizarro::BOP::add', isCommand => 1},
-'-' => {class => 'bizarro::BOP::subtract', isCommand => 1},
-'*' => {class => 'bizarro::BOP::multiply', isCommand => 1},
-' *' => {class => 'bizarro::BOP::multiply', isCommand => 1},
-'* ' => {class => 'bizarro::BOP::multiply', isCommand => 1},
-'/' => {class => 'bizarro::BOP::divide', isCommand => 1},
-' /' => {class => 'bizarro::BOP::divide', isCommand => 1},
-'/ ' => {class => 'bizarro::BOP::divide', isCommand => 1},
-'//' => {class => 'bizarro::BOP::divide', isCommand => 1},
-'**' => {class => 'bizarro::BOP::power', isCommand => 1, perl=>undef},
-'^' => {class => 'bizarro::BOP::power', isCommand => 1, perl=>undef},
-'u-' => {class => 'bizarro::UOP::minus', isCommand => 1},
-);
+    Context()->operators->set(
+        '+' => {class => 'bizarro::BOP::add', isCommand => 1},
+        '-' => {class => 'bizarro::BOP::subtract', isCommand => 1},
+        '*' => {class => 'bizarro::BOP::multiply', isCommand => 1},
+        ' *' => {class => 'bizarro::BOP::multiply', isCommand => 1},
+        '* ' => {class => 'bizarro::BOP::multiply', isCommand => 1},
+        '/' => {class => 'bizarro::BOP::divide', isCommand => 1},
+        ' /' => {class => 'bizarro::BOP::divide', isCommand => 1},
+        '/ ' => {class => 'bizarro::BOP::divide', isCommand => 1},
+        '//' => {class => 'bizarro::BOP::divide', isCommand => 1},
+        '**' => {class => 'bizarro::BOP::power', isCommand => 1, perl=>undef},
+        '^' => {class => 'bizarro::BOP::power', isCommand => 1, perl=>undef},
+        'u-' => {class => 'bizarro::UOP::minus', isCommand => 1},
+    );
 
 At this point the arithmetic operators will still be behaving as normal.
 Turn on the bizarro arithmetic with:
 
-Context()->flags->set(bizarroAdd=>1);
-Context()->flags->set(bizarroSub=>1);
-Context()->flags->set(bizarroMul=>1);
-Context()->flags->set(bizarroDiv=>1);
-Context()->flags->set(bizarroPow=>1);
-Context()->flags->set(bizarroNeg=>1);
+    Context()->flags->set(bizarroAdd=>1);
+    Context()->flags->set(bizarroSub=>1);
+    Context()->flags->set(bizarroMul=>1);
+    Context()->flags->set(bizarroDiv=>1);
+    Context()->flags->set(bizarroPow=>1);
+    Context()->flags->set(bizarroNeg=>1);
 
 
 Sample usage
@@ -54,26 +54,26 @@ Sample usage
 This will check if a student has simplified according to the rules of division,
 for example, assuming that $ans = Formula("2x^2"),
 
-         2 x^4/x^2
+    2 x^4/x^2
 
 will be rejected, as will
 
-       4/2 x^2
+    4/2 x^2
 
 
-ANS($ans -> cmp(
-   checker=>sub{
-      my ( $correct, $student, $ansHash ) = @_;
-      return 0 if $ansHash->{isPreview} || $correct != $student;
-      Context()->flags->set(bizarroDiv=>1);
-      delete $correct->{test_values};
-      delete $student->{test_values};
-      my $OK = ($correct == $student);
-      Context()->flags->set(bizarroDiv=>0);
-      Value::Error("Your answer is equivalent to the correct answer, but not in the expected form.
-                    Maybe it needs to be simplified, factored, expanded, have its denominator rationalized, etc.") unless $OK;
-      return $OK;
-}));
+    ANS($ans -> cmp(
+        checker=>sub{
+            my ( $correct, $student, $ansHash ) = @_;
+            return 0 if $ansHash->{isPreview} || $correct != $student;
+            Context()->flags->set(bizarroDiv=>1);
+            delete $correct->{test_values};
+            delete $student->{test_values};
+            my $OK = ($correct == $student);
+            Context()->flags->set(bizarroDiv=>0);
+            Value::Error("Your answer is equivalent to the correct answer, but not in the expected form.
+                          Maybe it needs to be simplified, factored, expanded, have its denominator rationalized, etc.") unless $OK;
+            return $OK;
+    }));
 
 =cut
 

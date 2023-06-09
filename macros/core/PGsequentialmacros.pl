@@ -1,25 +1,25 @@
 
 =head1 NAME
 
-	PGsequentialmacros.pl 
-	
+PGsequentialmacros.pl
+
 Provides support for writing sequential problems, where certain parts
 of the problem are hidden until earlier questions are answered correctly.
 
 
 =head1 SYNPOSIS
 
-	The basic sequential problem structure:
+The basic sequential problem structure:
 
-	DOCUMENT();          
-	loadMacros(.....);   
-	## first segment ##                 
+	DOCUMENT();
+	loadMacros(.....);
+	## first segment ##
     BEGIN_TEXT
         The first question: Enter \(sin(0) = \) \{ans_rule\}.
     END_TEXT
 	ANS(num_cmp(0));
 	if (@incorrect_answers = get_incorrect_answers( ) ) {
-          TEXT( "These answers are not correct  ", join(" ",@incorrect_answers),$BR); 
+          TEXT( "These answers are not correct  ", join(" ",@incorrect_answers),$BR);
           foreach my $label (@incorrect_answers) {
               checkAnswer($label,debug=>1);
           }
@@ -29,10 +29,10 @@ of the problem are hidden until earlier questions are answered correctly.
     } else {
 	     STOP_RENDERING();
     }
-	## second segment ##    
+	## second segment ##
 	     ....
 	if (@incorrect_answers = get_incorrect_answers( ) ) {
-          TEXT( "These answers are not correct  ", join(" ",@incorrect_answers),$BR); 
+          TEXT( "These answers are not correct  ", join(" ",@incorrect_answers),$BR);
           foreach my $label (@incorrect_answers) {
               checkAnswer($label,debug=>1);
           }
@@ -42,7 +42,7 @@ of the problem are hidden until earlier questions are answered correctly.
     } else {
 	     STOP_RENDERING();
     }
-    ## third segment ## 
+    ## third segment ##
 	ENDDOCUMENT()        # must be the last statement in the problem
 
 
@@ -57,7 +57,7 @@ of the problem are hidden until earlier questions are answered correctly.
 	listFormVariables();
 	listVariables();
 
-Lists all variables submitted in the problem form and all variables in the 
+Lists all variables submitted in the problem form and all variables in the
 the Problem environment.  This is used for debugging.
 
 =cut
@@ -130,7 +130,7 @@ sub listQueuedAnswers {
 	checkQueuedAnswers();
 
 Returns a hash whose key/value pairs are the labels of the questions
-have been printed so far and the scores obtained by evaluating the 
+have been printed so far and the scores obtained by evaluating the
 answers to these questions.
 
 =cut

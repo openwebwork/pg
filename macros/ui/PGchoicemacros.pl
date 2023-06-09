@@ -21,35 +21,42 @@ PGchoicemacros.pl - Macros for multiple choice, matching, and true/false questio
 
 Matching example:
 
- loadMacros("PGchoicemacros.pl");
- 
- # create a new match list
- $ml = new_match_list();
- 
- # enter three questions and their answers
- $ml->qa(
- 	"What color is a rose?",
- 	"Red",
- 	"What color is the sky?",
- 	"Blue",
- 	"What color is the sea?",
- 	"Green",
- );
- 
- # choose two of these questions, ordered at random,
- # which will be printed in the problem.
- $ml->choose(2);
- 
- # print the question and answer choices
- BEGIN_TEXT
- Match the answers below with these questions: $BR
- \{ $ml->print_q \} $BR
- Answers:
- \{ $ml->print_a \}
- END_TEXT
- 
- # register the correct answer
- ANS($ml->ra_correct_ans);
+    loadMacros("PGchoicemacros.pl");
+
+Create a new match list
+
+    $ml = new_match_list();
+
+Enter three questions and their answers
+
+    $ml->qa(
+        "What color is a rose?",
+        "Red",
+        "What color is the sky?",
+        "Blue",
+        "What color is the sea?",
+        "Green",
+    );
+
+Choose two of these questions, ordered at random, which will be printed in the problem.
+
+    $ml->choose(2);
+
+Print the question and answer choices
+
+    BEGIN_PGML
+    Match the answers below with these questions:
+
+    [@ $ml->print_q @]
+
+    Answers:
+
+    [@ $ml->print_a @]
+    END_PGML
+
+Check for the correct answer:
+
+    ANS($ml->ra_correct_ans);
 
 =head1 DESCRIPTION
 
@@ -107,12 +114,12 @@ sub _PGchoicemacros_init {
 
 =item new_match_list
 
- $ml = new_match_list();
+    $ml = new_match_list();
 
 new_match_list() creates a new Match object and initializes it with sensible
 defaults. It is equivalent to:
 
- $ml = new Match(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
+    $ml = new Match(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
 
 The first argument is the seed for the match list (choosen at random between 1
 and 2000 in the example above). The next two arguments are references to the
@@ -133,9 +140,6 @@ sub new_match_list {
 
 =back
 
-=cut
-
-################################################################################
 
 =head2 Select lists
 
@@ -143,20 +147,20 @@ sub new_match_list {
 
 =item new_select_list
 
- $sl = new_select_list();
+    $sl = new_select_list();
 
-new_select_list() creates a new Select object and initializes it with sensible
+C<new_select_list()> creates a new C<Select> object and initializes it with sensible
 defaults. It is equivalent to:
 
- $sl = new Select(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
+    $sl = new Select(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
 
-The parameters to the Select constructor are the same as those for the Match
-constrcutor described above under new_match_list().
+The parameters to the C<Select> constructor are the same as those for the Match
+constrcutor described above under C<new_match_list()>.
 
-See the documentation for the Select class to see how to use this object to
+See the documentation for the C<Select> class to see how to use this object to
 create a true/false question.
 
-std_print_a is only intended to be used for debugging with select lists, as
+C<std_print_a> is only intended to be used for debugging with select lists, as
 there is rarely a reason to print out the answers to a select list.
 
 =cut
@@ -170,14 +174,14 @@ sub new_select_list {
 	new Select(random(1, 2000, 1), \&std_print_q, \&std_print_a);
 }
 
-=item new_pop_up_select_list()
+=item C<new_pop_up_select_list()>
 
- $sl = new_pop_up_select_list();
+    $sl = new_pop_up_select_list();
 
-new_popup_select_list() creates a new Select object and initializes it such that
+C<new_popup_select_list()> creates a new C<Select> object and initializes it such that
 it will render as a popup list. It is equivalent to:
 
- $selectlist = new Select(random(1,2000,1), ~~&pop_up_list_print_q, ~~&std_print_a);
+    $selectlist = new Select(random(1,2000,1), ~~&pop_up_list_print_q, ~~&std_print_a);
 
 =cut
 
@@ -196,21 +200,21 @@ sub new_pop_up_select_list {
 
 ################################################################################
 
-=head2 Multiple choice quesitons
+=head2 Multiple choice questions
 
 =over
 
-=item new_multiple_choice()
+=item C<new_multiple_choice()>
 
- $mc = new_multiple_choice();
+    $mc = new_multiple_choice();
 
-new_multiple_choice() creates a new Multiple object that presents a question and
+C<new_multiple_choice()> creates a new C<Multiple> object that presents a question and
 a number possible answers, only one of which can be chosen. It is equivalent to:
 
- $mc = new Multiple(random(1,2000,1), ~~&std_print_q, ~~&radio_print_a);
+    $mc = new Multiple(random(1,2000,1), ~~&std_print_q, ~~&radio_print_a);
 
-The parameters to the Multiple constructor are the same as those for the Match
-constrcutor described above under new_match_list().
+The parameters to the C<Multiple> constructor are the same as those for the Match
+constrcutor described above under C<new_match_list()>.
 
 =cut
 
@@ -223,15 +227,15 @@ sub new_multiple_choice {
 	new Multiple(random(1, 2000, 1), \&std_print_q, \&radio_print_a);
 }
 
-=item new_checkbox_multiple_choice()
+=item C<new_checkbox_multiple_choice()>
 
- $mc = new_checkbox_multiple_choice();
+    $mc = new_checkbox_multiple_choice();
 
-new_checkbox_multiple_choice() creates a new Multiple object that presents a
+C<new_checkbox_multiple_choice()> creates a new C<Multiple> object that presents a
 question and a number possible answers, any number of which can be chosen. It is
 equivalent to:
 
- $mc = new Multiple(random(1,2000,1), ~~&std_print_q, ~~&checkbox_print_a);
+    $mc = new Multiple(random(1,2000,1), ~~&std_print_q, ~~&checkbox_print_a);
 
 =cut
 
@@ -245,19 +249,16 @@ sub new_checkbox_multiple_choice {
 
 =back
 
-=cut
-
-################################################################################
-
 =head2 Question printing subroutines
 
 =over
 
-=item std_print_q()
+=item C<std_print_q()>
 
- # $list can be a matching list, a select list, or a multiple choice list
- $list->rf_print_q(~~&std_print_q);
- TEXT($list->print_q);
+C<$list> can be a matching list, a select list, or a multiple choice list
+
+    $list->rf_print_q(~~&std_print_q);
+    TEXT($list->print_q);
 
 This formatting routine is the default method for formatting the way questions
 are printed for each of the three List sub-classes. It lists the questions
@@ -312,11 +313,11 @@ sub std_print_q {
 
 }
 
-=item pop_up_list_print_q()
+=item C<pop_up_list_print_q()>
 
- $sl->rf_print_q(~~&pop_up_list_print_q);
- $sl->ra_pop_up_list([T => 'True', F => 'False']);
- TEXT($sl->print_q);
+    $sl->rf_print_q(~~&pop_up_list_print_q);
+    $sl->ra_pop_up_list([T => 'True', F => 'False']);
+    TEXT($sl->print_q);
 
 Alternate method for print questions with pop up lists.
 
@@ -328,7 +329,7 @@ the example above to associate the values on the left with the labels on the
 right, this means that, for instance, the student will see the word True in the
 pop_up_list but the answer that is returned to the grader is T, so that it
 corresponds with what the professor typed in as the answer when using
-$sl->qa('blah blah', 'T');
+C<S<< $sl->qa('blah blah', 'T'); >>>
 
 =cut
 
@@ -381,13 +382,13 @@ sub pop_up_list_print_q {
 
 }
 
-=item quest_first_pop_up_list_print_q()
+=item C<quest_first_pop_up_list_print_q()>
 
- $sl->rf_print_q(~~&quest_first_pop_up_list_print_q);
- $sl->ra_pop_up_list([T => 'True', F => 'False']);
- TEXT($sl->print_q);
+    $sl->rf_print_q(~~&quest_first_pop_up_list_print_q);
+    $sl->ra_pop_up_list([T => 'True', F => 'False']);
+    TEXT($sl->print_q);
 
-Similar to pop_up_list_print_q(), but places the popup list after the question
+Similar to C<pop_up_list_print_q()>, but places the popup list after the question
 text in the output.
 
 =cut
@@ -451,13 +452,13 @@ sub quest_first_pop_up_list_print_q {
 
 }
 
-=item ans_in_middle_pop_up_list_print_q()
+=item C<ans_in_middle_pop_up_list_print_q()>
 
- $sl->rf_print_q(~~&ans_in_middle_pop_up_list_print_q);
- $sl->ra_pop_up_list([T => 'True', F => 'False']);
- TEXT($sl->print_q);
+    $sl->rf_print_q(~~&ans_in_middle_pop_up_list_print_q);
+    $sl->ra_pop_up_list([T => 'True', F => 'False']);
+    TEXT($sl->print_q);
 
-Similar to quest_first_pop_up_list_print_q(), except that no linebreaks are
+Similar to C<quest_first_pop_up_list_print_q()>, except that no linebreaks are
 printed between questions, allowing for the popup list to be placed in the
 middle of the text of a problem.
 
@@ -522,7 +523,7 @@ sub ans_in_middle_pop_up_list_print_q {
 
 }
 
-=item units_list_print_q
+=item C<units_list_print_q()>
 
 A simple popup question printer. No question text is printed, instead the
 pop_up_list contents only are printed as a popup menu.
@@ -556,7 +557,7 @@ sub units_list_print_q {
 
 =over
 
-=item std_print_a
+=item C<std_print_a()>
 
  # $list can be a matching list, a select list, or a multiple choice list
  $list->rf_print_a(~~&std_print_a);
@@ -606,18 +607,19 @@ sub std_print_a {
 
 }
 
-=item radio_print_a()
+=item C<radio_print_a()>
 
- # $list can be a matching list, a select list, or a multiple choice list
- $list->rf_print_q(~~&radio_print_q);
- TEXT($list->print_q);
+C<$list> can be a matching list, a select list, or a multiple choice list
+
+    $list->rf_print_q(~~&radio_print_q);
+    TEXT($list->print_q);
 
 This simple printing routine is used to print the answers to multiple choice
 questions in a bulleted style with radio buttons preceding each possible answer.
 When a multiple choice object is created, a reference to radio_print_a is passed
 to that object so that it can be used from within the object later.
 
-radio_print_a checks which mode the user is trying to print the answers from and
+C<radio_print_a> checks which mode the user is trying to print the answers from and
 returns the appropriately formatted string.
 
 =cut
@@ -669,18 +671,19 @@ sub radio_print_a {
 
 }
 
-=item checkbox_print_a()
+=item C<checkbox_print_a()>
 
- # $list can be a matching list, a select list, or a multiple choice list
- $list->rf_print_q(~~&radio_print_q);
- TEXT($list->print_q);
+C<$list> can be a matching list, a select list, or a multiple choice list
+
+    $list->rf_print_q(~~&radio_print_q);
+    TEXT($list->print_q);
 
 This simple printing routine is used to print the answers to multiple choice
 questions in a bulleted style with checkboxes preceding each possible answer.
 When a multiple choice object is created, a reference to checkbox_print_a is passed
 to that object so that it can be used from within the object later.
 
-checkbox_print_a checks which mode the user is trying to print the answers from and
+C<checkbox_print_a> checks which mode the user is trying to print the answers from and
 returns the appropriately formatted string.
 
 =cut

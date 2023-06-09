@@ -1,117 +1,124 @@
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+
+=head1 NAME
+
+LiveGraphicsRectangularPlot3D.pl - provide an interactive 3D rectangular plot.
+
+=head1 DESCRIPTION
+
+C<LiveGraphicsRectangularPlot3D.pl> provides two macros for creating an
+interactive plot of a function of two variables C<z = f(x,y)> in
+Rectangular (Cartesian) coordinates via the C<LiveGraphics3D> Javascript applet.
+The routine C<RectangularDomainPlot3D()> takes a MathObject Formula of
+two variables defined over a rectangular domain and some plot options
+as input and returns a string of plot data that can be displayed
+using the C<Live3Ddata()> routine of the C<LiveGraphics3D.pl> macro.
+The routine C<AnnularDomainPlot3D> works similarly for a function
+C<z = f(x,y)> over an annular domain specified in polar by
+C<S<< rmin < r < rmax >>> and C<S<< tmin < theta < tmax >>>.
+
+=head1 USAGE
+
+=over
+
+=item C<RectangularPlot3DRectangularDomain(options)>
+
+Options are:
+
+    function => $f,        $f is a MathObjects Formula
+                           For example, in the setup section define
+
+                           Context("Numeric");
+                           Context()->variables->add(s=>"Real",t=>"Real");
+                           $a = random(1,3,1);
+                           $f = Formula("$a*s^2-2*t"); # use double quotes!
+
+                           before calling RectangularPlot3DRectangularDomain()
+
+    xvar => "s",           independent variable name, default "x"
+    yvar => "t",           independent variable name, default "y"
+
+    xmin => -3,            domain for xvar
+    xmax =>  3,
+
+    ymin => -3,            domain for yvar
+    ymax =>  3,
+
+    xsamples => 20,        deltax = (xmax - xmin) / xsamples
+    ysamples => 20,        deltay = (ymax - ymin) / ysamples
+
+    axesframed => 1,       1 displays framed axes, 0 hides framed axes
+
+    xaxislabel => "S",     Capital letters may be easier to read
+    yaxislabel => "T",
+    zaxislabel => "Z",
+
+    outputtype => 1,       return string of only polygons (or mesh)
+                  2,       return string of only plotoptions
+                  3,       return string of polygons (or mesh) and plotoptions
+                  4,       return complete plot
+
+=item C<RectangularPlot3DAnnularDomain(options)>
+
+Options are:
+
+
+    function => $f,        $f is a MathObjects Formula
+                           For example, in the setup section define
+
+                           Context("Numeric");
+                           Context()->variables->add(y=>"Real",r=>"Real",t=>"Real");
+                           $a = random(1,3,1);
+                           $f = Formula("$a*e^(- x^2 - y^2)"); # use double quotes!
+
+                           before calling RectangularPlot3DAnnularDomain()
+
+    xvar => "x",           independent variable name, default "x"
+    yvar => "y",           independent variable name, default "y"
+
+    rvar => "r",           independent variable name, default "r"
+    tvar => "t",           independent variable name, default "t" (for theta)
+
+    rmin => -3,            domain for rvar
+    rmax =>  3,
+
+    tmin => -3,            domain for tvar
+    tmax =>  3,
+
+    rsamples => 20,        deltar = (rmax - rmin) / rsamples
+    tsamples => 20,        deltat = (tmax - tmin) / tsamples
+
+   axesframed => 1,       1 displays framed axes, 0 hides framed axes
+
+    xaxislabel => "X",     Capital letters may be easier to read
+    yaxislabel => "Y",
+    zaxislabel => "Z",
+
+    outputtype => 1,       return string of only polygons (or mesh)
+                  2,       return string of only plotoptions
+                  3,       return string of polygons (or mesh) and plotoptions
+                  4,       return complete plot
+
+=back
+
+=cut
+
 sub _LiveGraphicsRectangularPlot3D_init { };    # don't reload this file
 
 loadMacros("MathObjects.pl", "LiveGraphics3D.pl");
-
-###########################################################################
-#
-#   LiveGraphicsRectangularPlot3D.pl provides two macros for creating an
-#   interactive plot of a function of two variables z = f(x,y) in
-#   Rectangular (Cartesian) coordinates via the LiveGraphics3D Java applet.
-#   The routine RectangularDomainPlot3D() takes a MathObject Formula of
-#   two variables defined over a rectangular domain and some plot options
-#   as input and returns a string of plot data that can be displayed
-#   using the Live3Ddata() routine of the LiveGraphics3D.pl macro.
-#   The routine AnnularDomainPlot3D works similarly for a function
-#   z = f(x,y) over an annular domain specified in polar by
-#   rmin < r < rmax and tmin < theta < tmax.
-#
-#   LiveGraphicsRectangularPlot3D.pl automatically loads
-#   MathObjects.pl and LiveGraphics3D.pl.
-#
-###########################################################################
-#
-#   The first routine is
-#
-#   RectangularPlot3DRectangularDomain
-#
-#
-#   Usage: RectangularPlot3DRectangularDomain(options);
-#
-#   Options are:
-#
-#     function => $f,        $f is a MathObjects Formula
-#                            For example, in the setup section define
-#
-#                            Context("Numeric");
-#                            Context()->variables->add(s=>"Real",t=>"Real");
-#                            $a = random(1,3,1);
-#                            $f = Formula("$a*s^2-2*t"); # use double quotes!
-#
-#                            before calling RectangularPlot3DRectangularDomain()
-#
-#     xvar => "s",           independent variable name, default "x"
-#     yvar => "t",           independent variable name, default "y"
-#
-#     xmin => -3,            domain for xvar
-#     xmax =>  3,
-#
-#     ymin => -3,            domain for yvar
-#     ymax =>  3,
-#
-#     xsamples => 20,        deltax = (xmax - xmin) / xsamples
-#     ysamples => 20,        deltay = (ymax - ymin) / ysamples
-#
-#     axesframed => 1,       1 displays framed axes, 0 hides framed axes
-#
-#     xaxislabel => "S",     Capital letters may be easier to read
-#     yaxislabel => "T",
-#     zaxislabel => "Z",
-#
-#     outputtype => 1,       return string of only polygons (or mesh)
-#                   2,       return string of only plotoptions
-#                   3,       return string of polygons (or mesh) and plotoptions
-#                   4,       return complete plot
-#
-#######################################################################################
-#######################################################################################
-#
-#   The second routine is
-#
-#   RectangularPlot3DAnnularDomain      create a plotstring from a function
-#
-#
-#   Usage: RectangularPlot3DAnnularDomain(options);
-#
-#   Options are:
-#
-#     function => $f,        $f is a MathObjects Formula
-#                            For example, in the setup section define
-#
-#                            Context("Numeric");
-#                            Context()->variables->add(y=>"Real",r=>"Real",t=>"Real");
-#                            $a = random(1,3,1);
-#                            $f = Formula("$a*e^(- x^2 - y^2)"); # use double quotes!
-#
-#                            before calling RectangularPlot3DAnnularDomain()
-#
-#     xvar => "x",           independent variable name, default "x"
-#     yvar => "y",           independent variable name, default "y"
-#
-#     rvar => "r",           independent variable name, default "r"
-#     tvar => "t",           independent variable name, default "t" (for theta)
-#
-#     rmin => -3,            domain for rvar
-#     rmax =>  3,
-#
-#     tmin => -3,            domain for tvar
-#     tmax =>  3,
-#
-#     rsamples => 20,        deltar = (rmax - rmin) / rsamples
-#     tsamples => 20,        deltat = (tmax - tmin) / tsamples
-#
-#     axesframed => 1,       1 displays framed axes, 0 hides framed axes
-#
-#     xaxislabel => "X",     Capital letters may be easier to read
-#     yaxislabel => "Y",
-#     zaxislabel => "Z",
-#
-#     outputtype => 1,       return string of only polygons (or mesh)
-#                   2,       return string of only plotoptions
-#                   3,       return string of polygons (or mesh) and plotoptions
-#                   4,       return complete plot
-#
-#   Happy 3D graphing!  - Paul Pearson
-#
 
 $beginplot = "Graphics3D[";
 $endplot   = "]";

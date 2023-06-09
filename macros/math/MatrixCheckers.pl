@@ -8,13 +8,13 @@ MatrixCheckers.pl
 
 =head1 SYNOPSIS
 
-Provides subroutines for answer checking using MathObjects 
-matrices with real entries.  (Sadly, it does not provide 
+Provides subroutines for answer checking using MathObjects
+matrices with real entries.  (Sadly, it does not provide
 routines for using matrices to win at the game of checkers.)
 
 =head1 DESCRIPTION
 
-First, load the C<MatrixCheckers.pl> macro file.  If the basis has 
+First, load the C<MatrixCheckers.pl> macro file.  If the basis has
 more than one vector, also load C<parserMultiAnswer.pl>.
 
 =over 12
@@ -36,9 +36,9 @@ such as
 
 =back
 
-The "one column" at the end of the checker name refers to the 
+The "one column" at the end of the checker name refers to the
 fact that the student answer is a one-column matrix.  The "unit
-basis checker" ensures that the student answer has unit length. 
+basis checker" ensures that the student answer has unit length.
 
 For answers that are a collection of column or row vectors, the
 way to use the answer checkers is inside of a MultiAnswer object.
@@ -61,47 +61,47 @@ object are:
 =back
 
 Here is an example of how to use these answer checkers.
-In the setup section of the PG file we create two 3 x 1 MathObject 
+In the setup section of the PG file we create two 3 x 1 MathObject
 matrices with real-entries that serve as basis vectors.  The object
 C<$multians> takes the basis vectors as input and passes them
 to the custom answer checker called by C<checker =<gt>...>.
 
 =over 12
 
-$basis1 = Matrix([1/sqrt(2), 0, 1/sqrt(2)])->transpose;
-$basis2 = Matrix([0,1,0])->transpose;
+    $basis1 = Matrix([1/sqrt(2), 0, 1/sqrt(2)])->transpose;
+    $basis2 = Matrix([0,1,0])->transpose;
 
-$multians = MultiAnswer($basis1, $basis2)->with(
-  singleResult => 1,
-  separator => ', ',
-  tex_separator => ', ',
-  allowBlankAnswers=>0,
-  checker => ~~&orthonormal_basis_checker_columns,
-);
+    $multians = MultiAnswer($basis1, $basis2)->with(
+        singleResult => 1,
+        separator => ', ',
+        tex_separator => ', ',
+        allowBlankAnswers=>0,
+        checker => ~~&orthonormal_basis_checker_columns,
+    );
 
 =back
 
-In the main text portion of the PG file, we use C<\{ $multians-<gt>ans_array(15) \}> 
-to create an array of text boxes that are 15 characters wide and have square 
-brackets around them to look like a matrix.  The braces around the vectors, which 
+In the main text portion of the PG file, we use C<\{ $multians-<gt>ans_array(15) \}>
+to create an array of text boxes that are 15 characters wide and have square
+brackets around them to look like a matrix.  The braces around the vectors, which
 are produced by C<\(\Bigg\lbrace\)> and C<\(\Bigg\rbrace\)>, are a matter of personal
 preference (since a basis is an ordered set, I like to include braces).
 
 
 
-	Context()->texStrings;
-	BEGIN_TEXT
-	Find an orthonormal basis for...
-	$BR
-	$BR
-	$BCENTER
-	\(\Bigg\lbrace\) 
-	\{ $multians->ans_array(15) \}, 
-	\{ $multians->ans_array(15) \} 
-	\(\Bigg\rbrace.\)
-	$ECENTER
-	END_TEXT
-	Context()->normalStrings;
+    Context()->texStrings;
+    BEGIN_TEXT
+    Find an orthonormal basis for...
+    $BR
+    $BR
+    $BCENTER
+    \(\Bigg\lbrace\)
+    \{ $multians->ans_array(15) \},
+    \{ $multians->ans_array(15) \}
+    \(\Bigg\rbrace.\)
+    $ECENTER
+    END_TEXT
+    Context()->normalStrings;
 
 
 
@@ -109,16 +109,16 @@ The answer evaluation section of the PG file is totally standard.
 
 =over 12
 
-ANS( $multians->cmp );
+    ANS( $multians->cmp );
 
 =back
 
 The C<parametric_plane_checker_columns> should be used for
 solutions to non-homogeneous systems of linear equations for
-which the solution is essentially a point plus the span of 
+which the solution is essentially a point plus the span of
 several linearly independent vectors.  When using the parametric
 plane checker, the first vector input always serves as a point
-on the hyperplane (i.e., the first vector input is always a 
+on the hyperplane (i.e., the first vector input is always a
 particular solution), while the remaining vectors are a basis for
 the hyperplane (i.e., they span the homogeneous solution set).
 

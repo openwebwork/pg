@@ -36,14 +36,14 @@ Complex context as usual.  Both i and j notation will be allowed,
 and numbers will display in whichever format they were originally
 entered.
 
-	loadMacros("contextComplexJ.pl");
-	
-	Context("Complex");
-	
-	$z1 = Compute("1+3i");
-        $z2 = Compute("1+3j");    # equivalent to $z1;
-	
-        $z1 == $z2;               # true
+    loadMacros("contextComplexJ.pl");
+
+    Context("Complex");
+
+    $z1 = Compute("1+3i");
+    $z2 = Compute("1+3j");    # equivalent to $z1;
+
+    $z1 == $z2;               # true
 
 There are two context flags that control the input and output of
 complex numbers.
@@ -73,10 +73,10 @@ and either form can be used.
 It is possible to set C<enterComplex> and C<displayComplex> to
 different values.  For example.
 
-	Context()->flags->set(
-	  enterComplex => "either",
-	  displayComplex => "i",
-	);
+    Context()->flags->set(
+        enterComplex => "either",
+        displayComplex => "i",
+    );
 
 would allow students to enter complex numbers in either format, but
 all numebrs would be displayed in standard form.
@@ -89,8 +89,8 @@ about) the j notation, then create a file named
 C<parserCustomization.pl> in your course's C<templates/macros>
 directory, and enter the following in it:
 
-	loadMacros("contextComplexJ.pl");
-        context::ComplexJ->Default("either","either");
+    loadMacros("contextComplexJ.pl");
+    context::ComplexJ->Default("either","either");
 
 This will alter all the standard Complex contexts to allow students to
 enter complex numbers in either format, and will display them using
@@ -98,15 +98,15 @@ the form that was used to enter them.
 
 You could also do
 
-	loadMacros("contextComplexJ.pl");
-        context::ComplexJ->Default("i","i");
+    loadMacros("contextComplexJ.pl");
+    context::ComplexJ->Default("i","i");
 
 to cause a warning message to appear when students enter the j format.
 
 If you want to force students to enter the alternate format, use
 
-	loadMacros("contextComplexJ.pl");
-        context::ComplexJ->Default("j","j");
+    loadMacros("contextComplexJ.pl");
+    context::ComplexJ->Default("j","j");
 
 This will force the display of all complex numbers to use j notation
 (so even the ones created in the problem using standard form will show

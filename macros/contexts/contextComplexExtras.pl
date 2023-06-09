@@ -34,30 +34,30 @@ trace is given as C<tr(M)>, and the determinant by C<det(M)>.  Thus
 you can do things like:
 
     loadMacros("contextComplexExtras.pl");
-    
+
     Context("Complex-Matrix");
     Context()->constants->add(
-      A => Matrix([[pi+i,i/pi**2],[1+sqrt[2]*i,ln(pi)-2*i]]),  # an arbitrary matrix with no special properties
+        A => Matrix([[pi+i,i/pi**2],[1+sqrt[2]*i,ln(pi)-2*i]]),  # an arbitrary matrix with no special properties
     );
-    
+
     $F = Formula("det(~A) + tr(A^*)");
-    
+
     Context()->texStrings;
     BEGIN_TEXT
     \($F\) = \{ans_rule(20)\}
     END_TEXT
     Context()->normalStrings;
-    
+
     ANS($F->cmp);
 
 You can also use the C<trace>, C<det>, and C<transpose> methods of a
 Matrix object to compute these in PG code.
 
     loadMacros("contextMatrixExtras.pl");
-    
+
     Context("Matrix");
     $M = Matrix([[1,2],[3,4]]);
-    
+
     $Mt = $M->transpose;
     $d  = $M->det;
     $tr = $M->trace;

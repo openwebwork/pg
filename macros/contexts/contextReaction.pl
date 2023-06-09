@@ -16,13 +16,13 @@ CO_2, then O_2C would be marked incorrect.
 
 To use the context include
 
-	loadMacros("contextReaction.pl");
-	Context("Reaction");
+    loadMacros("contextReaction.pl");
+    Context("Reaction");
 
 at the top of your PG file, then create Formula() objects for your
 reactions.  For example:
 
-	$R = Formula("4P + 5O_2 --> 2P_2O_5");
+    $R = Formula("4P + 5O_2 --> 2P_2O_5");
 
 Ions can be specified using ^ to produce superscripts, as in Na^+1 or
 Na^{+1}.  Note that the charge must be listed with prefix notation
@@ -44,23 +44,23 @@ MathObject.
 The Reaction Context also allows you to create parts of reactions.
 E.g., you could create
 
-	$products = Formula("4CO_2 + 6H_2O");
+    $products = Formula("4CO_2 + 6H_2O");
 
 which you could use in a problem as follows:
 
-	loadMacros("contextReaction.pl");
-	Context("Reaction");
-	
-	$reactants = Formula("2C_2H_6 + 7O_2");
-	$products  = Formula("4CO_2 + 6H_2O");
-	
-	Context()->texStrings;
-	BEGIN_TEXT
-	\($reactants \longrightarrow\) \{ans_rule(30)\}.
-	END_TEXT
-	Context()->normalStrings;
-	
-	ANS($products->cmp);
+    loadMacros("contextReaction.pl");
+    Context("Reaction");
+
+    $reactants = Formula("2C_2H_6 + 7O_2");
+    $products  = Formula("4CO_2 + 6H_2O");
+
+    Context()->texStrings;
+    BEGIN_TEXT
+    \($reactants \longrightarrow\) \{ans_rule(30)\}.
+    END_TEXT
+    Context()->normalStrings;
+
+    ANS($products->cmp);
 
 Note that sums and products are not simplified in any way, so that
 Formula("O + O") and Formula("2O") and Formula("O_2") are all
@@ -71,7 +71,7 @@ Reaction Context, as are the states (aq), (s), (l), (g), and (ppt).
 If you need additional terms, like "Heat" for example, you can add
 them as variables:
 
-	Context()->variables->add(Heat => $context::Reaction::CONSTANT);
+    Context()->variables->add(Heat => $context::Reaction::CONSTANT);
 
 Then you can make formulas that include Heat as a term.  These
 "constants" are not allowed to have coefficients or sub- or
@@ -79,13 +79,13 @@ superscripts, and can not be combined with compounds except by
 addition.  If you want a term that can be combined in those ways, use
 $context::Reaction::ELEMENT instead, as in
 
-	Context()->variables->add(e => $context::Reaction::ELEMENT);
+    Context()->variables->add(e => $context::Reaction::ELEMENT);
 
 to allow "e" for electrons, for example.
 
 If you need to add more states, use $context::Reaction::STATE, as in
 
-	Context()->variables->add('(x)' => $context::Reaction::STATE);
+    Context()->variables->add('(x)' => $context::Reaction::STATE);
 
 to allow a state of (x) for a compound.
 

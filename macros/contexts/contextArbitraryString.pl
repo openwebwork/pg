@@ -1,50 +1,77 @@
-####################################################################
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
 #
-#  Implements a context in which the student's answer is treated as a
-#  literal string, and not parsed further.  The real answer checking
-#  should be performed in a custom checker passed to the answer
-#  string's cmp() method.  E.g.,
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
 #
-#        loadMacros("contextArbitraryString.pl");
-#        Context("ArbitraryString");
-#
-#        ANS(Compute("The string I want")->cmp(checker => sub {
-#          my ($correct,$student,$ans) = @_;
-#          $correct = $correct->value; # get perl string from String object
-#          $student = $student->value; # ditto
-#          ##
-#          ## do your checking here, and return true if correct
-#          ## or false if incorrect.  For example
-#          ##   return $correct eq $student;
-#          ##
-#          return $score;
-#        }));
-#
-#  The default checker is essentially that given above, so if you want
-#  the student answer to match the correct one exactly (spacing and
-#  case are significant), then you don't have to use a custom checker.
-#  But if you want, for example, to collapse multiple white-space, or
-#  trim leading and trailing blanks, or treat upper- and lower-case
-#  letters as quivalent, then you will need to provide your own
-#  checker that does that.
-#
-#  This context handles multi-line answers properly.  If your answers
-#  are particularly long, the results listed in the results table when
-#  a student submits the answer may be too long, and you might want to
-#  reduce the space taken up.  Since the Entered and Preview columns
-#  will contain essentially the same data, you can turn off the Preview
-#  column by using
-#
-#       ANS($ans->cmp(noLaTeXresults=>1));
-#
-#  or by setting the flag globally
-#
-#       Context()->flags->set(noLaTeXresults => 1);
-#
-#  This will put a message in the Preview column saying to look at
-#  the Entered column, and will make the correct answer be shown
-#  in HTML rather than TeX.
-#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+
+=head1 NAME
+
+contextArbitraryString.pl - Implements a context in which the student's answer is treated as a
+literal string, and not parsed further.
+
+=head1 DESCRIPTION
+
+Implements a context in which the student's answer is treated as a
+literal string, and not parsed further.  The real answer checking
+should be performed in a custom checker passed to the answer
+string's C<cmp()> method.  E.g.,
+
+    loadMacros("contextArbitraryString.pl");
+    Context("ArbitraryString");
+
+    ANS(Compute("The string I want")->cmp(checker => sub {
+        my ($correct,$student,$ans) = @_;
+        $correct = $correct->value; # get perl string from String object
+        $student = $student->value; # ditto
+
+        # do your checking here, and return true if correct
+        # or false if incorrect.  For example
+        #   return $correct eq $student;
+
+        return $score;
+    }));
+
+The default checker is essentially that given above, so if you want
+the student answer to match the correct one exactly (spacing and
+case are significant), then you don't have to use a custom checker.
+But if you want, for example, to collapse multiple white-space, or
+trim leading and trailing blanks, or treat upper- and lower-case
+letters as quivalent, then you will need to provide your own
+checker that does that.
+
+This context handles multi-line answers properly.  If your answers
+are particularly long, the results listed in the results table when
+a student submits the answer may be too long, and you might want to
+reduce the space taken up.  Since the Entered and Preview columns
+will contain essentially the same data, you can turn off the Preview
+column by using
+
+    ANS($ans->cmp(noLaTeXresults=>1));
+
+or by setting the flag globally
+
+    Context()->flags->set(noLaTeXresults => 1);
+
+This will put a message in the Preview column saying to look at
+the Entered column, and will make the correct answer be shown
+in HTML rather than TeX.
+
+    ANS(str_cmp("increasing"));
+
+    ANS(unordered_str_cmp("A C E"));
+
+String answer evaluators compare a student string to the correct string.
+
+=cut
 
 sub _contextArbitraryString_init {
 	my $context = $main::context{ArbitraryString} = Parser::Context->getCopy("Numeric");

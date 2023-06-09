@@ -25,12 +25,12 @@ C<Compute("root(3,27)")> would return the equivalent of C<Real(3)>.
 
 To accomplish this, put the line
 
-	loadMacros("parserRoot.pl");
+    loadMacros("parserRoot.pl");
 
 at the beginning of your problem file, then set the Context to the one
 you wish to use in the problem.  Then use the command:
 
-	parser::Root->Enable;
+    parser::Root->Enable;
 
 (You can also pass the Enable command a pointer to a context if you
 wish to alter a context other than the current one.)
@@ -39,12 +39,12 @@ Once that is done, you (and students) can enter roots by using the
 C<root()> function.  You can use C<root()> both within C<Formula()> and
 C<Compute()> calls, and in Perl expressions, such as
 
-        $n = root(3,27);
+    $n = root(3,27);
 
 to obtain n-th roots.  Note that C<root()> will properly handle odd
 roots of negative numbers, so
 
-        $n = root(3,-8);
+    $n = root(3,-8);
 
 will produce the equivalent of C<$n = Real(-2)>, but even roots of
 negative numbers will produce an error message.
@@ -52,14 +52,14 @@ negative numbers will produce an error message.
 If you enable C<root()> in a context that allows complex numbers, you
 may want to allow even roots of negative numbers.  To do this, use
 
-        parser::Root->EnableComplex;
+    parser::Root->EnableComplex;
 
 (again, you can pass a context to be altered, if you wish).  This will
 force negative values to be promoted to complex numbers before an even
 root is taken.  So
 
-        parser::Root->EnableComplex;
-        $z = root(2,-9);
+    parser::Root->EnableComplex;
+    $z = root(2,-9);
 
 would produce the equivalent of C<$z = 3*i;>
 

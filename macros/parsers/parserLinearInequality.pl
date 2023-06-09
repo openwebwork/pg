@@ -30,17 +30,17 @@ to create a LinearInequality object.
 
 Usage examples:
 
-	$LI = LinearInequality("4x1 -3x2 <= 5");
-	$LI = LinearInequality("3x2 >= 2x1");
-	$LI = LinearInequality("3x2 => 2x1");       # Sloppy inequalities are allowed
-        
+    $LI = LinearInequality("4x1 -3x2 <= 5");
+    $LI = LinearInequality("3x2 >= 2x1");
+    $LI = LinearInequality("3x2 => 2x1");       # Sloppy inequalities are allowed
+
     $LI = LinearInequality("3x1 + 4x2 < x3");
     $LI = LinearInequality("x1 - 2x2 = 5");     # equality is also supported
     $LI = Compute("x1 + 4x2 - 2x3 <= 3");       # Compute() returns a LinearInequality
 
 Then use
 
-	ANS($LI->cmp);
+    ANS($LI->cmp);
 
 to get the answer checker for $LI.
 

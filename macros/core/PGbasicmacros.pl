@@ -15,11 +15,11 @@
 
 =head1 NAME
 
-    PGbasicmacros.pl --- located in the courseScripts directory
-
-=head1 SYNPOSIS
+PGbasicmacros.pl --- located in the courseScripts directory
 
 =head1 DESCRIPTION
+
+This includes constants and basic functions for PG.
 
 =cut
 

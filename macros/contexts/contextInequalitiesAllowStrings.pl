@@ -1,21 +1,30 @@
-###
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
 =head1 NAME
 
-    extra macros for Intermediate Algebra problems at CofI
+contextInequalitiesAllowStrings.pl -- extra macros for Intermediate Algebra problems at CofI
 
 =head1 Synposis
 
-    macros by R Cruz -- The College of Idaho
+macros by R Cruz -- The College of Idaho
 
-=cut
+=head2 Allows string answers for the set of real numbers and the empty set
 
-=head3 Allows string answers for the set of real numbers and the empty set
-
-=pod
-
-      Adds the string "All real numbers" to the Inequalities context
- NOT WORKING: Adds the string "No solution" to the Inequalities context
+Adds the string "All real numbers" to the Inequalities context
+NOT WORKING: Adds the string "No solution" to the Inequalities context
 
 =cut
 

@@ -19,7 +19,6 @@ C<Context("AlternateDecimal")> - Provides a context that allows the
 entry of decimal numbers using a comma for the decimal indicator
 rather than a dot (e.g., C<3,14159> rather than C<3.14159>).
 
-
 =head1 DESCRIPTION
 
 This macro file defines contexts in which decimal numbers can be
@@ -27,7 +26,6 @@ entered using a comma rather than a period as the decimal separator.
 Both forms are always recognized, but you can determine whether one or
 the other form produces an error message when used.  You can also
 force the display of numbers to use one or the other form.
-
 
 =head1 USAGE
 
@@ -39,22 +37,22 @@ alternate forms to be used, the second allows only the alternate form,
 and the third allows only the standard form, but recognizes the
 alternate form and gives an error message when it is used.
 
-	loadMacros("contextAlternateDecimal.pl");
-	
-	Context("AlternateDecimal");
-	
-	$r1 = Compute("3.14159");
-        $r2 = Compute("3,14159");    # equivalent to $r1;
-	
-	Context("AlternateDecimal-Only");
-	
-	$r1 = Compute("3.14159");
-        $r2 = Compute("3,14159");    # causes an error message
-	
-	Context("AlternateDecimal-Warning");
-	
-	$I1 = Compute("3.14159");    # causes an error message
-        $I2 = Compute("3,14159");
+    loadMacros("contextAlternateDecimal.pl");
+
+    Context("AlternateDecimal");
+
+    $r1 = Compute("3.14159");
+    $r2 = Compute("3,14159");    # equivalent to $r1;
+
+    Context("AlternateDecimal-Only");
+
+    $r1 = Compute("3.14159");
+    $r2 = Compute("3,14159");    # causes an error message
+
+    Context("AlternateDecimal-Warning");
+
+    $I1 = Compute("3.14159");    # causes an error message
+    $I2 = Compute("3,14159");
 
 There are two context flags that control the input and output of
 decimals.
@@ -89,10 +87,10 @@ standard format.
 It is possible to set C<enterDecimals> and C<displayDecimals> to
 different values.  For example.
 
-	Context()->flags->set(
-	  enterDecimals => "either",
-	  displayDecimals => ".",
-	);
+    Context()->flags->set(
+        enterDecimals => "either",
+        displayDecimals => ".",
+    );
 
 would allow students to enter decimals in either format, but all
 numebrs would be displayed in standard form.
@@ -130,7 +128,7 @@ the alternate format instead, then create a file named
 C<parserCustomization.pl> in your course's C<templates/macros>
 directory, and enter the following in it:
 
-	loadMacros("contextAlternateDecimal.pl");
+    loadMacros("contextAlternateDecimal.pl");
         context::AlternateDecimal->Default("either","either");
         Context("Numeric");
 
@@ -140,7 +138,7 @@ was used to enter them.
 
 You could also do
 
-	loadMacros("contextAlternateDecimal.pl");
+    loadMacros("contextAlternateDecimal.pl");
         context::AlternateDecimal->Default(".",".");
         Context("Numeric");
 
@@ -149,7 +147,7 @@ format.
 
 If you want to force students to enter the alternate format, use
 
-	loadMacros("contextAlternateDecimal.pl");
+    loadMacros("contextAlternateDecimal.pl");
         context::AlternateDecimal->Default(",",",");
         Context("Numeric");
 

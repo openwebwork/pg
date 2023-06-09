@@ -28,12 +28,12 @@ derivative.
 
 To accomplish this, put the line
 
-	loadMacros("parserPrime.pl");
+    loadMacros("parserPrime.pl");
 
 at the beginning of your problem file, then set the Context to the one you wish
 to use in the problem.  Then use the command:
 
-	parser::Prime->Enable;
+    parser::Prime->Enable;
 
 (You can also pass the Enable command a context pointer if you wish to
 alter a context other than the current one.)
@@ -41,42 +41,42 @@ alter a context other than the current one.)
 Once this is done, you will be able to enter primes in your Formulas
 to refer to differentiation.  For example:
 
-	Formula("(3x^2+2x+1)'")
+    Formula("(3x^2+2x+1)'")
 
 would mean the derivative of 3x^2+2x+1 and would be equivalent to
 
-	Formula("3*2*x+2")
+    Formula("3*2*x+2")
 
 The variable of differentiation is taken from the variables used in
 the formula being differentiated.  If there is more than one variable
 used, the first one alphabetically is used.  For example
 
-	Formula("(ln(x))' + (x^2+3y)'")
+    Formula("(ln(x))' + (x^2+3y)'")
 
 would produce the equivalent to
 
-	Formula("(1/x) + (2*x+0)").
+    Formula("(1/x) + (2*x+0)").
 
 This can have unexpected results, however, since.
 
-	Formula("(x^2)' + (y^2)'")
+    Formula("(x^2)' + (y^2)'")
 
 would generate
 
-	Formula("2*x + 2*y")
+    Formula("2*x + 2*y")
 
 which may not be what you want.  In order to specify the variable for
 differentiation, you can list it in the Enable() call.  For example:
 
-	parser::Prime->Enable("x");
+    parser::Prime->Enable("x");
 
 would make
 
-	Formula("(x^2)' + (y^2)'")
+    Formula("(x^2)' + (y^2)'")
 
 generate
 
-	Formula("2*x + 0")
+    Formula("2*x + 0")
 
 rather than the default 2x+2y.
 
@@ -84,12 +84,12 @@ The prime operator also defines a reduction rule that allows the prime
 notation to be replaced by the actual derivative when the Formula is
 reduced.  This is off by default, but you can set it via
 
-	Context()->reduction->set("(f)'"=>1);
+    Context()->reduction->set("(f)'"=>1);
 
 so that it will be on for all reductions, or specify it for a single
 reduction as follows:
 
-	$f = Formula("(x^2)'")->reduce("(f)'"=>1);
+    $f = Formula("(x^2)'")->reduce("(f)'"=>1);
 
 to obtain $f as Formula("2*x").
 
@@ -99,7 +99,7 @@ students to actually perform the differentiation themselves, you may
 wish to disable the prime at the end of the problem (so it will not be
 active while student answers are being parsed).  To do that use
 
-	parser::Prime->Disable;
+    parser::Prime->Disable;
 
 (You can pass Disable a context pointer to remove the prime operator
 from a context other than the current one.)
