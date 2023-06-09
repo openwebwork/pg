@@ -2963,7 +2963,9 @@ PGtikz object, or parser::GraphTool object.
 
 C<width> and C<height> are positive integer pixel counts for HTML display. If both
 are missing, C<width> will default to 200 and C<height> will remain undeclared,
-letting the browser display the image with its natural aspect ratio.
+letting the browser display the image with its natural aspect ratio. Except with
+a parser::GraphTool object, if both are missing then nothing will be passed along
+to the GraphTool method for display, and that macro's defaults will be used.
 
 C<tex_size> is also a positive integer, per 1000 applied to the line width in TeX.
 For example 800 leads to 0.8\linewidth. If over 1000, then 1000 will be used.
@@ -3043,8 +3045,7 @@ sub image {
 			push(
 				@output_list,
 				$image_item->generateAnswerGraph(
-					width           => $width,
-					height          => $height,
+					$out_options{width} || $out_options{height} ? (width => $width, height => $height) : (),
 					ariaDescription => shift @alt_list // ''
 				)
 			);
