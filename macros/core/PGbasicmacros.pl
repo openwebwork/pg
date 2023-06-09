@@ -2956,13 +2956,13 @@ sub row {
 
 Usage:
 
-    image($image, width => 100, height => 100, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
+    image($image, width => 200, height => 200, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
 
 where C<$image> can be a local file path, URL, WWPlot object, PGlateximage object,
 PGtikz object, or parser::GraphTool object.
 
 C<width> and C<height> are positive integer pixel counts for HTML display. If both
-are missing, C<width> will default to 100 and C<height> will remain undeclared,
+are missing, C<width> will default to 200 and C<height> will remain undeclared,
 letting the browser display the image with its natural aspect ratio.
 
 C<tex_size> is also a positive integer, per 1000 applied to the line width in TeX.
@@ -2971,8 +2971,8 @@ If missing, this defaults to C<int(width/0.6)> so the image is proportional to i
 HTML version with a 600 pixel wide reading area. If C<width> is missing and C<height>
 is declared, we presume this is a wide image and then C<tex_size> defaults to 800.
 
-    image([$image1,$image2], width => 100, height => 100, tex_size => 800, alt => ['alt text 1','alt text 2'], extra_html_tags => 'style="border:solid black 1pt"');
-    image([$image1,$image2], width => 100, height => 100, tex_size => 800, alt => 'common alt text', extra_html_tags => 'style="border:solid black 1pt"');
+    image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => ['alt text 1','alt text 2'], extra_html_tags => 'style="border:solid black 1pt"');
+    image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => 'common alt text', extra_html_tags => 'style="border:solid black 1pt"');
 
 this produces an array in array context and joins the elements with C<' '> in scalar context
 
@@ -3011,7 +3011,7 @@ sub image {
 	$width    = ''  unless ($width    =~ /[1-9]\d*/);
 	$height   = ''  unless ($height   =~ /[1-9]\d*/);
 	$tex_size = ''  unless ($tex_size =~ /[1-9]\d*/);
-	$width    = 100 unless ($width || $height);
+	$width    = 200 unless ($width || $height);
 	if (!$tex_size) {
 		$tex_size = ($width ? int($width / 0.6) : 800);
 	}
@@ -3201,7 +3201,7 @@ sub video {
 			</VIDEO>\n
 			!
 		} elsif ($displayMode eq 'PTX') {
-			my $ptxwidth = 100 * $width / 600;
+			my $ptxwidth = 400 * $width / 600;
 			$out = qq!<video source="$videoURL" width="$ptxwidth%" />!;
 		} else {
 			$out = "Error: PGbasicmacros: video: Unknown displayMode: $displayMode.\n";
@@ -3255,8 +3255,8 @@ sub imageRow {
 	# standard options
 	my %options = (
 		'tex_size' => 200,    # width for fitting 4 across
-		'height'   => 100,
-		'width'    => 100,
+		'height'   => 200,
+		'width'    => 200,
 		@_                    # overwrite any default options
 	);
 
