@@ -347,11 +347,12 @@
 				},
 
 				createPoint(gt, x, _y, paired_point) {
-					const point = gt.board.create('point', [x, 0], {
-						snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY,
+					const point = gt.board.create('point', [gt.snapRound(x, gt.snapSizeX), 0], {
+						snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY,
 						...gt.graphObjectTypes.interval.definingPointAttributes(),
 						...gt.graphObjectTypes.interval.maybeBracketAttributes()
 					});
+					point.setAttribute({ snapToGrid: true });
 					point.on('down', () => gt.graphObjectTypes.interval.pointDown(point));
 					point.on('up', () => gt.graphObjectTypes.interval.pointUp(point));
 					if (typeof paired_point !== 'undefined') {

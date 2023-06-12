@@ -678,8 +678,9 @@ window.graphTool = (containerId, options) => {
 	};
 
 	gt.createPoint = (x, y, paired_point, restrict) => {
-		const point = gt.board.create('point', [x, y],
-			{ snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, ...gt.definingPointAttributes });
+		const point = gt.board.create('point', [gt.snapRound(x, gt.snapSizeX), gt.snapRound(y, gt.snapSizeY)],
+			{ snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, ...gt.definingPointAttributes });
+		point.setAttribute({ snapToGrid: true });
 		point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
 		point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
 		if (typeof paired_point !== 'undefined') {

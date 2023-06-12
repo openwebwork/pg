@@ -194,7 +194,7 @@ These are the distances between successive grid lines in the x and y directions,
 These are the distances between successive major (labeled) ticks on the x and y axes,
 respectively.
 
-=item minorTicksX, minorTicksY (Default: C<< minorTicksX => 1, minorTicksY => 2 >>)
+=item minorTicksX, minorTicksY (Default: C<< minorTicksX => 1, minorTicksY => 1 >>)
 
 These are the number of minor (unlabeled) ticks between major ticks on the x and y axes,
 respectively.

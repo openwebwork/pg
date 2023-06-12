@@ -129,9 +129,12 @@
 				},
 
 				createPoint(gt, x, y, grouped_points) {
-					const point = gt.board.create('point', [x, y], {
-						size: 2, snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
-					});
+					const point = gt.board.create(
+						'point',
+						[gt.snapRound(x, gt.snapSizeX), gt.snapRound(y, gt.snapSizeY)],
+						{ size: 2, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false }
+					);
+					point.setAttribute({ snapToGrid: true });
 					if (typeof grouped_points !== 'undefined' && grouped_points.length) {
 						point.grouped_points = [];
 						grouped_points.forEach((paired_point) => {
