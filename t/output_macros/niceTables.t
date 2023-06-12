@@ -21,7 +21,7 @@ loadMacros('niceTables.pl', 'PGstandard.pl');
 use Data::Dumper;
 
 my $tab           = DataTable([ [ 1, 2, 3 ], [ 4, 5, 6 ] ]);
-my $std_pad       = 'padding:0pt 6pt;';
+my $std_pad       = 'padding:0rem 0.425rem;';
 my $talign_center = 'text-align:center;';
 
 is $tab, qq{<table style="margin:auto;">
