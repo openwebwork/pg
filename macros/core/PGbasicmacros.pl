@@ -3008,9 +3008,9 @@ sub image {
 	}
 
 	# Get options for width, height, and tex_size, with a sanity check for integer values.
-	my $width    = $out_options{width}    =~ /[1-9]\d*/ ? $out_options{width}    : '';
-	my $height   = $out_options{height}   =~ /[1-9]\d*/ ? $out_options{height}   : '';
-	my $tex_size = $out_options{tex_size} =~ /[1-9]\d*/ ? $out_options{tex_size} : '';
+	my $width    = $out_options{width}    =~ /^[1-9]\d*$/ ? $out_options{width}    : '';
+	my $height   = $out_options{height}   =~ /^[1-9]\d*$/ ? $out_options{height}   : '';
+	my $tex_size = $out_options{tex_size} =~ /^[1-9]\d*$/ ? $out_options{tex_size} : '';
 	$width = 200 unless ($width || $height);
 
 	$tex_size = $width ? int($width / 0.6) : 800 unless $tex_size;
