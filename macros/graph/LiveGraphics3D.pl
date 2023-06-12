@@ -89,7 +89,7 @@ sub _LiveGraphics3D_init {
 	ADD_JS_FILE('node_modules/x3dom/x3dom.js');
 	ADD_JS_FILE('node_modules/jszip/dist/jszip.min.js');
 	ADD_JS_FILE('node_modules/jszip-utils/dist/jszip-utils.min.js');
-	ADD_JS_FILE('js/apps/LiveGraphics/liveGraphics.js');
+	ADD_JS_FILE('js/LiveGraphics/liveGraphics.js');
 	ADD_CSS_FILE('node_modules/x3dom/x3dom.css');
 }
 

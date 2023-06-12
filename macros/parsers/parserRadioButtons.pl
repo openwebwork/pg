@@ -309,7 +309,7 @@ sub new {
 	$self->addLabels;
 	$self->getCorrectChoice($value);
 	$self->getCheckedChoice($self->{checked});
-	main::ADD_JS_FILE('js/apps/RadioButtons/RadioButtons.js', 0, { defer => undef }) if $self->{uncheckable};
+	main::ADD_JS_FILE('js/RadioButtons/RadioButtons.js', 0, { defer => undef }) if $self->{uncheckable};
 	$context->strings->are(map { $self->{values}[$_] => {} } (0 .. ($self->{n} - 1)));
 	return $self;
 }

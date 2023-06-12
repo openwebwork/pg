@@ -173,15 +173,15 @@ sub ADD_CSS_FILE {
 # Some problems use jquery-ui still, and so the requestor should also load the css for that if those problems are used,
 # although those problems should also be rewritten to not use jquery-ui.
 sub load_css() {
-	ADD_CSS_FILE('js/apps/Problem/problem.css');
-	ADD_CSS_FILE('js/apps/Knowls/knowl.css');
-	ADD_CSS_FILE('js/apps/ImageView/imageview.css');
+	ADD_CSS_FILE('js/Problem/problem.css');
+	ADD_CSS_FILE('js/Knowls/knowl.css');
+	ADD_CSS_FILE('js/ImageView/imageview.css');
 
 	if ($envir{useMathQuill}) {
 		ADD_CSS_FILE('node_modules/mathquill/dist/mathquill.css');
-		ADD_CSS_FILE('js/apps/MathQuill/mqeditor.css');
+		ADD_CSS_FILE('js/MathQuill/mqeditor.css');
 	} elsif ($envir{useMathView}) {
-		ADD_CSS_FILE('js/apps/MathView/mathview.css');
+		ADD_CSS_FILE('js/MathView/mathview.css');
 	}
 }
 
@@ -200,9 +200,9 @@ argument.  These attributes will be added as attributes to the script tag.
 
 For example:
 
-	ADD_JS_FILE("js/apps/Base64/Base64.js");
+	ADD_JS_FILE("js/Base64/Base64.js");
 	ADD_JS_FILE("//web.geogebra.org/4.4/web/web.nocache.js", 1);
-	ADD_JS_FILE("js/apps/GraphTool/graphtool.js", 0, { id => "gt_script", defer => undef });
+	ADD_JS_FILE("js/GraphTool/graphtool.js", 0, { id => "gt_script", defer => undef });
 
 =cut
 
@@ -216,18 +216,18 @@ sub ADD_JS_FILE {
 # Some problems use jquery-ui still, and so the requestor should also load the js for that if those problems are used,
 # although those problems should also be rewritten to not use jquery-ui.
 sub load_js() {
-	ADD_JS_FILE('js/apps/InputColor/color.js',    0, { defer => undef });
-	ADD_JS_FILE('js/apps/Base64/Base64.js',       0, { defer => undef });
-	ADD_JS_FILE('js/apps/Knowls/knowl.js',        0, { defer => undef });
-	ADD_JS_FILE('js/apps/ImageView/imageview.js', 0, { defer => undef });
-	ADD_JS_FILE('js/apps/Essay/essay.js',         0, { defer => undef });
+	ADD_JS_FILE('js/InputColor/color.js',    0, { defer => undef });
+	ADD_JS_FILE('js/Base64/Base64.js',       0, { defer => undef });
+	ADD_JS_FILE('js/Knowls/knowl.js',        0, { defer => undef });
+	ADD_JS_FILE('js/ImageView/imageview.js', 0, { defer => undef });
+	ADD_JS_FILE('js/Essay/essay.js',         0, { defer => undef });
 
 	if ($envir{useMathQuill}) {
 		ADD_JS_FILE('node_modules/mathquill/dist/mathquill.js', 0, { defer => undef });
-		ADD_JS_FILE('js/apps/MathQuill/mqeditor.js',            0, { defer => undef });
+		ADD_JS_FILE('js/MathQuill/mqeditor.js',                 0, { defer => undef });
 	} elsif ($envir{useMathView}) {
-		ADD_JS_FILE("js/apps/MathView/$envir{mathViewLocale}", 0, { defer => undef });
-		ADD_JS_FILE('js/apps/MathView/mathview.js',            0, { defer => undef });
+		ADD_JS_FILE("js/MathView/$envir{mathViewLocale}", 0, { defer => undef });
+		ADD_JS_FILE('js/MathView/mathview.js',            0, { defer => undef });
 	}
 }
 
