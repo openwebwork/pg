@@ -1,8 +1,8 @@
 ## DESCRIPTION
-## Vector Calculus: graph of a 2D vector field
+## Vector Calculus: graph of a 2D direction field
 ## ENDDESCRIPTION
 
-## KEYWORDS('vector calculus', 'vector field graph 2D')
+## KEYWORDS('vector calculus', 'direction field')
 
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
@@ -11,23 +11,25 @@
 ## Institution(Hope College)
 ## Author(Paul Pearson)
 
-#:% name = Two-D Vector Field
+#:% name = Direction Field
 #:% subject = [Differential Equations, Vector Calculus]
-#:% type = Sample
+#:% type = [Sample, technique]
 #:% categories = [graph]
 
 #:% section=preamble
-#: The macro `PGtikz.pl` is used to produced the vector field.
+#: The macro `PGtikz.pl` is used to produced the direction field.
 DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section=setup
-#: The vector field is created directly.  The vector field is
-#: <x/(x^2+y^2), y/(x^2+y^2)> which is not defined at the origin.  Therefore,
-#: we don't draw the vector there and use the `ifthen` package to load the `\ifthenelse`
-#: latex command.
+#: A direction field is a vector field where the length of the vectors are
+#: constant.  We use the same technique as PROBLINK('VectorFieldGraph2D.pg').
 #:
-#: The vector is created using the `\draw` command.
+#: The vector field <y,-x> is used and then when the vector is drawn is
+#: scaled by its length or `sqrt(x^2+y^2)`.  Since this is not defined at
+#: the origin, we don't draw the vector there and use the `ifthen` package
+#: to load the `\ifthenelse` latex command.
+#:
 $graph = createTikZImage();
 $graph->texPackages(['ifthen']);
 $graph->BEGIN_TIKZ
@@ -42,22 +44,21 @@ $graph->BEGIN_TIKZ
 \foreach \x in {-5,...,-1,1,2,...,5} \draw(\x,-5) node [below] {\x};
 \draw[->] (0,-5) -- (0,5.25) node[above right] {\(y\)};
 \foreach \y in {-5,...,-1,1,2,...,5} \draw(-5,\y) node [left] {\y};
-\foreach \x in {-4,...,4} {
-	\foreach \y in {-4,...,4} {
+\foreach \x in {-4.5,-4,...,4.5} {
+	\foreach \y in {-4.5,-4,...,4.5} {
 		\ifthenelse{\equal{\x}{0} \AND \equal{\y}{0}}{}{
-			\draw[thick, blue,->] (\x,\y) -- ({\x+\x/(\x*\x+\y*\y)},{\y+\y/(\x*\x+\y*\y)});
+			\draw[thick, blue,->] (\x,\y) --
+				({\x+0.4*\y/sqrt(\x*\x+\y*\y)},{\y-0.4*\x/sqrt(\x*\x+\y*\y)});
 			}
+		}
 	}
-}
 END_TIKZ
 
-#:% section=statement
+#:% section = statement
 #: This shows the vector field graph.
 BEGIN_PGML
-This is a velocity vector field for an explosion at the origin
-that decreases in speed the farther the distance is from the origin.
-
-[``\vec{v} =  \left< \frac{x}{x^2+y^2}, \frac{y}{x^2+y^2} \right>``]
+This is a direction field for
+[``\vec{v} =  \left< y, -x \right>``]
 
 >> [@ image($graph, width=> 400) @]* <<
 END_PGML

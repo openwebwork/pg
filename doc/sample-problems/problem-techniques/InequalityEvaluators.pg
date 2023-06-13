@@ -1,0 +1,68 @@
+## DESCRIPTION
+## This shows how to use inqualities in a problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('interval')
+
+# created as a full problem by Peter Staab  2023.06.02
+
+#:% name = Inequality Evaluator
+#:% type = [technique]
+#:% categories = interval
+#:% subject = algebra
+#:% see_also = [IntervalEvaluators.pg]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl',
+  'PGcourse.pl');
+
+#:% section=setup
+#: Using `Context('Inequalities-Only')`, if the student enters the inequality
+#: `-16 <= y <= 9` their answer will be marked correct, but the equivalent
+#: interval `[-16,9]` would be incorrect. If we had used
+#: Context('Inequalities') instead, both the inequality and the interval
+#: would be marked correct.
+#:
+#: Uncommenting the lines containing `EmptySet` creates an empty set as a named
+#: constant and uses that name.
+#:
+#: Uncommenting `Context()->flags->set(ignoreEndpointTypes=>1);` would also mark
+#: the student answers `-16 < y < 9` or `-16 <= y < 9` or `-16 < y <= 9` correct.
+Context("Inequalities-Only");
+Context()->variables->add(y=>"Real");
+# Context()->constants->add(EmptySet => Set());
+# Context()->flags->set(noneWord=>"EmptySet");
+# Context()->flags->set(ignoreEndpointTypes=>1);
+
+# f(x) = x^2 - 16 on -1 <= x <= 5
+$f = Formula("x^2 - 16");
+
+$range = Compute("-16 <= y <= 9");
+
+Context()->variables->remove("x");
+
+#:% section=statement
+BEGIN_PGML
+What is the range of
+[`y = f(x) = [$f] `] on the domain [` -1 \leq x \leq 5 `]?
+
+
+Range: [___]{$range}
+
+Enter your answer using inequalities (not intervals).
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

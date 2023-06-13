@@ -1,0 +1,102 @@
+## DESCRIPTION
+## Interactive graphing tool problem that asks the student to plot a circle.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Date(05/28/2023)
+## Institution(Missouri Western State University)
+## Author(Glenn Rice)
+## KEYWORDS('graphs', 'circles')
+
+#:% name = Graph Tool, plotting a circle
+#:% type = [Sample, technique]
+#:% subject = [algebra, precalculus]
+#:% categories = [graph]
+
+#:% section = preamble
+#: This example shows how to get student input in the form of a graph (a circle)
+#: by using interactive graphing tools. Load the parserGraphTool.pl macro for
+#: this.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The variables `$h`, `$k` and `$r` randomly pick a center and radius of the circle.
+#:
+#: The lines
+#:
+#: ```{#equation .perl}
+#: Context()->variables->add(y => 'Real');
+#: $circle_eq_lhs = Formula("(x - $h)^2 + (y - $k)^2")->reduce;
+#: ```
+#:
+#: define the equation of the circle that is shown in the problem and solution.
+#:
+#: The `GraphTool` method creates the graph tool object. The only argument is
+#: the correct answer. This is a string that contains a list of objects that
+#: the student will be expected to graph. Each object is a brace delimited list
+#: of the attributes of the object. The first attribute in each list is the
+#: type of object to be graphed, `circle` in this case. What the remaining
+#: attributes are depend on the type. For a circle the second attribute is
+#: whether the object is to be `solid` or `dashed`, the third attribute is the
+#: center of the circle, and the fourth attribute is a point on the circle.
+#:
+#: The `->with` method is then used to set options for the `GraphTool` object.
+#: In this case the options that are set are:
+#:
+#: * `bbox`: this is an array reference of four values xmin, ymax, xmax, ymin
+#: indicating the upper left and lower right corners of the visible graph.
+#:
+#: There is a default checker for the GraphTool that will mark correct a
+#: student answer that 'looks' like the correct one.  This means that if
+#: a student adds two circles that are equivalent with one solid and one
+#: dashed, that if the solid one is plotted second, credit will be given.
+#: For simple graphs, the default should be sufficient.  If not see
+#: XXXX for an example with a custom answer checker.
+#:
+#: For more details, see the PODLINK('POD documentation','parserGraphTool.pl')
+$h = non_zero_random(-5, 5);
+$k = non_zero_random(-5, 5);
+$r = random(1, 4);
+
+Context()->variables->add('y' => 'Real');
+$circle_eq_lhs = Formula("(x-$h)^2 + (y-$k)^2")->reduce;
+
+$gt = GraphTool("{circle, solid, ($h, $k), ($h + $r, $k)}")
+    ->with(bBox => [ -11, 11, 11, -11 ]);
+
+#:% section = statement
+#: This asks to graph the circle given by the equation. The code
+#: `[_]{$gt}` inserts the GraphTool.
+BEGIN_PGML
+Graph the circle given by the following equation.
+
+    [`[$circle_eq_lhs] = [$r ** 2]`]
+
+[_]{$gt}
+END_PGML
+
+#:% section = solution
+#: The solution describes how to obtain the graph of the circle from the
+#: equation.
+#:
+#: The line `[@ $gt->generateAnswerGraph @]*` inserts the correct answer
+#: graph.
+BEGIN_PGML_SOLUTION
+The equation of the circle of the form:
+
+    [`[$circle_eq_lhs] = [$r ** 2]`]
+
+has a center at [`([$h],[$k])`] and radius [$r].  To enter the graph, click the
+circle tool, then click the center at [`([$h],[$k])`] and then click a second
+point that is [$r] units from the center.  This is easist going left, right, up
+or down from the center.
+
+The solution is
+[@ $gt->generateAnswerGraph @]*
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

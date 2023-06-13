@@ -1,0 +1,59 @@
+## DESCRIPTION
+## This shows how to use intervals in a problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('weighted grader')
+
+# created as a full problem by Peter Staab  2023.06.02
+
+#:% name = Weighted Grader
+#:% type = [technique]
+#:% categories = [grader]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'weightedGrader.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: The answer blanks do not have answers associated with them because we will
+#: use the WEIGHTED_ANS command below.
+BEGIN_PGML
+
+* This answer is worth 20%.  Enter 1 [___]
+
+* This answer is worth 50%. Enter 3 [___]
+
+* This answer is worth 30%. Enter 7 [___]
+END_PGML
+
+#:% section = answer
+#: Before checking answers, `install_weighted_grader();` needs to be called
+#: to ensure the weighted grader is used.
+#:
+#: The WEIGHTED_ANS command takes pairs of answer checkers and their relative
+#: weights.  The example here gives weights as percents as the total weights
+#: added to 100, but weights of (2,5,3) or (4,10,6) would have worked the
+#: same way.
+#:
+install_weighted_grader();
+
+WEIGHTED_ANS(
+  Real(1)->cmp, 20,
+  Real(3)->cmp, 50,
+  Real(7)->cmp, 30
+);
+
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

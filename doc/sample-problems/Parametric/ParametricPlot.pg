@@ -1,0 +1,79 @@
+## DESCRIPTION
+## Graphing a parametric curve.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('parametric', 'graph')
+
+#:% name = Parametric Curve Graph
+#:% types = [Sample, technique]
+#:% subject = parametric
+
+#:% section = preamble
+#: We use `PGtikz.pl` to generate the graph.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The package `PGtikz.pl` is used to produce the curve.  The plotting routine used in
+#: this way plots parametrically, which is shown in the last statement in the
+#: TIKZ section with `\draw[DarkBlue, very thick] plot [....]`.
+#:
+#: The first two statements of the TIKZ section scales the plot and then gives
+#: a nice background that will contrast the rest of the problem page.
+Context()->variables->add(t => 'Real');
+
+$graph = createTikZImage();
+$graph->tikzLibraries('arrows.meta');
+$graph->BEGIN_TIKZ
+\tikzset{>={Stealth[scale=1.5]}}
+\filldraw[
+    draw=LightBlue,
+    fill=white,
+    rounded corners=10pt,
+    thick,use as bounding box
+] (-3.5,-3.5) rectangle (3.5,3.5);
+\draw[->] (-3.5,0) -- (3.5,0) node[above left,outer sep=3pt] {\(x\)};
+\foreach \x in {-3,-2,-1,1,2,3} \draw (\x,0.15) -- (\x,-0.15) node [below] {\x};
+\draw[->] (0,-3.5) -- (0,3.5) node[below right,outer sep=3pt] {\(y\)};
+\foreach \y in {-3,-2,-1,1,2,3} \draw (0.15,\y) -- (-0.15,\y) node [left] {\y};
+\draw[DarkBlue,very thick]
+    plot [samples=250,domain=0:{2*pi},variable=\t]
+    ({2*sin(2*\t r)},{2*sin(3*\t r)});
+END_TIKZ
+
+$x = Compute('2sin(2t)');
+$x0 = $x->eval(t => 'pi/3');
+$y = Compute('2sin(3t)');
+$y0 = $y->eval(t => 'pi/3');
+
+$m = $y->D('t')->eval(t => 'pi/3')/$x->D('t')->eval(t => 'pi/3');
+$line = Compute("$m*(x-$x0)+$y0");
+
+#:% section=statement
+BEGIN_PGML
+Find the tangent line to the parametric curve:
+>> [``x(t) = [$x], \qquad y(t) = [$y]``] <<
+
+when [`t=\pi/3`].  The graph of the curve is
+
+>>[@ image($graph, width => 300) @]*<<
+
+Tangent line in slope-intercept form
+
+[`y=`][_____]{$line}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

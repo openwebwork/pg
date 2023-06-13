@@ -11,7 +11,7 @@
 ## KEYWORDS('graphs', 'circles')
 
 #:% name = Interactive graphing tool problems
-#:% type = Sample
+#:% type = [Sample, technique]
 #:% subject = [algebra, precalculus]
 #:% categories = [graph]
 
@@ -24,7 +24,7 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: The variables $h, $k and $r randomly pick a center and radius of the circle.
+#: The variables `$h`, `$k` and `$r` randomly pick a center and radius of the circle.
 #:
 #: The lines
 #:
@@ -75,68 +75,68 @@ Context()->variables->add(y => 'Real');
 $circle_eq_lhs = Formula("(x - $h)^2 + (y - $k)^2")->reduce;
 
 $gt = GraphTool("{circle, solid, ($h, $k), ($h + $r, $k)}")->with(
-    bBox       => [ -11, 11, 11, -11 ],
-    cmpOptions => {
-        list_checker => sub {
-            my ($correct, $student, $ans, $value) = @_;
-            return 0 if $ans->{isPreview};
+	bBox       => [ -11, 11, 11, -11 ],
+	cmpOptions => {
+		list_checker => sub {
+			my ($correct, $student, $ans, $value) = @_;
+			return 0 if $ans->{isPreview};
 
-            my $score = 0;
-            my @errors;
-            my $count = 1;
+			my $score = 0;
+			my @errors;
+			my $count = 1;
 
-            # Get the center and point that define the correct circle and
-            # compute the square of the radius.
-            my ($cx, $cy) = $correct->[0]->extract(3)->value;
-            my ($px, $py) = $correct->[0]->extract(4)->value;
-            my $r_squared = ($cx - $px)**2 + ($cy - $py)**2;
+			# Get the center and point that define the correct circle and
+			# compute the square of the radius.
+			my ($cx, $cy) = $correct->[0]->extract(3)->value;
+			my ($px, $py) = $correct->[0]->extract(4)->value;
+			my $r_squared = ($cx - $px)**2 + ($cy - $py)**2;
 
-            my $pointOnCircle = sub {
-                my $point = shift;
-                my ($x, $y) = $point->value;
-                return ($x - $cx)**2 + ($y - $cy)**2 == $r_squared;
-            };
+			my $pointOnCircle = sub {
+				my $point = shift;
+				my ($x, $y) = $point->value;
+				return ($x - $cx)**2 + ($y - $cy)**2 == $r_squared;
+			};
 
-            # Iterate through the objects the student graphed and check to
-            # see if each is the correct circle.
-            for (@$student) {
-                my $nth = Value::List->NameForNumber($count++);
+			# Iterate through the objects the student graphed and check to
+			# see if each is the correct circle.
+			for (@$student) {
+				my $nth = Value::List->NameForNumber($count++);
 
-                # This checks if the object graphed by the student is the same
-                # type as the correct object type (a circle in this case),
-                # has the same solid or dashed status, has the same center, and
-                # if the other point graphed is on the circle.
-                if ($_->extract(1) eq $correct->[0]->extract(1)
-                    && $_->extract(2) eq $correct->[0]->extract(2)
-                    && $_->extract(3) == $correct->[0]->extract(3)
-                    && $pointOnCircle->($_->extract(4)))
-                {
-                    $score += 1;
-                    next;
-                }
+				# This checks if the object graphed by the student is the same
+				# type as the correct object type (a circle in this case),
+				# has the same solid or dashed status, has the same center, and
+				# if the other point graphed is on the circle.
+				if ($_->extract(1) eq $correct->[0]->extract(1)
+					&& $_->extract(2) eq $correct->[0]->extract(2)
+					&& $_->extract(3) == $correct->[0]->extract(3)
+					&& $pointOnCircle->($_->extract(4)))
+				{
+					$score += 1;
+					next;
+				}
 
-                # Add messages for incorrect answers.
+				# Add messages for incorrect answers.
 
-                if ($_->extract(1) ne $correct->[0]->extract(1)) {
-                    push(@errors,
-                        "The $nth object graphed is not a circle");
-                    next;
-                }
+				if ($_->extract(1) ne $correct->[0]->extract(1)) {
+					push(@errors,
+						"The $nth object graphed is not a circle");
+					next;
+				}
 
-                if ($_->extract(2) ne $correct->[0]->extract(2)) {
-                    push(@errors,
-                        "The $nth object graphed should be a "
-                            . $correct->[0]->extract(2)
-                            . " circle.");
-                    next;
-                }
+				if ($_->extract(2) ne $correct->[0]->extract(2)) {
+					push(@errors,
+						"The $nth object graphed should be a "
+							. $correct->[0]->extract(2)
+							. " circle.");
+					next;
+				}
 
-                push(@errors, "The $nth object graphed is incorrect.");
-            }
+				push(@errors, "The $nth object graphed is incorrect.");
+			}
 
-            return ($score, @errors);
-        }
-    }
+			return ($score, @errors);
+		}
+	}
 );
 
 #:% section = statement

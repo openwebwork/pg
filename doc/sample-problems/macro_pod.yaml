@@ -4,6 +4,7 @@ macros:
   answerHints.pl: answers/answerHints.html
   answerComposition.pl: answers/answerComposition.html
 
+  contextCurrency.pl: contexts/contextCurrency.html
   contextFraction.pl: contexts/contextFraction.html
   contextInequalities.pl: contexts/contextInequalities.html
   contextLimitedPoint.pl: contexts/contextLimitedPoint.html

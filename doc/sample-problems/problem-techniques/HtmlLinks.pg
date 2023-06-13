@@ -1,0 +1,67 @@
+## DESCRIPTION
+## This shows how to make an html link in a PG problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('link')
+
+#:% name = HTML Links
+#:% type = [snippet, technique]
+
+#:% section = preamble
+#: An example below uses units, so we load `parserNumberWithUnits.pl`.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserNumberWithUnits.pl',
+  'PGcourse.pl');
+
+#:% section=setup
+$ans = NumberWithUnits('4', 'ft');
+
+#:% section=statement
+#: We need no additions to the PG file except in the text section, where we use
+#: the `htmlLink` function to insert the link. There are four examples here in
+#: all, the page to load is given as the first argument to `htmlLink`, and the
+#: text to display as the link as the second argument.
+#:
+#: 1. This is a link to a general URL.
+#:
+#: 2. The second example shows how to link to a page that is in the same directory
+#: on the WeBWorK server as the PG file: the alias function puts in the correct
+#: link for this file. Setting the target to be _blank will open a new (blank)
+#: window or tab.
+#:
+#: 3. The third example shows how to link to a page that is under the html
+#: subdirectory of a course's main directory. In this example, which is taken
+#: from the problem `Library/Rochester/setDiffEQ6AutonomousStability/ur_de_6_3.pg`,
+#: phaseplaneplotters is a subdirectory that has been added under the course's
+#: html directory. The course's html directory can be linked using `${htmlURL}`
+#: as in the example given or by using
+#: `alias("${htmlDirectory}phaseplaneplotters/index.html")`.
+#:
+#: 4. The fourth example uses the built-in helpLink feature of WeBWorK. The
+#: Following is a list of all help topics: angle, decimal, equation, exponent
+#: formula, fraction, inequality, limit, log, matrix, number, point, vector,
+#: interval, unit, syntax.
+BEGIN_PGML
+The answer to all questions is on
+[@ htmlLink( "http://www.google.com/", "this page" ) @]*
+
+A link to a
+[@ htmlLink( alias('local.html'), "local problem", "TARGET='_blank'" ) @]*
+
+Click [@htmlLink("${htmlURL}phaseplaneplotters/index.html",
+  "sketch the graph.", "TARGET=~~"plotter~~"" )@]* to use xFunctions for
+plotting.
+
+Enter 4 feet: [__]{$ans}
+
+Don't forget to enter [@ helpLink("units") @]*
+END_PGML
+
+ENDDOCUMENT();

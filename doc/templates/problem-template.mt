@@ -39,16 +39,30 @@
 	<div class="container-fluid p-3">
 		<h1><%= $name %></h1>
 		<p><%= $description %></p>
-		<h2>POD for Macro Files</h2>
-		<ul>
-			% for (@$macros) {
-				% if ($macro_loc->{$_}) {
-					<li><a href="<%= $pod_dir %>/<%= $macro_loc->{$_} %>"><%= $_ =%></a></li>
-				% } else {
-					<li class="text-danger"><%= $_ %></li>
+		<div class="row">
+			<div class="col">
+				<h2>POD for Macro Files</h2>
+				<ul>
+					% for (@$macros) {
+						% if ($macro_loc->{$_}) {
+							<li><a href="<%= $pod_dir %>/<%= $macro_loc->{$_} %>"><%= $_ =%></a></li>
+						% } else {
+							<li class="text-danger"><%= $_ %></li>
+						% }
+					% }
+				</ul>
+			</div>
+			<div class="col">
+				% if (scalar(@$related) > 0) {
+				<h2>See Also</h2>
+				<ul>
+					% for (@$related) {
+						<li><a href="<%= $home =%>/<%= $_->{dir} =%>/<%= $_->{file} =~ s/.pg$//r =%>.html"><%= $_->{name} =%></a></li>
+					% }
+				</ul>
 				% }
-			% }
-		</ul>
+			</div>
+		</div>
 		<div class="row">
 			<div class="col text-center"><h2 class="fw-bold fs-3">PG problem file</h2></div>
 			<div class="col text-center"><h2 class="fw-bold fs-3">Explanation</h2></div>

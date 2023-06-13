@@ -26,7 +26,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
 #:% section = setup
 #: The `DraggableProof` function takes an arrayref of correct statements,
 #: followed (optionally) by extra statements. See
-#: PODLINK('the POD', 'draggableProof.pl') for more options.
+#: PODLINK('the Draggable Proof POD', 'draggableProof.pl') for more options.
 # These are the statements of the proof in the correct order.
 $proof = DraggableProof(
 	# These are the correct statements of the proof in the correct order.

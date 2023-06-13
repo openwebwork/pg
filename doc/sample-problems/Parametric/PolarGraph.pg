@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Graphing a polar curve given by parametric equations.
+## Graphing a polar curve given by r=f(theta)
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -16,7 +16,7 @@
 #:% subject = parametric
 
 #:% section = preamble
-#: We use `PGgraphmacros.pl` to generate the graph.
+#: We use `PGtikz.pl` to generate the graph.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');

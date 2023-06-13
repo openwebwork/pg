@@ -1,0 +1,124 @@
+## DESCRIPTION
+## This shows how to use intervals in a problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('interval')
+
+# created as a full problem by Peter Staab  2023.06.02
+
+#:% name = Vectors
+#:% type = [technique, sample]
+#:% categories = vector
+#:% subject = Vector Calculus
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: We indicate that we are working in a vector context by setting the `Context`
+#: to be `Vector`. If we want to have vectors displayed, by default, as a
+#: sum of `i,j,k` components, we can set the ijk flag in the `Context`. This is
+#: commented out here; uncommenting it would result in the vector `$v1` here
+#: being shown as `$v1 = i + 3j` instead of `$v1 = <1,3>`, etc. Similarly,
+#: if we wanted to change the default display of the `i, j` and `k` vectors,
+#: say to have them display with overset arrows, we can redefine the TeX
+#: formatting of those constants, as shown in the second comment.
+#:
+#: Then, we can define vectors as we might expect: either with the Vector or
+#: Compute constructors, or by using the predefined vector constants
+#: `i, j` and `k`.  Any vector constructed with `i, j` and/or `k` will be
+#: three-dimensional vectors even if the vector `k` is not used.  That is
+#: `Vector('<1,2>')` is not equal to `i+2j`.
+#:
+#: Also if we define the vector using the constants i, j and k, as in the
+#: definition of `$v3 `here, then the default display of that vector will be in
+#: `i,j,k `format even if we don't set the corresponding Context flag.
+#:
+#: To explicitly require that the vectors be two-dimensional rather than
+#: three-dimensional, we would use `Context('Vector2D')` instead of
+#: `Context('Vector')`.
+#:
+#: The components of MathObjects vectors are available as an array from
+#: `$v->value;` thus, we could save the three components of the vector `$v3`
+#: in the array `@v3comp` using `@v3comp = $v3->value`.
+#: Then, we can access the first component using
+#: `$v3comp[0]`, the second component using `$v3comp[1]`, etc.
+#: Better still, to get the first component of the vector `$v3` we could
+#: use `$v3->extract(1)` instead of `($v3->value)[0]`. Note that index of
+#: `extract` starts at 1, not 0.
+#:
+#: Lastly, there is other functionality associated with Vectors.  See the
+#: WeBWorK wiki page on
+#: [vectors](https://webwork.maa.org/wiki/Vector_(MathObject_Class))
+Context('Vector');
+## display vectors in ijk format
+# Context()->flags->set( ijk=>1 );
+## set the appearance of the ijk vectors
+##    this sets them to be overset with
+##    vector arrows, instead of boldface
+# Context()->constants->set(
+#   i => {TeX => "\mathit{\vec i}"},
+#   j => {TeX => "\mathit{\vec j}"},
+#   k => {TeX => "\mathit{\vec k}"},
+# );
+
+$v1 = Vector("<1,3>");
+$v2 = Compute("<-3,1>");
+$v3 = 3*i + 2*j - 4*k;
+$v4 = Vector(1,1,0);
+
+# create an array of the components of $v3
+@v3comp = $v3->value;
+
+$a = 3*i + j;
+# $b = $a + $v1; # this results in an error
+$c = norm($v3);    # vector length
+$v5 = unit($v3);   # unit vector in same direction
+$d = $v1 . $v2;    # dot product
+$v6 = $v3 x $v4;      # cross product
+$v3->isParallel($v4); # =1 if parallel, =0 if skew
+
+BEGIN_PGML
+[`\vec{v}_1=[$v1]`]
+
+[`\vec{v}_2=[$v2]`]
+
+[`\vec{v}_3=[$v3]`]
+
+[`\vec{v}_4=[$v4]`]
+
+[`\vec{a} = [$a]`]
+
+[`\vec{v}_1+\vec{v}_2 = [$v1+$v2]`]
+
+[`||\vec{v}_3|| = [$c]`]
+
+[`[$v5]`] is a unit vector in the same direction as [`[$v3]`]
+
+[`\vec{v}_1 \cdot \vec{v}_2=[$d]`]
+
+[`\vec{v}_3 \times \vec{v}_4=[$v6]`]
+
+[`\vec{v}_3`] [@ $v3->isParallel($v4) ? 'is' : 'is not' @]
+parallel to [`\vec{v}_4`]
+
+The first element of [`\vec{v}_3`] is [@ $v3->extract(1) @]
+
+The third element of [`\vec{v}_4`] is [@ $v4->extract(3) @]
+END_PGML
+
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

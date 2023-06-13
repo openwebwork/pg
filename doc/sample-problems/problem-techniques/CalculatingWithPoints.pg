@@ -1,0 +1,70 @@
+## DESCRIPTION
+## Perform calculations with Points.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('point')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Calculating with Points
+#:% type = technique
+#:% categories = [point]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: In the problem setup section of the file, we put the value of the subtraction
+#: of two Points in two variables, `$d1`, the x coordinate, and `$d2`, the y
+#: coordinate. This is achieved by calling `Point`'s value method, as shown.
+#:
+#: Alternative method: If you want to get only one of the coordinates of a
+#: Point, you can use the extract method, for example: $x = $point->extract(1);.
+#: This gets the first coordinate of $point (x) and assigns it to the variable $x.
+#:
+#: We don't use `Context("Vector");` and `norm( $point[0] - $point[1] )` here
+#: to determine length because we don't want to accept an answer like |<5,7>-<7,8>|.
+#:
+#: Alternative method: You can use `$length=norm( $point[0] - $point[1] );`
+#: with `Context("Vector");` if you want to accept answers that are valid in
+#: the `Vector` context (such as the absolute value of a vector).
+#:
+#: We need to put parentheses around `$d1` and `$d2` in the Compute expression
+#: because if `$d1 = -6`, then `-6^2 = -36`, not `36`, as desired. However, if the
+#: code is `($d1)^2` then that evaluates as `(-6)^2 = 36`, as desired.
+Context( "Point" );
+@points = (Point(random(1,5,1), random(-5,-1,1)),
+  Point(random(5,10,1), random(6,11,1)));
+
+# If $point[0] = (x1,y1) and $point[1] = (x2,y2),
+# then the following makes $d1 = x1 - x2, $d2 = y1 - y2
+($d1, $d2) = ($points[0] - $points[1])->value;
+
+$length = Compute("sqrt( ($d1)^2+($d2)^2 )");
+$mid = ( $points[1] + $points[0] ) / 2;
+
+#:% section=statement
+BEGIN_PGML
+Consider the two points [` [$points[0]] `]
+and [` [$points[1]] `].
+
+a. The distance between them is: [_______]{$length}
+
+b. The midpoint of the line segment that joins them is:
+[______]{$mid}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

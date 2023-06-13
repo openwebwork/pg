@@ -1,0 +1,92 @@
+## DESCRIPTION
+## Interactive graphing tool problem that asks the student to plot a circle.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Date(05/28/2023)
+## Institution(Missouri Western State University)
+## Author(Glenn Rice)
+## KEYWORDS('graphs', 'circles')
+
+#:% name = Graph Tool, plotting a line
+#:% type = [Sample, technique]
+#:% subject = [algebra, precalculus]
+#:% categories = [graph]
+
+#:% section = preamble
+#: This example shows how to get student input in the form of a graph (a circle)
+#: by using interactive graphing tools. Load the parserGraphTool.pl macro for
+#: this.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl',
+  'PGcourse.pl');
+
+#:% section = setup
+#: A cubic is created with 3 random zeros and a random y-intercept.
+#:
+#: The `GraphTool` method creates the graph tool object. The only argument is
+#: the correct answer. This is a string that contains a list of objects that
+#: the student will be expected to graph. Each object is a brace delimited list
+#: of the attributes of the object. The first attribute in each list is the
+#: type of object to be graphed, `cubic` in this case. What the remaining
+#: attributes are depend on the type. For a cubic the second attribute is
+#: whether the object is to be `solid` or `dashed`, the remaining arguments
+#: are the 4 points of the cubic.
+#:
+#: The `->with` method is then used to set options for the `GraphTool` object.
+#: In this case the options that are set are:
+#:
+#: * bbox: this is an array reference of four values xmin, ymax, xmax, ymin
+#: indicating the upper left and lower right corners of the visible graph.
+#  * availableTools: this determines which tools should be shown on the
+#: graph tool.
+#:
+#: There is a default checker for the GraphTool that will mark correct a
+#: student answer that 'looks' like the correct one.  For simple graphs,
+#: the default should be sufficient.  If not see
+#: XXXX for an example with a custom answer checker.
+
+$x0 = non_zero_random(-6,6);
+$y0 = non_zero_random(-6,6);
+$line = nicestring([$y0,$x0],['x','y']);
+
+
+$gt = GraphTool("{line, solid, ($x0, 0), (0, $y0)}")->with(
+	bBox           => [ -11, 11, 11, -11 ],
+	availableTools =>
+		[ 'PointTool', 'LineTool', 'CircleTool', 'QuadraticTool', 'CubicTool', 'FillTool', 'SolidDashTool' ],
+);
+
+
+#:% section = statement.
+#: The code `[_]{$gt}` inserts the GraphTool.
+BEGIN_PGML
+On the graph below, plot the line [`[$line] = [$x0*$y0]`]
+
+[_]{$gt}
+
+END_PGML
+
+#:% section=solution
+
+BEGIN_PGML_SOLUTION
+Two points are needed off this line.  It could be put in slope-intercept form
+which would give a [`y`]-intercept and then a second point could be determined
+from the slope.
+
+Alternatively, the intercept form on the line is found by dividing the equation
+by the right hand side to
+[```\frac{x}{[$x0]}+ \frac{y}{[$y0]}=1```]
+and thus the [`x`]-intercept is number in the fraction under the [`x`] or
+ [$x0] and the [`y`]-intercept is the number in the fraction under the [`y`]
+ or [$y0].  The solution is
+
+[@ $gt->generateAnswerGraph @]*
+
+END_PGML_SOLUTION
+
+
+ENDDOCUMENT();

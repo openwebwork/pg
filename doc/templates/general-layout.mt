@@ -56,6 +56,12 @@
 								Subject Area Problems
 							</a>
 						</li>
+						<li>
+							<a class="dropdown-item <%= $active eq 'macros' ? 'active' : '' %>"
+								href="macros.html" <%= $active eq 'macros' ? 'aria-current="page"' : '' %>>
+								Problems by Macro
+							</a>
+						</li>
 					</ul>
 				</li>
 			</ul>

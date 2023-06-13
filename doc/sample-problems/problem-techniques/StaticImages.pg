@@ -1,0 +1,69 @@
+## DESCRIPTION
+## Show a static image.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('parametric', 'graph')
+
+#:% name = Graphic Images, Static
+#:% types = technique
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = statement
+#: Just use the `image` macro in the main section of the
+#: problem to include the image. The images to be included should be GIF or
+#: PNG or JPG files. PNG files are recommended since they generally look
+#: better when rescaled. In order for PDF hardcopy generation to work properly,
+#: the names of image files must have only one period in them (imagename.png
+#: works but image.name.png does not). PDF files will work on hardcopy but do
+#: not immediately render in the browser without first clicking on the image
+#: box.
+#:
+#: If using PGML, the `image` command must be surrounded by the `[@ @]*` tags
+#: which calls the `image` function.  The `*` is needed to format the result
+#: correctly.  The `image` function returns HTML.
+#:
+#: For accessibility you should always add the option
+#: `extra_html_tags = 'alt_text = "..."'` describing in detail the image.
+#:
+#: For each PG problem with static images, you should put both the PG file
+#: and the image files into their own separate subdirectory. This subdirectory
+#: should be located somewhere under the course templates directory and have
+#: the same root name as the PG file. For example, if you have a PG file
+#: called `Contour-plots.pg` which uses static graphic files
+#: `Contour-plot-01.gif`and `Contour-plot-02.gif`, you should create a
+#: subdirectory somewhere under the course templates directory called
+#: `Contour-plots` and put the PG file and all the GIF files in it. Putting a
+#: PG file and all of its graphics files into their own separate subdirectory
+#: like this makes it easier to find the graphics files that go with each PG
+#: file, thereby making the problem easier to maintain. The reason for having
+#: the subdirectory and the root name of the PG file be the same is as follows.
+#: When the library is browsed via directories, the library browser in WeBWorK
+#: is configured to recognize that when a subdirectory has the same name as
+#: the root name of the only PG file in that subdirectory, the subdirectory
+#: and PG file should be treated as a single entity.
+#:
+#: We should always, of course, include options such as specifying the tex_size,
+#: etc., in this call, as shown in the including dynamic images code snippet.
+#: Taking the `tex_size => "667"` and dividing by 10 results in the percentage
+#: of the available space used by the graphic -- in this case 66.7 percent.
+#: Usually the available space is constrained by the width of one column of
+#: a two-column printed page.
+
+BEGIN_PGML
+[@ image('image.png') @]*
+
+[@ image('image.png', width => 400, tex_size => 600,
+  extra_html_tags => 'An graph of a decreasing exponential function.') @]*
+END_PGML
+
+ENDDOCUMENT();

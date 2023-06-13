@@ -1,0 +1,96 @@
+## DESCRIPTION
+## This shows how to use LayoutTable for layout.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('tutorial', 'table')
+
+#:% name = Layout Table
+#:% type = [technique]
+#:% categories = table
+#:% see_also = [DataTables.pg]
+
+#:% section = preamble
+#: This shows how to use the `LayoutTable` function in `niceTables.pl`.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGtikz.pl', 'unionTables.pl',
+  'PGcourse.pl');
+
+#:% section=setup
+#: We use the `LayoutTable` function from `niceTables.pl` to demonstrate some
+#: of it's features.
+#:
+#: The basic form of a `LayoutTable` is identical to that of `DataTable` or
+#:```{#datatable .perl}
+#:$table = LayoutTable([
+#:   [row1],
+#:   [row2],
+#:   ...
+#:   [rowN]
+#: ],
+#: options);
+#:```
+#: where the data goes in as an array ref of array refs.  However, if using
+#: a table for layout purposes, `LayoutTable` has more appropriate default
+#: options.  See
+#: PODLINK('the niceTables.pl POD','niceTables.pl') for more details.
+#:
+#: Notice in this example that we make two columns.  The left column is
+#: a PGML block that needs to be stored. It is important to note that the
+#: top line needs to use the `PGML::Format2` (the 2 is important) to handle
+#: blackslashes correctly and have `'END_PGML'` in single quotes in order
+#: for variables to be parsed correctly.
+$a = random(-2,2);
+$ans = Compute("x^2+$a")->reduce;
+
+$left = PGML::Format(<<END_PGML);
+A common situation is that there is a problem with a graph and
+the problem is on the left column and the graph is on the right
+column.
+
+This even works if we add an equation like [`e^{i\pi}+1 = 0`]
+
+Or if we add an answer blank.
+
+Enter the expression [`$ans=`]
+END_PGML
+
+$graph = createTikZImage();
+$graph->tikzLibraries('arrows.meta');
+$graph->BEGIN_TIKZ
+\tikzset{>={Stealth[scale=1.5]}}
+\filldraw[
+    draw=LightBlue,
+    fill=white,
+    rounded corners=10pt,
+    thick,use as bounding box
+] (-6,7) rectangle (6,-1);
+\draw[->,thick] (-6,0) -- (6,0) node[above left,outer sep=3pt] {\(x\)};
+\foreach \x in {-5,...,-1,1,2,...,5}
+    \draw(\x,5pt) -- (\x,-5pt) node [below] {\(\x\)};
+\draw[->,thick] (0,-1) -- (0,7) node[below right,outer sep=3pt] {\(y\)};
+\foreach \y in {1,...,6}
+    \draw (5pt,\y) -- (-5pt,\y) node[left] {\(\y\)};
+\draw[blue,ultra thick] plot[domain=-2.5:2.5,smooth] (\x,{\x*\x+$a});
+END_TIKZ
+
+#:% section=statement
+#: Since the only output is the table, we use this line to output the
+#: problem as the two columns. This is the `LayoutTable` with only
+#: one row.
+# TEXT(LayoutTable([[$left, image($graph, width => 400, tex_size => 600)]],
+#   align => 'lc'));
+TEXT(ColumnTable($left,image($graph, width => 400, tex_size => 600)));
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

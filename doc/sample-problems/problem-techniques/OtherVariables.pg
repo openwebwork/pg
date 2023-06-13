@@ -1,0 +1,55 @@
+## DESCRIPTION
+## Add variables to the context.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('variables')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Adding Variables to the Context
+#:% type = technique
+#:% categories = [variables]
+
+#:% section = preamble
+
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: Typically you either add or set the variables for the entire problem at the
+#: top of the setup section.  In this case, we add y, z and t, all real numbers.
+#:
+#: This allows us to use a greek letter as a variable. Note that we have used
+#: add for this.  If we set this with `are`, then the other variables will be
+#: deleted upon answer checked and the student will get a `variable not defined
+#: in this context` error.
+Context()->variables->add(t=>"Real", y => 'Real', z => 'Real');
+$f = Compute('-16 t^2 + 5 t + 4');
+$g = Compute('x^2+y^2+z^2');
+
+
+Context()->variables->add(rho => ['Real', TeX => '\rho']);
+$h = Compute("sqrt(1+rho^2)");
+
+#:% section=statement
+BEGIN_PGML
+Enter the following formulas:
+
+* [`[$f]=`] [____]{$f}
+* [`[$g]=`] [____]{$g}
+* [`[$h]=`] [____]{$h}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

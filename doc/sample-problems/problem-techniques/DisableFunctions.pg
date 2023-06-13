@@ -1,0 +1,96 @@
+## DESCRIPTION
+## This shows how to disable functions allowed in student answers.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('answer')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Disabling Functions in Student Answers
+#:% type = technique
+#:% categories = [answer]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: We can disable specific operations in the Context: in general, predefined
+#: operations are `* / + - ! >< U ^ ** . ,`, for multiplication, division,
+#: addition, subtraction, the factorial operation, the cross-product ><,
+#: set union, exponentiation (both `^` and `**` give exponentiation), the dot
+#: product, and list creation (,).
+#: ``
+#: After disabling the operation, they can be re-enabled with
+#: `operators->redefine()`, e.g., `Context()->operators->redefine("^")`. We can
+#: also remove operators with `operators->remove()`, but this is not recommended,
+#: as it makes it completely unknown in the Context so that students
+#: won't get helpful error messages if they try to use them.
+#:
+#: To disable specific functions in the Context, we similarly undefine them
+#: from the predefined functions. The predefined functions are `sin, cos, tan, sec,
+#: csc, cot, asin, acos, atan, asec, acsc, acot, sinh, cosh, tanh, sech, csch,
+#: coth, asinh, acosh, atanh, asech, csch, acoth, ln, log, log10, exp, sqrt,
+#: abs, int, sgn, atan2, norm, unit, arg, mod, Re, Im, conj`.
+#:
+#: In addition, classes of functions can be disabled with functions->disable():
+#:
+#: * `Context()->functions->disable("Trig");` (disables all trig functions in both SimpleTrig and InverseTrig functions)
+#: * `Context()->functions->disable("SimpleTrig");` (disables sin, cos, tan, sec, csc, cot)
+#: * `Context()->functions->disable("InverseTrig");` (disables asin, acos, atan, asec, acsc, acot, atan2)
+#: * `Context()->functions->disable("Hyperbolic");` (disables all hyperbolic functions in both SimpleHyperbolic and InverseHyperbolic functions)
+#: * `Context()->functions->disable("SimpleHyperbolic");` (disables sinh, cosh, tanh, sech, csch, coth)
+#: * `Context()->functions->disable("InverseHyperbolic");` (disables asinh, acosh, atanh, asech, acsch, acoth)
+#: * `Context()->functions->disable("Numeric");` (disables ln, log, log10, exp, sqrt, abs, int, sgn)
+#: * `Context()->functions->disable("Vector");` (disables norm, unit)
+#: * `Context()->functions->disable("Complex");` (disables arg, mod, Re, Im, conj)
+#: * `Context()->functions->disable("All");`
+#: Alternatively, we could use the following syntax.
+#:
+#:```{#disable-functions .perl}
+#: Parser::Context::Functions::Disable('All');
+#:```
+#:
+# To disable specific operations in student answers, use the undefine
+# method for the operations:
+Context()->operators->undefine("^","**");
+
+# We can similarly disable specific functions with the following
+Context()->functions->undefine("sin","cos","tan","sqrt");
+
+$ans = Compute("1/2");
+
+
+# To disallow absolute value, disable abs(),
+# sqrt and exponentiation (for sqrt(x^2) and (x^4)^(1/4)), and
+# the parentheses | |, and give consistent
+# error messages
+Context()->functions->disable("abs","sqrt");
+Context()->operators->undefine("^","**");
+Context()->parens->remove("|");
+Context()->{error}{convert} = sub {
+	my $message = shift;
+	$message =~ s/Unexpected character '~~|'/Absolute value is not allowed/;
+	return $message;
+};
+
+
+#:% section=statement
+BEGIN_PGML
+Find the numerical value: [` \sin^2(\pi/4) = `] [____]{$ans}
+END_PGML
+
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

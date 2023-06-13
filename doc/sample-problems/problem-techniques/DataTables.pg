@@ -1,0 +1,91 @@
+## DESCRIPTION
+## This shows how to present and format a table for data.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('tutorial', 'table')
+
+#:% name = Data Table
+#:% type = [technique]
+#:% categories = table
+
+#:% section = preamble
+#: This shows how to use the `DataTable` function in `niceTables.pl`.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl','PGcourse.pl');
+
+#:% section=setup
+#: We use the `DataTable` function from `niceTables.pl` to demonstrate some
+#: of it's features.  A `DataTable` is meant to display data in a
+#: tabular format.
+#:
+#: The basic form of a `DataTable` is
+#:```{#datatable .perl}
+#:$table = DataTable([
+#:   [row1],
+#:   [row2],
+#:   ...
+#:   [rowN]
+#: ],
+#: options);
+#:```
+# where the data goes in as an array ref of array refs.  The first row can
+#: (and is often) used for a header row. We will show some of the options
+#: here, but the full listing and explantion is in
+#: PODLINK('the niceTables.pl POD','niceTables.pl')
+#:
+#: The first use is meant to show some tabular data and the data is filled
+#: in randomly and stored in the `@rows` array.  Also, note that since
+#: a `DataTable` needs an array ref and typically in perl `\@rows` would be
+#: the arrayref, however, in a PG problem, to get a `\`, we use `~~`
+#:
+#: The second table uses `ans_rule` for answer blanks.  This example has
+#: rows hardcoded instead of in a loop.
+@rows = (['\(x\)','\(y\)']);
+for $i (1..5) {
+  push(@rows,[$i, random(1,10) ]);
+}
+
+$tab1 = DataTable(~~@rows);
+
+$a = non_zero_random(-4,4);
+$f = Compute("x/(x-[$a])")->reduce;
+
+$tab2 = DataTable([
+  ['\(x\)','\(f(x)\)'],
+  [$a-2, ans_rule(10) ],
+  [$a-1, ans_rule(10) ],
+  [$a+1, ans_rule(10) ],
+  [$a+2, ans_rule(10) ]
+],
+align => '|r|l|',
+horizontalrules => 1
+);
+
+
+BEGIN_PGML
+Here's some data:
+
+[$tab1]*
+
+Fill out the following table for [``f(x)=[$f]``].
+
+[$tab2]*
+END_PGML
+
+for $i (-2,-1,1,2) {
+  ANS($f->eval(x=>$a+$i)->cmp);
+}
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

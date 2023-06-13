@@ -36,73 +36,105 @@ my $macro_locations = LoadFile("$pg_root/doc/sample-problems/macro_pod.yaml");
 
 my @samples;
 my @snippets;
-my ($subjects, $techniques);
+my ($subjects, $techniques, $categories, $macros, $all_files);
 
 $pod_root .= '/pg/macros';
 mkdir $out_dir unless -d $out_dir;
 
-my $categories = {};
+# build a hash of all PG files for linking
+find(
+	{
+		wanted => sub {
+			my $path = $File::Find::name;
+			say "Reading file: $path" if $verbose;
 
-find({ wanted => \&processSample }, $problem_dir);
+			if ($path =~ /\.pg$/) {
+				my ($filename, $filepath) = fileparse($path);
+
+				# Find the directory of the file relative to $problem_dir.
+				my $relative_dir = ($filepath =~ s/$problem_dir\/?//r) =~ s/\/*$//r;
+				$all_files->{$filename} = { dir => $relative_dir };
+
+				# Find the name of the problem
+				open(my $FH, '<:encoding(UTF-8)', $path) or die qq{Could not open file "$path": $!};
+				my @file_contents = <$FH>;
+				close $FH;
+				while (my $row = shift @file_contents) {
+					chomp($row);
+					if ($row =~ /^#:%\s*name\s*=\s*(.*)\s*$/) {
+						$all_files->{"$filename"}{name} = $1;
+						last;
+					}
+				}
+			}
+		}
+	},
+	$problem_dir
+);
+
+for (keys %$all_files) {
+	processFile($_ =~ s/.pg$//r);
+}
+
 outputIndices($categories, $subjects);
 
 # Copy the PG.js file into the output directory.
 copy("$pg_root/doc/js/PG.js", $out_dir);
 
-sub processSample {
-	my $path = $File::Find::name;
+# Process the file which includes parsing the file and adding all metadata
+# to appropriate arrays and hashes.
+sub processFile ($filename) {
+	my $relative_dir = $all_files->{"$filename.pg"}{dir};
+
+	my $path = "$problem_dir/$relative_dir/$filename.pg";
 	say "Processing file: $path" if $verbose;
+	my $parsed_file = parseFile($path);
 
-	if ($path =~ /\.pg$/) {
-		my ($filename, $filepath) = fileparse($path, qr/\.pg/);
+	mkdir "$out_dir/$relative_dir" unless -d "$out_dir/$relative_dir";
 
-		# Find the directory of the file relative to $problem_dir.
-		my $relative_dir = ($filepath =~ s/$problem_dir\/?//r) =~ s/\/*$//r;
+	say "Printing to '$out_dir/$relative_dir/$filename.html'" if $verbose;
+	open(my $FH, '>:encoding(UTF-8)', "$out_dir/$relative_dir/$filename.html")
+		or die qq{Could not open output file "$out_dir/$relative_dir/$filename.html": $!};
 
-		my $parsed_file = parseFile($path);
+	print $FH $mt->render_file("$template_dir/problem-template.mt",
+		{ %$parsed_file, macro_loc => $macro_locations->{macros}, pod_dir => $pod_root, filename => $filename });
+	close $FH;
 
-		mkdir "$out_dir/$relative_dir" unless -d "$out_dir/$relative_dir";
+	push(@samples,  $path) if grep { $_ eq 'sample' } @{ $parsed_file->{types} };
+	push(@snippets, $path) if grep { $_ eq 'snippet' } @{ $parsed_file->{types} };
 
-		say "Printing to '$out_dir/$relative_dir/$filename.html'" if $verbose;
-		open(my $FH, '>:encoding(UTF-8)', "$out_dir/$relative_dir/$filename.html")
-			or die qq{Could not open output file "$out_dir/$relative_dir/$filename.html": $!};
+	$techniques->{ $parsed_file->{name} } = "$relative_dir/$filename.html"
+		if grep { $_ eq 'technique' } @{ $parsed_file->{types} };
 
-		print $FH $mt->render_file("$template_dir/problem-template.mt",
-			{ %$parsed_file, macro_loc => $macro_locations->{macros}, pod_dir => $pod_root, filename => $filename }
-		);
-		close $FH;
+	for my $category (@{ $parsed_file->{categories} }) {
+		$categories->{$category}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
+	}
 
-		push(@samples,  $path) if grep { $_ eq 'sample' } @{ $parsed_file->{types} };
-		push(@snippets, $path) if grep { $_ eq 'snippet' } @{ $parsed_file->{types} };
+	for my $subject (@{ $parsed_file->{subjects} }) {
+		$subjects->{$subject}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
+	}
 
-		$techniques->{ $parsed_file->{name} } = "$relative_dir/$filename.html"
-			if grep { $_ eq 'technique' } @{ $parsed_file->{types} };
-
-		for my $category (@{ $parsed_file->{categories} }) {
-			$categories->{$category}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
-		}
-
-		for my $subject (@{ $parsed_file->{subjects} }) {
-			$subjects->{$subject}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
-		}
+	for my $macro (@{ $parsed_file->{macros} }) {
+		$macros->{$macro}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
 	}
 
 	return;
 }
 
 sub parseFile ($file) {
+	my ($filename) = fileparse($file);
 	open(my $FH, '<:encoding(UTF-8)', $file) or die qq{Could not open file "$file": $!};
 	my @file_contents = <$FH>;
 	close $FH;
 
-	my (@blocks, @doc_rows, @code_rows, @categories, @description, @macros, @types, @subjects);
+	my (@blocks, @doc_rows, @code_rows, @categories, @description, @macros, @types, @subjects, @related);
 	my (%options, $descr, $type, $name);
 	my @problem_types = qw/sample technique snippet/;
 
 	while (my $row = shift @file_contents) {
 		chomp($row);
 		$row =~ s/\t/    /g;
-		if ($row =~ /^#:%\s*(categor(y|ies)|types?|subjects?|name)\s*=\s*(.*)\s*$/) {
+		if ($row =~ /^#:%\s*(categor(y|ies)|types?|subjects?|see_also|name)\s*=\s*(.*)\s*$/) {
 			# The row has the form #:% categories = [cat1, cat2, ...].
 			my $label = lc($1);
 			my @opts  = $3 =~ /\[(.*)\]/ ? map { $_ =~ s/^\s*|\s*$//r } split(/,/, $1) : ($3);
@@ -112,12 +144,14 @@ sub parseFile ($file) {
 						unless grep { lc($opt) eq $_ } @problem_types;
 				}
 				@types = map { lc($_) } @opts;
-			} elsif ($label =~ /^catego/) {
+			} elsif ($label =~ /^categor/) {
 				@categories = @opts;
 			} elsif ($label =~ /^subject/) {
 				@subjects = map { lc($_) } @opts;
 			} elsif ($label eq 'name') {
 				$name = $opts[0];
+			} elsif ($label eq 'see_also') {
+				@related = map { { %{ $all_files->{$_} }, file => $_ } } @opts;
 			}
 		} elsif ($row =~ /^#:%\s*(.*)?/) {
 			# The row has the form #:% section = NAME.
@@ -144,18 +178,24 @@ sub parseFile ($file) {
 				$macros .= $row;
 				push(@code_rows, $row);
 			}
-			# Split by commans and pull out the quotes.
-			@macros = map {s/['"]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
+			# Split by commas and pull out the quotes.
+			@macros = map {s/['"\s]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
 		} elsif ($row =~ /^#:/) {
-			# This is a documentation line. Just push the row onto @doc_rows.
+			# This section is documentation to be parsed.
 			$row = $row =~ s/^#://r;
-			# parse any PODLINK commands in the documentation.
-			if ($row =~ /PODLINK\('(.*?)'\s*(,\s*'(.*)')?\)/) {
-				my $url = $pod_root . '/' . $macro_locations->{macros}{ $3 // $1 };
-				$row = $row =~ s/PODLINK\('(.*?)'\s*(,\s*'(.*)')?\)/[$1]($url)/gr;
+
+			# Parse any PODLINK/PROBLINK commands in the documentation.
+			if ($row =~ /(POD|PROB)?LINK\('(.*?)'\s*(,\s*'(.*)')?\)/) {
+				my $link_text = $1 eq 'POD' ? $2 : $all_files->{$2}{name};
+				my $url =
+					$1 eq 'POD'
+					? "$pod_root/" . $macro_locations->{macros}{ $4 // $2 }
+					: "$pg_doc_home/" . $all_files->{$2}{dir} . '/' . ($2 =~ s/.pg$/.html/r);
+				$row = $row =~ s/(POD|PROB)?LINK\('(.*?)'\s*(,\s*'(.*)')?\)/[$link_text]($url)/gr;
 			}
+
 			push(@doc_rows, $row);
-		} elsif ($row =~ /^##\s*(END?)DESCRIPTION\s*$/) {
+		} elsif ($row =~ /^##\s*(END)?DESCRIPTION\s*$/) {
 			$descr = $1 ? 0 : 1;
 		} elsif ($row =~ /^##/ && $descr) {
 			push(@description, $row =~ s/^##\s*//r);
@@ -165,7 +205,7 @@ sub parseFile ($file) {
 		}
 	}
 	die "The type of sample problem is missing for $file"           unless scalar(@types) > 0;
-	die "The name attribute must be assigned for a problem/snipped" unless $name;
+	die "The name attribute must be assigned for a problem/snippet" unless $name;
 
 	# The @doc_rows must be parsed then added to the @blocks.
 	push(
@@ -181,6 +221,8 @@ sub parseFile ($file) {
 		home        => $pg_doc_home,
 		name        => $name,
 		types       => \@types,
+		all_files   => $all_files,
+		related     => \@related,
 		subjects    => \@subjects,
 		blocks      => \@blocks,
 		categories  => \@categories,
@@ -189,16 +231,19 @@ sub parseFile ($file) {
 	};
 }
 
-# This produces the categories, problem techniques and snippets file.
+# This produces the categories, problem techniques and subject area index files.
 sub outputIndices ($categories, $subjects) {
 	say 'Creating categories' if $verbose;
 	if (open my $FH, '>:encoding(UTF-8)', "$out_dir/categories.html") {
 		print $FH $mt->render_file(
 			"$template_dir/general-layout.mt",
 			{
-				sidebar      => $mt->render_file("$template_dir/category-sidebar.mt", { categories => $categories }),
-				main_content => $mt->render_file("$template_dir/category-main.mt",    { categories => $categories }),
-				active       => 'categories'
+				sidebar => $mt->render_file(
+					"$template_dir/general-sidebar.mt", { list => $categories, label => 'Categories' }
+				),
+				main_content =>
+					$mt->render_file("$template_dir/general-main.mt", { list => $categories, label => 'Categories' }),
+				active => 'categories'
 			}
 		);
 		close $FH;
@@ -209,9 +254,11 @@ sub outputIndices ($categories, $subjects) {
 		print $FH $mt->render_file(
 			"$template_dir/general-layout.mt",
 			{
-				sidebar      => $mt->render_file("$template_dir/subject-sidebar.mt", { subjects => $subjects }),
-				main_content => $mt->render_file("$template_dir/subject-main.mt",    { subjects => $subjects }),
-				active       => 'subjects'
+				sidebar =>
+					$mt->render_file("$template_dir/general-sidebar.mt", { list => $subjects, label => 'Subjects' }),
+				main_content =>
+					$mt->render_file("$template_dir/general-main.mt", { list => $subjects, label => 'Subjects' }),
+				active => 'subjects'
 			}
 		);
 		close $FH;
@@ -225,6 +272,21 @@ sub outputIndices ($categories, $subjects) {
 				sidebar      => $mt->render_file("$template_dir/techniques-sidebar.mt"),
 				main_content => $mt->render_file("$template_dir/techniques-main.mt", { techniques => $techniques }),
 				active       => 'techniques'
+			}
+		);
+		close $FH;
+	}
+
+	say 'Creating Problems by Macro' if $verbose;
+	if (open my $FH, '>:encoding(UTF-8)', "$out_dir/macros.html") {
+		print $FH $mt->render_file(
+			"$template_dir/general-layout.mt",
+			{
+				sidebar =>
+					$mt->render_file("$template_dir/general-sidebar.mt", { list => $macros, label => 'Macros' }),
+				main_content =>
+					$mt->render_file("$template_dir/general-main.mt", { list => $macros, label => 'Macros' }),
+				active => 'macros'
 			}
 		);
 		close $FH;
