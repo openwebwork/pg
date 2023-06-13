@@ -41,16 +41,18 @@
 		<p><%= $description %></p>
 		<div class="row">
 			<div class="col">
-				<h2>POD for Macro Files</h2>
-				<ul>
-					% for (@$macros) {
-						% if ($macro_loc->{$_}) {
-							<li><a href="<%= $pod_dir %>/<%= $macro_loc->{$_} %>"><%= $_ =%></a></li>
-						% } else {
-							<li class="text-danger"><%= $_ %></li>
+				% if (scalar(@$macros) > 0 ) {
+					<h2>POD for Macro Files</h2>
+					<ul>
+						% for (@$macros) {
+							% if ($macro_loc->{$_}) {
+								<li><a href="<%= $pod_dir %>/<%= $macro_loc->{$_} %>"><%= $_ =%></a></li>
+							% } else {
+								<li class="text-danger"><%= $_ %></li>
+							% }
 						% }
-					% }
-				</ul>
+					</ul>
+				%}
 			</div>
 			<div class="col">
 				% if (scalar(@$related) > 0) {

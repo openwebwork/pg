@@ -180,6 +180,11 @@ sub parseFile ($file) {
 			}
 			# Split by commas and pull out the quotes.
 			@macros = map {s/['"\s]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
+			# remove the common macros.  This is an array difference.
+			my %diff;
+			@diff{@macros} = undef;
+			delete @diff{ @{ $macro_locations->{macros_to_skip} } };
+			@macros = keys %diff;
 		} elsif ($row =~ /^#:/) {
 			# This section is documentation to be parsed.
 			$row = $row =~ s/^#://r;

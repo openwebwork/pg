@@ -1,5 +1,11 @@
 # This file provides a mapping between macros and the location of the POD Files
 
+# these macros are not listed in the sample problems
+macros_to_skip:
+  - PGcourse.pl
+  - PGstandard.pl
+  - PGML.pl
+
 macros:
   answerHints.pl: answers/answerHints.html
   answerComposition.pl: answers/answerComposition.html
