@@ -154,6 +154,18 @@ rule to the right of a column of row headers. Default is 1.
 Can be C<'top'>, C<'middle'>, or C<'bottom'>. Applies to all rows.
 See below to override for an individual row.
 
+=item C<padding =E<gt> [ , ]>
+
+An array of two non-negative numbers used to define cell-padding. The first is
+for top-down padding, the second for left-right padding. In HTML, each padding
+is the value multiplied by 0.85rem. In LaTeX, the left-right padding is the
+value multiplied by 10pt, and the top-down padding is implemented by setting
+C<\arraystretch> to the value. (0.85rem and 10pt are default font sizes at the
+time of this feature's introduction.) The default for a DataTable is C<[0,0.5]>
+and the default for a LayoutTable is C<[1,1]>. C<padding> may also be entered
+as a single nonnegative number to describe both top-down and left-right
+padding at the same time.
+
 =back
 
 =head3 HTML output
@@ -509,8 +521,8 @@ sub TableEnvironment {
 		my $tabularwidth = $hasX ? "$tableOpts->{Xratio}\\linewidth" : '';
 		$rows = latexEnvironment($rows, $tabulartype, [ $tabularwidth, '[t]', $tableOpts->{texalignment} ], ' ');
 		$rows = prefix($rows, '\centering%') if $tableOpts->{center};
-		$rows = prefix($rows, '\renewcommand{\arraystretch}{2}', '')
-			if $tableOpts->{LaYoUt};
+		$rows = prefix($rows, '\renewcommand{\arraystretch}{' . ($tableOpts->{padding}[0] + 1) . '}', '');
+		$rows = prefix($rows, '\setlength{\tabcolsep}{' . ($tableOpts->{padding}[1] * 10) . 'pt}',    '');
 		$rows = suffix(
 			$rows,
 			"\\captionsetup{textfont={sc},belowskip=12pt,aboveskip=4pt}\\captionof*{table}{$tableOpts->{caption}}",
@@ -994,7 +1006,8 @@ sub Row {
 			$scope = 'row' if ($cellOpts->{header} =~ /^(rh|row)$/i);
 			$scope = 'col' if ($cellOpts->{header} =~ /^(ch|col|column)$/i);
 			do { $t = 'td'; $scope = ''; } if ($cellOpts->{header} =~ /^td$/i);
-			my $css = '';
+			my $css =
+				css('padding', $tableOpts->{padding}[0] * 0.85 . 'rem ' . $tableOpts->{padding}[1] * 0.85 . 'rem');
 
 			# col level
 			$css .= css('text-align', 'left')
@@ -1065,7 +1078,6 @@ sub Row {
 				my $cellvalign = $tableOpts->{valign};
 				$cellvalign = $valign if ($valign);
 				$css        = css('vertical-align', $cellvalign) . $css;
-				$css        = css('padding',        '12pt') . $css;
 				if ($cellAlign->{tex} =~ /\\columncolor(\[HTML\])?\{(.*?)[\}!]/) {
 					$css = css('background-color', ($1 ? '#' : '') . $2) . $css;
 				}
@@ -1073,7 +1085,6 @@ sub Row {
 					css('border-right', getRuleCSS($cellAlign->{right})) . $css;
 				$cell = tag($cell, 'div', { style => $css });
 			} else {
-				$css  = css('padding', '0pt 6pt') . $css;
 				$cell = tag(
 					$cell, $t,
 					{
@@ -1235,7 +1246,9 @@ sub TableOptions {
 		booktabs        => 1,
 		headerrules     => 1,
 		LaYoUt          => 0,
+		padding         => [ 0, 0.5 ],
 	);
+
 	%outHash = %supportedOptions;
 	my %userOptions = @_;
 	for my $key (keys(%supportedOptions)) {
@@ -1249,6 +1262,12 @@ sub TableOptions {
 	# legacy misnomers
 	$outHash{horizontalrules} = $userOptions{midrules}
 		if (defined($userOptions{midrules}) && !$outHash{horizontalrules});
+
+	# expand scalar padding to array
+	$outHash{padding} = [ ($outHash{padding}) x 2 ] if (ref $outHash{padding} ne 'ARRAY');
+
+	# change padding for layout table
+	$outHash{padding} = [ 1, 1 ] if $outHash{LaYoUt} && !$userOptions{padding};
 
 	return \%outHash;
 }
