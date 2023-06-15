@@ -1,58 +1,63 @@
-######################################################################
-##
-##  Functions for creating tables of various kinds
-##
-##    ColumnTable()           Creates a two-column display in HTML,
-##                            but only one column in TeX.
-##
-##    ColumnMatchTable()      Does a side-by-side match table
-##
-##    BeginTable()            Begin a borderless HTML table
-##    Row()                   Create a row in the table
-##    AlignedRow()            Create a row with alignment in each column
-##    TableSpace()            Insert extra vertical space in the table
-##    EndTable()              End the table
-##
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
-sub _unionTables_init { };    # don't reload this file
+=head1 NAME
 
-=head1 unionTables.pl
+unionTables.pl - Functions for creating tables of various kinds.
 
-Make a two-column table in HTML and Latex2HTML modes
+=cut
+
+sub _unionTables_init {
+	ADD_CSS_FILE('js/UnionTables/union-tables.css');
+}
+
+=head1 METHODS
+
+=head2 ColumnTable
+
+Make a two-column table.
 
 Usage:
 
-    ColumnTable(col1,col2,[options])
+    ColumnTable(col1, col2, [ options ])
 
-Options can be taken from:
+The following options control formatting of the table:
 
-      indent => n           the width to indent the first column
-                            (default is 0)
+=over
 
-      separation => n       the width of the separating gutter
-                            (default is 50)
+=item C<< indent => n >>
 
-      valign => type        set the vertical alignment
-                            (default is "MIDDLE")
+The width to indent the first column (default: 0).
 
+=item C<< separation => n >>
+
+The width of the separating gutter (default: 50).
+
+=item C<< valign => type >>
+
+Vertical alignment (default: "middle").
+
+=back
 
 =cut
 
 sub ColumnTable {
-	my $col1    = shift;
-	my $col2    = shift;
-	my %options = (indent => 0, separation => 50, valign => "MIDDLE", @_);
-	my ($ind, $sep) = ($options{"indent"}, $options{"separation"});
-	my $valign = $options{"valign"};
+	my ($col1, $col2, %options) = @_;
 
-	my $HTMLtable = qq {
-    <TABLE BORDER="0"><TR VALIGN="$valign">
-    <TD WIDTH="$ind">&nbsp;</TD><TD>
-    $col1
-    </TD><TD WIDTH="$sep">&nbsp;</TD><TD>
-    $col2
-    </TD></TR></TABLE>
-  };
+	my ($indent, $separation, $valign) =
+		($options{indent} // 0, $options{separation} // 50, $options{valign} // 'middle');
 
 	MODES(
 		TeX => '\par\medskip\hbox{\qquad\vtop{'
@@ -62,8 +67,9 @@ sub ColumnTable {
 			. '\advance\hsize by -3em '
 			. $col2
 			. '}}\medskip',
-		HTML => $HTMLtable,
-		PTX  => qq!\n<tabular valign="!
+		HTML => qq{<table><tr style="vertical-align:$valign"><td style="width:${indent}px">&nbsp;</td>}
+			. qq{<td>$col1</td><td style="width:${separation}px">&nbsp;</td><td>$col2</td></tr></table>},
+		PTX => qq!\n<tabular valign="!
 			. lc($valign)
 			. qq!">\n<row>\n<cell>$col1</cell>\n<cell>$col2</cell>\n</row>\n</tabular>\n!,
 
@@ -74,7 +80,9 @@ sub ColumnTable {
 
 Use columns for a match-list output
 
-Usage:  C<ColumnMatchTable($ml,options)>
+Usage:
+
+    ColumnMatchTable($ml, options)
 
 where C<$ml> is a math list reference and options are those
 allowed for ColumnTable above.
@@ -93,15 +101,37 @@ Command for tables with no borders.
 
 Usage:  C<BeginTable(options);>
 
-Options are taken from:
+The following options control formatting of the table:
 
-    border => n           value for BORDER attribute (default 0)
-    spacing => n          value for CELLSPACING attribute (default 0)
-    padding => n          value for CELLPADDING attribute (default 0)
-    tex_spacing => dimen  value for spacing between columns in TeX
-                          (e.g, tex_spacing => 2em) (default 1em)
-    tex_border => dimen   value for left- and right border in TeX (0pt)
-    center => 0 or 1      center table or not (default 1)
+=over
+
+=item C<< border => n >>
+
+Integer value for the width of cell borders
+(default: 0, supported values: 0 - 3).
+
+=item C<< spacing => n >>
+
+Integer value for the distance between the borders of adjacent cells
+(default: 0, supported values: 0 - 10).
+
+=item C<< padding => n >>
+
+Integer value for cell padding (default: 0, supported values: 0 - 20).
+
+=item C<< tex_spacing => dimen >>
+
+Value for spacing between columns in TeX (default: '1em').
+
+=item C<< tex_border => dimen >>
+
+Value for left- and right border in TeX (default: '0pt').
+
+=item C<< center => 0 or 1 >>
+
+Center the table or not (default: 1).
+
+=back
 
 =cut
 
@@ -111,34 +141,65 @@ sub BeginTable {
 		padding     => 0,
 		spacing     => 0,
 		center      => 1,
-		tex_spacing => "1em",
-		tex_border  => "0pt",
+		tex_spacing => '1em',
+		tex_border  => '0pt',
 		@_
 	);
-	my ($bd, $pd, $sp)     = ($options{border}, $options{padding}, $options{spacing});
-	my ($tsp, $tbd)        = ($options{tex_spacing}, $options{tex_border});
-	my ($center, $tcenter) = (' ALIGN="CENTER"', '\centerline');
-	($center, $tcenter) = ('', '') if (!$options{center});
-	my $table     = qq{<TABLE BORDER="$bd" CELLPADDING="$pd" CELLSPACING="$sp"$center>};
-	my $ptxborder = "none";
-	if    ($bd == 1) { $ptxborder = "minor" }
-	elsif ($bd == 2) { $ptxborder = "medium" }
-	elsif ($bd >= 3) { $ptxborder = "major" }
+
+	# Sanity checks.
+	$options{border}  = 0 unless $options{border}  =~ /^[1-9]\d*$/;
+	$options{spacing} = 0 unless $options{spacing} =~ /^[1-9]\d*$/;
+	$options{padding} = 0 unless $options{padding} =~ /^[1-9]\d*$/;
+	$options{spacing} = 10 if $options{spacing} =~ /^[1-9]\d*$/ && $options{spacing} > 10;
+	$options{padding} = 20 if $options{padding} =~ /^[1-9]\d*$/ && $options{padding} > 20;
+
+	my @classes = ('union-table');
+
+	push(@classes, 'union-table-centered') if $options{center};
+
+	my $ptxborder = 'none';
+	if ($options{border} == 1) {
+		$ptxborder = 'minor';
+		push(@classes, 'union-table-bordered-minor');
+	} elsif ($options{border} == 2) {
+		$ptxborder = 'medium';
+		push(@classes, 'union-table-bordered-medium');
+	} elsif ($options{border} >= 3) {
+		$ptxborder = 'major';
+		push(@classes, 'union-table-bordered-major');
+	}
+
+	push(@classes, "union-table-s$options{spacing}") if $options{spacing};
+	push(@classes, "union-table-p$options{padding}") if $options{padding};
 
 	MODES(
-		TeX  => '\par\medskip' . $tcenter . '{\kern ' . $tbd . '\vbox{\halign{#\hfil&&\kern ' . $tsp . ' #\hfil',
-		HTML => $table . "\n",
+		TeX => '\par\medskip'
+			. ($options{center} ? '\centerline' : '')
+			. '{\kern '
+			. $options{tex_border}
+			. '\vbox{\halign{#\hfil&&\kern '
+			. $options{tex_spacing}
+			. ' #\hfil',
+		HTML => '<table class="' . join(' ', @classes) . '">',
 		PTX  => qq!\n<tabular top="$ptxborder" bottom="$ptxborder" left="$ptxborder" right="$ptxborder">\n!,
 	);
 }
 
 =head2 EndTable
 
-Usage:  C<EndTable(options)>
+Usage:
 
-where options are taken from:
+    EndTable(options)
 
-     tex_border => dimen     extra vertical space in TeX mode (default 0pt)
+The following options are supported:
+
+=over
+
+=item C<< tex_border => dimen >>
+
+Extra vertical space in TeX mode (default: 0pt).
+
+=back
 
 =cut
 
@@ -147,7 +208,7 @@ sub EndTable {
 	my $tbd     = $options{tex_border};
 	MODES(
 		TeX  => '\cr}}\kern ' . $tbd . '}\medskip' . "\n",
-		HTML => '</TABLE>' . "\n",
+		HTML => '</table>',
 		PTX  => "\n</tabular>\n",
 	);
 }
@@ -156,123 +217,150 @@ sub EndTable {
 
 Creates a row in the table
 
-Usage:  C<Row([item1,item2,...],options);>
+Usage:
+
+    Row([ item1, item2, ... ], options);
 
 Each item appears as a separate entry in the table.
 
-Options control how the row is displayed:
+The following options control how the row is displayed:
 
-    indent => num           Specifies size of blank column on the left
-                            (default:  indent => 0)
+=over
 
-    separation => num       Specifies separation of columns
-                            (default:  spearation => 30)
+=item C<< indent => num >>
 
-    tex_vspace => "dimen"   Specifies additional vertical spacing for TeX
+Specifies size of blank column on the left (default: 0).
 
-    align => "type"         Specifies alignment of initial column
-                            (default:  align => "LEFT")
+=item C<< separation => num >>
 
-    valign => "type"        Specified vertical alignment of row
-                            (default:  valign => "MIDDLE")
+Specifies separation of columns (default: 30).
+
+=item C<< tex_vspace => "dimen" >>
+
+Specifies additional vertical spacing for TeX.
+
+=item C<< align => "type" >>
+
+Specifies alignment of initial column (default: "left").
+
+=item C<< valign => "type" >>
+
+Specified vertical alignment of row (default: "middle").
+
+=back
 
 =cut
 
 sub Row {
-	my $rowref = shift;
-	my @row    = @{$rowref};
+	my ($row, %options) = @_;
 
-	my %options = (
-		indent     => 0,
-		separation => 30,
-		align      => "LEFT",
-		valign     => "MIDDLE",
-		@_
-	);
+	$options{indent}     //= 0;
+	$options{separation} //= 30;
+	$options{align}      //= 'left';
+	$options{valign}     //= 'middle';
 
-	my ($cind,  $csep)   = ($options{indent}, $options{separation});
-	my ($align, $valign) = ($options{align},  $options{valign});
-	my $sep = '<TD WIDTH="' . $csep . '">&nbsp;</TD>';
-	$sep = '' if ($csep < 1);
-	my $ind = '<TD WIDTH="' . $cind . '">&nbsp;</TD>';
-	$ind = '' if ($cind < 1);
-	my $fill = '';
-	$fill = '\hfil'  if (uc($align) eq "CENTER");
-	$fill = '\hfill' if (uc($align) eq "RIGHT");
-	my $vspace = '';
-	$vspace = '\noalign{\vskip ' . $options{tex_vspace} . '}' if $options{tex_vspace};
+	my $indent =
+		($options{indent} =~ /^[1-9]\d*$/ && $options{indent} > 0)
+		? qq{<td style="padding:0;width:$options{indent}px">&nbsp;</td>}
+		: '';
+	my $separation =
+		($options{separation} =~ /^[1-9]\d*$/ && $options{separation} > 0)
+		? qq{<td style="padding:0;width:$options{separation}px">&nbsp;</td>}
+		: '';
+
+	my $fill   = lc($options{align}) eq 'center' ? '\hfil' : lc($options{align}) eq 'right' ? '\hfill' : '';
+	my $vspace = $options{tex_vspace} ? "\\noalign{\\vskip $options{tex_vspace}}" : '';
+
+	if ($displayMode ne 'PTX' && $displayMode ne 'TeX') {
+		$options{align} = 'start' if lc($options{align}) eq 'left';
+		$options{align} = 'end'   if lc($options{align}) eq 'right';
+	}
 
 	MODES(
-		TeX  => '\cr' . $vspace . "\n" . $fill . join('& ', @row),
-		HTML => "<TR VALIGN=\"$valign\">$ind<TD ALIGN=\"$align\">"
-			. join("</TD>$sep<TD>", @row)
-			. '</TD></TR>' . "\n",
+		TeX  => '\cr' . $vspace . "\n" . $fill . join('& ', @$row),
+		HTML => qq{<tr style="vertical-align:$options{valign}">$indent<td style="text-align:$options{align}">}
+			. join("</td>$separation<td>", @$row)
+			. '</td></tr>',
 		PTX => qq!<row halign="!
-			. lc($align)
+			. lc($options{align})
 			. qq!" valign="!
-			. lc($valign)
+			. lc($options{valign})
 			. qq!">\n<cell>!
-			. join("</cell>\n<cell>", @row)
+			. join("</cell>\n<cell>", @$row)
 			. "</cell>\n</row>\n",
 	);
 }
 
 =head2 AlignedRow
 
-  AlignedRow([item1,item2,...],options);
+Usage:
 
-Options control how the row is displayed:
+    AlignedRow([ item1, item2, ... ], options);
 
-    indent => num           Specifies size of blank column on the left
-                            (default:  indent => 0)
+The following options control how the row is displayed:
 
-    separation => num       Specifies separation of columns
-                            (default:  spearation => 30)
+=over
 
-    tex_vspace => "dimen"   Specifies additional vertical spacing for TeX
+=item C<< indent => num >>
 
-    align => "type"         Specifies alignment of all columns
-                            (default:  align => "CENTER")
+Specifies size of blank column on the left (default: 0).
 
-    valign => "type"        Specified vertical alignment of row
-                            (default:  valign => "MIDDLE")
+=item C<< separation => num >>
+
+Specifies separation of columns (default: 30).
+
+=item C<< tex_vspace => "dimen" >>
+
+Specifies additional vertical spacing for TeX.
+
+=item C<< align => "type" >>
+
+Specifies text alignment of all cells (default: "center").
+
+=item C<< valign => "type" >>
+
+Specified vertical alignment of row (default: "middle").
+
+=back
 
 =cut
 
 sub AlignedRow {
-	my $rowref  = shift;
-	my @row     = @{$rowref};
-	my %options = (
-		indent     => 0,
-		separation => 30,
-		align      => "CENTER",
-		valign     => "MIDDLE",
-		@_
-	);
+	my ($row, %options) = @_;
 
-	my ($cind,  $csep)   = ($options{indent}, $options{separation});
-	my ($align, $valign) = ($options{align},  $options{valign});
-	my $sep = '<TD WIDTH="' . $csep . '">&nbsp;</TD>' . "\n";
-	$sep = '' if ($csep < 1);
-	my $ind = '<TD WIDTH="' . $cind . '">&nbsp;</TD>' . "\n";
-	$ind = '' if ($cind < 1);
-	my $fill = '';
-	$fill = '\hfil '  if (uc($align) eq "CENTER");
-	$fill = '\hfill ' if (uc($align) eq "RIGHT");
-	my $vspace = '';
-	$vspace = '\noalign{\vskip ' . $options{tex_vspace} . '}' if $options{tex_vspace};
+	$options{indent}     //= 0;
+	$options{separation} //= 30;
+	$options{align}      //= 'center';
+	$options{valign}     //= 'middle';
+
+	my $indent =
+		($options{indent} =~ /^[1-9]\d*$/ && $options{indent} > 0)
+		? qq{<td style="padding:0;width:$options{indent}px">&nbsp;</td>}
+		: '';
+	my $separation =
+		($options{separation} =~ /^[1-9]\d*$/ && $options{separation} > 0)
+		? qq{<td style="padding:0;width:$options{separation}px;">&nbsp;</td>}
+		: '';
+
+	my $fill   = lc($options{align}) eq 'center' ? '\hfil' : lc($options{align}) eq 'right' ? '\hfill' : '';
+	my $vspace = $options{tex_vspace} ? "\\noalign{\\vskip $options{tex_vspace}}" : '';
+
+	if ($displayMode ne 'PTX' && $displayMode ne 'TeX') {
+		$options{align} = 'start' if lc($options{align}) eq 'left';
+		$options{align} = 'end'   if lc($options{align}) eq 'right';
+	}
 
 	MODES(
-		TeX  => '\cr' . $vspace . "\n" . $fill . join('&' . $fill, @row),
-		HTML => "<TR VALIGN=\"$valign\">\n$ind<TD ALIGN=\"$align\">\n"
-			. join("</TD>\n$sep<TD ALIGN=\"$align\">", @row)
-			. "</TD>\n</TR>\n",
-		PTX => qq!<row halign="!
-			. lc($align)
-			. qq!" valign="!
-			. lc($valign)
+		TeX  => '\cr' . $vspace . "\n" . $fill . join('&' . $fill, @$row),
+		HTML => qq{<tr style="vertical-align:$options{valign}">$indent<td style="text-align:$options{align}">}
+			. join(qq{</td>$separation<td style="text-align:$options{align}">}, @$row)
+			. '</td></tr>',
+		PTX => q!<row halign="!
+			. lc($options{align})
+			. q!" valign="!
+			. lc($options{valign})
 			. qq!">\n<cell>!
-			. join("</cell>\n<cell>", @row)
+			. join("</cell>\n<cell>", @$row)
 			. "</cell>\n</row>\n",
 	);
 }
@@ -281,7 +369,9 @@ sub AlignedRow {
 
 Add extra space between rows of a table
 
-Usage:  C<TableSpace(pixels,points)>
+Usage:
+
+    TableSpace(pixels, points)
 
 where pixels is the number of pixels of space in HTML mode and
 points is the number of points to use in TeX mode.
@@ -289,29 +379,32 @@ points is the number of points to use in TeX mode.
 =cut
 
 sub TableSpace {
-	my $rsep = shift;
-	my $tsep = shift;
-	$rsep = $tsep if (defined($tsep) && $main::displayMode eq "TeX");
-	return "" if ($rsep < 1);
+	my ($rsep, $tsep) = @_;
+
+	$rsep = $tsep if $main::displayMode eq 'TeX' && defined $tsep;
+	return ''     if $rsep < 1 || $rsep !~ /^[1-9]\d*$/;
+
 	MODES(
 		TeX  => '\vadjust{\kern ' . $rsep . 'pt}' . "\n",
-		HTML => "<TR><TD HEIGHT=\"$rsep\"></TD>\n</TR>\n",
+		HTML => qq{<tr><td colspan="10" style="border:none;padding:0;height:${rsep}px;"></td></tr>},
 		PTX  => '',
 	);
 }
 
 =head2 TableLine
 
-A horizontal rule within a table.  (Could have been a variable,
-but all the other table commands are subroutines, so kept it
-one to be consistent.)
+A horizontal rule within a table.
 
 =cut
+
+# This could have been a variable,
+# but all the other table commands are subroutines, so kept it
+# one to be consistent.
 
 sub TableLine {
 	MODES(
 		TeX  => '\vadjust{\kern2pt\hrule\kern2pt}',
-		HTML => '<TR><TD COLSPAN="10"><HR NOSHADE SIZE="1"></TD></TR>' . "\n",
+		HTML => '<tr class="union-table-line"><td colspan="10"><hr></td></tr>',
 		PTX  => ''
 	);
 }
