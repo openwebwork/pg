@@ -2956,14 +2956,25 @@ sub row {
 
 Usage:
 
-    image($image, width => 100, height => 100, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
+    image($image, width => 200, height => 200, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
 
 where C<$image> can be a local file path, URL, WWPlot object, PGlateximage object,
-or PGtikz object, C<width> and C<height> are pixel counts for HTML display,
-while C<tex_size> is per 1000 applied to linewidth (for example 800 leads to 0.8\linewidth)
+PGtikz object, or parser::GraphTool object.
 
-    image([$image1,$image2], width => 100, height => 100, tex_size => 800, alt => ['alt text 1','alt text 2'], extra_html_tags => 'style="border:solid black 1pt"');
-    image([$image1,$image2], width => 100, height => 100, tex_size => 800, alt => 'common alt text', extra_html_tags => 'style="border:solid black 1pt"');
+C<width> and C<height> are positive integer pixel counts for HTML display. If both
+are missing, C<width> will default to 200 and C<height> will remain undeclared,
+letting the browser display the image with its natural aspect ratio. Except with
+a parser::GraphTool object, if both are missing then nothing will be passed along
+to the GraphTool method for display, and that macro's defaults will be used.
+
+C<tex_size> is also a positive integer, per 1000 applied to the line width in TeX.
+For example 800 leads to 0.8\linewidth. If over 1000, then 1000 will be used.
+If missing, this defaults to C<int(width/0.6)> so the image is proportional to its
+HTML version with a 600 pixel wide reading area. If C<width> is missing and C<height>
+is declared, we presume this is a wide image and then C<tex_size> defaults to 800.
+
+    image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => ['alt text 1','alt text 2'], extra_html_tags => 'style="border:solid black 1pt"');
+    image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => 'common alt text', extra_html_tags => 'style="border:solid black 1pt"');
 
 this produces an array in array context and joins the elements with C<' '> in scalar context
 
@@ -2978,9 +2989,9 @@ sub image {
 	}
 	my %in_options    = @opt;
 	my %known_options = (
-		width    => 100,
+		width    => '',
 		height   => '',
-		tex_size => 800,
+		tex_size => '',
 		# default value for alt is undef, since an empty string is the explicit indicator of a decorative image
 		alt             => undef,
 		extra_html_tags => '',
@@ -2995,18 +3006,24 @@ sub image {
 				display_options2(%known_options);
 		}
 	}
-	my $width       = $out_options{width};
-	my $height      = $out_options{height};
-	my $tex_size    = $out_options{tex_size};
+
+	# Get options for width, height, and tex_size, with a sanity check for integer values.
+	my $width    = $out_options{width}    =~ /^[1-9]\d*$/ ? $out_options{width}    : '';
+	my $height   = $out_options{height}   =~ /^[1-9]\d*$/ ? $out_options{height}   : '';
+	my $tex_size = $out_options{tex_size} =~ /^[1-9]\d*$/ ? $out_options{tex_size} : '';
+	$width = 200 unless ($width || $height);
+
+	$tex_size = $width ? int($width / 0.6) : 800 unless $tex_size;
+	$tex_size = 1000 if $tex_size > 1000;
+
 	my $alt         = $out_options{alt};
 	my $width_ratio = $tex_size * (.001);
 	my @image_list  = ();
 	my @alt_list    = ();
 
-	# if height was explicitly given, create string for height attribute to be used in HTML, LaTeX2HTML
-	# otherwise omit a height attribute and allow the browser to use aspect ratio preservation
-	my $height_attrib = '';
-	$height_attrib = qq{height = "$height"} if ($height);
+	# if width and/or height are explicit, create string for attribute to be used in HTML, LaTeX2HTML
+	my $width_attrib  = ($width)  ? qq{ width="$width"}   : '';
+	my $height_attrib = ($height) ? qq{ height="$height"} : '';
 
 	if (ref($image_ref) =~ /ARRAY/) {
 		@image_list = @{$image_ref};
@@ -3023,7 +3040,14 @@ sub image {
 	while (@image_list) {
 		my $image_item = shift @image_list;
 		if (ref $image_item eq 'parser::GraphTool') {
-			push(@output_list, $image_item->generateAnswerGraph(ariaDescription => shift @alt_list // ''));
+			push(
+				@output_list,
+				$image_item->generateAnswerGraph(
+					$out_options{width}    || $out_options{height} ? (width   => $width, height => $height) : (),
+					$out_options{tex_size} || $out_options{width}  ? (texSize => $tex_size)                 : (),
+					ariaDescription => shift @alt_list // ''
+				)
+			);
 			next;
 		}
 		$image_item = insertGraph($image_item)
@@ -3045,7 +3069,7 @@ sub image {
 		} elsif ($displayMode eq 'Latex2HTML') {
 			my $wid = ($envir->{onTheFlyImageSize} || 0) + 30;
 			$out =
-				qq!\\begin{rawhtml}\n<A HREF="$imageURL" TARGET="_blank" onclick="window.open(this.href, this.target, 'width=$wid, height=$wid, scrollbars=yes, resizable=on'); return false;"><IMG SRC="$imageURL"  WIDTH="$width" $height_attrib></A>\n
+				qq!\\begin{rawhtml}\n<A HREF="$imageURL" TARGET="_blank" onclick="window.open(this.href, this.target, 'width=$wid, height=$wid, scrollbars=yes, resizable=on'); return false;"><IMG SRC="$imageURL"$width_attrib$height_attrib></A>\n
 			\\end{rawhtml}\n !
 		} elsif ($displayMode eq 'HTML_MathJax'
 			|| $displayMode eq 'HTML_dpng'
@@ -3059,9 +3083,9 @@ sub image {
 			my $altattrib = '';
 			if (defined $alt_list[0]) { $altattrib = 'alt="' . encode_pg_and_html(shift @alt_list) . '"' }
 			$out =
-				qq!<IMG SRC="$imageURL" class="image-view-elt" tabindex="0" role="button" WIDTH="$width" $height_attrib $out_options{extra_html_tags} $altattrib>!;
+				qq!<IMG SRC="$imageURL" class="image-view-elt" tabindex="0" role="button"$width_attrib$height_attrib $out_options{extra_html_tags} $altattrib>!;
 		} elsif ($displayMode eq 'PTX') {
-			my $ptxwidth = 100 * $width / 600;
+			my $ptxwidth = ($width ? int($width / 6) : 80);
 			if (defined $alt) {
 				$out = qq!<image width="$ptxwidth%" source="$imageURL"><description>$alt</description></image>!;
 			} else {
@@ -3177,7 +3201,7 @@ sub video {
 			</VIDEO>\n
 			!
 		} elsif ($displayMode eq 'PTX') {
-			my $ptxwidth = 100 * $width / 600;
+			my $ptxwidth = 400 * $width / 600;
 			$out = qq!<video source="$videoURL" width="$ptxwidth%" />!;
 		} else {
 			$out = "Error: PGbasicmacros: video: Unknown displayMode: $displayMode.\n";
@@ -3231,8 +3255,8 @@ sub imageRow {
 	# standard options
 	my %options = (
 		'tex_size' => 200,    # width for fitting 4 across
-		'height'   => 100,
-		'width'    => 100,
+		'height'   => 200,
+		'width'    => 200,
 		@_                    # overwrite any default options
 	);
 

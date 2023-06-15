@@ -1361,12 +1361,11 @@ sub Text {
 
 sub Image {
 	my ($self, $item) = @_;
-	my $text     = $item->{text};
-	my $source   = $item->{source};
-	my $width    = $item->{width}  || 100;
-	my $height   = $item->{height} || '';
-	my $tex_size = $width / 600 * 1000;
-	return (main::image($source, alt => $text, width => $width, height => $height, tex_size => $tex_size));
+	my $text   = $item->{text};
+	my $source = $item->{source};
+	my $width  = $item->{width}  || '';
+	my $height = $item->{height} || '';
+	return (main::image($source, alt => $text, width => $width, height => $height));
 }
 
 ######################################################################

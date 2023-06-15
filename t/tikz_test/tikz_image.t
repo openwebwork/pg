@@ -31,7 +31,7 @@ like $img, qr!
 	class="image-view-elt"\s
 	tabindex="0"\s
 	role="button"\s
-	WIDTH="100"\s*
+	width="200"\s*
 	>$!x, 'img tag has correct format';
 
 # Note that the image file is not generated until after the `image($drawing)` call.
