@@ -12,7 +12,7 @@
 
 =head1 SYNPOSIS
 
- 
+
 	$graph = new WWPlot(400,400); # creates a graph 400 pixels by 400 pixels
 	$graph->fn($fun1, $fun2);     # installs functions $fun1 and $fun2 in $graph
 	$image_binary = $graph->draw();  # creates the gif/png image of the functions installed in the graph
@@ -115,7 +115,7 @@ Draws the  image of the graph.
 	($horizontal_pixels, $vertical_pixels)  = @{$graph ->size()};
 
 Reads the size of the graph image in pixels.  This cannot be reset. It is defined by
-the new constructor and cannot be changed. 
+the new constructor and cannot be changed.
 
 =item colors
 
@@ -149,10 +149,10 @@ for GD.)
 	$graph->arrowTo($x,$y,$color,$thickness,'dashed');
 
 Moves to the point ($x, $y) (defined in real world coordinates) or draws a line or arrow
-from the current position to the specified point ($x, $y) using the color $color.  $color 
-is the name, e.g. 'white',  of the color, not an index value or RGB specification.  
+from the current position to the specified point ($x, $y) using the color $color.  $color
+is the name, e.g. 'white',  of the color, not an index value or RGB specification.
 $thickness gives the thickness of the line or arrow to draw.  If 'dashed' is specified,
-the line or arrow is rendered with a dashed line.  These are low level call 
+the line or arrow is rendered with a dashed line.  These are low level call
 back routines used by the function, label and stamp objects to draw themselves.
 
 =item ii, jj
@@ -688,7 +688,7 @@ sub imageName {
 }
 
 sub ext {
-	return $WWPlot::use_png ? 'png' : 'ext';
+	return $WWPlot::use_png ? 'png' : 'gif';
 }
 
 sub position {
