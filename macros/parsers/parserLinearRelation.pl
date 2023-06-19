@@ -253,8 +253,12 @@ sub compare {
 	#  Outright true or false relations have no type yet, so give them one
 	#
 	my $zero = 0 * $lN;
-	$ltype = $l->check_at($zero) ? 'eq' : 'ne';
-	$rtype = $r->check_at($zero) ? 'eq' : 'ne';
+	if (!$ltype) {
+		$ltype = $l->check_at($zero) ? 'eq' : 'ne';
+	}
+	if (!$rtype) {
+		$rtype = $r->check_at($zero) ? 'eq' : 'ne';
+	}
 
 	#
 	#  Reverse inequalities to favor lt, le over gt, ge
