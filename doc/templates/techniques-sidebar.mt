@@ -7,6 +7,8 @@
 
 <div class="offcanvas-body p-md-3 w-100">
 	<div class="list-group w-100" role="tablist" id="sidebar-list">
+	<a style="display: none" class="list-group-item list-group-item-action active" id="default-tab" href="#default"
+			data-bs-toggle="list" role="tab" aria-controls="default">Default</a>
 		% for (['A' .. 'C'], ['D' .. 'F'], ['G' .. 'Z']) {
 			<a class="list-group-item list-group-item-action" id="<%= $_->[0] %>-tab" href="#<%= $_->[0] %>"
 				data-bs-toggle="list" role="tab" aria-controls="<%= $_->[0] %>">

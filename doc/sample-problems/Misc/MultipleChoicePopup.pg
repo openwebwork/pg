@@ -13,7 +13,7 @@
 ## KEYWORDS('multiple choice', 'template')
 
 #:% name = Multiple Choice with Popup
-#:% type = Sample
+#:% type = [Sample, technique]
 #:% categories = [multiple choice, misc]
 
 #:% section = preamble

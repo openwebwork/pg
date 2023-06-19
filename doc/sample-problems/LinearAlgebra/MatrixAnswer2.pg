@@ -30,6 +30,7 @@ $example1 = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ]);
 $example2 = $example1->column(1);
 $example3 = $example1->row(1);
 
+#:% section = statement
 BEGIN_PGML
 The purpose of this question is to show you the syntax needed to enter matrices
 in WeBWorK when there is only one answer box for entering a matrix (which is not
@@ -77,6 +78,7 @@ Context('Matrix');
 $example4 = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ]);
 
 #:% section = statement2
+#: This is the other method to entering matrices.
 BEGIN_PGML
 [$BR]*
 + Entering a matrix using multiple answer blanks is straightforward --

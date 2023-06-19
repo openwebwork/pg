@@ -17,14 +17,13 @@
 #:% categories = [fraction]
 
 #:% section = preamble
-#: We include the macros file `unionTables.pl` to be able to display the answer boxes
+#: We include the macros file `niceTables.pl` to be able to display the answer boxes
 #: on top of each other (as a fraction).
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',  'PGML.pl',
-    'unionTables.pl', 'parserMultiAnswer.pl',
-    'PGcourse.pl'
+    'PGstandard.pl',  'PGML.pl', 'niceTables.pl',
+    'parserMultiAnswer.pl', 'PGcourse.pl'
 );
 
 #:% section = setup
@@ -46,40 +45,17 @@ loadMacros(
 #: displaying answer messages via `$self->setMessage(1, "Simplify your answer further");`,
 #: where the 1 stands for the first answer blank.
 #:
-#: We define a mode-dependent string `$showfraction` that will be the nicely formatted
-#: fraction and answer blanks. Notice that each answer rule must be a method of the
-#: `$multians` object via the code `$multians->ans_rule(20)`. To display the fraction
-#: nicely in TeX mode, we use displaystyle math
-#:
-#: ```{#display-math-block .latex}
-#: \[ ... \]
-#: ```
-#:
-#: and append two concatenated answer blanks to the string `$fraction`. In other modes
-#: (such as html), we use a ColumnTable from PGunion.pl macros to display the answer
-#: blanks as a fraction. To get fractions that have a large font size, be sure to use the LaTeX command
-#:
-#: `\( \displaystyle \frac{a}{b} \)`
-#:
-#: For fractions over fractions (a/b) / (c/d), to keep the font size large use the LaTeX commands
-#:
-#: ```{#display-style-frac .latex}
-#: \(
-#:     \displaystyle\frac{
-#:         \displaystyle\frac{a}{b}
-#:     }{
-#:         \displaystyle\frac{c}{d}
-#:     }
-#: \)
-#: ```
+#: The fraction answer is created using a `LayoutTable` from `niceTables.pl`.
+#: This is just a one-column table with the first row with a horizontal line.
+#: The padding is changed to improve the look of the fraction.
 Context()->variables->are(y => 'Real');
 Context()->{error}{msg}{"Operands of '*' can't be words"} = ' ';
 
-$a = random(2, 8, 2);
-$b = random(3, 9, 2);
-$c = random(1, 9, 1);
-
-while ($c == $b / $a) { $c = random(1, 9, 1); }
+do {
+    $a = random(2, 8, 2);
+    $b = random(3, 9, 2);
+    $c = random(1, 9, 1);
+} until ($a*$c != $b);
 
 $fraction = "\frac{$a y}{y-$c} + \frac{$b}{$c - y} ";
 
@@ -122,20 +98,23 @@ $multians = MultiAnswer($num, $den)->with(
 );
 
 # Display the fraction and answer blanks nicely
-Context()->texStrings;
-if ($displayMode eq 'TeX') {
-    $showfraction =
-        "\[ $fraction = "
-        . $multians->ans_rule(10)
-        . $multians->ans_rule(10) . " \]";
-} else {
-    $showfraction = ColumnTable(
-        "\( \displaystyle $fraction = \)",
-        $multians->ans_rule(20) . $BR . $HR . $multians->ans_rule(20),
-        separation => 10,
-    );
-}
-Context()->normalStrings;
+# Context()->texStrings;
+# if ($displayMode eq 'TeX') {
+#     $showfraction =
+#         "\[ $fraction = "
+#         . $multians->ans_rule(10)
+#         . $multians->ans_rule(10) . " \]";
+# } else {
+#     $showfraction = ColumnTable(
+#         "\( \displaystyle $fraction = \)",
+#         $multians->ans_rule(20) . $BR . $HR . $multians->ans_rule(20),
+#         separation => 10,
+#     );
+# }
+# Context()->normalStrings;
+
+$frac = LayoutTable([[[ans_rule(10), rowbottom => 1]],[ans_rule(10)]],
+    center => 0, allcellcss => {padding => '4pt'});
 
 #:% section = statement
 #: Everything is as usual. Insert the fraction and answer blanks using `$showfraction`.
@@ -143,13 +122,15 @@ BEGIN_PGML
 Perform the indicated operations.
 Express your answer in reduced form.
 
-[$showfraction]***
+[``[$fraction]=``][$frac]***
+
 END_PGML
 
 #:% section = answer
 #: It is necessary to install the answer evaluator with `ANS`, since
 #: `ans_rule` was used to produce answer blanks.
 ANS($multians->cmp());
+# ANS($multians->cmp());
 
 #:% section = solution
 BEGIN_PGML_SOLUTION

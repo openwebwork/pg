@@ -28,10 +28,10 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #:
 #: The lines
 #:
-#: ```{#equation .perl}
+#:```{#equation .perl}
 #: Context()->variables->add(y => 'Real');
 #: $circle_eq_lhs = Formula("(x - $h)^2 + (y - $k)^2")->reduce;
-#: ```
+#:```
 #:
 #: define the equation of the circle that is shown in the problem and solution.
 #:
@@ -54,9 +54,9 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #:
 #: The option
 #:
-#: ```{#cmp-options .perl}
+#:```{#cmp-options .perl}
 #: cmpOptions => { list_checker => sub { ... } }
-#: ```
+#:```
 #:
 #: defines a list checker. The list checker is passed the `$correct` answer
 #: which will be a MathObject list of lists containing the attributes of the

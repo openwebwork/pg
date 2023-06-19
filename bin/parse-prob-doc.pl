@@ -78,8 +78,9 @@ for (keys %$all_files) {
 
 outputIndices($categories, $subjects);
 
-# Copy the PG.js file into the output directory.
-copy("$pg_root/doc/js/PG.js", $out_dir);
+# Copy the PG.js file and CSS file into the output directory.
+copy("$pg_root/doc/js/PG.js",               $out_dir);
+copy("$pg_root/doc/css/sample-problem.css", $out_dir);
 
 # Process the file which includes parsing the file and adding all metadata
 # to appropriate arrays and hashes.
@@ -118,6 +119,12 @@ sub processFile ($filename) {
 		$macros->{$macro}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
 	}
 
+	# Write the code to a separate file
+	open($FH, '>:encoding(UTF-8)', "$out_dir/$relative_dir/$filename.pg")
+		or die qq{Could not open output file "$out_dir/$relative_dir/$filename.pg": $!};
+	print $FH $parsed_file->{code};
+	close $FH;
+	say "Printing pg file to '$out_dir/$relative_dir/$filename.pg'" if $verbose;
 	return;
 }
 
@@ -230,6 +237,7 @@ sub parseFile ($file) {
 		related     => \@related,
 		subjects    => \@subjects,
 		blocks      => \@blocks,
+		code        => join("\n", map { $_->{code} } @blocks),
 		categories  => \@categories,
 		macros      => \@macros,
 		description => join("\n", @description)

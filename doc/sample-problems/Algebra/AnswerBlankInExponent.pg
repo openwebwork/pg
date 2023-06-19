@@ -17,14 +17,16 @@
 #:% categories = [exponent]
 
 #:% section = preamble
-#: The macro `unionTables.pl` provides a simple table for formatting.
+#: The macro `niceTables.pl` provides a way to format the problem.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We have a some code to display the answer blanks nicely in different modes,
-#: which you shouldn't need to change except perhaps the width for each answer blank.
+#: We want the only variables to be `a` and `b` and choose a random power.
+#:
+#: The exponential layout is made with a table with padding on the top of the
+#: left cell and on the bottom of the right cell.
 Context()->variables->are(a => 'Real', b => 'Real');
 
 $n = random(3, 9);
@@ -37,30 +39,37 @@ $base     = Formula("a*b");
 $exponent = Formula("$n");
 
 # Display exponents nicely
-Context()->texStrings;
-if ($displayMode eq 'TeX') {
-    $showpower =
-        "\( \displaystyle $expression = ("
-        . ans_rule(4) . ")^{"
-        . ans_rule(4) . "}\)";
-} else {
-    $showpower = ColumnTable(
-        "\( \displaystyle $expression = \Big( \)"
-            . ans_rule(4)
-            . "\( \Big) \)",
-        ans_rule(4) . $BR . $BR,
-        indent     => 0,
-        separation => 0,
-        valign     => 'BOTTOM'
-    );
-}
-Context()->normalStrings;
+# Context()->texStrings;
+
+$tab = LayoutTable([[
+    ["\(\displaystyle $expression= \Big(\)" . ans_rule(4) . "\(\Big)\)", cellcss => { padding => '20pt 0pt 0pt 4pt'}],
+    [ ans_rule(4), cellcss => {padding => '0pt 0pt 20pt 0pt'}]
+]]);
+
+# if ($displayMode eq 'TeX') {
+#     $showpower =
+#         "\( \displaystyle $expression = ("
+#         . ans_rule(4) . ")^{"
+#         . ans_rule(4) . "}\)";
+# } else {
+#     $showpower = ColumnTable(
+#         "\( \displaystyle $expression = \Big( \)"
+#             . ans_rule(4)
+#             . "\( \Big) \)",
+#         ans_rule(4) . $BR . $BR,
+#         indent     => 0,
+#         separation => 0,
+#         valign     => 'BOTTOM'
+#     );
+# }
+# Context()->normalStrings;
 
 #:% section = statement
 #: We insert the nicely formatted answer blanks using `$showpower`.
 BEGIN_PGML
 Rewrite the following using a single exponent.
-[$showpower]***
+
+[$tab]***
 END_PGML
 
 #:% section = answer

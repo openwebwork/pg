@@ -30,9 +30,14 @@ $a = Compute(random(2, 9, 1));
 
 $ans = $a->cmp(checker => sub { return 1; });
 
-#:% section = setup
+#:% section = statement
 BEGIN_PGML
 Enter anything, e. g. [`[$a] `] and it will be marked correct: [__]{$ans}
 END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
 
 ENDDOCUMENT();

@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## This shows how to check "arbitrary" conditions on the student's answer.
+## This provides a custom answer checker.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -35,7 +35,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: set the message that is displayed to the student and exit the checker with an incorrect
 #: return value. For example:
 #:
-#: ```{#value-error .perl}
+#:```{#value-error .perl}
 #: $ans = Compute('pi/3')->cmp(
 #:     checker => sub {
 #:         my ($correct, $student, $ansHash) = @_;
@@ -43,13 +43,13 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #:         return cos($correct) == cos($student);
 #:     }
 #: );
-#: ```
+#:```
 #:
 #: Another handle tip for troubleshooting. To see all of the keys and values in the
 #: `$ansHash` when the submit answers button is pressed, include this in your custom answer checker:
 #:
-#:```
-#:foreach my $key ( keys %{$ansHash} ) {
+#:```{.perl}
+#:for my $key ( keys %{$ansHash} ) {
 #:  warn "key: $key, value: $ansHash->{$key}";
 #:}
 #:```
@@ -61,6 +61,7 @@ $ans = Compute('pi/3')->cmp(
 );
 $val = Compute('cos(pi/3)');
 
+#:% section = statement
 BEGIN_PGML
 Enter a value of [`x`] for which [`\cos(x) = [$val]`]
 

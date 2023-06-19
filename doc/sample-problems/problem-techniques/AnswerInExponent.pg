@@ -21,7 +21,7 @@
 #: We need to include the macros file unionTables.pl
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'niceTables.pl', 'PGcourse.pl');
 
 #:% section = setup
 Context()->variables->are(a => 'Real', b => 'Real');
@@ -63,6 +63,8 @@ BEGIN_PGML
 Rewrite the following using a single exponent.
 
 [$showpower]*
+
+[@ LayoutTable([$showpower] . \(=\)) @]*
 END_PGML
 
 #:% section = answer

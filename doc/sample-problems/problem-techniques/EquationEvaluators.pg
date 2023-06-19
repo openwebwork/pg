@@ -60,9 +60,9 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserImplicitEquation.pl',
 #: error message. The message has to be non-empty, but it can be just a
 #: blank " ", as in
 #:
-#: ```{#error-message .perl}
+#:```{#error-message .perl}
 #: Context()->{error}{msg}{"Can't find any solutions to your equation"} = " ";
-#: ```
+#:```
 #:
 #: This will eliminate the error message (though the "messages" column will
 #: be displayed in the answer table at the top of the problem, but no
@@ -74,14 +74,14 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserImplicitEquation.pl',
 #: but it is probably just as easy to do it manually, as replacing the
 #: `$ans` line with the following:
 #:
-#: ```{#post-filter .perl}
+#:```{#post-filter .perl}
 #: $ans = ImplicitEquation("y = (x-1)^2")->cmp->withPostFilter(sub {
 #:    my $ans = shift;
 #:    $ans->{ans_message} = " " if $ans->{ans_message} eq
 #:    "Can't find any solutions to your equation";
 #:    return $ans;
 #: }));
-#: ```
+#:```
 Context("ImplicitEquation");
 Context()->variables->set(
 x=>{limits=>[-2,2]},

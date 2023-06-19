@@ -12,7 +12,7 @@
 ## Author(Paul Pearson)
 
 #:% name = Multiple Choice with Checkbox
-#:% type = Sample
+#:% type = [Sample, technique]
 #:% categories = [multiple choice, misc]
 
 #:% section = preamble
@@ -23,9 +23,9 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserCheckboxList.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: To setup, `CheckboxList` creates a new object. The format is
-#: ```{#constructor .perl}
+#:```{#constructor .perl}
 #: $checks = CheckboxList([choices, ...], [correct_choices, ...], options);
-#: ```
+#:```
 #: where the `correct_choices` can either match those in `choices` or be the indices
 #: (starting at 0).
 #:
@@ -35,7 +35,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserCheckboxList.pl', 'PGcourse.pl');
 #: a horizontal checklist.  Note that `$SPACE` should be used and not `&nbsp;` so that
 #: this works in both html and hardcopy.
 #:
-#: See the POD for more options.
+#: See PODLINK('the POD', 'parserCheckboxList.pl') for more options.
 $checks1 = CheckboxList(
     [
         "\(e^{x^2} e^{1/x}\)",

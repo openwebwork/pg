@@ -30,10 +30,10 @@ loadMacros(
 #:% section = setup
 #: The macro contextLimitedPolynomial.pl provides two contexts:
 #:
-#: ```{#contexts .perl}
+#:```{#contexts .perl}
 #: Context('LimitedPolynomial');
 #: Context('LimitedPolynomial-Strict');
-#: ```
+#:```
 #: The strict version does not allow any mathematical operations within coefficients,
 #: so `(5+3)x` must be simplified to `8x`. For more details, see PODLINK('contextLimitedPolynomial.pl').
 #:

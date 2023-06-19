@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Answer is a matrix
+## Find the product of two matrices if the product is defined.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -30,14 +30,14 @@ loadMacros(
 #:
 #: A `RadioMultiAnswer` produces a set of radio buttons for each of the given statements.
 #: The format is
-#: ```{#radio-multi-answer-usage .perl}
+#:```{#radio-multi-answer-usage .perl}
 #: RadioMultiAnswer([
 #:     [statement1],
 #:     [statement2],
 #:     ...
 #:     [last statement]
 #: ], correct index, options)
-#: ```
+#:```
 #: Answer blanks can be added with the `%s` in the string and if a matrix is desired,
 #: `%s*` should be used.  See the POD for more details.
 Context('Matrix');

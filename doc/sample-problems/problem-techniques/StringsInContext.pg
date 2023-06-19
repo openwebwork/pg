@@ -26,15 +26,16 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #:  Add the strings that are to be allowed in answers to the Context. Note that the
 #: add call has the form string => { options }. The most common use of options is to allow
 #: "aliases", i.e., strings that are marked the same as others, e.g.,
-#:
+#:```{.perl}
 #: Context()->strings->add(none => {}, N => { alias => "none" });
+#:```
 #: (Which would allow "N" to be used instead of "none".)
 #:
 #: By default, strings are case-insensitive. To make them case sensitive, include this
 #: as an option in the Context call.
 #:
 #: There are some shortcuts available if you need to add many allowable strings all at once.
-#: See parserAutoStrings.pl
+#: See PODLINK('parserAutoStrings.pl').
 Context()->strings->add(none => {});
 
 # or, if we wanted a case-sensitive string,

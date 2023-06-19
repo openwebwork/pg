@@ -18,9 +18,8 @@
 #:% categories = [constant]
 
 #:% section = preamble
-#: We need to include the macros file unionTables.pl
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: No changes are needed in the tagging and description or initialization sections of the problem
@@ -45,8 +44,14 @@ Context()->flags->set(formatStudentAnswer => 'parsed');
 
 $ans = Compute('k');
 
+#:% section = statement
 BEGIN_PGML
 [`f(x) = x - k`] (where [`k > 0`] is constant) is zero when [`x =`] [___]{$ans}
 END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
 
 ENDDOCUMENT();

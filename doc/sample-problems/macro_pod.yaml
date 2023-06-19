@@ -51,6 +51,8 @@ macros:
 
   plotly3D.pl: graph/plotly3D.html
 
+  randomPerson.pl: misc/randomPerson.html
+
   scaffold.pl: core/scaffold.html
 
   unionTables.pl: ui/unionTables.html

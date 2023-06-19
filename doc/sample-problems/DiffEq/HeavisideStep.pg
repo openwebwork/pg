@@ -51,9 +51,9 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 #: In part (b), since the students never actually see the values of the function u(t),
 #: we could have defined the function as
 #:
-#: ```{#parser-function-call .perl}
+#:```{#parser-function-call .perl}
 #: parserFunction("u(t)" => "1.5 * sin(e*t) + 5*pi/3 + arctan(t)");
-#: ```
+#:```
 #:
 #: If we had defined `u(t)` this way, we would not have had to add the function `step(t)` to the context
 #: and we could have used the defaults for the answer checker. Notice that the function `u(t)` is never

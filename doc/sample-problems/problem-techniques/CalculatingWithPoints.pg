@@ -27,11 +27,11 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: coordinate. This is achieved by calling `Point`'s value method, as shown.
 #:
 #: Alternative method: If you want to get only one of the coordinates of a
-#: Point, you can use the extract method, for example: $x = $point->extract(1);.
-#: This gets the first coordinate of $point (x) and assigns it to the variable $x.
+#: Point, you can use the extract method, for example: `$x = $point->extract(1);`.
+#: This gets the first coordinate of `$point` and assigns it to the variable `$x`.
 #:
 #: We don't use `Context("Vector");` and `norm( $point[0] - $point[1] )` here
-#: to determine length because we don't want to accept an answer like |<5,7>-<7,8>|.
+#: to determine length because we don't want to accept an answer like `|<5,7>-<7,8>|`.
 #:
 #: Alternative method: You can use `$length=norm( $point[0] - $point[1] );`
 #: with `Context("Vector");` if you want to accept answers that are valid in

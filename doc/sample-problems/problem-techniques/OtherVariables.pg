@@ -30,7 +30,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: add for this.  If we set this with `are`, then the other variables will be
 #: deleted upon answer checked and the student will get a `variable not defined
 #: in this context` error.
-Context()->variables->add(t=>"Real", y => 'Real', z => 'Real');
+Context()->variables->add(t=>'Real', y => 'Real', z => 'Real');
 $f = Compute('-16 t^2 + 5 t + 4');
 $g = Compute('x^2+y^2+z^2');
 

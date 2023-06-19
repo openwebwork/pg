@@ -1,0 +1,56 @@
+## DESCRIPTION
+## Enter a linear inequality based on a description
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('algebra', 'linear inequality')
+
+#:% name = Linear Inequality
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [inequality]
+
+#:% section = preamble
+#: We include the macro file `parserLinearRelation.pl` to be able to the a
+#: LinearRelation object.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',  'PGML.pl', 'parserLinearRelation.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
+Context("LinearRelation");
+
+do {
+  $a = random(2,6);
+  $b = random(2,6);
+} until ($a != $b);
+$ab = $a*$b;
+
+$lr = LinearRelation("$a x + $b y < $ab")->reduce;
+
+#:% section = statement
+#: Everything is as usual. Insert the fraction and answer blanks using `$showfraction`.
+BEGIN_PGML
+The line [`L`] that passes through the point [`([$b],0)`] and [`(0,[$a])`] divides
+the [`xy`]-plane.  What is the linear relation that describes the set of
+points in half-plane containing the origin?  Note, do not include the
+points on the line?
+
+[__]{$lr}
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+[`[$lr]`]
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
