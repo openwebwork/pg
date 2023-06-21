@@ -122,11 +122,12 @@ our %known_units = (
 	hour => {
 		factor  => 3600,
 		s       => 1,
-		aliases => [ 'hours', 'hr', 'h' ]
+		aliases => [ 'hours', 'hrs', 'hr', 'h' ]
 	},
 	day => {
-		factor => 86400,
-		s      => 1
+		factor  => 86400,
+		s       => 1,
+		aliases => ['days']
 	},
 	month => {    # 60 * 60 * 24 * 30
 		factor  => 2592000,
@@ -179,6 +180,11 @@ our %known_units = (
 	fm => {    # femtometer
 		factor => 1E-15,
 		m      => 1
+	},
+	meter => {
+		factor  => 1,
+		m       => 1,
+		aliases => ['meters']
 	},
 
 	# ENGLISH LENGTHS
@@ -233,14 +239,19 @@ our %known_units = (
 		m       => 3,
 		aliases => ['cups']
 	},
+	gallon => {
+		factor  => 0.00378541,
+		m       => 3,
+		aliases => [ 'gallons', 'gal' ]
+	},
 
 	# VELOCITY: fundamental unit m/s (meters per second)
-	knots => {           # nautical miles per hour
+	knots => {    # nautical miles per hour
 		factor => 0.5144444444,
 		m      => 1,
 		s      => -1
 	},
-	c => {               # exact speed of light
+	c => {        # exact speed of light
 		factor => 299792458,
 		m      => 1,
 		s      => -1
@@ -335,10 +346,11 @@ our %known_units = (
 		aliases => [ 'pound', 'pounds', 'lbs' ]
 	},
 	ton => {
-		factor => 8900,
-		m      => 1,
-		kg     => 1,
-		s      => -2
+		factor  => 8900,
+		m       => 1,
+		kg      => 1,
+		s       => -2,
+		aliases => ['tons']
 	},
 
 	# ENERGY: fundamental unit m^2 kg / s^2
