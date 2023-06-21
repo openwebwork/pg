@@ -36,17 +36,18 @@ BEGIN {
 my $displayMode;
 
 my (
-	$PAR,     $BR,                  $BRBR,       $LQ,                $RQ,
-	$BM,      $EM,                  $BDM,        $EDM,               $LTS,
-	$GTS,     $LTE,                 $GTE,        $SOL,               $SOLUTION,
-	$HINT,    $COMMENT,             $US,         $SPACE,             $NBSP,
-	$NDASH,   $MDASH,               $BLABEL,     $ELABEL,            $BBOLD,
-	$EBOLD,   $BITALIC,             $EITALIC,    $BUL,               $EUL,
-	$BCENTER, $ECENTER,             $BLTR,       $ELTR,              $BKBD,
-	$EKBD,    $HR,                  $LBRACE,     $RBRACE,            $LB,
-	$RB,      $DOLLAR,              $PERCENT,    $CARET,             $PI,
-	$E,       $LATEX,               $TEX,        $APOS,              @ALPHABET,
-	$envir,   $PG_random_generator, $inputs_ref, $rh_sticky_answers, $r_ans_rule_count,
+	$PAR,               $BR,       $BRBR,    $LQ,                  $RQ,
+	$BM,                $EM,       $BDM,     $EDM,                 $LTS,
+	$GTS,               $LTE,      $GTE,     $BEGIN_ONE_COLUMN,    $END_ONE_COLUMN,
+	$SOL,               $SOLUTION, $HINT,    $COMMENT,             $US,
+	$SPACE,             $NBSP,     $NDASH,   $MDASH,               $BLABEL,
+	$ELABEL,            $BBOLD,    $EBOLD,   $BITALIC,             $EITALIC,
+	$BUL,               $EUL,      $BCENTER, $ECENTER,             $BLTR,
+	$ELTR,              $BKBD,     $EKBD,    $HR,                  $LBRACE,
+	$RBRACE,            $LB,       $RB,      $DOLLAR,              $PERCENT,
+	$CARET,             $PI,       $E,       $LATEX,               $TEX,
+	$APOS,              @ALPHABET, $envir,   $PG_random_generator, $inputs_ref,
+	$rh_sticky_answers, $r_ans_rule_count,
 );
 
 our %envir;
@@ -80,6 +81,8 @@ sub _PGbasicmacros_init {
 	$main::GTS              = GTS();
 	$main::LTE              = LTE();
 	$main::GTE              = GTE();
+	$main::BEGIN_ONE_COLUMN = BEGIN_ONE_COLUMN();
+	$main::END_ONE_COLUMN   = END_ONE_COLUMN();
 	$main::SOL              = SOLUTION_HEADING();
 	$main::SOLUTION         = SOLUTION_HEADING();
 	$main::HINT             = HINT_HEADING();
@@ -123,55 +126,57 @@ EndOfFile
 	# Next we transfer the correct definitions in the main:: compartment to the local my variables
 	# This can't be done inside the eval above because my variables seem to be invisible inside the eval
 
-	$PAR      = PAR();
-	$BR       = BR();
-	$BRBR     = BRBR();
-	$LQ       = LQ();
-	$RQ       = RQ();
-	$BM       = BM();
-	$EM       = EM();
-	$BDM      = BDM();
-	$EDM      = EDM();
-	$LTS      = LTS();
-	$GTS      = GTS();
-	$LTE      = LTE();
-	$GTE      = GTE();
-	$SOL      = SOLUTION_HEADING();
-	$SOLUTION = SOLUTION_HEADING();
-	$HINT     = HINT_HEADING();
-	$US       = US();
-	$SPACE    = SPACE();
-	$NBSP     = NBSP();
-	$NDASH    = NDASH();
-	$MDASH    = MDASH();
-	$BLABEL   = BLABEL();
-	$ELABEL   = ELABEL();
-	$BBOLD    = BBOLD();
-	$EBOLD    = EBOLD();
-	$BITALIC  = BITALIC();
-	$EITALIC  = EITALIC();
-	$BUL      = BUL();
-	$EUL      = EUL();
-	$BCENTER  = BCENTER();
-	$ECENTER  = ECENTER();
-	$BLTR     = BLTR();
-	$ELTR     = ELTR();
-	$BKBD     = BKBD();
-	$EKBD     = EKBD();
-	$HR       = HR();
-	$LBRACE   = LBRACE();
-	$RBRACE   = RBRACE();
-	$LB       = LB();
-	$RB       = RB();
-	$DOLLAR   = DOLLAR();
-	$PERCENT  = PERCENT();
-	$CARET    = CARET();
-	$PI       = PI();
-	$E        = E();
-	$LATEX    = LATEX();
-	$TEX      = TEX();
-	$APOS     = APOS();
-	@ALPHABET = ('A' .. 'ZZ');
+	$PAR              = PAR();
+	$BR               = BR();
+	$BRBR             = BRBR();
+	$LQ               = LQ();
+	$RQ               = RQ();
+	$BM               = BM();
+	$EM               = EM();
+	$BDM              = BDM();
+	$EDM              = EDM();
+	$LTS              = LTS();
+	$GTS              = GTS();
+	$LTE              = LTE();
+	$GTE              = GTE();
+	$BEGIN_ONE_COLUMN = BEGIN_ONE_COLUMN();
+	$END_ONE_COLUMN   = END_ONE_COLUMN();
+	$SOL              = SOLUTION_HEADING();
+	$SOLUTION         = SOLUTION_HEADING();
+	$HINT             = HINT_HEADING();
+	$US               = US();
+	$SPACE            = SPACE();
+	$NBSP             = NBSP();
+	$NDASH            = NDASH();
+	$MDASH            = MDASH();
+	$BLABEL           = BLABEL();
+	$ELABEL           = ELABEL();
+	$BBOLD            = BBOLD();
+	$EBOLD            = EBOLD();
+	$BITALIC          = BITALIC();
+	$EITALIC          = EITALIC();
+	$BUL              = BUL();
+	$EUL              = EUL();
+	$BCENTER          = BCENTER();
+	$ECENTER          = ECENTER();
+	$BLTR             = BLTR();
+	$ELTR             = ELTR();
+	$BKBD             = BKBD();
+	$EKBD             = EKBD();
+	$HR               = HR();
+	$LBRACE           = LBRACE();
+	$RBRACE           = RBRACE();
+	$LB               = LB();
+	$RB               = RB();
+	$DOLLAR           = DOLLAR();
+	$PERCENT          = PERCENT();
+	$CARET            = CARET();
+	$PI               = PI();
+	$E                = E();
+	$LATEX            = LATEX();
+	$TEX              = TEX();
+	$APOS             = APOS();
+	@ALPHABET         = ('A' .. 'ZZ');
 
 	$envir               = PG_restricted_eval(q!\%main::envir!);
 	$PG_random_generator = PG_restricted_eval(q!$main::PG_random_generator!);
@@ -1379,6 +1384,8 @@ sub MODES {
 	$GTS                GTS()                strictly greater than
 	$LTE                LTE()                less than or equal
 	$GTE                GTE()                greater than or equal
+	$BEGIN_ONE_COLUMN   BEGIN_ONE_COLUMN()   begin one-column mode
+	$END_ONE_COLUMN     END_ONE_COLUMN()     end one-column mode
 	$SOL                SOLUTION_HEADING()   solution headline
 	$SOLUTION           SOLUTION_HEADING()   solution headline
 	$HINT               HINT_HEADING()       hint headline
@@ -1484,6 +1491,16 @@ sub LTE {
 sub GTE {
 	MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ', PTX => '\geq');
 };    #only for use in math mode
+
+sub BEGIN_ONE_COLUMN {
+	warn '$BEGIN_ONE_COLUMN is deprecated. ' . "Please remove the usage of this variable.\n" if $envir{isInstructor};
+	return '';
+}
+
+sub END_ONE_COLUMN {
+	warn '$END_ONE_COLUMN is deprecated. ' . "Please remove the usage of this variable.\n" if $envir{isInstructor};
+	return '';
+}
 
 sub SOLUTION_HEADING {
 	MODES(
