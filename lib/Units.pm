@@ -40,8 +40,9 @@ our $PI = 4 * atan2(1, 1);
 
 our %known_units = (
 	m => {
-		factor => 1,
-		m      => 1
+		factor  => 1,
+		m       => 1,
+		aliases => [ 'meter', 'meters' ]
 	},
 	kg => {
 		factor => 1,
@@ -180,11 +181,6 @@ our %known_units = (
 	fm => {    # femtometer
 		factor => 1E-15,
 		m      => 1
-	},
-	meter => {
-		factor  => 1,
-		m       => 1,
-		aliases => ['meters']
 	},
 
 	# ENGLISH LENGTHS
