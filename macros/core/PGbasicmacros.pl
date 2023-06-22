@@ -2485,18 +2485,7 @@ A wide variety of google widgets, youtube videos, and other online resources can
 =cut
 
 sub beginproblem {
-	my $out = "";
-	$out .= MODES(
-		TeX => "\n%%% BEGIN PROBLEM PREAMBLE\n"
-		,    #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-		HTML => ""
-	);
-	$out .= MODES(%{ main::PG_restricted_eval(q!$main::problemPreamble!) });
-	$out .= MODES(
-		TeX => "\n%%% END PROBLEM PREAMBLE\n"
-		,    #Marker used in PreTeXt LaTeX extraction; contact alex.jordan@pcc.edu before modifying
-		HTML => ""
-	);
+	my $out = MODES(%{ main::PG_restricted_eval(q!$main::problemPreamble!) });
 	if ($displayMode eq 'PTX') { $out = '' }
 	$out;
 }
