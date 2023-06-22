@@ -182,11 +182,6 @@ our %known_units = (
 		factor => 1E-15,
 		m      => 1
 	},
-	meter => {
-		factor  => 1,
-		m       => 1,
-		aliases => ['meters']
-	},
 
 	# ENGLISH LENGTHS
 	inch => {
