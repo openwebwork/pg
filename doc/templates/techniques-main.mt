@@ -1,7 +1,3 @@
-<div class="tab-pane fade active show" style="font-size:120%; font-style: italic;"
-	id="default" role="tabpanel" aria-labelledby="default-tab" tabindex="0">
-Select a link to the left to see a list of problems.
-</div>
 % for (['A' .. 'C'], ['D' .. 'F'], ['G' .. 'Z']) {
 	<div class="tab-pane fade" id="<%= $_->[0] %>" role="tabpanel" aria-labelledby="<%= $_->[0] %>-tab" tabindex="0">
 		<h1 class="fs-3">Sample Problems for Techniques: <%= $_->[0] %> .. <%= $_->[-1] %></h1>

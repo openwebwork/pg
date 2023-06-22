@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Interactive graphing tool problem that asks the student to plot a circle.
+## Interactive graphing tool problem that asks the student to plot points.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -22,8 +22,7 @@
 #: this.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl',
-  'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Two points are created at random.
@@ -33,18 +32,18 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl',
 #: the student will be expected to graph. Each object is a brace delimited list
 #: of the attributes of the object. The first attribute in each list is the
 #: type of object to be graphed, `point` in this case. What the remaining
-#: attributes are depend on the type. For a point, it is just the coordinates
-#: in standard form.
+#: attributes are depend on the type. For a point, there is only one additional
+#: attribute which is the point itself.
 #:
 #: The `->with` method is then used to set options for the `GraphTool` object.
 #: In this case the options that are set are:
 #:
-#: * `bbox`: this is an array reference of four values `xmin, ymax, xmax, ymin`
+#: * `bBox`: This is an array reference of four values `xmin, ymax, xmax, ymin`
 #: indicating the upper left and lower right corners of the visible graph.
-#: * `availableTools`: this determines which tools should be shown on the
-#: graph tool.
-#: * `showCoordinatesHints`: the 0 turns off coordinate hints, which would show
-#: students the coordinates the cursor is on.
+#: * `availableTools`: This determines which tools will be available for the
+#: student to use.
+#: * `showCoordinateHints`: Setting this to 0 turns off coordinate hints, which
+#: would show students the coordinates the cursor is over.
 #:
 #: For more details, see the PODLINK('POD documentation','parserGraphTool.pl')
 $x1 = non_zero_random(-5, 5);
@@ -54,9 +53,9 @@ $x2 = non_zero_random(-5, 5);
 $y2 = non_zero_random(-5, 5);
 
 $gt = GraphTool("{point, ($x1, $y1)}", "{point, ($x2, $y2)}")->with(
-	availableTools      => ['PointTool'],
-	bBox                => [ -11, 11, 11, -11 ],
-	showCoordinateHints => 0,
+    availableTools      => ['PointTool'],
+    bBox                => [ -11, 11, 11, -11 ],
+    showCoordinateHints => 0,
 );
 
 #:% section = statement.

@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Interactive graphing tool problem that asks the student to plot a circle.
+## Interactive graphing tool problem that asks the student to plot a line.
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -16,13 +16,12 @@
 #:% categories = [graph]
 
 #:% section = preamble
-#: This example shows how to get student input in the form of a graph (a circle)
+#: This example shows how to get student input in the form of a graph (a line)
 #: by using interactive graphing tools. Load the parserGraphTool.pl macro for
 #: this.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl',
-  'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: A cubic is created with 3 random zeros and a random y-intercept.
@@ -31,35 +30,37 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl',
 #: the correct answer. This is a string that contains a list of objects that
 #: the student will be expected to graph. Each object is a brace delimited list
 #: of the attributes of the object. The first attribute in each list is the
-#: type of object to be graphed, `cubic` in this case. What the remaining
-#: attributes are depend on the type. For a cubic the second attribute is
-#: whether the object is to be `solid` or `dashed`, the remaining arguments
-#: are the 4 points of the cubic.
+#: type of object to be graphed, `line` in this case. What the remaining
+#: attributes are depend on the type. For a line the second attribute is
+#: whether the object is to be `solid` or `dashed`, and the remaining attibutes
+#: are two distinct points on the line.
 #:
 #: The `->with` method is then used to set options for the `GraphTool` object.
 #: In this case the options that are set are:
 #:
-#: * bbox: this is an array reference of four values xmin, ymax, xmax, ymin
+#: * `bBox`: This is an array reference of four values xmin, ymax, xmax, ymin
 #: indicating the upper left and lower right corners of the visible graph.
-#  * availableTools: this determines which tools should be shown on the
-#: graph tool.
+#: * `availableTools`: This determines which tools will be available for the
+#: student to use.
 #:
 #: There is a default checker for the GraphTool that will mark correct a
-#: student answer that 'looks' like the correct one.  For simple graphs,
-#: the default should be sufficient.  If not see
-#: XXXX for an example with a custom answer checker.
+#: student answer that 'looks' like the correct one. For simple graphs,
+#: the default should be sufficient. See PROBLINK('GraphToolCustomChecker.pg')
+#: for an example of how to use a custom checker.
 
-$x0 = non_zero_random(-6,6);
-$y0 = non_zero_random(-6,6);
-$line = nicestring([$y0,$x0],['x','y']);
-
+$x0   = non_zero_random(-6, 6);
+$y0   = non_zero_random(-6, 6);
+$line = nicestring([ $y0, $x0 ], [ 'x', 'y' ]);
 
 $gt = GraphTool("{line, solid, ($x0, 0), (0, $y0)}")->with(
-	bBox           => [ -11, 11, 11, -11 ],
-	availableTools =>
-		[ 'PointTool', 'LineTool', 'CircleTool', 'QuadraticTool', 'CubicTool', 'FillTool', 'SolidDashTool' ],
+    bBox           => [ -11, 11, 11, -11 ],
+    availableTools => [
+        'PointTool',  'LineTool',
+        'CircleTool', 'QuadraticTool',
+        'CubicTool',  'FillTool',
+        'SolidDashTool'
+    ],
 );
-
 
 #:% section = statement.
 #: The code `[_]{$gt}` inserts the GraphTool.
@@ -87,6 +88,5 @@ and thus the [`x`]-intercept is number in the fraction under the [`x`] or
 [@ $gt->generateAnswerGraph @]*
 
 END_PGML_SOLUTION
-
 
 ENDDOCUMENT();

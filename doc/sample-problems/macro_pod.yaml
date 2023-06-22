@@ -26,11 +26,11 @@ macros:
   niceTables.pl: ui/niceTables.html
 
   parserAssignment.pl: parsers/parserAssignment.html
+  parserAutoStrings.pl: parser/parserAutoStrings.pl
   parserCheckboxList.pl: parsers/parserCheckboxList.html
   parserDifferenceQuotient.pl: parsers/parserDifferenceQuotient.html
   parserFormulaUpToConstant.pl: parsers/parserFormulaUpToConstant.html
   parserFormulaWithUnits.pl: parsers/parserFormulaWithUnits.html
-  parserFormulaUpToConstant.pl: parsers/parserFormulaUpToConstant.html
   parserFunction.pl: parsers/parserFunction.html
   parserGraphTool.pl: graph/parserGraphTool.html
   parserImplicitEquation.pl: parsers/parserImplicitEquation.html

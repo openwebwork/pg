@@ -47,15 +47,16 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #: The `->with` method is then used to set options for the `GraphTool` object.
 #: In this case the options that are set are:
 #:
-#: * `bbox`: this is an array reference of four values xmin, ymax, xmax, ymin
+#: * `bBox`: This is an array reference of four values xmin, ymax, xmax, ymin
 #: indicating the upper left and lower right corners of the visible graph.
 #:
 #: There is a default checker for the GraphTool that will mark correct a
-#: student answer that 'looks' like the correct one.  This means that if
+#: student answer that 'looks' like the correct one. This means that if
 #: a student adds two circles that are equivalent with one solid and one
 #: dashed, that if the solid one is plotted second, credit will be given.
-#: For simple graphs, the default should be sufficient.  If not see
-#: XXXX for an example with a custom answer checker.
+#: For simple graphs, the default should be sufficient. See
+#: PROBLINK('GraphToolCustomChecker.pg') for an example of how to use a custom
+#: checker.
 #:
 #: For more details, see the PODLINK('POD documentation','parserGraphTool.pl')
 $h = non_zero_random(-5, 5);

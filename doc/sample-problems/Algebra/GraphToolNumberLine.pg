@@ -16,61 +16,58 @@
 #:% categories = [graph]
 
 #:% section = preamble
-#: This example shows how to get student input in the form of a graph (a circle)
+#: This example shows how to get student input in the form of a graph
 #: by using interactive graphing tools. Load the `parserGraphTool.pl` macro for
 #: this.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl',
-  'PGcourse.pl');
-
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: There are two different intervals created with random enpoints.  The first
-#: one is finite, the second an infinite interval.
+#: Two intervals are created with random enpoints. The first
+#: one is a bounded interval, and the second an unbounded interval.
 #:
 #: The `GraphTool` method creates the graph tool object. The only argument is
 #: the correct answer. This is a string that contains a list of objects that
 #: the student will be expected to graph. Each object is a brace delimited list
 #: of the attributes of the object. The first attribute in each list is the
-#: type of object to be graphed, `interval` in this case. What the remaining
-#: attributes are depend on the type and for this case, enter the interval
-#: in standard interval notation.
+#: type of object to be graphed, `interval` in this case. The remaining
+#: attributes depend on the type of graph object. For an `interval`, there is
+#: only one attribute which is the interval in standard interval notation.
 #:
 #: The `->with` method is then used to set options for the `GraphTool` object.
 #: In this case the options that are set are:
 #:
-#: * numberLine is set to 1 (true) to indicate this is a one-dimensional
+#: * `numberLine` is set to 1 (true) to indicate this is a one-dimensional
 #: graph.
-#: * bbox: since we are using an number the bounding box is just an array
-#: reference [xmin, xmax]
-#  * availableTools: this determines which tools should be shown on the
-#: graph tool.
-#: ticksDistanceX: indicates the distance between tick marks in the x direction
-#: minorTicksX: indicates the distance of subticks. The value 0 means no
-#: subticks.
-#: * useBracketEnds: 1 (true) means to use () and [] to denote the intervals
+#: * `bBox`: For a number line the bounding box is an array reference [xmin, xmax]
+#: containing the left and right limits of the visible graph.
+#: * `availableTools`: This determines which tools will be available for the
+#: student to use.
+#: * `ticksDistanceX`: The distance between tick marks in the x direction.
+#: * `minorTicksX`: The number of minor ticks to show. This can be 0.
+#: * `useBracketEnds`: 1 (true) means to use () and [] to denote the intervals
 #: a value of 0 means to use open and solid circles.
 $x1 = random(1, 5);
 
-$gt1 = GraphTool("{interval,(-$x1,$x1]}")->with(
-	availableTools => [ 'PointTool', 'IntervalTool', 'IncludeExcludePointTool' ],
-	numberLine     => 1,
-	bBox           => [ -6, 6 ],
-	ticksDistanceX => 1,
-	minorTicksX    => 0,
-	useBracketEnds => 1
+$gt1 = GraphTool("{interval, (-$x1,$x1]}")->with(
+    availableTools => [ 'PointTool', 'IntervalTool', 'IncludeExcludePointTool' ],
+    numberLine     => 1,
+    bBox           => [ -6, 6 ],
+    ticksDistanceX => 1,
+    minorTicksX    => 0,
+    useBracketEnds => 1
 );
 
-$x2 = random(-5,5);
+$x2 = random(-5, 5);
 
-$gt2 = GraphTool("{interval,(-inf,$x2)}")->with(
-	availableTools => [ 'PointTool', 'IntervalTool', 'IncludeExcludePointTool' ],
-	numberLine     => 1,
-	bBox           => [ -6, 6 ],
-	ticksDistanceX => 1,
-	minorTicksX    => 0,
-	useBracketEnds => 0
+$gt2 = GraphTool("{interval, (-inf,$x2)}")->with(
+    availableTools => [ 'PointTool', 'IntervalTool', 'IncludeExcludePointTool' ],
+    numberLine     => 1,
+    bBox           => [ -6, 6 ],
+    ticksDistanceX => 1,
+    minorTicksX    => 0,
+    useBracketEnds => 0
 );
 
 #:% section = statement.
@@ -84,6 +81,5 @@ Graph the solution set for the linear inequality [`x < [$x2]`].
 
 [_]{$gt2}
 END_PGML
-
 
 ENDDOCUMENT();

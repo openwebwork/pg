@@ -14,11 +14,11 @@
 			margin-top: 70px;
 		}
 		#sidebar {
-			--bs-offcanvas-width: 300px;
+			--bs-offcanvas-width: 320px;
 		}
 		@media only screen and (min-width: 768px) {
 			#sidebar {
-				width: 275px;
+				width: 320px;
 				height: calc(100vh - 70px);
 			}
 		}
@@ -35,7 +35,8 @@
 						data-bs-toggle="dropdown" aria-expanded="false">
 						<%= $active eq 'categories' ? 'Sample Problems'
 							: $active eq 'techniques' ? 'Problem Techniques'
-							: 'Subject Area Problems' =%>
+							: $active eq 'subjects' ? 'Subject Area Problems'
+							: 'Problems by Macro' =%>
 					</a>
 					<ul class="dropdown-menu">
 						<li>

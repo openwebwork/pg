@@ -8,7 +8,6 @@
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/lib/codemirror.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.56.0/theme/eclipse.min.css">
 	<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/addon/runmode/runmode-standalone.min.js" defer>
 	</script>
 	<script src="<%= $home %>/PG.js" defer></script>
@@ -17,12 +16,12 @@
 
 % # Default explanations
 % my $default = {
-%	preamble => 'These standard macros need to be loaded.',
-% setup => 'This perl code sets up the problem.',
-% statement => 'This is the problem statement in PGML.',
-% answer => 'This is used for answer checking.',
-% solution => 'A solution should be provided here.'
-%};
+	% preamble => 'These standard macros need to be loaded.',
+	% setup => 'This perl code sets up the problem.',
+	% statement => 'This is the problem statement in PGML.',
+	% answer => 'This is used for answer checking.',
+	% solution => 'A solution should be provided here.'
+% };
 
 <body>
 	<div class="container-fluid p-3">
@@ -61,7 +60,11 @@
 				<h2>See Also</h2>
 				<ul>
 					% for (@$related) {
-						<li><a href="<%= $home =%>/<%= $_->{dir} =%>/<%= $_->{file} =~ s/.pg$//r =%>.html"><%= $_->{name} =%></a></li>
+						<li>
+							<a href="<%= $home =%>/<%= $_->{dir} =%>/<%= $_->{file} =~ s/\.pg$//r =%>.html">
+								<%= $_->{name} =%>
+							</a>
+						</li>
 					% }
 				</ul>
 			</div>
@@ -81,7 +84,7 @@
 							<path fill-rule="evenodd" d="M10 1.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1Zm-5 0A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5v1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 5 2.5v-1Zm-2 0h1v1A2.5 2.5 0 0 0 6.5 5h3A2.5 2.5 0 0 0 12 2.5v-1h1a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2Z"/>
 						</svg>
 					</button>
-					<pre class="CodeMirror cm-s-eclipse m-0 h-100 p-3 border border-secondary overflow-x-scroll"><%== $_->{code} %></pre>
+					<pre class="CodeMirror cm-s-default m-0 h-100 p-3 border border-secondary overflow-x-scroll"><%== $_->{code} %></pre>
 				</div>
 				<div class="explanation <%= $_->{section} %> col-sm-12 col-md-6 order-md-last order-first border border-dark">
 					<p><b><%= ucfirst($_->{section}) %></b></p>
