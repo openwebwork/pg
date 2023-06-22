@@ -1492,13 +1492,11 @@ sub GTE {
 	MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ', PTX => '\geq');
 };    #only for use in math mode
 
-sub BEGIN_ONE_COLUMN {
-	warn '$BEGIN_ONE_COLUMN is deprecated. ' . "Please remove the usage of this variable.\n" if $envir{isInstructor};
+sub BEGIN_ONE_COLUMN {    # deprecated
 	return '';
 }
 
-sub END_ONE_COLUMN {
-	warn '$END_ONE_COLUMN is deprecated. ' . "Please remove the usage of this variable.\n" if $envir{isInstructor};
+sub END_ONE_COLUMN {    # deprecated
 	return '';
 }
 
