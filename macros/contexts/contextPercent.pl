@@ -216,6 +216,7 @@ sub Init {
 			TeX           => "\\%",
 			class         => 'Percent::UOP::percent'
 		},
+		"percent" => { alias => "%" },
 	);
 	$context->{parser}{Number} = "Percent::Number";
 	$context->{value}{Percent} = "Percent::Percent";

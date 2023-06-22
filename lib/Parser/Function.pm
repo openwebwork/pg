@@ -328,7 +328,7 @@ sub TeX {
 	$name = $fn->{TeX} if defined($fn->{TeX});
 	foreach my $x (@{ $self->{params} }) { push(@pstr, $x->TeX) }
 	if ($fn->{braceTeX}) { $TeX = $name . '{' . join(',', @pstr) . '}' }
-	else                 { $TeX = $name . "$power" . '\!\left(' . join(',', @pstr) . '\right)' }
+	else                 { $TeX = $name . "$power" . '\mathopen{}\left(' . join(',', @pstr) . '\right)' }
 	$TeX = '\left(' . $TeX . '\right)'
 		if $showparens eq 'all'
 		or $showparens eq 'extra'
