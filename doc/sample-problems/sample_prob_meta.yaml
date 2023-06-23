@@ -1,0 +1,1203 @@
+---
+AdaptiveParameters.pg:
+  categories:
+  - differential equations
+  - adaptive parameters
+  dir: problem-techniques
+  filename: AdaptiveParameters.pg
+  name: Adaptive Parameters
+  types:
+  - technique
+AddingFunctions.pg:
+  categories:
+  - numbers
+  - tolerance
+  dir: problem-techniques
+  filename: AddingFunctions.pg
+  name: Adding Functions to a Context
+  types:
+  - technique
+AlgebraicFractionAnswer.pg:
+  categories:
+  - fraction
+  dir: Algebra
+  filename: AlgebraicFractionAnswer.pg
+  name: Fraction Answer
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+AnswerBlankInExponent.pg:
+  categories:
+  - exponent
+  dir: Algebra
+  filename: AnswerBlankInExponent.pg
+  name: Answer Blank in the Exponent
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+AnswerHints.pg:
+  categories:
+  - answer
+  - knowls
+  dir: problem-techniques
+  filename: AnswerHints.pg
+  name: Answer Hints
+  types:
+  - technique
+AnswerInExponent.pg:
+  categories:
+  - answer
+  - exponent
+  dir: problem-techniques
+  filename: AnswerInExponent.pg
+  name: Answer in an Exponent
+  types:
+  - technique
+AnswerIsSolutionToEquation.pg:
+  categories:
+  - answer
+  - exponent
+  dir: problem-techniques
+  filename: AnswerIsSolutionToEquation.pg
+  name: Answer is a Solution to an Equation
+  types:
+  - technique
+AnswerOrderedList.pg:
+  categories:
+  - sequences
+  - answer
+  dir: Sequences
+  filename: AnswerOrderedList.pg
+  name: Ordered List
+  subjects:
+  - sequences and series
+  types:
+  - sample
+AnswerUpToMultiplication.pg:
+  categories:
+  - answer
+  - adaptive parameters
+  dir: Algebra
+  filename: AnswerUpToMultiplication.pg
+  name: Answer up to a Constant Multiple
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+AnswerWithUnits.pg:
+  categories:
+  - units
+  dir: DiffCalc
+  filename: AnswerWithUnits.pg
+  name: Answer with Units
+  subjects:
+  - differential calculus
+  types:
+  - sample
+AnyAnswerMarkedCorrect.pg:
+  categories:
+  - answer
+  dir: problem-techniques
+  filename: AnyAnswerMarkedCorrect.pg
+  name: Any Answer is Marked Correct
+  types:
+  - technique
+CalculatingWithPoints.pg:
+  categories:
+  - point
+  dir: problem-techniques
+  filename: CalculatingWithPoints.pg
+  name: Calculating with Points
+  types:
+  - technique
+ChemicalReaction.pg:
+  categories:
+  - chemistry
+  dir: Misc
+  filename: ChemicalReaction.pg
+  name: Chemical Reaction
+  subjects:
+  - chemistry
+  types:
+  - sample
+CommentsForInstructors.pg:
+  dir: snippets
+  filename: CommentsForInstructors.pg
+  name: Comment for Instructors
+  types:
+  - snippet
+ComposingFunctions.pg:
+  categories:
+  - composition
+  dir: problem-techniques
+  filename: ComposingFunctions.pg
+  name: Composing Functions
+  types:
+  - technique
+ConstantsInProblems.pg:
+  categories:
+  - constant
+  dir: problem-techniques
+  filename: ConstantsInProblems.pg
+  name: Constants in Problems
+  types:
+  - technique
+ContourPlot.pg:
+  categories:
+  - plots
+  dir: DiffCalcMV
+  filename: ContourPlot.pg
+  name: Contour Plot
+  subjects:
+  - multivariate calculus
+  types:
+  - sample
+  - technique
+CustomAnswerCheckers.pg:
+  categories:
+  - answer
+  - custom
+  dir: problem-techniques
+  filename: CustomAnswerCheckers.pg
+  name: Custom Answer Checker
+  types:
+  - technique
+CustomAnswerListChecker.pg:
+  categories:
+  - answer
+  - custom
+  - list
+  dir: problem-techniques
+  filename: CustomAnswerListChecker.pg
+  name: Custom Answer List Checker
+  types:
+  - technique
+CylindricalGraph3D.pg:
+  categories:
+  - graph
+  dir: VectorCalc
+  filename: CylindricalGraph3D.pg
+  name: Surface Graph in Cylindrical Coordinates
+  related:
+  - SpaceCurveGraph.pg
+  - SurfaceGraph.pg
+  subjects:
+  - vector calculus
+  types:
+  - sample
+DataTables.pg:
+  categories:
+  - table
+  dir: problem-techniques
+  filename: DataTables.pg
+  name: Data Table
+  types:
+  - technique
+DifferenceQuotient.pg:
+  categories:
+  - difference quotient
+  dir: DiffCalc
+  filename: DifferenceQuotient.pg
+  name: Difference Quotient
+  subjects:
+  - differential calculus
+  types:
+  - sample
+DifferentiateFunction.pg:
+  categories:
+  - difference quotient
+  dir: DiffCalc
+  filename: DifferentiateFunction.pg
+  name: Differentiate a Function
+  subjects:
+  - differential calculus
+  types:
+  - sample
+DifferentiatingFormulas.pg:
+  categories:
+  - derivative
+  dir: problem-techniques
+  filename: DifferentiatingFormulas.pg
+  name: Differentiating Formulas
+  types:
+  - technique
+DigitsTolType.pg:
+  categories:
+  - answer
+  - tolerance
+  dir: problem-techniques
+  filename: DigitsTolType.pg
+  name: Number of Digits and Tolerance in Answers
+  types:
+  - technique
+DirectionField.pg:
+  categories:
+  - graph
+  dir: VectorCalc
+  filename: DirectionField.pg
+  name: Direction Field
+  subjects:
+  - differential equations
+  - vector calculus
+  types:
+  - sample
+  - technique
+DisableFunctions.pg:
+  categories:
+  - answer
+  dir: problem-techniques
+  filename: DisableFunctions.pg
+  name: Disabling Functions in Student Answers
+  types:
+  - technique
+DomainRange.pg:
+  categories:
+  - domain
+  dir: Algebra
+  filename: DomainRange.pg
+  name: Domain and Range of a Function
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+DoubleIntegral.pg:
+  categories:
+  - double integral
+  dir: IntegralCalc
+  filename: DoubleIntegral.pg
+  name: Double Integral
+  subjects:
+  - multivariate calculus
+  types:
+  - sample
+DraggableProof.pg:
+  categories:
+  - proof
+  - draggable
+  dir: Misc
+  filename: DraggableProof.pg
+  name: Draggable Proof
+  subjects:
+  - proof
+  types:
+  - sample
+DraggableSubsets.pg:
+  categories:
+  - draggable
+  dir: problem-techniques
+  filename: DraggableSubsets.pg
+  name: Draggable Subsets
+  types:
+  - technique
+DynamicGraph.pg:
+  categories:
+  - graph
+  dir: Algebra
+  filename: DynamicGraph.pg
+  name: Dynamic Graph
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+EquationDefiningFunction.pg:
+  categories:
+  - equation
+  - function
+  - answers
+  dir: Algebra
+  filename: EquationDefiningFunction.pg
+  name: Answer is an Equation
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+EquationEvaluators.pg:
+  categories:
+  - implicit
+  dir: problem-techniques
+  filename: EquationEvaluators.pg
+  name: Implicit Equations Evaluators
+  types:
+  - technique
+EquationImplicitFunction.pg:
+  categories:
+  - implicit function
+  dir: Algebra
+  filename: EquationImplicitFunction.pg
+  name: Implicit Function as an Equation
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+EquationsDefiningFunctions.pg:
+  categories:
+  - equation
+  dir: problem-techniques
+  filename: EquationsDefiningFunctions.pg
+  name: Equations Defining Functions (Not Implicit)
+  types:
+  - technique
+ErrorMessageCustomization.pg:
+  categories:
+  - custom error
+  dir: problem-techniques
+  filename: ErrorMessageCustomization.pg
+  name: Custom Error Message
+  types:
+  - technique
+EssayAnswer.pg:
+  categories:
+  - essay
+  dir: Misc
+  filename: EssayAnswer.pg
+  name: Essay Answer
+  types:
+  - sample
+EvalVersusSubstitute.pg:
+  categories:
+  - formula
+  dir: problem-techniques
+  filename: EvalVersusSubstitute.pg
+  name: Eval Versus Substitute
+  types:
+  - technique
+ExpandedPolynomial.pg:
+  categories:
+  - polynomial
+  dir: Algebra
+  filename: ExpandedPolynomial.pg
+  name: Expanded Polynomial
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+ExplicitSequence.pg:
+  categories:
+  - sequences
+  dir: Sequences
+  filename: ExplicitSequence.pg
+  name: Explicit Sequence
+  subjects:
+  - sequences and series
+  types:
+  - sample
+FactoredPolynomial.pg:
+  categories:
+  - polynomial
+  dir: Algebra
+  filename: FactoredPolynomial.pg
+  name: Factored Polynomial
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+FactoringAndExpanding.pg:
+  categories:
+  - polynomials
+  - factoring
+  - expanding
+  dir: problem-techniques
+  filename: FactoringAndExpanding.pg
+  name: Factoring and Expanding Polynomials
+  types:
+  - technique
+FormattingDecimals.pg:
+  categories:
+  - formatting decimals
+  - logarithm
+  dir: problem-techniques
+  filename: FormattingDecimals.pg
+  name: Formatting Decimals
+  types:
+  - technique
+FormulaAnswer.pg:
+  categories:
+  - answer
+  dir: Misc
+  filename: FormulaAnswer.pg
+  name: Formula Answer
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+FormulaDomain.pg:
+  categories:
+  - domain
+  - answer
+  dir: Misc
+  filename: FormulaDomain.pg
+  name: Setting the Domain for Answer Checking
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+FormulasToConstants.pg:
+  categories:
+  - constant
+  dir: problem-techniques
+  filename: FormulasToConstants.pg
+  name: Formulas up to additive constants
+  types:
+  - technique
+FractionAnswer.pg:
+  categories:
+  - fraction
+  dir: Algebra
+  filename: FractionAnswer.pg
+  name: Fraction Answer
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+FunctionDecomposition.pg:
+  categories:
+  - composition
+  dir: Algebra
+  filename: FunctionDecomposition.pg
+  name: Function Decomposition
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+GeneralSolutionODE.pg:
+  categories:
+  - answers
+  dir: DiffEq
+  filename: GeneralSolutionODE.pg
+  name: General Solution to a Differential Equation
+  subjects:
+  - differential equations
+  types:
+  - sample
+GraphShading.pg:
+  categories:
+  - plots
+  dir: IntegralCalc
+  filename: GraphShading.pg
+  name: Graph Shading
+  subjects:
+  - integral calculus
+  types:
+  - sample
+GraphTool.pg:
+  categories:
+  - graph
+  dir: Algebra
+  filename: GraphTool.pg
+  name: Interactive graphing tool problems
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+  - technique
+GraphToolCircle.pg:
+  categories:
+  - graph
+  dir: Algebra
+  filename: GraphToolCircle.pg
+  name: Graph Tool, plotting a circle
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+  - technique
+GraphToolCubic.pg:
+  categories:
+  - graph
+  dir: Algebra
+  filename: GraphToolCubic.pg
+  name: Graph Tool, plotting a cubic
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+  - technique
+GraphToolLine.pg:
+  categories:
+  - graph
+  dir: Algebra
+  filename: GraphToolLine.pg
+  name: Graph Tool, plotting a line
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+  - technique
+GraphToolNumberLine.pg:
+  categories:
+  - graph
+  dir: Algebra
+  filename: GraphToolNumberLine.pg
+  name: Graph Tool, number line
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+  - technique
+GraphToolPoints.pg:
+  categories:
+  - graph
+  dir: Algebra
+  filename: GraphToolPoints.pg
+  name: Graph Tool, plotting points
+  related:
+  - GraphToolCircle.pg
+  - GraphToolCubic.pg
+  - GraphToolLine.pg
+  - GraphToolNumberLine.pg
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+  - technique
+GraphsInTables.pg:
+  dir: problem-techniques
+  filename: GraphsInTables.pg
+  name: Graphs in a Table
+  types:
+  - sample
+  - technique
+HeavisideStep.pg:
+  categories:
+  - heaviside/step
+  dir: DiffEq
+  filename: HeavisideStep.pg
+  name: Heaviside or Step Function
+  subjects:
+  - differential equations
+  types:
+  - sample
+HtmlLinks.pg:
+  dir: problem-techniques
+  filename: HtmlLinks.pg
+  name: HTML Links
+  types:
+  - snippet
+  - technique
+IframeEmbedding.pg:
+  categories:
+  - misc
+  - video
+  dir: Misc
+  filename: IframeEmbedding.pg
+  name: Embedding an IFrame
+  types:
+  - sample
+ImplicitPlane.pg:
+  categories:
+  - implicit function
+  dir: DiffCalcMV
+  filename: ImplicitPlane.pg
+  name: Implicit Plane
+  subjects:
+  - multivariate calculus
+  types:
+  - sample
+IndefiniteIntegrals.pg:
+  categories:
+  - antiderivatives
+  dir: IntegralCalc
+  filename: IndefiniteIntegrals.pg
+  name: Indefinite Integrals
+  subjects:
+  - integral calculus
+  types:
+  - sample
+InequalityAnswer.pg:
+  categories:
+  - fraction
+  dir: Algebra
+  filename: InequalityAnswer.pg
+  name: Answer as an Inequality
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+InequalityEvaluators.pg:
+  categories:
+  - interval
+  dir: problem-techniques
+  filename: InequalityEvaluators.pg
+  name: Inequality Evaluator
+  related:
+  - IntervalEvaluators.pg
+  subjects:
+  - algebra
+  types:
+  - technique
+IntervalEvaluators.pg:
+  categories:
+  - interval
+  dir: problem-techniques
+  filename: IntervalEvaluators.pg
+  name: Interval Evaluator
+  related:
+  - InequalityEvaluators.pg
+  subjects:
+  - algebra
+  types:
+  - technique
+Knowls.pg:
+  dir: problem-techniques
+  filename: Knowls.pg
+  name: Knowls
+  types:
+  - technique
+  - snippet
+LayoutTable.pg:
+  categories:
+  - table
+  dir: problem-techniques
+  filename: LayoutTable.pg
+  name: Layout Table
+  related:
+  - DataTables.pg
+  types:
+  - technique
+LimitsOfIntegration.pg:
+  categories:
+  - antiderivatives
+  dir: IntegralCalc
+  filename: LimitsOfIntegration.pg
+  name: Answer Blanks in Limits of Integration
+  subjects:
+  - integral calculus
+  types:
+  - sample
+LinearApprox.pg:
+  categories:
+  - linear approximation
+  dir: DiffCalc
+  filename: LinearApprox.pg
+  name: Linear Approximation
+  subjects:
+  - differential calculus
+  types:
+  - sample
+LinearInequality.pg:
+  categories:
+  - inequality
+  dir: Algebra
+  filename: LinearInequality.pg
+  name: Linear Inequality
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+Logarithms.pg:
+  categories:
+  - logarithm
+  dir: Algebra
+  filename: Logarithms.pg
+  name: Logarithms
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+ManyMultipleChoice.pg:
+  categories:
+  - multiple choice
+  - misc
+  dir: Misc
+  filename: ManyMultipleChoice.pg
+  name: Many Multiple Choice
+  types:
+  - sample
+Matching.pg:
+  categories:
+  - multiple choice
+  - misc
+  dir: Misc
+  filename: Matching.pg
+  name: Matching Problem
+  types:
+  - sample
+MatchingAlt.pg:
+  categories:
+  - multiple choice
+  - misc
+  dir: Misc
+  filename: MatchingAlt.pg
+  name: Matching Problem (Alternate)
+  types:
+  - sample
+MatrixAnswer1.pg:
+  categories:
+  - matrix
+  dir: LinearAlgebra
+  filename: MatrixAnswer1.pg
+  name: Matrix Answer
+  subjects:
+  - linear algebra
+  types:
+  - sample
+MatrixAnswer2.pg:
+  categories:
+  - matrix
+  - answer
+  dir: LinearAlgebra
+  filename: MatrixAnswer2.pg
+  name: Matrix Answer Alternative
+  subjects:
+  - linear algebra
+  types:
+  - sample
+MatrixCustomAnswerChecker.pg:
+  categories:
+  - answer
+  - matrix
+  dir: LinearAlgebra
+  filename: MatrixCustomAnswerChecker.pg
+  name: Custom Matrix Answer Checker
+  subjects:
+  - linear algebra
+  types:
+  - sample
+MatrixOperations.pg:
+  categories:
+  - matrix
+  dir: LinearAlgebra
+  filename: MatrixOperations.pg
+  name: Matrix Operation
+  subjects:
+  - linear algebra
+  types:
+  - sample
+MultipleChoiceCheckbox.pg:
+  categories:
+  - multiple choice
+  - misc
+  dir: Misc
+  filename: MultipleChoiceCheckbox.pg
+  name: Multiple Choice with Checkbox
+  types:
+  - sample
+  - technique
+MultipleChoicePopup.pg:
+  categories:
+  - multiple choice
+  - misc
+  dir: Misc
+  filename: MultipleChoicePopup.pg
+  name: Multiple Choice with Popup
+  types:
+  - sample
+  - technique
+MultipleChoiceRadio.pg:
+  categories:
+  - multiple choice
+  - misc
+  dir: Misc
+  filename: MultipleChoiceRadio.pg
+  name: Multiple Choice with Radio Buttons
+  types:
+  - sample
+  - technique
+NumericalTolerance.pg:
+  categories:
+  - numbers
+  - tolerance
+  dir: problem-techniques
+  filename: NumericalTolerance.pg
+  name: Numerical Tolerance
+  types:
+  - technique
+OtherVariables.pg:
+  categories:
+  - variables
+  dir: problem-techniques
+  filename: OtherVariables.pg
+  name: Adding Variables to the Context
+  types:
+  - technique
+ParametricPlot.pg:
+  dir: Parametric
+  filename: ParametricPlot.pg
+  name: Parametric Curve Graph
+  subjects:
+  - parametric
+  types:
+  - sample
+  - technique
+PeriodicAnswers.pg:
+  categories:
+  - trigonometry
+  dir: Trig
+  filename: PeriodicAnswers.pg
+  name: Periodic Answers
+  subjects:
+  - trigonometry
+  - precalculus
+  types:
+  - sample
+PointAnswers.pg:
+  categories:
+  - point
+  - answers
+  dir: Algebra
+  filename: PointAnswers.pg
+  name: Answers are a list of points
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+PolarGraph.pg:
+  dir: Parametric
+  filename: PolarGraph.pg
+  name: Polar Graph
+  subjects:
+  - parametric
+  types:
+  - sample
+PrimesInFormulas.pg:
+  categories:
+  - answers
+  dir: DiffEq
+  filename: PrimesInFormulas.pg
+  name: Primes in Formulas
+  subjects:
+  - differential equations
+  types:
+  - sample
+ProvingTrigIdentities.pg:
+  categories:
+  - trigonometry
+  - proof
+  dir: Trig
+  filename: ProvingTrigIdentities.pg
+  name: Proving Identities
+  subjects:
+  - trigonometry
+  - precalculus
+  types:
+  - sample
+RandomPerson.pg:
+  categories:
+  - misc
+  dir: Misc
+  filename: RandomPerson.pg
+  name: Random Person
+  types:
+  - sample
+RectangularGraph3D.pg:
+  categories:
+  - graph
+  dir: VectorCalc
+  filename: RectangularGraph3D.pg
+  name: Surface Graph in Rectangular Coordinates
+  related:
+  - SpaceCurveGraph.pg
+  - SurfaceGraph.pg
+  - CylindricalGraph3D.pg
+  subjects:
+  - vector calculus
+  types:
+  - sample
+RecursiveSequence.pg:
+  categories:
+  - sequences
+  dir: Sequences
+  filename: RecursiveSequence.pg
+  name: Recursive Sequence
+  subjects:
+  - sequences and series
+  types:
+  - sample
+RiemannSums.pg:
+  categories:
+  - Riemann sums
+  dir: IntegralCalc
+  filename: RiemannSums.pg
+  name: Riemann Sums
+  subjects:
+  - integral calculus
+  types:
+  - sample
+RowOperations.pg:
+  categories:
+  - matrix
+  - row operation
+  dir: LinearAlgebra
+  filename: RowOperations.pg
+  name: Row Operations
+  subjects:
+  - linear algebra
+  types:
+  - sample
+Scaffolding.pg:
+  categories:
+  - misc
+  dir: Misc
+  filename: Scaffolding.pg
+  name: Scaffolded Problem
+  types:
+  - sample
+ScalingTranslating.pg:
+  categories:
+  - transformation
+  dir: Algebra
+  filename: ScalingTranslating.pg
+  name: Scaling and Translating a Function
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+SeriesTest.pg:
+  categories:
+  - sequences
+  - series
+  dir: Sequences
+  filename: SeriesTest.pg
+  name: Series Test
+  subjects:
+  - sequences and series
+  types:
+  - sample
+SolutionForEquation.pg:
+  categories:
+  - algebra
+  dir: Algebra
+  filename: SolutionForEquation.pg
+  name: Solution for an Equation
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+SpaceCurveGraph.pg:
+  dir: Parametric
+  filename: SpaceCurveGraph.pg
+  name: Space Curve Graph
+  subjects:
+  - parametric
+  types:
+  - sample
+Spacecurve.pg:
+  dir: Parametric
+  filename: Spacecurve.pg
+  name: Polar Graph
+  subjects:
+  - parametric
+  types:
+  - sample
+StaticImages.pg:
+  dir: problem-techniques
+  filename: StaticImages.pg
+  name: Graphic Images, Static
+  types:
+  - technique
+StringOrOtherType.pg:
+  categories:
+  - strings
+  dir: Algebra
+  filename: StringOrOtherType.pg
+  name: String or Other Type
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+StringsInContext.pg:
+  categories:
+  - context
+  - strings
+  dir: problem-techniques
+  filename: StringsInContext.pg
+  name: Adding Strings to a Context
+  types:
+  - technique
+SurfaceGraph.pg:
+  dir: Parametric
+  filename: SurfaceGraph.pg
+  name: Surface Graph
+  subjects:
+  - parametric
+  types:
+  - sample
+TableOfValues.pg:
+  categories:
+  - table
+  dir: Algebra
+  filename: TableOfValues.pg
+  name: Table of Values
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+TikZImages.pg:
+  dir: problem-techniques
+  filename: TikZImages.pg
+  name: Graphic Images, TikZ
+  subjects:
+  - parametric
+  types:
+  - sample
+  - technique
+TrigDegrees.pg:
+  categories:
+  - trigonometry
+  - degrees
+  dir: Trig
+  filename: TrigDegrees.pg
+  name: Degrees in Trigonometric Functions
+  subjects:
+  - trigonometry
+  - precalculus
+  types:
+  - technique
+  - sample
+TrigIdentities.pg:
+  categories:
+  - trigonometry
+  dir: Trig
+  filename: TrigIdentities.pg
+  name: Trigonometric Identities
+  subjects:
+  - trigonometry
+  - precalculus
+  types:
+  - sample
+UnorderedAnswers.pg:
+  categories:
+  - answer
+  dir: Algebra
+  filename: UnorderedAnswers.pg
+  name: Unordered Answers
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+VectorFieldGraph2D.pg:
+  categories:
+  - graph
+  dir: VectorCalc
+  filename: VectorFieldGraph2D.pg
+  name: Two-D Vector Field
+  subjects:
+  - differential equations
+  - vector calculus
+  types:
+  - sample
+VectorFieldGraph3D1.pg:
+  categories:
+  - graph
+  dir: VectorCalc/VectorFieldGraph3D
+  filename: VectorFieldGraph3D1.pg
+  name: Three-D Vector Field Graph
+  subjects:
+  - vector calculus
+  types:
+  - sample
+VectorOperations.pg:
+  dir: VectorCalc
+  filename: VectorOperations.pg
+  name: Vector Operations
+  subjects:
+  - vector calculus
+  types:
+  - sample
+VectorParametricDerivative.pg:
+  dir: Parametric
+  filename: VectorParametricDerivative.pg
+  name: Parametric Vector Function with Derivative
+  subjects:
+  - parametric
+  types:
+  - sample
+VectorParametricFunction.pg:
+  dir: Parametric
+  filename: VectorParametricFunction.pg
+  name: Vector Parametric Function
+  subjects:
+  - parametric
+  types:
+  - sample
+VectorParametricLines.pg:
+  dir: Parametric
+  filename: VectorParametricLines.pg
+  name: Parametric Lines
+  subjects:
+  - parametric
+  types:
+  - sample
+Vectors.pg:
+  categories:
+  - vector
+  dir: VectorCalc
+  filename: Vectors.pg
+  name: Vectors
+  subjects:
+  - vector calculus
+  types:
+  - technique
+  - sample
+Volume1.pg:
+  categories:
+  - volume
+  - solid of revolution
+  - disk method
+  dir: IntegralCalc
+  filename: Volume1.pg
+  name: Volume of Solids of Revolution 1
+  subjects:
+  - integral calculus
+  types:
+  - sample
+Volume2.pg:
+  categories:
+  - volume
+  - disk method
+  dir: IntegralCalc
+  filename: Volume2.pg
+  name: Volume of Solids of Revolution 2
+  subjects:
+  - integral calculus
+  types:
+  - sample
+Volume3.pg:
+  categories:
+  - volume
+  - disk method
+  dir: IntegralCalc
+  filename: Volume3.pg
+  name: Volume of Solids of Revolution 3
+  subjects:
+  - integral calculus
+  types:
+  - sample
+WeightedGrader.pg:
+  categories:
+  - grader
+  dir: problem-techniques
+  filename: WeightedGrader.pg
+  name: Weighted Grader
+  types:
+  - technique

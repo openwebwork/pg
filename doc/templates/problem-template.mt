@@ -10,8 +10,8 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/lib/codemirror.min.css">
 	<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.11/addon/runmode/runmode-standalone.min.js" defer>
 	</script>
-	<script src="<%= $home %>/PG.js" defer></script>
-	<link rel="stylesheet" href="<%= $home %>/sample-problem.css" >
+	<script src="<%= $pg_doc_home %>/PG.js" defer></script>
+	<link rel="stylesheet" href="<%= $pg_doc_home %>/sample-problem.css" >
 </head>
 
 % # Default explanations
@@ -31,7 +31,7 @@
 				<p><%= $description %></p>
 			</div>
 			<div class="col text-end">
-				<a href="<%=$home=%>/../index.html">Return to the PG docs home</a>
+				<a href="<%=$pg_doc_home=%>/../index.html">Return to the PG docs home</a>
 			</div>
 		</div>
 		<div class="row">
@@ -45,11 +45,11 @@
 				<div class="col">
 					<h2>POD for Macro Files</h2>
 					<ul>
-						% for (@$macros) {
-							% if ($macro_loc->{$_}) {
-								<li><a href="<%= $pod_dir %>/<%= $macro_loc->{$_} %>"><%= $_ =%></a></li>
-							% } else {
-								<li class="text-danger"><%= $_ %></li>
+						% for my $macro (@$macros) {
+							% if ($macro_locations->{macros}{$macro}) {
+								<li><a href="<%= $pod_root %>/<%= $macro_locations->{macros}{$macro} %>"><%= $macro =%></a></li>
+							% } elsif (! grep { $_ eq $macro} @{$macro_locations->{macros_to_skip}}) {
+								<li class="text-danger"><%= $macro %></li>
 							% }
 						% }
 					</ul>
@@ -60,11 +60,8 @@
 				<h2>See Also</h2>
 				<ul>
 					% for (@$related) {
-						<li>
-							<a href="<%= $home =%>/<%= $_->{dir} =%>/<%= $_->{file} =~ s/\.pg$//r =%>.html">
-								<%= $_->{name} =%>
-							</a>
-						</li>
+						<li><a href="<%= $pg_doc_home =%>/<%= $metadata->{$_}{dir} =%>/<%= $_ =~ s/.pg$//r =%>.html">
+							<%= $metadata->{$_}{name} =%></a></li>
 					% }
 				</ul>
 			</div>
