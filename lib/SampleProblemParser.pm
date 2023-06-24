@@ -52,8 +52,6 @@ as well as C<macros> to include as links within a problem.
 =cut
 
 sub parseSampleProblem ($file, %global) {
-	warn 'in parseSampleProblem';
-	warn $file;
 	my ($filename) = fileparse($file);
 	open(my $FH, '<:encoding(UTF-8)', $file) or die qq{Could not open file "$file": $!};
 	my @file_contents = <$FH>;
@@ -116,7 +114,6 @@ sub parseSampleProblem ($file, %global) {
 		}
 	);
 
-	warn 'here';
 	return {
 		name        => $global{metadata}{$filename}{name},
 		blocks      => \@blocks,
@@ -130,8 +127,6 @@ sub parseSampleProblem ($file, %global) {
 render a sample problem and output an HTML version of the problem.
 
 =cut
-
-use Data::Dumper;
 
 sub renderSampleProblem ($filename, %global) {
 	my $relative_dir = $global{metadata}{"$filename.pg"}{dir};
@@ -157,7 +152,6 @@ sub renderSampleProblem ($filename, %global) {
 	say "Printing pg file to '$global{out_dir}/$relative_dir/$filename.pg'" if $global{verbose};
 	return;
 }
-use Data::Dumper;
 
 sub buildIndex ($type, %options) {
 	my ($label, $list, $output);
@@ -212,20 +206,14 @@ sub buildIndex ($type, %options) {
 }
 
 sub writeIndex ($params, %options) {
-	say "Creating $label index" if $options{verbose};
+	say "Creating $params->{label} index" if $options{verbose};
 	if (open my $FH, '>:encoding(UTF-8)', $params->{output}) {
 		print $FH $options{mt}->render_file(
 			"$options{template_dir}/general-layout.mt",
 			{
-				sidebar => $options{mt}->render_file(
-					"$options{template_dir}/general-sidebar.mt",
-					{ label => $params->{label}, list => $params->{list} }
-				),
-				main_content => $options{mt}->render_file(
-					"$options{template_dir}/general-main.mt",
-					{ label => $params->{label}, list => $params->{list} }
-				),
-				active => $params->{type}
+				sidebar      => $options{mt}->render_file("$options{template_dir}/general-sidebar.mt", $params),
+				main_content => $options{mt}->render_file("$options{template_dir}/general-main.mt",    $params),
+				active       => $params->{type}
 			}
 		);
 		close $FH;

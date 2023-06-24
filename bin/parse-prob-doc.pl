@@ -20,7 +20,7 @@ use File::Find qw(find);
 use File::Copy qw(copy);
 use YAML::XS qw(LoadFile DumpFile);
 
-use SampleProblemParser qw(renderSampleProblem writeIndex);
+use SampleProblemParser qw(renderSampleProblem buildIndex writeIndex);
 
 my ($problem_dir, $out_dir, $pod_root, $pg_doc_home);
 my ($verbose, $build_index, $generate_prob_files) = (0, 0, 0);
@@ -90,14 +90,15 @@ if ($generate_prob_files) {
 
 # outputIndices($categories, $subjects);
 for (qw/categories subjects macros techniques/) {
-	writeIndex(
-		$_,
+	my $options = {
 		metadata     => $index_table,
 		template_dir => $template_dir,
 		out_dir      => $out_dir,
 		mt           => $mt,
-		verbose      => $verbose
-	);
+		verbose      => $verbose,
+	};
+	my $params = buildIndex($_, %$options);
+	writeIndex($params, %$options);
 }
 
 # Copy the PG.js file and CSS file into the output directory.
