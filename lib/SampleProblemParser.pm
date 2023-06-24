@@ -23,7 +23,7 @@ use File::Basename;
 use Pandoc;
 
 our @EXPORT    = ();
-our @EXPORT_OK = qw(renderSampleProblem);
+our @EXPORT_OK = qw(parseSampleProblem renderSampleProblem writeIndex buildIndex);
 
 =head1 NAME
 
@@ -52,13 +52,15 @@ as well as C<macros> to include as links within a problem.
 =cut
 
 sub parseSampleProblem ($file, %global) {
+	warn 'in parseSampleProblem';
+	warn $file;
 	my ($filename) = fileparse($file);
 	open(my $FH, '<:encoding(UTF-8)', $file) or die qq{Could not open file "$file": $!};
 	my @file_contents = <$FH>;
 	close $FH;
 
-	my (@blocks, @doc_rows, @code_rows, @categories, @description, @macros, @types, @subjects, @related);
-	my (%options, $descr, $type, $name);
+	my (@blocks,  @doc_rows, @code_rows, @description);
+	my (%options, $descr,    $type,      $name);
 
 	while (my $row = shift @file_contents) {
 		chomp($row);
@@ -79,19 +81,6 @@ sub parseSampleProblem ($file, %global) {
 			%options   = split(/\s*:\s*|\s*,\s*|\s*=\s*|\s+/, $1);
 			@doc_rows  = ();
 			@code_rows = ();
-		} elsif ($row =~ /loadMacros\(/) {
-			# Parse the macros, which may be on multiple rows.
-			push(@code_rows, $row);
-			my $macros = $row;
-			while ($row && $row !~ /\);\s*$/) {
-				$row = shift @file_contents;
-				chomp($row);
-				$row =~ s/\t/    /g;
-				$macros .= $row;
-				push(@code_rows, $row);
-			}
-			# Split by commas and pull out the quotes.
-			@macros = map {s/['"\s]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
 		} elsif ($row =~ /^#:/) {
 			# This section is documentation to be parsed.
 			$row = $row =~ s/^#://r;
@@ -127,15 +116,11 @@ sub parseSampleProblem ($file, %global) {
 		}
 	);
 
+	warn 'here';
 	return {
 		name        => $global{metadata}{$filename}{name},
-		types       => \@types,
-		related     => \@related,
-		subjects    => \@subjects,
 		blocks      => \@blocks,
 		code        => join("\n", map { $_->{code} } @blocks),
-		categories  => \@categories,
-		macros      => \@macros,
 		description => join("\n", @description)
 	};
 }
@@ -150,7 +135,7 @@ use Data::Dumper;
 
 sub renderSampleProblem ($filename, %global) {
 	my $relative_dir = $global{metadata}{"$filename.pg"}{dir};
-	my $path = "$global{problem_dir}/$relative_dir/$filename.pg";
+	my $path         = "$global{problem_dir}/$relative_dir/$filename.pg";
 	say "Processing file: $path" if $global{verbose};
 	my $parsed_file = parseSampleProblem($path, %global);
 
@@ -161,26 +146,8 @@ sub renderSampleProblem ($filename, %global) {
 		or die qq{Could not open output file "$global{out_dir}/$relative_dir/$filename.html": $!};
 
 	print $FH $global{mt}->render_file("$global{template_dir}/problem-template.mt",
-		{ %$parsed_file, %global, filename => $filename });
+		{ %$parsed_file, %global, filename => "$filename.pg" });
 	close $FH;
-
-	push(@samples,  $path) if grep { $_ eq 'sample' } @{ $parsed_file->{types} };
-	push(@snippets, $path) if grep { $_ eq 'snippet' } @{ $parsed_file->{types} };
-
-	$techniques->{ $parsed_file->{name} } = "$relative_dir/$filename.html"
-		if grep { $_ eq 'technique' } @{ $parsed_file->{types} };
-
-	for my $category (@{ $parsed_file->{categories} }) {
-		$categories->{$category}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
-	}
-
-	for my $subject (@{ $parsed_file->{subjects} }) {
-		$subjects->{$subject}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
-	}
-
-	for my $macro (@{ $parsed_file->{macros} }) {
-		$macros->{$macro}{ $parsed_file->{name} } = "$relative_dir/$filename.html";
-	}
 
 	# Write the code to a separate file
 	open($FH, '>:encoding(UTF-8)', "$global{out_dir}/$relative_dir/$filename.pg")
@@ -190,15 +157,79 @@ sub renderSampleProblem ($filename, %global) {
 	say "Printing pg file to '$global{out_dir}/$relative_dir/$filename.pg'" if $global{verbose};
 	return;
 }
+use Data::Dumper;
 
-sub writeIndex ($type, $index_table) {
-	$index_info = {
-		category => {
-			label => 'Categories',
-			template => 'general',
+sub buildIndex ($type, %options) {
+	my ($label, $list, $output);
+	if ($type eq 'categories') {
+		$label  = 'Categories';
+		$output = "$options{out_dir}/categories.html";
+		for my $sample_file (keys %{ $options{metadata} }) {
+			my $f = $sample_file =~ s/\.pg$/.html/r;
+			for my $category (@{ $options{metadata}{$sample_file}{categories} }) {
+				$list->{$category}{ $options{metadata}{$sample_file}{name} } =
+					"$options{metadata}{$sample_file}{dir}/$f";
+			}
+		}
+	} elsif ($type eq 'subjects') {
+		$label  = 'Subject Areas';
+		$output = "$options{out_dir}/subjects.html";
+		for my $sample_file (keys %{ $options{metadata} }) {
+			my $f = $sample_file =~ s/\.pg$/.html/r;
+			for my $subject (@{ $options{metadata}{$sample_file}{subjects} }) {
+				$list->{$subject}{ $options{metadata}{$sample_file}{name} } =
+					"$options{metadata}{$sample_file}{dir}/$f";
+			}
+		}
+	} elsif ($type eq 'macros') {
+		$label  = 'Problems by Macros';
+		$output = "$options{out_dir}/macros.html";
+		for my $sample_file (keys %{ $options{metadata} }) {
+			my $f = $sample_file =~ s/\.pg$/.html/r;
+			for my $macro (@{ $options{metadata}{$sample_file}{macros} }) {
+				$list->{$macro}{ $options{metadata}{$sample_file}{name} } =
+					"$options{metadata}{$sample_file}{dir}/$f";
+			}
+		}
+	} elsif ($type eq 'techniques') {
+		$label  = 'Problem Techniques';
+		$output = "$options{out_dir}/techniques.html";
+		for my $sample_file (keys %{ $options{metadata} }) {
+			my $f = $sample_file =~ s/\.pg$/.html/r;
+			if (grep { $_ eq 'technique' } @{ $options{metadata}{$sample_file}{types} }) {
+				$list->{ $options{metadata}{$sample_file}{name} } =
+					"$options{metadata}{$sample_file}{dir}/$f";
+			}
 		}
 	}
 
+	return {
+		label  => $label,
+		list   => $list,
+		type   => $type,
+		output => $output
+	};
+}
+
+sub writeIndex ($params, %options) {
+	say "Creating $label index" if $options{verbose};
+	if (open my $FH, '>:encoding(UTF-8)', $params->{output}) {
+		print $FH $options{mt}->render_file(
+			"$options{template_dir}/general-layout.mt",
+			{
+				sidebar => $options{mt}->render_file(
+					"$options{template_dir}/general-sidebar.mt",
+					{ label => $params->{label}, list => $params->{list} }
+				),
+				main_content => $options{mt}->render_file(
+					"$options{template_dir}/general-main.mt",
+					{ label => $params->{label}, list => $params->{list} }
+				),
+				active => $params->{type}
+			}
+		);
+		close $FH;
+	}
 }
 
 1;

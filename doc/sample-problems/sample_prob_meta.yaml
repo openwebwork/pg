@@ -5,6 +5,7 @@ AdaptiveParameters.pg:
   - adaptive parameters
   dir: problem-techniques
   filename: AdaptiveParameters.pg
+  macros: []
   name: Adaptive Parameters
   types:
   - technique
@@ -14,6 +15,8 @@ AddingFunctions.pg:
   - tolerance
   dir: problem-techniques
   filename: AddingFunctions.pg
+  macros:
+  - parserFunction.pl
   name: Adding Functions to a Context
   types:
   - technique
@@ -22,6 +25,9 @@ AlgebraicFractionAnswer.pg:
   - fraction
   dir: Algebra
   filename: AlgebraicFractionAnswer.pg
+  macros:
+  - niceTables.pl
+  - parserMultiAnswer.pl
   name: Fraction Answer
   subjects:
   - algebra
@@ -33,6 +39,8 @@ AnswerBlankInExponent.pg:
   - exponent
   dir: Algebra
   filename: AnswerBlankInExponent.pg
+  macros:
+  - niceTables.pl
   name: Answer Blank in the Exponent
   subjects:
   - algebra
@@ -45,6 +53,8 @@ AnswerHints.pg:
   - knowls
   dir: problem-techniques
   filename: AnswerHints.pg
+  macros:
+  - answerHints.pl
   name: Answer Hints
   types:
   - technique
@@ -54,6 +64,9 @@ AnswerInExponent.pg:
   - exponent
   dir: problem-techniques
   filename: AnswerInExponent.pg
+  macros:
+  - unionTables.pl
+  - niceTables.pl
   name: Answer in an Exponent
   types:
   - technique
@@ -63,6 +76,8 @@ AnswerIsSolutionToEquation.pg:
   - exponent
   dir: problem-techniques
   filename: AnswerIsSolutionToEquation.pg
+  macros:
+  - parserSolutionFor.pl
   name: Answer is a Solution to an Equation
   types:
   - technique
@@ -72,6 +87,7 @@ AnswerOrderedList.pg:
   - answer
   dir: Sequences
   filename: AnswerOrderedList.pg
+  macros: []
   name: Ordered List
   subjects:
   - sequences and series
@@ -83,6 +99,7 @@ AnswerUpToMultiplication.pg:
   - adaptive parameters
   dir: Algebra
   filename: AnswerUpToMultiplication.pg
+  macros: []
   name: Answer up to a Constant Multiple
   subjects:
   - algebra
@@ -94,6 +111,9 @@ AnswerWithUnits.pg:
   - units
   dir: DiffCalc
   filename: AnswerWithUnits.pg
+  macros:
+  - parserNumberWithUnits.pl
+  - parserFormulaWithUnits.pl
   name: Answer with Units
   subjects:
   - differential calculus
@@ -104,6 +124,7 @@ AnyAnswerMarkedCorrect.pg:
   - answer
   dir: problem-techniques
   filename: AnyAnswerMarkedCorrect.pg
+  macros: []
   name: Any Answer is Marked Correct
   types:
   - technique
@@ -112,6 +133,7 @@ CalculatingWithPoints.pg:
   - point
   dir: problem-techniques
   filename: CalculatingWithPoints.pg
+  macros: []
   name: Calculating with Points
   types:
   - technique
@@ -120,6 +142,8 @@ ChemicalReaction.pg:
   - chemistry
   dir: Misc
   filename: ChemicalReaction.pg
+  macros:
+  - contextReaction.pl
   name: Chemical Reaction
   subjects:
   - chemistry
@@ -128,6 +152,7 @@ ChemicalReaction.pg:
 CommentsForInstructors.pg:
   dir: snippets
   filename: CommentsForInstructors.pg
+  macros: []
   name: Comment for Instructors
   types:
   - snippet
@@ -136,6 +161,8 @@ ComposingFunctions.pg:
   - composition
   dir: problem-techniques
   filename: ComposingFunctions.pg
+  macros:
+  - answerComposition.pl
   name: Composing Functions
   types:
   - technique
@@ -144,6 +171,7 @@ ConstantsInProblems.pg:
   - constant
   dir: problem-techniques
   filename: ConstantsInProblems.pg
+  macros: []
   name: Constants in Problems
   types:
   - technique
@@ -152,6 +180,9 @@ ContourPlot.pg:
   - plots
   dir: DiffCalcMV
   filename: ContourPlot.pg
+  macros:
+  - parserPopUp.pl
+  - PGtikz.pl
   name: Contour Plot
   subjects:
   - multivariate calculus
@@ -164,6 +195,7 @@ CustomAnswerCheckers.pg:
   - custom
   dir: problem-techniques
   filename: CustomAnswerCheckers.pg
+  macros: []
   name: Custom Answer Checker
   types:
   - technique
@@ -174,6 +206,7 @@ CustomAnswerListChecker.pg:
   - list
   dir: problem-techniques
   filename: CustomAnswerListChecker.pg
+  macros: []
   name: Custom Answer List Checker
   types:
   - technique
@@ -182,6 +215,8 @@ CylindricalGraph3D.pg:
   - graph
   dir: VectorCalc
   filename: CylindricalGraph3D.pg
+  macros:
+  - plotly3D.pl
   name: Surface Graph in Cylindrical Coordinates
   related:
   - SpaceCurveGraph.pg
@@ -195,6 +230,8 @@ DataTables.pg:
   - table
   dir: problem-techniques
   filename: DataTables.pg
+  macros:
+  - niceTables.pl
   name: Data Table
   types:
   - technique
@@ -203,6 +240,8 @@ DifferenceQuotient.pg:
   - difference quotient
   dir: DiffCalc
   filename: DifferenceQuotient.pg
+  macros:
+  - parserDifferenceQuotient.pl
   name: Difference Quotient
   subjects:
   - differential calculus
@@ -213,6 +252,7 @@ DifferentiateFunction.pg:
   - difference quotient
   dir: DiffCalc
   filename: DifferentiateFunction.pg
+  macros: []
   name: Differentiate a Function
   subjects:
   - differential calculus
@@ -223,6 +263,7 @@ DifferentiatingFormulas.pg:
   - derivative
   dir: problem-techniques
   filename: DifferentiatingFormulas.pg
+  macros: []
   name: Differentiating Formulas
   types:
   - technique
@@ -232,6 +273,7 @@ DigitsTolType.pg:
   - tolerance
   dir: problem-techniques
   filename: DigitsTolType.pg
+  macros: []
   name: Number of Digits and Tolerance in Answers
   types:
   - technique
@@ -240,6 +282,8 @@ DirectionField.pg:
   - graph
   dir: VectorCalc
   filename: DirectionField.pg
+  macros:
+  - PGtikz.pl
   name: Direction Field
   subjects:
   - differential equations
@@ -252,6 +296,7 @@ DisableFunctions.pg:
   - answer
   dir: problem-techniques
   filename: DisableFunctions.pg
+  macros: []
   name: Disabling Functions in Student Answers
   types:
   - technique
@@ -260,6 +305,8 @@ DomainRange.pg:
   - domain
   dir: Algebra
   filename: DomainRange.pg
+  macros:
+  - contextInequalities.pl
   name: Domain and Range of a Function
   subjects:
   - algebra
@@ -271,6 +318,8 @@ DoubleIntegral.pg:
   - double integral
   dir: IntegralCalc
   filename: DoubleIntegral.pg
+  macros:
+  - parserMultiAnswer.pl
   name: Double Integral
   subjects:
   - multivariate calculus
@@ -282,6 +331,8 @@ DraggableProof.pg:
   - draggable
   dir: Misc
   filename: DraggableProof.pg
+  macros:
+  - draggableProof.pl
   name: Draggable Proof
   subjects:
   - proof
@@ -292,6 +343,8 @@ DraggableSubsets.pg:
   - draggable
   dir: problem-techniques
   filename: DraggableSubsets.pg
+  macros:
+  - draggableSubsets.pl
   name: Draggable Subsets
   types:
   - technique
@@ -300,6 +353,8 @@ DynamicGraph.pg:
   - graph
   dir: Algebra
   filename: DynamicGraph.pg
+  macros:
+  - PGtikz.pl
   name: Dynamic Graph
   subjects:
   - algebra
@@ -313,6 +368,8 @@ EquationDefiningFunction.pg:
   - answers
   dir: Algebra
   filename: EquationDefiningFunction.pg
+  macros:
+  - parserAssignment.pl
   name: Answer is an Equation
   subjects:
   - algebra
@@ -324,6 +381,8 @@ EquationEvaluators.pg:
   - implicit
   dir: problem-techniques
   filename: EquationEvaluators.pg
+  macros:
+  - parserImplicitEquation.pl
   name: Implicit Equations Evaluators
   types:
   - technique
@@ -332,6 +391,8 @@ EquationImplicitFunction.pg:
   - implicit function
   dir: Algebra
   filename: EquationImplicitFunction.pg
+  macros:
+  - parserImplicitEquation.pl
   name: Implicit Function as an Equation
   subjects:
   - algebra
@@ -343,6 +404,8 @@ EquationsDefiningFunctions.pg:
   - equation
   dir: problem-techniques
   filename: EquationsDefiningFunctions.pg
+  macros:
+  - parserAssignment.pl
   name: Equations Defining Functions (Not Implicit)
   types:
   - technique
@@ -351,6 +414,7 @@ ErrorMessageCustomization.pg:
   - custom error
   dir: problem-techniques
   filename: ErrorMessageCustomization.pg
+  macros: []
   name: Custom Error Message
   types:
   - technique
@@ -359,6 +423,9 @@ EssayAnswer.pg:
   - essay
   dir: Misc
   filename: EssayAnswer.pg
+  macros:
+  - parserPopUp.pl
+  - PGessaymacros.pl
   name: Essay Answer
   types:
   - sample
@@ -367,6 +434,7 @@ EvalVersusSubstitute.pg:
   - formula
   dir: problem-techniques
   filename: EvalVersusSubstitute.pg
+  macros: []
   name: Eval Versus Substitute
   types:
   - technique
@@ -375,6 +443,8 @@ ExpandedPolynomial.pg:
   - polynomial
   dir: Algebra
   filename: ExpandedPolynomial.pg
+  macros:
+  - contextLimitedPolynomial.pl
   name: Expanded Polynomial
   subjects:
   - algebra
@@ -386,6 +456,7 @@ ExplicitSequence.pg:
   - sequences
   dir: Sequences
   filename: ExplicitSequence.pg
+  macros: []
   name: Explicit Sequence
   subjects:
   - sequences and series
@@ -396,6 +467,9 @@ FactoredPolynomial.pg:
   - polynomial
   dir: Algebra
   filename: FactoredPolynomial.pg
+  macros:
+  - contextPolynomialFactors.pl
+  - contextLimitedPowers.pl
   name: Factored Polynomial
   subjects:
   - algebra
@@ -409,6 +483,10 @@ FactoringAndExpanding.pg:
   - expanding
   dir: problem-techniques
   filename: FactoringAndExpanding.pg
+  macros:
+  - contextLimitedPolynomial.pl
+  - contextPolynomialFactors.pl
+  - contextLimitedPowers.pl
   name: Factoring and Expanding Polynomials
   types:
   - technique
@@ -418,6 +496,7 @@ FormattingDecimals.pg:
   - logarithm
   dir: problem-techniques
   filename: FormattingDecimals.pg
+  macros: []
   name: Formatting Decimals
   types:
   - technique
@@ -426,6 +505,7 @@ FormulaAnswer.pg:
   - answer
   dir: Misc
   filename: FormulaAnswer.pg
+  macros: []
   name: Formula Answer
   subjects:
   - algebra
@@ -438,6 +518,7 @@ FormulaDomain.pg:
   - answer
   dir: Misc
   filename: FormulaDomain.pg
+  macros: []
   name: Setting the Domain for Answer Checking
   subjects:
   - algebra
@@ -449,6 +530,8 @@ FormulasToConstants.pg:
   - constant
   dir: problem-techniques
   filename: FormulasToConstants.pg
+  macros:
+  - parserFormulaUpToConstant.pl
   name: Formulas up to additive constants
   types:
   - technique
@@ -457,6 +540,8 @@ FractionAnswer.pg:
   - fraction
   dir: Algebra
   filename: FractionAnswer.pg
+  macros:
+  - contextFraction.pl
   name: Fraction Answer
   subjects:
   - algebra
@@ -468,6 +553,8 @@ FunctionDecomposition.pg:
   - composition
   dir: Algebra
   filename: FunctionDecomposition.pg
+  macros:
+  - answerComposition.pl
   name: Function Decomposition
   subjects:
   - algebra
@@ -479,6 +566,9 @@ GeneralSolutionODE.pg:
   - answers
   dir: DiffEq
   filename: GeneralSolutionODE.pg
+  macros:
+  - PGunion.pl
+  - parserAssignment.pl
   name: General Solution to a Differential Equation
   subjects:
   - differential equations
@@ -489,28 +579,20 @@ GraphShading.pg:
   - plots
   dir: IntegralCalc
   filename: GraphShading.pg
+  macros:
+  - PGtikz.pl
   name: Graph Shading
   subjects:
   - integral calculus
   types:
   - sample
-GraphTool.pg:
-  categories:
-  - graph
-  dir: Algebra
-  filename: GraphTool.pg
-  name: Interactive graphing tool problems
-  subjects:
-  - algebra
-  - precalculus
-  types:
-  - sample
-  - technique
 GraphToolCircle.pg:
   categories:
   - graph
   dir: Algebra
   filename: GraphToolCircle.pg
+  macros:
+  - parserGraphTool.pl
   name: Graph Tool, plotting a circle
   subjects:
   - algebra
@@ -523,7 +605,24 @@ GraphToolCubic.pg:
   - graph
   dir: Algebra
   filename: GraphToolCubic.pg
+  macros:
+  - parserGraphTool.pl
+  - contextFraction.pl
   name: Graph Tool, plotting a cubic
+  subjects:
+  - algebra
+  - precalculus
+  types:
+  - sample
+  - technique
+GraphToolCustomChecker.pg:
+  categories:
+  - graph
+  dir: Algebra
+  filename: GraphToolCustomChecker.pg
+  macros:
+  - parserGraphTool.pl
+  name: Graph Tool, custom checker
   subjects:
   - algebra
   - precalculus
@@ -535,6 +634,8 @@ GraphToolLine.pg:
   - graph
   dir: Algebra
   filename: GraphToolLine.pg
+  macros:
+  - parserGraphTool.pl
   name: Graph Tool, plotting a line
   subjects:
   - algebra
@@ -547,6 +648,8 @@ GraphToolNumberLine.pg:
   - graph
   dir: Algebra
   filename: GraphToolNumberLine.pg
+  macros:
+  - parserGraphTool.pl
   name: Graph Tool, number line
   subjects:
   - algebra
@@ -559,6 +662,8 @@ GraphToolPoints.pg:
   - graph
   dir: Algebra
   filename: GraphToolPoints.pg
+  macros:
+  - parserGraphTool.pl
   name: Graph Tool, plotting points
   related:
   - GraphToolCircle.pg
@@ -574,6 +679,11 @@ GraphToolPoints.pg:
 GraphsInTables.pg:
   dir: problem-techniques
   filename: GraphsInTables.pg
+  macros:
+  - PGtikz.pl
+  - parserPopUp.pl
+  - niceTables.pl
+  - PGchoicemacros.pl
   name: Graphs in a Table
   types:
   - sample
@@ -583,6 +693,8 @@ HeavisideStep.pg:
   - heaviside/step
   dir: DiffEq
   filename: HeavisideStep.pg
+  macros:
+  - parserFunction.pl
   name: Heaviside or Step Function
   subjects:
   - differential equations
@@ -591,6 +703,8 @@ HeavisideStep.pg:
 HtmlLinks.pg:
   dir: problem-techniques
   filename: HtmlLinks.pg
+  macros:
+  - parserNumberWithUnits.pl
   name: HTML Links
   types:
   - snippet
@@ -601,6 +715,7 @@ IframeEmbedding.pg:
   - video
   dir: Misc
   filename: IframeEmbedding.pg
+  macros: []
   name: Embedding an IFrame
   types:
   - sample
@@ -609,6 +724,9 @@ ImplicitPlane.pg:
   - implicit function
   dir: DiffCalcMV
   filename: ImplicitPlane.pg
+  macros:
+  - parserImplicitPlane.pl
+  - parserVectorUtils.pl
   name: Implicit Plane
   subjects:
   - multivariate calculus
@@ -619,6 +737,8 @@ IndefiniteIntegrals.pg:
   - antiderivatives
   dir: IntegralCalc
   filename: IndefiniteIntegrals.pg
+  macros:
+  - parserFormulaUpToConstant.pl
   name: Indefinite Integrals
   subjects:
   - integral calculus
@@ -629,6 +749,8 @@ InequalityAnswer.pg:
   - fraction
   dir: Algebra
   filename: InequalityAnswer.pg
+  macros:
+  - contextInequalities.pl
   name: Answer as an Inequality
   subjects:
   - algebra
@@ -640,6 +762,8 @@ InequalityEvaluators.pg:
   - interval
   dir: problem-techniques
   filename: InequalityEvaluators.pg
+  macros:
+  - contextInequalities.pl
   name: Inequality Evaluator
   related:
   - IntervalEvaluators.pg
@@ -652,6 +776,7 @@ IntervalEvaluators.pg:
   - interval
   dir: problem-techniques
   filename: IntervalEvaluators.pg
+  macros: []
   name: Interval Evaluator
   related:
   - InequalityEvaluators.pg
@@ -662,6 +787,7 @@ IntervalEvaluators.pg:
 Knowls.pg:
   dir: problem-techniques
   filename: Knowls.pg
+  macros: []
   name: Knowls
   types:
   - technique
@@ -671,6 +797,10 @@ LayoutTable.pg:
   - table
   dir: problem-techniques
   filename: LayoutTable.pg
+  macros:
+  - niceTables.pl
+  - PGtikz.pl
+  - unionTables.pl
   name: Layout Table
   related:
   - DataTables.pg
@@ -681,6 +811,9 @@ LimitsOfIntegration.pg:
   - antiderivatives
   dir: IntegralCalc
   filename: LimitsOfIntegration.pg
+  macros:
+  - unionTables.pl
+  - answerHints.pl
   name: Answer Blanks in Limits of Integration
   subjects:
   - integral calculus
@@ -691,6 +824,9 @@ LinearApprox.pg:
   - linear approximation
   dir: DiffCalc
   filename: LinearApprox.pg
+  macros:
+  - answerHints.pl
+  - parserAssignment.pl
   name: Linear Approximation
   subjects:
   - differential calculus
@@ -701,6 +837,8 @@ LinearInequality.pg:
   - inequality
   dir: Algebra
   filename: LinearInequality.pg
+  macros:
+  - parserLinearRelation.pl
   name: Linear Inequality
   subjects:
   - algebra
@@ -712,6 +850,7 @@ Logarithms.pg:
   - logarithm
   dir: Algebra
   filename: Logarithms.pg
+  macros: []
   name: Logarithms
   subjects:
   - algebra
@@ -724,6 +863,9 @@ ManyMultipleChoice.pg:
   - misc
   dir: Misc
   filename: ManyMultipleChoice.pg
+  macros:
+  - parserPopUp.pl
+  - PGgraders.pl
   name: Many Multiple Choice
   types:
   - sample
@@ -733,6 +875,10 @@ Matching.pg:
   - misc
   dir: Misc
   filename: Matching.pg
+  macros:
+  - PGchoicemacros.pl
+  - PGgraders.pl
+  - unionTables.pl
   name: Matching Problem
   types:
   - sample
@@ -742,6 +888,9 @@ MatchingAlt.pg:
   - misc
   dir: Misc
   filename: MatchingAlt.pg
+  macros:
+  - parserPopUp.pl
+  - PGgraders.pl
   name: Matching Problem (Alternate)
   types:
   - sample
@@ -750,6 +899,7 @@ MatrixAnswer1.pg:
   - matrix
   dir: LinearAlgebra
   filename: MatrixAnswer1.pg
+  macros: []
   name: Matrix Answer
   subjects:
   - linear algebra
@@ -761,6 +911,7 @@ MatrixAnswer2.pg:
   - answer
   dir: LinearAlgebra
   filename: MatrixAnswer2.pg
+  macros: []
   name: Matrix Answer Alternative
   subjects:
   - linear algebra
@@ -772,6 +923,8 @@ MatrixCustomAnswerChecker.pg:
   - matrix
   dir: LinearAlgebra
   filename: MatrixCustomAnswerChecker.pg
+  macros:
+  - parserMultiAnswer.pl
   name: Custom Matrix Answer Checker
   subjects:
   - linear algebra
@@ -782,6 +935,8 @@ MatrixOperations.pg:
   - matrix
   dir: LinearAlgebra
   filename: MatrixOperations.pg
+  macros:
+  - parserRadioMultiAnswer.pl
   name: Matrix Operation
   subjects:
   - linear algebra
@@ -793,6 +948,8 @@ MultipleChoiceCheckbox.pg:
   - misc
   dir: Misc
   filename: MultipleChoiceCheckbox.pg
+  macros:
+  - parserCheckboxList.pl
   name: Multiple Choice with Checkbox
   types:
   - sample
@@ -803,6 +960,8 @@ MultipleChoicePopup.pg:
   - misc
   dir: Misc
   filename: MultipleChoicePopup.pg
+  macros:
+  - parserPopUp.pl
   name: Multiple Choice with Popup
   types:
   - sample
@@ -813,6 +972,8 @@ MultipleChoiceRadio.pg:
   - misc
   dir: Misc
   filename: MultipleChoiceRadio.pg
+  macros:
+  - parserRadioButtons.pl
   name: Multiple Choice with Radio Buttons
   types:
   - sample
@@ -823,6 +984,7 @@ NumericalTolerance.pg:
   - tolerance
   dir: problem-techniques
   filename: NumericalTolerance.pg
+  macros: []
   name: Numerical Tolerance
   types:
   - technique
@@ -831,12 +993,15 @@ OtherVariables.pg:
   - variables
   dir: problem-techniques
   filename: OtherVariables.pg
+  macros: []
   name: Adding Variables to the Context
   types:
   - technique
 ParametricPlot.pg:
   dir: Parametric
   filename: ParametricPlot.pg
+  macros:
+  - PGtikz.pl
   name: Parametric Curve Graph
   subjects:
   - parametric
@@ -848,6 +1013,7 @@ PeriodicAnswers.pg:
   - trigonometry
   dir: Trig
   filename: PeriodicAnswers.pg
+  macros: []
   name: Periodic Answers
   subjects:
   - trigonometry
@@ -860,6 +1026,8 @@ PointAnswers.pg:
   - answers
   dir: Algebra
   filename: PointAnswers.pg
+  macros:
+  - contextLimitedPoint.pl
   name: Answers are a list of points
   subjects:
   - algebra
@@ -869,6 +1037,8 @@ PointAnswers.pg:
 PolarGraph.pg:
   dir: Parametric
   filename: PolarGraph.pg
+  macros:
+  - PGtikz.pl
   name: Polar Graph
   subjects:
   - parametric
@@ -879,6 +1049,8 @@ PrimesInFormulas.pg:
   - answers
   dir: DiffEq
   filename: PrimesInFormulas.pg
+  macros:
+  - parserImplicitEquation.pl
   name: Primes in Formulas
   subjects:
   - differential equations
@@ -890,6 +1062,8 @@ ProvingTrigIdentities.pg:
   - proof
   dir: Trig
   filename: ProvingTrigIdentities.pg
+  macros:
+  - scaffold.pl
   name: Proving Identities
   subjects:
   - trigonometry
@@ -901,6 +1075,8 @@ RandomPerson.pg:
   - misc
   dir: Misc
   filename: RandomPerson.pg
+  macros:
+  - randomPerson.pl
   name: Random Person
   types:
   - sample
@@ -909,6 +1085,8 @@ RectangularGraph3D.pg:
   - graph
   dir: VectorCalc
   filename: RectangularGraph3D.pg
+  macros:
+  - plotly3D.pl
   name: Surface Graph in Rectangular Coordinates
   related:
   - SpaceCurveGraph.pg
@@ -923,6 +1101,8 @@ RecursiveSequence.pg:
   - sequences
   dir: Sequences
   filename: RecursiveSequence.pg
+  macros:
+  - parserFunction.pl
   name: Recursive Sequence
   subjects:
   - sequences and series
@@ -933,6 +1113,10 @@ RiemannSums.pg:
   - Riemann sums
   dir: IntegralCalc
   filename: RiemannSums.pg
+  macros:
+  - weightedGrader.pl
+  - parserPopUp.pl
+  - PGtikz.pl
   name: Riemann Sums
   subjects:
   - integral calculus
@@ -944,6 +1128,7 @@ RowOperations.pg:
   - row operation
   dir: LinearAlgebra
   filename: RowOperations.pg
+  macros: []
   name: Row Operations
   subjects:
   - linear algebra
@@ -954,6 +1139,8 @@ Scaffolding.pg:
   - misc
   dir: Misc
   filename: Scaffolding.pg
+  macros:
+  - scaffold.pl
   name: Scaffolded Problem
   types:
   - sample
@@ -962,6 +1149,8 @@ ScalingTranslating.pg:
   - transformation
   dir: Algebra
   filename: ScalingTranslating.pg
+  macros:
+  - parserFunction.pl
   name: Scaling and Translating a Function
   subjects:
   - algebra
@@ -974,6 +1163,11 @@ SeriesTest.pg:
   - series
   dir: Sequences
   filename: SeriesTest.pg
+  macros:
+  - unionTables.pl
+  - parserPopUp.pl
+  - PGgraders.pl
+  - parserMultiAnswer.pl
   name: Series Test
   subjects:
   - sequences and series
@@ -984,6 +1178,8 @@ SolutionForEquation.pg:
   - algebra
   dir: Algebra
   filename: SolutionForEquation.pg
+  macros:
+  - parserSolutionFor.pl
   name: Solution for an Equation
   subjects:
   - algebra
@@ -993,6 +1189,8 @@ SolutionForEquation.pg:
 SpaceCurveGraph.pg:
   dir: Parametric
   filename: SpaceCurveGraph.pg
+  macros:
+  - plotly3D.pl
   name: Space Curve Graph
   subjects:
   - parametric
@@ -1001,6 +1199,8 @@ SpaceCurveGraph.pg:
 Spacecurve.pg:
   dir: Parametric
   filename: Spacecurve.pg
+  macros:
+  - parserMultiAnswer.pl
   name: Polar Graph
   subjects:
   - parametric
@@ -1009,6 +1209,7 @@ Spacecurve.pg:
 StaticImages.pg:
   dir: problem-techniques
   filename: StaticImages.pg
+  macros: []
   name: Graphic Images, Static
   types:
   - technique
@@ -1017,6 +1218,7 @@ StringOrOtherType.pg:
   - strings
   dir: Algebra
   filename: StringOrOtherType.pg
+  macros: []
   name: String or Other Type
   subjects:
   - algebra
@@ -1029,12 +1231,15 @@ StringsInContext.pg:
   - strings
   dir: problem-techniques
   filename: StringsInContext.pg
+  macros: []
   name: Adding Strings to a Context
   types:
   - technique
 SurfaceGraph.pg:
   dir: Parametric
   filename: SurfaceGraph.pg
+  macros:
+  - plotly3D.pl
   name: Surface Graph
   subjects:
   - parametric
@@ -1045,6 +1250,8 @@ TableOfValues.pg:
   - table
   dir: Algebra
   filename: TableOfValues.pg
+  macros:
+  - niceTables.pl
   name: Table of Values
   subjects:
   - algebra
@@ -1054,6 +1261,8 @@ TableOfValues.pg:
 TikZImages.pg:
   dir: problem-techniques
   filename: TikZImages.pg
+  macros:
+  - PGtikz.pl
   name: Graphic Images, TikZ
   subjects:
   - parametric
@@ -1066,6 +1275,8 @@ TrigDegrees.pg:
   - degrees
   dir: Trig
   filename: TrigDegrees.pg
+  macros:
+  - contextTrigDegrees.pl
   name: Degrees in Trigonometric Functions
   subjects:
   - trigonometry
@@ -1078,6 +1289,8 @@ TrigIdentities.pg:
   - trigonometry
   dir: Trig
   filename: TrigIdentities.pg
+  macros:
+  - answerHints.pl
   name: Trigonometric Identities
   subjects:
   - trigonometry
@@ -1089,6 +1302,8 @@ UnorderedAnswers.pg:
   - answer
   dir: Algebra
   filename: UnorderedAnswers.pg
+  macros:
+  - unorderedAnswer.pl
   name: Unordered Answers
   subjects:
   - algebra
@@ -1100,6 +1315,8 @@ VectorFieldGraph2D.pg:
   - graph
   dir: VectorCalc
   filename: VectorFieldGraph2D.pg
+  macros:
+  - PGtikz.pl
   name: Two-D Vector Field
   subjects:
   - differential equations
@@ -1111,6 +1328,8 @@ VectorFieldGraph3D1.pg:
   - graph
   dir: VectorCalc/VectorFieldGraph3D
   filename: VectorFieldGraph3D1.pg
+  macros:
+  - LiveGraphicsVectorField3D.pl
   name: Three-D Vector Field Graph
   subjects:
   - vector calculus
@@ -1119,6 +1338,8 @@ VectorFieldGraph3D1.pg:
 VectorOperations.pg:
   dir: VectorCalc
   filename: VectorOperations.pg
+  macros:
+  - parserVectorUtils.pl
   name: Vector Operations
   subjects:
   - vector calculus
@@ -1127,6 +1348,8 @@ VectorOperations.pg:
 VectorParametricDerivative.pg:
   dir: Parametric
   filename: VectorParametricDerivative.pg
+  macros:
+  - parserVectorUtils.pl
   name: Parametric Vector Function with Derivative
   subjects:
   - parametric
@@ -1135,6 +1358,9 @@ VectorParametricDerivative.pg:
 VectorParametricFunction.pg:
   dir: Parametric
   filename: VectorParametricFunction.pg
+  macros:
+  - parserVectorUtils.pl
+  - parserMultiAnswer.pl
   name: Vector Parametric Function
   subjects:
   - parametric
@@ -1143,6 +1369,9 @@ VectorParametricFunction.pg:
 VectorParametricLines.pg:
   dir: Parametric
   filename: VectorParametricLines.pg
+  macros:
+  - parserVectorUtils.pl
+  - parserParametricLine.pl
   name: Parametric Lines
   subjects:
   - parametric
@@ -1153,6 +1382,7 @@ Vectors.pg:
   - vector
   dir: VectorCalc
   filename: Vectors.pg
+  macros: []
   name: Vectors
   subjects:
   - vector calculus
@@ -1166,6 +1396,10 @@ Volume1.pg:
   - disk method
   dir: IntegralCalc
   filename: Volume1.pg
+  macros:
+  - unionTables.pl
+  - answerHints.pl
+  - weightedGrader.pl
   name: Volume of Solids of Revolution 1
   subjects:
   - integral calculus
@@ -1177,6 +1411,10 @@ Volume2.pg:
   - disk method
   dir: IntegralCalc
   filename: Volume2.pg
+  macros:
+  - unionTables.pl
+  - answerHints.pl
+  - weightedGrader.pl
   name: Volume of Solids of Revolution 2
   subjects:
   - integral calculus
@@ -1188,6 +1426,10 @@ Volume3.pg:
   - disk method
   dir: IntegralCalc
   filename: Volume3.pg
+  macros:
+  - unionTables.pl
+  - answerHints.pl
+  - weightedGrader.pl
   name: Volume of Solids of Revolution 3
   subjects:
   - integral calculus
@@ -1198,6 +1440,8 @@ WeightedGrader.pg:
   - grader
   dir: problem-techniques
   filename: WeightedGrader.pg
+  macros:
+  - weightedGrader.pl
   name: Weighted Grader
   types:
   - technique

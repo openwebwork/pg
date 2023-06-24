@@ -38,28 +38,28 @@
 			<div class="col">
 				<h2>Complete Code</h2>
 				<p>
-				Download file: <a href="<%=$filename=%>.pg"><%=$filename=%>.pg</a>
+				Download file: <a href="<%=$filename=%>"><%=$filename=%></a>
 				</p>
 			</div>
-			% if (scalar(@$macros) > 0 ) {
+			% if (scalar(@{$metadata->{$filename}{macros}}) > 0 ) {
 				<div class="col">
 					<h2>POD for Macro Files</h2>
 					<ul>
-						% for my $macro (@$macros) {
+						% for my $macro (@{$metadata->{$filename}{macros}}) {
 							% if ($macro_locations->{macros}{$macro}) {
 								<li><a href="<%= $pod_root %>/<%= $macro_locations->{macros}{$macro} %>"><%= $macro =%></a></li>
-							% } elsif (! grep { $_ eq $macro} @{$macro_locations->{macros_to_skip}}) {
+							% } else {
 								<li class="text-danger"><%= $macro %></li>
 							% }
 						% }
 					</ul>
 				</div>
 				%}
-			% if (scalar(@$related) > 0) {
+			% if ($metadata->{$filename}{related} && scalar(@{$metadata->{$filename}{related}}) > 0) {
 			<div class="col">
 				<h2>See Also</h2>
 				<ul>
-					% for (@$related) {
+					% for (@{$metadata->{$filename}{related}}) {
 						<li><a href="<%= $pg_doc_home =%>/<%= $metadata->{$_}{dir} =%>/<%= $_ =~ s/.pg$//r =%>.html">
 							<%= $metadata->{$_}{name} =%></a></li>
 					% }
