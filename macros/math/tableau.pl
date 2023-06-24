@@ -141,7 +141,7 @@ MathObject Matrix methods: L<http://webwork.maa.org/wiki/Matrix_(MathObject_Clas
 MathObject Contexts: L<http://webwork.maa.org/wiki/Common_Contexts>
 CPAN RealMatrix docs: L<http://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
 
-More references: L<lib/Matrix.pm>
+More references: L<Matrix>
 
 =head2 Package tableau
 

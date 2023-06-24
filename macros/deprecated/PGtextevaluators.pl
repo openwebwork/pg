@@ -27,10 +27,10 @@ questionnaires.
 	If you disagree, why?
 	\{ ans_rule() \}
 	END_TEXT
-	
+
 	ANS(ansradio(1));
 	ANS(anstext(2));
-	
+
 	# FIXME show how to make a grader that sends email here!
 
 =head1 DESCRIPTION
@@ -331,7 +331,7 @@ Sends the text accumulated in $QUESTIONNAIRE_ANSWERS to the address specified in
 $to. The email is given the subject line $subject.
 
 The mail message is not sent right away; instead, the message is recorded and
-sent by WeBWorK after PG rendering has completed. 
+sent by WeBWorK after PG rendering has completed.
 
 =cut
 
@@ -400,7 +400,7 @@ sub DUMMY_ANSWER {
 
 =head1 SEE ALSO
 
-L<PGanswermacros.pl>, L<MathObjects>.
+L<PGanswermacros.pl>, L<UsingMathObjects>.
 
 =cut
 
