@@ -14,51 +14,61 @@
 ################################################################################
 
 package SampleProblemParser;
+use parent qw(Exporter);
 
+use strict;
+use warnings;
 use experimental 'signatures';
-use base qw(Exporter);
 use feature 'say';
 
-use File::Basename;
+use File::Basename qw(dirname basename);
+use File::Find qw(find);
 use Pandoc;
 
-our @EXPORT    = ();
-our @EXPORT_OK = qw(parseSampleProblem renderSampleProblem writeIndex buildIndex);
+our @EXPORT_OK = qw(parseSampleProblem generateMetadata);
 
 =head1 NAME
 
-SampleProblemParser - parse the documentation in a sample problem in the /doc
+SampleProblemParser - Parse the documentation in a sample problem in the /doc
 directory.
 
 =head2 C<parseSampleProblem>
 
-parse a PG file with extra documentation comments. The input is the file and
-a hashef of global variables:
+Parse a PG file with extra documentation comments. The input is the file and a
+hash of global variables:
 
 =over
 
-=item C<metadata> a hashref which has information (name, directory, types, subjects, categories)
-of every sample problem file.
+=item C<metadata>: A reference to a hash which has information (name, directory,
+types, subjects, categories) of every sample problem file.
 
-=item C<macro_locations> a hashref of both C<macros_to_skip> in the documentation
-as well as C<macros> to include as links within a problem.
+=item C<macro_locations>: A reference to a hash of macros to include as links
+within a problem.
 
-=item C<pod_root> the root directory of the POD.
+=item C<pod_root>: The root directory of the POD.
 
-=item C<pg_doc_home> the url of the pg_doc home.
+=item C<pg_doc_home>: The url of the pg_doc home.
+
+=item C<url_extension>: The html url extension (including the dot) to use for pg
+doc links.  The default is the empty string.
 
 =back
 
 =cut
 
 sub parseSampleProblem ($file, %global) {
-	my ($filename) = fileparse($file);
-	open(my $FH, '<:encoding(UTF-8)', $file) or die qq{Could not open file "$file": $!};
+	my $filename = basename($file);
+	open(my $FH, '<:encoding(UTF-8)', $file) or do {
+		warn qq{Could not open file "$file": $!};
+		return {};
+	};
 	my @file_contents = <$FH>;
 	close $FH;
 
 	my (@blocks,  @doc_rows, @code_rows, @description);
 	my (%options, $descr,    $type,      $name);
+
+	$global{url_extension} //= '';
 
 	while (my $row = shift @file_contents) {
 		chomp($row);
@@ -88,8 +98,8 @@ sub parseSampleProblem ($file, %global) {
 				my $link_text = $1 eq 'POD' ? $2 : $global{metadata}{$2}{name};
 				my $url =
 					$1 eq 'POD'
-					? "$global{pod_root}/" . $global{macro_locations}{macros}{ $4 // $2 }
-					: "$global{pg_doc_home}/" . $global{metadata}{$2}{dir} . '/' . ($2 =~ s/.pg$/.html/r);
+					? "$global{pod_root}/" . $global{macro_locations}{ $4 // $2 }
+					: "$global{pg_doc_home}/$global{metadata}{$2}{dir}/" . ($2 =~ s/.pg$/$global{url_extension}/r);
 				$row = $row =~ s/(POD|PROB)?LINK\('(.*?)'\s*(,\s*'(.*)')?\)/[$link_text]($url)/gr;
 			}
 
@@ -104,7 +114,7 @@ sub parseSampleProblem ($file, %global) {
 		}
 	}
 
-	# The @doc_rows must be parsed then added to the @blocks.
+	# The last @doc_rows must be parsed then added to the @blocks.
 	push(
 		@blocks,
 		{
@@ -122,102 +132,98 @@ sub parseSampleProblem ($file, %global) {
 	};
 }
 
-=head2 C<renderSampleProblem>
+=head2 C<generateMetadata>
 
-render a sample problem and output an HTML version of the problem.
+Build a hash of metadata for all PG files in the given directory.  A reference
+to the hash that is built is returned.
 
 =cut
 
-sub renderSampleProblem ($filename, %global) {
-	my $relative_dir = $global{metadata}{"$filename.pg"}{dir};
-	my $path         = "$global{problem_dir}/$relative_dir/$filename.pg";
-	say "Processing file: $path" if $global{verbose};
-	my $parsed_file = parseSampleProblem($path, %global);
+sub generateMetadata ($problem_dir, %options) {
+	my $index_table = {};
 
-	mkdir "$global{out_dir}/$relative_dir" unless -d "$out_dir/$relative_dir";
+	find(
+		{
+			wanted => sub {
+				say "Reading file: $File::Find::name" if $options{verbose};
 
-	say "Printing to '$global{out_dir}/$relative_dir/$filename.html'" if $global{verbose};
-	open(my $FH, '>:encoding(UTF-8)', "$global{out_dir}/$relative_dir/$filename.html")
-		or die qq{Could not open output file "$global{out_dir}/$relative_dir/$filename.html": $!};
+				if ($File::Find::name =~ /\.pg$/) {
+					my $metadata = parseMetadata($File::Find::name, $problem_dir, $options{macro_locations});
+					unless (@{ $metadata->{types} }) {
+						warn "The type of sample problem is missing for $File::Find::name.";
+						return;
+					}
+					unless ($metadata->{name}) {
+						warn "The name attribute is missing for $File::Find::name.";
+						return;
+					}
+					$index_table->{ basename($File::Find::name) } = $metadata;
+				}
+			}
+		},
+		$problem_dir
+	);
 
-	print $FH $global{mt}->render_file("$global{template_dir}/problem-template.mt",
-		{ %$parsed_file, %global, filename => "$filename.pg" });
-	close $FH;
-
-	# Write the code to a separate file
-	open($FH, '>:encoding(UTF-8)', "$global{out_dir}/$relative_dir/$filename.pg")
-		or die qq{Could not open output file "$global{out_dir}/$relative_dir/$filename.pg": $!};
-	print $FH $parsed_file->{code};
-	close $FH;
-	say "Printing pg file to '$global{out_dir}/$relative_dir/$filename.pg'" if $global{verbose};
-	return;
+	return $index_table;
 }
 
-sub buildIndex ($type, %options) {
-	my ($label, $list, $output);
-	if ($type eq 'categories') {
-		$label  = 'Categories';
-		$output = "$options{out_dir}/categories.html";
-		for my $sample_file (keys %{ $options{metadata} }) {
-			my $f = $sample_file =~ s/\.pg$/.html/r;
-			for my $category (@{ $options{metadata}{$sample_file}{categories} }) {
-				$list->{$category}{ $options{metadata}{$sample_file}{name} } =
-					"$options{metadata}{$sample_file}{dir}/$f";
-			}
-		}
-	} elsif ($type eq 'subjects') {
-		$label  = 'Subject Areas';
-		$output = "$options{out_dir}/subjects.html";
-		for my $sample_file (keys %{ $options{metadata} }) {
-			my $f = $sample_file =~ s/\.pg$/.html/r;
-			for my $subject (@{ $options{metadata}{$sample_file}{subjects} }) {
-				$list->{$subject}{ $options{metadata}{$sample_file}{name} } =
-					"$options{metadata}{$sample_file}{dir}/$f";
-			}
-		}
-	} elsif ($type eq 'macros') {
-		$label  = 'Problems by Macros';
-		$output = "$options{out_dir}/macros.html";
-		for my $sample_file (keys %{ $options{metadata} }) {
-			my $f = $sample_file =~ s/\.pg$/.html/r;
-			for my $macro (@{ $options{metadata}{$sample_file}{macros} }) {
-				$list->{$macro}{ $options{metadata}{$sample_file}{name} } =
-					"$options{metadata}{$sample_file}{dir}/$f";
-			}
-		}
-	} elsif ($type eq 'techniques') {
-		$label  = 'Problem Techniques';
-		$output = "$options{out_dir}/techniques.html";
-		for my $sample_file (keys %{ $options{metadata} }) {
-			my $f = $sample_file =~ s/\.pg$/.html/r;
-			if (grep { $_ eq 'technique' } @{ $options{metadata}{$sample_file}{types} }) {
-				$list->{ $options{metadata}{$sample_file}{name} } =
-					"$options{metadata}{$sample_file}{dir}/$f";
-			}
-		}
-	}
+my @macros_to_skip = qw(
+	PGML.pl
+	PGcourse.pl
+	PGstandard.pl
+);
 
-	return {
-		label  => $label,
-		list   => $list,
-		type   => $type,
-		output => $output
+sub parseMetadata ($path, $problem_dir, $macro_locations = {}) {
+	open(my $FH, '<:encoding(UTF-8)', $path) or do {
+		warn qq{Could not open file "$path": $!};
+		return {};
 	};
-}
+	my @file_contents = <$FH>;
+	close $FH;
 
-sub writeIndex ($params, %options) {
-	say "Creating $params->{label} index" if $options{verbose};
-	if (open my $FH, '>:encoding(UTF-8)', $params->{output}) {
-		print $FH $options{mt}->render_file(
-			"$options{template_dir}/general-layout.mt",
-			{
-				sidebar      => $options{mt}->render_file("$options{template_dir}/general-sidebar.mt", $params),
-				main_content => $options{mt}->render_file("$options{template_dir}/general-main.mt",    $params),
-				active       => $params->{type}
+	my @problem_types = qw(sample technique snippet);
+
+	my $metadata = { dir => (dirname($path) =~ s/$problem_dir\/?//r) =~ s/\/*$//r };
+
+	while (my $row = shift @file_contents) {
+		if ($row =~ /^#:%\s*(categor(y|ies)|types?|subjects?|see_also|name)\s*=\s*(.*)\s*$/) {
+			# The row has the form #:% categories = [cat1, cat2, ...].
+			my $label = lc($1);
+			my @opts  = $3 =~ /\[(.*)\]/ ? map { $_ =~ s/^\s*|\s*$//r } split(/,/, $1) : ($3);
+			if ($label =~ /types?/) {
+				for my $opt (@opts) {
+					warn "The type of problem must be one of @problem_types"
+						unless grep { lc($opt) eq $_ } @problem_types;
+				}
+				$metadata->{types} = [ map { lc($_) } @opts ];
+			} elsif ($label =~ /^categor/) {
+				$metadata->{categories} = \@opts;
+			} elsif ($label =~ /^subject/) {
+				$metadata->{subjects} = [ map { lc($_) } @opts ];
+			} elsif ($label eq 'name') {
+				$metadata->{name} = $opts[0];
+			} elsif ($label eq 'see_also') {
+				$metadata->{related} = \@opts;
 			}
-		);
-		close $FH;
+		} elsif ($row =~ /loadMacros\(/) {
+			chomp($row);
+			# Parse the macros, which may be on multiple rows.
+			my $macros = $row;
+			while ($row && $row !~ /\);\s*$/) {
+				$row = shift @file_contents;
+				chomp($row);
+				$macros .= $row;
+			}
+			# Split by commas and pull out the quotes.
+			my @macros = map {s/['"\s]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
+			$metadata->{macros} = [];
+			for my $macro (@macros) {
+				push(@{ $metadata->{macros} }, $macro) unless grep { $_ eq $macro } @macros_to_skip;
+			}
+		}
 	}
+
+	return $metadata;
 }
 
 1;

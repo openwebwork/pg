@@ -10,7 +10,7 @@
 		.navbar {
 			height: 70px;
 		}
-		body {
+		.main-content {
 			margin-top: 70px;
 		}
 		#sidebar {
@@ -20,6 +20,9 @@
 			#sidebar {
 				width: 320px;
 				height: calc(100vh - 70px);
+			}
+			.main-content {
+				margin-left: 320px;
 			}
 		}
 	</style>
@@ -72,15 +75,13 @@
 			</button>
 		</div>
 	</nav>
-	<div class="d-flex">
-		<div class="offcanvas-md offcanvas-start overflow-y-auto border-end border-dark flex-shrink-0" tabindex="-1"
-			id="sidebar" aria-labelledby="sidebar-label">
-			<%= $sidebar %>
-		</div>
-		<div class="main-content">
-			<div class="tab-content p-3">
-				<%= $main_content %>
-			</div>
+	<aside class="offcanvas-md offcanvas-start overflow-y-auto position-fixed border-end border-dark flex-shrink-0"
+		tabindex="-1" id="sidebar" aria-labelledby="sidebar-label">
+		<%= $sidebar %>
+	</aside>
+	<div class="main-content">
+		<div class="tab-content p-3">
+			<%= $main_content %>
 		</div>
 	</div>
 	<script type="module">

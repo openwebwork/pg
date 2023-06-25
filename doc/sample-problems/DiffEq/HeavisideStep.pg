@@ -14,7 +14,7 @@
 #:% name = Heaviside or Step Function
 #:% type = Sample
 #:% subject = differential equations
-#:% categories = [heaviside/step]
+#:% categories = [heaviside-step]
 
 #:% section = preamble
 #: We load `parserFunction.pl` to make adding a named function to the context easier.

@@ -16,11 +16,11 @@
 
 % # Default explanations
 % my $default = {
-	% preamble => 'These standard macros need to be loaded.',
-	% setup => 'This perl code sets up the problem.',
+	% preamble  => 'These standard macros need to be loaded.',
+	% setup     => 'This perl code sets up the problem.',
 	% statement => 'This is the problem statement in PGML.',
-	% answer => 'This is used for answer checking.',
-	% solution => 'A solution should be provided here.'
+	% answer    => 'This is used for answer checking.',
+	% solution  => 'A solution should be provided here.'
 % };
 
 <body>
@@ -31,14 +31,14 @@
 				<p><%= $description %></p>
 			</div>
 			<div class="col text-end">
-				<a href="<%=$pg_doc_home=%>/../index.html">Return to the PG docs home</a>
+				<a href="<%= $pg_doc_home =%>/../">Return to the PG docs home</a>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col">
 				<h2>Complete Code</h2>
 				<p>
-				Download file: <a href="<%=$filename=%>"><%=$filename=%></a>
+				Download file: <a href="<%= $filename =%>"><%= $filename =%></a>
 				</p>
 			</div>
 			% if (scalar(@{$metadata->{$filename}{macros}}) > 0 ) {
@@ -46,8 +46,8 @@
 					<h2>POD for Macro Files</h2>
 					<ul>
 						% for my $macro (@{$metadata->{$filename}{macros}}) {
-							% if ($macro_locations->{macros}{$macro}) {
-								<li><a href="<%= $pod_root %>/<%= $macro_locations->{macros}{$macro} %>"><%= $macro =%></a></li>
+							% if ($macro_locations->{$macro}) {
+								<li><a href="<%= $pod_root %>/<%= $macro_locations->{$macro} %>"><%= $macro =%></a></li>
 							% } else {
 								<li class="text-danger"><%= $macro %></li>
 							% }
@@ -83,7 +83,7 @@
 					</button>
 					<pre class="CodeMirror cm-s-default m-0 h-100 p-3 border border-secondary overflow-x-scroll"><%== $_->{code} %></pre>
 				</div>
-				<div class="explanation <%= $_->{section} %> col-sm-12 col-md-6 order-md-last order-first border border-dark">
+				<div class="explanation <%= $_->{section} %> col-sm-12 col-md-6 order-md-last order-first p-3 border border-dark">
 					<p><b><%= ucfirst($_->{section}) %></b></p>
 					% if ($_->{doc}) {
 						<%= $_->{doc} %>
