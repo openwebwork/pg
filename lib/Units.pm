@@ -42,7 +42,7 @@ our %known_units = (
 	m => {
 		factor  => 1,
 		m       => 1,
-		aliases => [ 'meter', 'meters' ]
+		aliases => [ 'meter', 'meters', 'metre', 'metres' ]
 	},
 	kg => {
 		factor => 1,
@@ -236,15 +236,15 @@ our %known_units = (
 		m       => 3,
 		aliases => ['cups']
 	},
-	pt => {
+	pint => {
 		factor  => 0.000473176473,
 		m       => 3,
-		aliases => [ 'pint', 'pints' ]
+		aliases => [ 'pt', 'pints' ]
 	},
-	qt => {
+	quart => {
 		factor  => 0.000946352946,
 		m       => 3,
-		aliases => [ 'quart', 'quarts' ]
+		aliases => [ 'qt', 'quarts' ]
 	},
 	gallon => {
 		factor  => 0.00378541,
