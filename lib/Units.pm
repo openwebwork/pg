@@ -230,10 +230,21 @@ our %known_units = (
 		factor => 0.0001,
 		m      => 3
 	},
+	# U.S./English volume units
 	cup => {
 		factor  => 0.000236588,
 		m       => 3,
 		aliases => ['cups']
+	},
+	pt => {
+		factor  => 0.000473176473,
+		m       => 3,
+		aliases => [ 'pint', 'pints' ]
+	},
+	qt => {
+		factor  => 0.000946352946,
+		m       => 3,
+		aliases => [ 'quart', 'quarts' ]
 	},
 	gallon => {
 		factor  => 0.00378541,
