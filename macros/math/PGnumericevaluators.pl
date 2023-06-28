@@ -1267,7 +1267,7 @@ sub ORIGINAL_NUM_CMP {    # low level	numeric	compare
 
 =head1 SEE ALSO
 
-L<PGanswermacros.pl>, L<MathObjects>.
+L<PGanswermacros.pl>, L<UsingMathObjects>.
 
 =cut
 

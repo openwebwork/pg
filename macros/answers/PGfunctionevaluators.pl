@@ -23,8 +23,8 @@ PGfunctionevaluators.pl - Macros that generate function answer evaluators.
 
 	ANS(function_cmp($correctEqn, $var, $llimit, $ulimit, $relTol, $numPoints, $zeroLevel,
 	                 $zeroLevelTol));
-	ANS(function_cmp_up_to_constant($correctEqn, $var, $llimit, $ulimit, $relpercentTol, 
-	                                $numOfPoints, $maxConstantOfIntegration, $zeroLevel, 
+	ANS(function_cmp_up_to_constant($correctEqn, $var, $llimit, $ulimit, $relpercentTol,
+	                                $numOfPoints, $maxConstantOfIntegration, $zeroLevel,
 	                                $zeroLevelTol));
 	ANS(function_cmp_abs($correctFunction, $var, $llimit, $ulimit, $absTol, $numOfPoints));
 	ANS(function_cmp_up_to_constant_abs($correctFunction, $var, $llimit, $ulimit,
@@ -171,12 +171,12 @@ The var parameter can contain a number, a string, or a reference to an array of
 variable names. If it contains a number, the variables are named automatically
 as follows:
 
-	 var | variables used     
+	 var | variables used
 	-----+--------------------
-	 1   | x                  
-	 2   | x, y               
-	 3   | x, y, z            
-	 4+  | x_1, x_2, x_3, ... 
+	 1   | x
+	 2   | x, y
+	 3   | x, y, z
+	 4+  | x_1, x_2, x_3, ...
 
 If the var parameter contains a reference to an array of variable names, then
 the number of variables is determined by the number of items in the array. For example:
@@ -373,7 +373,7 @@ parameters (other than the correct equation) are optional.
 
 function_cmp() uses standard comparison and relative tolerance. It takes a
 string representing a single-variable function and compares the student answer
-to that function numerically. $var, $relTol, $numPoints, $zeroLevel, and 
+to that function numerically. $var, $relTol, $numPoints, $zeroLevel, and
 $zeroLevelTol are equivalent to the identically-named options to fun_cmp(),
 above. $llimit and $ulimit are combined to form the value of limits above.
 
@@ -1061,7 +1061,7 @@ sub ORIGINAL_FUNCTION_CMP {
 
 =head1 SEE ALSO
 
-L<PGanswermacros.pl>, L<MathObjects>.
+L<PGanswermacros.pl>, L<UsingMathObjects>.
 
 =cut
 
