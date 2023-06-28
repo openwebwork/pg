@@ -316,7 +316,7 @@ sub NAMED_ANS_RULE {
 	$tcol = $tcol < 40 ? $tcol : 40;           ## get min
 
 	MODES(
-		TeX        => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
+		TeX        => "{\\answerRule[$name]{$tcol}}",
 		Latex2HTML => qq!\\begin{rawhtml}<input type=text size=$col name="$name" value="">\\end{rawhtml}!,
 
 		# Note: codeshard is used in the css to identify input elements that come from pg
@@ -360,7 +360,7 @@ sub NAMED_HIDDEN_ANS_RULE {
 	$tcol = $tcol < 40 ? $tcol : 40;           ## get min
 
 	MODES(
-		TeX        => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
+		TeX        => "{\\answerRule[$name]{$tcol}}",
 		Latex2HTML => qq!\\begin{rawhtml}<input type=text name="$name" value="">\\end{rawhtml}!,
 		HTML       => qq!<input type=hidden name="$name" id="$name" value="$answer_value">!
 			. qq!<input type=hidden name="previous_$name" id="previous_$name" value="$answer_value">!,
@@ -413,7 +413,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 	my $tcol = $col / 2 > 3 ? $col / 2 : 3;    ## get max
 	$tcol = $tcol < 40 ? $tcol : 40;           ## get min
 	MODES(
-		TeX        => "\\mbox{\\parbox[t]{${tcol}ex}{\\hrulefill}}",
+		TeX        => "{\\answerRule[$name]{$tcol}}",
 		Latex2HTML =>
 			qq!\\begin{rawhtml}\n<input type=text size=$col name="$name" id="$name" value="">\n\\end{rawhtml}\n!,
 		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" !
@@ -1075,8 +1075,11 @@ sub NAMED_ANS_ARRAY_EXTENSION {
 	}
 	$answer_value = encode_pg_and_html($answer_value);
 
+	my $tcol = $col / 2 > 3 ? $col / 2 : 3;    ## get max
+	$tcol = $tcol < 40 ? $tcol : 40;           ## get min
+
 	MODES(
-		TeX        => "\\mbox{\\parbox[t]{10pt}{\\hrulefill}}\\hrulefill\\quad ",
+		TeX        => "{\\answerRule[$name]{$tcol}}",
 		Latex2HTML =>
 			qq!\\begin{rawhtml}\n<input type=text size=$col name="$name" id="$name" value="">\n\\end{rawhtml}\n!,
 		HTML => qq!<input type=text size=$col name="$name" id="$name" class="codeshard" aria-label="$label" !
