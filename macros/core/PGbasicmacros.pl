@@ -1495,20 +1495,12 @@ sub GTE {
 	MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ', PTX => '\geq');
 };    #only for use in math mode
 
-sub BEGIN_ONE_COLUMN {
-	MODES(
-		TeX        => "\\ifdefined\\nocolumns\\else\\twocolumn[\\begin{\@twocolumnfalse}\\fi\n",
-		Latex2HTML => " ",
-		HTML       => " "
-	);
+sub BEGIN_ONE_COLUMN {    # deprecated
+	return '';
 }
 
-sub END_ONE_COLUMN {
-	MODES(
-		TeX        => "\\ifdefined\\nocolumns\\else\\end{\@twocolumnfalse}]\\fi\n",
-		Latex2HTML => ' ',
-		HTML       => ' '
-	);
+sub END_ONE_COLUMN {    # deprecated
+	return '';
 }
 
 sub SOLUTION_HEADING {
