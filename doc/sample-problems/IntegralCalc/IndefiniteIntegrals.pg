@@ -32,17 +32,22 @@ loadMacros(
 #: - Specific antiderivatives: `e^x, e^x + pi`
 #: - General antiderivatives: `e^x + C`, `e^x + C - 3`, `e^x + K`
 #: The specific antiderivative is an ordinary formula, and we check this answer, we
-#: will specify that it be a formula evaluated up to a constant (see the Answer Evaluation
-#: section below). For the general antiderivative, we use the FormulaUpToConstant()
-#: constructor provided by parserFormulaUpToConstant.pl.
+#: will specify that it be a formula evaluated up to a constant (see the first answer
+#: blank in the section below). For the general antiderivative, we use the
+#: `FormulaUpToConstant()` constructor provided by `parserFormulaUpToConstant.pl`.
 
 # Specific antiderivative:  Marks correct e^x, e^x + pi, etc
-$specific = Formula("e^x");
+$specific = Formula('e^x');
 
 #  General antiderivative: Marks correct e^x + C, e^x + C - 3, e^x + K, etc.
-$general = FormulaUpToConstant("e^x");
+$general = FormulaUpToConstant('e^x');
 
 #:% section = statement
+#: In the first answer blank, we look for the answer with an additive constant
+#: using the option `upToConstant => 1` in the `cmp` method.
+#:
+#: The second is a standard answer blank, but `$general` is created with.
+#: `FormulaUpToConstant`
 BEGIN_PGML
 a. Enter a specific antiderivative for [`e^x`]:
 [_]{ $specific->cmp(upToConstant => 1) }{10}

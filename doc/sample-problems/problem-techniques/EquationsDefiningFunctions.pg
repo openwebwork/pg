@@ -24,20 +24,18 @@
 #: In the initialization section, we need to include the macros file
 #: `parserAssignment.pl`.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl',
-  'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: We must allow assignment, and declare any function names we wish to use.
 #: For more details and examples in other `MathObjects` contexts, see
 #: PODLINK('parserAssignment.pl').
-Context("Numeric")->variables->are(x=>"Real",y=>"Real");
+Context("Numeric")->variables->are(x => "Real", y => "Real");
 parser::Assignment->Allow;
 parser::Assignment->Function("f");
 
 $eqn = Formula("y=5x+2");
-$f = Formula("f(x)=5x+2");
-
+$f   = Formula("f(x)=5x+2");
 
 #:% section=statement
 BEGIN_PGML

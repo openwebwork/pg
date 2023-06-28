@@ -13,7 +13,7 @@
 
 #:% name = Polar Graph
 #:% type = Sample
-#:% subject = parametric
+#:% subject = [parametric, multianswer]
 
 #:% section = preamble
 DOCUMENT();
@@ -29,7 +29,11 @@ $showPartialCorrectAnswers = 0;
 #: We use `singleResult => 1` since it doesn't make sense to say that `x(t)` is correct but
 #: `z(t)` is incorrect since they depend on one another. First, we check that the student
 #: hasn't fed us a bogus constant solution such as `x=y=z=0` by requiring the x-coordinate
-#: to be a formula (not a constant) via return 0 unless `$xstu->isFormula;`. Then, we check
+#: to be a formula (not a constant) via
+#:```{.perl}
+#:return 0 unless $xstu->isFormula;
+#:```
+#: Then, we check
 #: that the student's answers satisfy the parametric equation.
 Context()->variables->are(t => 'Real');
 Context()->variables->set(t => { limits => [ 0, 10 ] });
@@ -50,7 +54,7 @@ $multians = MultiAnswer($x, $y, $z)->with(
 );
 
 #:% section = statement
-#: Notice that we use $multians in each answer blank because they results in the
+#: Notice that we use `$multians` in each answer blank because they results in the
 #: three answers are dependent on each other.
 BEGIN_PGML
 Find a parametrization of the curve [`x = [$a] z^2`] in the [`xz`]-plane.  Use

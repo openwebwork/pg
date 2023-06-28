@@ -25,7 +25,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: First, we start with a formula using `Compute`.
 #:
 #: * `eval` returns a number, which is a `Value::Real`
-#: # `substitute` returns a Formula which is a `Value::Formula`
+#: * `substitute` returns a Formula which is a `Value::Formula`
 #:
 #: The `ref` command is a perl command to determine the reference type. In
 #: these cases they are MathObjects with type `Value::Real` and `Value::Formula`
@@ -42,18 +42,18 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: `reduceConstants` back to 1 and `reduceConstantFunctions` to 0, we
 #: see that the inside of the square root is reduced (because they are
 #: constants), but the square root remains.
-$f = Compute("sqrt(3x + 1)");
-$f1 = $f->eval(x=>"3");
-$f2 = $f->substitute(x=>"3");
+$f  = Compute("sqrt(3x + 1)");
+$f1 = $f->eval(x => "3");
+$f2 = $f->substitute(x => "3");
 
 Context()->variables->add(y => 'Real');
 $g = Compute('7xy');
 # This next line is an error.
 # $g1 = $g->eval(x => '3');
 $g2 = $g->substitute(x => '3');
-$g3 = $g->eval(x=>3, y=> -1);
+$g3 = $g->eval(x => 3, y => -1);
 
-Context()->flags->set(reduceConstants=>0);
+Context()->flags->set(reduceConstants => 0);
 $f3 = $f->eval(x => 3);
 $f4 = $f->substitute(x => 3);
 

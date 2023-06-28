@@ -11,7 +11,7 @@
 ## MO(1)
 ## KEYWORDS('algebra', 'algebraic fraction answer')
 
-#:% name = Fraction Answer
+#:% name = Algebraic Fraction Answer
 #:% type = Sample
 #:% subject = [algebra, precalculus]
 #:% categories = [fraction]
@@ -27,27 +27,31 @@ loadMacros(
 );
 
 #:% section = setup
-#: We define a string `$fraction` that will be displayed in TeX mode. We define MathObjects
-#: formulas `$num` and `$den` that are the correct numerator and denominator for the answer,
-#: as well as some bogus answers `$numbogus` and `$denbogus` that result from not finding a
-#: common denominator. We use MultiAnswer to manipulate both student answers at the same
-#: time. In `$multians` we allow for answers to be left blank, which requires one of two
-#: things: either we disable the error message or do type checking on the students input
-#: by using `ref($f1) eq ref($f1stu)` to see if the correct numerator `$f1` and the student
-#: numerator `$f1stu` have the same type. We used the code
-#: `Context()->{error}{msg}{"Operands of '*' can't be words"} = ' ';` to disable the
-#: error message because this method allows the "Simplify your answer" feature to
-#: work more reliably. We also allow for the student to enter the fraction as either
-#: `(6y-3)/(y-2)` or `(3-6y)/(2-y)`, since both are correct and it is not clear that
-#: one is preferable to the other, which requires that we check
-#: `$f1 == $f1stu || -$f1 == $f1stu`. Here `||` is perl's "or" operator. We provide
-#: some custom answer hints by testing for bogus numerators and denominators and
-#: displaying answer messages via `$self->setMessage(1, "Simplify your answer further");`,
+#: We define MathObjects formulas `$num` and `$den` that are the correct
+#: numerator and denominator for the answer, as well as some bogus answers
+#: `$numbogus` and `$denbogus` that result from not finding a common
+#: denominator. We use `MultiAnswer` to manipulate both student answers at
+#: the same time. In `$multians` we allow for answers to be left blank,
+#: which requires one of two things: either we disable the error message or
+#: do type checking on the students input by using `ref($f1) eq ref($f1stu)`
+#: to see if the correct numerator `$f1` and the student numerator `$f1stu`
+#: have the same type. We used the code
+#: `Context()->{error}{msg}{"Operands of '*' can't be words"} = ' ';` to
+#: disable the error message because this method allows the
+#: "Simplify your answer" feature to work more reliably. We also allow for
+#: the student to enter the fraction as either
+#: `(6y-3)/(y-2)` or `(3-6y)/(2-y)`, since both are correct and it is not
+#: clear that one is preferable to the other, which requires that we check
+#: `$f1 == $f1stu || -$f1 == $f1stu`. Here `||` is perl's "or" operator. We
+#: provide some custom answer hints by testing for bogus numerators and
+#: denominators and displaying answer messages via
+#: `$self->setMessage(1, "Simplify your answer further");`,
 #: where the 1 stands for the first answer blank.
 #:
 #: The fraction answer is created using a `LayoutTable` from `niceTables.pl`.
-#: This is just a one-column table with the first row with a horizontal line.
-#: The padding is changed to improve the look of the fraction.
+#: The outer `LayoutTable` has a single row with the mathematical expression
+#: and then another `LayoutTable` that formats the fraction with a bottom
+#: horizontal line. The padding is changed to improve the look of the fraction.
 Context()->variables->are(y => 'Real');
 Context()->{error}{msg}{"Operands of '*' can't be words"} = ' ';
 
@@ -56,8 +60,6 @@ do {
     $b = random(3, 9, 2);
     $c = random(1, 9, 1);
 } until ($a*$c != $b);
-
-$fraction = "\frac{$a y}{y-$c} + \frac{$b}{$c - y} ";
 
 $num = Formula("$a y - $b");
 $den = Formula("y - $c");
@@ -97,40 +99,34 @@ $multians = MultiAnswer($num, $den)->with(
     }
 );
 
-# Display the fraction and answer blanks nicely
-# Context()->texStrings;
-# if ($displayMode eq 'TeX') {
-#     $showfraction =
-#         "\[ $fraction = "
-#         . $multians->ans_rule(10)
-#         . $multians->ans_rule(10) . " \]";
-# } else {
-#     $showfraction = ColumnTable(
-#         "\( \displaystyle $fraction = \)",
-#         $multians->ans_rule(20) . $BR . $HR . $multians->ans_rule(20),
-#         separation => 10,
-#     );
-# }
-# Context()->normalStrings;
-
-$frac = LayoutTable([[[ans_rule(10), rowbottom => 1]],[ans_rule(10)]],
-    center => 0, allcellcss => {padding => '4pt'});
+$frac = LayoutTable(
+    [[
+        "\(\displaystyle\frac{$a y}{y-$c} + \frac{$b}{$c - y}=\)",
+        LayoutTable(
+            [
+                [[ans_rule(4), bottom => 1]],
+                [ans_rule(4)],
+            ],
+            padding => [0.5, 0],
+        )
+    ]],
+    padding => [0, 0.5],
+    valign => 'middle',
+);
 
 #:% section = statement
 #: Everything is as usual. Insert the fraction and answer blanks using `$showfraction`.
 BEGIN_PGML
-Perform the indicated operations.
-Express your answer in reduced form.
+Perform the indicated operations. Express your answer in reduced form.
 
-[``[$fraction]=``][$frac]***
+[$frac]*
 
 END_PGML
 
 #:% section = answer
-#: It is necessary to install the answer evaluator with `ANS`, since
+#: It is necessary to use the answer evaluator `ANS` since
 #: `ans_rule` was used to produce answer blanks.
 ANS($multians->cmp());
-# ANS($multians->cmp());
 
 #:% section = solution
 BEGIN_PGML_SOLUTION

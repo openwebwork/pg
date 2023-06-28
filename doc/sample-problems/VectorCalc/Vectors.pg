@@ -23,17 +23,17 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section=setup
-#: We indicate that we are working in a vector context by setting the `Context`
-#: to be `Vector`. If we want to have vectors displayed, by default, as a
-#: sum of `i,j,k` components, we can set the ijk flag in the `Context`. This is
+#: We indicate that we are working in a vector context by setting
+#: `Context('Vector')`. If we want to have vectors displayed, by default, as a
+#: sum of `i,j,k` components, we can set the `ijk` flag in the `Context`. This is
 #: commented out here; uncommenting it would result in the vector `$v1` here
 #: being shown as `$v1 = i + 3j` instead of `$v1 = <1,3>`, etc. Similarly,
 #: if we wanted to change the default display of the `i, j` and `k` vectors,
 #: say to have them display with overset arrows, we can redefine the TeX
 #: formatting of those constants, as shown in the second comment.
 #:
-#: Then, we can define vectors as we might expect: either with the Vector or
-#: Compute constructors, or by using the predefined vector constants
+#: Then, we can define vectors as we might expect: either with the `Vector` or
+#: `Compute` constructors, or by using the predefined vector constants
 #: `i, j` and `k`.  Any vector constructed with `i, j` and/or `k` will be
 #: three-dimensional vectors even if the vector `k` is not used.  That is
 #: `Vector('<1,2>')` is not equal to `i+2j`.
@@ -52,8 +52,8 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: Then, we can access the first component using
 #: `$v3comp[0]`, the second component using `$v3comp[1]`, etc.
 #: Better still, to get the first component of the vector `$v3` we could
-#: use `$v3->extract(1)` instead of `($v3->value)[0]`. Note that index of
-#: `extract` starts at 1, not 0.
+#: use `$v3->extract(1)` instead of `($v3->value)[0]`. Note that the
+#: index of `extract` starts at 1, not 0.
 #:
 #: Lastly, there is other functionality associated with Vectors.  See the
 #: WeBWorK wiki page on
@@ -84,7 +84,7 @@ $c = norm($v3);    # vector length
 $v5 = unit($v3);   # unit vector in same direction
 $d = $v1 . $v2;    # dot product
 $v6 = $v3 x $v4;      # cross product
-$v3->isParallel($v4); # =1 if parallel, =0 if skew
+$v3->isParallel($v4); # returns 1 if parallel, 0 if skew
 
 BEGIN_PGML
 [`\vec{v}_1=[$v1]`]

@@ -16,15 +16,14 @@
 #:% subject = parametric
 
 #:% section = preamble
-#: We load parserVectorUtils.pl which provides the `Line()` subroutine for a particular
+#: We load `parserVectorUtils.pl` which provides the `Line()` subroutine for a particular
 #: parametrization of a line, as well as `parserParametricLine.pl` which provides a subroutine
 #: `ParametricLine()` that allows students to enter any parametrization.
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',        'PGML.pl',
-    'parserVectorUtils.pl', 'parserParametricLine.pl',
-    'PGcourse.pl'
+    'PGstandard.pl',           'PGML.pl', 'parserVectorUtils.pl',
+    'parserParametricLine.pl', 'PGcourse.pl'
 );
 
 #:% section = setup

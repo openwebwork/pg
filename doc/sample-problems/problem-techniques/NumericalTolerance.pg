@@ -16,6 +16,7 @@
 #:% name = Numerical Tolerance
 #:% type = technique
 #:% categories = [numbers, tolerance]
+#:% see_also = [DigitsTolType.pg]
 
 #:% section = preamble
 DOCUMENT();
@@ -27,29 +28,28 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: will be allowed) or `relative` (specifying a percent error that will be allowed).
 #:
 #: Thus if the correct answer is 17, a tolerance of 0.01 will mean that the student answer
-#: must be in the interval (16.99,17.01) if the tolType is absolute, and in the interval
-#: (16.83,17.17) if tolType is relative (or omitted, as relative tolerance is the default).
+#: must be in the interval `(16.99,17.01)` if the `tolType` is `absolute`, and in the interval
+#: `(16.83,17.17)` if `tolType` is `relative` (or omitted, as relative tolerance is the default).
 #:
-#: 1. The default Context('Numeric') is used (but not needed) and within the Compute call,
-#: the tolerance type and level is set.
+#: 1. The default `Context('Numeric')` is used (but not needed) and within the Compute call,
+#: the `tolerance` type and level is set.
 #:
-#: 2. The tolerance and toltype is set on the answer check with the cmp call.  See the
+#: 2. The `tolerance` and `toltype` is set on the answer check with the cmp call.  See the
 #: problem statement below.
 #:
-#: 3. The tolerance and toltype can be set on the Context.  This is useful if the desired
+#: 3. The `tolerance` and `toltype` can be set on the `Context`.  This is useful if the desired
 #: toltype and/or tolerance is the same for many answer.  Typically this would go at the
 #: top of the setup section.
-#:
 $ans1 = Compute('1.5708')->cmp(
-    tolType   => 'absolute',
-    tolerance => .0001,
+	tolType   => 'absolute',
+	tolerance => .0001,
 );
 
 $ans2 = Compute('1.5708');
 
 Context('Numeric')->flags->set(
-    tolerance => 0.0001,
-    tolType   => "absolute",
+	tolerance => 0.0001,
+	tolType   => 'absolute',
 );
 
 $ans3 = Compute('1.5708');

@@ -34,17 +34,14 @@ Context('Inequalities-Only');
 Context()->flags->set(formatStudentAnswer => 'parsed');
 
 $a = random(3, 9);
-
-$ineq = "-$a x \leq 10";    # TeX
-
-$answer = Compute("x >= -10 / $a");
+$ans = Compute("x >= -10 / $a");
 
 #:% section = statement
 BEGIN_PGML
-Solve the inequality [`\displaystyle [$ineq]`].
+Solve the inequality [``-[$a]x  \leq 10``].
 Enter your answer using inequality notation.
 
-[_]{$answer}{20}
+[_]{$ans}
 
 [@ helpLink('inequalities') @]*
 END_PGML

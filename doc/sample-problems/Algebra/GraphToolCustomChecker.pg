@@ -18,7 +18,7 @@
 #:% section = preamble
 #: This example shows how to get student input in the form of a graph (a circle)
 #: by using interactive graphing tools, and demonstrates the usage of a custom
-#: checker.  Load the parserGraphTool.pl macro for this.
+#: checker.  Load the `parserGraphTool.pl` macro for this.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');

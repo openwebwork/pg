@@ -31,7 +31,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'LiveGraphicsVectorField3D.pl', 'PGcourse
 #:
 #: Setting outputtype to something other than 4 will require you to read the source code of
 #: `LiveGraphicsVectorField3D.pl` and familiarize yourself with the details of the LiveGraphics3D
-#: java applet.
+#: javascript applet.
 Context()->variables->are(x=>'Real',y=>'Real',z=>'Real');
 
 $plot = VectorField3D(

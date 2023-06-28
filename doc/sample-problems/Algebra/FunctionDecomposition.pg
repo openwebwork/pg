@@ -27,6 +27,9 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'answerComposition.pl', 'PGcourse.pl');
 
 #:% section = setup
+#: We will ask the students for a function `f(u)` and and function `g(x)` such
+#: that `f(g(x))` is a given function.  Therefore, we need to make `u` a
+#: variable and define `$f` and `$g`.
 Context()->variables->add(u => 'Real');
 
 $a = random(2, 9);
@@ -46,8 +49,8 @@ END_PGML
 
 #:% section = answer
 #: We use the `COMPOSITION_ANS()` routine to evaluate both answer blanks. It is
-#: possible to use the same variable for both answer blanks. See PODLINK('answerComposition.pl')
-#: for more options and details.
+#: possible to use the same variable for both answer blanks. See
+#: PODLINK('answerComposition.pl') for more options and details.
 COMPOSITION_ANS($f, $g, vars => [ 'u', 'x' ], showVariableHints => 1);
 
 #:% section = solution

@@ -17,7 +17,7 @@
 #:% categories = [sequences, series]
 
 #:% section = preamble
-#: We load `unionTables.pl` to create a table in which answer blanks are stacked on top
+#: We load `niceTables.pl` to create a table in which answer blanks are stacked on top
 #: of each other to form a fraction. We use `PGgraders.pl` to give partial credit
 #: incrementally. We use `parserMultiAnswer.pl` for the fraction answer so that we can
 #: accept two correct answers, depending on how much a student has simplified their answer.
@@ -25,7 +25,7 @@ DOCUMENT();
 
 loadMacros(
     'PGstandard.pl',  'PGML.pl',
-    'unionTables.pl', 'parserPopUp.pl',
+    'niceTables.pl', 'parserPopUp.pl',
     'PGgraders.pl',   'parserMultiAnswer.pl',
     'PGcourse.pl'
 );
@@ -87,20 +87,16 @@ $popup =
     PopUp([ 'Choose', 'Converges', 'Diverges', 'Inconclusive' ], 'Converges');
 
 # Display the fraction and answer blanks nicely
-if ($displayMode eq 'TeX') {
-    $showfraction =
-        "\[ $fraction "
-        . $multians->ans_rule(10)
-        . $multians->ans_rule(10) . " \]";
-} else {
-    $showfraction = ColumnTable(
-        "\( \displaystyle $fraction \)",
-        $multians->ans_rule(20) . $BR . $HR . $multians->ans_rule(20),
-        separation => 10
-    );
-}
+$frac = LayoutTable([[[ans_rule(10), rowbottom => 1]],[ans_rule(10)]],
+    center => 0, allcellcss => {padding => '4pt'});
 
 #:% section = statement
+#: Most of this is standard latex markup in a PGML block.  Note that to
+#: display the fraction above, we use `[$frac]*` followed by the
+#: PGML codeblock `[@ ANS($multians->cmp); '' @]` which does the
+#: answer checking using the multianswer described above.  There is a
+#: `''` at the tend of the codeblock to return an empty string instead of
+#: a HASHREF which we get from the ANS method.
 BEGIN_PGML
 Use the limit comparison test to determine whether
 [``\sum_{n=[$c]}^{\infty} a_n = \sum_{n=[$c]}^{\infty} \frac{[$a] n + [$b]}{[$c] n^{[$d]} + [$e]}``]
@@ -109,18 +105,18 @@ converges or diverges.
 a. Choose a series [``\sum_{n=[$c]}^\infty b_n``] with terms of the form
 [``b_n = \frac{1}{n^p}``] and apply the limit comparison test.  Write your
 answer as a fully reduced fraction.  For [``n \geq [$c]``],
-[$showfraction]*** [@ ANS($multians->cmp); '' @]*
+[```\frac{\lim_{n \to \infty} a_n}{\lim_{n \to \infty} b_n}```][$frac]* [@ ANS($multians->cmp); '' @]
 
 b. Evaluate the limit in the previous part.  Enter [` \infty `] as _infinity_
 and [` -\infty `] as _-infinity_.  If the limit does not exist, enter _DNE_.
-[$BR]*
+
 [``\lim_{n\to\infty} \frac{a_{n}}{b_{n}} =``] [_]{$limit}{15}
 
 c. By the limit comparison test, does the series converge, diverge, or is the
 test inconclusive?  [_]{$popup}
 END_PGML
 
-#:% section = answers
+#:% section = answer
 #: We use the problem grader fluid to give partial credit incrementally: 0% for 0-1
 #: correct answers, 40% for 2-3 correct answers, and full credit for 4 correct answers.
 install_problem_grader(~~&custom_problem_grader_fluid);

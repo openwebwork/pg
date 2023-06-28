@@ -27,7 +27,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: hash must match exactly and then is replaced with the customized
 #: version.
 Context()->{error}{msg}{"Missing operand after '-'"} =
-    "Enter '-1' instead of '-'";
+	"Enter '-1' instead of '-'";
 
 $ans1 = Real(-1);
 $ans2 = Formula("x-2");
@@ -43,6 +43,5 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
 
 ENDDOCUMENT();

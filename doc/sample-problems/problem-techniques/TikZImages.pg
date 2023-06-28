@@ -21,7 +21,6 @@ DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
-
 #:% section=setup
 #: * The `createTikZImage()` function creates an image to be built using tikz.
 #: By default an `svg` image will be generated, which will generally look better
@@ -33,7 +32,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 #: factor of 1.5.
 #: * The command that starts with `\filldraw` creates a nice background of
 #: the graph with contrast to the rest of the problem page.
-#: * The `$graph_image->tikzLibraries("arrows.meta");` will load the arrows.meta
+#: * The `$graph_image->tikzLibraries("arrows.meta");` will load the `arrows.meta`
 #: Tikz library.
 #: * The variables `$a` and `$b` are defined for use in the TikZ code that
 #: follows.  If the TikZ code references non-existent pg variables the
@@ -44,8 +43,8 @@ $graph_image = createTikZImage();
 $graph_image->tikzLibraries("arrows.meta");
 
 # Randomization
-$a = non_zero_random(-6,6);  # horizonatal translation
-$b = random(-4,4);           # vertical translation
+$a = non_zero_random(-6, 6);    # horizonatal translation
+$b = random(-4, 4);             # vertical translation
 
 $graph_image->BEGIN_TIKZ
 \tikzset{>={Stealth[scale=1.5]}}
@@ -68,17 +67,19 @@ END_TIKZ
 #: This is how to insert the tikz image. Note the `width` and `tex_size`
 #: parameters can change the size of the image on the web and as hardcopy.
 #:
-#: Note that you may want to call `$image = image($graph_image, width => 300,
-#: tex_size => 1000)` above and use `[@ $image @]*` here while developing the
-#: problem. If the image call occurs inside the `BEGIN_PGML/END_PGML` section,
-#: then you will not get the warnings from failed image generation. You will
-#: instead get no image, and no reason as to why.
+#: * the `width` option is the size in pixels of the image on the screen.
+#: * the `tex_size` option is the scale factor for hardcopy where 1000 is
+#: the full width of either the page or the column.  This image will be
+#: 60% of the page width.
+#:
+#: If the problem times out then often there is a problem with the tikz
+#: commands. Troubleshooting is often needed by running the same code in
+#: a latex file and compiling it.
 BEGIN_PGML
 
->> [@ image($graph_image, width => 400, tex_size => 1000) @]* <<
+>> [@ image($graph_image, width => 400, tex_size => 600) @]* <<
 
 END_PGML
-
 
 #:% section=solution
 BEGIN_PGML_SOLUTION

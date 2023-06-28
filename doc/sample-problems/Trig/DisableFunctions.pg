@@ -11,8 +11,8 @@
 ## MO(1)
 ## KEYWORDS('trigonometry', 'exact answer')
 
-#:% name = Diabled Functions
-#:% type = Sample
+#:% name = Diabling Functions
+#:% type = [Sample, technique]
 #:% subject = [trigonometry, precalculus]
 #:% categories = [trigonometry]
 

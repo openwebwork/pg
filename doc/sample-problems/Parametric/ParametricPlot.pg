@@ -22,12 +22,20 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: The package `PGtikz.pl` is used to produce the curve.  The plotting routine used in
-#: this way plots parametrically, which is shown in the last statement in the
-#: TIKZ section with `\draw[DarkBlue, very thick] plot [....]`.
+#: The package `PGtikz.pl` is used to produce the curve.  Basics of such a plot
+#: are described in PROBLINK('TikZImages.pg').
 #:
-#: The first two statements of the TIKZ section scales the plot and then gives
-#: a nice background that will contrast the rest of the problem page.
+#: Most of the code for the plot produces the axes with the nice border.  The
+#: parametric plotting routine is the last function call starting with
+#: `\draw[DarkBlue, very thick] plot [....]`. Note that
+#:
+#: * `samples` is the number of points to create the plot.
+#: * `domain` is the plotting domain.
+#: * `variable` is the variable for the plot.  `\x` is default.  We switch to
+#: * `\t` as is standard for parametric plots.
+#: * The plot is in the `({}, {})` where the first slot is the `x` function and
+#:the second is the `y` function.  It is important that the functions are
+#:wrapped in `{}` and the variable has the backslash.
 Context()->variables->add(t => 'Real');
 
 $graph = createTikZImage();

@@ -17,20 +17,23 @@
 #:% categories = [antiderivatives]
 
 #:% section = preamble
-#: We must use `unionTables.pl` for table formatting commands we will use to put
+#: We  use `niceTables.pl` for table formatting commands we will use to put
 #: the answer blanks in the limits of integration.  We use `answerHints.pl` to
 #: help guide students toward the correct answer.
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',  'PGML.pl',
-    'unionTables.pl', 'answerHints.pl',
+    'PGstandard.pl',  'PGML.pl', 'niceTables.pl', 'answerHints.pl',
     'PGcourse.pl'
 );
 
 #:% section = setup
-#: The block of code that puts the answer blanks into the exponents correctly in
-#: HTML and TeX modes probably does not need to be modified.
+#: We define both `x` and `t` as variables as well as the differential `dx`
+#: (which would be incorrect) and the correct `dt`.
+#:
+#: The `LayoutTable` of PODLINK('niceTables.pl') is used to display the
+#: definite integral.  Note that the `align => 'rl'` is used to get the
+#: formatting to look correct.
 Context()->variables->are(
     x  => 'Real',
     dx => 'Real',
@@ -38,59 +41,34 @@ Context()->variables->are(
     dt => 'Real'
 );
 
-$fpx = Formula("sin(x)");
-$fpt = Formula("sin(t)");
-
-#  Display the answer blanks properly in different modes
-Context()->texStrings;
-if ($displayMode eq 'TeX') {
-    $integral =
-        '\(\displaystyle f(x) = '
-        . ans_rule(4)
-        . '+ \int_{t = '
-        . ans_rule(4)
-        . '}^{t = '
-        . ans_rule(4) . '}'
-        . ans_rule(20) . '\)';
-} else {
-    $integral = BeginTable(center => 0)
-        . Row(
-            [
-                '\(f(x)=\)'
-                . $SPACE
-                . ans_rule(4)
-                . $SPACE
-                . '\(+\displaystyle\int\)',
-                '\( t = \)'
-                . ans_rule(4)
-                . $BR
-                . $BR
-                . '\( t = \)'
-                . ans_rule(4),
-                ans_rule(20)
-            ],
-            separation => 2
-        ) . EndTable();
-}
-Context()->normalStrings;
+$integral = LayoutTable([
+    [ ' ',ans_rule(4)],
+    ['\(f(x)= \)' . ans_rule(10) . '\(+\)','\(\displaystyle \int \;\;\)' . ans_rule(10)],
+    [ ' ',ans_rule(4)],
+],
+    align => 'rl', allcellcss => {padding => '3pt'});
 
 #:% section = statement
-#: To display the integral with answer blanks in the limits of integration properly,
-#: we insert it using `$integral`.
+#: The integral is placed in the problem with the `[$integral]*` which displays
+#: the table.
 BEGIN_PGML
 Find a formula for the function [`f(x)`] such that [`f '(x) = [$fpx]`] and
 [`f(2) = 5`].  Use [`t`] as the variable of integration inside the integral.
 
-[$integral]***
+[$integral]*
 END_PGML
 
 #:% section = answer
 #: The answer blanks are written out as `ans_rule`, so we must use this style of
 #: answer checking.  We use `AnswerHints` to guide the students to the correct answer.
+#: Note that we also include the incorrect answer with the `x` as the variable
+#: and give the student feedback on this.
+$fpx = Formula("sin(x)");
+$fpt = Formula("sin(t)");
 
-ANS(Compute('5')->cmp());
+
 ANS(Compute('x')->cmp());
-ANS(Compute('2')->cmp());
+ANS(Compute('5')->cmp());
 ANS(
     Compute("$fpt * dt")->cmp()->withPostFilter(AnswerHints(
         Formula("$fpx")    => "Are you using the correct variable?",
@@ -98,6 +76,7 @@ ANS(
         Formula("$fpt")    => "Don't forget the differential dt",
     ))
 );
+ANS(Compute('2')->cmp());
 
 #:% section = solution
 BEGIN_PGML_SOLUTION

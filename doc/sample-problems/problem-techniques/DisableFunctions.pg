@@ -60,20 +60,19 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #:
 # To disable specific operations in student answers, use the undefine
 # method for the operations:
-Context()->operators->undefine("^","**");
+Context()->operators->undefine("^", "**");
 
 # We can similarly disable specific functions with the following
-Context()->functions->undefine("sin","cos","tan","sqrt");
+Context()->functions->undefine("sin", "cos", "tan", "sqrt");
 
 $ans = Compute("1/2");
-
 
 # To disallow absolute value, disable abs(),
 # sqrt and exponentiation (for sqrt(x^2) and (x^4)^(1/4)), and
 # the parentheses | |, and give consistent
 # error messages
-Context()->functions->disable("abs","sqrt");
-Context()->operators->undefine("^","**");
+Context()->functions->disable("abs", "sqrt");
+Context()->operators->undefine("^", "**");
 Context()->parens->remove("|");
 Context()->{error}{convert} = sub {
 	my $message = shift;
@@ -81,12 +80,10 @@ Context()->{error}{convert} = sub {
 	return $message;
 };
 
-
 #:% section=statement
 BEGIN_PGML
 Find the numerical value: [` \sin^2(\pi/4) = `] [____]{$ans}
 END_PGML
-
 
 #:% section=solution
 BEGIN_PGML_SOLUTION

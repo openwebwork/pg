@@ -8,8 +8,6 @@
 ## Date(04/15/2023)
 ## Institution(Fitchburg States)
 ## Author(Peter Staab)
-## Static(0)
-## MO(1)
 ## KEYWORDS('names', 'pronouns', 'random')
 
 #:% name = Random Person
@@ -18,7 +16,6 @@
 
 #:% section = preamble
 #: We need to load `randomPerson.pl` macro
-
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'randomPerson.pl', 'PGcourse.pl');

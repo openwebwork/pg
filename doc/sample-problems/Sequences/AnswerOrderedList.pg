@@ -22,17 +22,15 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We create an empty array `@seq` and then fill it with scalars using direct assignment
-#: and a `for` loop. Since the entries in the array `@seq` do not have commas between
+#: We create the array `@seq` with the first two entries.  The rest is filled
+#: with a `for` loop. Since the entries in the array `@seq` do not have commas between
 #: them, we create a Perl string `$answer` that joins the entries of the array `@seq` by
 #: a comma followed by a space ', '. Then, we make this string a MathObject by
 #: putting `Compute()` around it.
 #:
 #: Since the answer is a MathObject `List`, which is by default unordered, we must
 #: specify that the answer checker use `ordered=>1`.
-@seq    = ();
-$seq[0] = 1;
-$seq[1] = 1;
+@seq    = (1, 1);
 for $i (2 .. 6) {
     $seq[$i] = $seq[ $i - 1 ] + $seq[ $i - 2 ];
 }

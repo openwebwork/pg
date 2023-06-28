@@ -45,9 +45,7 @@ END_PGML
 #: possible to withhold feedback and credit until everything is correct by using
 #: the standard problem grader, which awards no partial credit and full credit
 #: only when everything is correct.
-
 $showPartialCorrectAnswers = 0;
-install_problem_grader(~~&std_problem_grader);
 
 UNORDERED_ANS($answer1->cmp, $answer2->cmp, $answer3->cmp);
 

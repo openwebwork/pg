@@ -61,6 +61,8 @@ $gr2->addSurface(
 #:% section=statement
 #: This shows how to add a plot to the problem.
 BEGIN_PGML
+This just shows the two plots side by side.
+
 [@ $gr1->Print @]* [@ $gr2->Print @]*
 END_PGML
 

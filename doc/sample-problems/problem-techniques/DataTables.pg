@@ -18,7 +18,7 @@
 #:% section = preamble
 #: This shows how to use the `DataTable` function in `niceTables.pl`.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl','PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: We use the `DataTable` function from `niceTables.pl` to demonstrate some
@@ -47,27 +47,27 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl','PGcourse.pl');
 #:
 #: The second table uses `ans_rule` for answer blanks.  This example has
 #: rows hardcoded instead of in a loop.
-@rows = (['\(x\)','\(y\)']);
-for $i (1..5) {
-  push(@rows,[$i, random(1,10) ]);
+@rows = ([ '\(x\)', '\(y\)' ]);
+for $i (1 .. 5) {
+	push(@rows, [ $i, random(1, 10) ]);
 }
 
 $tab1 = DataTable(~~@rows);
 
-$a = non_zero_random(-4,4);
+$a = non_zero_random(-4, 4);
 $f = Compute("x/(x-[$a])")->reduce;
 
-$tab2 = DataTable([
-  ['\(x\)','\(f(x)\)'],
-  [$a-2, ans_rule(10) ],
-  [$a-1, ans_rule(10) ],
-  [$a+1, ans_rule(10) ],
-  [$a+2, ans_rule(10) ]
-],
-align => '|r|l|',
-horizontalrules => 1
+$tab2 = DataTable(
+	[
+		[ '\(x\)', '\(f(x)\)' ],
+		[ $a - 2,    ans_rule(10) ],
+		[ $a - 1,    ans_rule(10) ],
+		[ $a + 1,    ans_rule(10) ],
+		[ $a + 2,    ans_rule(10) ]
+	],
+	align           => '|r|l|',
+	horizontalrules => 1
 );
-
 
 BEGIN_PGML
 Here's some data:
@@ -79,8 +79,8 @@ Fill out the following table for [``f(x)=[$f]``].
 [$tab2]*
 END_PGML
 
-for $i (-2,-1,1,2) {
-  ANS($f->eval(x=>$a+$i)->cmp);
+for $i (-2, -1, 1, 2) {
+	ANS($f->eval(x => $a + $i)->cmp);
 }
 
 #:% section=solution

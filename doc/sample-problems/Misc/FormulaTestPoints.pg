@@ -1,0 +1,66 @@
+## DESCRIPTION
+## Shows how to test a formula at a given set of points.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(04/15/2023)
+## Institution(Fitchburg States)
+## Author(Peter Staab)
+## KEYWORDS('function', 'test points')
+
+#:% name = Formula Test Points
+#:% type = [sample, technique]
+#:% categories = [misc]
+#:% see_also = [FormulaDomain.pg]
+
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The first line sets the limits of evaluation for any problem in the context
+#: to `[-1,1]`.
+#:
+#: Alternatively, the limits on the context can be set with
+#:```{.perl}
+#:Context()->flags->set(limits=>[2,5]);
+#:```
+#:
+#: For the points for `$g`, note that the domain of `$g` is all values outside
+#: of the interval `(-2,2)`. One way to handle this would be to set the `limits`
+#: for the function to be outside this interval.  Alteratively, as shown,
+#: the points are set with the `test_points` field to be a set of points
+#: that don't include `(-2,2)`.
+Context()->variables->set(x=>{limits=>[-1,1]});
+
+# Alternately
+Context()->flags->set(limits=>[2,5]);
+
+$f = Compute('sqrt(x+1)');
+
+## Or, setting the limits only for the given
+##    formula, we don't need to reset the Context,
+##    and just include
+# $func = Compute('sqrt(x-1)');
+# $func->{limits} = [2,5];
+
+$g = Compute("sqrt(x^2 - 4)");
+$g->{test_points} = [[-3],[-2],[2],[3],[4]];
+
+#:% section = statement
+BEGIN_PGML
+Enter [`[$f]`] [___]{$f}
+
+Enter [`[$g]`] [___]{$g}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

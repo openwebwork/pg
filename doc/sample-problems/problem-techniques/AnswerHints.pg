@@ -81,7 +81,7 @@ END_PGML
 #: These hints are added to the problem in the block of text
 #: between the commands `BEGIN_PGML_HINT` and `END_PGML_HINT`, which must be on
 #: their own lines and at the start of a line. The hint will automatically
-#; generate the word HINT: before the block of text that is the hint, so you
+#: generate the word HINT: before the block of text that is the hint, so you
 #: should not add it manually.
 BEGIN_PGML_HINT
 Substitute [`3u`] wherever you see [`t`] in the formula for [`f(t) = [$f]`].

@@ -23,10 +23,11 @@
 #: `contextLimitedPolynomial.pl`, `contextPolynomialFactors.pl` and
 #: `contextLimitedPowers.pl`.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedPolynomial.pl',
-'contextPolynomialFactors.pl',
-'contextLimitedPowers.pl',
-  'PGcourse.pl');
+loadMacros(
+	'PGstandard.pl',               'PGML.pl',
+	'contextLimitedPolynomial.pl', 'contextPolynomialFactors.pl',
+	'contextLimitedPowers.pl',     'PGcourse.pl'
+);
 
 #:% section=setup
 #: To construct this quadratic, we choose a nice factored form `(x+$a)(x-$b)` and
@@ -54,25 +55,26 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedPolynomial.pl',
 
 #  Vertex form
 Context("Numeric");
-$n = list_random(4,6);
-$a = random(2,4,1);
-$b = ($a+$n);
-$h = ($b-$a)/2;
-$k = $h**2+$a*$b;
+$n          = list_random(4, 6);
+$a          = random(2, 4, 1);
+$b          = ($a + $n);
+$h          = ($b - $a) / 2;
+$k          = $h**2 + $a * $b;
 $vertexform = Compute("(x-$h)^2-$k");
 
 #  Expanded form
 Context("LimitedPolynomial-Strict");
-$p0 = $h**2 - $k;
-$p1= 2*$h;
+$p0           = $h**2 - $k;
+$p1           = 2 * $h;
 $expandedform = Formula("x^2 - $p1 x + $p0")->reduce;
 
 #  Factored form
 Context("PolynomialFactors-Strict");
-Context()->flags->set(singleFactors=>0);
+Context()->flags->set(singleFactors => 0);
 LimitedPowers::OnlyIntegers(
-    minPower => 0, maxPower => 1,
-    message => "either 0 or 1",
+	minPower => 0,
+	maxPower => 1,
+	message  => "either 0 or 1",
 );
 $factoredform = Compute("(x+$a)(x-$b)");
 

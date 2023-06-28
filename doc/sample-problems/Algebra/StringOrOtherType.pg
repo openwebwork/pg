@@ -15,6 +15,7 @@
 #:% type = Sample
 #:% subject = [algebra, precalculus]
 #:% categories = [strings]
+#:% see_also = [StringsInContext.pg]
 
 #:% section = preamble
 DOCUMENT();
@@ -23,7 +24,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: There are several predefined strings, such as NONE, DNE, INF, INFINITY. If you
-#: need another string added to the context, see strings in context.
+#: need another string added to the context, see PROBLINK('StringsInContext.pg').
 #:
 #: When `$answer = Formula('2x')` and a student enters the string `NONE`, they will
 #: not get any error message because when the answer checker expects a formula and

@@ -29,7 +29,8 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 #: We define a new named function `f` as something the student is unlikely to guess.
 #: The named function `f` is, in some sense, just a placeholder since the student will
 #: enter expressions involving `f(n-1)`, WeBWorK will interpret it internally as
-#: `sin(pi^(n-1))+e`, and the only thing the student sees is `f(n-1)`. If the recursion
+#: `sin(pi^(n-1))+e*n^2`, and the only thing the student sees is `f(n-1)`.
+#: If the recursion
 #: has an closed-form solution (e.g., the Fibonacci numbers are given by
 #: `f(n) = (a^n - (1-a)^n)/sqrt(5)` where `a = (1+sqrt(5))/2)` and you want to allows
 #: students to enter the closed-form solution, it would be good to define `f` using

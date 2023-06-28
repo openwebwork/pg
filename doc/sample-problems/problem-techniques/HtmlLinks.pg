@@ -17,8 +17,7 @@
 #:% section = preamble
 #: An example below uses units, so we load `parserNumberWithUnits.pl`.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserNumberWithUnits.pl',
-  'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserNumberWithUnits.pl', 'PGcourse.pl');
 
 #:% section=setup
 $ans = NumberWithUnits('4', 'ft');
@@ -44,8 +43,8 @@ $ans = NumberWithUnits('4', 'ft');
 #: as in the example given or by using
 #: `alias("${htmlDirectory}phaseplaneplotters/index.html")`.
 #:
-#: 4. The fourth example uses the built-in helpLink feature of WeBWorK. The
-#: Following is a list of all help topics: angle, decimal, equation, exponent
+#: 4. The fourth example uses the built-in `helpLink` feature of WeBWorK. The
+#: following is a list of all help topics: angle, decimal, equation, exponent
 #: formula, fraction, inequality, limit, log, matrix, number, point, vector,
 #: interval, unit, syntax.
 BEGIN_PGML
@@ -56,7 +55,7 @@ A link to a
 [@ htmlLink( alias('local.html'), "local problem", "TARGET='_blank'" ) @]*
 
 Click [@htmlLink("${htmlURL}phaseplaneplotters/index.html",
-  "sketch the graph.", "TARGET=~~"plotter~~"" )@]* to use xFunctions for
+  "sketch the graph.", "TARGET='plotter'" )@]* to use xFunctions for
 plotting.
 
 Enter 4 feet: [__]{$ans}

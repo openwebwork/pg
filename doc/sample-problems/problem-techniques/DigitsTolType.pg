@@ -16,6 +16,7 @@
 #:% name = Number of Digits and Tolerance in Answers
 #:% type = technique
 #:% categories = [answer, tolerance]
+#:% see_also = [NumericalTolerance.pg]
 
 #:% section = preamble
 DOCUMENT();

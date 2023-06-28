@@ -27,10 +27,7 @@
 #: is unique up to a (specified) additive constant, this macro is not needed.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',                'PGML.pl',
-    'parserFormulaUpToConstant.pl', 'PGcourse.pl'
-);
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserFormulaUpToConstant.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Define an antiderivative function `$func` and the most general antiderivative
@@ -40,7 +37,7 @@ $func  = Formula('sin(x)');
 $gfunc = FormulaUpToConstant('sin(x) + C');
 
 #:% section = statement
-#: Call the MathObjects cmp() method and specify the `upToConstant => 1` flag.
+#: Call the MathObjects `cmp()` method and specify the `upToConstant => 1` flag.
 #: This allows the student's answer to differ from the correct answer by any
 #: constant. Both `sin(x)` and `sin(x) + 5` would be marked correct, but
 #: `sin(x) + C` is not correct since it is a family of answers and not a

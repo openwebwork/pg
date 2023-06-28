@@ -14,6 +14,7 @@
 #:% name = Multiple Choice with Radio Buttons
 #:% type = [Sample, technique]
 #:% categories = [multiple choice, misc]
+#:% see_also = [MultipleChoicePopup.pg, MultipleChoiceCheckbox.pg, ManyMultipleChoice.pg]
 
 #:% section = preamble color:blue
 #:The macro `parserRadioButtons.pl` must be loaded.
@@ -49,6 +50,7 @@ My favorite color is [_]{$radio2}
 END_PGML
 
 #:% section = solution
+#: The `correct_ans` method can be called to get the correct answer.
 BEGIN_PGML_SOLUTION
 The correct answer to the first is [$radio1->correct_ans].
 

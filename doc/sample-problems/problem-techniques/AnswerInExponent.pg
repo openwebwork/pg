@@ -18,59 +18,38 @@
 #:% categories = [answer, exponent]
 
 #:% section = preamble
-#: We need to include the macros file unionTables.pl
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'unionTables.pl', 'niceTables.pl', 'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
+#: The `Context()->variables->are` sets the variables for the context.
 Context()->variables->are(a => 'Real', b => 'Real');
 
 $n = random(3, 9);
 
-# TeX
-$expression = "a^{$n} b^{$n}";
-
-# MathObjects
-$base     = Formula('a * b');
-$exponent = Formula($n);
-
-# Display exponents nicely
-$w1 = 10;    # width of 1st answer blank
-$w2 = 10;    # width of 2nd answer blank
-
-if ($displayMode eq 'TeX') {
-    $showpower =
-        "\( \displaystyle $expression = ("
-        . ans_rule($w1) . ")^{"
-        . ans_rule($w2) . "}\)";
-} else {
-    $showpower = ColumnTable(
-        "\( \displaystyle $expression = \Big( \) "
-            . ans_rule($w1)
-            . " \( \Big) \)",
-        ans_rule($w2) . $BR . $BR,
-        indent     => 0,
-        separation => 0,
-        valign     => 'BOTTOM'
-    );
-}
+$ans_rule1 = ans_rule(4);
+$ans_rule2 = ans_rule(4);
 
 #:% section = statement
-#: The problem text section of the file is as we'd expect. We insert the nicely
-#: formatted answer blanks using `$showpower`.
+#: To create an exponential, there is different code for both the TeX (hardcopy)
+#: and HTML version.  The `TeX` is as expected using the standard power `^`.
+#: The HTML version creates a exponent using the `vertical-align` attribute.
 BEGIN_PGML
 Rewrite the following using a single exponent.
 
-[$showpower]*
+[@ MODES(
+	TeX => "\\( \\displaystyle a^{$n}b^{$n} = ( $ans_rule1)^{$ans_rule2} \\)",
+	HTML =>"<div><span>\\( \\displaystyle a^{$n}b^{$n} = (\\)$ans_rule1\\()\\)</span>" .
+		"<span style='vertical-align: 1.4em'> $ans_rule2 </span></div>"
+)@]*
 
-[@ LayoutTable([$showpower] . \(=\)) @]*
 END_PGML
 
 #:% section = answer
 #: Because `ans_rule` is used above, this form of answer checking must be used.
-ANS($base->cmp);
-ANS($exponent->cmp);
+ANS(Compute('a b')->cmp);
+ANS(Real($n)->cmp);
 
 #:% section = solution
 BEGIN_PGML_SOLUTION

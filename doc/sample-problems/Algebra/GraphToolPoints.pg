@@ -58,7 +58,7 @@ $gt = GraphTool("{point, ($x1, $y1)}", "{point, ($x2, $y2)}")->with(
     showCoordinateHints => 0,
 );
 
-#:% section = statement.
+#:% section = statement
 #: The code `[_]{$gt}` inserts the GraphTool.
 BEGIN_PGML
 Graph the points [`([$x1], [$y1])`] and [`([$x2], [$y2])`].

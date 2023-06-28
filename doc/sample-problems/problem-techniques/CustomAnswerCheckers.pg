@@ -54,10 +54,10 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #:}
 #:```
 $ans = Compute('pi/3')->cmp(
-    checker => sub {
-        my ($correct, $student, $ansHash) = @_;
-        return cos($correct) == cos($student);
-    }
+	checker => sub {
+		my ($correct, $student, $ansHash) = @_;
+		return cos($correct) == cos($student);
+	}
 );
 $val = Compute('cos(pi/3)');
 

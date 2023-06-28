@@ -21,14 +21,13 @@
 
 #:% section = preamble
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl',
-  'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: Using `Context('Inequalities-Only')`, if the student enters the inequality
 #: `-16 <= y <= 9` their answer will be marked correct, but the equivalent
 #: interval `[-16,9]` would be incorrect. If we had used
-#: Context('Inequalities') instead, both the inequality and the interval
+#: `Context('Inequalities')` instead, both the inequality and the interval
 #: would be marked correct.
 #:
 #: Uncommenting the lines containing `EmptySet` creates an empty set as a named
@@ -37,7 +36,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl',
 #: Uncommenting `Context()->flags->set(ignoreEndpointTypes=>1);` would also mark
 #: the student answers `-16 < y < 9` or `-16 <= y < 9` or `-16 < y <= 9` correct.
 Context("Inequalities-Only");
-Context()->variables->add(y=>"Real");
+Context()->variables->add(y => "Real");
 # Context()->constants->add(EmptySet => Set());
 # Context()->flags->set(noneWord=>"EmptySet");
 # Context()->flags->set(ignoreEndpointTypes=>1);

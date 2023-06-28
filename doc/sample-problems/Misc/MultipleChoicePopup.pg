@@ -15,6 +15,7 @@
 #:% name = Multiple Choice with Popup
 #:% type = [Sample, technique]
 #:% categories = [multiple choice, misc]
+#:% see_also = [MultipleChoiceRadio.pg, MultipleChoiceCheckbox.pg, ManyMultipleChoice.pg]
 
 #:% section = preamble
 #: The macro `parserPopUp.pl` must be loaded.

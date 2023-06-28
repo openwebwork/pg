@@ -46,26 +46,25 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: PROBLINK('AddingFunctions.pg') for how to define and add a new function
 #: to the context so that students can enter it in their answers.
 Context("Numeric");
-Context()->variables->set(x=>{limits=>[2,4]});
+Context()->variables->set(x => { limits => [ 2, 4 ] });
 
-$a = random(3,7,1);
+$a = random(3, 7, 1);
 
 # both ln and log are natural log (base e)
-$b = sprintf("%0.3f", ln($a) );
+$b    = sprintf("%0.3f", ln($a));
 $ans1 = Real("$b");
 
-$f = Formula("ln(x)"); # or log(x)
-$ans2 = $f->eval(x=>$a);
-
+$f    = Formula("ln(x)");    # or log(x)
+$ans2 = $f->eval(x => $a);
 
 # log base 10 is log10, logten,
 # ln(x)/ln(10), or log(x)/log(10)
 
-$c = sprintf("%0.3f", ln($a)/ln(10) ); # or log($a)/log(10)
+$c    = sprintf("%0.3f", ln($a) / ln(10));    # or log($a)/log(10)
 $ans3 = Real("$c");
 
-$g = Formula("ln(x)/ln(10)"); # or log(x)/log(10)
-$ans4 = $g->eval(x=>$a);
+$g    = Formula("ln(x)/ln(10)");              # or log(x)/log(10)
+$ans4 = $g->eval(x => $a);
 
 #:% section=statement
 #: Notice the difference in decimal formatting when "Show Correct Answers"
@@ -86,7 +85,6 @@ Try entering [` \ln([$a]), \log([$a]), \ln([$a])/\ln(10), \log([$a])/\log(10),
 
 4. [` \log_{10}([$a]) = `] [_____]{$ans4}
 END_PGML
-
 
 #:% section=solution
 BEGIN_PGML_SOLUTION

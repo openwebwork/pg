@@ -14,45 +14,34 @@
 #:% name = Trigonometric Identities
 #:% type = Sample
 #:% subject = [trigonometry, precalculus]
-#:% categories = [trigonometry]
+#:% categories = [trigonometry, custom]
 
 #:% section = preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'answerHints.pl', 'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: Redefine the function tan(x) to be exp(pi * x).
-Context()->functions->remove('tan');
-
-package NewFunc;
-# This line makes the function a function from reals to reals.
-our @ISA = qw(Parser::Function::numeric);
-
-sub tan {
-    shift;
-    my $x = shift;
-    return CORE::exp($x * 3.1415926535);
-}
-
-package main;
-
-# Make it work on formulas as well as numbers.
-sub tan { Parser::Function->call('tan', @_) }
-
-# Add the new function to the Context.
-Context()->functions->add(tan => { class => 'NewFunc', TeX => '\tan' },);
-
-$answer_cmp = Formula('sin(x)')->cmp()->withPostFilter(AnswerHints(
-    Compute('tan(x)*cos(x)') =>
-        'No credit for entering what you were given.',
-));
+#: To prevent the student from just entering the given expression, we create
+#: a custom answer checker, which 1) performs a `->reduce` which will do some
+#: small simplification, 2) returns an error if the original expression
+#: was put in and 3) then checks if the answer is correct.
+#:
+#: An alternative method to doing this is in
+#: PROBLINK('ProvingTrigIdentities.pg').
+$ans = Compute('sin(x)')->cmp( checker => sub {
+    my ($correct, $student, $ansHash) = @_;
+    my $stu_ans = $student->reduce;
+    Value->Error('There is a simpler answer')
+        if $stu_ans->string eq 'cos(x)*tan(x)';
+    return $student == $correct;
+});
 
 #:% section = statement
 BEGIN_PGML
 Simplify the expression as much as possible.
 
-[`\tan(x) \cos(x) =`] [_]{$answer_cmp}{15}
+[`\tan(x) \cos(x) =`] [_]{$ans}{15}
 END_PGML
 
 #:% section = solution
@@ -61,8 +50,7 @@ Solution explanation goes here.
 END_PGML_SOLUTION
 
 COMMENT(
-    "Prevents students from entering trivial identities (entering what they "
-        . "were given).  Redefines 'tan(x)' internally as 'exp(pi*x)'.  Uses PGML."
-);
+    'Prevents students from entering trivial identities (entering what they '
+        . 'were given)');
 
 ENDDOCUMENT();

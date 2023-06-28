@@ -25,7 +25,10 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'scaffold.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: We cleverly redefine the sine function so that when the student enters `sin(t)`,
-#: it is interpreted and evaluated internally as `exp(pi*t)` but displayed to the student as `sin(t)`.
+#: it is interpreted and evaluated internally as `exp(pi*t)` but displayed to
+#: the student as `sin(t)`. This prevents the entering of the orginally
+#: expression as the answer.  An alternative method to doing this is in
+#: PROBLINK('TrigIdentities.pg').
 Context()->variables->are(t => 'Real');
 
 # Redefine sin(x) to be e^(pi x).
@@ -52,25 +55,29 @@ BEGIN_PGML
 This problem has three parts.  A part may be open if it is correct or if it is
 the first incorrect part.  Clicking on the heading for a part toggles whether it
 is displayed.
+
+In this multi-part problem, we will use algebra to verify the identity
+
+>>[`\displaystyle \frac{\sin(t)}{1 - \cos(t)} = \frac{1 + \cos(t)}{\sin(t)}.`]<<
+
 END_PGML
 
 Scaffold::Begin(is_open => 'correct_or_first_incorrect');
 
 Section::Begin('Part 1');
 BEGIN_PGML
-In this multi-part problem, we will use algebra to verify the identity
-
->>[`\displaystyle \frac{\sin(t)}{1 - \cos(t)} = \frac{1 + \cos(t)}{\sin(t)}.`]<<
 
 First, using algebra we may rewrite the equation above as
-[`\displaystyle \sin(t) = \left( \frac{1 + \cos(t)}{\sin(t)} \right) \cdot \Big(`] [_]{'1 - cos(t)'}{15} [` \Big) `].
+[`\displaystyle \sin(t) = \left( \frac{1 + \cos(t)}{\sin(t)} \right) \cdot \Big(`]
+[_]{'1 - cos(t)'}{15} [` \Big) `].
 END_PGML
 Section::End();
 
 Section::Begin('Part 2');
 BEGIN_PGML
 Using algebra we may rewrite the equation as
-[`\sin(t) \cdot \big(`] [_]{'sin(t)'}{15} [`\big) = \big(1 + \cos(t)\big) \cdot \big(1 - \cos(t)\big)`].
+[`\sin(t) \cdot \big(`] [_]{'sin(t)'}{15}
+[`\big) = \big(1 + \cos(t)\big) \cdot \big(1 - \cos(t)\big)`].
 END_PGML
 Section::End();
 

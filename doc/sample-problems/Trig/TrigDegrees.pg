@@ -28,16 +28,16 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'contextTrigDegrees.pl', 'PGcourse.pl');
 #: later in the PG code and in any formulas that students enter in answer blanks.
 #:
 #: These redefined functions allow students to enter inverse functions using syntax such as
-#: `atan(x)`, or `arctan(x)`, or `tan^(-1)(x)`. You may want to mention the syntax options in the
-#: main text section of the problem.
+#: `atan(x)`, or `arctan(x)`, or `tan^(-1)(x)`.
 Context('TrigDegrees');
 
 $ans1 = Compute("sin(30)");
 $ans2 = Compute("arcsin(0.5)");
 
 #:% section = statement
+#: Since this is in degrees, you should tell the students this.
 BEGIN_PGML
-1. [`\sin(30)=`] [___]{$ans1}
+1. [`\sin(30^{\circ})=`] [___]{$ans1}
 2. [`\arcsin(1/2)=`] [___]{$ans2}
 
 Interpret arguments of the sine and arcsine in terms of degrees.

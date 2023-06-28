@@ -12,7 +12,7 @@
 ## Author(Paul Pearson)
 
 #:% name = Scaffolded Problem
-#:% type = Sample
+#:% type = [Sample, technique]
 #:% categories = [misc]
 
 #:% section = preamble

@@ -17,10 +17,13 @@
 #:% see_also = [DataTables.pg]
 
 #:% section = preamble
-#: This shows how to use the `LayoutTable` function in `niceTables.pl`.
+#: This shows how to use the `LayoutTable` function in `niceTables.pl` to
+#: give a nice two column format.
+#:
+#: Note the `LayoutTable` does the right thing for accessibility and
+#: webpage responsiveness.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGtikz.pl', 'unionTables.pl',
-  'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section=setup
 #: We use the `LayoutTable` function from `niceTables.pl` to demonstrate some
@@ -42,24 +45,20 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGtikz.pl', 'unionTable
 #: PODLINK('the niceTables.pl POD','niceTables.pl') for more details.
 #:
 #: Notice in this example that we make two columns.  The left column is
-#: a PGML block that needs to be stored. It is important to note that the
-#: top line needs to use the `PGML::Format2` (the 2 is important) to handle
-#: blackslashes correctly and have `'END_PGML'` in single quotes in order
-#: for variables to be parsed correctly.
-$a = random(-2,2);
+#: written using older style PG, with `$PAR` as a paragraph break.
+$a   = random(0, 3);
 $ans = Compute("x^2+$a")->reduce;
 
-$left = PGML::Format(<<END_PGML);
+$left = qq|
 A common situation is that there is a problem with a graph and
 the problem is on the left column and the graph is on the right
 column.
-
-This even works if we add an equation like [`e^{i\pi}+1 = 0`]
-
+$PAR
+This even works if we add an equation like \(e^{i\pi}+1 = 0\)
+$PAR
 Or if we add an answer blank.
-
-Enter the expression [`$ans=`]
-END_PGML
+$PAR
+A formula for the function graphed on the right is \(f(x)=\)| . ans_rule(10);
 
 $graph = createTikZImage();
 $graph->tikzLibraries('arrows.meta');
@@ -84,9 +83,11 @@ END_TIKZ
 #: Since the only output is the table, we use this line to output the
 #: problem as the two columns. This is the `LayoutTable` with only
 #: one row.
-# TEXT(LayoutTable([[$left, image($graph, width => 400, tex_size => 600)]],
-#   align => 'lc'));
-TEXT(ColumnTable($left,image($graph, width => 400, tex_size => 600)));
+TEXT(LayoutTable([ [ $left, image($graph, width => 400, tex_size => 600) ] ], align => 'lc'));
+
+#:% section = answer
+#: Since `ans_rule` is used to produce answer blanks, this in needed.
+ANS($ans->cmp);
 
 #:% section=solution
 BEGIN_PGML_SOLUTION

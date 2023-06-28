@@ -53,18 +53,18 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: the two are deemed to be equal. That message could be confusing to students
 #: for two answers with different constants in this type of problem.
 $aSoln = Compute('e^x - 1')->cmp(
-    checker => sub {
-        my ($correct, $student, $ans) = @_;
-        # return 0 if $student == Formula(0); # See comments.
-        if ($self->{_filter_name} ne 'produce_equivalence_message') {
-            my $context = Context()->copy;
-            $context->flags->set(no_parameters => 0);
-            $context->variables->add(C0 => 'Parameter');
-            $student = Formula($context, $student);
-            $correct = Formula($context, 'C0 * e^x - 1');
-        }
-        return $correct == $student;
-    }
+	checker => sub {
+		my ($correct, $student, $ans) = @_;
+		# return 0 if $student == Formula(0); # See comments.
+		if ($self->{_filter_name} ne 'produce_equivalence_message') {
+			my $context = Context()->copy;
+			$context->flags->set(no_parameters => 0);
+			$context->variables->add(C0 => 'Parameter');
+			$student = Formula($context, $student);
+			$correct = Formula($context, 'C0 * e^x - 1');
+		}
+		return $correct == $student;
+	}
 );
 
 #:% section = statement

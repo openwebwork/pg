@@ -26,13 +26,13 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: to the context. Then, we use the partial differentiation operator `D('var_name') `
 #: to take a partial derivative with respect to that variable. We can use the evaluate
 #: feature as expected.
-Context()->variables->add(y=>"Real");
+Context()->variables->add(y => "Real");
 
-$a = random(2,4,1);
+$a = random(2, 4, 1);
 $f = Formula("x*y^2");
 
 $fx  = $f->D('x');
-$fxa = $fx->substitute(x=>"$a");
+$fxa = $fx->substitute(x => "$a");
 $fy  = $f->D('y');
 $fyx = $fy->D('x')->reduce;
 

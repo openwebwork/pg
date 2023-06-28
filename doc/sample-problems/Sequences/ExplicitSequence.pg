@@ -15,6 +15,7 @@
 #:% type = Sample
 #:% subject = Sequences and Series
 #:% categories = [sequences]
+#:% see_also = [FormulaTestPoints.pg, FormulaDomain.pg]
 
 #:% section = preamble
 DOCUMENT();
@@ -27,6 +28,8 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: you should still restrict the domain to positive integers, because some students
 #: may simplify this to `(-1)^n / n!` and receive errors because the answer checker
 #: is substituting things such as n=0.5 into their formula.
+#:
+#: For more explanation on the `test_points` see PROBLINK('FormulaTestPoints.pg')
 Context()->variables->are(n => 'Real');
 
 $answer = Compute('(-1)^n / n!');

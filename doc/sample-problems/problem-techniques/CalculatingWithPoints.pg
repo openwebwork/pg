@@ -40,16 +40,15 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: We need to put parentheses around `$d1` and `$d2` in the Compute expression
 #: because if `$d1 = -6`, then `-6^2 = -36`, not `36`, as desired. However, if the
 #: code is `($d1)^2` then that evaluates as `(-6)^2 = 36`, as desired.
-Context( "Point" );
-@points = (Point(random(1,5,1), random(-5,-1,1)),
-  Point(random(5,10,1), random(6,11,1)));
+Context("Point");
+@points = (Point(random(1, 5, 1), random(-5, -1, 1)), Point(random(5, 10, 1), random(6, 11, 1)));
 
 # If $point[0] = (x1,y1) and $point[1] = (x2,y2),
 # then the following makes $d1 = x1 - x2, $d2 = y1 - y2
 ($d1, $d2) = ($points[0] - $points[1])->value;
 
 $length = Compute("sqrt( ($d1)^2+($d2)^2 )");
-$mid = ( $points[1] + $points[0] ) / 2;
+$mid    = ($points[1] + $points[0]) / 2;
 
 #:% section=statement
 BEGIN_PGML

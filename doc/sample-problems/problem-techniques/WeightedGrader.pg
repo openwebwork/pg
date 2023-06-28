@@ -37,19 +37,14 @@ END_PGML
 #: Before checking answers, `install_weighted_grader();` needs to be called
 #: to ensure the weighted grader is used.
 #:
-#: The WEIGHTED_ANS command takes pairs of answer checkers and their relative
+#: The `WEIGHTED_ANS` command takes pairs of answer checkers and their relative
 #: weights.  The example here gives weights as percents as the total weights
 #: added to 100, but weights of (2,5,3) or (4,10,6) would have worked the
 #: same way.
 #:
 install_weighted_grader();
 
-WEIGHTED_ANS(
-  Real(1)->cmp, 20,
-  Real(3)->cmp, 50,
-  Real(7)->cmp, 30
-);
-
+WEIGHTED_ANS(Real(1)->cmp, 20, Real(3)->cmp, 50, Real(7)->cmp, 30);
 
 #:% section=solution
 BEGIN_PGML_SOLUTION
