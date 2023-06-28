@@ -612,7 +612,7 @@ sub STR_CMP {
 
 =head1 SEE ALSO
 
-L<PGanswermacros.pl>, L<MathObjects>.
+L<PGanswermacros.pl>, L<UsingMathObjects>.
 
 =cut
 
