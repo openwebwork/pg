@@ -93,13 +93,15 @@ sub parseSampleProblem ($file, %global) {
 			# This section is documentation to be parsed.
 			$row = $row =~ s/^#://r;
 
-			# Parse any PODLINK/PROBLINK commands in the documentation.
+			# Parse any LINK/PODLINK/PROBLINK commands in the documentation.
 			if ($row =~ /(POD|PROB)?LINK\('(.*?)'\s*(,\s*'(.*)')?\)/) {
-				my $link_text = $1 eq 'POD' ? $2 : $global{metadata}{$2}{name};
+				my $link_text = defined($1) ? $1 eq 'POD' ? $2 : $global{metadata}{$2}{name} : $2;
 				my $url =
-					$1 eq 'POD'
-					? "$global{pod_root}/" . $global{macro_locations}{ $4 // $2 }
-					: "$global{pg_doc_home}/$global{metadata}{$2}{dir}/" . ($2 =~ s/.pg$/$global{url_extension}/r);
+					defined($1)
+					? $1 eq 'POD'
+						? "$global{pod_root}/" . $global{macro_locations}{ $4 // $2 }
+						: "$global{pg_doc_home}/$global{metadata}{$2}{dir}/" . ($2 =~ s/.pg$/$global{url_extension}/r)
+					: $4;
 				$row = $row =~ s/(POD|PROB)?LINK\('(.*?)'\s*(,\s*'(.*)')?\)/[$link_text]($url)/gr;
 			}
 

@@ -13,7 +13,7 @@
 
 #:% name = Space Curve Graph
 #:% type = Sample
-#:% subject = parametric
+#:% subject = [parametric, graph]
 
 #:% section = preamble
 #: The macro `plotly3D.pl` is used to produce the graph.

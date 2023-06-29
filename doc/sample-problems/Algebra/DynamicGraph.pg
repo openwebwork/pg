@@ -26,15 +26,25 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 #: The code between `$graph->BEGIN_TIKZ` and `END_TIKZ` are tikz commands.  Information
 #: on tikz can be found at the [homepage for tikz](https://tikz.dev) and details on
 #: using tikz within pg problems can be found in PODLINK('PGtikz.pl').
-$a = random(2, 3, 1);    # negative of left x-intercept
-$b = random(2, 4, 2);    # right x-intercept
-$c = random(3, 6, 1);    # y-intercept
+#:
+#: This problem creates a parabola with random intercepts.
+#:
+#: Some notes about the command in the `TIKZ` block:
+#:
+#: * The first `\filldraw` command produces a frame around the plotting region
+#: * The first two `\draw` commands draw the axes as well as the axis labels.
+#:    The `->` gives the lines arrows in that direction and the `thick` makes
+#:    the lines a bit thicker.
+#: * The two `\foreach` commands produce the tick marks and labels.
+#: * The last `\draw` command produces the graph of the function. The `domain`
+#:    option gives the plotting domain and the `smooth` attempts to make the
+#:    resulting graph smooth.  Lastly, the function itself needs to be in
+#:    `{}` in order for the function to be computed correctly.
+$a = random(1, 4);    # negative of left x-intercept
+$b = random(2, 4);    # right x-intercept
+$c = random(2, 6);    # y-intercept
 
 $k = -$c / ($a * $b);
-
-$A = $k;
-$B = $k * ($a - $b);
-$C = -$k * $a * $b;
 
 $graph = createTikZImage();
 $graph->tikzLibraries('arrows.meta');
@@ -52,7 +62,7 @@ $graph->BEGIN_TIKZ
 \draw[->,thick] (0,-1) -- (0,7) node[below right,outer sep=3pt] {\(y\)};
 \foreach \y in {1,...,6}
     \draw (5pt,\y) -- (-5pt,\y) node[left] {\(\y\)};
-\draw[blue,ultra thick] plot[domain=-6:6,smooth] (\x,{$A*\x*\x+$B*\x+$C});
+\draw[blue,ultra thick] plot[domain=-6:6,smooth] (\x,{$k*(\x+$a)*(\x-$b)});
 END_TIKZ
 
 #:% section = statement

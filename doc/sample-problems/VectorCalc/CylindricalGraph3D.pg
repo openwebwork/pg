@@ -45,10 +45,10 @@ $a = random(2,5);
 
 $gr1 = Graph3D();
 $gr1->addSurface(
-				['u*cos(v)', 'u*sin(v)', "$a*cos(u^2/4)"],
-				[0, 6, 30],
-				[0, 2*pi, 30]
-		);
+	['u*cos(v)', 'u*sin(v)', "$a*cos(u^2/4)"],
+	[0, 6, 30],
+	[0, 2*pi, 30]
+);
 
 $gr2 = Graph3D();
 $gr2->addSurface(

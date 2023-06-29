@@ -15,6 +15,7 @@
 #:% subject = [Differential Equations, Vector Calculus]
 #:% type = [Sample, technique]
 #:% categories = [graph]
+#:% see_also = [VectorFieldGraph2D.pg]
 
 #:% section=preamble
 #: The macro `PGtikz.pl` is used to produced the direction field.
@@ -30,6 +31,9 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 #: the origin, we don't draw the vector there and use the `ifthen` package
 #: to load the `\ifthenelse` latex command.
 #:
+#: If you want a slope field, where only the slope is draw with no arrow
+#: delete the `->` in the option of the `\draw` command inside the `\foreach`
+#: loops.
 $graph = createTikZImage();
 $graph->texPackages(['ifthen']);
 $graph->BEGIN_TIKZ

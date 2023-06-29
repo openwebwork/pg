@@ -1,0 +1,55 @@
+## DESCRIPTION
+## A Vector-value parametric line
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('interval')
+
+# created as a full problem by Peter Staab  2023.06.02
+
+#:% name = Vector-value Parametric Line
+#:% type = [technique, sample]
+#:% categories = vector
+#:% subject = Vector Calculus
+
+#:% section = preamble
+#: The macro `parseVectorUtils.pl` provides random points. The macro
+#: `parseParametricLine.pl` provides the `ParametricLine` function which
+#: will be the answer.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl',
+  'parserParametricLine.pl','PGcourse.pl');
+
+#:% section = setup
+#:  We randomize two points in three-dimensional space, `P` and `Q`, a
+#: displacement vector between them, and a speed to travel between them.
+Context('Vector');
+Context()->variables->are(t=>'Real');
+
+$P = non_zero_point3D();
+$disp = non_zero_vector3D();
+$Q = Point($P + $disp);
+$line = ParametricLine("$P+t *$disp");
+
+#:% section = statement
+BEGIN_PGML
+Find a vector parametric equation for the
+line through points [` P = [$P] `] and [` Q = [$Q] `].
+
+[` \vec{r}(t) = `] [___]{$line}
+
+A vector should be entered like  <x(t),y(t),z(t)>.
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

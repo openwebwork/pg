@@ -48,8 +48,8 @@ loadMacros(
 #: 'None of the above' answer that will be made last with `makeLast`.
 #: So the popup list must have 9 entries A through I.
 #:
-#:For more details, see MatchingProblems from the Problem Techniques documentation.
-
+#: As an alternative, see PROBLINK('MatchingAlt.pl') for another way to write
+#: a matching problem.
 $showPartialCorrectAnswers = 0;
 
 # Incremental grader

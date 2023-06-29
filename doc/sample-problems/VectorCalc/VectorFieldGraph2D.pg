@@ -15,6 +15,7 @@
 #:% subject = [Differential Equations, Vector Calculus]
 #:% type = Sample
 #:% categories = [graph]
+#:% see_also = [DirectionField.pg]
 
 #:% section=preamble
 #: The macro `PGtikz.pl` is used to produced the vector field.
