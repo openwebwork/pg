@@ -22,29 +22,20 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'weightedGrader.pl', 'PGcourse.pl');
 
 #:% section=setup
-#: The answer blanks do not have answers associated with them because we will
-#: use the WEIGHTED_ANS command below.
-BEGIN_PGML
-
-* This answer is worth 20%.  Enter 1 [___]
-
-* This answer is worth 50%. Enter 3 [___]
-
-* This answer is worth 30%. Enter 7 [___]
-END_PGML
-
-#:% section = answer
-#: Before checking answers, `install_weighted_grader();` needs to be called
-#: to ensure the weighted grader is used.
-#:
-#: The `WEIGHTED_ANS` command takes pairs of answer checkers and their relative
-#: weights.  The example here gives weights as percents as the total weights
-#: added to 100, but weights of (2,5,3) or (4,10,6) would have worked the
-#: same way.
-#:
+#: Call `install_weighted_grader();` so that the weighted grader is used.
 install_weighted_grader();
 
-WEIGHTED_ANS(Real(1)->cmp, 20, Real(3)->cmp, 50, Real(7)->cmp, 30);
+#:% section=statement
+#: Assign weights to answers by passing the `weight` via `cmp_options`.  The
+#: example here gives weights as percents that sum to 100, but weights of
+#: (2, 5, 3), (4, 10, 6), or (0.2, 0.5, 0.3) would give the same weighting.
+BEGIN_PGML
+* This answer is worth 20%.  Enter 1 [___]{1}{ cmp_options => { weight => 20 } }
+
+* This answer is worth 50%. Enter 3 [___]{3}{ cmp_options => { weight => 50 } }
+
+* This answer is worth 30%. Enter 7 [___]{7}{ cmp_options => { weight => 30 } }
+END_PGML
 
 #:% section=solution
 BEGIN_PGML_SOLUTION
