@@ -17,7 +17,7 @@ Imaginary parts separately.
 
 C<specialAngle(x)> returns a MathObject Formula in Numeric context of the form
 "a pi/c" that is the closest possible to x, where a is an integer, and c is from
-a specified set of positive intgers. By default, c comes from [1,2,3,4,6].
+a specified set of positive integers. By default, c comes from [1,2,3,4,6].
 
 =head2 Options
 
