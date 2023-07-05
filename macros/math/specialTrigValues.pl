@@ -6,13 +6,14 @@ Subroutines for converting numbers that arise in a trigonometry setting into
 
 =head2 Description
 
-C<specialRadical(x)> returns a MathObject Formula in Complex context of the form
-"a sqrt(b)/c" that is the closest possible to x, where a is an integer, and b, c
-are from specified sets of positive integers. By default, both b and c come from
-[1,2,3]. If x is non-real, this process is applied to the Real and Imaginary
-parts separately. If c is 1, it will be omitted from the espression. If b is 1,
-the "sqrt(1)" will be omitted. If a is 1, it will be omitted unless the whole
-thing is 1. If a is -1, the "1" will be omitted unless the whole thing is -1.
+C<specialRadical(x)> returns a MathObject Formula in Complex context of the
+form "a sqrt(b)/c" that is the closest possible to x, where a is an integer,
+and b and c are from specified sets of positive integers. By default, both b
+and c come from [1,2,3]. If c is 1, it will be omitted from the expression.
+If b is 1, the "sqrt(1)" will be omitted. If a is 1, it will be omitted unless
+the whole thing is 1. If a is -1, the "1" will be omitted unless the whole
+thing is -1. If x is non-real, this process is applied to the Real and
+Imaginary parts separately.
 
 C<specialAngle(x)> returns a MathObject Formula in Numeric context of the form
 "a pi/c" that is the closest possible to x, where a is an integer, and c is from
@@ -35,8 +36,7 @@ sub _specialTrigValues_init { }
 loadMacros("MathObjects.pl");
 
 sub specialRadical {
-	my $x         = shift;
-	my %options   = @_;
+	my ($x, %options) = @_;
 	my $radics    = $options{radicands}    ? $options{radicands}    : [ 1, 2, 3 ];
 	my $denoms    = $options{denominators} ? $options{denominators} : [ 1, 2, 3 ];
 	my $mycontext = Context();
@@ -79,8 +79,7 @@ sub specialRadical {
 }
 
 sub specialAngle {
-	my $x         = shift;
-	my %options   = @_;
+	my ($x, %options) = @_;
 	my $denoms    = $options{denominators} ? $options{denominators} : [ 1, 2, 3, 4, 6 ];
 	my $mycontext = Context();
 	Context('Numeric')->flags->set(reduceConstants => 0, reduceConstantFunctions => 0);
