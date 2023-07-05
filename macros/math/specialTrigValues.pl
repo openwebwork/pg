@@ -71,7 +71,14 @@ sub specialRadical {
 			$a[$y] = '-';
 		}
 	}
-	my $return = Formula("$a[0] $sqrtb[0] $divc[0] + $a[1] i $sqrtb[1] $divc[1]");
+	my $return;
+	if ($a[1] eq '-') {
+		$return = Formula("$a[0] $sqrtb[0] $divc[0] - i $sqrtb[1] $divc[1]");
+	} elsif ($a[1] eq '' || $a[1] > 0) {
+		$return = Formula("$a[0] $sqrtb[0] $divc[0] + $a[1] i $sqrtb[1] $divc[1]");
+	} else {
+		$return = Formula("$a[0] $sqrtb[0] $divc[0] - " . -$a[1] . " i $sqrtb[1] $divc[1]") if ($a[1] < 0);
+	}
 	$return = Formula("$a[1] i $sqrtb[1] $divc[1]") if ($nums[0] == 0);
 	$return = Formula("$a[0] $sqrtb[0] $divc[0]")   if ($nums[1] == 0);
 	Context($mycontext);
