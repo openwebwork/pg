@@ -40,7 +40,7 @@ die "out_dir, pod_root, and pg_doc_home must be provided.\n"
 	unless $out_dir && $pod_root && $pg_doc_home;
 
 my $mt           = Mojo::Template->new(vars => 1);
-my $template_dir = "$pg_root/doc/templates";
+my $template_dir = "$pg_root/tutorial/templates";
 
 (undef, my $macro_files) = Pod::Simple::Search->new->inc(0)->survey("$pg_root/macros");
 my $macro_locations = { map { basename($_) => ($_ =~ s!$pg_root/macros/!!r) =~ s/\.pl/.html/r } keys %$macro_files };
@@ -156,7 +156,7 @@ sub writeIndex ($params, %options) {
 }
 
 # Copy the PG.js file and CSS file into the output directory.
-copy("$pg_root/doc/js/PG.js",               $out_dir);
-copy("$pg_root/doc/css/sample-problem.css", $out_dir);
+copy("$pg_root/tutorial/js/PG.js",               $out_dir);
+copy("$pg_root/tutorial/css/sample-problem.css", $out_dir);
 
 1;
