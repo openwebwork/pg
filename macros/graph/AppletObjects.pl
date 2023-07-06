@@ -38,7 +38,7 @@ Usage:    C<$applet = GeogebraWebApplet(...);>
 =cut
 
 sub GeogebraWebApplet {
-	ADD_JS_FILE("https://www.geogebra.org/deployggb.js", 1);
+	ADD_JS_FILE("https://cdn.geogebra.org/apps/deployggb.js", 1);
 	return GeogebraWebAppletBase->new(@_);
 }
 
