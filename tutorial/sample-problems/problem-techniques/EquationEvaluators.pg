@@ -21,7 +21,10 @@
 #: In the initialization section, we need to include the macros file
 #: `parserImplicitEquation.pl`.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserImplicitEquation.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',             'PGML.pl',
+    'parserImplicitEquation.pl', 'PGcourse.pl'
+);
 
 #:% section=setup
 #: We specify that the `Context` should be `ImplicitEquation`, and define the
@@ -83,8 +86,8 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserImplicitEquation.pl', 'PGcourse.pl
 #:```
 Context("ImplicitEquation");
 Context()->variables->set(
-	x => { limits => [ -2, 2 ] },
-	y => { limits => [ 0,  4 ] }
+    x => { limits => [ -2, 2 ] },
+    y => { limits => [ 0,  4 ] }
 );
 
 $ans = ImplicitEquation("y = (x-1)^2");

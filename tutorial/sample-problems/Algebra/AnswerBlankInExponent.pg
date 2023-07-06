@@ -17,16 +17,16 @@
 #:% categories = [exponent]
 
 #:% section = preamble
-#: The macro `niceTables.pl` provides a way to format the problem.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: We want the only variables to be `a` and `b` and choose a random power.
 #:
-#: The exponential layout is made with a table with padding on the top of the
-#: left cell and on the bottom of the right cell.
+#: The exponential layout is in HTML using a pair of adjacent `span` elements
+#: with the right one shifted up using the CSS style `vertical-align`.
+#: In hardcopy mode, we use the LaTeX exponent.
 Context()->variables->are(a => 'Real', b => 'Real');
 
 $n = random(3, 9);
@@ -39,37 +39,23 @@ $base     = Formula("a*b");
 $exponent = Formula("$n");
 
 # Display exponents nicely
-# Context()->texStrings;
-
-$tab = LayoutTable([[
-    ["\(\displaystyle $expression= \Big(\)" . ans_rule(4) . "\(\Big)\)", cellcss => { padding => '20pt 0pt 0pt 4pt'}],
-    [ ans_rule(4), cellcss => {padding => '0pt 0pt 20pt 0pt'}]
-]]);
-
-# if ($displayMode eq 'TeX') {
-#     $showpower =
-#         "\( \displaystyle $expression = ("
-#         . ans_rule(4) . ")^{"
-#         . ans_rule(4) . "}\)";
-# } else {
-#     $showpower = ColumnTable(
-#         "\( \displaystyle $expression = \Big( \)"
-#             . ans_rule(4)
-#             . "\( \Big) \)",
-#         ans_rule(4) . $BR . $BR,
-#         indent     => 0,
-#         separation => 0,
-#         valign     => 'BOTTOM'
-#     );
-# }
-# Context()->normalStrings;
+$exp = MODES(
+    HTML => "<span>\(\displaystyle $expression= \Big(\)"
+        . ans_rule(4)
+        . '\(\Big)\)</span><span style="vertical-align: 12pt;">'
+        . ans_rule(4)
+        . '</span>',
+    TeX => "\( \displaystyle $expression = ("
+        . ans_rule(4) . ")^{"
+        . ans_rule(4) . "}\)"
+);
 
 #:% section = statement
-#: We insert the nicely formatted answer blanks using `$showpower`.
+#: We insert exponential stored as `$exp`.
 BEGIN_PGML
 Rewrite the following using a single exponent.
 
-[$tab]***
+[$exp]*
 END_PGML
 
 #:% section = answer

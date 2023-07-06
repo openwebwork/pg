@@ -24,9 +24,9 @@
 #: `contextLimitedPowers.pl`.
 DOCUMENT();
 loadMacros(
-	'PGstandard.pl',               'PGML.pl',
-	'contextLimitedPolynomial.pl', 'contextPolynomialFactors.pl',
-	'contextLimitedPowers.pl',     'PGcourse.pl'
+    'PGstandard.pl',               'PGML.pl',
+    'contextLimitedPolynomial.pl', 'contextPolynomialFactors.pl',
+    'contextLimitedPowers.pl',     'PGcourse.pl'
 );
 
 #:% section=setup
@@ -72,9 +72,9 @@ $expandedform = Formula("x^2 - $p1 x + $p0")->reduce;
 Context("PolynomialFactors-Strict");
 Context()->flags->set(singleFactors => 0);
 LimitedPowers::OnlyIntegers(
-	minPower => 0,
-	maxPower => 1,
-	message  => "either 0 or 1",
+    minPower => 0,
+    maxPower => 1,
+    message  => "either 0 or 1",
 );
 $factoredform = Compute("(x+$a)(x-$b)");
 

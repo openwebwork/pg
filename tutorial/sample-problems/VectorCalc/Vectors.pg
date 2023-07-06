@@ -72,19 +72,19 @@ Context('Vector');
 
 $v1 = Vector("<1,3>");
 $v2 = Compute("<-3,1>");
-$v3 = 3*i + 2*j - 4*k;
-$v4 = Vector(1,1,0);
+$v3 = 3 * i + 2 * j - 4 * k;
+$v4 = Vector(1, 1, 0);
 
 # create an array of the components of $v3
 @v3comp = $v3->value;
 
-$a = 3*i + j;
+$a = 3 * i + j;
 # $b = $a + $v1; # this results in an error
-$c = norm($v3);    # vector length
-$v5 = unit($v3);   # unit vector in same direction
-$d = $v1 . $v2;    # dot product
-$v6 = $v3 x $v4;      # cross product
-$v3->isParallel($v4); # returns 1 if parallel, 0 if skew
+$c  = norm($v3);         # vector length
+$v5 = unit($v3);         # unit vector in same direction
+$d  = $v1 . $v2;         # dot product
+$v6 = $v3 x $v4;         # cross product
+$v3->isParallel($v4);    # returns 1 if parallel, 0 if skew
 
 BEGIN_PGML
 [`\vec{v}_1=[$v1]`]
@@ -114,7 +114,6 @@ The first element of [`\vec{v}_3`] is [@ $v3->extract(1) @]
 
 The third element of [`\vec{v}_4`] is [@ $v4->extract(3) @]
 END_PGML
-
 
 #:% section = solution
 BEGIN_PGML_SOLUTION

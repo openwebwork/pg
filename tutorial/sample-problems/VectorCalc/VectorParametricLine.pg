@@ -23,18 +23,21 @@
 #: `parseParametricLine.pl` provides the `ParametricLine` function which
 #: will be the answer.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl',
-  'parserParametricLine.pl','PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',        'PGML.pl',
+    'parserVectorUtils.pl', 'parserParametricLine.pl',
+    'PGcourse.pl'
+);
 
 #:% section = setup
 #:  We randomize two points in three-dimensional space, `P` and `Q`, a
 #: displacement vector between them, and a speed to travel between them.
 Context('Vector');
-Context()->variables->are(t=>'Real');
+Context()->variables->are(t => 'Real');
 
-$P = non_zero_point3D();
+$P    = non_zero_point3D();
 $disp = non_zero_vector3D();
-$Q = Point($P + $disp);
+$Q    = Point($P + $disp);
 $line = ParametricLine("$P+t *$disp");
 
 #:% section = statement

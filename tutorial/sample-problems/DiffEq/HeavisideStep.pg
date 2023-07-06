@@ -66,10 +66,10 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 #: `u(t)` should be properly defined as the Heaviside function for obvious reasons.
 Context()->variables->are(t => 'Real');
 Context()->functions->add(
-	step => {
-		class => 'Parser::Legacy::Numeric',
-		perl  => 'Parser::Legacy::Numeric::do_step'
-	},
+    step => {
+        class => 'Parser::Legacy::Numeric',
+        perl  => 'Parser::Legacy::Numeric::do_step'
+    },
 );
 
 parserFunction('u(t)' => 'step(t)');
@@ -79,12 +79,14 @@ $a = random(3, 6);
 $f = Formula("5 u(t-$a)");
 
 $answer1 =
-	List($f->eval(t => $a - 1), $f->eval(t => $a), $f->eval(t => $a + 1));
+    List($f->eval(t => $a - 1), $f->eval(t => $a), $f->eval(t => $a + 1));
 
 $answer2 = $f->with(
-	limits     => [ $a - 5,     $a + 5 ],
-	test_at    => [ [ $a - 1 ], [ $a - 0.0000001 ], [$a], [ $a + 0.0000001 ], [ $a + 1 ] ],
-	num_points => 10,
+    limits  => [ $a - 5, $a + 5 ],
+    test_at => [
+        [ $a - 1 ], [ $a - 0.0000001 ], [$a], [ $a + 0.0000001 ], [ $a + 1 ]
+    ],
+    num_points => 10,
 );
 
 #:% section = statement

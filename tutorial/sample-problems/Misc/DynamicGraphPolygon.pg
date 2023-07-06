@@ -19,7 +19,7 @@
 #: The dynamic graphs are generated with `PGtikz.pl`, so this is needed.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl','PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: See PROBLINK('DynamicGraph.pg') for basics of using tikz.
@@ -56,15 +56,12 @@ $plot_setup = qq/
 \foreach \y in {-4,...,-1,1,2,...,4} \draw(-4.5,\y) node {\(\y\)};
 /;
 
-
-
 # The vertices of the triangle chosen randomly will be ($x0,$y0), ($x1,$y0)
 # and ($x0,$y1).
-$x0 = random(-3,-1);
-$x1 = random(1,3);
-$y0 = random(-3,-1);
-$y1 = random(1,3);
-
+$x0 = random(-3, -1);
+$x1 = random(1,  3);
+$y0 = random(-3, -1);
+$y1 = random(1,  3);
 
 $graph1 = createTikZImage();
 $graph1->tikzLibraries('arrows.meta');
@@ -88,8 +85,8 @@ $plot_setup;
 END_TIKZ
 
 # A circle with center ($x0,$y0)
-$x = random(-2,2);
-$y = random(-2,2);
+$x = random(-2, 2);
+$y = random(-2, 2);
 
 $graph3 = createTikZImage();
 $graph3->tikzLibraries('arrows.meta');

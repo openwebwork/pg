@@ -24,8 +24,11 @@
 #: will be the answer.  The `parserMultiAnswer.pl` is needed since the
 #: answer blanks are interdependent.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl',
-  'parserParametricLine.pl','parserMultiAnswer.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',           'PGML.pl',
+    'parserParametricLine.pl', 'parserMultiAnswer.pl',
+    'PGcourse.pl'
+);
 
 #:% section = setup
 #:  We create a MutiAnswer answer checker that will evaluate the students
@@ -34,47 +37,46 @@ loadMacros('PGstandard.pl', 'PGML.pl',
 #: for `t` between `0` and `1`, and `(4,0) + t<-2,1>` for t between `0` and `2`
 #: will be marked correct.
 Context("Vector");
-Context()->variables->are(t=>"Real");
+Context()->variables->are(t => "Real");
 
-$P = Point(4,0);
-$Q = Point(0,2);
-$V = Vector(-4,2);
+$P = Point(4, 0);
+$Q = Point(0, 2);
+$V = Vector(-4, 2);
 
-$t = Formula("t");
+$t    = Formula("t");
 $line = Vector("$P + $t * $V");
 
-$multians = MultiAnswer( $line, Real("0"), Real("1") )->with(
-  singleResult => 0,
-  checker => sub {
-    my ( $correct, $student, $ansHash ) = @_;
-    my ( $linestu, $astu, $bstu ) = @{$student};
-    my ( $linecor, $acor, $bcor ) = @{$correct};
+$multians = MultiAnswer($line, Real("0"), Real("1"))->with(
+    singleResult => 0,
+    checker      => sub {
+        my ($correct, $student, $ansHash) = @_;
+        my ($linestu, $astu,    $bstu)    = @{$student};
+        my ($linecor, $acor,    $bcor)    = @{$correct};
 
-    if ( (ParametricLine("$line") == $linestu) &&
-         ($linestu->eval(t=>$astu) == $line->eval(t=>"0")) &&
-         ($linestu->eval(t=>$bstu) == $line->eval(t=>"1")) )
-    {
-       return [1,1,1];
+        if ((ParametricLine("$line") == $linestu)
+            && ($linestu->eval(t => $astu) == $line->eval(t => "0"))
+            && ($linestu->eval(t => $bstu) == $line->eval(t => "1")))
+        {
+            return [ 1, 1, 1 ];
 
-    } elsif ( (ParametricLine("$line") == $linestu) &&
-              ($linestu->eval(t=>$astu) == $line->eval(t=>"0")) )
-    {
-       return [1,1,0];
+        } elsif ((ParametricLine("$line") == $linestu)
+            && ($linestu->eval(t => $astu) == $line->eval(t => "0")))
+        {
+            return [ 1, 1, 0 ];
 
-    } elsif ( (ParametricLine("$line") == $linestu) &&
-              ($linestu->eval(t=>$bstu) == $line->eval(t=>"1")) )
-    {
-       return [1,0,1];
+        } elsif ((ParametricLine("$line") == $linestu)
+            && ($linestu->eval(t => $bstu) == $line->eval(t => "1")))
+        {
+            return [ 1, 0, 1 ];
 
-    } elsif ( (ParametricLine("$line") == $linestu) )
-    {
-        return [1,0,0];
+        } elsif ((ParametricLine("$line") == $linestu)) {
+            return [ 1, 0, 0 ];
 
-    } else {
-        return [0,0,0];
+        } else {
+            return [ 0, 0, 0 ];
+        }
+
     }
-
-  }
 );
 
 #:% section = statement

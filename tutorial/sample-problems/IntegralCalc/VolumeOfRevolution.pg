@@ -29,7 +29,7 @@ DOCUMENT();
 
 loadMacros(
     'PGstandard.pl',     'PGML.pl',
-    'niceTables.pl',    'answerHints.pl',
+    'niceTables.pl',     'answerHints.pl',
     'weightedGrader.pl', 'PGcourse.pl'
 );
 
@@ -54,13 +54,22 @@ $lower = Real('0');
 $int   = Compute('(pi x^2 - pi x^4) dx');
 $vol   = Compute('2pi/15');
 
-$integral = LayoutTable([
-    [ ' ', NAMED_ANS_RULE('upperlimit', 4)],
-    ['\(V= \)','\(\displaystyle \int \;\;\)' . NAMED_ANS_RULE('integrand', 10)
-        . '\(\;=\;  \)' . NAMED_ANS_RULE('volume', 4)],
-    [ ' ',NAMED_ANS_RULE('lowerlimit', 4)],
-],
-    align => 'rl', valign => 'middle', allcellcss => {padding => '3pt'});
+$integral = LayoutTable(
+    [
+        [ ' ', NAMED_ANS_RULE('upperlimit', 4) ],
+        [
+            '\(V= \)',
+            '\(\displaystyle \int \;\;\)'
+                . NAMED_ANS_RULE('integrand', 10)
+                . '\(\;=\;  \)'
+                . NAMED_ANS_RULE('volume', 4)
+        ],
+        [ ' ', NAMED_ANS_RULE('lowerlimit', 4) ],
+    ],
+    align      => 'rl',
+    valign     => 'middle',
+    allcellcss => { padding => '3pt' }
+);
 
 @weights = (5, 5, 40, 50);
 #:% section = statement

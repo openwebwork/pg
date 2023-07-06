@@ -19,7 +19,10 @@
 #:% section=preamble
 #: We need to include the macros file `LiveGraphicsVectorField3D.pl`.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'LiveGraphicsVectorField3D.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',                'PGML.pl',
+    'LiveGraphicsVectorField3D.pl', 'PGcourse.pl'
+);
 
 #:% section=setup
 #: The `VectorField3D()` routine returns a string of plot data consisting of a list of line
@@ -32,32 +35,32 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'LiveGraphicsVectorField3D.pl', 'PGcourse
 #: Setting outputtype to something other than 4 will require you to read the source code of
 #: `LiveGraphicsVectorField3D.pl` and familiarize yourself with the details of the LiveGraphics3D
 #: javascript applet.
-Context()->variables->are(x=>'Real',y=>'Real',z=>'Real');
+Context()->variables->are(x => 'Real', y => 'Real', z => 'Real');
 
 $plot = VectorField3D(
-	Fx => Formula('x'),
-	Fy => Formula('y'),
-	Fz => Formula('z'),
-	xvar => 'x',
-	yvar => 'y',
-	zvar => 'z',
-	xmin => -1,
-	xmax =>  1,
-	ymin => -1,
-	ymax =>  1,
-	zmin => -1,
-	zmax =>  1,
-	xsamples => 4,
-	ysamples => 4,
-	zsamples => 4,
-	axesframed => 1,
-	xaxislabel => 'X',
-	yaxislabel => 'Y',
-	zaxislabel => 'Z',
-	vectorcolor => "RGBColor[0.0,0.0,1.0]",
-	vectorscale => 0.2,
-	vectorthickness => 0.01,
-	outputtype => 4,
+    Fx              => Formula('x'),
+    Fy              => Formula('y'),
+    Fz              => Formula('z'),
+    xvar            => 'x',
+    yvar            => 'y',
+    zvar            => 'z',
+    xmin            => -1,
+    xmax            => 1,
+    ymin            => -1,
+    ymax            => 1,
+    zmin            => -1,
+    zmax            => 1,
+    xsamples        => 4,
+    ysamples        => 4,
+    zsamples        => 4,
+    axesframed      => 1,
+    xaxislabel      => 'X',
+    yaxislabel      => 'Y',
+    zaxislabel      => 'Z',
+    vectorcolor     => "RGBColor[0.0,0.0,1.0]",
+    vectorscale     => 0.2,
+    vectorthickness => 0.01,
+    outputtype      => 4,
 );
 
 #:% section=statement

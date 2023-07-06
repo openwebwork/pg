@@ -28,7 +28,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
 #: followed (optionally) by extra statements. See
 #: PODLINK('the Draggable Proof POD', 'draggableProof.pl') for more options.
 $proof = DraggableProof(
-	# These are the correct statements of the proof in the correct order.
+    # These are the correct statements of the proof in the correct order.
     [
         'Assume \(\sqrt{2} = \frac{a}{b}\) where \(a,b\) are integers, with \(\text{gcd}(a,b) = 1\)',
         '\(2 = \frac{a^2}{b^2}\)',

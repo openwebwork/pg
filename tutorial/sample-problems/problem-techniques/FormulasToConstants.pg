@@ -27,7 +27,10 @@
 #: is unique up to a (specified) additive constant, this macro is not needed.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserFormulaUpToConstant.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',                'PGML.pl',
+    'parserFormulaUpToConstant.pl', 'PGcourse.pl'
+);
 
 #:% section = setup
 #: Define an antiderivative function `$func` and the most general antiderivative

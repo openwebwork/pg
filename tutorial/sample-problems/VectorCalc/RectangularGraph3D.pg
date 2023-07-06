@@ -24,7 +24,6 @@ DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
 
-
 #:% section=setup
 #: We generate the plot parametrically for the function `z=x^2+y^2` with the
 #: `addSurface` function.  Since `x` and `y` are generally used with
@@ -37,10 +36,10 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
 
 $gr = Graph3D();
 $gr->addSurface(
-	['x', 'y', 'x^2+y^2'],
-	[-3, 3, 30],
-	[-3, 3, 30],
-	variables => ['x','y']
+    [ 'x', 'y', 'x^2+y^2' ],
+    [ -3,  3,   30 ],
+    [ -3,  3,   30 ],
+    variables => [ 'x', 'y' ]
 );
 
 #:% section=statement

@@ -30,14 +30,14 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: a variable.
 Context('Complex');
 
-$z0 = Complex(non_zero_random(-5,4), non_zero_random(-5,5));
-$z1 = Complex([-1,4]);
+$z0 = Complex(non_zero_random(-5, 4), non_zero_random(-5, 5));
+$z1 = Complex([ -1, 4 ]);
 $z2 = Complex("2-4i");
-$z3 = 3-4*i;
+$z3 = 3 - 4 * i;
 
-$ans1 = $z0+$z1;
-$a0 = non_zero_random(-4,4);
-$a1 = random(1,5);
+$ans1 = $z0 + $z1;
+$a0   = non_zero_random(-4, 4);
+$a1   = random(1, 5);
 $ans2 = Compute("$a0*$z1-$a1*$z2");
 
 #:% section = statement
@@ -63,6 +63,5 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
 
 ENDDOCUMENT();

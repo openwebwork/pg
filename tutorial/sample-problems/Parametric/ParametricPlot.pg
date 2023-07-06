@@ -57,12 +57,12 @@ $graph->BEGIN_TIKZ
     ({2*sin(2*\t r)},{2*sin(3*\t r)});
 END_TIKZ
 
-$x = Compute('2sin(2t)');
+$x  = Compute('2sin(2t)');
 $x0 = $x->eval(t => 'pi/3');
-$y = Compute('2sin(3t)');
+$y  = Compute('2sin(3t)');
 $y0 = $y->eval(t => 'pi/3');
 
-$m = $y->D('t')->eval(t => 'pi/3')/$x->D('t')->eval(t => 'pi/3');
+$m    = $y->D('t')->eval(t => 'pi/3') / $x->D('t')->eval(t => 'pi/3');
 $line = Compute("$m*(x-$x0)+$y0");
 
 #:% section=statement

@@ -23,7 +23,10 @@
 #: Note the `LayoutTable` does the right thing for accessibility and
 #: webpage responsiveness.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGtikz.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGtikz.pl',
+    'PGcourse.pl'
+);
 
 #:% section=setup
 #: We use the `LayoutTable` function from `niceTables.pl` to demonstrate some
@@ -83,7 +86,10 @@ END_TIKZ
 #: Since the only output is the table, we use this line to output the
 #: problem as the two columns. This is the `LayoutTable` with only
 #: one row.
-TEXT(LayoutTable([ [ $left, image($graph, width => 400, tex_size => 600) ] ], align => 'lc'));
+TEXT(LayoutTable(
+    [ [ $left, image($graph, width => 400, tex_size => 600) ] ],
+    align => 'lc'
+));
 
 #:% section = answer
 #: Since `ans_rule` is used to produce answer blanks, this in needed.

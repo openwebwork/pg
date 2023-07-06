@@ -56,8 +56,8 @@ Context()->variables->are(t => 'Real', u => 'Real');
 
 $f   = Formula('2 t');
 $ans = Formula('6 u')->cmp->withPostFilter(AnswerHints(
-	Formula('6 t') => 'Are you using the correct variable?',
-	Formula('6 u') => 'Good work!'
+    Formula('6 t') => 'Are you using the correct variable?',
+    Formula('6 u') => 'Good work!'
 ));
 
 #:% section = statement

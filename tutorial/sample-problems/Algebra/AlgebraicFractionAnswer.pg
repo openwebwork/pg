@@ -22,8 +22,9 @@
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',  'PGML.pl', 'niceTables.pl',
-    'parserMultiAnswer.pl', 'PGcourse.pl'
+    'PGstandard.pl', 'PGML.pl',
+    'niceTables.pl', 'parserMultiAnswer.pl',
+    'PGcourse.pl'
 );
 
 #:% section = setup
@@ -59,7 +60,7 @@ do {
     $a = random(2, 8, 2);
     $b = random(3, 9, 2);
     $c = random(1, 9, 1);
-} until ($a*$c != $b);
+} until ($a * $c != $b);
 
 $num = Formula("$a y - $b");
 $den = Formula("y - $c");
@@ -100,18 +101,15 @@ $multians = MultiAnswer($num, $den)->with(
 );
 
 $frac = LayoutTable(
-    [[
+    [ [
         "\(\displaystyle\frac{$a y}{y-$c} + \frac{$b}{$c - y}=\)",
         LayoutTable(
-            [
-                [[ans_rule(4), bottom => 1]],
-                [ans_rule(4)],
-            ],
-            padding => [0.5, 0],
+            [ [ [ ans_rule(4), bottom => 1 ] ], [ ans_rule(4) ], ],
+            padding => [ 0.5, 0 ],
         )
-    ]],
-    padding => [0, 0.5],
-    valign => 'middle',
+    ] ],
+    padding => [ 0, 0.5 ],
+    valign  => 'middle',
 );
 
 #:% section = statement

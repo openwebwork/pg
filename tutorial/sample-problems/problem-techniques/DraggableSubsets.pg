@@ -42,19 +42,23 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
 #: See the [DraggableProofs](../Misc/DraggableProof.html) for an example of
 #: how to create drag and drop proof problems.
 $draggable = DraggableSubsets(
-	[
-		'mouse',  'ebola bacteria', 'flu virus',    'krill',    'house cat',  'emu',
-		'coyote', 'tapir',          'hippopotamus', 'elephant', 'blue whale', 'eagle'
-	],
-	[ [], [ 0, 4, 6, 7, 8, 9, 10 ], [ 5, 11 ], [ 1, 2, 3 ] ],
-	# ['mouse','house cat','coyote','tapir','hippopatamus','elephant']
-	DefaultSubsets => [
-		{ label => 'Animals', indices => [ 0 .. 11 ] },
-		{ label => 'Mammals', indices => [] },
-		{ label => 'Birds',   indices => [] },
-		{ label => 'Other',   indices => [] }
-	],
-	AllowNewBuckets => 0
+    [
+        'mouse',        'ebola bacteria',
+        'flu virus',    'krill',
+        'house cat',    'emu',
+        'coyote',       'tapir',
+        'hippopotamus', 'elephant',
+        'blue whale',   'eagle'
+    ],
+    [ [], [ 0, 4, 6, 7, 8, 9, 10 ], [ 5, 11 ], [ 1, 2, 3 ] ],
+    # ['mouse','house cat','coyote','tapir','hippopatamus','elephant']
+    DefaultSubsets => [
+        { label => 'Animals', indices => [ 0 .. 11 ] },
+        { label => 'Mammals', indices => [] },
+        { label => 'Birds',   indices => [] },
+        { label => 'Other',   indices => [] }
+    ],
+    AllowNewBuckets => 0
 );
 
 #:% section = statement

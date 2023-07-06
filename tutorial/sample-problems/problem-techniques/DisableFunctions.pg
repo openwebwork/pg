@@ -75,9 +75,9 @@ Context()->functions->disable("abs", "sqrt");
 Context()->operators->undefine("^", "**");
 Context()->parens->remove("|");
 Context()->{error}{convert} = sub {
-	my $message = shift;
-	$message =~ s/Unexpected character '~~|'/Absolute value is not allowed/;
-	return $message;
+    my $message = shift;
+    $message =~ s/Unexpected character '~~|'/Absolute value is not allowed/;
+    return $message;
 };
 
 #:% section=statement

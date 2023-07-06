@@ -15,7 +15,6 @@
 #:% categories = [misc]
 #:% see_also = [FormulaDomain.pg]
 
-
 #:% section = preamble
 DOCUMENT();
 
@@ -35,10 +34,10 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: for the function to be outside this interval.  Alteratively, as shown,
 #: the points are set with the `test_points` field to be a set of points
 #: that don't include `(-2,2)`.
-Context()->variables->set(x=>{limits=>[-1,1]});
+Context()->variables->set(x => { limits => [ -1, 1 ] });
 
 # Alternately
-Context()->flags->set(limits=>[2,5]);
+Context()->flags->set(limits => [ 2, 5 ]);
 
 $f = Compute('sqrt(x+1)');
 
@@ -49,7 +48,7 @@ $f = Compute('sqrt(x+1)');
 # $func->{limits} = [2,5];
 
 $g = Compute("sqrt(x^2 - 4)");
-$g->{test_points} = [[-3],[-2],[2],[3],[4]];
+$g->{test_points} = [ [-3], [-2], [2], [3], [4] ];
 
 #:% section = statement
 BEGIN_PGML

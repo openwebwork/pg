@@ -21,7 +21,10 @@
 #: `parserPopUp.pl` is used to include the popup.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGtikz.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGtikz.pl',
+    'PGcourse.pl'
+);
 
 $showPartialCorrectAnswers = 0;
 

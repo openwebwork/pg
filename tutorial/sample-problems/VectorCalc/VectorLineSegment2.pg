@@ -21,19 +21,18 @@
 #:% section = preamble
 #:  The macro `parseVectorUtils.pl` provides random points and vectors.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl',
-  'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: In this case, there is only a single answer, so we can just enter the
 #: correct expression for the vector-valued function.
 Context("Vector");
-Context()->variables->are(t=>"Real");
+Context()->variables->are(t => "Real");
 
-$P = non_zero_point3D();
-$disp = non_zero_vector3D();
-$Q = Point($P + $disp);
-$speed = random(3,9,1);
+$P     = non_zero_point3D();
+$disp  = non_zero_vector3D();
+$Q     = Point($P + $disp);
+$speed = random(3, 9, 1);
 
 $ans = Compute("$P + $speed *t * $disp/norm($disp)");
 

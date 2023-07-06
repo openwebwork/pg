@@ -19,13 +19,17 @@
 #: `parserGraphTool.pl` to create images to be shown.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGgraphmacros.pl', 'PGtikz.pl',
-  'PGlateximage.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',    'PGML.pl',
+    'PGgraphmacros.pl', 'PGtikz.pl',
+    'PGlateximage.pl',  'parserGraphTool.pl',
+    'PGcourse.pl'
+);
 
 #:% section = setup
 #: A WWPlot (from `PGgraphmacros.pl`), a TikZ plot, LaTeXImage, and
 #: Graphtool is made.
-$WWPlot = init_graph(-1,-1,4,4);
+$WWPlot = init_graph(-1, -1, 4, 4);
 add_functions($WWPlot, "x^2/4 for x in <-1,4> using color:blue and weight:2");
 
 $TikZ = createTikZImage();
@@ -34,7 +38,7 @@ $TikZ->BEGIN_TIKZ
 END_TIKZ
 
 $LaTeXImage = createLaTeXImage();
-$LaTeXImage->texPackages([['xy','all']]);
+$LaTeXImage->texPackages([ [ 'xy', 'all' ] ]);
 $LaTeXImage->BEGIN_LATEX_IMAGE
 \xymatrix{ A \ar[r] & B \ar[d] \\\\
            D \ar[u] & C \ar[l] }
@@ -76,6 +80,5 @@ BEGIN_PGML
 * A graphtool plot [!A graphtool plot with a circle!]{$gt}{120}
 
 END_PGML
-
 
 ENDDOCUMENT();

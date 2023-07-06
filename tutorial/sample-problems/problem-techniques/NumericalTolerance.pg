@@ -41,15 +41,15 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: toltype and/or tolerance is the same for many answer.  Typically this would go at the
 #: top of the setup section.
 $ans1 = Compute('1.5708')->cmp(
-	tolType   => 'absolute',
-	tolerance => .0001,
+    tolType   => 'absolute',
+    tolerance => .0001,
 );
 
 $ans2 = Compute('1.5708');
 
 Context('Numeric')->flags->set(
-	tolerance => 0.0001,
-	tolType   => 'absolute',
+    tolerance => 0.0001,
+    tolType   => 'absolute',
 );
 
 $ans3 = Compute('1.5708');

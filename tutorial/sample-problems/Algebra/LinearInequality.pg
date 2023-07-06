@@ -21,18 +21,17 @@
 #: LinearRelation object.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',  'PGML.pl', 'parserLinearRelation.pl', 'PGcourse.pl'
-);
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserLinearRelation.pl',
+    'PGcourse.pl');
 
 #:% section = setup
 Context("LinearRelation");
 
 do {
-  $a = random(2,6);
-  $b = random(2,6);
+    $a = random(2, 6);
+    $b = random(2, 6);
 } until ($a != $b);
-$ab = $a*$b;
+$ab = $a * $b;
 
 $lr = LinearRelation("$a x + $b y < $ab")->reduce;
 

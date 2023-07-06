@@ -33,7 +33,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
 Context('Inequalities-Only');
 Context()->flags->set(formatStudentAnswer => 'parsed');
 
-$a = random(3, 9);
+$a   = random(3, 9);
 $ans = Compute("x >= -10 / $a");
 
 #:% section = statement

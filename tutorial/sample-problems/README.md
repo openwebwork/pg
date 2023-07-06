@@ -15,13 +15,13 @@ metadata is currently supported.
 
 - **name**: the name of the problem as will appear in the documentation listings.
 - **type**: the type of the problem can be one or more of the following
-  * _sample_: a sample problem that would appear in some course.
-  * _technique_: a problem from the _Problem Techniques_ on the wiki which may
+  - _sample_: a sample problem that would appear in some course.
+  - _technique_: a problem from the _Problem Techniques_ on the wiki which may
   demonstrate something of interest, but may not be relevant as a sample problem.
-  * _snippet_: part of a problem that is useful if embedded in another problem.
+  - _snippet_: part of a problem that is useful if embedded in another problem.
 
 - **subject**: A subject area that a sample problem belongs to.  This may be more
-that one.
+than one.
 - **see_also**: A listing of other problems (by the filename) that will appear
 in the documentation as a reference.
 - **category**: A listing of any categories that the problem would belong to.
@@ -31,9 +31,10 @@ Also, both the singular and plural forms of the type, subject, category are
 supported.
 
 Here's an example:
+
 ```perl
 #:% name = Surface Graph in Cylindrical Coordinates
-#:% type = Sample
+#:% type = [Sample, technique]
 #:% subject = [Vector Calculus]
 #:% see_also = [SpaceCurveGraph.pg, SurfaceGraph.pg]
 #:% categories = [graph]
@@ -52,7 +53,7 @@ DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
-#:% setup
+#:% section = setup
 #: We use `do { $b = random(2,9,1); } until ( $b != $a );` to generate distinct
 #: random numbers.
 $a = non_zero_random(-9, 9);
@@ -75,8 +76,8 @@ All lines following the documentation lines are considered code until the next `
 The documentation is generated with the `parse-prob-doc.pl` script in the `bin`
 directory of pg. There are the following options (and many are required):
 
-- `problem_dir` or `d`:  The directory where the sample problems are.  This is
-`PG_ROOT/doc/sample-problems`, but required to add.
+- `problem_dir` or `d`:  The directory where the sample problems are.  This defaults to
+`PG_ROOT/tutorial/sample-problems` if not passed in.
 - `out_dir` or `o`: The directory where the resulting documentation files (HTML)
 will be located.
 - `pod_root` or `p`: The URL where the POD is located.  This is needed to
@@ -85,13 +86,15 @@ correctly link POD documentation from the sample problems.
 for correct linking.
 - `verbose` or `v`: verbose mode.
 
-After running, each sample problem will be parsed and an HTML file will be generated
-(replacing `.pg` with `.html`) as well as three files in the top directory:
-`categories.html`, `techniques.html` and `subjects.html` which lists the problem
-by categories, the problem techniques and by subject area respectively.  A
-problem may be listed in more than one place.
+After running, the following is created
 
+- the indexes `categories.html`, `techniques.html`, `macros.html` and `subjects.html` which
+produce four different ways of categorizing the problems.
+- For each sample problem, the problem will be parsed and
+  - an html file with the documented PG file
+  - a pg file with the documentation removed.  There is a link to this in the html file.
 
-The script `parse-prob-doc.pl` parses each pg file and uses the `problem-template.mt` template file to generate the
+The script `parse-prob-doc.pl` parses each pg file and uses the `problem-template.mt`
+template file to generate the
 html.  This template is processed using the `Mojo::Template` Perl module.  See the
 [Mojo::Template documentation](https://docs.mojolicious.org/Mojo/Template) for more information.

@@ -31,24 +31,23 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
 #: norm and unit so that students cannot enter them in their answers.
 Context('Vector');
 
-$U = non_zero_vector3D(-9,9,1);
-$V = non_zero_vector3D(-9,9,1);
+$U = non_zero_vector3D(-9, 9, 1);
+$V = non_zero_vector3D(-9, 9, 1);
 
 # value works only for vectors of constants
 @Uarray = $U->value;
 $Ucomp2 = $Uarray[1];
 
-$UdotV = $U . $V;
+$UdotV   = $U . $V;
 $UcrossV = $U x $V;
-$Vlength = norm( $V );
-$Vunit = unit($V);
+$Vlength = norm($V);
+$Vunit   = unit($V);
 
 # Prevent students from entering the dot and cross products,
 # and the vector functions norm and unit.
 
-Context()->operators->undefine('.',"><");
+Context()->operators->undefine('.', "><");
 Context()->functions->disable('Vector');
-
 
 BEGIN_PGML
 Suppose [` \vec{u} = [$U] `] and [` \vec{v} = [$V] `].

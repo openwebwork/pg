@@ -29,7 +29,13 @@ $a = non_zero_random(-8, 8);
 $b = random(1, 8);
 $n = random(2, 4);
 
-@funs = ("1 + $a*x + $b x^2", "$a / (1 + $b x)", "$a x^3 + $b", "($a - x) / ($b + x^2)", "cos($n*x)");
+@funs = (
+    "1 + $a*x + $b x^2",
+    "$a / (1 + $b x)",
+    "$a x^3 + $b",
+    "($a - x) / ($b + x^2)",
+    "cos($n*x)"
+);
 
 # This select one of the functions at random.
 $f = Formula($funs[ random(0, $#funs) ])->reduce;

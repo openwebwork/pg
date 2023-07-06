@@ -20,7 +20,10 @@
 #: so it must be loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedComplex.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',            'PGML.pl',
+    'contextLimitedComplex.pl', 'PGcourse.pl'
+);
 
 #:% section = setup
 #: If we ask students to do operations with complex numbers, often we don't
@@ -37,23 +40,23 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedComplex.pl', 'PGcourse.pl'
 #: enter numbers in polar form use `Context('LimitedComplex-polar')`.
 Context('LimitedComplex');
 
-$x0 = non_zero_random(-5,5);
-$y0 = non_zero_random(-5,5);
-$x1 = non_zero_random(-5,5);
-$y1 = non_zero_random(-5,5);
+$x0 = non_zero_random(-5, 5);
+$y0 = non_zero_random(-5, 5);
+$x1 = non_zero_random(-5, 5);
+$y1 = non_zero_random(-5, 5);
 
-$z0 = Complex($x0,$y0);
-$z1 = Complex($x1,$y1);
+$z0 = Complex($x0, $y0);
+$z1 = Complex($x1, $y1);
 
-$ans1 = $z0+$z1;
-$ans2 = $z0*$z1;
+$ans1 = $z0 + $z1;
+$ans2 = $z0 * $z1;
 
 # Determine the polar form of the answer to give a hint.  Since in
 # LimitedComplex, most functions are diasbled, so we work on the components.
-$arg0 = atan($y0/$x0) + ($x0 > 0 ? ($y0>0 ? 0 : 2*pi): pi);
-$arg1 = atan($y1/$x1) + ($x1 > 0 ? ($y1>0 ? 0 : 2*pi): pi);
-$abs0 = sqrt($x0**2+$y0**2);
-$abs1 = sqrt($x1**2+$y1**2);
+$arg0 = atan($y0 / $x0) + ($x0 > 0 ? ($y0 > 0 ? 0 : 2 * pi) : pi);
+$arg1 = atan($y1 / $x1) + ($x1 > 0 ? ($y1 > 0 ? 0 : 2 * pi) : pi);
+$abs0 = sqrt($x0**2 + $y0**2);
+$abs1 = sqrt($x1**2 + $y1**2);
 
 #:% section = statement
 BEGIN_PGML
@@ -72,6 +75,5 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
 
 ENDDOCUMENT();

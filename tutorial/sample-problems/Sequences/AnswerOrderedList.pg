@@ -30,7 +30,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #:
 #: Since the answer is a MathObject `List`, which is by default unordered, we must
 #: specify that the answer checker use `ordered=>1`.
-@seq    = (1, 1);
+@seq = (1, 1);
 for $i (2 .. 6) {
     $seq[$i] = $seq[ $i - 1 ] + $seq[ $i - 2 ];
 }

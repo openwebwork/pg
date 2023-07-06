@@ -29,13 +29,15 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #:
 #: An alternative method to doing this is in
 #: PROBLINK('ProvingTrigIdentities.pg').
-$ans = Compute('sin(x)')->cmp( checker => sub {
-    my ($correct, $student, $ansHash) = @_;
-    my $stu_ans = $student->reduce;
-    Value->Error('There is a simpler answer')
-        if $stu_ans->string eq 'cos(x)*tan(x)';
-    return $student == $correct;
-});
+$ans = Compute('sin(x)')->cmp(
+    checker => sub {
+        my ($correct, $student, $ansHash) = @_;
+        my $stu_ans = $student->reduce;
+        Value->Error('There is a simpler answer')
+            if $stu_ans->string eq 'cos(x)*tan(x)';
+        return $student == $correct;
+    }
+);
 
 #:% section = statement
 BEGIN_PGML

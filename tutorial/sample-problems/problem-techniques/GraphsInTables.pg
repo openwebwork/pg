@@ -21,8 +21,10 @@
 DOCUMENT();
 
 loadMacros(
-	'PGstandard.pl', 'PGML.pl',           'PGtikz.pl', 'parserPopUp.pl',
-	'niceTables.pl', 'PGchoicemacros.pl', 'PGcourse.pl'
+    'PGstandard.pl', 'PGML.pl',
+    'PGtikz.pl',     'parserPopUp.pl',
+    'niceTables.pl', 'PGchoicemacros.pl',
+    'PGcourse.pl'
 );
 
 #:% section=setup
@@ -58,20 +60,25 @@ loadMacros(
 @eqn_plot = ('-exp(\x)', 'exp(-\x)', '-exp(-\x)', 'exp(\x)');
 
 # The tex form of the functions.
-@eqn = ("\( y = -e^{x} \)", "\( y = e^{-x} \)", "\( y = -e^{-x} \)", "\( y = e^{x} \)");
+@eqn = (
+    "\( y = -e^{x} \)",
+    "\( y = e^{-x} \)",
+    "\( y = -e^{-x} \)",
+    "\( y = e^{x} \)"
+);
 
 # Alternate text for each image.
 @alt_text = (
-	'A graph starting near the negative x-axis on the left, decreasing to the lower left in a concave down manner',
-	'A graph in the upper left and decreasing to the x-axis in a concave up manner',
-	'A graph in the lower left and increasing to the x-axis in a concave down manner',
-	'A graph starting near the negative x-axis on the left, increasing to the upper right in a concave up manner',
+    'A graph starting near the negative x-axis on the left, decreasing to the lower left in a concave down manner',
+    'A graph in the upper left and decreasing to the x-axis in a concave up manner',
+    'A graph in the lower left and increasing to the x-axis in a concave down manner',
+    'A graph starting near the negative x-axis on the left, increasing to the upper right in a concave up manner',
 );
 
 for $i (0 .. 3) {
-	$graph[$i] = createTikZImage();
-	$graph[$i]->tikzLibraries('arrows.meta');
-	$graph[$i]->BEGIN_TIKZ
+    $graph[$i] = createTikZImage();
+    $graph[$i]->tikzLibraries('arrows.meta');
+    $graph[$i]->BEGIN_TIKZ
   \tikzset{>={Stealth[scale=1.5]}}
   \filldraw[
       draw=LightBlue,
@@ -84,12 +91,12 @@ for $i (0 .. 3) {
   \draw[DarkBlue,very thick] plot [samples=150,domain=-3:3]
       (\x,{$eqn_plot[$i]});
 END_TIKZ
-	$fig[$i] = image(
-		$graph[$i],
-		width           => 200,
-		tex_size        => 450,
-		extra_html_tags => "alt='$alt_text[$i]'"
-	);
+    $fig[$i] = image(
+        $graph[$i],
+        width           => 200,
+        tex_size        => 450,
+        extra_html_tags => "alt='$alt_text[$i]'"
+    );
 }
 
 $k = random(0, 3);
@@ -102,7 +109,15 @@ $k = random(0, 3);
 
 $popup = PopUp([ "?", "A", "B", "C", "D" ], $letter[ $inv[$k] ]);
 
-$tab = LayoutTable([ [ 'A', 'B' ], [ $fig[0], $fig[1] ], [ 'C', 'D' ], [ $fig[2], $fig[3] ], ], texalignment => 'cc');
+$tab = LayoutTable(
+    [
+        [ 'A',     'B' ],
+        [ $fig[0], $fig[1] ],
+        [ 'C',     'D' ],
+        [ $fig[2], $fig[3] ],
+    ],
+    texalignment => 'cc'
+);
 
 #:% section = statement
 BEGIN_PGML

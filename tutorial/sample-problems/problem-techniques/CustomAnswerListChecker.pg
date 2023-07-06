@@ -39,53 +39,55 @@ Context('Point');
 
 $c   = random(4, 8);
 $ans = List("(0,$c),($c,0),($c-1,1)")->cmp(
-	list_checker => sub {
-		my ($correct, $student, $ansHash, $value) = @_;
-		my $n     = scalar(@$student);    # number of student answers
-		my $score = 0;                    # number of correct student answers
-		my @errors;                       # stores error messages
+    list_checker => sub {
+        my ($correct, $student, $ansHash, $value) = @_;
+        my $n     = scalar(@$student);    # number of student answers
+        my $score = 0;                    # number of correct student answers
+        my @errors;                       # stores error messages
 
-		#  Loop though the student answers
-		for my $i (0 .. $n - 1) {
-			my $ith = Value::List->NameForNumber($i + 1);
-			my $p   = $student->[$i];                       # i-th student answer
+        #  Loop though the student answers
+        for my $i (0 .. $n - 1) {
+            my $ith = Value::List->NameForNumber($i + 1);
+            my $p   = $student->[$i];                      # i-th student answer
 
-			#  Check that the student's answer is a point
-			if ($p->type ne "Point") {
-				push(@errors, "Your $ith entry is not a point");
-				next;
-			}
+            #  Check that the student's answer is a point
+            if ($p->type ne "Point") {
+                push(@errors, "Your $ith entry is not a point");
+                next;
+            }
 
-			#  Check that the point hasn't been given before
-			for (my $j = 0, $used = 0; $j < $i; $j++) {
-				if ($student->[$j]->type eq "Point" && $student->[$j] == $p) {
-					push(@errors, "Your $ith point is the same as a previous one")
-						unless $ansHash->{isPreview};
-					$used = 1;
-					last;
-				}
-			}
+            #  Check that the point hasn't been given before
+            for (my $j = 0, $used = 0; $j < $i; $j++) {
+                if ($student->[$j]->type eq "Point" && $student->[$j] == $p)
+                {
+                    push(@errors,
+                        "Your $ith point is the same as a previous one")
+                        unless $ansHash->{isPreview};
+                    $used = 1;
+                    last;
+                }
+            }
 
-			# If not already used, check that it satisfies the equation
-			# and increase the score if so.
-			if (!$used) {
-				my ($a, $b) = $p->value;
-				if ($a + $b == $c) {
-					$score++;
-				} else {
-					push(@errors, "Your $ith point is not correct")
-						unless $ansHash->{isPreview};
-				}
-			}
-		}
+            # If not already used, check that it satisfies the equation
+            # and increase the score if so.
+            if (!$used) {
+                my ($a, $b) = $p->value;
+                if ($a + $b == $c) {
+                    $score++;
+                } else {
+                    push(@errors, "Your $ith point is not correct")
+                        unless $ansHash->{isPreview};
+                }
+            }
+        }
 
-		#  Check that there are the right number of answers
-		if (!$ansHash->{isPreview}) {
-			push(@errors, "You need to provide more points") if $n < 3;
-			push(@errors, "You have given too many points")  if $n > 3;
-		}
-		return ($score, @errors);
-	}
+        #  Check that there are the right number of answers
+        if (!$ansHash->{isPreview}) {
+            push(@errors, "You need to provide more points") if $n < 3;
+            push(@errors, "You have given too many points")  if $n > 3;
+        }
+        return ($score, @errors);
+    }
 );
 
 #:% section = statement

@@ -31,7 +31,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
 #: This shows how other identities could be structured. You probably want
 #: some incorrect statements to make the problem a little bit harder.
 $proof = DraggableProof(
-	# These are the correct statements of the proof in the correct order.
+    # These are the correct statements of the proof in the correct order.
     [
         '\(\sin(\pi-\theta) = \sin(\pi)\cos(\theta)-\cos(\pi)\sin(\theta) \)',
         '\(\sin(\pi-\theta) = 0 \cdot \cos(\theta) - (-1)\cdot \sin(\theta)\)',

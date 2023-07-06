@@ -23,7 +23,7 @@
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',  'PGML.pl', 'niceTables.pl', 'answerHints.pl',
+    'PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'answerHints.pl',
     'PGcourse.pl'
 );
 
@@ -41,12 +41,18 @@ Context()->variables->are(
     dt => 'Real'
 );
 
-$integral = LayoutTable([
-    [ ' ',ans_rule(4)],
-    ['\(f(x)= \)' . ans_rule(10) . '\(+\)','\(\displaystyle \int \;\;\)' . ans_rule(10)],
-    [ ' ',ans_rule(4)],
-],
-    align => 'rl', allcellcss => {padding => '3pt'});
+$integral = LayoutTable(
+    [
+        [ ' ', ans_rule(4) ],
+        [
+            '\(f(x)= \)' . ans_rule(10) . '\(+\)',
+            '\(\displaystyle \int \;\;\)' . ans_rule(10)
+        ],
+        [ ' ', ans_rule(4) ],
+    ],
+    align      => 'rl',
+    allcellcss => { padding => '3pt' }
+);
 
 #:% section = statement
 #: The integral is placed in the problem with the `[$integral]*` which displays
@@ -65,7 +71,6 @@ END_PGML
 #: and give the student feedback on this.
 $fpx = Formula("sin(x)");
 $fpt = Formula("sin(t)");
-
 
 ANS(Compute('x')->cmp());
 ANS(Compute('5')->cmp());

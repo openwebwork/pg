@@ -22,9 +22,7 @@
 #: form `y = ...`.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl'
-);
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Add the arbitrary constants `c1, c2, c3` to the context as variables so that we can
@@ -83,9 +81,12 @@ $cmp = $answer->cmp(
         #  Linear independence (Wronskian)
         my $x = Real(1.43);
 
-        my $a11 = $stu->eval('c1' => 1, 'c2' => 0, 'c3' => 0, x => $x, y => 0);
-        my $a12 = $stu->eval('c1' => 0, 'c2' => 1, 'c3' => 0, x => $x, y => 0);
-        my $a13 = $stu->eval('c1' => 0, 'c2' => 0, 'c3' => 1, x => $x, y => 0);
+        my $a11 =
+            $stu->eval('c1' => 1, 'c2' => 0, 'c3' => 0, x => $x, y => 0);
+        my $a12 =
+            $stu->eval('c1' => 0, 'c2' => 1, 'c3' => 0, x => $x, y => 0);
+        my $a13 =
+            $stu->eval('c1' => 0, 'c2' => 0, 'c3' => 1, x => $x, y => 0);
 
         my $a21 = $stu->D('x')
             ->eval('c1' => 1, 'c2' => 0, 'c3' => 0, x => $x, y => 0);

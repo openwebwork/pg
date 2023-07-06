@@ -23,7 +23,7 @@ use Pod::Simple::Search;
 
 use SampleProblemParser qw(parseSampleProblem generateMetadata);
 
-my $problem_dir = "$pg_root/doc/sample-problems";
+my $problem_dir = "$pg_root/tutorial/sample-problems";
 
 my ($out_dir, $pod_root, $pg_doc_home);
 my $verbose = 0;

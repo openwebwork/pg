@@ -32,9 +32,9 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: (the complex conjugate)
 Context('Complex');
 
-$z0 = Complex(non_zero_random(-5,4), non_zero_random(-5,5));
-$z1 = Complex(non_zero_random(-5,4), non_zero_random(-5,5));
-$z2 = Complex(non_zero_random(-5,4), non_zero_random(-5,5));
+$z0 = Complex(non_zero_random(-5, 4), non_zero_random(-5, 5));
+$z1 = Complex(non_zero_random(-5, 4), non_zero_random(-5, 5));
+$z2 = Complex(non_zero_random(-5, 4), non_zero_random(-5, 5));
 
 #:% section = statement
 #: All of the answers here are placed in the `{}` instead of making another
@@ -58,6 +58,5 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
 
 ENDDOCUMENT();

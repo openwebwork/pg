@@ -51,7 +51,8 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 $x1 = random(1, 5);
 
 $gt1 = GraphTool("{interval, (-$x1,$x1]}")->with(
-    availableTools => [ 'PointTool', 'IntervalTool', 'IncludeExcludePointTool' ],
+    availableTools =>
+        [ 'PointTool', 'IntervalTool', 'IncludeExcludePointTool' ],
     numberLine     => 1,
     bBox           => [ -6, 6 ],
     ticksDistanceX => 1,
@@ -62,7 +63,8 @@ $gt1 = GraphTool("{interval, (-$x1,$x1]}")->with(
 $x2 = random(-5, 5);
 
 $gt2 = GraphTool("{interval, (-inf,$x2)}")->with(
-    availableTools => [ 'PointTool', 'IntervalTool', 'IncludeExcludePointTool' ],
+    availableTools =>
+        [ 'PointTool', 'IntervalTool', 'IncludeExcludePointTool' ],
     numberLine     => 1,
     bBox           => [ -6, 6 ],
     ticksDistanceX => 1,
