@@ -37,7 +37,8 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
 #: array reference of distribution of the correct subsets.  There are many options. The
 #: example here shows the use of `DefaultSubsets` which shows how to label and initialize
 #: the buckets. The `AllowNewBuckets` option allows the student in add a new bucket (1)
-#: or not (0).
+#: or not (0).  The `OrderedSubsets` option requires that the subsets in the student
+#: answer be the same as in the correct answer.
 #:
 #: See the [DraggableProofs](../Misc/DraggableProof.html) for an example of
 #: how to create drag and drop proof problems.
@@ -58,7 +59,8 @@ $draggable = DraggableSubsets(
         { label => 'Birds',   indices => [] },
         { label => 'Other',   indices => [] }
     ],
-    AllowNewBuckets => 0
+    AllowNewBuckets => 0,
+    OrderedSubsets  => 1
 );
 
 #:% section = statement
