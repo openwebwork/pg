@@ -101,8 +101,8 @@
 		}
 
 		for (const btn of document.querySelectorAll('.clipboard-btn')) {
-			if (typeof navigator.clipboard === 'undefined') btn?.remove();
-			btn.addEventListener('click', () => navigator.clipboard.writeText(btn.dataset.code));
+			if (navigator.clipboard) btn.addEventListener('click', () => navigator.clipboard.writeText(btn.dataset.code));
+			else btn?.remove();
 		}
 	</script>
 </body>
