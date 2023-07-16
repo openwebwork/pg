@@ -17,6 +17,15 @@
 
 Numerical methods for the PG language
 
+=cut
+
+BEGIN {
+	be_strict();
+}
+
+sub _PGnumericalmacros_init {
+}
+
 =head2 Interpolation  methods
 
 =head3 Plotting a list of points (piecewise linear interpolation)
@@ -34,9 +43,8 @@ Usage:
 =cut
 
 BEGIN { strict->import; }
-
-sub _PGnumericalmacros_init {
-}
+# TODO: this fails if the $xref are not unique and ordered.  Should check for
+# these and document.
 
 sub plot_list {
 	my ($xref, $yref) = @_;
@@ -51,8 +59,7 @@ sub plot_list {
 	my (@x_vals, @y_vals);
 	unless (defined($yref)) {    #with only one entry we assume (x0,y0,x1,y1..);
 		if (@$xref % 2 == 1) {
-			die "ERROR in plot_list -- single array of input has odd number of
-        	elements";
+			die "ERROR in plot_list -- single array of input has odd number of elements";
 		}
 
 		my @in = @$xref;
@@ -64,7 +71,7 @@ sub plot_list {
 		$yref = \@y_vals;
 	}
 
-	my $fun = sub {
+	return sub {
 		my $x = shift;
 		my $y;
 		my ($x0, $x1, $y0, $y1);
@@ -85,27 +92,37 @@ sub plot_list {
 		}
 		$y;
 	};
-	$fun;
 }
 
-=head2 Horner polynomial/ Newton polynomial
+=head3 Horner polynomial/ Newton polynomial
 
 Usage:
 
-    $fn = horner([x0,x1,x2],[q0,q1,q2]);
+    $fn = horner([x0,x1,x2, ...],[q0,q1,q2, ...]);
 
 Produces the newton polynomial
 
-    &$fn(x) = q0 + q1*(x-x0) +q2*(x-x1)*(x-x0);
+    &$fn(x) = q0 + q1*(x-x0) +q2*(x-x1)*(x-x0) + ...;
 
-Generates a subroutine which evaluates a polynomial passing through the points C<(x0,q0), (x1,q1),
-... > using Horner's method.
+Generates a subroutine which evaluates a polynomial passing through the points
+C<(x0,q0), (x1,q1), (x2, q2)>, ... using Horner's method.
+
+The array refs for C<x> and C<q> can be any length but must be the same.
+
+=head4 Example
+
+    $h = horner([0,1,2],[1,-1,2]);
+
+Then C<&$h(num)> returns the polynomial at the value C<num>.  For example,
+C<&$h(1.5)=1>.
 
 =cut
 
 sub horner {
 	my ($xref, $qref) = @_;    # get the coefficients
-	my $fn = sub {
+	die 'The x inputs and q inputs must be the same length'
+		unless scalar(@$xref) == scalar(@$qref);
+	return sub {
 		my $x     = shift;
 		my @xvals = @$xref;
 		my @qvals = @$qref;
@@ -116,14 +133,13 @@ sub horner {
 		}
 		$y;
 	};
-	$fn;
 }
 
-=head2 Hermite polynomials
+=head3 Hermite polynomials
 
 Usage:
 
-    $poly = hermit([x0,x1...],[y0,y1...],[yp0,yp1,...]);
+    $poly = hermite([x0,x1...],[y0,y1...],[yp0,yp1,...]);
 
 Produces a reference to polynomial function with the specified values and first derivatives
 at (x0,x1,...). C<&$poly(34)> gives a number
@@ -133,14 +149,24 @@ with the specified derivatives: (x0,y0,yp0) ...
 The polynomial will be of high degree and may wobble unexpectedly.  Use the Hermite splines
 described below and in Hermite.pm for  most graphing purposes.
 
+=head4 Example
+
+    $h = hermite([0,1],[0,0],[1,-1]);
+
+C<&$h(num)> will evaluate the hermite polynomial at C<num>.  For example, C<&$h(0.5)>
+returns C<0.25>.
+
 =cut
 
 sub hermite {
 	my ($x_ref, $y_ref, $yp_ref) = @_;
+	die 'The input array refs all must be the same length'
+		unless scalar(@$x_ref) == scalar(@$y_ref)
+		&& scalar(@$y_ref) == scalar(@$yp_ref);
 	my (@zvals, @qvals);
 	my $n = $#{$x_ref};
-	my $i = 0;
-	foreach $i (0 .. $n) {
+
+	for my $i (0 .. $n) {
 		$zvals[ 2 * $i ]        = $$x_ref[$i];
 		$zvals[ 2 * $i + 1 ]    = $$x_ref[$i];
 		$qvals[ 2 * $i ][0]     = $$y_ref[$i];
@@ -149,22 +175,22 @@ sub hermite {
 		$qvals[ 2 * $i ][1] =
 			($qvals[ 2 * $i ][0] - $qvals[ 2 * $i - 1 ][0]) / ($zvals[ 2 * $i ] - $zvals[ 2 * $i - 1 ])
 			unless $i == 0;
-
 	}
-	my $j;
-	foreach $i (2 .. (2 * $n + 1)) {
-		foreach $j (2 .. $i) {
+
+	for my $i (2 .. (2 * $n + 1)) {
+		for my $j (2 .. $i) {
 			$qvals[$i][$j] = ($qvals[$i][ $j - 1 ] - $qvals[ $i - 1 ][ $j - 1 ]) / ($zvals[$i] - $zvals[ $i - $j ]);
 		}
 	}
+
 	my @output;
-	foreach $i (0 .. 2 * $n + 1) {
+	for my $i (0 .. 2 * $n + 1) {
 		push(@output, $qvals[$i][$i]);
 	}
-	horner(\@zvals, \@output);
+	return horner(\@zvals, \@output);
 }
 
-=head2 Hermite splines
+=head3 Hermite splines
 
 Usage
 
@@ -203,15 +229,18 @@ sub hermite_spline {
 		$yp0 = $yp1;
 	}
 
-	my $hermite_spline_sub = sub {
+	return sub {
 		my $x = shift;
 		my $y;
 		my $fun;
 		my @xvals = @$xref;
 		my @fns   = @polys;
-		return $y = &{ $fns[0] }($x) if $x == $xvals[0];    #handle left most endpoint
 
-		while (@xvals && $x > $xvals[0]) {                  # find the function for this range of x
+		#handle left most endpoint
+		return $y = &{ $fns[0] }($x) if $x == $xvals[0];
+
+		# find the function for this range of x
+		while (@xvals && $x > $xvals[0]) {
 			shift(@xvals);
 			$fun = shift(@fns);
 		}
@@ -221,12 +250,11 @@ sub hermite_spline {
 		if (@xvals && defined($fun)) {
 			$y = &$fun($x);
 		}
-		$y;
+		return $y;
 	};
-	$hermite_spline_sub;
 }
 
-=head2 Cubic spline approximation
+=head3 Cubic spline approximation
 
 Usage:
 
@@ -263,7 +291,7 @@ and can be placed in the header of the HTML output using
 sub cubic_spline {
 	my ($t_ref, $y_ref) = @_;
 	my @spline_coeff = create_cubic_spline($t_ref, $y_ref);
-	sub {
+	return sub {
 		my $x = shift;
 		eval_cubic_spline($x, @spline_coeff);
 	}
@@ -278,15 +306,19 @@ sub eval_cubic_spline {
 
 		$i++;
 	}
-	unless (defined($t_ref->[$i]) && ($t_ref->[$i] <= $x) && ($x <= $t_ref->[ $i + 1 ])) {
+	unless (defined($t_ref->[$i])
+		&& ($t_ref->[$i] <= $x)
+		&& ($x <= $t_ref->[ $i + 1 ]))
+	{
 		$out = undef;
 		# input value is not in the range defined by the function.
 	} else {
-		$out = ($t_ref->[ $i + 1 ] - $x) * (($d_ref->[$i]) + ($a_ref->[$i]) * ($t_ref->[ $i + 1 ] - $x)**2) +
+		$out =
+			($t_ref->[ $i + 1 ] - $x) * (($d_ref->[$i]) + ($a_ref->[$i]) * ($t_ref->[ $i + 1 ] - $x)**2) +
 			($x - $t_ref->[$i]) * (($b_ref->[$i]) * ($x - $t_ref->[$i])**2 + ($c_ref->[$i]));
 
 	}
-	$out;
+	return $out;
 }
 
 ##########################################################################
@@ -297,31 +329,33 @@ sub create_cubic_spline {
 	my ($t_ref, $y_ref) = @_;
 	#	The knot points are given by $t_ref (in order) and the function values by $y_ref
 	my $num = $#{$t_ref};    # number of knots
-	my $i;
+
 	my (@h, @b, @u, @v, @z);
-	foreach $i (0 .. $num - 1) {
+	for my $i (0 .. $num - 1) {
 		$h[$i] = $t_ref->[ $i + 1 ] - $t_ref->[$i];
 		$b[$i] = 6 * ($y_ref->[ $i + 1 ] - $y_ref->[$i]) / $h[$i];
 	}
 	$u[1] = 2 * ($h[0] + $h[1]);
 	$v[1] = $b[1] - $b[0];
-	foreach $i (2 .. $num - 1) {
+	for my $i (2 .. $num - 1) {
 		$u[$i] = 2 * ($h[$i] + $h[ $i - 1 ]) - ($h[ $i - 1 ])**2 / $u[ $i - 1 ];
-		$v[$i] = $b[$i] - $b[ $i - 1 ] - $h[ $i - 1 ] * $v[ $i - 1 ] / $u[ $i - 1 ];
+		$v[$i] =
+			$b[$i] - $b[ $i - 1 ] - $h[ $i - 1 ] * $v[ $i - 1 ] / $u[ $i - 1 ];
 	}
 	$z[$num] = 0;
-	for ($i = $num - 1; $i > 0; $i--) {
+	for (my $i = $num - 1; $i > 0; $i--) {
 		$z[$i] = ($v[$i] - $h[$i] * $z[ $i + 1 ]) / $u[$i];
 	}
 	$z[0] = 0;
 	my ($a_ref, $b_ref, $c_ref, $d_ref);
-	foreach $i (0 .. $num - 1) {
+	for my $i (0 .. $num - 1) {
 		$a_ref->[$i] = $z[$i] / (6 * $h[$i]);
 		$b_ref->[$i] = $z[ $i + 1 ] / (6 * $h[$i]);
-		$c_ref->[$i] = (($y_ref->[ $i + 1 ]) / $h[$i] - $z[ $i + 1 ] * $h[$i] / 6);
+		$c_ref->[$i] =
+			(($y_ref->[ $i + 1 ]) / $h[$i] - $z[ $i + 1 ] * $h[$i] / 6);
 		$d_ref->[$i] = (($y_ref->[$i]) / $h[$i] - $z[$i] * $h[$i] / 6);
 	}
-	($t_ref, $a_ref, $b_ref, $c_ref, $d_ref);
+	return ($t_ref, $a_ref, $b_ref, $c_ref, $d_ref);
 }
 
 sub javaScript_cubic_spline {
@@ -387,9 +421,71 @@ END_OF_JAVA_TEXT
 	$output_str;
 }
 
+=head3 C<newtonDividedDifference>
+
+Computes the newton divided difference table.
+
+=head4 Arguments
+
+=over
+
+=item * C<x> an array reference for x values.
+
+=item * C<y> an array reference for y values.  This is the first row/column in the divided
+difference table.
+
+=back
+
+=head4 Ouput
+
+An arrayref of arrayrefs of Divided Differences.
+
+=head4 Examples
+
+  $x=[0,1,3,6];
+  $y=[0,1,2,5];
+
+  $c=newtonDividedDifference($x,$y)
+
+The result of C<$c> is
+
+  [ [0,1,2,5],
+    [1,0.5,1],
+    [-0.1667,0.1],
+    [0.0444]
+  ]
+
+This is generally laid out in the following way:
+
+  0  0
+        1
+  1  1      -0.1667
+        0.5         0.04444
+  3  2      0.1
+        1
+  6  5
+
+where the first column is C<$x>, the second column is C<$y> and the rest of the table
+is
+
+   f[x_i,x_j] = (f[x_j]-f[x_i])/(x_j - x_i)
+
+=cut
+
+sub newtonDividedDifference {
+	my ($x, $y) = @_;
+	my $a = [ [@$y] ];
+	for my $j (0 .. (scalar(@$x) - 2)) {
+		for my $i (0 .. (scalar(@$x) - ($j + 2))) {
+			$a->[ $j + 1 ][$i] = ($a->[$j][ $i + 1 ] - $a->[$j][$i]) / ($x->[ $i + $j + 1 ] - $x->[$i]);
+		}
+	}
+	return $a;
+}
+
 =head2 Numerical Integration methods
 
-=head3 Integration by Left Hand Sum
+=head3 Left Hand Riemann Sum
 
 Usage:
 
@@ -402,24 +498,20 @@ optional and defaults to 30.
 =cut
 
 sub lefthandsum {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
+	my ($fn_ref, $x0, $x1, %options) = @_;
 	assign_option_aliases(\%options, intervals => 'steps',);
 	set_default_options(\%options, steps => 30,);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
-	my $i;
-	my $sum = 0;
+	my $sum   = 0;
 
-	foreach $i (0 .. ($steps - 1)) {
-		$sum = $sum + &$fn_ref($x0 + ($i) * $delta);
+	for my $i (0 .. ($steps - 1)) {
+		$sum += &$fn_ref($x0 + $i * $delta);
 	}
-	$sum * $delta;
+	return $sum * $delta;
 }
 
-=head3 Integration by Right Hand Sum
+=head3 Right Hand Riemann Sum
 
 Usage:
 
@@ -432,24 +524,20 @@ is optional and defaults to 30.
 =cut
 
 sub righthandsum {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
+	my ($fn_ref, $x0, $x1, %options) = @_;
 	assign_option_aliases(\%options, intervals => 'steps',);
 	set_default_options(\%options, steps => 30,);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
-	my $i;
-	my $sum = 0;
+	my $sum   = 0;
 
-	foreach $i (1 .. ($steps)) {
-		$sum = $sum + &$fn_ref($x0 + ($i) * $delta);
+	for my $i (1 .. $steps) {
+		$sum += &$fn_ref($x0 + $i * $delta);
 	}
-	$sum * $delta;
+	return $sum * $delta;
 }
 
-=head3 Integration by Midpoint rule
+=head3 Midpoint rule
 
 Usage:
 
@@ -462,24 +550,20 @@ is optional and defaults to 30.
 =cut
 
 sub midpoint {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
+	my ($fn_ref, $x0, $x1, %options) = @_;
 	assign_option_aliases(\%options, intervals => 'steps',);
 	set_default_options(\%options, steps => 30,);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
-	my $i;
-	my $sum = 0;
+	my $sum   = 0;
 
-	foreach $i (0 .. ($steps - 1)) {
-		$sum = $sum + &$fn_ref($x0 + ($i + 1 / 2) * $delta);
+	for my $i (0 .. ($steps - 1)) {
+		$sum += &$fn_ref($x0 + ($i + 1 / 2) * $delta);
 	}
-	$sum * $delta;
+	return $sum * $delta;
 }
 
-=head3 Integration by Simpson's rule
+=head3 Simpson's rule
 
     Usage:  simpson(function_reference, start, end, steps=>30 );
 
@@ -490,31 +574,26 @@ optional and defaults to 30, but must be even.
 =cut
 
 sub simpson {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
+	my ($fn_ref, $x0, $x1, %options) = @_;
 	assign_option_aliases(\%options, intervals => 'steps',);
 	set_default_options(\%options, steps => 30,);
 	my $steps = $options{steps};
-	unless ($steps % 2 == 0) {
-		die "Error: Simpson's rule requires an even number of steps.";
-	}
+	die "Error: Simpson's rule requires an even number of steps."
+		unless $steps % 2 == 0;
 
 	my $delta = ($x1 - $x0) / $steps;
-	my $i;
-	my $sum = 0;
-	for ($i = 1; $i < $steps; $i = $i + 2) {    # look this up - loop by two.
-		$sum = $sum + 4 * &$fn_ref($x0 + $i * $delta);
+	my $sum   = 0;
+	for (my $i = 1; $i < $steps; $i = $i + 2) {    # look this up - loop by two.
+		$sum += 4 * &$fn_ref($x0 + $i * $delta);
 	}
-	for ($i = 2; $i < $steps - 1; $i = $i + 2) {    # ditto
-		$sum = $sum + 2 * &$fn_ref($x0 + $i * $delta);
+	for (my $i = 2; $i < $steps - 1; $i = $i + 2) {    # ditto
+		$sum += 2 * &$fn_ref($x0 + $i * $delta);
 	}
-	$sum = $sum + &$fn_ref($x0) + &$fn_ref($x1);
-	$sum * $delta / 3;
+	$sum += &$fn_ref($x0) + &$fn_ref($x1);
+	return $sum * $delta / 3;
 }
 
-=head3 Integration by trapezoid rule
+=head3 trapezoid rule
 
 Usage:
 
@@ -527,21 +606,17 @@ is optional and defaults to 30.
 =cut
 
 sub trapezoid {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
+	my ($fn_ref, $x0, $x1, %options) = @_;
 	assign_option_aliases(\%options, intervals => 'steps',);
 	set_default_options(\%options, steps => 30,);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
-	my $i;
-	my $sum = 0;
+	my $sum   = 0;
 
-	foreach $i (1 .. ($steps - 1)) {
-		$sum = $sum + &$fn_ref($x0 + $i * $delta);
+	for my $i (1 .. ($steps - 1)) {
+		$sum += &$fn_ref($x0 + $i * $delta);
 	}
-	$sum = $sum + 0.5 * (&$fn_ref($x0) + &$fn_ref($x1));
+	$sum += 0.5 * (&$fn_ref($x0) + &$fn_ref($x1));
 	$sum * $delta;
 }
 
@@ -556,32 +631,18 @@ Implements the Romberg integration routine through 'level' recursive steps.  Lev
 =cut
 
 sub romberg {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
+	my ($fn_ref, $x0, $x1, %options) = @_;
 	set_default_options(\%options, level => 6,);
 	my $level = $options{level};
 	romberg_iter($fn_ref, $x0, $x1, $level, $level);
 }
 
 sub romberg_iter {
-	my $fn_ref = shift;
-	my $x0     = shift;
-	my $x1     = shift;
-	my $j      = shift;
-	my $k      = shift;
-	my $out;
-	if ($k == 1) {
-		$out = trapezoid($fn_ref, $x0, $x1, steps => 2**($j - 1));
-	} else {
-
-		$out =
-			(4**($k - 1) * romberg_iter($fn_ref, $x0, $x1, $j, $k - 1) -
-				romberg_iter($fn_ref, $x0, $x1, $j - 1, $k - 1)) /
-			(4**($k - 1) - 1);
-	}
-	$out;
+	my ($fn_ref, $x0, $x1, $j, $k) = @_;
+	return $k == 1
+		? trapezoid($fn_ref, $x0, $x1, steps => 2**($j - 1))
+		: (4**($k - 1) * romberg_iter($fn_ref, $x0, $x1, $j, $k - 1) - romberg_iter($fn_ref, $x0, $x1, $j - 1, $k - 1))
+		/ (4**($k - 1) - 1);
 }
 
 =head3 Inverse Romberg
@@ -594,19 +655,27 @@ Finds b such that the integral of the function from a to b is equal to value.
 Assumes that the function is continuous and doesn't take on the zero value.
 Uses Newton's method of approximating roots of equations, and Romberg to evaluate definite integrals.
 
+=head4 Example
+
+Find the value of b such that the integral of e^(-x^2/2)/sqrt(2*pi) from 0 to b is 0.25.
+
+    $f = sub { my $x = shift; return exp(-$x*$x/2)/sqrt(4*acos(0));};
+    $b = inv_romberg($f,0,0.45);
+
+this returns C<1.64485362695934>.   This is the standard normal curve and this
+value is the z value for the 90th percentile.
+
 =cut
 
 sub inv_romberg {
-	my $fn_ref = shift;
-	my $a      = shift;
-	my $value  = shift;
-	my $b      = $a;
-	my $delta  = 1;
-	my $i      = 0;
+	my ($fn_ref, $a, $value) = @_;
+	my $b     = $a;
+	my $delta = 1;
+	my $i     = 0;
 	my $funct;
 	my $deriv;
 
-	while (abs($delta) > 0.000001 && $i < 5000) {
+	while (abs($delta) > 0.000001 && $i++ < 5000) {
 		$funct = romberg($fn_ref, $a, $b) - $value;
 		$deriv = &$fn_ref($b);
 		if ($deriv == 0) {
@@ -614,14 +683,13 @@ sub inv_romberg {
 			return;
 		}
 		$delta = $funct / $deriv;
-		$b     = $b - $delta;
-		$i++;
+		$b -= $delta;
 	}
 	if ($i == 5000) {
 		warn 'Newtons method does not converge.';
 		return;
 	}
-	$b;
+	return $b;
 }
 
 =head2 Differential Equation Methods
@@ -634,15 +702,15 @@ Usage:
 
     rungeKutta4( &vectorField(t,x),%options);
 
-    Returns:  \@array of points [t,y})
+    Returns:  \@array of points [t,y]
 
     Default %options:
-    			'initial_t'					=>	1,
-			    'initial_y'					=>	1,
-			    'dt'						=>  .01,
-			    'num_of_points'				=>  10,     #number of reported points
-			    'interior_points'			=>  5,      # number of 'interior' steps between reported points
-			    'debug'
+        'initial_t'       =>1,
+        'initial_y'       => 1,
+        'dt'              =>  .01,
+        'num_of_points'   =>  10,     #number of reported points
+        'interior_points' =>  5,      # number of 'interior' steps between reported points
+        'debug'
 
 =cut
 
@@ -668,22 +736,21 @@ sub rungeKutta4 {
 	my $rf_rhs = sub {
 		my @in = @_;
 		my ($out, $err) = &$rf_fun(@in);
-		$errors .= " $err at ( " . join(" , ", @in) . " )<br>\n" if defined($err);
-		$out = 'NaN'                                             if defined($err) and not is_a_number($out);
+		$errors .= " $err at ( " . join(" , ", @in) . " )<br>\n"
+			if defined($err);
+		$out = 'NaN' if defined($err) and not is_a_number($out);
 		$out;
 	};
 
 	my @output = ([ $t, $y ]);
-	my ($i, $j, $K1, $K2, $K3, $K4);
-
-	for ($j = 0; $j < $num; $j++) {
-		for ($i = 0; $i < $num2; $i++) {
-			$K1 = $dt * &$rf_rhs($t,           $y);
-			$K2 = $dt * &$rf_rhs($t + $dt / 2, $y + $K1 / 2);
-			$K3 = $dt * &$rf_rhs($t + $dt / 2, $y + $K2 / 2);
-			$K4 = $dt * &$rf_rhs($t + $dt,     $y + $K3);
-			$y  = $y + ($K1 + 2 * $K2 + 2 * $K3 + $K4) / 6;
-			$t  = $t + $dt;
+	for my $j (0 .. $num - 1) {
+		for my $i (0 .. $num2 - 1) {
+			my $K1 = $dt * &$rf_rhs($t,           $y);
+			my $K2 = $dt * &$rf_rhs($t + $dt / 2, $y + $K1 / 2);
+			my $K3 = $dt * &$rf_rhs($t + $dt / 2, $y + $K2 / 2);
+			my $K4 = $dt * &$rf_rhs($t + $dt,     $y + $K3);
+			$y += ($K1 + 2 * $K2 + 2 * $K3 + $K4) / 6;
+			$t += $dt;
 		}
 		push(@output, [ $t, $y ]);
 	}
@@ -692,6 +759,382 @@ sub rungeKutta4 {
 	} else {
 		return \@output;
 	}
+}
+
+=head3 C<solveDiffEqn>
+
+Produces a numerical solution to the differential equation y'=f(x,y).
+
+=head4 Arguments
+
+=over
+
+=item * C<f> a MathObjects Formula with variables x and y
+
+=item * C<y0> a real-values number for the initial point
+
+=back
+
+=head4 Options
+
+=over
+
+=item * C<x0> the initial x value (defaults to 0)
+
+=item * C<h> the stepsize of the numerical method (defaults to 0.25)
+
+=item * C<n> the number of steps to perform (defaults to 4)
+
+=item * C<method> one of 'euler', 'improved_euler', 'heun' or 'rk4' (defaults to euler)
+
+=back
+
+=head4 Output
+
+An hash with the following fields:
+
+=over
+
+=item *  C<x> an array ref of the x values which are C<x0 + i*h for i=0..n>
+
+=item *  C<y> an array ref of the y values (depending on the method used)
+
+=item *  C<k1, k2, k3, k4> the intermediate function values used (depending on the method).
+
+=back
+
+=head4 Examples
+
+The following performs Euler's method on C<y'=xy, y(0) = 1> using C<h=0.5> for C<n=10> points, so
+the last x value is 5.
+
+    $sol1 = solveDiffEqn(Formula('x y'),1,x0=>0,h=>0.5,n=>10, method => 'euler');
+
+The output C<$sol> is a hash ref with fields x and y, where each have 11 points.
+
+The following uses the improved Euler method on C<y'=x^2+y^2, y(0)=1> using C<h=0.2> for C<n=5> points
+(the last x value is 1.0)
+
+    $sol2 = solveDiffEqn(Formula('x^2+y^2'),1, method => 'improved_euler', x0=>0, h=>0.2,n=>5);
+
+=cut
+
+sub solveDiffEqn {
+	my ($f, $y0, @args) = @_;
+	my %opts = (x0 => 0, h => 0.25, n => 4, method => 'euler', @args);
+
+	die 'The function must be of type Formula'    unless ref($f) eq 'Value::Formula';
+	die 'The option n must be a positive integer' unless $opts{n} =~ /^\d+$/;
+	die 'The option h must be a positive number'  unless $opts{h} > 0;
+	die 'The option method must be one of euler/improved_euler/heun/rk4'
+		unless grep { $opts{method} eq $_ } qw/euler improved_euler heun rk4/;
+
+	my $x0 = $opts{x0};
+	my $h  = $opts{h};
+	my @y  = ($y0);
+	my @k1;
+	my @k2;
+	my @k3;
+	my @k4;
+	my @x = map { $x0 + $_ * $h } (0 .. $opts{n});
+
+	for my $j (1 .. $opts{n}) {
+		if ($opts{method} eq 'euler') {
+			$y[$j] = $y[ $j - 1 ] + $h * $f->eval(x => $x[ $j - 1 ], y => $y[ $j - 1 ])->value;
+		} elsif ($opts{method} eq 'improved_euler') {
+			$k1[$j] = $f->eval(x => $x[ $j - 1 ], y => $y[ $j - 1 ])->value;
+			$k2[$j] = $f->eval(x => $x[$j],       y => $y[ $j - 1 ] + $h * $k1[$j])->value;
+			$y[$j]  = $y[ $j - 1 ] + 0.5 * $h * ($k1[$j] + $k2[$j]);
+		} elsif ($opts{method} eq 'heun') {
+			$k1[$j] = $f->eval(x => $x[ $j - 1 ],              y => $y[ $j - 1 ])->value;
+			$k2[$j] = $f->eval(x => $x[ $j - 1 ] + 2 * $h / 3, y => $y[ $j - 1 ] + 2 * $h / 3 * $k1[$j])->value;
+			$y[$j]  = $y[ $j - 1 ] + 0.25 * $h * ($k1[$j] + 3 * $k2[$j]);
+		} elsif ($opts{method} eq 'rk4') {
+			$k1[$j] = $f->eval(x => $x[ $j - 1 ],            y => $y[ $j - 1 ])->value;
+			$k2[$j] = $f->eval(x => $x[ $j - 1 ] + 0.5 * $h, y => $y[ $j - 1 ] + $h * 0.5 * $k1[$j])->value;
+			$k3[$j] = $f->eval(x => $x[ $j - 1 ] + 0.5 * $h, y => $y[ $j - 1 ] + $h * 0.5 * $k2[$j])->value;
+			$k4[$j] = $f->eval(x => $x[$j],                  y => $y[ $j - 1 ] + $h * $k3[$j])->value;
+			$y[$j]  = $y[ $j - 1 ] + $h / 6 * ($k1[$j] + 2 * $k2[$j] + 2 * $k3[$j] + $k4[$j]);
+		}
+	}
+	if ($opts{method} eq 'euler') {
+		return { y => \@y, x => \@x };
+	} elsif ($opts{method} eq 'improved_euler' || $opts{method} eq 'heun') {
+		return { k1 => \@k1, k2 => \@k2, y => \@y, x => \@x };
+	} elsif ($opts{method} eq 'rk4') {
+		return {
+			k1 => \@k1,
+			k2 => \@k2,
+			k3 => \@k3,
+			k4 => \@k4,
+			y  => \@y,
+			x  => \@x
+		};
+	}
+}
+
+=head2 Rootfinding
+
+=head3 bisection
+
+Performs the bisection method for the function C<$f> and initial interval C<$int> (arrayref).
+An example is
+
+  $f = Formula('x^2-2');
+  $bisect = bisection($f,[1,2]);
+
+The result is a hash with fields root (the estimated root), intervals (an array ref or
+intervals for each step of bisection) or a hash with field C<error> if there is an
+error with either the inputs or from the method.
+
+=head4 Arguments
+
+=over
+
+=item * C<f>, a math object C<Formula> of the single variable C<x>.
+
+=item * C<int>, an array ref of the interval C<[a,b]> where a < b.
+
+=back
+
+=head4 Options
+
+=over
+
+=item * C<eps>, the maximum error of the root or stopping condition.  Default is C<1e-6>
+
+=item * C<max_iter>, the maximum number of iterations to run the bisection method. Default is C<40>.
+
+=back
+
+=head4 Output
+
+A hash with the following fields
+
+=over
+
+=item * C<root>, the approximate root using bisection.
+
+=item * C<interval>, an arrayref of the intervals (each interval also an array ref)
+
+=item * C<error>, a string specifying the error (either argument argument error or too many steps)
+
+=back
+
+=cut
+
+sub bisection {
+	my ($f, $int, @args) = @_;
+	my %opts = (eps => 1e-6, max_iter => 40, @args);
+
+	# Check that the arguments/options are valid.
+	return { error => 'The function must be of type Formula' } unless ref($f) eq 'Value::Formula';
+
+	return { error => 'The interval must be an array ref of length 2' }
+		unless ref($int) eq 'ARRAY' && scalar(@$int) == 2;
+
+	return { error => 'The initial interval [a, b] must satisfy a < b' } unless $int->[0] < $int->[1];
+
+	return { error => 'The function may not have a root on the given interval' }
+		unless $f->eval(x => $int->[0]) * $f->eval(x => $int->[1]) < 0;
+
+	return { error => 'The option eps must be a positive number' } unless $opts{eps} > 0;
+
+	return { error => 'The option max_iter must be a positive integer' }
+		unless $opts{max_iter} > 0 && int($opts{max_iter}) == $opts{max_iter};
+
+	# stores the intervals for each step
+	my $ints = [$int];
+	my $i    = 0;
+	do {
+		my $mid  = 0.5 * ($ints->[$i][0] + $ints->[$i][1]);
+		my $fmid = $f->eval(x => $mid);
+		push(@$ints,
+			$fmid * $f->eval(x => $ints->[$i][0]) < 0 ? [ $ints->[$i][0], $mid ] : [ $mid, $ints->[$i][1] ]);
+		$i++;
+	} while ($i < $opts{max_iter}
+			&& ($ints->[$i][1] - $ints->[$i][0]) > $opts{eps});
+
+	if ($i == $opts{max_iter}) {
+		return { error => "You have reached the maximum number of iterations: $opts{max_iter} without "
+				. 'reaching a root.' };
+	}
+
+	return {
+		root      => 0.5 * ($ints->[$i][0] + $ints->[$i][1]),
+		intervals => $ints
+	};
+}
+
+=head3 newton
+
+Performs newton's method for the function C<$f> and initial point C<$x0>.
+An example is
+
+  $f = Formula('x^2-2');
+  $newton = newton($f,1);
+
+The result is a hash with fields C<root> (the estimated root) and C<intervals> (an arrayref
+of the iterations with the first being C<$x0>. The result hash will contain the field C<error>
+if there is an error.
+
+=head4 Arguments
+
+=over
+
+=item * C<f>, a math object C<Formula> of the single variable C<x>.
+
+=item * C<x0>, a perl number or math object number.
+
+=back
+
+=head4 Options
+
+=over
+
+=item * C<max_iter>, the maximum number of iterations to run Newton's method. Default is C<15>.
+
+=item * C<eps>, the cutoff value in the C<x> direction or stopping condition.
+The default is C<1e-8>
+
+=item * C<feps>, the allowed functional value for the stopping condition.  The default
+value is C<1e-10>.
+
+=back
+
+=head4 Output
+
+A hash with the following fields
+
+=over
+
+=item * C<root>, the approximate root.
+
+=item * C<iterations>, an arrayref of the iterations.
+
+=item * C<error>, a string specifying the error (either argument argument error or too many steps)
+
+=back
+
+
+=cut
+
+sub newton {
+	my ($f, $x0, @args) = @_;
+	my %opts = (eps => 1e-8, feps => 1e-10, max_iter => 15, @args);
+
+	# Check that the arguments/options are valid.
+	return { error => 'The function must be of type Formula' }
+		unless ref($f) eq 'Value::Formula';
+
+	return { error => 'The option eps must be a positive number' }
+		unless $opts{eps} > 0;
+
+	return { error => 'The option feps must be a positive number' }
+		unless $opts{feps} > 0;
+
+	return { error => 'The option max_iter must be a positive integer' }
+		unless $opts{max_iter} > 0;
+
+	my $df   = $f->D('x');
+	my @iter = ($x0);
+	my $i    = 0;
+	do {
+		$iter[ $i + 1 ] = $iter[$i] - $f->eval(x => $iter[$i])->value / $df->eval(x => $iter[$i])->value;
+		$i++;
+		return { error => "Newton's method did not converge in $opts{max_iter} steps" }
+			if $i > $opts{max_iter};
+	} while abs($iter[$i] - $iter[ $i - 1 ]) > $opts{eps}
+		|| $f->eval(x => $iter[$i])->value > $opts{feps};
+
+	return { root => $iter[$i], iterations => \@iter };
+}
+
+=head3 secant
+
+Performs the secant method for finding a root of the function C<$f> with initial points C<$x0> and C<$x1>
+An example is
+
+  $f = Formula('x^2-2');
+  $secant = newton($f,1,2);
+
+The result is a hash with fields C<root> (the estimated root) and C<intervals> (an arrayref
+of the iterations with the first two being C<$x0> and C<$x1>. The result hash will contain
+the field C<error> if there is an error.
+
+=head4 Arguments
+
+=over
+
+=item * C<f>, a math object C<Formula> of the single variable C<x>.
+
+=item * C<x0>, a perl number or math object number.
+
+=item * C<x1>, a perl number or math object number.
+
+=back
+
+=head4 Options
+
+=over
+
+=item * C<max_iter>, the maximum number of iterations to run the Secant method. Default is C<20>.
+
+=item * C<eps>, the cutoff value in the C<x> direction or stopping condition.
+The default is C<1e-8>
+
+=item * C<feps>, the allowed functional value for the stopping condition.  The default
+value is C<1e-10>.
+
+=back
+
+=head4 Output
+
+A hash with the following fields
+
+=over
+
+=item * C<root>, the approximate root.
+
+=item * C<iterations>, an arrayref of the iterations.
+
+=item * C<error>, a string specifying the error (either argument argument error or too many steps)
+
+=back
+
+
+=cut
+
+sub secant {
+	my ($f, $x0, $x1, @args) = @_;
+	my %opts = (eps => 1e-8, feps => 1e-10, max_iter => 20, @args);
+
+	# Check that the arguments/options are valid.
+	return { error => 'The function must be of type Formula' }
+		unless ref($f) eq 'Value::Formula';
+
+	return { error => 'The option eps must be a positive number' }
+		unless $opts{eps} > 0;
+
+	return { error => 'The option feps must be a positive number' }
+		unless $opts{feps} > 0;
+
+	return { error => 'The option max_iter must be a positive integer' }
+		unless $opts{max_iter} > 0;
+
+	my @iter = ($x0, $x1);
+	my $i    = 1;
+	do {
+		my $m =
+			($f->eval(x => $iter[$i])->value - $f->eval(x => $iter[ $i - 1 ])->value) / ($iter[$i] - $iter[ $i - 1 ]);
+		$iter[ $i + 1 ] = $iter[$i] - $f->eval(x => $iter[$i])->value / $m;
+		$i++;
+		return { error => "The secant method did not converge in $opts{max_iter} steps" }
+			if $i > $opts{max_iter};
+
+	} while abs($iter[$i] - $iter[ $i - 1 ]) > $opts{eps};
+
+	return { root => $iter[$i], iterations => \@iter };
 }
 
 1;
