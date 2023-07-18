@@ -15,7 +15,7 @@
 # http://webworkgoehle.blogspot.com/2012/09/essay-answers-in-webwork.html
 
 #:% name = Essay Answer
-#:% type = Sample
+#:% type = [Sample, technique]
 #:% categories = [essay]
 
 #:% section = preamble

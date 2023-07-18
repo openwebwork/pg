@@ -12,7 +12,7 @@
 ## KEYWORDS('parametric', 'graph polar curve')
 
 #:% name = Polar Graph
-#:% type = Sample
+#:% type = [sample, technique]
 #:% subject = parametric
 
 #:% section = preamble

@@ -9,11 +9,11 @@
 ## Institution(University of Michigan)
 ## Author(Gavin LaRose)
 ## MO(1)
-## KEYWORDS('interval')
+## KEYWORDS('vector-valued', 'parametric', 'line segment')
 
 # created as a full problem by Peter Staab  2023.06.02
 
-#:% name = Vector-value Parametric Line Segment (General)
+#:% name = Vector-valued Parametric Line Segment--General
 #:% type = [technique, sample]
 #:% categories = vector
 #:% subject = Vector Calculus

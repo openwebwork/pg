@@ -11,9 +11,9 @@
 ## MO(1)
 ## KEYWORDS('parametric', 'curve in space')
 
-#:% name = Polar Graph
+#:% name = Space Curve
 #:% type = Sample
-#:% subject = [parametric, multianswer]
+#:% subject = [parametric, vector calculus]
 
 #:% section = preamble
 DOCUMENT();

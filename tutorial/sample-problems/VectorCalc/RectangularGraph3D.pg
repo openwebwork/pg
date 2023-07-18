@@ -13,7 +13,7 @@
 
 #:% name = Surface Graph in Rectangular Coordinates
 #:% type = Sample
-#:% subject = [Vector Calculus]
+#:% subject = [Vector Calculus, multivariate calculus]
 #:% see_also = [SpaceCurveGraph.pg, SurfaceGraph.pg, CylindricalGraph3D.pg]
 #:% categories = [graph]
 
