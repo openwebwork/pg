@@ -112,7 +112,7 @@ sub check_parameters {
 
 	# Problem specific data
 	$self->warning_message('The path to the current problem file template probFileName is not defined.')
-		unless $self->{pgFileName};
+		unless ($self->{pgFileName} || $self->{envir}{inputs_ref}{problemSource});
 	$self->warning_message('The current problem set version number (psvn) is not defined')
 		unless defined $self->{psvn};
 	$self->warning_message('The displayMode is not defined') unless $self->{displayMode};
