@@ -1,0 +1,61 @@
+## DESCRIPTION
+## Decompose a function into two functions
+## ENDDESCRIPTION
+
+## KEYWORDS('algebra', 'function decomposition')
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+
+#:% name = Function Decomposition
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [composition]
+
+#:% section = preamble
+#: We need to include the macro file `answerComposition.pl`, which provides an answer
+#: checker that determines if two functions compose to form a given function. This
+#: can be used in problems where you ask a student to break a given function into a
+#: composition of two simpler functions, neither of which is allowed to be the
+#: identity function.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'answerComposition.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We will ask the students for a function `f(u)` and and function `g(x)` such
+#: that `f(g(x))` is a given function.  Therefore, we need to make `u` a
+#: variable and define `$f` and `$g`.
+Context()->variables->add(u => 'Real');
+
+$a = random(2, 9);
+
+$f = Formula("sqrt(u)");
+$g = Formula("x^2+$a");
+
+#:% section = statement
+BEGIN_PGML
+Express the function [`y = \sqrt{x^2 + [$a]}`] as a composition [`y = f(g(x))`]
+of two simpler functions [`y = f(u)`] and [`u = g(x)`].
+
+* [`f(u) =`] [_]{ width => 15 }
+
+* [`g(x) =`]  [_]{ width => 15 }
+END_PGML
+
+#:% section = answer
+#: We use the `COMPOSITION_ANS()` routine to evaluate both answer blanks. It is
+#: possible to use the same variable for both answer blanks. See
+#: PODLINK('answerComposition.pl') for more options and details.
+COMPOSITION_ANS($f, $g, vars => [ 'u', 'x' ], showVariableHints => 1);
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

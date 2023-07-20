@@ -1,0 +1,81 @@
+## DESCRIPTION
+## Creating a contour plot
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('multivariable differential calculus', 'contour plot')
+
+#:% name = Contour Plot
+#:% type = [Sample, technique]
+#:% subject = multivariate calculus
+#:% categories = [plots]
+
+#:% section = preamble
+#: We will use `PGtikz.pl` for constructing the graph. The macro
+#: `parserPopUp.pl` is used to include the popup.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGtikz.pl',
+    'PGcourse.pl'
+);
+
+$showPartialCorrectAnswers = 0;
+
+#:% section = setup
+#: The contour plot is created with TikZ by overlaying circles with differing
+#: shades of blue. See the POD and the [TikZ manual](https://tikz.dev/) for more
+#: information.
+#:
+#: If the colored contour plot is not desired, replace the `\filldraw` line
+#: with the following:
+#:```{#change-contour .perl}
+#: \draw (0,0) circle [radius={sqrt(64-8*\n)}];
+#:```
+$graph = createTikZImage();
+$graph->tikzLibraries('arrows.meta');
+$graph->BEGIN_TIKZ
+\tikzset{>={Stealth[scale=2]}}
+\Large % Make the fonts a little bigger.
+\filldraw[
+    draw=LightBlue,
+    fill=white,
+    rounded corners=10pt,
+    thick,use as bounding box
+] (-7,-7) rectangle (7,7);
+\foreach \n in {0,...,7} {
+    \pgfmathsetmacro\k{100-\n*10}
+    \filldraw[fill=blue!\k!white,fill opacity=0.5]
+        (0,0) circle [radius={sqrt(64-8*\n)}];
+}
+\draw[->] (-7,0) -- (7,0) node[above left,outer sep=3pt] {\(x\)};
+\foreach \x in {-6,...,-1,1,2,...,6}
+    \draw(\x,5pt) -- (\x,-5pt) node [below] {\(\x\)};
+\draw[->] (0,-7) -- (0,7) node[below right,outer sep=3pt] {\(y\)};
+\foreach \y in {-6,...,-1,1,2,...,6}
+    \draw (5pt,\y) -- (-5pt,\y) node[left] {\(\y\)};
+END_TIKZ
+
+$popup = DropDownTF('false', placeholder => 'Select One');
+
+#:% section = statement
+BEGIN_PGML
+Determine if the following statement is true or false.
+
+[_]{$popup} This could be a contour plot for [`f(x,y) = x^2 - y^2`].
+
+>> [@ image($graph, width => 300, height => 300, tex_size => 450) @]* <<
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

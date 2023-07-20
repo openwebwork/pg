@@ -1,0 +1,71 @@
+## DESCRIPTION
+## Disable functions and require exact fractions as answers.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('trigonometry', 'exact answer')
+
+#:% name = Disabling Functions
+#:% type = [Sample, technique]
+#:% subject = [trigonometry, precalculus]
+#:% categories = [trigonometry]
+
+#:% section = preamble
+#: The `contextFraction.pl` is loaded since we used the `Fraction-NoDecimals` context.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We choose a context that requires fractions as answers and does not allow decimals.
+#: After constructing the formulas involving trig functions, we disable all functions
+#: and re-enable the `sqrt()` function. This means that students are allowed to type in
+#: fractions and square roots, but not much else (e.g., they'll get an error message
+#: if they type in a trig function).
+#:
+#: Note that `$f1` and `$f2` are MathObject Formulas, which do not get reduced since `pi`
+#: is set to keep its name. If `$f1` and `$f2` used `Compute` instead, then the results
+#: would be -1 and 0.866... instead of cos(\pi) and sin(\pi/3) as desired.
+Context('Fraction-NoDecimals');
+
+# Prevent pi from becoming 3.1415... and cos(pi) from
+# becoming -1.
+Context()->constants->set(pi => { keepName => 1 });
+
+# The next context changes are not necessary to
+# prevent cos(pi) from becoming -1, but they cannot hurt.
+Context()->flags->set(
+    reduceConstants         => 0,
+    reduceConstantFunctions => 0
+);
+
+$f1 = Formula('cos(pi)');
+$f2 = Formula('sin(pi/3)');
+
+Context()->functions->disable('All');
+Context()->functions->enable('sqrt');
+
+$answer1 = Compute('-1');
+$answer2 = Compute('sqrt(3)/2');
+
+#:% section = statement
+BEGIN_PGML
+Enter your answers as simplified fractions.
+
++ [`[$f1] =`] [_]{$answer1}{15}
+
++ [`[$f2] =`] [_]{$answer2}{15}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+The cosine of an angle is zero when the angle is an integer multiple of [`\pi`].
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

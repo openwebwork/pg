@@ -1,0 +1,79 @@
+## DESCRIPTION
+## Iframe embedding template
+## ENDDESCRIPTION
+
+## KEYWORDS('iframe','embedding', 'template')
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+
+#:% name = Embedding an IFrame
+#:% type = Sample
+#:% categories = [misc, video]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We create a mode dependent variable `$slideshow` that displays a
+#: Google slideshow inside an html `iframe` when in html mode, and
+#: the message "An embedded Google slide show." in TeX mode.  If you omit the
+#: TeX mode stuff, then there will be errors when the pdf hardcopy is generated.
+#: Similarly for the `$video`.  (Searching the web for "YouTube embed
+#: video" should bring up instructions for how to get the code to embed a YouTube
+#: video into a webpage.)
+
+$slideshow = MODES(
+    HTML => tag(
+        'iframe',
+        src =>
+            'https://docs.google.com/presentation/d/1pk0FxsamBuZsVh1WGGmHGEb5AlfC68KUlz7zRRIYAUg/embed#slide=id.i0',
+        width  => '555',
+        height => '451'
+    ),
+    TeX => 'An embedded Google slide show.'
+);
+
+$video = MODES(
+    HTML => tag(
+        'iframe',
+        src             => 'https://www.youtube.com/embed/M4vqr3_ROIk',
+        width           => '420',
+        height          => '315',
+        allowfullscreen => undef
+    ),
+    TeX => "An embedded YouTube video."
+);
+
+#:% section = statement
+#: Include the `$slideshow` and `$video` wherever you like.
+BEGIN_PGML
+# Embedded Google slides
+
+>> [$slideshow]* <<
+
+>>Google slides embedded using an iframe.<<
+
+# Embedded YouTube video
+
+>> [$video]* <<
+
+>>YouTube video of Arthur Benjamin, mathemagician, embedded using an iframe.<<
+>>If the video does not work,
+[@ htmlLink("https://www.youtube.com/embed/M4vqr3_ROIk",
+    "click here to go to YouTube directly.") @]*<<
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
+

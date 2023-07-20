@@ -1,0 +1,68 @@
+## DESCRIPTION
+##  Find the mean and standard deviation of a list of numbers.
+## ENDDESCRIPTION
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## KEYWORDS('statistic', 'linear regression', 'correlation coefficient')
+
+#:% name = Linear Regression
+#:% subject = [statistics]
+#:% type = sample
+
+#:% section = preamble
+#: Statistics functions mean and standard deviation are used so we load
+#: `PGstatisticsmacros.pl`.  We use the `DataTable` method from the
+#: `niceTables.pl` macro.
+DOCUMENT();
+
+loadMacros(
+    "PGstandard.pl",         "PGML.pl",
+    'PGstatisticsmacros.pl', 'niceTables.pl',
+    "PGcourse.pl"
+);
+
+#:% section = setup
+#: First, generate random numbers and then use the methods
+#: `sample_correlation` and `linear_regression`
+#: from the macro PODLINK('PGstatisticsmacros.pl').
+
+# produce an approximate slope and intercept
+$m = random(0.1, 0.75, 0.05);
+$b = random(0.5, 5,    0.25);
+
+# Create some random data
+for $i (0 .. 9) {
+    $x[$i] = random(2.5, 7.5, 0.5);
+    $y[$i] = $m * $x[$i] + $b;
+}
+
+@rows = ([ '\(x\)', '\(y\)' ]);
+push(@rows, [ $x[$_], $y[$_] ]) for (0 .. $#x);
+
+$corr = sample_correlation(~~@x, ~~@y);
+($m, $b) = sample_correlation(~~@x, ~~@y);
+
+#:% section = statement
+BEGIN_PGML
+Consider the following data:
+
+[@ DataTable(\@rows,
+  padding => [0.25, 0.25], horizontalrules => 1, align => '|c|c|' ) @]*
+
+Find the correlation coefficient and the linear regression line:
+
+a) correlation coefficient: [__]{$corr}
+
+b) linear regression line [`\hat{y}=`] [__]{Formula("$m x + $b")}
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Provide a solution here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

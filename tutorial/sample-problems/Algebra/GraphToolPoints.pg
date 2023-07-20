@@ -1,0 +1,75 @@
+## DESCRIPTION
+## Interactive graphing tool problem that asks the student to plot points.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Date(05/28/2023)
+## Institution(Missouri Western State University)
+## Author(Glenn Rice)
+## KEYWORDS('graphs', 'circles')
+
+#:% name = Graph Tool, plotting points
+#:% type = [Sample, technique]
+#:% subject = [algebra, precalculus]
+#:% categories = [graph]
+#:% see_also = [GraphToolCircle.pg, GraphToolCubic.pg, GraphToolLine.pg, GraphToolNumberLine.pg]
+
+#:% section = preamble
+#: This example shows how to get student input in the form of points
+#: by using interactive graphing tools. Load the `parserGraphTool.pl` macro for
+#: this.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Two points are created at random.
+#:
+#: The `GraphTool` method creates the graph tool object. The only argument is
+#: the correct answer. This is a string that contains a list of objects that
+#: the student will be expected to graph. Each object is a brace delimited list
+#: of the attributes of the object. The first attribute in each list is the
+#: type of object to be graphed, `point` in this case. What the remaining
+#: attributes are depend on the type. For a point, there is only one additional
+#: attribute which is the point itself.
+#:
+#: The `->with` method is then used to set options for the `GraphTool` object.
+#: In this case the options that are set are:
+#:
+#: * `bBox`: This is an array reference of four values `xmin, ymax, xmax, ymin`
+#: indicating the upper left and lower right corners of the visible graph.
+#: * `availableTools`: This determines which tools will be available for the
+#: student to use.
+#: * `showCoordinateHints`: Setting this to 0 turns off coordinate hints, which
+#: would show students the coordinates the cursor is over.
+#:
+#: For more details, see the PODLINK('POD documentation','parserGraphTool.pl')
+$x1 = non_zero_random(-5, 5);
+$y1 = non_zero_random(-5, 5);
+
+$x2 = non_zero_random(-5, 5);
+$y2 = non_zero_random(-5, 5);
+
+$gt = GraphTool("{point, ($x1, $y1)}", "{point, ($x2, $y2)}")->with(
+    availableTools      => ['PointTool'],
+    bBox                => [ -11, 11, 11, -11 ],
+    showCoordinateHints => 0,
+);
+
+#:% section = statement
+#: The code `[_]{$gt}` inserts the GraphTool.
+BEGIN_PGML
+Graph the points [`([$x1], [$y1])`] and [`([$x2], [$y2])`].
+
+[_]{$gt}
+END_PGML
+
+#:% section=solution
+
+BEGIN_PGML_SOLUTION
+
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

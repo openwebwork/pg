@@ -1,0 +1,67 @@
+## DESCRIPTION
+## Function table of values
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('algebra', 'function table of values')
+
+#:% name = Table of Values
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [table]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We create an empty array `@answer` and use a for loop to simplify filling it
+#: with values.
+#:
+#: The `DataTable` is from PODLINK('niceTables.pl').  This builds a simple table. The options
+#: `horizontalrules` and `texalignment` gives the borders around each of the cells.
+$f = Formula('3^(-x)');
+
+@answer = ();
+for $i (0 .. 2) {
+    $answer[$i] = $f->eval(x => $i);
+}
+
+$table = DataTable(
+    [
+        [ '\(x\)', '\(f(x)\)' ],
+        [ '\(0\)', ans_rule(4) ],
+        [ '\(1\)', ans_rule(4) ],
+        [ '\(2\)', ans_rule(4) ],
+    ],
+    horizontalrules => 1,
+    texalignment    => '|c|c|'
+);
+
+#:% section = statement
+BEGIN_PGML
+If [`f(x) = [$f]`], fill in the table of values with numbers.
+
+[@ $table @]*
+END_PGML
+
+#:% section = answer
+#: Because the answer blanks are built with `ans_rule` inside the table, we
+#: need to use the traditional `ANS` call here.
+for $i (0 .. 2) {
+    ANS($answer[$i]->cmp);
+}
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

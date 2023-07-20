@@ -1,0 +1,89 @@
+## DESCRIPTION
+## Vector Calculus: graph of a 3D vector field
+## ENDDESCRIPTION
+
+## KEYWORDS('vector calculus', 'vector field graph 3D')
+
+## DBsubject('WeBWorK')
+## DBchapter(WeBWorK tutorial)
+## DBsection(Fort Lewis tutorial 2011)
+## Date('01/30/2011')
+## Author('Paul Pearson')
+## Institution('Fort Lewis College')
+
+#:% name = Three-D Vector Field Graph
+#:% subject = Vector Calculus
+#:% type = Sample
+#:% categories = [graph]
+
+#:% section=preamble
+#: We need to include the macros file `LiveGraphicsVectorField3D.pl`.
+DOCUMENT();
+loadMacros(
+    'PGstandard.pl',                'PGML.pl',
+    'LiveGraphicsVectorField3D.pl', 'PGcourse.pl'
+);
+
+#:% section=setup
+#: The `VectorField3D()` routine returns a string of plot data consisting of a list of line
+#: segments (the vectors) along with other plot options. The arguments `RGBColor[a,b,c]` are
+#: numbers a, b, and c between 0 and 1 inclusive. You can uniformly scale all of the vectors
+#: in the vector field by the same amount using vectorscale. The outputtype feature controls
+#: how much of the string of plot data is generated, and setting it equal to 4 generates all
+#: of the plot information necessary to be displayed.
+#:
+#: Setting outputtype to something other than 4 will require you to read the source code of
+#: `LiveGraphicsVectorField3D.pl` and familiarize yourself with the details of the LiveGraphics3D
+#: javascript applet.
+Context()->variables->are(x => 'Real', y => 'Real', z => 'Real');
+
+$plot = VectorField3D(
+    Fx              => Formula('x'),
+    Fy              => Formula('y'),
+    Fz              => Formula('z'),
+    xvar            => 'x',
+    yvar            => 'y',
+    zvar            => 'z',
+    xmin            => -1,
+    xmax            => 1,
+    ymin            => -1,
+    ymax            => 1,
+    zmin            => -1,
+    zmax            => 1,
+    xsamples        => 4,
+    ysamples        => 4,
+    zsamples        => 4,
+    axesframed      => 1,
+    xaxislabel      => 'X',
+    yaxislabel      => 'Y',
+    zaxislabel      => 'Z',
+    vectorcolor     => "RGBColor[0.0,0.0,1.0]",
+    vectorscale     => 0.2,
+    vectorthickness => 0.01,
+    outputtype      => 4,
+);
+
+#:% section=statement
+#: This just shows the plot.
+BEGIN_PGML
+
+The following is the 3D vector field give by
+>> [`` \vec{v} = \left<x,y,z\right> ``] <<
+
+>> [@ Live3Ddata(
+	$plot,
+	image => alias("exploding-vector-field.png"),
+	size => [400,400],
+	tex_size => 600,
+	tex_center => 1,
+	scale => 1.25,
+); @]* <<
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
+

@@ -1,0 +1,64 @@
+## DESCRIPTION
+## A draggable proof to prove a trigonmetric identity.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Fort Lewis tutorial 2011)
+## Date(03/10/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('draggable proof', 'trigonometry')
+
+#:% name = Draggable Trigonometry Identity
+#:% type = Sample
+#:% subject = [proof, trigonometry]
+#:% categories = [trigonometry, draggable]
+
+#:% section = preamble
+#: This problem uses the `draggableProof.pl` macro to display "buckets" that the
+#: student can drag statements to and from.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The `DraggableProof` function takes an arrayref of correct statements,
+#: followed (optionally) by extra statements. See
+#: PODLINK('the Draggable Proof POD', 'draggableProof.pl') for more options.
+#:
+#: This shows how other identities could be structured. You probably want
+#: some incorrect statements to make the problem a little bit harder.
+$proof = DraggableProof(
+    # These are the correct statements of the proof in the correct order.
+    [
+        '\(\sin(\pi-\theta) = \sin(\pi)\cos(\theta)-\cos(\pi)\sin(\theta) \)',
+        '\(\sin(\pi-\theta) = 0 \cdot \cos(\theta) - (-1)\cdot \sin(\theta)\)',
+        '\(\sin(\pi-\theta) = 0+1\sin(\theta)\)',
+        '\(\sin(\pi-\theta) = \sin(\theta)\)',
+    ],
+    # These are extra statements that are not needed.
+    [
+        '\(\sin(\pi-\theta) = \cos(\pi)\cos(\theta)-\sin(\pi)\sin(\theta) \)',
+        '\(\sin(\pi-\theta) = 0\cdot\cos(\theta)-(-1)\sin(\theta) \)',
+        '\(\sin(\pi-\theta) = \sin(\pi)\cos(\theta)+\cos(\pi)\sin(\theta) \)',
+        '\(\sin(\pi-\theta) = 0\cdot\cos(\theta)+1 \cdot\sin(\theta) \)',
+        '\(\sin(\pi-\theta) = 1\cdot\cos(\theta)+0 \cdot\sin(\theta) \)',
+    ]
+);
+
+#:% section = statement
+#: The line `[_]{$proof}` prints the statement and options in the proof and sets up the answer rule.
+BEGIN_PGML
+Prove the trigonmetric identity [`\sin(\pi-\theta) = \sin(\theta)`].
+
+[_]{$proof}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

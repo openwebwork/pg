@@ -1,0 +1,76 @@
+## DESCRIPTION
+## This provides a custom answer checker.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('answer', 'custom')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Custom Answer Checker
+#:% type = technique
+#:% categories = [answer, custom]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: To set up the custom answer checker we will override the answer checker routine for the `MathObject`
+#: that we're using to check the answer. Thus our answer object should be of the same type (e.g., `Real`,
+#: `Formula`, etc.) as what we want the student to be entering. For example, here we're going to ask for a
+#: value of x such that `cos(x) = cos($ans)`. Thus we set up the answer to be a real number.
+#:
+#: The `$ans` object overrides the `checker` part of the MathObject.  This is a subroutine
+#: which checks that the cosine of the student answer equals the cosine of the correct
+#: answer.  This also values like `pi/3`, `-pi/3` or `pi/3 + 2pi` to be considered correct.
+#:
+#: We can set an error message in the answer checker by using Value->Error("message"). This will
+#: set the message that is displayed to the student and exit the checker with an incorrect
+#: return value. For example:
+#:
+#:```{#value-error .perl}
+#: $ans = Compute('pi/3')->cmp(
+#:     checker => sub {
+#:         my ($correct, $student, $ansHash) = @_;
+#:         Value->Error("Try again") if cos($student) == sqrt(3) / 2;
+#:         return cos($correct) == cos($student);
+#:     }
+#: );
+#:```
+#:
+#: Another handle tip for troubleshooting. To see all of the keys and values in the
+#: `$ansHash` when the submit answers button is pressed, include this in your custom answer checker:
+#:
+#:```{.perl}
+#:for my $key ( keys %{$ansHash} ) {
+#:  warn "key: $key, value: $ansHash->{$key}";
+#:}
+#:```
+$ans = Compute('pi/3')->cmp(
+    checker => sub {
+        my ($correct, $student, $ansHash) = @_;
+        return cos($correct) == cos($student);
+    }
+);
+$val = Compute('cos(pi/3)');
+
+#:% section = statement
+BEGIN_PGML
+Enter a value of [`x`] for which [`\cos(x) = [$val]`]
+
+[`x=`] [___]{$ans}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

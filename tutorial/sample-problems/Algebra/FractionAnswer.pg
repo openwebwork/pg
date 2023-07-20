@@ -1,0 +1,58 @@
+## DESCRIPTION
+## Fraction answer
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('algebra', 'fraction answer')
+
+#:% name = Fraction Answer
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [fraction]
+
+#:% section = preamble
+#: The macro `contextFraction.pl` must be loaded.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The macro `contextFraction.pl` provides four contexts:
+#:
+#:```{#contexts .perl}
+#: Context('Fraction');
+#: Context('Fraction-NoDecimals');
+#: Context('LimitedFraction');
+#: Context('LimitedProperFraction');
+#:```
+#: For the differences among these, see the POD documentation for
+#: PODLINK('contextFraction.pl').
+Context('Fraction-NoDecimals');
+
+$answer = Compute('3/2');
+
+#:% section = statement
+#: There are many context flags that control how fraction answers are checked.
+#: See the POD documentation for PODLINK('contextFraction.pl').
+BEGIN_PGML
+Simplify [``\frac{6}{4}``].
+
+Answer = [_]{$answer->cmp(
+    studentsMustReduceFractions => 1,
+    reduceFractions => 1,
+    allowMixedNumbers => 0
+)}{15}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Factor and cancel to obtain [`\displaystyle [$answer]`].
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

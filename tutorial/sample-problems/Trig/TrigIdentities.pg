@@ -1,0 +1,58 @@
+## DESCRIPTION
+## Trigonometric identities
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('trigonometry', 'trig identity')
+
+#:% name = Trigonometric Identities
+#:% type = Sample
+#:% subject = [trigonometry, precalculus]
+#:% categories = [trigonometry, custom]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: To prevent the student from just entering the given expression, we create
+#: a custom answer checker, which 1) performs a `->reduce` which will do some
+#: small simplification, 2) returns an error if the original expression
+#: was put in and 3) then checks if the answer is correct.
+#:
+#: An alternative method to doing this is in
+#: PROBLINK('ProvingTrigIdentities.pg').
+$ans = Compute('sin(x)')->cmp(
+    checker => sub {
+        my ($correct, $student, $ansHash) = @_;
+        my $stu_ans = $student->reduce;
+        Value->Error('There is a simpler answer')
+            if $stu_ans->string eq 'cos(x)*tan(x)';
+        return $student == $correct;
+    }
+);
+
+#:% section = statement
+BEGIN_PGML
+Simplify the expression as much as possible.
+
+[`\tan(x) \cos(x) =`] [_]{$ans}{15}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+COMMENT(
+    'Prevents students from entering trivial identities (entering what they '
+        . 'were given)');
+
+ENDDOCUMENT();

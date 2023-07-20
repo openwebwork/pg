@@ -1,0 +1,59 @@
+## DESCRIPTION
+## Provides an answer blank in an exponent.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('answer', 'exponent')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Answer in an Exponent
+#:% type = technique
+#:% categories = [answer, exponent]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The `Context()->variables->are` sets the variables for the context.
+Context()->variables->are(a => 'Real', b => 'Real');
+
+$n = random(3, 9);
+
+$ans_rule1 = ans_rule(4);
+$ans_rule2 = ans_rule(4);
+
+#:% section = statement
+#: To create an exponential, there is different code for both the TeX (hardcopy)
+#: and HTML version.  The `TeX` is as expected using the standard power `^`.
+#: The HTML version creates a exponent using the `vertical-align` attribute.
+BEGIN_PGML
+Rewrite the following using a single exponent.
+
+[@ MODES(
+	TeX => "\\( \\displaystyle a^{$n}b^{$n} = ( $ans_rule1)^{$ans_rule2} \\)",
+	HTML =>"<div><span>\\( \\displaystyle a^{$n}b^{$n} = (\\)$ans_rule1\\()\\)</span>" .
+		"<span style='vertical-align: 1.4em'> $ans_rule2 </span></div>"
+)@]*
+
+END_PGML
+
+#:% section = answer
+#: Because `ans_rule` is used above, this form of answer checking must be used.
+ANS(Compute('a b')->cmp);
+ANS(Real($n)->cmp);
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

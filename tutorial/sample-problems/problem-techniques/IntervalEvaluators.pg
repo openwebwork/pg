@@ -1,0 +1,59 @@
+## DESCRIPTION
+## This shows how to use intervals in a problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('interval')
+
+# created as a full problem by Peter Staab  2023.06.02
+
+#:% name = Interval Evaluator
+#:% type = [technique]
+#:% categories = interval
+#:% subject = algebra
+#:% see_also = [InequalityEvaluators.pg]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: In the problem set-up section of the file, we set the `Context` to be the
+#: `Interval` context. Note that we can relax checking of endpoints in the
+#: `Context` or in the actual answer checking, as noted below.
+#:
+#: Once we're in the `Interval` context, we can define intervals as we'd expect:
+#: as shown here, or with limits at infinity:
+#:
+#:```{#interval .perl}
+#: $int2 = Compute('(-inf,1]');
+#:```
+#: This would give the interval from negative infinity to 1, including
+#: the point at one. Note the Context flag to make endpoint checking "fuzzy."
+Context('Interval');
+# to allow open or closed intervals, uncomment
+#    the following line.
+# Context()->flags->set(ignoreEndpointTypes=>1);
+
+$int = Compute('(1,3)');
+
+#:% section=statement
+BEGIN_PGML
+On what interval is the parabola [`y = (1-x)(x-3)`]
+above the [`x`]-axis?
+
+For [`x`] in [_____]{$int}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
