@@ -1,0 +1,368 @@
+.graphtool-container {
+	position: relative;
+	box-sizing: border-box;
+	width: 442px;
+	padding: 15px 20px;
+	border-radius: 10px;
+	box-shadow: inset 0 0 5px 5px rgba(0, 0, 0, 0.15);
+
+	@media only screen and (max-width: 600px) {
+		width: 342px;
+	}
+
+	.graphtool-graph {
+		width: 402px;
+		height: 402px;
+
+		@media only screen and (max-width: 600px) {
+			width: 302px;
+			height: 302px;
+		}
+
+		.hidden-fill-point:focus,
+		.hidden-end-point:focus {
+			outline-offset: 5px;
+		}
+
+		.hidden-inf-point:focus {
+			outline-offset: 12px;
+		}
+	}
+
+	.graphtool-number-line {
+		height: 67px;
+
+		@media only screen and (max-width: 600px) {
+			height: 57px;
+		}
+	}
+
+	.gt-button {
+		box-sizing: border-box;
+		height: 34px;
+		text-align: center;
+		padding: 0.375rem 0.75rem;
+		border-radius: 4px;
+		box-shadow: inset 0 1px 0 #ffffff26, 0 1px 1px rgba(0, 0, 0, 0.075);
+		display: inline-block;
+		text-align: center;
+		transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+		user-select: none;
+		vertical-align: middle;
+
+		&:not(:disabled) {
+			cursor: pointer;
+		}
+
+		&:first-child:active {
+			box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+		}
+
+		&:hover {
+			text-decoration: none;
+		}
+
+		&:focus-visible {
+			outline: 0;
+		}
+	}
+
+	.gt-toolbar-container {
+		margin: 0.5rem 0 0;
+		text-align: right;
+		width: 100%;
+		padding: 0;
+
+		.gt-button-div {
+			display: inline-block;
+			box-sizing: border-box;
+			height: 38px;
+		}
+
+		.gt-button {
+			padding: 1px;
+			margin: 2px;
+			background-color: #f8f9fa;
+			color: #000;
+			border: 1px solid #ccc !important;
+
+			&.gt-text-button {
+				padding: 1px 6px;
+			}
+
+			&:disabled {
+				box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+			}
+
+			&:hover {
+				background-color: #d3d4d5;
+				border-color: #c6c7c8;
+			}
+
+			&:first-child:active {
+				background-color: #c6c7c8;
+			}
+
+			&:focus-visible {
+				background-color: #d3d4d5;
+				box-shadow: inset 0 1px 0 #ffffff26, 0 1px 1px rgba(0, 0, 0, 0.075),
+					0 0 0 0.2rem rgba(211, 212, 213, 0.5);
+			}
+
+			&:disabled {
+				background-color: #f8f9fa;
+				box-shadow: none;
+				opacity: 0.65;
+				pointer-events: none;
+			}
+		}
+
+		.gt-tool-button {
+			width: 34px;
+			background-position: 0;
+		}
+
+		.gt-tool-button-pair {
+			display: inline-block;
+			box-sizing: border-box;
+			height: 38px;
+			padding: 0;
+			vertical-align: middle;
+
+			.gt-tool-button-pair-top {
+				display: block;
+				height: 20px;
+
+				.gt-tool-button {
+					height: 16px;
+					vertical-align: top;
+					margin: 2px 2px 0 2px;
+					border-radius: 4px 4px 0 0;
+				}
+			}
+
+			.gt-tool-button-pair-bottom {
+				display: block;
+				height: 18px;
+
+				.gt-tool-button {
+					height: 16px;
+					vertical-align: top;
+					margin: 0 2px 2px 2px;
+					border-radius: 0 0 4px 4px;
+				}
+			}
+		}
+
+		.gt-tool-button {
+			&.gt-select-tool {
+				background-image: url('images/SelectTool.svg');
+			}
+
+			&.gt-point-tool {
+				background-image: url('images/PointTool.svg');
+			}
+
+			&.gt-line-tool {
+				background-image: url('images/LineTool.svg');
+			}
+
+			&.gt-circle-tool {
+				background-image: url('images/CircleTool.svg');
+			}
+
+			&.gt-vertical-parabola-tool {
+				background-image: url('images/VerticalParabolaTool.svg');
+			}
+
+			&.gt-horizontal-parabola-tool {
+				background-image: url('images/HorizontalParabolaTool.svg');
+			}
+
+			&.gt-quadratic-tool {
+				background-image: url('images/QuadraticTool.svg');
+			}
+
+			&.gt-cubic-tool {
+				background-image: url('images/CubicTool.svg');
+			}
+
+			&.gt-fill-tool {
+				background-image: url('images/FillTool.svg');
+			}
+
+			&.gt-solid-tool {
+				background-image: url('images/SolidTool.svg');
+			}
+
+			&.gt-dashed-tool {
+				background-image: url('images/DashTool.svg');
+			}
+
+			&.gt-include-point-tool {
+				background-image: url('images/IncludePointTool.svg');
+			}
+
+			&.gt-include-point-bracket-tool {
+				background-image: url('images/IncludePointBracketTool.svg');
+			}
+
+			&.gt-exclude-point-tool {
+				background-image: url('images/ExcludePointTool.svg');
+			}
+
+			&.gt-exclude-point-parenthesis-tool {
+				background-image: url('images/ExcludePointParenthesisTool.svg');
+			}
+
+			&.gt-interval-tool {
+				background-image: url('images/IntervalTool.svg');
+			}
+
+			&.gt-interval-bracket-tool {
+				background-image: url('images/IntervalBracketTool.svg');
+			}
+		}
+	}
+
+	.gt-confirm-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 9;
+		width: 100%;
+		height: 100%;
+		border-radius: 10px;
+		background-color: #000;
+		opacity: 0.25;
+	}
+
+	.gt-message-box {
+		position: absolute;
+		display: flex;
+		z-index: 10;
+		justify-content: center;
+		text-align: center;
+		align-items: center;
+		flex-direction: column;
+		width: calc(100% - 40px);
+		background-color: #fff;
+		opacity: 0;
+		transition: all 0.2s ease-in-out;
+
+		&:not(:empty) {
+			opacity: 1;
+			margin-top: 0.5rem;
+			padding: 0.25rem 0.5rem;
+			border: 1px solid #356aa0;
+			border-radius: 10px;
+		}
+
+		.gt-message-content {
+			margin: 0;
+			user-select: none;
+			opacity: 0;
+			transition: opacity 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+			&.gt-message-fade {
+				opacity: 1;
+				transition: opacity 0.2s cubic-bezier(0.55, 0.085, 0.68, 0.53);
+			}
+
+			&.gt-confirm {
+				padding: 0.25rem;
+				width: 100%;
+
+				.gt-confirm-buttons {
+					display: flex;
+					justify-content: end;
+					gap: 0.5rem;
+					margin-top: 0.5rem;
+				}
+
+				.gt-confirm-button {
+					background-color: #6c757d;
+					color: #fff;
+					border: 1px solid #6c757d;
+
+					&:hover {
+						background-color: #5c636a;
+						border-color: #565e64;
+					}
+
+					&:first-child:active {
+						background-color: #565e64;
+						border-color: #51585e;
+					}
+
+					&:focus-visible {
+						background-color: #5c636a;
+						border-color: #565e64;
+						box-shadow: inset 0 1px 0 #ffffff26, 0 1px 1px rgba(0, 0, 0, 0.075),
+							0 0 0 0.2rem rgba(130, 138, 145, 0.5);
+					}
+				}
+			}
+		}
+	}
+}
+
+.JXG_wrap_private:fullscreen .gt-message-box {
+	position: relative;
+	min-height: 92px;
+	width: 100%;
+	border-width: 1px;
+	margin-top: 0.5rem;
+	padding: 0.25rem 0.5rem;
+
+	&.gt-disabled-help:empty {
+		min-height: 0;
+		opacity: 0;
+		margin-top: 0;
+		padding: 0;
+		border: none;
+	}
+}
+
+.graphtool-answer-container {
+	width: 100%;
+
+	.graphtool-graph {
+		margin: auto;
+		width: 202px;
+		height: 202px;
+
+		@media only screen and (max-width: 600px) {
+			width: 152px;
+			height: 152px;
+		}
+	}
+
+	.graphtool-number-line {
+		height: 62px;
+
+		@media only screen and (max-width: 600px) {
+			height: 52px;
+		}
+	}
+}
+
+.graphtool-solution-container {
+	.graphtool-graph {
+		width: 402px;
+		height: 402px;
+
+		@media only screen and (max-width: 600px) {
+			width: 302px;
+			height: 302px;
+		}
+	}
+
+	.graphtool-number-line {
+		height: 67px;
+
+		@media only screen and (max-width: 600px) {
+			height: 57px;
+		}
+	}
+}

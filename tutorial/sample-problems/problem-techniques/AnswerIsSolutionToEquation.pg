@@ -1,0 +1,46 @@
+## DESCRIPTION
+## The answer is a solution to an equation.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('answer', 'exponent')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Answer is a Solution to an Equation
+#:% type = technique
+#:% categories = [answer, exponent]
+
+#:% section = preamble
+#: We need to include the macros file `parserSolutionFor.pl`
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserSolutionFor.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The function `SolutionFor('equation',point,options)` takes an equation, a point that
+#: satisfies that equation, and options such as `vars=>['y','x']` in case you want to change
+#: the order in which the variables appear in order pairs (the default is lexicographic ordering of the variables).
+Context('Vector')->variables->are(x => 'Real', y => 'Real');
+
+$f = SolutionFor("x^2 = cos(y)", "(1,0)");
+#$f = SolutionFor("x^2 - y = 0", [ 2, 4 ]);
+#$f = SolutionFor("x^2 - y = 0", Point(4, 2), vars => [ 'y', 'x' ]);
+
+#:% section = statement
+BEGIN_PGML
+A solution to [`[@ $f->{f} @]`] is [`(x,y) =`] [___]{$f}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

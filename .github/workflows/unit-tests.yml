@@ -1,0 +1,47 @@
+---
+name: Unit Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout PG code
+        uses: actions/checkout@v3
+
+      - name: Install Ubuntu dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends --no-install-suggests \
+            cpanminus \
+            dvipng \
+            dvisvgm \
+            imagemagick \
+            libclass-accessor-perl \
+            libclass-tiny-perl \
+            libdbi-perl \
+            libencode-perl \
+            libgd-perl \
+            libhtml-parser-perl \
+            libjson-perl \
+            libjson-xs-perl \
+            libtest2-suite-perl \
+            libtie-ixhash-perl \
+            libuuid-tiny-perl \
+            libyaml-libyaml-perl \
+            pdf2svg \
+            texlive \
+            texlive-latex-extra \
+            texlive-latex-recommended \
+            texlive-plain-generic
+
+      - name: Install Perl dependencies
+        run: cpanm --sudo -fi --notest HTML::TagParser
+
+      - name: Run Perl unit tests
+        run: |
+          export PG_ROOT=`pwd`
+          prove -r t

@@ -1,0 +1,77 @@
+## DESCRIPTION
+## Factored polynomial
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## Static(1)
+## MO(1)
+## KEYWORDS('algebra', 'factored polynomial')
+
+#:% name = Simple factoring
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [polynomial]
+#:% see_also = [FactoredPolynomial.pg, ExpandedPolynomial.pg, FactoringAndExpanding.pg]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+#:% section = setup
+#: First, we create two random roots and then create the factors.  Note:
+#: the `->reduce` will help make `x-(-3)` into `x+3`.  In addition, we
+#: create the expanded form of the quadratic.
+#:
+#: Note that the argument of the List call are the objects in the list,
+#: which can be any MathObjects. Here we create a list of Formulas and a list
+#: of Reals (the numbers that we use in the second list will be promoted to
+#: Real MathObjects when the List is created).
+#:
+#: If, for example, there were no real roots, we should set
+#: `$roots = List("NONE");` so that students who enter a list of roots will not
+#: receive an error message about entering the wrong type of answer. If we were
+#: to use `$roots = String("NONE");` instead, students who enter anything
+#: other than a string (e.g., a list of numbers) will receive an error message.
+#:
+#: Similarly, if there were only one root at x=4, we would use
+#: `$roots = List(4);` instead of $roots = Real(4); to avoid sending error
+#: messages to students who enter multiple answers or NONE.
+($x0, $x1) = (non_zero_random(-6, 6), non_zero_random(-6, 6));
+$factor1 = Compute("x-$x0")->reduce;
+$factor2 = Compute("x-$x1")->reduce;
+$f       = Compute("x^2-($x0+$x1)x+$x0*$x1")->reduce;
+$factors = List($factor1, $factor2);
+$roots   = List($x0,      $x1);
+
+# If there were only one solution
+# $roots = List(4);
+
+# If there were no solutions
+# $roots = List("NONE");
+
+#:% section = statement
+BEGIN_PGML
+a) What are the factors of [`[$f]`]?
+
+    Factors = [__]{$factors}
+
+
+b) What are the roots of this equation?
+
+    Roots = [__]{$roots}
+
+_(Enter both answers as a comma-separated list.)_
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

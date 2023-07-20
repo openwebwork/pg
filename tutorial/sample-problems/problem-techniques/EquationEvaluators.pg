@@ -1,0 +1,109 @@
+## DESCRIPTION
+## This code shows how to check student answers that are equations.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('answer', 'custom')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Implicit Equations Evaluators
+#:% type = technique
+#:% categories = [implicit]
+
+#:% section = preamble
+#: In the initialization section, we need to include the macros file
+#: `parserImplicitEquation.pl`.
+DOCUMENT();
+loadMacros(
+    'PGstandard.pl',             'PGML.pl',
+    'parserImplicitEquation.pl', 'PGcourse.pl'
+);
+
+#:% section=setup
+#: We specify that the `Context` should be `ImplicitEquation`, and define the
+#: answer to be an equation. It's worth noting that there are a number of
+#: `Context` settings that may be specifying for equation answers.
+#: In particular, it's often important to pay attention to the limits
+#: used by the answer checker.
+#:
+#: By default, the `ImplicitEquation` context defines the variables x and y.
+#: To include other variables, it may be necessary to modify the context.
+#:
+#: Two other notes: if it's possible that a student's solution may evaluate
+#: to true for the test points that are used in the answer checker, it may
+#: be a good idea to specify what (x,y) solution values are used to check the
+#: answer. This can be done in the `ImplicitEquation` initialization call, e.g.,
+#:
+#:```{#specify-solutions .perl}
+#: $eqn = ImplicitEquation("y = (x-1)^2",
+#: solutions=>[[0,0],[1,1],[-1,1],[2,4],[-2,4]]);
+#:```
+#:
+#: And, for this type of answer checking it is more likely than for regular
+#: formulas that the student will represent the function in a form that exceeds
+#: the default problem checking tolerances, and so be marked as incorrect. To
+#: correct this, it may be necessary to specify a tolerance; an absolute
+#: tolerance can be set in the `ImplicitEquation` call, e.g.,
+#:
+#:```{#set-tolerance .perl}
+#: $eqn = ImplicitEquation("y = (x-1)^2",
+#: tolerance=>0.0001);
+#:```
+#:
+#: It is possible to remove the error message
+#: "Can't find any solutions to your equation" by remapping it to another
+#: error message. The message has to be non-empty, but it can be just a
+#: blank " ", as in
+#:
+#:```{#error-message .perl}
+#: Context()->{error}{msg}{"Can't find any solutions to your equation"} = " ";
+#:```
+#:
+#: This will eliminate the error message (though the "messages" column will
+#: be displayed in the answer table at the top of the problem, but no
+#: message will be there).
+#:
+#: Another way to remove the error message "Can't find any solutions to your
+#: equation" would be to use a post-filter to remove the message after the
+#: answer has been graded. The answerHints.pl file provides one way to do this,
+#: but it is probably just as easy to do it manually, as replacing the
+#: `$ans` line with the following:
+#:
+#:```{#post-filter .perl}
+#: $ans = ImplicitEquation("y = (x-1)^2")->cmp->withPostFilter(sub {
+#:    my $ans = shift;
+#:    $ans->{ans_message} = " " if $ans->{ans_message} eq
+#:    "Can't find any solutions to your equation";
+#:    return $ans;
+#: }));
+#:```
+Context("ImplicitEquation");
+Context()->variables->set(
+    x => { limits => [ -2, 2 ] },
+    y => { limits => [ 0,  4 ] }
+);
+
+$ans = ImplicitEquation("y = (x-1)^2");
+
+#:% section=statement
+BEGIN_PGML
+Give the equation of a shift of the
+parabola [`y = x^2`] which is upward
+opening and has its vertex at [`(1,0)`].
+
+equation: [___]{$ans}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

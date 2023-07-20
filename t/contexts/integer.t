@@ -1,36 +1,29 @@
-use warnings;
-use strict;
+#!/usr/bin/env perl
 
-package main;
+=head1 Integer context
 
-use Test::More;
-use Test::Exception;
+Test contextInteger.pl methods.
 
-# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
+=cut
 
-BEGIN {
-	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-	$main::pg_dir = $ENV{PG_ROOT};
-}
+use Test2::V0 '!E', { E => 'EXISTS' };
 
-use lib "$main::pg_dir/lib";
+die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
+do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
-require("$main::pg_dir/t/build_PG_envir.pl");
+use lib "$ENV{PG_ROOT}/lib";
 
-## END OF TOP_MATERIAL
+loadMacros('MathObjects.pl', 'contextInteger.pl');
 
-loadMacros("MathObjects.pl", "contextInteger.pl");
+use Value;
+require Parser::Legacy;
+import Parser::Legacy;
 
-for my $module (qw/Parser Value Parser::Legacy/) {
-	eval "package Main; require $module; import $module;";
-}
-
-Context("Integer");
+Context('Integer');
 
 my $b = Compute(gcd(5, 2));
 ANS($b->cmp);
 
-ok(1, "integer test: dummy test");
+ok(1, 'integer test: dummy test');
 
 done_testing();
-

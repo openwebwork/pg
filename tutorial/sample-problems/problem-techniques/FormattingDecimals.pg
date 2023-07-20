@@ -1,0 +1,94 @@
+## DESCRIPTION
+## We show how to use format decimals, and, conveniently also how to use logarithmic functions in PG problems.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('formatting decimals', 'logarithm')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Formatting Decimals
+#:% type = technique
+#:% categories = [formatting decimals, logarithm]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: Since the domain of a logarithmic function is all positive real numbers,
+#: we should set the domain of function evaluation to `[2,4]` in order to avoid
+#: vertical asymptotes and places where a logarithmic function takes values
+#: close to zero.
+#:
+#: Use perl's `sprintf( format, number );` command to format the decimal. The
+#: `"%0.3f"` portion truncates after 3 decimal places and uses zeros (not spaces)
+#: to right-justify. For answers involving money, you should set `"%0.2f"` for
+#: two decimal places and zero filling (for example, `sprintf("%0.2f",0.5);`
+#: returns `0.50`). You can do a web search for more options to perl's sprintf,
+#: and also for WeBWorK's PODLINK('contextCurrency.pl'). If you do further
+#: calculations with `$b`, be aware that numerical error may be an
+#: issue since you've reduced the number of decimal places.
+#:
+#: We used the logarithm change of base formula
+#: `log10(a) = log(a) / log(10) = ln(a) / ln(10)` to get a logarithm base 10.
+#:
+#: It is possible to set a context flag that will use the base 10 log via
+#: `Context()->flags->set(useBaseTenLog=>1);` The default is that this is set to zero.
+#:
+#: If you would like to define log base 2 (or another base) see
+#: PROBLINK('AddingFunctions.pg') for how to define and add a new function
+#: to the context so that students can enter it in their answers.
+Context("Numeric");
+Context()->variables->set(x => { limits => [ 2, 4 ] });
+
+$a = random(3, 7, 1);
+
+# both ln and log are natural log (base e)
+$b    = sprintf("%0.3f", ln($a));
+$ans1 = Real("$b");
+
+$f    = Formula("ln(x)");    # or log(x)
+$ans2 = $f->eval(x => $a);
+
+# log base 10 is log10, logten,
+# ln(x)/ln(10), or log(x)/log(10)
+
+$c    = sprintf("%0.3f", ln($a) / ln(10));    # or log($a)/log(10)
+$ans3 = Real("$c");
+
+$g    = Formula("ln(x)/ln(10)");              # or log(x)/log(10)
+$ans4 = $g->eval(x => $a);
+
+#:% section=statement
+#: Notice the difference in decimal formatting when "Show Correct Answers"
+#: is checked and you click "Submit Answers".
+BEGIN_PGML
+Notice the formatting and rounding differences
+between [` [$ans1] `] and [` [$ans2] `].
+
+Try entering [` \ln([$a]), \log([$a]), \ln([$a])/\ln(10), \log([$a])/\log(10),
+\mathrm{logten}([$a]), \mathrm{log10}([$a]) `].
+
+
+1. [` \ln([$a]) = `] [_____]{$ans1}
+
+2. [` \ln([$a]) = `] [_____]{$ans2}
+
+3. [` \log_{10}([$a]) = `] [_____]{$ans3}
+
+4. [` \log_{10}([$a]) = `] [_____]{$ans4}
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

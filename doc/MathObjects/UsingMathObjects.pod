@@ -73,7 +73,7 @@ If you place C<< Context()->texStrings >> before a
 C<BEGIN_TEXT...END_TEXT> block, and C<< Context()->normalStrings >>
 afterward, then using C<$f> within the text will cause the TeX
 version to be inserted, rather than the string version.  This makes it
-easier to generate well-formated output in your problems without
+easier to generate well-formatted output in your problems without
 having to produce a separate TeX form yourself.
 
 =item C<< $f->perl >>

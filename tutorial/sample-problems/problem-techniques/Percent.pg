@@ -1,0 +1,39 @@
+## DESCRIPTION
+## This demonstrates the Percent context.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('percent')
+
+#:% name = Percent Context
+#:% type = [technique]
+
+#:% section = preamble
+#: The `contextPercent.pl` must be loaded.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextPercent.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The `Percent` context must be loaded.
+Context('Percent');
+
+$p = random(5, 95, 5);
+
+#:% section = statement
+#: The answer can be entered with a `%` or with the work `percent`.
+BEGIN_PGML
+Enter [$p]% [__]{Real($p)}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

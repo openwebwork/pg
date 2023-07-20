@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -22,44 +22,43 @@ LaTeX, and then to process them all at once.
 
 =head1 SYNPOSIS
 
-FIXME: add this
+    my $image_generator = WeBWorK::PG::ImageGenerator->new(
+        tempDir         => $pg_envir->{directories}{tmp},
+        latex           => $pg_envir->{externalPrograms}{latex},
+        dvipng          => $pg_envir->{externalPrograms}{dvipng},
+        useCache        => 1,
+        cacheDir        => $pg_envir->{directories}{equationCache},
+        cacheURL        => $pg_envir->{URLs}{equationCache},
+        cacheDB         => $pg_envir->{equationCacheDB},
+        useMarkers      => 0,
+        dvipng_align    => $pg_envir->{displayModeOptions}{images}{dvipng_align},
+        dvipng_depth_db => $pg_envir->{displayModeOptions}{images}{dvipng_depth_db},
+    );
 
 =cut
 
-# Note, this now has the ability to communicate with mysql for storing depths of
-# images for alignments.  If you want to provide another way of storing the depths,
-# make up another "magic" alignment name, look for explicit mentions of mysql here
-# and add statements for the new special alignment name.  Most of the action is
-# in the function update_depth_cache near the end of this file.  Also look for the
-# place where PG creates a new ImageGenerator object, and possibly adjust there as
-# well.
-
 use strict;
 use warnings;
+use feature 'signatures';
+no warnings qw(experimental::signatures);
+
 use DBI;
 use PGcore;
-use WeBWorK::Constants;
-use WeBWorK::EquationCache;
+use WeBWorK::PG::Constants;
+use WeBWorK::PG::EquationCache;
 
-# can't use WeBWorK::Utils from here, so we define the needed functions here
-#use WeBWorK::Utils qw/readFile readDirectory makeTempDirectory removeTempDirectory/;
-
-use constant MKDIR_ATTEMPTS => 10;
 use File::Path qw(rmtree);
 
-sub readFile($) {
-	my $filename = shift;
+sub readFile ($filename) {
 	my $contents = '';
-	local(*FILEH);
-	open FILEH,  "<$filename" or die "Unable to read $filename";
-	local($/) = undef;
-	$contents = <FILEH>;
-	close(FILEH);
-	return($contents);
+	open(my $fh, '<', $filename) or die "Unable to read $filename";
+	local $/ = undef;
+	$contents = <$fh>;
+	close $fh;
+	return $contents;
 }
 
-sub readDirectory($) {
-	my $dirName = shift;
+sub readDirectory ($dirName) {
 	opendir my $dh, $dirName
 		or die "Failed to read directory $dirName: $!";
 	my @result = readdir $dh;
@@ -67,29 +66,27 @@ sub readDirectory($) {
 	return @result;
 }
 
-sub makeTempDirectory($$) {
-	my ($parent, $basename) = @_;
+sub makeTempDirectory ($parent, $basename) {
 	# Loop until we're able to create a directory, or it fails for some
 	# reason other than there already being something there.
-	my $triesRemaining = MKDIR_ATTEMPTS;
 	my ($fullPath, $success);
 	do {
-		my $suffix = join "", map { ('A'..'Z','a'..'z','0'..'9')[int rand 62] } 1 .. 8;
+		my $suffix = join '', map { ('A' .. 'Z', 'a' .. 'z', '0' .. '9')[ int rand 62 ] } 1 .. 8;
 		$fullPath = "$parent/$basename.$suffix";
-		$success = mkdir $fullPath;
+		$success  = mkdir $fullPath;
 	} until ($success or not $!{EEXIST});
 	unless ($success) {
 		my $msg = '';
-		$msg    .=  "Server does not have write access to the directory $parent" unless -w $parent;
-		die "$msg\r\nFailed to create directory $fullPath:\r\n $!"
+		$msg .= "Server does not have write access to the directory $parent" unless -w $parent;
+		die "$msg\r\nFailed to create directory $fullPath:\r\n $!";
 	}
 
 	return $fullPath;
 }
 
-sub removeTempDirectory($) {
-	my ($dir) = @_;
+sub removeTempDirectory ($dir) {
 	rmtree($dir, 0, 0);
+	return;
 }
 
 ################################################################################
@@ -104,7 +101,7 @@ Arguments to pass to dvipng.
 
 =cut
 
-our $DvipngArgs = "" unless defined $DvipngArgs;
+our $DvipngArgs = '' unless defined $DvipngArgs;
 
 =item $PreserveTempFiles
 
@@ -120,7 +117,7 @@ TeX to prepend to equations to be processed.
 
 =cut
 
-our $TexPreamble = "" unless defined $WeBWorK::PG::ImageGenerator::TexPreamble;
+our $TexPreamble = '' unless defined $TexPreamble;
 
 =item $TexPostamble
 
@@ -128,7 +125,7 @@ TeX to append to equations to be processed.
 
 =cut
 
-our $TexPostamble = "" unless defined $TexPostamble;
+our $TexPostamble = '' unless defined $TexPostamble;
 
 =back
 
@@ -164,36 +161,41 @@ If C<useCache> is true, C<%options> must also contain the following entries:
 
 Options may also contain:
 
- dvipng_align    => vertical alignment option (a string to use like baseline, or 'mysql')
- dvipng_depth_db => database connection information for a "depths database"
- useMarkers      => if you want to have the dvipng images vertically aligned, this involves adding markers
+ dvipng_align    => Vertical alignment option.  This should be any of the valid values
+                    for the css vertical-align rule like 'baseline' or 'middle'.
+ dvipng_depth_db => Database connection information for a database that has the 'depths' table.
+ useMarkers      => If you want to have the dvipng images vertically aligned, this involves adding markers.
+                    This only works if dvipng depths are stored and the body_text is provided.
+
 
 =cut
 
-sub new {
-	my ($invocant, %options) = @_;
+sub new ($invocant, %options) {
 	my $class = ref $invocant || $invocant;
-	my $self = {
-		names   => [],
-		strings => [],
+	my $self  = {
+		names                => [],
+		strings              => [],
 		texPreambleAdditions => undef,
-		depths => {},
+		depths               => {},
 		%options,
 	};
 
-	# set some values
-	$self->{dvipng_align} = 'absmiddle' unless defined($self->{dvipng_align});
-	$self->{store_depths} = 1 if ($self->{dvipng_align} eq 'mysql');
-	$self->{useMarkers} = $self->{useMarkers} || 0;
+	$self->{dvipng_align} //= 'baseline';
+
+	# Fix invalid mysql values.
+	$self->{dvipng_align} = 'baseline' if $self->{dvipng_align} eq 'mysql';
+
+	$self->{store_depths} = 1 if $self->{dvipng_depth_db}{dbsource} ne '';
+	$self->{useMarkers}   = 0 unless $self->{store_depths};
 
 	if ($self->{useCache}) {
-		$self->{dir} = $self->{cacheDir};
-		$self->{url} = $self->{cacheURL};
-		$self->{basename} = "";
-		$self->{equationCache} = WeBWorK::EquationCache->new(cacheDB => $self->{cacheDB});
+		$self->{dir}           = $self->{cacheDir};
+		$self->{url}           = $self->{cacheURL};
+		$self->{basename}      = '';
+		$self->{equationCache} = WeBWorK::PG::EquationCache->new(cacheDB => $self->{cacheDB});
 	}
 
-	bless $self, $class;
+	return bless $self, $class;
 }
 
 =item addToTeXPreamble($string)
@@ -210,25 +212,22 @@ not a .pg file
 
 =cut
 
-sub addToTeXPreamble {
-	my $self  = shift;
-	my $str   = shift;
+sub addToTeXPreamble ($self, $str = undef) {
 	$self->{texPreambleAdditions} = $str if defined $str;
-	$self->{texPreambleAdditions};
+	return $self->{texPreambleAdditions};
 }
 
 =item refresh(1)
 
 Forces every equation picture to be recalculated. Useful for debugging.
+
 	$rh_envir->{imagegen}->refresh(1);
 
 =cut
 
-sub refresh {
-	my $self  = shift;
-	my $in   = shift;
+sub refresh ($self, $in) {
 	$self->{refresh} = $in if defined($in);
-	$self->{refresh};
+	return $self->{refresh};
 }
 
 =item add($string, $mode)
@@ -239,18 +238,16 @@ for displaying the image.
 
 =cut
 
-sub add {
-	my ($self, $string, $mode) = @_;
-
+sub add ($self, $string, $mode = 'inline') {
 	my $names    = $self->{names};
 	my $strings  = $self->{strings};
 	my $dir      = $self->{dir};
 	my $url      = $self->{url};
 	my $basename = $self->{basename};
 	my $useCache = $self->{useCache};
-	my $depths  = $self->{depths};
+	my $depths   = $self->{depths};
 
-	# if the string came in with delimiters, chop them off and set the mode
+	# If the string came in with delimiters, chop them off and set the mode
 	# based on whether they were \[ .. \] or \( ... \). this means that if
 	# the string has delimiters, the mode *argument* is ignored.
 	if ($string =~ s/^\\\[(.*)\\\]$/$1/s) {
@@ -258,55 +255,39 @@ sub add {
 	} elsif ($string =~ s/^\\\((.*)\\\)$/$1/s) {
 		$mode = "inline";
 	}
-	# otherwise, leave the string and the mode alone.
 
-	# assume that a bare string with no mode specified is inline
-	$mode ||= "inline";
+	# Generate the string to pass to latex.
+	my $realString = ($mode eq "display") ? '\(\displaystyle{' . $string . '}\)' : '\(' . $string . '\)';
 
-	# now that we know what mode we're dealing with, we can generate a "real"
-	# string to pass to latex
-	my $realString = ($mode eq "display")
-		? '\(\displaystyle{' . $string . '}\)'
-		: '\(' . $string . '\)';
+	# Alignment tag could be a fixed default
+	my ($imageNum, $aligntag) = (0, qq{style="vertical-align:$self->{dvipng_align}"});
 
-	# alignment tag could be a fixed default
-	my ($imageNum, $aligntag) = (0, qq|align="$self->{dvipng_align}"|);
-	# if the default is for variable heights, the default should be meaningful
-	# in an answer preview, $self->{dvipng_align} might be 'mysql', but we still
-        # use a static alignment
-	$aligntag = 'align="baseline"' if ($self->{dvipng_align} eq 'mysql');
-
-	# determine what the image's "number" is
-	if($useCache) {
-		$imageNum = $self->{equationCache}->lookup($realString);
-		$aligntag = 'MaRkEr'.$imageNum if $self->{useMarkers};
-		$depths->{"$imageNum"} = 'none' if ($self->{dvipng_align} eq 'mysql');
-		# insert a slash after 2 characters
-		# this effectively divides the images into 16^2 = 256 subdirectories
-		substr($imageNum,2,0) = '/';
+	# Determine what the image's "number" is.
+	if ($useCache) {
+		$imageNum            = $self->{equationCache}->lookup($realString);
+		$aligntag            = 'MaRkEr' . $imageNum if $self->{useMarkers};
+		$depths->{$imageNum} = 'none'               if $self->{store_depths};
+		# Insert a slash after 2 characters.  This effectively divides the images into 16^2 = 256 subdirectories.
+		substr($imageNum, 2, 0) = '/';
 	} else {
 		$imageNum = @$strings + 1;
 	}
 
 	# We are banking on the fact that if useCache is true, then basename is empty.
-	# Maybe we should simplify and drop support for useCache =0 and having a basename.
+	# Maybe we should simplify and drop support for useCache = 0 and having a basename.
 
 	# get the full file name of the image
-	my $imageName = ($basename)
-		? "$basename.$imageNum.png"
-		: "$imageNum.png";
+	my $imageName = $basename ? "$basename.$imageNum.png" : "$imageNum.png";
 
-	# store the full file name of the image, and the "real" tex string to the object
-	push @$names, $imageName;
+	# Store the full file name of the image, and the tex string to the object.
+	push @$names,   $imageName;
 	push @$strings, $realString;
-	#warn "ImageGenerator: added string $realString with name $imageName\n";
 
-	# ... and the full URL.
-	my $imageURL = "$url/$imageName";
-
+	my $imageURL   = "$url/$imageName";
 	my $safeString = PGcore::encode_pg_and_html($string);
 
-	my $imageTag  = ($mode eq "display")
+	my $imageTag =
+		($mode eq "display")
 		? "<div align=\"center\"><img src=\"$imageURL\" $aligntag alt=\"$safeString\"></div>"
 		: "<img src=\"$imageURL\" $aligntag alt=\"$safeString\">";
 
@@ -322,23 +303,11 @@ rendering the images and figuring out their depths, we go through and fix the ta
 of the images to get the vertical alignment right.  If it is left out, then we skip
 that step.
 
-=for comment
-
-If the key "mtime" in C<%options> is given, its value will be interpreted as a
-unix date and compared with the modification date on any existing copy of the
-first image to be generated. It is recommended that the modification time of the
-source file from which the equations originate be used for this value. If the
-key "refresh" in C<%options> is true, images will be regenerated regardless of
-when they were last modified. If neither option is supplied, "refresh" is
-assumed.
-
-NOTE: It's not clear to me that mtime has been implemented -- MEG - 2011/06
+=back
 
 =cut
 
-sub render {
-	my ($self, %options) = @_;
-
+sub render ($self, %options) {
 	my $tempDir  = $self->{tempDir};
 	my $dir      = $self->{dir};
 	my $basename = $self->{basename};
@@ -348,38 +317,33 @@ sub render {
 	my $strings  = $self->{strings};
 	my $depths   = $self->{depths};
 	$self->{body_text} = $options{body_text};
-	my $forceRefresh = $self->{refresh} || 0;      # recreate every equation image -- default is do not refresh
 
-	###############################################
-	# check that the equations directory exists and create if it doesn't
-	###############################################
-	unless (-e "$dir") {
-		my $success = mkdir "$dir";
+	# Recreate every equation image (default is do not refresh).
+	my $forceRefresh = $self->{refresh} || 0;
+
+	# Check that the equations directory exists and create if it doesn't.
+	unless (-e $dir) {
+		my $success = mkdir $dir;
 		warn "Could not make directory $dir" unless $success;
 	}
 
-	###############################################
-	# determine which images need to be generated
-	###############################################
+	# Determine which images need to be generated.
 	my (@newStrings, @newNames);
 	for (my $i = 0; $i < @$strings; $i++) {
 		my $string = $strings->[$i];
-		my $name = $names->[$i];
-		if (!$forceRefresh and -e "$dir/$name") {
-			#warn "ImageGenerator: found a file named $name, skipping string $string\n";
-		} else {
-			#warn "ImageGenerator: didn't find a file named $name, including string $string\n";
+		my $name   = $names->[$i];
+		if ($forceRefresh || !-e "$dir/$name") {
 			push @newStrings, $string;
-			push @newNames, $name;
+			push @newNames,   $name;
 		}
 	}
 
-    if(@newStrings) { # Don't run latex if there are no images to generate
+	if (@newStrings) {    # Don't run latex if there are no images to generate
 
-		# create temporary directory in which to do TeX processing
+		# Create a temporary directory in which to do TeX processing.
 		my $wd = makeTempDirectory($tempDir, "ImageGenerator");
 
-		# store equations in a tex file
+		# Store equations in a tex file.
 		my $texFile = "$wd/equation.tex";
 		open my $tex, ">", $texFile
 			or die "failed to open file $texFile for writing: $!";
@@ -390,142 +354,136 @@ sub render {
 		close $tex;
 		warn "tex file $texFile was not written" unless -e $texFile;
 
-		###############################################
-		# call LaTeX
-		###############################################
-		my $latexCommand  = "cd $wd && $latex equation > latex.out 2> latex.err";
-		my $latexStatus = system $latexCommand;
+		# Call LaTeX
+		my $latexCommand = "cd $wd && $latex equation > latex.out 2> latex.err";
+		my $latexStatus  = system $latexCommand;
 
-		if ($latexStatus and $latexStatus !=256) {
+		if ($latexStatus and $latexStatus != 256) {
 			warn "$latexCommand returned non-zero status $latexStatus: $!";
 			warn "cd $wd failed" if system "cd $wd";
 			warn "Unable to write to directory $wd. " unless -w $wd;
-			warn "Unable to execute $latex " unless -e $latex ;
+			warn "Unable to execute $latex "          unless -e $latex;
 
 			warn `ls -l $wd`;
 			my $errorMessage = '';
 			if (-r "$wd/equation.log") {
 				$errorMessage = readFile("$wd/equation.log");
-				warn "<pre> Logfile contents:\n$errorMessage\n</pre>";
+				warn "<pre>Logfile contents:\n$errorMessage\n</pre>";
 			} else {
-			   warn "Unable to read logfile $wd/equation.log ";
+				warn "Unable to read logfile $wd/equation.log ";
 			}
 		}
 
 		warn "$latexCommand failed to generate a DVI file"
 			unless -e "$wd/equation.dvi";
 
-		############################################
-		# call dvipng
-		############################################
+		# Call dvipng
 		my $dvipngCommand = "cd $wd && $dvipng " . $DvipngArgs . " equation > dvipng.out 2> dvipng.err";
-		my $dvipngStatus = system $dvipngCommand;
+		my $dvipngStatus  = system $dvipngCommand;
 		warn "$dvipngCommand returned non-zero status $dvipngStatus: $!"
 			if $dvipngStatus;
-		# get depths
+
+		# Get depths
 		my $dvipngout = '';
-		$dvipngout = readFile("$wd/dvipng.out") if(-r "$wd/dvipng.out");
+		$dvipngout = readFile("$wd/dvipng.out") if (-r "$wd/dvipng.out");
 		my @dvipngdepths = ($dvipngout =~ /depth=(\d+)/g);
-		# kill them all if something goes wrnog
-		@dvipngdepths = () if(scalar(@dvipngdepths) != scalar(@newNames));
 
-		############################################
+		# Kill them all if something goes wrong
+		@dvipngdepths = () if (scalar(@dvipngdepths) != scalar(@newNames));
+
 		# move/rename images
-		############################################
-
-	  chmod (0664,<$wd/*>);  # first make everything group writable so that a WeBWorK admin can delete images
+		chmod(0664, <$wd/*>);    # Make everything group writable so that a WeBWorK admin can delete images
 		foreach my $image (readDirectory($wd)) {
-			# only work on equation#.png files
+			# Only work on equation*.png files
 			next unless $image =~ m/^equation(\d+)\.png$/;
 
-			# get image number from above match
+			# Get image number from above match
 			my $imageNum = $1;
-			# note, problems with solutions/hints can have empty values in newNames
-			next unless $newNames[$imageNum-1];
+			# Note, problems with solutions/hints can have empty values in newNames.
+			next unless $newNames[ $imageNum - 1 ];
 
-			# record the dvipng offset
-			my $hashkey = $newNames[$imageNum-1];
+			# Record the dvipng offset.
+			my $hashkey = $newNames[ $imageNum - 1 ];
 			$hashkey =~ s|/||;
 			$hashkey =~ s|\.png$||;
-			$depths->{"$hashkey"} = $dvipngdepths[$imageNum-1] if(defined($dvipngdepths[$imageNum-1]));
+			$depths->{$hashkey} = $dvipngdepths[ $imageNum - 1 ] if defined $dvipngdepths[ $imageNum - 1 ];
 
-			#warn "ImageGenerator: found generated image $imageNum with name $newNames[$imageNum-1]\n";
-
-			# move/rename image
-			#my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/$basename.$imageNum.png";
-			# check to see if this requires a directory we haven't made yet
-			my $newdir = $newNames[$imageNum-1];
+			# Check to see if this requires a directory we haven't made yet.
+			my $newdir = $newNames[ $imageNum - 1 ];
 			$newdir =~ s|/.*$||;
-			if($newdir and not -d "$dir/$newdir") {
+			if ($newdir and not -d "$dir/$newdir") {
 				my $success = mkdir "$dir/$newdir";
-				chmod (0775,<$dir/$newdir>); # make the directory group writable so that a WeBWorK admin can delete images
+				# Make the directory group writable so that a WeBWorK admin can delete images
+				chmod(0775, <$dir/$newdir>);
 				warn "Could not make directory $dir/$newdir" unless $success;
 			}
-			my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/" . $newNames[$imageNum-1];
-			my $mvStatus = system $mvCommand;
-			if ( $mvStatus) {
+
+			# move/rename image
+			my $mvCommand = "cd $wd && /bin/mv $wd/$image $dir/" . $newNames[ $imageNum - 1 ];
+			my $mvStatus  = system $mvCommand;
+			if ($mvStatus) {
 				warn "$mvCommand returned non-zero status $mvStatus: $!";
 				warn "Can't write to tmp/equations directory $dir" unless -w $dir;
 			}
 
 		}
-		############################################
-		# remove temporary directory (and its contents)
-		############################################
 
 		if ($PreserveTempFiles) {
 			warn "ImageGenerator: preserved temp files in working directory '$wd'.\n";
-			chmod (0775,$wd);
-			chmod (0664,<$wd/*>);
+			chmod(0775, $wd);
+			chmod(0664, <$wd/*>);
 		} else {
+			# Remove the temporary directory and its contents.
 			removeTempDirectory($wd);
 		}
-    }
-    $self->update_depth_cache() if $self->{store_depths};
-    $self->fix_markers() if ($self->{useMarkers} and defined $self->{body_text});
+	}
+
+	$self->update_depth_cache;
+	$self->fix_markers;
+
+	return;
 }
 
-# internal utility function for updating both our internal record of dvipng depths,
-# but also the database.  This is the main function to change (provide an alternate
-# method for) if you want to use another method for storing dvipng depths
+# Internal utility function for updating both the internal record of dvipng depths
+# and the database.  This is the main function to change (provide an alternate
+# method for) if you want to add another method for storing dvipng depths
+sub update_depth_cache ($self) {
+	return unless $self->{store_depths};
 
-sub update_depth_cache {
-	my $self = shift;
-	return() unless ($self->{dvipng_align} eq 'mysql');
-	my $dbh = DBI->connect_cached($self->{dvipng_depth_db}->{dbsource},
-	   $self->{dvipng_depth_db}->{user}, $self->{dvipng_depth_db}->{passwd});
-	my $sth = $dbh->prepare("INSERT IGNORE INTO depths(md5, depth) VALUES (?,?)");
-	my $depthhash = $self->{depths};
-	for my $md5 (keys %{$depthhash}) {
-		if($depthhash->{$md5} eq 'none') {
-			my $got_values = $dbh->selectall_arrayref('select depth from depths where md5 = ?', undef, "$md5");
-			$depthhash->{"$md5"} = $got_values->[0]->[0] if(scalar(@{$got_values}));
-			#warn "Get depth from mysql for $md5" . $depthhash->{"$md5"};
+	my $dbh = DBI->connect_cached(
+		$self->{dvipng_depth_db}{dbsource},
+		$self->{dvipng_depth_db}{user},
+		$self->{dvipng_depth_db}{passwd}
+	);
+	my $sth =
+		$dbh->prepare($self->{dvipng_depth_db}{dbsource} =~ /:SQLite:/
+			? 'INSERT OR IGNORE INTO depths(md5, depth) VALUES (?,?)'
+			: 'INSERT IGNORE INTO depths(md5, depth) VALUES (?,?)');
+
+	for my $md5 (keys %{ $self->{depths} }) {
+		if ($self->{depths}{$md5} eq 'none') {
+			my $got_values = $dbh->selectall_arrayref('SELECT depth FROM depths WHERE md5 = ?', undef, $md5);
+			$self->{depths}{$md5} = $got_values->[0][0] if @$got_values;
 		} else {
-			#warn "Put depth $depthhash->{$md5} for $md5 into mysql";
-			$sth->execute($md5, $depthhash->{$md5});
+			$sth->execute($md5, $self->{depths}{$md5});
 		}
 	}
-	return();
+	return;
 }
 
-sub fix_markers {
-	my $self = shift;
-	my %depths = %{$self->{depths}};
+sub fix_markers ($self) {
+	return unless $self->{useMarkers} && defined $self->{body_text};
+
+	my %depths = %{ $self->{depths} };
 	for my $depthkey (keys %depths) {
-		if($depths{$depthkey} eq 'none') { # we never found its depth :(
-			${ $self->{body_text} } =~ s/MaRkEr$depthkey/align="ABSMIDDLE"/g;
+		if ($depths{$depthkey} eq 'none') {
+			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align:"$self->{dvipng_align}"/g;
 		} else {
 			my $ndepth = 0 - $depths{$depthkey};
 			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align:${ndepth}px"/g;
 		}
 	}
-	return();
+	return;
 }
-
-
-=back
-
-=cut
 
 1;

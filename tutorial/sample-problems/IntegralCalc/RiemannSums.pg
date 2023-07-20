@@ -1,0 +1,189 @@
+## DESCRIPTION
+## Integral calculus: Interpreting Riemann sums in terms of area
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('Integrals', 'Area and Distance','Riemann sum','area')
+
+#:% name = Riemann Sums
+#:% type = Sample
+#:% subject = integral calculus
+#:% categories = [Riemann sums]
+
+#:% section = preamble
+#: The `weightedGrader.pl` macro is used because we want to give different parts
+#: of the answer different weights, the `parserPopUp.pl` macro is used to create
+#: drop down menus, and the `PGtikz.pl` macro is used to produce the graphs.
+#:
+#: To use the weighted grader call `install_weighted_grader();`.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',     'PGML.pl',
+    'weightedGrader.pl', 'parserPopUp.pl',
+    'PGtikz.pl',         'PGcourse.pl'
+);
+
+install_weighted_grader();
+
+#:% section = setup
+#: First generate a random constant for the function and the interval endpoints.
+#: Note that you should be careful to choose ranges for the parameters such that
+#: all possibilities work well in the graphs.
+#:
+#: Then compute the left and right Riemann sums, first by storing the x and y
+#: values in arrays and summing over the arrays.
+#:
+#: Next, generate the graphs of the function with the rectangles whose areas are
+#: summed in the Riemann sums.
+#:
+#: Finally, construct drop down menu answers that ask the student to relate the
+#: Riemann sum estimates to the area of the region specified in the problem.
+$c = random(9, 13);       # a constant for scaling the function
+$f = Compute("x^2/$c");
+$a = random(2, 5);        # left endpoint of interval
+$b = $a + 2;              # right endpoint of interval
+
+# Generate arrays of x and y values for the Riemann sum.
+# There are n + 1 entries in each array so that we can use
+# only one pair of arrays for both the left and the right
+# endpoint Riemann sums.
+$n  = 4;                # number of rectangles
+$dx = ($b - $a) / $n;
+for $k (0 .. $n) {
+    $x[$k] = $a + $k * $dx;
+    $y[$k] = $f->eval(x => $x[$k]);
+}
+$sumLeft  = 0;
+$sumRight = 0;
+for $k (0 .. $n - 1) {
+    $sumLeft  += $y[$k] * $dx;
+    $sumRight += $y[ $k + 1 ] * $dx;
+}
+
+# Graph of the Left Riemann sum rectangles
+$graph1 = createTikZImage();
+$graph1->tikzLibraries('arrows.meta');
+$graph1->BEGIN_TIKZ
+\tikzset{>={Stealth[scale=2]}}
+\Large % Make the fonts a little bigger.
+\filldraw[
+    draw=LightBlue,
+    fill=white,
+    rounded corners=10pt,
+    thick,use as bounding box
+] (-1,-1) rectangle (9,9);
+\draw[->] (-1,0) -- (9,0) node[above left,outer sep=3pt] {\(x\)};
+\foreach \x in {1,...,8} \draw(\x,5pt) -- (\x,-5pt) node [below] {\(\x\)};
+\draw[->] (0,-1) -- (0,9) node[below right,outer sep=3pt] {\(y\)};
+\foreach \y in {1,...,8} \draw (5pt,\y) -- (-5pt,\y) node[left] {\(\y\)};
+\draw[<->] plot[domain=-1:9] (\x,{\x*\x/$c});
+\filldraw[draw=blue,fill=blue!50!white, fill opacity = 0.5]
+    ($x[0],0) rectangle ($x[1],$y[0]);
+\filldraw[draw=blue,fill=blue!50!white, fill opacity = 0.5]
+    ($x[1],0) rectangle ($x[2],$y[1]);
+\filldraw[draw=blue,fill=blue!50!white, fill opacity = 0.5]
+    ($x[2],0) rectangle ($x[3],$y[2]);
+\filldraw[draw=blue,fill=blue!50!white, fill opacity = 0.5]
+    ($x[3],0) rectangle ($x[4],$y[3]);
+END_TIKZ
+
+# Graph of the right Riemann sum rectangles
+$graph2 = createTikZImage();
+$graph2->tikzLibraries('arrows.meta');
+$graph2->BEGIN_TIKZ
+\tikzset{>={Stealth[scale=2]}}
+\Large % Make the fonts a little bigger.
+\filldraw[
+    draw=LightBlue,
+    fill=white,
+    rounded corners=10pt,
+    thick,use as bounding box
+] (-1,-1) rectangle (9,9);
+\draw[->] (-1,0) -- (9,0) node[above left,outer sep=3pt] {\(x\)};
+\foreach \x in {1,...,8} \draw(\x,5pt) -- (\x,-5pt) node [below] {\(\x\)};
+\draw[->] (0,-1) -- (0,9) node[below right,outer sep=3pt] {\(y\)};
+\foreach \y in {1,...,8} \draw (5pt,\y) -- (-5pt,\y) node[left] {\(\y\)};
+\draw[<->] plot[domain=-1:9] (\x,{\x*\x/$c});
+\filldraw[draw=blue,fill=blue!50!white, fill opacity = 0.5]
+    ($x[0],0) rectangle ($x[1],$y[1]);
+\filldraw[draw=blue,fill=blue!50!white, fill opacity = 0.5]
+    ($x[1],0) rectangle ($x[2],$y[2]);
+\filldraw[draw=blue,fill=blue!50!white, fill opacity = 0.5]
+    ($x[2],0) rectangle ($x[3],$y[3]);
+\filldraw[draw=blue,fill=blue!50!white, fill opacity = 0.5]
+    ($x[3],0) rectangle ($x[4],$y[4]);
+END_TIKZ
+
+$leftEstimateDropDown = DropDown(
+    [
+        'an overestimate of',
+        'equal to',
+        'an underestimate of',
+        'there is ambiguity'
+    ],
+    2
+);
+
+$rightEstimateDropDown = DropDown(
+    [
+        'an overestimate of',
+        'equal to',
+        'an underestimate of',
+        'there is ambiguity'
+    ],
+    0
+);
+
+#:% section = statement
+#: The weights for the weighted grader are assigned by passing the `weight` flag
+#: to the `cmp` method.
+BEGIN_PGML
+Suppose [``f(x) = \frac{x^2}{[$c]}``].
+
+a. The rectangles in the graph below illustrate a left endpoint Riemann sum for
+[`f(x)`] on the interval [`[$a] \leq x \leq [$b]`].  The value of this left
+endpoint Riemann sum is [_]{Real($sumLeft)->cmp(weight => 45)}{5} and it is
+[_]{ $leftEstimateDropDown->cmp(weight => 5) } the area of the region enclosed
+by [`y = f(x)`], the [`x`]-axis, and the vertical lines [`x = [$a]`] and
+[`x = [$b]`].
+
+>>[@ image($graph1, height => 250, width => 250, tex_size => 450) @]*<<
+
+>>Left endpoint Riemann sum<<
+
+b. The rectangles in the graph below illustrate a right endpoint Riemann sum for
+[`f(x)`] on the interval [`[$a] \leq x \leq [$b]`].  The value of this right
+endpoint Riemann sum is [_]{ Real($sumRight)->cmp(weight => 45) }{5} and it is
+[_]{ $rightEstimateDropDown->cmp(weight => 5) } the area of the region enclosed
+by [`y = f(x)`], the [`x`]-axis, and the vertical lines [`x = [$a]`] and
+[`x = [$b]`].
+
+>>[@ image($graph2, height => 250, width => 250, tex_size => 450) @]*<<
+
+>>Right endpoint Riemann sum<<
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+a. The left endpoint Riemann sum is
+[```
+    f([$x[0]]) \cdot 0.5 + f([$x[1]]) \cdot 0.5 + \cdots + f([$x[ $n - 1]]) \cdot 0.5
+    = ([$y[0]] + [$y[1]] + \cdots + [$y[ $n-1 ]]) \cdot 0.5 = [$sumLeft].
+```]
+
+b. The right endpoint Riemann sum is
+[```
+    f([$x[1]]) \cdot 0.5 + f([$x[2]]) \cdot 0.5 + \cdots + f([$x[ $n ]]) \cdot 0.5
+    = ([$y[1]] + [$y[2]] + \cdots + [$y[ $n ]]) \cdot 0.5  = [$sumRight].
+```]
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
+

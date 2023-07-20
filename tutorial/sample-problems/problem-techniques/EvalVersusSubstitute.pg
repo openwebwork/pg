@@ -1,0 +1,89 @@
+## DESCRIPTION
+## Shows the difference between eval and substitute for MathObject Formulas
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('formula', 'eval', 'substitute')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Eval Versus Substitute
+#:% type = technique
+#:% categories = [formula]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: First, we start with a formula using `Compute`.
+#:
+#: * `eval` returns a number, which is a `Value::Real`
+#: * `substitute` returns a Formula which is a `Value::Formula`
+#:
+#: The `ref` command is a perl command to determine the reference type. In
+#: these cases they are MathObjects with type `Value::Real` and `Value::Formula`
+#:
+#: For the function `$g`, the line `$g->eval(x => '3');` throws an error
+#: because it is expected to return a number (`Value::Real`).
+#:
+#: The next section shows the effect of changing `reduceConstants` to 0 (false).
+#: Notice that there is no effect on `eval`, the result is the same number
+#: as before, however with `substitute` the value 3 is substituted in but left
+#: within the formula, which is not reduced.
+#:
+#: Lastly, to show the effect of `reduceConstantFunctions`, if we set
+#: `reduceConstants` back to 1 and `reduceConstantFunctions` to 0, we
+#: see that the inside of the square root is reduced (because they are
+#: constants), but the square root remains.
+$f  = Compute("sqrt(3x + 1)");
+$f1 = $f->eval(x => "3");
+$f2 = $f->substitute(x => "3");
+
+Context()->variables->add(y => 'Real');
+$g = Compute('7xy');
+# This next line is an error.
+# $g1 = $g->eval(x => '3');
+$g2 = $g->substitute(x => '3');
+$g3 = $g->eval(x => 3, y => -1);
+
+Context()->flags->set(reduceConstants => 0);
+$f3 = $f->eval(x => 3);
+$f4 = $f->substitute(x => 3);
+
+Context()->flags->set(reduceConstantFunctions => 0, reduceConstants => 1);
+$f5 = $f->substitute(x => 3);
+
+#:% section=statement
+BEGIN_PGML
+This shows the difference between [|eval|] and [|substitute|].  First, we start
+with a function [`[$f]`]:
+
+* [|$f->eval(x=>'3')|] returns [$f1] and the type is [@ ref $f1@]
+* [|$f->substitute(x=>'3')|] returns [$f2] and the type is [@ ref $f2 @]
+
+Next, we do the same with the function [`[$g]`]
+
+* [|$g->eval(x=>'3')|] throws an error.
+* [|$g->substitute(x=>'3')|] returns [$g2] and the type is [@ ref $g2 @]
+* [|$g->eval(x=>'3', y => -1)|] returns [$g3] and the type is [@ ref $g3 @]
+
+If [|reduceConstants|] is set to 0 (False) in the flags, we get
+
+* [|$f->eval(x => 3)|] returns [$f3]
+* [|$f->substitute(x => 3)|] returns [$f4]
+
+If [|reducedConstants|] is set back to 1 and [|reduceConstantFunctions|] is
+set to 0, then
+
+* [|$f->substitute(x => 3)|] returns [$f5]
+
+END_PGML
+
+ENDDOCUMENT();

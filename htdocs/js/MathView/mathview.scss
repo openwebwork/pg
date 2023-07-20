@@ -1,0 +1,131 @@
+@use 'sass:color';
+
+.mv-container {
+	max-width: 100%;
+
+	.codeshard-btn {
+		border-top-right-radius: 0.25rem !important;
+		border-bottom-right-radius: 0.25rem !important;
+
+		&.latexentryfield-btn {
+			margin-left: 0;
+			vertical-align: top;
+		}
+	}
+
+	.mv-inner-container {
+		display: inline-block;
+		max-width: 100%;
+
+		.mv-textarea-container {
+			position: relative;
+			max-width: 100%;
+
+			.latexentryfield {
+				max-width: 100%;
+				// This is redundant for the textarea in a problem, but is needed for a latex editor that is not in a
+				// problem (for instance the comment textareas for the problem graders).
+				margin-bottom: 0;
+				padding: 4px 6px;
+				vertical-align: middle;
+				font-weight: 400;
+				line-height: 18px;
+				font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+			}
+
+			.mv-backdrop-container {
+				pointer-events: none;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				overflow: auto;
+				text-size-adjust: none;
+				visibility: hidden;
+
+				.mv-backdrop {
+					border: 1px solid transparent;
+					padding: 4px 6px;
+					line-height: 18px;
+					white-space: pre-wrap;
+					word-wrap: break-word;
+					font-family: Helvetica Neue, Helvetica, Arial, Helvetica, sans-serif;
+					color: transparent;
+					visibility: hidden;
+
+					mark {
+						visibility: hidden;
+					}
+
+					&.mv-backdrop-show {
+						visibility: visible;
+
+						.mv-selection {
+							visibility: visible;
+							padding: 0;
+							color: white;
+							background-color: color.adjust(#3373e5, $lightness: 20%);
+
+							&:empty {
+								border-left: 1px solid #b0b0b0;
+							}
+						}
+
+						&.mv-backdrop-blink .mv-selection:empty {
+							visibility: hidden;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.popover {
+		width: 400px;
+		max-width: 400px;
+		border-radius: 0.5rem !important;
+
+		.mviewer {
+			height: 60px;
+		}
+
+		.tab-content {
+			height: 130px;
+			margin-top: 1rem;
+
+			.mvspan3 {
+				width: 87px;
+			}
+
+			.mvthumbnail {
+				box-sizing: content-box;
+				padding: 12px;
+				height: 22px;
+				cursor: pointer;
+				display: block;
+				line-height: 20px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
+				transition: all 0.2s ease-in-out;
+			}
+		}
+
+		a.mvthumbnail:hover,
+		a.mvthumbnail:focus {
+			border-color: var(--bs-primary, #038);
+			box-shadow: 0 1px 4px var(--bs-primary, #038);
+		}
+
+		.mv-input {
+			height: unset;
+		}
+
+		.navbar .navbar-brand {
+			font-size: 20px;
+			font-weight: 200;
+			color: #555555;
+		}
+	}
+}

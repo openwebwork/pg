@@ -7,17 +7,17 @@ use strict;
 our @ISA = ("Value::Context::Data");
 
 sub init {
-  my $self = shift;
-  $self->{dataName} = 'lists';
-  $self->{name} = 'list';
-  $self->{Name} = 'List';
-  $self->{namePattern} = qr/\S+/;
-  $self->{allowAlias} = 0;
+	my $self = shift;
+	$self->{dataName}    = 'lists';
+	$self->{name}        = 'list';
+	$self->{Name}        = 'List';
+	$self->{namePattern} = qr/\S+/;
+	$self->{allowAlias}  = 0;
 }
 
-sub update {} # no pattern or tokens needed
-sub addToken {}
-sub removeToken {}
+sub update      { }    # no pattern or tokens needed
+sub addToken    { }
+sub removeToken { }
 
 #########################################################################
 

@@ -11,14 +11,15 @@ our @ISA = qw(Parser::List);
 #
 
 sub _check {
-  my $self = shift; return if $self->context->flag("allowBadOperands");
-  foreach my $x (@{$self->{coords}}) {
-    unless ($x->isNumber) {
-      my $type = $x->type;
-      $type = (($type =~ m/^[aeiou]/i)? "an ": "a ") . $type;
-      $self->{equation}->Error(["Coordinates of Points must be Numbers, not %s",$type]);
-    }
-  }
+	my $self = shift;
+	return if $self->context->flag("allowBadOperands");
+	foreach my $x (@{ $self->{coords} }) {
+		unless ($x->isNumber) {
+			my $type = $x->type;
+			$type = (($type =~ m/^[aeiou]/i) ? "an " : "a ") . $type;
+			$self->{equation}->Error([ "Coordinates of Points must be Numbers, not %s", $type ]);
+		}
+	}
 }
 
 #########################################################################

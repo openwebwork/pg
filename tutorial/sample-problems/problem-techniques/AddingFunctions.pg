@@ -1,0 +1,50 @@
+## DESCRIPTION
+## Shows how to add a general function as an input option.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('tolerance')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Adding Functions to a Context
+#:% type = technique
+#:% categories = [numbers, tolerance]
+
+#:% section = preamble
+#: We need to load the `parserFunction.pl` macro, and then use one of its
+#: routines to define a new function that students may type in their answers.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: First, we define a function `f(x,y)`.  The actual function doesn't matter but shouldn't
+#: be easily guessed, since a student could put in `sin(x*y)-exp(y)` and get the answer correct.
+#:
+#: This is a useful technique for any problem that the question is about a generic function
+#: rather than a specific one.
+Context()->variables->are(x => 'Real', y => 'Real');
+parserFunction('f(x,y)' => 'sin(x*y)-exp(y)');
+$ans = Compute('f(x-4,3)');
+
+#:% section = statement
+BEGIN_PGML
+Given a surface [`z = f(x,y)`], what is the equation for the [`z`] -coordinate
+of the surface along a line having [`y=3`], shifted four units to the right?
+
+[`z = `] [_____]{$ans}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

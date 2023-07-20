@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" id="SVGRoot" version="1.1" viewBox="0 0 32 32" height="32px" width="32px">
+  <g id="layer1">
+    <ellipse r="2.5" style="display:inline;fill:#0000ff;stroke-width:0.79351956" cy="27.5" cx="16" id="path3738" />
+    <ellipse r="2.5" style="display:inline;fill:#0000ff;stroke-width:0.79351956" cy="10" cx="26" id="path3738-3" />
+    <path id="path2086" title="x*x" d="m 28.171812,4.008444 c -4.635844,1.1505688 -8.609993,2.3011375 -11.922445,3.4517063 -3.312453,1.1505686 -5.960562,2.3011374 -7.948298,3.4517067 -1.987736,1.150567 -3.311128,2.301136 -3.974148,3.451706 -0.66302,1.150569 -0.661697,2.301138 0,3.451705 0.661696,1.15057 1.987737,2.301139 3.974148,3.451707 1.986412,1.150569 4.63717,2.301137 7.948298,3.451706 3.311127,1.150569 7.286601,2.301138 11.922445,3.451707" style="opacity:1;fill:none;fill-opacity:0.23636367;stroke:#000000;stroke-width:1.51728106;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle id="path3738-3-6" cx="4" cy="16" style="display:inline;fill:#0000ff;stroke-width:0.79351956" r="2.5" />
+    <circle id="path3738-3-6-7" cx="22.5" cy="5.5" style="display:inline;fill:#0000ff;stroke-width:0.79351956" r="2.5" />
+  </g>
+</svg>

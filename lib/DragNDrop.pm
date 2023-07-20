@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -19,81 +19,101 @@ DragNDrop.pm - Drag-N-Drop Module
 
 =head1 DESCRIPTION
 
-DragNDrop.pm is a backend Perl module which facilitates the implementation of
-'Drag-And-Drop' in WeBWorK problems. It is meant to be used by other perl macros
-such as draggableProof.pl and draggableSubsets.pl
+DragNDrop.pm is a module which facilitates the implementation of 'Drag-And-Drop'
+in WeBWorK problems. It is meant to be used by other macros such as
+draggableProof.pl and draggableSubsets.pl
 
 =head1 TERMINOLOGY
 
-An HTML element into or out of which other elements may be dragged will be called a "bucket".
-An HTML element which houses a collection of buckets will be called a "bucket pool".
+An HTML element into or out of which other elements may be dragged will be
+called a "bucket".
+
+An HTML element which houses a collection of buckets will be called a "bucket
+pool".
 
 =head1 USAGE
 
-Each macro aiming to implement drag-n-drop features must call at its initialization:
+Each macro aiming to implement drag-n-drop features must call at its
+initialization:
 
- ADD_CSS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css", 1);
- ADD_JS_FILE("https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js", 1, { defer => undef });
- ADD_CSS_FILE("js/apps/DragNDrop/dragndrop.css", 0);
- ADD_JS_FILE("js/apps/DragNDrop/dragndrop.js", 0, { defer => undef });
+    ADD_JS_FILE('node_modules/sortablejs/Sortable.min.js', 0, { defer => undef });
+    ADD_CSS_FILE('js/DragNDrop/dragndrop.css', 0);
+    ADD_JS_FILE('js/DragNDrop/dragndrop.js', 0, { defer => undef });
+    PG_restricted_eval('sub DraggableSubsets {draggableSubsets->new(@_)}');
 
-To initialize a bucket pool, do:
+To initialize a bucket pool call the constructor. For example,
 
- my $bucket_pool = new DragNDrop($answerInputId, $aggregateList);
+    my $dnd = new DragNDrop($answerName, $itemList);
 
-$answerInputId is a unique identifier for the bucket_pool, it is recommended that
-it be generated with NEW_ANS_NAME.
+$answerName is the HTML input 'name' for the corresponding answer.  It should be
+generated with NEW_ANS_NAME.
 
-$aggregateList is a reference to an array of all "statements" intended to be draggable.
-Example:
+$itemList is a reference to an array containing the HTML content of the
+draggable items.
 
- $aggregateList = ['socrates is a man', 'all men are mortal', 'therefore socrates is mortal'];
+For example,
 
-It is imperative that square brackets be used.
+    $itemList = [
+        'socrates is a man',
+        'all men are mortal',
+        'therefore socrates is mortal'
+    ];
 
-OPTIONAL:
+=head2 OPTIONS
 
- DragNDrop($answerInputId, $aggregateList, AllowNewBuckets => 1);
+There are a few options that you can supply to control the appearance and
+behavior of the C<DragNDrop> JavaScript output, listed below.  These are set as
+additional options to the constructor.  For example,
 
-allows student to create new buckets by clicking on a button.
+    DragNDrop($answerName, $itemList, allowNewBuckets => 1);
 
-To add a bucket to an existing pool $bucket_pool, do:
+=over
 
- $bucket_pool->addBucket($indices);
+=item allowNewBuckets (Default: C<0>)
 
-$indices is the reference to the array of indices corresponding to the statements in $aggregateList
-to be pre-included in the bucket.
+If this is set to 1 then a button is added to the HTML output which adds a new
+drag and drop bucket when clicked on.
 
-For example, if the $aggregateList is:
+=item bucketLabelFormat (Default: C<undef>)
 
- ['Socrates is a man', 'all men are mortal', 'therefore Socrates is mortal']
+If the C<bucketLabelFormat> option is defined, then buckets for which an
+explicit label is not provided will be will be created with the label with the
+C<%s> in the string replaced with the bucket number in the pool.  This also
+applies to new buckets that are added by JavaScript.  An example value for this
+option is C<< 'Subset %s' >>.
 
-and the bucket consists of:
+=item resetButtonText (Default: C<< 'Reset' >>)
 
- { 'Socrates is a man', 'therefore Socrates is mortal' }
+This is the text label for the reset button.
 
-then:
+=item addButtonText (Default: C<< 'Add Bucket' >>)
 
- $indices = [0, 2].
+This is the text label for the button shown that adds new buckets.  The button
+is only shown if AllowNewBuckets is 1.
 
-An empty array reference, e.g. $bucket_pool->addBucket([]), gives an empty bucket.
+=item removeButtonText (Default: C<< 'Remove' >>
 
-OPTIONAL:
+This is the text label for any remove buttons that are added to removable
+buckets.
 
- $bucket_pool->addBucket($indices, label => 'Barrel', removable => 1)
+=back
 
-puts the label 'Barrel' at the top of the bucket.
-With the removable option set to 1, the bucket may be removed by the student via the click of a "Remove" button
-at the bottom of the bucket.
-(The first created bucket may never be removed.)
+=head2 METHODS
 
-To output the bucket pool to HTML, call:
+The following are methods that can be called with the constructed DragNDrop
+object.
 
- $bucket_pool->HTML
+=over
 
-To output the bucket pool to LaTeX, call:
+=item $dnd->HTML()
 
- $bucket_pool->TeX
+This outputs the bucket pool to HTML.
+
+=item $dnd->TeX()
+
+This outputs the bucket pool to LaTeX.
+
+=back
 
 =head1 EXAMPLES
 
@@ -101,101 +121,50 @@ See draggableProof.pl and draggableSubsets.pl
 
 =cut
 
+package DragNDrop;
+
 use strict;
 use warnings;
 
-package DragNDrop;
+use JSON;
 
+use PGcore;
+
+# $answerName is the html 'name' of the <input> tag corresponding to the answer blank.
+# $itemList is an array of all statements provided.
+# $defaultBuckets is a reference to an array of default buckets that are shown when the object is in its default state.
 sub new {
-	my $self  = shift;
-	my $class = ref($self) || $self;
+	my ($self, $answerName, $itemList, $defaultBuckets, %options) = @_;
 
-	# 'id' of html <input> tag corresponding to the answer blank. Must be unique to each pool of DragNDrop buckets
-	my $answerInputId = shift;
-
-	# array of all statements provided
-	my $aggregateList = shift;
-
-	# instructor-provided default buckets with pre-included statements encoded
-	# by the array of corresponding statement indices
-	my $defaultBuckets = shift;
-
-	my %options = (
-		AllowNewBuckets => 0,
-		@_
-	);
-
-	$self = bless {
-		answerInputId  => $answerInputId,
-		bucketList     => [],
-		aggregateList  => $aggregateList,
-		defaultBuckets => $defaultBuckets,
+	return bless {
+		answerName        => $answerName,
+		itemList          => $itemList,
+		defaultBuckets    => $defaultBuckets,
+		allowNewBuckets   => 0,
+		bucketLabelFormat => undef,
+		resetButtonText   => 'Reset',
+		addButtonText     => 'Add Bucket',
+		removeButtonText  => 'Remove',
 		%options,
-	}, $class;
-
-	return $self;
-}
-
-sub addBucket {
-	my $self = shift;
-
-	my $indices = shift;
-
-	my %options = (
-		label     => "",
-		removable => 0,
-		@_
-	);
-
-	my $bucket = {
-		indices   => $indices,
-		list      => [ map { $self->{aggregateList}->[$_] } @$indices ],
-		bucket_id => scalar @{ $self->{bucketList} },
-		label     => $options{label},
-		removable => $options{removable},
-	};
-	push(@{ $self->{bucketList} }, $bucket);
-
+		},
+		ref($self) || $self;
 }
 
 sub HTML {
 	my $self = shift;
 
-	my $out = '';
-	$out .= "<div class='dd-bucket-pool' data-ans='$self->{answerInputId}'>";
+	my $out = qq{<div class="dd-bucket-pool" data-answer-name="$self->{answerName}"};
+	$out .= ' data-item-list="' . PGcore::encode_pg_and_html(JSON->new->encode($self->{itemList})) . '"';
+	$out .= ' data-default-state="' . PGcore::encode_pg_and_html(JSON->new->encode($self->{defaultBuckets})) . '"';
+	$out .= qq{ data-remove-button-text="$self->{removeButtonText}"};
+	$out .= qq{ data-label-format="$self->{bucketLabelFormat}"} if $self->{bucketLabelFormat};
+	$out .= '>';
 
-	# buckets from instructor-defined default settings
-	for (my $i = 0; $i < @{ $self->{defaultBuckets} }; $i++) {
-		my $defaultBucket = $self->{defaultBuckets}->[$i];
-		$defaultBucket->{removable} //= 0;
-		$out .= "<div class='dd-hidden dd-default dd-bucket' data-bucket-id='$i' data-removable='$defaultBucket->{removable}'>";
-		$out .= "<div class='dd-label'>$defaultBucket->{label}</div>";
-		$out .= "<ol class='dd-answer'>";
-		for my $j (@{ $defaultBucket->{indices} }) {
-			$out .= "<li data-shuffled-index='$j'>$self->{aggregateList}->[$j]</li>";
-		}
-		$out .= "</ol></div>";
-	}
-
-	# buckets from past answers
-	for my $bucket (@{ $self->{bucketList} }) {
-		$out .= "<div class='dd-hidden dd-past-answers dd-bucket' data-bucket-id='$bucket->{bucket_id}' ";
-		$out .= "data-removable='$bucket->{removable}'>";
-		$out .= "<div class='dd-label'>$bucket->{label}</div>";
-		$out .= "<ol class='dd-answer'>";
-
-		for my $index (@{ $bucket->{indices} }) {
-			$out .= "<li data-shuffled-index='$index'>$self->{aggregateList}->[$index]</li>";
-		}
-		$out .= "</ol>";
-		$out .= "</div>";
-	}
-	$out .= '</div>';
-	$out .= "<div class='dd-buttons'><button type='button' class='btn btn-secondary dd-reset-buckets'>reset</button>";
-	if ($self->{AllowNewBuckets} == 1) {
-		$out .= "<button type='button' class='btn btn-secondary dd-add-bucket' data-ans='$self->{answerInputId}'>add bucket</button>";
-	}
-	$out .= "</div>";
+	$out .= '<div class="dd-buttons">';
+	$out .= qq{<button type="button" class="btn btn-secondary dd-reset-buckets">$self->{resetButtonText}</button>};
+	$out .= qq{<button type="button" class="btn btn-secondary dd-add-bucket">$self->{addButtonText}</button>}
+		if ($self->{allowNewBuckets});
+	$out .= '</div></div>';
 
 	return $out;
 }
@@ -203,21 +172,40 @@ sub HTML {
 sub TeX {
 	my $self = shift;
 
-	my $out = "";
+	my $out = "\n\\hrule\n\\vspace{0.5\\baselineskip}\n";
 
-	# default buckets;
-	for (my $i = 0; $i < @{ $self->{defaultBuckets} }; $i++) {
-		$out .= "\n";
-		my $defaultBucket = $self->{defaultBuckets}->[$i];
-		if (@{ $defaultBucket->{indices} } > 0) {
-			$out .= "\n\\hrule\n\\begin{itemize}";
-			for my $j (@{ $defaultBucket->{indices} }) {
-				$out .= "\n\\item[$j.]\n $self->{aggregateList}->[$j]";
-			}
-			$out .= "\n\\end{itemize}";
+	for my $i (0 .. $#{ $self->{defaultBuckets} }) {
+		my $bucket = $self->{defaultBuckets}[$i];
+		if ($i != 0) {
+			if   ($i % 2 == 0) { $out .= "\n\\hrule\n\\vspace{0.5\\baselineskip}\n" }
+			else               { $out .= "\n\\ifdefined\\nocolumns\\else\\hrule\n\\vspace{0.5\\baselineskip}\n\\fi" }
 		}
-		$out .= "\n\\hrule\n";
+
+		$out .=
+			"\n\\begin{minipage}{\\linewidth}\n\\setlength{\\columnseprule}{0.2pt}\n"
+			. "\\ifdefined\\nocolumns\\begin{multicols}{2}\\else\\fi\n"
+			if $i % 2 == 0 && $i != $#{ $self->{defaultBuckets} };
+
+		$out .= "\\parbox{0.9\\linewidth}{\n";
+		$out .=
+			($bucket->{label} // ($self->{bucketLabelFormat} ? sprintf($self->{bucketLabelFormat}, $i) : '')) . "\n";
+		if (@{ $bucket->{indices} }) {
+			$out .= "\\begin{itemize}\n";
+			for my $j (@{ $bucket->{indices} }) {
+				$out .= "\\item $self->{itemList}[$j]\n";
+			}
+			$out .= "\\end{itemize}\n";
+		} else {
+			$out .= "\\vspace{3\\baselineskip}\n";
+		}
+		$out .= "}";
+
+		if ($i % 2 == 0) { $out .= "\\columnbreak\n\n" if $i != $#{ $self->{defaultBuckets} } }
+		else             { $out .= "\\ifdefined\\nocolumns\\end{multicols}\\else\\fi\n\\end{minipage}\n" }
+		$out .= "\\vspace{0.75\\baselineskip}\n";
 	}
+	$out .= "\n\\hrule\n\\vspace{0.25\\baselineskip}\n";
+
 	return $out;
 }
 1;

@@ -1,0 +1,37 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pg}[2023/06/26 version 2.18]
+
+% packages that are needed for some PG macro to function for tex output or that
+% support math mode tex macros that could reasonably appear in a PG problem
+\usepackage{amsmath, amsfonts, amssymb}                                           % math macros
+\usepackage{booktabs, tabularx, colortbl, caption, xcolor}                        % niceTables.pl
+\usepackage{multicol}                                                             % DragNDrop.pm
+\usepackage[version=4]{mhchem}                                                    % chemistry macros
+
+% some packages need to be handled differently for xelatex vs pdflatex
+\usepackage{iftex}
+\ifXeTeX
+  \usepackage{graphicx}                                                           % PGbasicmacros.pl, LiveGraphics3D.pl, unionImage.pl
+\else
+  \usepackage[pdftex]{graphicx}                                                   % PGbasicmacros.pl, LiveGraphics3D.pl, unionImage.pl
+  \usepackage{epstopdf}                                                           % eps images with pdftex
+  \usepackage[utf8]{inputenc}
+  \usepackage{eurosym}                                                            % the euro symbol
+  \DeclareUnicodeCharacter{20AC}{\euro}                                           % allow direct use of the UTF-8 euro symbol in problems
+\fi
+
+% PG macro collections
+\input{CAPA.tex}
+\input{PGML.tex}
+
+% The macro alternatives for < should be used in math in PG problems to help
+% avoid issus with a bare < in HMTL or XML output. The alternatives for > are
+% provided for parity.
+\newcommand{\lt}{<}
+\newcommand{\gt}{>}
+\newcommand{\less}{<}
+\newcommand{\grt}{>}
+
+% semantic macro definitions used by PG
+\newcommand{\answerRule}[2][]{\raisebox{-3pt}{\parbox[t]{#2ex}{\hrulefill}}}
+

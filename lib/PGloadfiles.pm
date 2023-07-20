@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -13,15 +13,11 @@
 # Artistic License for more details.
 ################################################################################
 
-=head2
-
-=cut
-
 =head2 loadMacros
 
 	loadMacros(@macroFiles)
 
-loadMacros takes a list of file names and evaluates the contents of each file. 
+loadMacros takes a list of file names and evaluates the contents of each file.
 This is used to load macros which define and augment the PG language. The macro
 files are searched for in the directories specified by the array referenced by
 $macrosPath, which by default is the current course's macros directory followed
@@ -65,7 +61,7 @@ they will not interfere with the normal behavior of WeBWorK in other courses.
 
 =cut
 
-our $debugON =0;
+our $debugON = 0;
 
 package PGloadfiles;
 use strict;
@@ -75,25 +71,22 @@ use PGcore;
 use WeBWorK::PG::Translator;
 use WeBWorK::PG::IO;
 
-our @ISA = qw ( PGcore  ) ;  # look up features in PGcore -- in this case we want the environment.
+our @ISA = qw ( PGcore  );    # look up features in PGcore -- in this case we want the environment.
 
-
-
-# new 
+# new
 #   Create one loadfiles object per question (and per PGcore object)
 #   Process macro files
 #   Keep list of macro files processed.
 sub new {
-	my $class = shift;	
-	my $envir = shift;  #pointer to environment hash
+	my $class = shift;
+	my $envir = shift;    #pointer to environment hash
 	warn "PGloadmacros must be called with an environment" unless ref($envir) eq 'HASH';
 	my $self = {
-		envir		=>	$envir,
-		macroFileList    => {},    # records macros used in compilation
-		pgFileName       => '',    # current pg file being processed
-		server_root_url  => '',    # how do we find this?
-		macrosPath       => '',
-		pwd              => '',    # current directory -- defined in initialize
+		envir         => $envir,
+		macroFileList => {},       # records macros used in compilation
+		pgFileName    => '',       # current pg file being processed
+		macrosPath    => '',
+		pwd           => '',       # current directory -- defined in initialize
 	};
 	bless $self, $class;
 	$self->initialize;
@@ -102,15 +95,18 @@ sub new {
 }
 
 sub initialize {
-	my $self = shift;
+	my $self              = shift;
 	my $templateDirectory = $self->{envir}->{templateDirectory};
-	my $pwd = $self->{envir}->{probFileName};
+	my $pwd               = $self->{envir}->{probFileName};
 	$pwd =~ s!/[^/]*$!!;
-    $pwd = $templateDirectory.$pwd unless substr($pwd,0,1) eq '/';
-    $pwd =~ s!/tmpEdit/!/!;
-	$self->{pwd} = $pwd;	
-	$self->{macrosPath} = $self->{envir}->{pgDirectories}->{macrosPath};
-	
+	$pwd = $templateDirectory . $pwd unless substr($pwd, 0, 1) eq '/';
+
+	# FIXME: This shouldn't be here.  See the note in PGalias.pm in the initialize subroutine.
+	$pwd =~ s!/tmpEdit/!/!;
+
+	$self->{pwd}        = $pwd;
+	$self->{macrosPath} = $self->{envir}{macrosPath};
+
 }
 
 sub PG_restricted_eval {
@@ -124,150 +120,123 @@ sub PG_macro_file_eval {
 }
 
 # ^function loadMacros
-# ^uses time_it
 # ^uses $debugON
 # ^uses $externalTTHPath
 # ^uses findMacroFile
 sub loadMacros {
-    my $self = shift;
-    my @files = @_;
-    my $fileName;
-    my $macrosPath = $self->{envir}->{macrosPath};
-    eval {main::time_it("begin load macros");};
-    ###############################################################################
-    # At this point the directories have been defined from %envir and we can define
-    # the directories for this file
-    ###############################################################################
-   
-    while (@files) {
-        $fileName = shift @files;
+	my $self  = shift;
+	my @files = @_;
+	my $fileName;
+	my $macrosPath = $self->{envir}->{macrosPath};
+	###############################################################################
+	# At this point the directories have been defined from %envir and we can define
+	# the directories for this file
+	###############################################################################
 
-        next  if ($fileName =~ /^PG\.pl$/) ;    # the PG.pl macro package is already loaded.
+	while (@files) {
+		$fileName = shift @files;
 
-		unless ($fileName =~ /\.(pl|pg)$/) { # dont try to parse files without macro extensions
+		next if ($fileName =~ /^PG\.pl$/);    # the PG.pl macro package is already loaded.
+
+		unless ($fileName =~ /\.(pl|pg)$/) {  # dont try to parse files without macro extensions
 			warn "Can't load file |$fileName|. Can't load a macro file unless it has a .pl or .pg extension";
 			next;
 		}
-        my $macro_file_name = $fileName;
-		$macro_file_name =~s/\.pl//;  # trim off the extension
-		$macro_file_name =~s/\.pg//;  # sometimes the extension is .pg (e.g. CAPA files)
+		my $macro_file_name = $fileName;
+		$macro_file_name =~ s/\.pl//;                    # trim off the extension
+		$macro_file_name =~ s/\.pg//;                    # sometimes the extension is .pg (e.g. CAPA files)
 		my $init_subroutine_name = "_${macro_file_name}_init";
-		$init_subroutine_name =~ s![^a-zA-Z0-9_]!_!g;  # remove dangerous chars
-	
-		my $init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
+		$init_subroutine_name =~ s![^a-zA-Z0-9_]!_!g;    # remove dangerous chars
 
-	###############################################################################
+		my $init_subroutine = eval { \&{ 'main::' . $init_subroutine_name } };
 
-        # macros are searched for in the directories listed in the $macrosPath array reference.
+		###############################################################################
 
-        my $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
-        warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|" if $debugON;
-        unless ($macro_file_loaded) {
-	    warn "loadMacros: loading macro file $fileName" if $debugON;
-	    my $filePath = $self->findMacroFile($fileName);
-	    #### (check for renamed files here?) ####
-	    warn "loadMacros:  look for $fileName at |$filePath|" if $debugON;
-	    if ($filePath) {
-	        $self->compile_file($filePath); 
-			warn "loadMacros is compiling $filePath" if $debugON;
-	    } else {
-	    	my $pgDirectory       = $self->{envir}->{pgDirectories}->{macros};
-	    	my $templateDirectory = $self->{envir}->{templateDirectory};
-		my @shortenedPaths = @{$macrosPath};
-	    	@shortenedPaths = map {$_ =~ s|^$templateDirectory|[TMPL]/|; $_ } @shortenedPaths;
-	    	@shortenedPaths = map {$_ =~ s|^$pgDirectory|[PG]/macros/|; $_ } @shortenedPaths;
-	        warn "Can't locate macro file |$fileName| via path: |".join("|,<br/> |",@shortenedPaths)."|\n";
-	    }
+		# macros are searched for in the directories listed in the $macrosPath array reference.
+
+		my $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
+		warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"
+			if $debugON;
+		unless ($macro_file_loaded) {
+			warn "loadMacros: loading macro file $fileName" if $debugON;
+			my $filePath = $self->findMacroFile($fileName);
+			#### (check for renamed files here?) ####
+			warn "loadMacros:  look for $fileName at |$filePath|" if $debugON;
+			if ($filePath) {
+				$self->compile_file($filePath);
+				warn "loadMacros is compiling $filePath" if $debugON;
+			} else {
+				my $pgDirectory       = $self->{envir}{pgMacrosDir};
+				my $templateDirectory = $self->{envir}{templateDirectory};
+				my @shortenedPaths    = @{$macrosPath};
+				@shortenedPaths = map { $_ =~ s|^$templateDirectory|[TMPL]/|; $_ } @shortenedPaths;
+				@shortenedPaths = map { $_ =~ s|^$pgDirectory|[PG]/macros/|;  $_ } @shortenedPaths;
+				warn "Can't locate macro file |$fileName| via path: |" . join("|,<br/> |", @shortenedPaths) . "|\n";
+			}
+
+			$init_subroutine = eval { \&{ 'main::' . $init_subroutine_name } };
+
+			$macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
+			warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"
+				if $debugON;
+
+			if ($macro_file_loaded) {
+				warn "PGloadfiles:  $macro_file_name loaded, initializing $macro_file_name\n" if $debugON;
+				&$init_subroutine();
+			}
+		}
 	}
-           
-	$init_subroutine  = eval { \&{'main::'.$init_subroutine_name} };
-	
-	###############################################################################
-
-	$macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
-	warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"if $debugON;
-
-	if ( $macro_file_loaded ) {
-	    warn "PGloadfiles:  $macro_file_name loaded, initializing $macro_file_name\n" if $debugON;
-	    &$init_subroutine();
-	}
-	#warn "main:: contains <br>\n $macro_file_name ".join("<br>\n $macro_file_name ", %main::);
-    }
-    #warn "files loaded:", join(" ", keys %{ $self->{macroFileList} });
-    eval{main::time_it("end load macros");};
 }
-
 
 # ^function findMacroFile
 # ^uses $macrosPath
 # ^uses $pwd
 sub findMacroFile {
-  my $self   = shift;
-  my $macroFileName = shift;
-  my $macroFilePath;
-  my $pwd = $self->{pwd};
- my @macrosPath = @{$self->{envir}->{macrosPath}};
-  warn "in findMacroFile" if $debugON;
+	my $self          = shift;
+	my $macroFileName = shift;
+	my $macroFilePath;
+	my $pwd        = $self->{pwd};
+	my @macrosPath = @{ $self->{envir}->{macrosPath} };
+	warn "in findMacroFile" if $debugON;
 
-#  foreach my $dir (@{$self->{macrosPath} } ) {   # why did this ever work?
-  foreach my $dir (@macrosPath ) {
+	#  foreach my $dir (@{$self->{macrosPath} } ) {   # why did this ever work?
+	foreach my $dir (@macrosPath) {
 
-      $macroFilePath = "$dir/$macroFileName";
-      $macroFilePath =~ s!^\.\.?/!$pwd/!;
-      return $macroFilePath if (-r $macroFilePath);
-  }
-  return 0;  # no file found
+		$macroFilePath = "$dir/$macroFileName";
+		$macroFilePath =~ s!^\.\.?/!$pwd/!;
+		return $macroFilePath if (-r $macroFilePath);
+	}
+	return 0;    # no file found
 }
+
 # errors in compiling macros is not always being reported.
 # ^function compile_file
 # ^uses @__eval__
 # ^uses PG_restricted_eval
 # ^uses $__files__
 sub compile_file {
-    my $self     = shift;
- 	my $filePath = shift;
-    
- 	warn "loading $filePath" if $debugON; 
- 	local(*MACROFILE);
- 	local($/);
- 	$/ = undef;   # allows us to treat the file as a single line
-    
- 	open(MACROFILE, "<:raw", $filePath) || die "Cannot open file: $filePath";
- 	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
- 	utf8::decode($string);   # can't yet use :encoding(UTF-8)
- 	#warn "compiling $string";
- 	my ($result,$error,$fullerror) = $self->PG_macro_file_eval($string);
-	eval ('$main::__files__->{pop @main::__eval__} = $filePath');  #used to keep track of which file is being evaluated.
- 	if ($error) {    # the $fullerror report has formatting and is never empty
-                # this is now handled by PG_errorMessage() in the PG translator
- 		#$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
- 		die "Error detected while loading $filePath:\n$fullerror";
- 	}
- 	
-#  	local(*MACROFILE);
-#  	local($/);
-#  	$/ = undef;   # allows us to treat the file as a single line
-#  	open(MACROFILE, "<$filePath") || die "Cannot open file: $filePath";
-#  	my $string = 'BEGIN {push @__eval__, __FILE__};' . "\n" . <MACROFILE>;
-#  	my ($result,$error,$fullerror) = &PG_restricted_eval($string);
-# 	eval ('$main::__files__->{pop @main::__eval__} = $filePath');
-#  	if ($error) {    # the $fullerror report has formatting and is never empty
-#                 # this is now handled by PG_errorMessage() in the PG translator
-#  		#$fullerror =~ s/\(eval \d+\)/ $filePath\n/;   # attempt to insert file name instead of eval number
-#  		die "Error detected while loading $filePath:\n$fullerror";
-# 
-#  	}
-# 
-#  	close(MACROFILE);
-	$self->{macroFileList}->{$filePath} = 1;
- 	close(MACROFILE);
+	my $self     = shift;
+	my $filePath = shift;
 
+	warn "loading $filePath" if $debugON;
+
+	local $/ = undef;    # allows us to treat the file as a single line
+
+	open(my $MACROFILE, "<:raw", $filePath) || die "Cannot open file: $filePath";
+	my $string = <$MACROFILE>;
+	close $MACROFILE;
+	utf8::decode($string);    # can't yet use :encoding(UTF-8)
+
+	my ($result, $error, $fullerror) = $self->PG_macro_file_eval($string, $filePath);
+
+	if ($error) {
+		# The $fullerror report has formatting and is never empty when there is an error.
+		# The die message is handled by PG_errorMessage() in the PG translator.
+		die "Error detected while loading $filePath:\n$fullerror";
+	}
+
+	$self->{macroFileList}{$filePath} = 1;
 }
-
-
-
-
-
 
 =head2 sourceAlias
 
@@ -286,23 +255,27 @@ course's F<html> directory to allow formatted viewing of the problem source.
 # ^uses $envir{probNum}
 # ^uses $envir{displayMode}
 # ^uses $envir{courseName}
-# ^uses $envir{sessionKey}
 sub sourceAlias {
 	my $self         = shift;
 	my $path_to_file = shift;
-	my $envir        =  PG_restricted_eval(q!\%main::envir!);
+	my $envir        = PG_restricted_eval(q!\%main::envir!);
 	my $user         = $envir->{inputs_ref}->{user};
-	$user            = " " unless defined($user);
-    my $out = 'source.pl?probSetKey='  . $envir->{psvn}.
-  			  '&amp;probNum='          . $envir->{probNum} .
-   			  '&amp;Mode='             . $envir->{displayMode} .
-   			  '&amp;course='           . $envir->{courseName} .
-    		  '&amp;user='             . $user .
-			  '&amp;displayPath='      . $path_to_file .
-	   		  '&amp;key='              . $envir->{sessionKey};
+	$user = " " unless defined($user);
+	my $out =
+		'source.pl?probSetKey='
+		. $envir->{psvn}
+		. '&amp;probNum='
+		. $envir->{probNum}
+		. '&amp;Mode='
+		. $envir->{displayMode}
+		. '&amp;course='
+		. $envir->{courseName}
+		. '&amp;user='
+		. $user
+		. '&amp;displayPath='
+		. $path_to_file;
 
- 	 $out;
+	$out;
 }
-
 
 1;

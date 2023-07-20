@@ -7,17 +7,17 @@ use strict;
 our @ISA = ("Value::Context::Data");
 
 sub init {
-  my $self = shift;
-  $self->{dataName} = 'flags';
-  $self->{name} = 'flag';
-  $self->{Name} = 'Flag';
-  $self->{namePattern} = qr/[-\w_.]+/;
-  $self->{allowAlias} = 0;
+	my $self = shift;
+	$self->{dataName}    = 'flags';
+	$self->{name}        = 'flag';
+	$self->{Name}        = 'Flag';
+	$self->{namePattern} = qr/[-\w_.]+/;
+	$self->{allowAlias}  = 0;
 }
 
-sub update {} # no pattern or tokens needed
-sub addToken {}
-sub removeToken {}
+sub update      { }    # no pattern or tokens needed
+sub addToken    { }
+sub removeToken { }
 
 #########################################################################
 

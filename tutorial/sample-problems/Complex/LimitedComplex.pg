@@ -1,0 +1,79 @@
+## DESCRIPTION
+## This shows the capabilities of the LimitedComplex context.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('complex','addition','subtraction','absolute value')
+
+#:% name = Complex Numbers, Limited Input
+#:% type = [technique]
+#:% subject = [complex]
+
+#:% section = preamble
+#: This problems shows the capabilities of the `contextLimitedComplex.pl` macro
+#: so it must be loaded.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',            'PGML.pl',
+    'contextLimitedComplex.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
+#: If we ask students to do operations with complex numbers, often we don't
+#: want those operations to be allowed in the answer.  In this case we set the
+#: `Context('LimitedComplex')`. If we define complex numbers, then perl operations
+#: will be allowed, but not operations in `Compute` functions.
+#:
+#: `LimitedComplex` will allow a single number entered (technically only one
+#: value of `i`) in either cartesian or polar form.  This problem gives the
+#: answer in polar to check that form.
+#:
+#: If you only want complex numbers to be entered in cartesian form you can use
+#: `Context('LimitedComplex-cartesian')` and if you only want students to
+#: enter numbers in polar form use `Context('LimitedComplex-polar')`.
+Context('LimitedComplex');
+
+$x0 = non_zero_random(-5, 5);
+$y0 = non_zero_random(-5, 5);
+$x1 = non_zero_random(-5, 5);
+$y1 = non_zero_random(-5, 5);
+
+$z0 = Complex($x0, $y0);
+$z1 = Complex($x1, $y1);
+
+$ans1 = $z0 + $z1;
+$ans2 = $z0 * $z1;
+
+# Determine the polar form of the answer to give a hint.  Since in
+# LimitedComplex, most functions are diasbled, so we work on the components.
+$arg0 = atan($y0 / $x0) + ($x0 > 0 ? ($y0 > 0 ? 0 : 2 * pi) : pi);
+$arg1 = atan($y1 / $x1) + ($x1 > 0 ? ($y1 > 0 ? 0 : 2 * pi) : pi);
+$abs0 = sqrt($x0**2 + $y0**2);
+$abs1 = sqrt($x1**2 + $y1**2);
+
+#:% section = statement
+BEGIN_PGML
+Let [`z_0=[$z0]`] and [`z_1=[$z1]`]. Find
+
+[`z_0+z_1=`] [___]{$ans1}
+
+[`z_0z_1=`] [___]{$ans2}
+
+You may not enter operations between numbers for these answers.  However,
+if you want the polar form (the second answer is [`[@ $abs0*$abs1 @] e^{[@ $arg0+$arg1 @]i}`])
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

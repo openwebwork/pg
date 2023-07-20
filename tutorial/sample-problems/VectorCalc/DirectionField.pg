@@ -1,0 +1,76 @@
+## DESCRIPTION
+## Vector Calculus: graph of a 2D direction field
+## ENDDESCRIPTION
+
+## KEYWORDS('vector calculus', 'direction field')
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+
+#:% name = Direction Field
+#:% subject = [Differential Equations, Vector Calculus]
+#:% type = [Sample, technique]
+#:% categories = [graph]
+#:% see_also = [VectorFieldGraph2D.pg]
+
+#:% section=preamble
+#: The macro `PGtikz.pl` is used to produced the direction field.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: A direction field is a vector field where the length of the vectors are
+#: constant.  We use the same technique as PROBLINK('VectorFieldGraph2D.pg').
+#:
+#: The vector field <y,-x> is used and then when the vector is drawn is
+#: scaled by its length or `sqrt(x^2+y^2)`.  Since this is not defined at
+#: the origin, we don't draw the vector there and use the `ifthen` package
+#: to load the `\ifthenelse` latex command.
+#:
+#: If you want a slope field, where only the slope is draw with no arrow
+#: delete the `->` in the option of the `\draw` command inside the `\foreach`
+#: loops.
+$graph = createTikZImage();
+$graph->texPackages(['ifthen']);
+$graph->BEGIN_TIKZ
+\filldraw[
+    draw=LightBlue,
+    fill=white,
+    rounded corners=10pt,
+    thick,use as bounding box
+] (-6,-6) rectangle (6,6);
+\draw[dotted] (-5,-5) grid (5,5);
+\draw[->] (-5,0) -- (5.25,0) node[above right] {\(x\)};
+\foreach \x in {-5,...,-1,1,2,...,5} \draw(\x,-5) node [below] {\x};
+\draw[->] (0,-5) -- (0,5.25) node[above right] {\(y\)};
+\foreach \y in {-5,...,-1,1,2,...,5} \draw(-5,\y) node [left] {\y};
+\foreach \x in {-4.5,-4,...,4.5} {
+	\foreach \y in {-4.5,-4,...,4.5} {
+		\ifthenelse{\equal{\x}{0} \AND \equal{\y}{0}}{}{
+			\draw[thick, blue,->] (\x,\y) --
+				({\x+0.4*\y/sqrt(\x*\x+\y*\y)},{\y-0.4*\x/sqrt(\x*\x+\y*\y)});
+			}
+		}
+	}
+END_TIKZ
+
+#:% section = statement
+#: This shows the vector field graph.
+BEGIN_PGML
+This is a direction field for
+[``\vec{v} =  \left< y, -x \right>``]
+
+>> [@ image($graph, width=> 400) @]* <<
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
+

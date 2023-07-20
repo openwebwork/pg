@@ -1,0 +1,64 @@
+## DESCRIPTION
+## Parametric equations: parametric curve in space
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('parametric', 'curve in space')
+
+#:% name = Parametric Vector Function with Derivative
+#:% type = Sample
+#:% subject = parametric
+
+#:% section = preamble
+#: Although not necessary for the code below, we load `parserVectorUtils.pl` because you may
+#: want to use some of its methods when you use this template file.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We choose not to display the answer using ijk notation. Also, use `ijkAnyDimension => 1` to
+#: require a dimension match between i,j,k
+#: vectors and either the student or the correct answer when doing vector operations.
+#:
+#: The custom answer checker is used to check if the derivative matching the questioned asked.
+#: Use dot products of the student answer with the vectors `Vector(1,0)` and `Vector(0,1)` to
+#: get the components `$xstu` and `$ystu` of the student answer. Then, we can differentiate
+#: the components just like any `MathObject` formula.
+Context('Vector2D');
+Context()->variables->are(t => 'Real');
+Context()->variables->set(t => { limits => [ 0, 5 ] });
+Context()->flags->set(ijk => 0, ijkAnyDimension => 1);
+
+$ans = Vector("<2t,(2t)^2>")->cmp(
+    checker => sub {
+        my ($correct, $student, $ansHash) = @_;
+        my $xstu = $student . Vector(1, 0);
+        my $ystu = $student . Vector(0, 1);
+        return (($xstu->D('t') == Formula('2'))
+                && ($ystu->D('t') == Formula('8t'))) ? 1 : 0;
+    }
+);
+
+#:% section = statement
+BEGIN_PGML
+Find a vector parametric function [`\vec{r}(t)`]
+for a bug that moves along the parabola [`y = x^2`]
+with velocity [`\vec{v}(t) = \langle 2, 8t \rangle`]
+for all [`t`].
+
+[`\vec{r}(t) =`] [_]{$ans}{15}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

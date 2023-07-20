@@ -1,0 +1,43 @@
+.union-table {
+	&.union-table-centered {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	@each $name, $thickness in ('minor': 1px, 'medium': 2px, 'major': 3px) {
+		&.union-table-bordered-#{$name} {
+			& > :not(caption) > *,
+			& > :not(caption) > * > * {
+				border-width: $thickness;
+			}
+		}
+	}
+
+	@for $spacing from 1 to 10 {
+		&.union-table-s#{$spacing} {
+			border-collapse: separate;
+			border-spacing: #{$spacing}px;
+		}
+	}
+
+	@for $padding from 1 to 20 {
+		&.union-table-p#{$padding} {
+			& > :not(caption) > *,
+			& > :not(caption) > * > * {
+				padding: #{$padding}px;
+			}
+		}
+	}
+
+	tr.union-table-line {
+		td {
+			padding-top: 0;
+			padding-bottom: 0;
+
+			hr {
+				border: 1px solid black;
+				height: 1px;
+			}
+		}
+	}
+}

@@ -1,0 +1,58 @@
+## DESCRIPTION
+## This shows an interactive graph in 3D in rectangular coordinates.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('vector calculus', 'dynamic graph' , 'cylindrical')
+
+#:% name = Surface Graph in Rectangular Coordinates
+#:% type = Sample
+#:% subject = [Vector Calculus, multivariate calculus]
+#:% see_also = [SpaceCurveGraph.pg, SurfaceGraph.pg, CylindricalGraph3D.pg]
+#:% categories = [graph]
+
+#:% section = preamble
+#: The dynamic graph is generated with `plotly3D.pl`,
+#: so this is needed.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: We generate the plot parametrically for the function `z=x^2+y^2` with the
+#: `addSurface` function.  Since `x` and `y` are generally used with
+#: rectangular coordinates, we set them with the
+#:```{#vars .perl}
+#:variables => ['x','y']
+#:```
+#:
+#: See PODLINK('plotly3D.pl') for more information on options.
+
+$gr = Graph3D();
+$gr->addSurface(
+    [ 'x', 'y', 'x^2+y^2' ],
+    [ -3,  3,   30 ],
+    [ -3,  3,   30 ],
+    variables => [ 'x', 'y' ]
+);
+
+#:% section=statement
+#: This shows how to add a plot to the problem.
+BEGIN_PGML
+The following is the plot of [`z=x^2+y^2`]
+
+[@ $gr->Print @]*
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

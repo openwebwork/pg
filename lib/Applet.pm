@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2022 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -41,17 +41,14 @@ Applet.pl - Provides code for inserting GeogebraWebApplets into webwork problems
 This file provides an object to store in one place all of the information needed to call an
 applet.
 
-The module GeogebraWebApplet has defaults for inserting Geogebra web applets.
+The module GeogebraWebAppletBase has defaults for inserting Geogebra web applets.
 
 The module Applet stores common code for the different types of applets.
 
 =cut
 
 package Applet;
-use URI::Escape;
 use MIME::Base64 qw(encode_base64 decode_base64);
-use PGcore;
-@ISA = qw(PGcore);
 
 =head2 Default JavaScript functions placed in header
 
@@ -74,13 +71,13 @@ question.
     Usage:  $current_value = $applet->method(new_value or empty)
 
     These can also be set when creating the class.  For example:
-        $applet = new GeogebraWebApplet(
+        $applet = GeogebraWebApplet(
             appletName => $appletName,
             width      => 400,
             height     => 250
         );
 
-    When using AppletObjects.pl this can be replaced by $applet = GeogebraWebApplet(...).
+    The AppletObjects.pl macro file must be used to load the derived packages of the Applet package.
 
     appletName   The name of the applet
 
@@ -180,7 +177,7 @@ as a runtime version of the perlApplet since it can be accessed and modified aft
 HTML page has been created by the PG rendering process.
 
 The perlApplet is initialized by
-    $newApplet = new GeogebraWebApplet(appletName => 'myApplet', ...);
+    $newApplet = GeogebraWebApplet(appletName => 'myApplet', ...);
 The jsApplet is automatically defined in ww_applet_list["myApplet"] by copying the instance
 variables of $newApplet to a corresponding JavaScript object.  So $newApplet->{appletName}
 corresponds to ww_applet_list["myApplet"].appletName.  (This paragraph is not yet fully
@@ -530,28 +527,16 @@ sub insertObject {
 	return $objectText;
 }
 
-###############################################################################################################
-# GeogebraWeb APPLET PACKAGE
-###############################################################################################################
+# These methods are defined so that they can be used in the derived objects in the AppletObjects.pl macro file.
 
-package GeogebraWebApplet;
-@ISA = qw(Applet);
+sub base64_encode {
+	my $self = shift;
+	return encode_base64(shift);
+}
 
-use constant GEOGEBRAWEB_OBJECT_TEXT => <<'END_OBJECT_TEXT';
-<div id="$appletName"
-	data-id="$appletName"
-	data-width="$width"
-	data-height="$height"
-	$webgeogebraParameters></div>
-END_OBJECT_TEXT
-
-sub new {
-	my $class = shift;
-	$class->SUPER::new(
-		objectText => GEOGEBRAWEB_OBJECT_TEXT(),
-		type       => 'geogebraweb',
-		@_
-	);
+sub base64_decode {
+	my $self = shift;
+	return decode_base64(shift);
 }
 
 1;

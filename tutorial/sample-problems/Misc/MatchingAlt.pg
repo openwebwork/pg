@@ -1,0 +1,155 @@
+## DESCRIPTION
+## Matching question template
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Date(05/23/2023)
+## Institution(Missouri Western State University)
+## Author(Glenn Rice)
+## KEYWORDS('matching', 'template')
+
+#:% name = Matching Problem (Alternate)
+#:% type = Sample
+#:% categories = [multiple choice, misc]
+
+#:% section = preamble
+#: The `parserPopUp.pl` macro is used to create drop down menus for answers, and
+#: the custom problem grader fluid from `PGgraders.pl` is used for incremental
+#: grading.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGgraders.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
+#: Withhold feedback when answers are submitted by setting
+#: `$showPartialCorrectAnswers = 0;`.
+#:
+#: This problem uses an incremental grader called the `custom_problem_grader_fluid`.
+#: With this problem grader, the number of correct answers `[2, 4, 6]`
+#: and their corresponding scores `[0.3, 0.6, 1]` must be specified. The last
+#: entry in the `grader_numright` array must be the total number of questions
+#: asked, and the last entry in the `grader_scores` array must be 1
+#: (otherwise nobody can earn full credit!). The grader message can also
+#: be customized by setting the value of `grader_message` to the desired custom
+#: message.
+#:
+#: If a grader is desired that awards full credit when all questions are correct
+#: and no credit otherwise, use the commented out `std_problem_grader` code
+#: instead.
+#:
+#: The default `avg_problem_grader` could also be used by not using a custom
+#: problem grader at all to give credit for the parts that are correct.
+#: The percent score will be 100 * (number correct) / (number of questions) with
+#: the default grader.
+#:
+#: Create a list of 6 questions and answers, 2 extra answers, and a
+#: 'None of the above' answer that will be force to be last.
+$showPartialCorrectAnswers = 0;
+
+# Incremental grader
+install_problem_grader(~~&custom_problem_grader_fluid);
+$ENV{grader_numright} = [ 2,   4,   6 ];
+$ENV{grader_scores}   = [ 0.3, 0.6, 1 ];
+$ENV{grader_message} =
+    'You can earn '
+    . '30% partial credit for 2 - 3 correct answers, and '
+    . '60% partial credit for 4 - 5 correct answers.';
+
+# All or nothing grader
+# install_problem_grader(~~&std_problem_grader);
+
+# Create a list of questions and answers.
+@q_and_a = (
+    [ 'Question a?', 'Answer a' ],
+    [ 'Question b?', 'Answer b' ],
+    [ 'Question c?', 'Answer c' ],
+    [ 'Question d?', 'Answer d' ],
+    [ 'Question e?', 'Answer e' ],
+    [ 'Question f?', 'Answer f' ],
+);
+
+# Add extra incorrect answers
+@extra_a = ('Extra answer 1', 'Extra answer 2');
+
+# Randomize the questions.
+@q_and_a = map { splice(@q_and_a, random(0, $#q_and_a)) } 0 .. $#q_and_a;
+
+# Choose a random order to display the answers (including the incorrect answers).
+push(@answers, (map { $_->[1] } @q_and_a), @extra_a);
+@indices = (0 .. $#answers);
+@shuffle = map { splice(@indices, random(0, $#indices), 1) } 0 .. $#indices;
+
+# Create an inverse map back to the original indices.
+@inversion[@shuffle] = (0 .. $#shuffle);
+
+# Add an answer that is always last.  It is also incorrect in this case.
+push(@answers, 'None of the above');
+push(@shuffle, scalar(@shuffle));
+
+@answer_dropdowns =
+    map { DropDown([ @ALPHABET[ 0 .. $#answers ] ], $inversion[$_]) }
+    0 .. $#q_and_a;
+
+#:% section = statement
+#: Inject style into the page header to nicely show the questions on the left
+#: and the answers on the right. On narrow screens the answers will be below
+#: the questions.
+#:
+#: In the problem text a `div` with the css class defined in the style snippet
+#: wraps the questions and answers. Inside that the questions are in the first
+#: inner `div`, and the answers in the second inner `div`.
+#:
+#: When a hardcopy of the problem is generated two side by side parboxes are
+#: used instead.
+#:
+#: Both the questions and answers are added as PGML parsed strings.
+HEADER_TEXT(MODES(TeX => '', HTML => <<END_STYLE));
+<style>
+.two-column {
+    display: flex;
+	flex-wrap: wrap;
+	gap: 2rem;
+	align-items: center;
+	justify-content: space-evenly;
+}
+</style>
+END_STYLE
+
+BEGIN_PGML
+Match each question with its answer.
+
+[@ MODES(TeX => '\\parbox{0.4\\linewidth}{',
+	HTML => '<div class="two-column"><div>') @]*
+[@ join(
+    "\n\n",
+    map {
+        '[_]{$answer_dropdowns[' . $_ . ']} '
+            . '*' . ($_ + 1) . '.* '
+            . '[$q_and_a[' . $_ . '][0]]'
+    } 0 .. $#q_and_a
+) @]**
+[@ MODES(TeX => '}\\hfill\\parbox{0.4\\linewidth}{',
+	HTML => '</div><div>') @]*
+[@ join(
+    "\n\n",
+    map {
+        '*' . $ALPHABET[($_)] . '.* [$answers[$shuffle[' . $_ . ']]]'
+    } 0 .. $#answers
+) @]**
+[@ MODES(TeX => '}', HTML => '</div></div>') @]*
+END_PGML
+
+#:% section = solution
+#: Show the letter indices for the correct answers as a comma separated list.
+#: Use the `inversion` mapping to find the correct original indices.
+BEGIN_PGML_SOLUTION
+The correct answers are
+[@ join(', ', map { $ALPHABET[($inversion[($_)])] } 0 .. $#q_and_a) @]*.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

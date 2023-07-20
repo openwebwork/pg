@@ -1,0 +1,57 @@
+## DESCRIPTION
+## Answers can be entered in any order into answer blanks
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('algebra', 'answers can be entered in any order')
+
+#:% name = Unordered Answers
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [answer]
+
+#:% section = preamble
+#: The macro `unorderedAnswer.pl` must be loaded.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'unorderedAnswer.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Because the answers have the variables x, y, and z, add the latter two.
+Context()->variables->add(y => 'Real', z => 'Real');
+
+$a = random(2, 9);
+
+$answer1 = Compute("x^$a");
+$answer2 = Compute("y^$a");
+$answer3 = Compute("z^$a");
+
+#:% section = statement
+BEGIN_PGML
+Rewrite the following expression without parentheses. Simplify your answer as
+much as possible.
+
+[`(xyz)^{[$a]} =`] [_____] [`\cdot`] [_____] [`\cdot`] [_____]
+END_PGML
+
+#:% section = answer
+#: We use `UNORDERED_ANS(checker1, checker2, ...);` to evaluate the answers. It is
+#: possible to withhold feedback and credit until everything is correct by using
+#: the standard problem grader, which awards no partial credit and full credit
+#: only when everything is correct.
+$showPartialCorrectAnswers = 0;
+
+UNORDERED_ANS($answer1->cmp, $answer2->cmp, $answer3->cmp);
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

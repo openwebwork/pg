@@ -1,47 +1,29 @@
-use warnings;
-use strict;
+#!/usr/bin/env perl
 
-package main;
+=head1 Fraction context
 
-use Test::More;
-use Test::Exception;
+Test the fraction context defined in contextFraction.pl.
 
-# The following needs to include at the top of any testing down to END OF TOP_MATERIAL.
+=cut
 
-BEGIN {
-	die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
-	$main::pg_dir = $ENV{PG_ROOT};
-}
+use Test2::V0 '!E', { E => 'EXISTS' };
 
-use lib "$main::pg_dir/lib";
+die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
+do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
-require("$main::pg_dir/t/build_PG_envir.pl");
+use lib "$ENV{PG_ROOT}/lib";
 
-## END OF TOP_MATERIAL
+loadMacros('PGstandard.pl', 'MathObjects.pl', 'contextFraction.pl');
 
-loadMacros("PGstandard.pl", "MathObjects.pl", "contextFraction.pl");
+use Value;
+require Parser::Legacy;
+import Parser::Legacy;
 
-# dd @INC;
+Context('Fraction');
 
-for my $module (qw/Parser Value Parser::Legacy/) {
-	eval "package Main; require $module; import $module;";
-}
+ok my $a1 = Compute('1/2');
+ok my $a2 = Compute('2/4');
 
-# use Value;
-# use Value::Complex;
-# # use Value::Type;
-# use Parser::Context::Default;
-# use Parser::Legacy;
-# use Parser::Context;
-
-Context("Fraction");
-
-# require("Parser::Legacy::LimitedNumeric::Number");
-# require("Parser::Legacy");
-
-my $a1 = Compute("1/2");
-my $a2 = Compute("2/4");
-
-is($a1->value, $a2->value, "contextFraction: reduce fractions");
+is $a1->value, $a2->value, 'contextFraction: reduce fractions';
 
 done_testing();
