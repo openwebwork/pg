@@ -1382,6 +1382,9 @@ sub Escape {
 	$string =~ s/</&lt;/g;
 	$string =~ s/>/&gt;/g;
 	$string =~ s/"/&quot;/g;
+
+	# Wrap the characters \, `, and $ in span tags to prevent MathJax from processing them.
+	$string =~ s/([\\`\$]+)/<span class="tex2jax_ignore">$1<\/span>/;
 	return $string;
 }
 
