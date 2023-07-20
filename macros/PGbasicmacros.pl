@@ -516,6 +516,8 @@ sub NAMED_ANS_RADIO {
 	my $extend = shift;
 	my %options = @_;
 
+        my $moodle_prefix = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%":'';
+
 	my $checked = '';
 	if ($value =~/^\%/) {
 		$value =~ s/^\%//;
@@ -536,7 +538,7 @@ sub NAMED_ANS_RADIO {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+		HTML => qq!<label><INPUT TYPE=RADIO NAME="$moodle_prefix$name" id="$moodle_prefix$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
 		PTX => '<li>'."$tag".'</li>'."\n",
 	);
 
@@ -551,6 +553,8 @@ sub NAMED_ANS_RADIO_EXTENSION {
 	my $value = shift;
 	my $tag = shift;
 	my %options = @_;
+
+        my $moodle_prefix = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%":'';
 
 	my $checked = '';
 	if ($value =~/^\%/) {
@@ -576,7 +580,7 @@ sub NAMED_ANS_RADIO_EXTENSION {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<label><INPUT TYPE=RADIO NAME="$name" id="${name}_$value" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+		HTML => qq!<label><INPUT TYPE=RADIO NAME="$moodle_prefix$name" id="$moodle_prefix${name}_$value" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
 		PTX => '<li>'."$tag".'</li>'."\n",
 	);
 
@@ -713,6 +717,8 @@ sub NAMED_ANS_CHECKBOX {
 	my $value = shift;
 	my $tag =shift;
 
+        my $moodle_prefix = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%":'';
+
 	my $checked = '';
 	if ($value =~/^\%/) {
 		$value =~ s/^\%//;
@@ -735,7 +741,7 @@ sub NAMED_ANS_CHECKBOX {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$moodle_prefix$name" id="$moodle_prefix$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
 		PTX => '<li>'."$tag".'</li>'."\n",
 	);
 
@@ -746,6 +752,8 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 	my $value = shift;
 	my $tag =shift;
 	my %options = @_;
+
+        my $moodle_prefix = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%":'';
 
 	my $checked = '';
 	if ($value =~/^\%/) {
@@ -773,7 +781,7 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 	MODES(
 		TeX => qq!\\item{$tag}\n!,
 		Latex2HTML => qq!\\begin{rawhtml}\n<INPUT TYPE=CHECKBOX NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
-		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$name" id="$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
+		HTML => qq!<label><INPUT TYPE=CHECKBOX NAME="$moodle_prefix$name" id="$moodle_prefix$name" aria-label="$label" VALUE="$value" $checked>$tag</label>!,
 		PTX => '<li>'."$tag".'</li>'."\n",
 	);
 
