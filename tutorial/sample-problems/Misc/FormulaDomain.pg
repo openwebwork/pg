@@ -1,0 +1,67 @@
+## DESCRIPTION
+## Formula answer with domain issues template
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('formula answer', 'template')
+
+#:% name = Setting the Domain for Answer Checking
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [domain, answer]
+#:% see_also = [FormulaTestPoints.pg]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Restrict the domain of function evaluation using `$ans1->{limits} = [ $a + 1, $a + 4 ];`,
+#: which will choose test points at random in the interval `[$a + 1, $a + 4]`.
+#: This will ensure that the test points are in the domain of the function.
+#:
+#: The domain for `$ans2` is all real numbers except for `0` and `$a`, and
+#: we would like to stay away from these vertical asymptotes because answer evaluators
+#: don't work well when the function values are very large or very small.  Thus, we
+#: explicitly list those test points in the domain that will be used when the function is evaluated.
+#:
+#: It is possible to set the domain once for all of the functions within a particular
+#: context.  For more details, see PROBLINK('FormulaTestPoints.pg').
+#:
+#: It is possible to get diagnostic information about the answer checker if one
+#: replaces the `{$ans}` with `{$ans1->cmp(diagnostics => 1)}`.
+#: When diagnostics are turned on and a student answer is submitted, you will get a graph
+#: of the correct answer and the student answer on the same graph, as well as a table that
+#: specifies which test points were used by the answer checker, and how much of a difference
+#: there was between the student answer and the correct answer at these checkpoints.
+#: To test the reliability of your answer checker, it is good to click the reload
+#: button on your browser several times after a student answer has been submitted,
+#: since reloading changes the test points used.
+$a = random(2, 5);
+
+$ans1 = Compute("sqrt(x - $a)");
+$ans1->{limits} = [ $a + 1, $a + 4 ];
+
+$ans2 = Compute("ln(abs(x / (x - $a)))");
+$ans2->{test_points} = [ [-5], [-4], [1], [ $a - 1 ], [7], [8] ];
+
+#:% section = statement
+BEGIN_PGML
+a. Enter the answer [``[$ans1] =``] [_]{$ans1}
+
+b. Enter the answer [``[$ans2] =``] [_]{$ans2}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -1,0 +1,73 @@
+## DESCRIPTION
+## This shows an interactive graph in 3D in cylindrical coordinates.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('algebra', 'dynamic graph')
+
+#:% name = Surface Graph in Cylindrical Coordinates
+#:% type = Sample
+#:% subject = [Vector Calculus]
+#:% see_also = [SpaceCurveGraph.pg, SurfaceGraph.pg]
+#:% categories = [graph]
+
+#:% section = preamble
+#: The dynamic graph is generated with `plotly3D.pl`,
+#: so this is needed.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: We generate the plot parametrically for the radial functions `z=cos(r^2/4)`
+#: and `z=r*sin^2(t)`.
+#:
+#: This occurs with `x=u*cos(v)` and `y=u*sin(v)`, where `u` and `v` are
+#: used as the radial and angular variables respectively.  These are the
+#: default variables used.
+#:
+#: The second plot changes the variables to `r` and `t` and shows a function
+#: with a non-rotational symmetric plot.
+#:
+#: The `addSurface` is very flexible, but if you are plotting a function in
+#: cylindrical coordinates, then the first two functions should remain the
+#: same.
+#:
+#: See PODLINK('plotly3D.pl') for more information on options.
+$a = random(2, 5);
+
+$gr1 = Graph3D();
+$gr1->addSurface(
+    [ 'u*cos(v)', 'u*sin(v)', "$a*cos(u^2/4)" ],
+    [ 0,          6,          30 ],
+    [ 0,          2 * pi,     30 ]
+);
+
+$gr2 = Graph3D();
+$gr2->addSurface(
+    [ 'r*cos(t)', 'r*sin(t)', 'r*sin(t)^2' ],
+    [ 0,          6,          30 ],
+    [ 0,          2 * pi,     30 ],
+    variables => [ 'r', 't' ]
+);
+
+#:% section=statement
+#: This shows how to add a plot to the problem.
+BEGIN_PGML
+This just shows the two plots side by side.
+
+[@ $gr1->Print @]* [@ $gr2->Print @]*
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

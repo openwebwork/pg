@@ -1,0 +1,103 @@
+## DESCRIPTION
+## A Vector-value parametric line segment with a general paramterization
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('vector-valued', 'parametric', 'line segment')
+
+# created as a full problem by Peter Staab  2023.06.02
+
+#:% name = Vector-valued Parametric Line Segment--General
+#:% type = [technique, sample]
+#:% categories = vector
+#:% subject = Vector Calculus
+
+#:% section = preamble
+#: The macro
+#: `parseParametricLine.pl` provides the `ParametricLine` function which
+#: will be the answer.  The `parserMultiAnswer.pl` is needed since the
+#: answer blanks are interdependent.
+DOCUMENT();
+loadMacros(
+    'PGstandard.pl',           'PGML.pl',
+    'parserParametricLine.pl', 'parserMultiAnswer.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
+#:  We create a MutiAnswer answer checker that will evaluate the students
+#: vector parametric equation at the starting  and ending times provided
+#: by the student. For example, both of the student answers `(4,0) + t<-4,2>`
+#: for `t` between `0` and `1`, and `(4,0) + t<-2,1>` for t between `0` and `2`
+#: will be marked correct.
+Context("Vector");
+Context()->variables->are(t => "Real");
+
+$P = Point(4, 0);
+$Q = Point(0, 2);
+$V = Vector(-4, 2);
+
+$t    = Formula("t");
+$line = Vector("$P + $t * $V");
+
+$multians = MultiAnswer($line, Real("0"), Real("1"))->with(
+    singleResult => 0,
+    checker      => sub {
+        my ($correct, $student, $ansHash) = @_;
+        my ($linestu, $astu,    $bstu)    = @{$student};
+        my ($linecor, $acor,    $bcor)    = @{$correct};
+
+        if ((ParametricLine("$line") == $linestu)
+            && ($linestu->eval(t => $astu) == $line->eval(t => "0"))
+            && ($linestu->eval(t => $bstu) == $line->eval(t => "1")))
+        {
+            return [ 1, 1, 1 ];
+
+        } elsif ((ParametricLine("$line") == $linestu)
+            && ($linestu->eval(t => $astu) == $line->eval(t => "0")))
+        {
+            return [ 1, 1, 0 ];
+
+        } elsif ((ParametricLine("$line") == $linestu)
+            && ($linestu->eval(t => $bstu) == $line->eval(t => "1")))
+        {
+            return [ 1, 0, 1 ];
+
+        } elsif ((ParametricLine("$line") == $linestu)) {
+            return [ 1, 0, 0 ];
+
+        } else {
+            return [ 0, 0, 0 ];
+        }
+
+    }
+);
+
+#:% section = statement
+#: Since the three answer blanks depend on each other, we use `$multians`
+#: for each answer blank.
+BEGIN_PGML
+Find a vector parametric equation for the line
+segment from the point [`P = [$P]`]
+to [`Q = [$Q]`].
+
+[` \vec{r}(t) = `] [__]{$multians}
+
+for
+[__]{$multians}
+[` \leq t \leq `]
+[__]{$multians}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

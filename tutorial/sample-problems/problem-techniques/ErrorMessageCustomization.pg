@@ -1,0 +1,47 @@
+## DESCRIPTION
+## This shows how to customize (remap) the error messages students receive after submitting an
+## incorrect response or making a syntax error when entering their answer.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('custom error')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Custom Error Message
+#:% type = technique
+#:% categories = [custom error]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: To update the error message, the string in the `Context()->{error}{msg}`
+#: hash must match exactly and then is replaced with the customized
+#: version.
+Context()->{error}{msg}{"Missing operand after '-'"} =
+    "Enter '-1' instead of '-'";
+
+$ans1 = Real(-1);
+$ans2 = Formula("x-2");
+
+#:% section = statement
+BEGIN_PGML
+Factor [`-1`] from [`-x+2`]
+
+[`-x+2 =`] [__]{$ans1} [`\cdot \big(`] [__]{$ans2} [`\big)`]
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

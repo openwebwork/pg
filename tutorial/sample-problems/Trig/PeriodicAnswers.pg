@@ -1,0 +1,42 @@
+## DESCRIPTION
+## Periodic answers
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('trigonometry', 'periodic answer')
+
+#:% name = Periodic Answers
+#:% type = Sample
+#:% subject = [trigonometry, precalculus]
+#:% categories = [trigonometry]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This allows any answer of the form `pi/2+n pi` for integer `n` to be
+#: accepted.
+$answer = Real('pi/2')->with(period => pi);
+
+#:% section = statement
+BEGIN_PGML
+Enter a solution to [`\cos(\theta) = 0`].
+
+[`\theta =`] [_]{$answer}{15}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+The cosine of an angle is zero when the angle is [`(n + 1 / 2)\pi`] for any
+integer [`n`].
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

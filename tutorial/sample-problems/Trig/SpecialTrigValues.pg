@@ -1,0 +1,67 @@
+## DESCRIPTION
+## Displays values of trig functions on the unit circle
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(PCC)
+## Author(Alex Jordan)
+## MO(1)
+## KEYWORDS('trigonometry', 'unit circle')
+
+#:% name = Using Special Trig Values on the Unit Circle
+#:% type = Sample
+#:% subject = trigonometry
+
+#:% section = preamble
+#: We load the `specialTrigValues.pl` macro to use exact values on the
+#: unit circle.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'specialTrigValues.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The `random_coprime` function selects two random numbers that are coprime
+#: from the list.  This will give fractions with denominators of 2,3,4 or 6.
+#:
+#: The `specialRadical` function returns a MathObject in the form `a sqrt(b)/c`
+#: were b, c come from a list of integers (defaults to `[1,2,3]`).
+#:
+#: It is noted that `specialRadical` has a complex form as well.
+#:
+#: The `specialAngle` function returns a MathObject in the form `a pi/c` where
+#: a in an integer and `c` comes from a list (defaults to `[1,2,3,4,6]`).
+($d, $n) = random_coprime([ 2, 3, 4, 6 ], [ 1 .. 12 ]);
+
+$r = random(2, 3);
+
+$c = specialRadical("$r cos($n pi/$d)");
+$s = specialRadical("$r sin($n pi/$d)");
+
+$x = list_random(sqrt(3) / 2, sqrt(2) / 2, 1 / 2);
+$a = specialAngle(arcsin($x));
+
+Context("Complex");
+$z = specialRadical("$r exp($n pi i/$d)");
+
+#:% section = statement
+BEGIN_PGML
+Evaluate the following:
+
+a) [`[$r] \cos([$n] \pi/[$d])=`] [_]{$c}
+
+b) [`[$r] \sin([$n] \pi/[$d])=`] [_]{$s}
+
+c) [`[$r] \exp([$n] \pi/[$d])=`] [_]{$z}
+
+d) [`\arcsin([$x])=`] [_]{$a}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

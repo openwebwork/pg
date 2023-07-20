@@ -1,0 +1,106 @@
+## DESCRIPTION
+## This shows how to check an arbitrary list of student answers.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(Fitchburg State University)
+## Author(Peter)
+## MO(1)
+## KEYWORDS('answer', 'custom', 'list')
+
+# Adapted from https://webwork.maa.org/wiki/Custom_Answer_Checkers_for_Lists
+
+#:% name = Custom Answer List Checker
+#:% type = technique
+#:% categories = [answer, custom, list]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We expect the student answers to be points so we'll use the 'Point' context.
+#: Provide a list of 3 points that will be shown as the correct answer.
+#:
+#: The important part of this problem is that we customize the `cmp` function of
+#: the answer and since this is a list, we use a `list_checker` as shown.
+#:
+#: Most of the custom list checker is spent giving errors to specific situations
+#: in the student answers.  The part of the checker toward the bottom which
+#: checks if the two coordinates and if they add to `$c`, then increase the
+#: the `$score`.
+#:
+#: And lastly the checker ensures that the right number of points (3) is
+#: entered.
+Context('Point');
+
+$c   = random(4, 8);
+$ans = List("(0,$c),($c,0),($c-1,1)")->cmp(
+    list_checker => sub {
+        my ($correct, $student, $ansHash, $value) = @_;
+        my $n     = scalar(@$student);    # number of student answers
+        my $score = 0;                    # number of correct student answers
+        my @errors;                       # stores error messages
+
+        #  Loop though the student answers
+        for my $i (0 .. $n - 1) {
+            my $ith = Value::List->NameForNumber($i + 1);
+            my $p   = $student->[$i];                      # i-th student answer
+
+            #  Check that the student's answer is a point
+            if ($p->type ne "Point") {
+                push(@errors, "Your $ith entry is not a point");
+                next;
+            }
+
+            #  Check that the point hasn't been given before
+            for (my $j = 0, $used = 0; $j < $i; $j++) {
+                if ($student->[$j]->type eq "Point" && $student->[$j] == $p)
+                {
+                    push(@errors,
+                        "Your $ith point is the same as a previous one")
+                        unless $ansHash->{isPreview};
+                    $used = 1;
+                    last;
+                }
+            }
+
+            # If not already used, check that it satisfies the equation
+            # and increase the score if so.
+            if (!$used) {
+                my ($a, $b) = $p->value;
+                if ($a + $b == $c) {
+                    $score++;
+                } else {
+                    push(@errors, "Your $ith point is not correct")
+                        unless $ansHash->{isPreview};
+                }
+            }
+        }
+
+        #  Check that there are the right number of answers
+        if (!$ansHash->{isPreview}) {
+            push(@errors, "You need to provide more points") if $n < 3;
+            push(@errors, "You have given too many points")  if $n > 3;
+        }
+        return ($score, @errors);
+    }
+);
+
+#:% section = statement
+BEGIN_PGML
+Enter three distinct points [`(x,y)`] that satisfy the equation [`x+y=[$c]`]:
+
+[____]{$ans}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Any three points who's coordinates sum to [`[$c]`] are valid.  For example
+[`([$c],0),(0,[$c]),(1,[@ $c-1 @])`]
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

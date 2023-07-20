@@ -1,0 +1,59 @@
+## DESCRIPTION
+## Shows the use of the randomNamesPronouns.pl macro
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(04/15/2023)
+## Institution(Fitchburg States)
+## Author(Peter Staab)
+## KEYWORDS('names', 'pronouns', 'random')
+
+#:% name = Random Person
+#:% type = Sample
+#:% categories = [misc]
+
+#:% section = preamble
+#: We need to load `randomPerson.pl` macro
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'randomPerson.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The macro `randomPerson.pl` provides functionality to
+#:
+#: * select a random name from a user-defined or default list with pronouns.
+#: * provide correct pronouns as well as verb conjugation.
+#:
+#: The `randomPerson(n => 3)` subroutine selects 3 unique random persons.
+#:
+#: See the `randomNamesPronouns.pl` POD for more information and example.
+($p1, $p2, $p3) = randomPerson(n => 3);
+
+$n = random(20, 30, 2);
+$c = random(4,  8,  2);
+
+#:% section = statement
+#: The objects `$p1, $p2` and `$p3` are `Person` objects and we can call the methods
+#: for name, and the pronouns `subject, possessive, possession` and `object` as well
+#: as the capitalized versions of each of these.  In addition, there is a `verb`
+#: method to conjugate most verbs as well as some irregular ones, like `do`
+#: which returns the correct conjugation of "to do".
+BEGIN_PGML
+[$p1] has a ribbon of length [$n] cm.  [$p1->Subject] [$p1->verb('cut')]
+[$c] cm off the ribbon and [$p1->verb('give')] the piece to [$p1->possessive]
+friend [$p2].
+
+[$p1] then [$p1->verb('divide')] the rest in half and [$p1->verb('give')]
+half to [$p1->possessive] friend [$p3].
+
+How much ribbon [$p1->do] [$p1] have left? [___]{Real(($n-$c)/2)}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

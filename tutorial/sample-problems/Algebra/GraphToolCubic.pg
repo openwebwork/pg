@@ -1,0 +1,98 @@
+## DESCRIPTION
+## Interactive graphing tool problem that asks the student to plot a cubic.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Date(05/28/2023)
+## Institution(Missouri Western State University)
+## Author(Glenn Rice)
+## KEYWORDS('graphs', 'circles')
+
+#:% name = Graph Tool, plotting a cubic
+#:% type = [Sample, technique]
+#:% subject = [algebra, precalculus]
+#:% categories = [graph]
+
+#:% section = preamble
+#: This example shows how to get student input in the form of a graph (a cubic)
+#: by using interactive graphing tools. Load the parserGraphTool.pl macro for
+#: this.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',      'PGML.pl',
+    'parserGraphTool.pl', 'contextFraction.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
+#: A cubic is created with 3 random zeros and a random y-intercept.
+#:
+#: The `GraphTool` method creates the graph tool object. The only argument is
+#: the correct answer. This is a string that contains a list of objects that
+#: the student will be expected to graph. Each object is a brace delimited list
+#: of the attributes of the object. The first attribute in each list is the
+#: type of object to be graphed, `cubic` in this case. What the remaining
+#: attributes are depend on the type. For a cubic the second attribute is
+#: whether the object is to be `solid` or `dashed`, the remaining attributes
+#: are four distinct points of the cubic.
+#:
+#: The `->with` method is then used to set options for the `GraphTool` object.
+#: In this case the options that are set are:
+#:
+#: * `bBox`: This is an array reference of four values xmin, ymax, xmax, ymin
+#: indicating the upper left and lower right corners of the visible graph.
+#: * `availableTools`: This determines which tools will be available for the
+#: student to use.
+#:
+#: There is a default checker for the GraphTool that will mark correct a
+#: student answer that 'looks' like the correct one. For simple graphs,
+#: the default should be sufficient. See PROBLINK('GraphToolCustomChecker.pg')
+#: for an example of how to use a custom checker.
+
+Context('Fraction');
+
+$x1 = random(-8, -4);
+$x2 = non_zero_random(-3, -3);
+$x3 = random(4, 8);
+
+$y0 = non_zero_random(-3, 3);
+
+$k = Fraction($y0, -$x1 * $x2 * $x3);
+
+$gt =
+    GraphTool("{cubic, solid, ($x1, 0), ($x2, 0), ($x3, 0), (0, $y0)}")->with(
+        bBox           => [ -11, 11, 11, -11 ],
+        availableTools => [
+            'PointTool',  'LineTool',
+            'CircleTool', 'QuadraticTool',
+            'CubicTool',  'FillTool',
+            'SolidDashTool'
+        ],
+    );
+
+#:% section = statement
+#: This asks to graph the cubic throw the given points. The code
+#: `[_]{$gt}` inserts the GraphTool.
+BEGIN_PGML
+Graph the cubic function [``p(x) = [$k](x-[$x1])(x-[$x2])(x-[$x3])``]
+
+[_]{$gt}
+END_PGML
+
+#:% section = solution
+#: The solution describes how to obtain the graph of the circle from the
+#: equation.
+BEGIN_PGML_SOLUTION
+To graph the cubic, you'll need 4 points.  Because of the form, there are
+3 zeros [`([$x1],0), ([$x2],0)`] and [`([$x3],0)`].  Any other point can be
+chosen, but another easy one is the [`y`]-intercept, which by evaluating
+[`p(0)=[$y0]`], then select [`(0,[$y0])`].
+
+The solution is
+[@ $gt->generateAnswerGraph @]*
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

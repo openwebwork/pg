@@ -1,0 +1,88 @@
+## DESCRIPTION
+## This describes an alternative way for determining the tolerance type based on the number of digits.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('answer', 'tolerance')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Number of Digits and Tolerance in Answers
+#:% type = technique
+#:% categories = [answer, tolerance]
+#:% see_also = [NumericalTolerance.pg]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: * The `tolType => 'digits'` switches from the default `'relative' `tolerance
+#: type to the `'digits'` tolerance type.
+#: * The `tolerance => 3` sets the number of digits to check to 3. The default
+#: value is acutally the default for other tolerance types, `0.001`, but any
+#: tolerance that is between 0 and 1 is converted via `log10` and rounding to an
+#: integer (in this case, to 3).
+#: * The `tolTruncation` parameter is either 1 (true) or 0 (false). Its default
+#: is 1. Details are explained below.
+#: * The `tolExtraDigits` parameter sets the number of extra digits to examine
+#: beyond the first tolerance digits. Its default value is 1.
+#: This is explained below.
+#: * The goal is that the student must enter at least the first tolerance
+#: digits correctly. The last digits that they enter might be rounded
+#: (always accepted) or truncated (only accepted if `tolTruncation` is true).
+#: For example, if the correct answer is e=2.7182818... and tolerance is 3,
+#: the student can answer with 2.72. Or they can answer with 2.71 if
+#: `tolTruncation` is true. But for example 2.7 and 2.73 are not accepted.
+#:
+#: If the student enters additional digits, the first additional `tolExtraDigits`
+#: digits are examined in the same manner. For example, if the correct answer
+#: is `pi=3.1415926...` and default flag values are used, the student can answer
+#: with 3.14, 3.141, 3.142, 3.1415, and even 3.1418 since that 8 is beyond the
+#: extra digits checking. But for example 3.143 is not accepted, since the first
+#: extra digit is not right. (And if `tolTruncation` is false, 3.141 would not be
+#: accepted either.)
+#:
+#: Warning: this tolerance type also applies to formula comparisons.
+#: For example if the answer is `2^x` and a student enters `e^(0.69x)`, this
+#: will probably not be accepted. Random test values will be used for x to
+#: make that comparison. For example if one of the test values is `x=2`, the
+#: correct output is 4 and the student's output would be 3.9749... and this
+#: would be declared as not a match, since the first three digits to not agree.
+#:
+#: Warning: this article is about using this tolerance type for comparison of
+#: correct answers to student answers. But if this tolerance type is activated
+#: for a context, it also applies to comparisons you might make in problem
+#: setup code. It may be important to understand that it is not symmetric.
+#: For example, under default conditions, `Real(4) == Real(3.995)` is false,
+#: while `Real(3.995) == Real(4)` is true. The left operand is viewed as the
+#: "correct" value. With `Real(4) == Real(3.995)`, that "5" violates the
+#: `tolExtraDigits` checking. But with `Real(3.995) == Real(4)`, it is as if the
+#: student entered 4.00 and has the first 3 digits correct accounting for
+#: rounding. (Note that the default tolerance type relative is similarly
+#: asymmetric, but the effect is more subtle. You can see it with
+#: `Real(4) == Real(3.996001)` versus `Real(3.996001) == Real(4)`.)
+Context()->flags->set(tolType => 'digits', tolerance => 3, tolTruncation => 1);
+$ans = Real("pi");
+#:% section=statement
+BEGIN_PGML
+
+This section is with [|tolTruncation|] set to true (1).  The exact answer
+is [`\pi`].   Enter 3.14, 3.15, 3.141, 3.142 to see if it accepts the answer.
+
+[`\pi=`][_]{$ans}
+
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

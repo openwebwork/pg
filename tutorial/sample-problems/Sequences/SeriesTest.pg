@@ -1,0 +1,137 @@
+## DESCRIPTION
+## Series: limit comparison test
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('integral calculus', 'limit comparison test')
+
+#:% name = Series Test
+#:% type = Sample
+#:% subject = Sequences and Series
+#:% categories = [sequences, series]
+
+#:% section = preamble
+#: We load `niceTables.pl` to create a table in which answer blanks are stacked on top
+#: of each other to form a fraction. We use `PGgraders.pl` to give partial credit
+#: incrementally. We use `parserMultiAnswer.pl` for the fraction answer so that we can
+#: accept two correct answers, depending on how much a student has simplified their answer.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl', 'PGML.pl',
+    'niceTables.pl', 'parserPopUp.pl',
+    'PGgraders.pl',  'parserMultiAnswer.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
+#: We use the `MultiAnswer` object `$multians` to allow students to enter one of two
+#: correct answers. We could have also accomplished this using two custom answer checkers.
+#:
+#: We display the answerblanks nicely as a fraction in HTML and TeX modes by how we constructed `$showfraction`.
+Context()->variables->are(n => 'Real');
+
+$a = random(2, 9);
+$b = random(2, 9);
+$c = random(5, 20);
+$d = random(3, 9);
+$e = random(2, 9);
+
+$dm1 = $d - 1;
+$dm2 = $d - 2;
+
+# TeX
+$series   = "\sum_{n=$c}^{\infty} \frac{$a n + $b}{$c n^{$d} + $e}";
+$fraction = "\lim_{n\to\infty} \frac{a_n}{b_n} = \lim_{n\to\infty}";
+
+$num1 = Formula("$a n^$d + $b n^$dm1");
+$den1 = Formula("$c n^$d + $e");
+
+$num2 = Formula("$a + $b/n");
+$den2 = Formula("$c + $e/(n^$d)");
+
+$multians = MultiAnswer($num1, $den1)->with(
+    singleResult => 0,
+    checker      => sub {
+        my ($correct, $student, $ansHash) = @_;
+        my ($stu1, $stu2) = @{$student};
+
+        if (($num1 == $stu1 && $den1 == $stu2)
+            || ($num2 == $stu1 && $den2 == $stu2))
+        {
+            return [ 1, 1 ];
+        } elsif (($num1 == $stu1 && $den2 == $stu2)
+            || ($num2 == $stu1 && $den1 == $stu2))
+        {
+            $ansHash->setMessage(1, "Check your algebra");
+            $ansHash->setMessage(2, "Check your algebra");
+            return [ 0, 0 ];
+        } elsif ($num1 == $stu1 || $num2 == $stu1) {
+            return [ 1, 0 ];
+        } elsif ($den1 == $stu2 || $den2 == $stu2) {
+            return [ 0, 1 ];
+        } else {
+            return [ 0, 0 ];
+        }
+    }
+);
+
+$limit = Formula("$a/$c");
+$popup =
+    PopUp([ 'Choose', 'Converges', 'Diverges', 'Inconclusive' ], 'Converges');
+
+# Display the fraction and answer blanks nicely
+$frac = LayoutTable(
+    [ [ [ ans_rule(10), rowbottom => 1 ] ], [ ans_rule(10) ] ],
+    center     => 0,
+    allcellcss => { padding => '4pt' }
+);
+
+#:% section = statement
+#: Most of this is standard latex markup in a PGML block.  Note that to
+#: display the fraction above, we use `[$frac]*` followed by the
+#: PGML codeblock `[@ ANS($multians->cmp); '' @]` which does the
+#: answer checking using the multianswer described above.  There is a
+#: `''` at the tend of the codeblock to return an empty string instead of
+#: a HASHREF which we get from the ANS method.
+BEGIN_PGML
+Use the limit comparison test to determine whether
+[``\sum_{n=[$c]}^{\infty} a_n = \sum_{n=[$c]}^{\infty} \frac{[$a] n + [$b]}{[$c] n^{[$d]} + [$e]}``]
+converges or diverges.
+
+a. Choose a series [``\sum_{n=[$c]}^\infty b_n``] with terms of the form
+[``b_n = \frac{1}{n^p}``] and apply the limit comparison test.  Write your
+answer as a fully reduced fraction.  For [``n \geq [$c]``],
+[```\frac{\lim_{n \to \infty} a_n}{\lim_{n \to \infty} b_n}```][$frac]* [@ ANS($multians->cmp); '' @]
+
+b. Evaluate the limit in the previous part.  Enter [` \infty `] as _infinity_
+and [` -\infty `] as _-infinity_.  If the limit does not exist, enter _DNE_.
+
+[``\lim_{n\to\infty} \frac{a_{n}}{b_{n}} =``] [_]{$limit}{15}
+
+c. By the limit comparison test, does the series converge, diverge, or is the
+test inconclusive?  [_]{$popup}
+END_PGML
+
+#:% section = answer
+#: We use the problem grader fluid to give partial credit incrementally: 0% for 0-1
+#: correct answers, 40% for 2-3 correct answers, and full credit for 4 correct answers.
+install_problem_grader(~~&custom_problem_grader_fluid);
+
+$ENV{grader_numright} = [ 2,   4 ];
+$ENV{grader_scores}   = [ 0.4, 1 ];
+$ENV{grader_message} =
+    'You can earn 40% partial credit for 2 - 3 correct answers.';
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -1,0 +1,91 @@
+## DESCRIPTION
+## Answer blanks in the limits of integration
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('Integrals', 'answer blanks in limits of integration')
+
+#:% name = Answer Blanks in Limits of Integration
+#:% type = Sample
+#:% subject = integral calculus
+#:% categories = [antiderivatives]
+
+#:% section = preamble
+#: We  use `niceTables.pl` for table formatting commands we will use to put
+#: the answer blanks in the limits of integration.  We use `answerHints.pl` to
+#: help guide students toward the correct answer.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'answerHints.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
+#: We define both `x` and `t` as variables as well as the differential `dx`
+#: (which would be incorrect) and the correct `dt`.
+#:
+#: The `LayoutTable` of PODLINK('niceTables.pl') is used to display the
+#: definite integral.  Note that the `align => 'rl'` is used to get the
+#: formatting to look correct.
+Context()->variables->are(
+    x  => 'Real',
+    dx => 'Real',
+    t  => 'Real',
+    dt => 'Real'
+);
+
+$integral = LayoutTable(
+    [
+        [ ' ', ans_rule(4) ],
+        [
+            '\(f(x)= \)' . ans_rule(10) . '\(+\)',
+            '\(\displaystyle \int \;\;\)' . ans_rule(10)
+        ],
+        [ ' ', ans_rule(4) ],
+    ],
+    align      => 'rl',
+    allcellcss => { padding => '3pt' }
+);
+
+#:% section = statement
+#: The integral is placed in the problem with the `[$integral]*` which displays
+#: the table.
+BEGIN_PGML
+Find a formula for the function [`f(x)`] such that [`f '(x) = [$fpx]`] and
+[`f(2) = 5`].  Use [`t`] as the variable of integration inside the integral.
+
+[$integral]*
+END_PGML
+
+#:% section = answer
+#: The answer blanks are written out as `ans_rule`, so we must use this style of
+#: answer checking.  We use `AnswerHints` to guide the students to the correct answer.
+#: Note that we also include the incorrect answer with the `x` as the variable
+#: and give the student feedback on this.
+$fpx = Formula("sin(x)");
+$fpt = Formula("sin(t)");
+
+ANS(Compute('x')->cmp());
+ANS(Compute('5')->cmp());
+ANS(
+    Compute("$fpt * dt")->cmp()->withPostFilter(AnswerHints(
+        Formula("$fpx")    => "Are you using the correct variable?",
+        Formula("$fpx*dx") => "Are you using the correct variable?",
+        Formula("$fpt")    => "Don't forget the differential dt",
+    ))
+);
+ANS(Compute('2')->cmp());
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

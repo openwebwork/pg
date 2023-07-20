@@ -1,0 +1,49 @@
+## DESCRIPTION
+## An equation defining a function
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## Static(1)
+## MO(1)
+## KEYWORDS('algebra', 'equation defining a function')
+
+#:% name = Answer is an Equation
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [equation, function, answers]
+
+#:% section = preamble
+#: We need to include the macro file `parserAssignment.pl`.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We must allow assignment, and declare any function names we wish to use. For
+#: more details and examples in other MathObjects contexts, see
+#: PODLINK('parserAssignment.pl').
+Context()->variables->are(x => 'Real', y => 'Real');
+parser::Assignment->Allow;
+parser::Assignment->Function('f');
+
+$eqn = Formula('y = 5x + 2');
+$fun = Formula('f(x) = 3x^2 + 2x');
+
+#:% section = statement
+BEGIN_PGML
+Enter [`[$eqn]`]: [_]{$eqn}{10}
+
+Enter [`[$fun]`]: [_]{$fun}{10}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

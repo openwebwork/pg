@@ -1,0 +1,100 @@
+## DESCRIPTION
+## Find the product of two matrices if the product is defined.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('matrix','matrix operations')
+
+#:% name = Matrix Operation
+#:% type = Sample
+#:% subject = linear algebra
+#:% categories = [matrix]
+
+#:% section = preamble
+#: This uses `parserRadioMultiAnswer.pl`, so it needs to be loaded.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',             'PGML.pl',
+    'parserRadioMultiAnswer.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
+#: First, the two matrices are defined.
+#:
+#: A `RadioMultiAnswer` produces a set of radio buttons for each of the given statements.
+#: The format is
+#:```{#radio-multi-answer-usage .perl}
+#: RadioMultiAnswer([
+#:     [statement1],
+#:     [statement2],
+#:     ...
+#:     [last statement]
+#: ], correct index, options)
+#:```
+#: Answer blanks can be added with the `%s` in the string and if a matrix is desired,
+#: `%s*` should be used.  See the POD for more details.
+Context('Matrix');
+
+$A = Matrix([
+    [ non_zero_random(-5, 5), non_zero_random(-5, 5) ],
+    [ non_zero_random(-5, 5), non_zero_random(-5, 5) ]
+]);
+
+$B = Matrix([
+    [
+        non_zero_random(-5, 5),
+        non_zero_random(-5, 5),
+        non_zero_random(-5, 5)
+    ],
+    [
+        non_zero_random(-5, 5),
+        non_zero_random(-5, 5),
+        non_zero_random(-5, 5)
+    ],
+]);
+
+$rma1 = RadioMultiAnswer(
+    [
+        ['The product \(AB\) does not exist.'],
+        [ 'The product \(AB\) is %s*', $A * $B ]
+    ],
+    1
+);
+
+$rma2 = RadioMultiAnswer(
+    [
+        ['The product \(BA\) does not exist.'],
+        [ 'The product \(BA\) is %s*', $A * $B ]
+    ],
+    0
+);
+
+#:% section = statement
+BEGIN_PGML
+Let
+>> [``A = [$A] \quad\text{and}\quad B = [$B].``] <<
+
+1) Select the correct choice below, and fill in any answer boxes within that
+choice.
+
+    [____]{$rma1}
+
+2) Select the correct choice below, and fill in any answer boxes within that
+choice.
+
+    [____]{$rma2}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

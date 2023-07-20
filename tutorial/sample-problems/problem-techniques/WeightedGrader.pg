@@ -1,0 +1,45 @@
+## DESCRIPTION
+## This shows how to use intervals in a problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('weighted grader')
+
+# created as a full problem by Peter Staab  2023.06.02
+
+#:% name = Weighted Grader
+#:% type = [technique]
+#:% categories = [grader]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'weightedGrader.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: Call `install_weighted_grader();` so that the weighted grader is used.
+install_weighted_grader();
+
+#:% section=statement
+#: Assign weights to answers by passing the `weight` via `cmp_options`.  The
+#: example here gives weights as percents that sum to 100, but weights of
+#: (2, 5, 3), (4, 10, 6), or (0.2, 0.5, 0.3) would give the same weighting.
+BEGIN_PGML
+* This answer is worth 20%.  Enter 1 [___]{1}{ cmp_options => { weight => 20 } }
+
+* This answer is worth 50%. Enter 3 [___]{3}{ cmp_options => { weight => 50 } }
+
+* This answer is worth 30%. Enter 7 [___]{7}{ cmp_options => { weight => 30 } }
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

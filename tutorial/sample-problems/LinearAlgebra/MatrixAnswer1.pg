@@ -1,0 +1,63 @@
+## DESCRIPTION
+## Answer is a matrix
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('matrix')
+
+#:% name = Matrix Answer
+#:% type = Sample
+#:% subject = linear algebra
+#:% categories = [matrix]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Use `Context('Matrix');`. MathObject matrices are constructed using the `Matrix()`
+#: constructor. The matrix `A` has two rows and three columns, and is constructed by
+#: `[[row 1 entries], [row 2 entries]]`, and this construction generalizes in the
+#: obvious way. If a matrix has only one row, such as `B`, then it is entered as
+#: `[row 1 entries]` and not as `[ [row 1 entries] ]`. If `$B = Matrix([a,b,c]);`, then
+#: the matrix `$B->transpose` is equivalent to `Matrix([[a],[b],[c]]);` which has an outer
+#: pair of brackets enclosing all of the rows, where each row encloses its single element
+#: with brackets.
+Context('Matrix');
+
+$A = Matrix([
+    [ random(-5, 5), random(-5, 5), random(-5, 5) ],
+    [ random(-5, 5), random(-5, 5), random(-5, 5) ],
+]);
+
+$B = Matrix([
+    [ random(-5, 5), random(-5, 5), random(-5, 5) ],
+    [ random(-5, 5), random(-5, 5), random(-5, 5) ],
+]);
+
+$answer = $A * ($B->transpose);
+
+#:% section = statement
+BEGIN_PGML
+Suppose
+
+>> [``A = [$A]``] and [``B = [$B].``] <<
+
+Evaluate the following matrix product.
+
+[`A B^T =`] [_____]*{$answer}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -1,0 +1,143 @@
+## DESCRIPTION
+## Use a custom answer checkers for ODEs to determine the general solution of a
+## Differential Equation
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('differential equations', 'custom answer checker')
+
+#:% name = General Solution to a Differential Equation
+#:% type = Sample
+#:% subject = differential equations
+#:% categories = [answers, custom]
+
+#:% section = preamble
+#: We load `parserAssignment.pl` to require student answers to be of the
+#: form `y = ...`.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Add the arbitrary constants `c1, c2, c3` to the context as variables so that we can
+#: evaluate them later. Set the domain of function evaluation on these variables to
+#: something sensible. Use `parser::Assignment->Allow;` to allow equation answers of
+#: the form `y = ...`. See PODLINK('parserAssignment.pl') for additional information.
+#:
+#: For the checker, we use my `$stu = Formula($student->{tree}{rop});` to get the right
+#: side of the student answer (to get the left side, we could have used lop for the
+#: left operand). Use `Formula($stu->D('c1')) == Formula(0)` to check that the student
+#: actually has c1 in their answer.
+#:
+#: We substitute numerical values that the student is unlikely to choose for `c1, c2, c3`
+#: and then apply the Wronskian test for independence. Normally, we would check to see
+#: if the Wronskian was zero, but zero level tolerance in WeBWorK is much more
+#: stringent than non-zero level tolerance. So, we rearrange the terms of the
+#: Wronskian == 0 equation so that there are nonzero terms on both sides of the
+#: equation, and as a result we get a more reliable answer checker.
+#:
+#: Finally, we take several derivatives of the student answer and use them to check
+#: that the student answer actually satisfies the differential equation. Again, instead
+#: of checking (left side of ODE) == 0, we rearrange the terms of the differential
+#: equation to be of the form (some nonzero function) == (some other nonzero function)
+#: in order to get a more reliable answer checker.
+Context()->variables->add(
+    c1 => 'Real',
+    c2 => 'Real',
+    c3 => 'Real',
+    y  => 'Real',
+);
+Context()->flags->set(
+    formatStudentAnswer     => 'parsed',
+    reduceConstants         => 0,
+    reduceConstantFunctions => 0,
+);
+parser::Assignment->Allow;
+
+$a = list_random(2, 3, 5, 6, 7, 8);
+
+# char poly (r-1)(r^2 + $a)
+
+$answer = Compute("y = c1 e^x + c2 cos(sqrt($a) x) + c3 sin(sqrt($a) x)");
+
+$cmp = $answer->cmp(
+    checker => sub {
+
+        my ($correct, $student, $answerHash) = @_;
+        my $stu = Formula($student->{tree}{rop});
+
+        #  Check for arbitrary constants
+        Value->Error("Is your answer the most general solution?")
+            if (Formula($stu->D('c1')) == Formula(0)
+                || Formula($stu->D('c2')) == Formula(0)
+                || Formula($stu->D('c3')) == Formula(0));
+
+        #  Linear independence (Wronskian)
+        my $x = Real(1.43);
+
+        my $a11 =
+            $stu->eval('c1' => 1, 'c2' => 0, 'c3' => 0, x => $x, y => 0);
+        my $a12 =
+            $stu->eval('c1' => 0, 'c2' => 1, 'c3' => 0, x => $x, y => 0);
+        my $a13 =
+            $stu->eval('c1' => 0, 'c2' => 0, 'c3' => 1, x => $x, y => 0);
+
+        my $a21 = $stu->D('x')
+            ->eval('c1' => 1, 'c2' => 0, 'c3' => 0, x => $x, y => 0);
+        my $a22 = $stu->D('x')
+            ->eval('c1' => 0, 'c2' => 1, 'c3' => 0, x => $x, y => 0);
+        my $a23 = $stu->D('x')
+            ->eval('c1' => 0, 'c2' => 0, 'c3' => 1, x => $x, y => 0);
+
+        my $a31 = $stu->D('x', 'x')
+            ->eval('c1' => 1, 'c2' => 0, 'c3' => 0, x => $x, y => 0);
+        my $a32 = $stu->D('x', 'x')
+            ->eval('c1' => 0, 'c2' => 1, 'c3' => 0, x => $x, y => 0);
+        my $a33 = $stu->D('x', 'x')
+            ->eval('c1' => 0, 'c2' => 0, 'c3' => 1, x => $x, y => 0);
+
+        Value->Error(
+            'Your functions are not linearly independent or your answer is not complete'
+            )
+            if (
+                (
+                    $a11 * ($a22 * $a33 - $a32 * $a23) +
+                    $a13 * ($a21 * $a32 - $a31 * $a22)
+                ) == ($a12 * ($a21 * $a33 - $a31 * $a23))
+            );
+
+        #  Check that the student answer is a solution to the DE
+        my $stu1 = Formula($stu->D('x'));
+        my $stu2 = Formula($stu->D('x', 'x'));
+        my $stu3 = Formula($stu->D('x', 'x', 'x'));
+        return ($stu3 + $a * $stu1) == ($stu2 + $a * $stu);
+
+    }
+);
+
+#:% section = statement
+#: Give students detailed instructions about the format of the answer that is expected.
+BEGIN_PGML
+Find the general solution to
+[`y^{\,\prime\prime\prime} - y^{\,\prime\prime} + [$a] y^{\,\prime} - [$a] y = 0`].
+
+In your answer, use [`c_1`], [`c_2`] and [`c_3`] to denote arbitrary constants
+and [`x`] the independent variable.  Your answer should be an equation of the
+form [`y = \ldots`] and you should enter [`c_1`] as [|c1|]*,
+[`c_2`] as [|c2|]*, and [`c_3`] as [|c3|]*.
+
+[_]{$cmp}{30}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

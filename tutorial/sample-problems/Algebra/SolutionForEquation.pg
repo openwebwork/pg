@@ -1,0 +1,45 @@
+## DESCRIPTION
+## Answer is any solution to an equation
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('algebra', 'answer is any solution to an equation')
+
+#:% name = Solution for an Equation
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [algebra]
+
+#:% section = preamble
+#: The macro `parserSolutionFor.pl` must be loaded.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserSolutionFor.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We use `SolutionFor(equation, point)` to define this MathObject. For more
+#: details and options, see PODLINK('parserSolutionFor.pl').
+Context('Vector');
+
+$r      = random(3, 6);
+$answer = SolutionFor("x^2 + y^2 + z^2 = $r^2", [ $r, 0, 0 ]);
+
+$eqn = $answer->{f};
+
+#:% section = statement
+BEGIN_PGML
+A solution to the equation [`[$eqn]`] is [`(x, y, z) =`] [_]{$answer}{15}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -1,0 +1,58 @@
+## DESCRIPTION
+## Answers are lists of points
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('algebra', 'list of points')
+
+#:% name = Answers are a list of points
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [point, answers]
+
+#:% section = preamble
+#: We only need to load `contextLimitedPoint.pl` if we want to prevent operations between points.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedPoint.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We could have used `Context("Point");` instead, which would allow mathematical
+#: operations between points (such as adding points as if they were vectors). The
+#: x-intercepts are clearly a list of points. We used a list with only one element
+#: for the y-intercepts so that a student who mistakenly enters two points will be
+#: told their second point is incorrect. If we did not use a list for the y-intercepts,
+#: a student who enters two points would be given an error message instead.
+Context('LimitedPoint');
+
+$f = Compute("x^2 - 1");
+
+$xint = List(Point("(1, 0)"), Point("(-1, 0)"));
+$yint = List(Point("(0, -1)"));
+
+#:% section = statement
+#: Be sure to tell students the proper syntax for how to enter their answers.
+BEGIN_PGML
+Enter the [`x`]-intercept(s) and [`y`]-intercept(s) of [`y = [$f]`].  Enter a
+point as [`(a,b)`], including the parentheses.  If there is more than one
+correct answer, enter a comma separated list of points.
+
++ [`x`]-intercept(s): [_]{$xint}{15}
+
++ [`y`]-intercept(s): [_]{$yint}{15}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+COMMENT('MathObject version. Uses PGML.');
+
+ENDDOCUMENT();
