@@ -95,9 +95,8 @@ sub create_unique_id {
 		$self->warning_message("unique id already exists for $fileName.");
 		return $self->{unique_id};
 	}
-	$self->warning_message("auxiliary file $fileName missing resource path ")      unless $self->path;
-	$self->warning_message("auxiliary file $fileName missing parent pg file name") unless $self->{parent_file_id};
-	$self->warning_message("auxiliary file $fileName missing problem psvn")        unless $self->{parent_alias}->{psvn};
+	$self->warning_message("auxiliary file $fileName missing resource path ") unless $self->path;
+	$self->warning_message("auxiliary file $fileName missing problem psvn")   unless $self->{parent_alias}->{psvn};
 	$self->warning_message("auxiliary file $fileName missing unique_id_stub")
 		unless $self->{parent_alias}->{unique_id_stub};
 	my $unique_id_seed = $self->path() . $self->{parent_file_id} . $self->{id};

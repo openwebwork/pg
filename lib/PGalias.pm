@@ -82,7 +82,7 @@ sub initialize {
 	my $self  = shift;
 	my $envir = $self->{envir};
 
-	$self->{pgFileName}        = $envir->{probFileName};
+	$self->{pgFileName}        = $envir->{probFileName} // '';
 	$self->{htmlDirectory}     = $envir->{htmlDirectory};
 	$self->{htmlURL}           = $envir->{htmlURL};
 	$self->{tempDirectory}     = $envir->{tempDirectory};
@@ -111,8 +111,6 @@ sub check_parameters {
 	my $self = shift;
 
 	# Problem specific data
-	$self->warning_message('The path to the current problem file template probFileName is not defined.')
-		unless $self->{pgFileName};
 	$self->warning_message('The current problem set version number (psvn) is not defined')
 		unless defined $self->{psvn};
 	$self->warning_message('The displayMode is not defined') unless $self->{displayMode};
@@ -242,7 +240,7 @@ sub make_alias {
 		################################################################################
 
 		warn "Error in the macro alias. Alias does not understand how to process files with extension $ext.
-		      (Path to problem file is  " . $self->{envir}->{pgFileName} . ") ";
+		      (Path to problem file is  " . $self->{pgFileName} . ") ";
 	}
 
 	$self->warning_message(
@@ -296,11 +294,14 @@ sub alias_for_html {
 	}
 	my @aux_files_directories = @{ $self->{envir}->{$dirPath} };
 
-	# replace "." with the current pg question directory
-	my $current_pg_directory = $self->directoryFromPath($pgFileName);
-	$current_pg_directory  = $self->{templateDirectory} . $current_pg_directory;
-	@aux_files_directories = map { ($_ eq '.') ? $current_pg_directory : $_ } @aux_files_directories;
-	#$self->debug_message("search directories", @aux_files_directories);
+	if ($pgFileName) {
+		# Replace "." with the current pg problem file directory.
+		my $current_pg_directory = $self->directoryFromPath($pgFileName);
+		$current_pg_directory  = $self->{templateDirectory} . $current_pg_directory;
+		@aux_files_directories = map { $_ eq '.' ? $current_pg_directory : $_ } @aux_files_directories;
+	} else {
+		@aux_files_directories = grep { $_ ne '.' } @aux_files_directories;
+	}
 
 	# Find complete path to the original file
 	my $file_path;
@@ -438,11 +439,14 @@ sub alias_for_tex {
 	}
 	my @aux_files_directories = @{ $self->{envir}->{$dirPath} };
 
-	# replace "." with the current pg question directory
-	my $current_pg_directory = $self->directoryFromPath($pgFileName);
-	$current_pg_directory  = $self->{templateDirectory} . "/" . $current_pg_directory;
-	@aux_files_directories = map { ($_ eq '.') ? $current_pg_directory : $_ } @aux_files_directories;
-	#$self->debug_message("search directories", @aux_files_directories);
+	if ($pgFileName) {
+		# Replace "." with the current pg problem file directory.
+		my $current_pg_directory = $self->directoryFromPath($pgFileName);
+		$current_pg_directory  = $self->{templateDirectory} . $current_pg_directory;
+		@aux_files_directories = map { $_ eq '.' ? $current_pg_directory : $_ } @aux_files_directories;
+	} else {
+		@aux_files_directories = grep { $_ ne '.' } @aux_files_directories;
+	}
 
 	# Find complete path to the original file
 	my $file_path;
