@@ -1,0 +1,111 @@
+## DESCRIPTION
+## Check student answers that are parametric equations
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## Static(1)
+## MO(1)
+## KEYWORDS('parametric equation', 'answer checker')
+
+#:% name = Parametric Equation Answer Checker
+#:% type = [Sample, technique]
+#:% subject = [differential calculus]
+#:% categories = [parametric, answer]
+
+#:% section = preamble
+#: Since there are multiple ways to parameterize, we use the `parserMultiAnswer.pl`
+#: macro.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We use a `MultiAnswer()` answer checker that will verify that the students
+#: answers satisfy the equation for the circle and have the required starting
+#: and ending points. This answer checker will allow students to enter any
+#: correct parametrization. For example, both
+#: x = \cos(t), y = sin(t), 0 ≤ t ≤ pi/3 and x = cos(2t), y = sin(2t),
+#: 0 ≤ t ≤ pi/6 will be marked correct.
+#:
+#: When evaluating student's answers, it is important not to use quotes. For
+#: example, if the code were `$xstu->eval(t=>"$t1stu")` with quotes, then if a
+#: student enters pi the answer checker will interpret it as the string "pi"
+#: which will need to be converted to a MathObject Real and numerical error
+#: will be introduced in the conversion. The correct code to use is
+#: `$xstu->eval(t=>$t1stu)` without quotes so that the answer is interpreted
+#: without a conversion that may introduce error.
+#:
+#: The first if statement is fully correct, that is the parametric functions
+#: are on the unit circle and the initial and final points are correct.
+#: The other three ifelse in the answer checker has either the second point,
+#: first point or both points wrong.
+Context("Numeric")->variables->are(t => "Real");
+Context()->variables->set(t => { limits => [ -5, 5 ] });
+
+$x  = Formula("cos(t)");
+$y  = Formula("sin(t)");
+$t0 = Compute("0");
+$t1 = Compute("pi/3");
+
+($x0, $y0) = (1, 0);
+($x1, $y1) = (1 / 2, sqrt(3) / 2);
+
+$multians = MultiAnswer($x, $y, $t0, $t1)->with(
+    singleResult => 0,
+    checker      => sub {
+        my ($correct, $student, $self) = @_;
+        my ($xstu, $ystu, $t0stu, $t1stu) = @{$student};
+        if ((($xstu**2 + $ystu**2) == 1)
+            && (($xstu->eval(t => $t0stu)) == $x0)
+            && (($ystu->eval(t => $t0stu)) == $y0)
+            && (($xstu->eval(t => $t1stu)) == $x1)
+            && (($ystu->eval(t => $t1stu)) == $y1))
+        {
+            return [ 1, 1, 1, 1 ];
+
+        } elsif ((($xstu**2 + $ystu**2) == 1)
+            && (($xstu->eval(t => $t0stu)) == $x0)
+            && (($ystu->eval(t => $t0stu)) == $y0))
+        {
+            return [ 1, 1, 1, 0 ];
+
+        } elsif ((($xstu**2 + $ystu**2) == 1)
+            && (($xstu->eval(t => $t1stu)) == $x1)
+            && (($ystu->eval(t => $t1stu)) == $y1))
+        {
+            return [ 1, 1, 0, 1 ];
+
+        } elsif ((($xstu**2 + $ystu**2) == 1)) {
+            return [ 1, 1, 0, 0 ];
+
+        } else {
+            return [ 0, 0, 0, 0 ];
+        }
+    }
+);
+#:% section = statement
+#: Since the correct answer depends on all answer blanks, the MathObject
+#: `$multians` is input into all answer blanks.
+BEGIN_PGML
+Find a parametrization of the unit circle from the point
+[` \big(1,0\big) `] to [` \big(\frac{1}{2},\frac{\sqrt{3}}{2}\big) `].
+Use [` t `] as the parameter for your answers.
+
+[` x(t) = `] [__]{$multians}
+
+[` y(t) = `] [__]{$multians}
+
+for [__]{$multians} to [__]{$multians}.
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

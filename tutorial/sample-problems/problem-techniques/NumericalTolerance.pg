@@ -1,0 +1,76 @@
+## DESCRIPTION
+## Explains the difference in tolerance type and numerical tolerance.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('tolerance')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Numerical Tolerance
+#:% type = technique
+#:% categories = [numbers, tolerance]
+#:% see_also = [DigitsTolType.pg]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This shows three different ways of setting the toltype and tolerance of the answer. The
+#: `tolType` can be `absolute` (specifying a decimal distance from the correct answer that
+#: will be allowed) or `relative` (specifying a percent error that will be allowed).
+#:
+#: Thus if the correct answer is 17, a tolerance of 0.01 will mean that the student answer
+#: must be in the interval `(16.99,17.01)` if the `tolType` is `absolute`, and in the interval
+#: `(16.83,17.17)` if `tolType` is `relative` (or omitted, as relative tolerance is the default).
+#:
+#: 1. The default `Context('Numeric')` is used (but not needed) and within the Compute call,
+#: the `tolerance` type and level is set.
+#:
+#: 2. The `tolerance` and `toltype` is set on the answer check with the cmp call.  See the
+#: problem statement below.
+#:
+#: 3. The `tolerance` and `toltype` can be set on the `Context`.  This is useful if the desired
+#: toltype and/or tolerance is the same for many answer.  Typically this would go at the
+#: top of the setup section.
+$ans1 = Compute('1.5708')->cmp(
+    tolType   => 'absolute',
+    tolerance => .0001,
+);
+
+$ans2 = Compute('1.5708');
+
+Context('Numeric')->flags->set(
+    tolerance => 0.0001,
+    tolType   => 'absolute',
+);
+
+$ans3 = Compute('1.5708');
+#:% section = statement
+BEGIN_PGML
+For each of the following Enter your answer accurate to four decimal places .
+
+1. Enter [`` \frac{\pi}{2}= ``] [____]{$ans1}
+
+2. Enter [`` \frac{\pi}{2}= ``] [____]{$ans2->cmp(
+	tolType   => 'absolute',
+	tolerance => .0001,
+)}
+
+3. Enter [`` \frac{\pi}{2}= ``] [____]{$ans3}
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

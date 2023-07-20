@@ -1,0 +1,60 @@
+## DESCRIPTION
+## Multiple choice template
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('multiple choice', 'template')
+
+#:% name = Multiple Choice with Radio Buttons
+#:% type = [Sample, technique]
+#:% categories = [multiple choice, misc]
+#:% see_also = [MultipleChoicePopup.pg, MultipleChoiceCheckbox.pg, ManyMultipleChoice.pg]
+
+#:% section = preamble color:blue
+#:The macro `parserRadioButtons.pl` must be loaded.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserRadioButtons.pl', 'PGcourse.pl');
+
+#:% section = setup
+#:To create a radio object, use `$radio = RadioButtons([choices,...],correct,options);`
+#:For all options, see MultipleChoiceProblems and parserRadioButtons.pl. The context
+#:is not really necessary, but multiple choice questions are often follow-up questions,
+#:so we leave it in.
+$radio1 = RadioButtons(
+    [ [ 'Red', 'Blue', 'Green' ], 'None of these' ],
+    'Blue',    # correct answer
+);
+
+$radio2 = RadioButtons(
+    [ [ 'Red', 'Blue', 'Green' ], 'None of these' ],
+    2,         # correct answer as an index (starting at 0)
+    separator => $SPACE x 4
+);
+
+#:% section = statement
+BEGIN_PGML
+My favorite color is
+
+[_]{$radio1}
+
+The same question with horizontal options:
+
+My favorite color is [_]{$radio2}
+END_PGML
+
+#:% section = solution
+#: The `correct_ans` method can be called to get the correct answer.
+BEGIN_PGML_SOLUTION
+The correct answer to the first is [$radio1->correct_ans].
+
+The correct answer to the first is [$radio2->correct_ans].
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

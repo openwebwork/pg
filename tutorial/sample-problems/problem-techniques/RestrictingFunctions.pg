@@ -1,0 +1,44 @@
+## DESCRIPTION
+## Restricting answers that should reduce to a constant.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('answer', 'constant')
+
+#:% name = Restrict Answers to a Constant
+#:% type = [technique, sample]
+#:% subject = [answer]
+#:% see_also = [RestrictAnswerToFraction.pg]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Here we've turned off type warnings in the answer checking, so that a
+#: student entering an un-simplified answer (e.g.,
+#: `2 sin(x) cos(x) + 2 cos(x) (-sin(x))`) will have it marked wrong
+#: (but not get feedback that says "you should have entered a number").
+$expr  = Formula("sin(x)^2 + cos(x)^2");
+$deriv = Compute(0)->cmp(showTypeWarnings => 0);
+
+#:% section = statement
+BEGIN_PGML
+Find and completely simplify:
+
+[``\frac{d}{dx}\bigl(\sin^2 x + \cos^2 x\bigr) = ``] [__]{$deriv}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -1,0 +1,46 @@
+## DESCRIPTION
+## This shows how to use intervals in a problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('interval')
+
+# created as a full problem by Peter Staab  2023.06.02
+
+#:% name = Knowls
+#:% type = [technique, snippet]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=statement
+#: Knowls appear in the text section of the problem file. You can specify
+#: a value, as in the first example, which gives the text to appear in the
+#: Knowl, or the URL of a file with the HTML content for the knowl, as
+#: shown in the second example here.
+#:
+#: To include math text in the knowl, it is necessary to pipe the text
+#: through EV3P and escapeSolution HTML, as shown in the third example.
+BEGIN_PGML
+Here is a knowl
+[@ knowlLink("click me", value =>
+  'This is the inside of a knowl.  If you click again, I will go away') @]*
+
+Here is another knowl
+[@ knowlLink("click me",
+  url=>'https://openwebwork.org') @]*
+
+
+[@ knowlLink("a math knowl",
+value=>escapeSolutionHTML(EV3P("the sine function is \\(\\frac{2}{3}\\)")), base64=>1);
+@]*
+END_PGML
+
+ENDDOCUMENT();

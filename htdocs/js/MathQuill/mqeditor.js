@@ -468,7 +468,7 @@
 
 		if (latexEntryMode) return;
 
-		// Trigger an answer preview when the enter key is pressed in an answer box.
+		// Trigger a button press when the enter key is pressed in an answer box.
 		answerQuill.keydownHandler = (e) => {
 			if (e.key == 'Enter') {
 				// Ensure that the toolbar and any open tooltips are removed.
@@ -476,9 +476,11 @@
 				answerQuill.toolbar?.remove();
 				delete answerQuill.toolbar;
 
-				// For ww2 homework
-				document.getElementById('previewAnswers_id')?.click();
-				// For gateway quizzes
+				// For ww2 homework, depends on $pg{options}{enterKey}
+				const enterKeySubmit = document.getElementById('enter_key_submit');
+				if (enterKeySubmit) enterKeySubmit.click();
+				else document.getElementById('previewAnswers_id')?.click();
+				// For gateway quizzes, always the preview button
 				document.querySelector('input[name=previewAnswers]')?.click();
 				// For ww3
 				const previewButtonId =

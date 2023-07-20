@@ -1,0 +1,141 @@
+## DESCRIPTION
+## Creating a set of graphs and displaying the options in a table.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('parametric', 'graph')
+
+#:% name = Graphs in a Table
+#:% types = [Sample, technique]
+
+#:% section = preamble
+#: We use `PGtikz.pl` to generate the graph, `parserPopUp.pl` for the
+#: popup (select), `niceTables.pl` for layout and `PGchoicemacros.pl`
+#: for the `shuffle` and `invert` functions.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl', 'PGML.pl',
+    'PGtikz.pl',     'parserPopUp.pl',
+    'niceTables.pl', 'PGchoicemacros.pl',
+    'PGcourse.pl'
+);
+
+#:% section=setup
+#: Pick one equation and graph at random (using `$k`) to be the correct choice.
+#: Shuffle the graphs using a permutation, and use the inverse permutation to
+#: recall the correct answer in the answer evaluation section.
+#:
+#: For accessibility, there are `alt_text` statements describing each graph. Because
+#: the graphs are shuffled and the correct one picked randomly, the `alt_text`
+#: must be in an array in the same order as the functions.
+# The form of the functions for the tikz plotting.
+#:
+#: If, instead, we had six graphs and desired a three-column array of graphs,
+#: we would want to change `tex_size=>310` as in the following bit of code.
+#:
+#:```{#for-loop .perl}
+#: for $i (0..5) {
+#:   # create the plots
+#:
+#:   $fig[$i]=image($graph[$i], width => 200, tex_size => 310);
+#: }
+#:```
+#: You are strongly discouraged from using more than three columns in an array of
+#: graphs because otherwise you have to scale the graphs down so much that they
+#: become unreadable (especially in TeX mode).
+#:
+#: The `LayoutTable` is part of PODLINK('niceTables.pl') and is useful for
+#: laying out elements.
+#:
+#: Toward the bottom the line `[$tab]*` inserts the table.  Since the result
+#: is HTML, the `*` at the end formats the result correctly.
+#:
+@eqn_plot = ('-exp(\x)', 'exp(-\x)', '-exp(-\x)', 'exp(\x)');
+
+# The tex form of the functions.
+@eqn = (
+    "\( y = -e^{x} \)",
+    "\( y = e^{-x} \)",
+    "\( y = -e^{-x} \)",
+    "\( y = e^{x} \)"
+);
+
+# Alternate text for each image.
+@alt_text = (
+    'A graph starting near the negative x-axis on the left, decreasing to the lower left in a concave down manner',
+    'A graph in the upper left and decreasing to the x-axis in a concave up manner',
+    'A graph in the lower left and increasing to the x-axis in a concave down manner',
+    'A graph starting near the negative x-axis on the left, increasing to the upper right in a concave up manner',
+);
+
+for $i (0 .. 3) {
+    $graph[$i] = createTikZImage();
+    $graph[$i]->tikzLibraries('arrows.meta');
+    $graph[$i]->BEGIN_TIKZ
+  \tikzset{>={Stealth[scale=1.5]}}
+  \filldraw[
+      draw=LightBlue,
+      fill=white,
+      rounded corners=10pt,
+      thick,use as bounding box
+  ] (-3.5,-3.5) rectangle (3.5,3.5);
+  \draw[->] (-3.5,0) -- (3.5,0) node[above left,outer sep=3pt] {\(x\)};
+  \draw[->] (0,-3.5) -- (0,3.5) node[below right,outer sep=3pt] {\(y\)};
+  \draw[DarkBlue,very thick] plot [samples=150,domain=-3:3]
+      (\x,{$eqn_plot[$i]});
+END_TIKZ
+    $fig[$i] = image(
+        $graph[$i],
+        width           => 200,
+        tex_size        => 450,
+        extra_html_tags => "alt='$alt_text[$i]'"
+    );
+}
+
+$k = random(0, 3);
+
+@perm = shuffle(4);
+@fig  = @fig[@perm];
+@inv  = invert(@perm);
+
+@letter = ("A", "B", "C", "D");
+
+$popup = PopUp([ "?", "A", "B", "C", "D" ], $letter[ $inv[$k] ]);
+
+$tab = LayoutTable(
+    [
+        [ 'A',     'B' ],
+        [ $fig[0], $fig[1] ],
+        [ 'C',     'D' ],
+        [ $fig[2], $fig[3] ],
+    ],
+    texalignment => 'cc'
+);
+
+#:% section = statement
+BEGIN_PGML
+Consider the exponential equation [$eqn[$k]].
+Without using a calculator, sketch a
+graph of this equation on paper.
+
+Which graph A-D below most closely matches
+the graph you drew?  [___]{$popup}
+
+[$tab]*
+
+(Click on a graph to enlarge it.)
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

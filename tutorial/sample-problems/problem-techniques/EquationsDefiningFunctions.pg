@@ -1,0 +1,53 @@
+## DESCRIPTION
+## This PG code shows how to check student answers that are equations that
+## define functions. If an equation defines a function, it is much more
+## reliable to use the this method of answer evaluation (via parserAssignment.pl)
+## than the implicit equation method (via parserImplicitEquation.pl).
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('answer', 'custom')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Equations Defining Functions (Not Implicit)
+#:% type = technique
+#:% categories = [equation]
+
+#:% section = preamble
+#: In the initialization section, we need to include the macros file
+#: `parserAssignment.pl`.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: We must allow assignment, and declare any function names we wish to use.
+#: For more details and examples in other `MathObjects` contexts, see
+#: PODLINK('parserAssignment.pl').
+Context("Numeric")->variables->are(x => "Real", y => "Real");
+parser::Assignment->Allow;
+parser::Assignment->Function("f");
+
+$eqn = Formula("y=5x+2");
+$f   = Formula("f(x)=5x+2");
+
+#:% section=statement
+BEGIN_PGML
+Enter [`y = 5x+2`] [___]{$eqn}
+
+Enter [`f(x) = 5x+2`] [___]{$f}
+
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

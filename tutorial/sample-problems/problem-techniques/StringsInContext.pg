@@ -1,0 +1,61 @@
+## DESCRIPTION
+## Shows how to add strings to the context.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('context', 'string')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Adding Strings to a Context
+#:% type = technique
+#:% categories = [context, strings]
+#:% see_also = [StringOrOtherType.pg]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#:  Add the strings that are to be allowed in answers to the Context. Note that the
+#: add call has the form `string => { options }`. The most common use of options is to allow
+#: "aliases", i.e., strings that are marked the same as others, e.g.,
+#:```{.perl}
+#: Context()->strings->add(none => {}, N => { alias => "none" });
+#:```
+#: (Which would allow "N" to be used instead of "none".)
+#:
+#: By default, strings are case-insensitive. To make them case sensitive, include this
+#: as an option in the Context call.
+#:
+#: There are some shortcuts available if you need to add many allowable strings all at once.
+#: See PODLINK('parserAutoStrings.pl').
+Context()->strings->add(none => {});
+
+# or, if we wanted a case-sensitive string,
+#    we would instead use
+# Context()->strings->add(none=>{caseSensitive=>1});
+
+#:% section = statement
+#: It's usually a good idea to include some indication of what strings are expected or allowed in the answer.
+BEGIN_PGML
+Enter the positive real value of [`x`] for which [`x^2 = -2`] :
+
+[`x = `] [___]{'none'}
+
+_(Enter **none** if there are no values that satisfy the equation .) _
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

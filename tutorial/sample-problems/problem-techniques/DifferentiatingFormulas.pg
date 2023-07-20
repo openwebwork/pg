@@ -1,0 +1,58 @@
+## DESCRIPTION
+## This shows how to check "arbitrary" conditions on the student's answer.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('differentiate')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Differentiating Formulas
+#:% type = technique
+#:% categories = [derivative]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section=setup
+#: The `Numeric` context automatically defines `x` to be a variable, so we add the variable `y`
+#: to the context. Then, we use the partial differentiation operator `D('var_name') `
+#: to take a partial derivative with respect to that variable. We can use the evaluate
+#: feature as expected.
+Context()->variables->add(y => "Real");
+
+$a = random(2, 4, 1);
+$f = Formula("x*y^2");
+
+$fx  = $f->D('x');
+$fxa = $fx->substitute(x => "$a");
+$fy  = $f->D('y');
+$fyx = $fy->D('x')->reduce;
+
+#:% section=statement
+BEGIN_PGML
+Suppose   [`   f(x) = [$f]   `].  Then
+
+a. [``  \frac{\partial f}{\partial x}   ``] = [____]{$fx}
+
+b. [`f_x ([$a],y)=   `] [____]{$fxa}
+
+c. [` f_y(x,y)=`] [____]{$fy}
+
+d. [`f_{yx} (x,y)= `] [___]{$fyx}
+
+END_PGML
+
+#:% section=solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -1,0 +1,84 @@
+## DESCRIPTION
+## Inserting images in PGML.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('images')
+
+#:% name = Inserting Images in PGML
+#:% type = [technique]
+
+#:% section = preamble
+#: We include `PGgraphmacros.pl`, `PGtikz.pl`, `PGlateximage.pl` and
+#: `parserGraphTool.pl` to create images to be shown.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',    'PGML.pl',
+    'PGgraphmacros.pl', 'PGtikz.pl',
+    'PGlateximage.pl',  'parserGraphTool.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
+#: A WWPlot (from `PGgraphmacros.pl`), a TikZ plot, LaTeXImage, and
+#: Graphtool is made.
+$WWPlot = init_graph(-1, -1, 4, 4);
+add_functions($WWPlot, "x^2/4 for x in <-1,4> using color:blue and weight:2");
+
+$TikZ = createTikZImage();
+$TikZ->BEGIN_TIKZ
+\draw (0,0) circle[radius=1.5];
+END_TIKZ
+
+$LaTeXImage = createLaTeXImage();
+$LaTeXImage->texPackages([ [ 'xy', 'all' ] ]);
+$LaTeXImage->BEGIN_LATEX_IMAGE
+\xymatrix{ A \ar[r] & B \ar[d] \\\\
+           D \ar[u] & C \ar[l] }
+END_LATEX_IMAGE
+
+$gt = GraphTool("{circle, solid, (1, 1), (2, 2)}");
+
+#:% section = statement
+#: In each of these cases, we use the PGML syntax
+#:```
+#:[!alt text!]{image}{width (optional)}{height (optional)}
+#:```
+#:
+#: * The image can be a string (either a local image file or a URL), a
+#: WWPlot, TikZ plot, LaTeXImage, or graphtool plot. The local file should be
+#: in the same directory as the problem.
+#:
+#: * You should always include some alternate text for accessibility.
+#:
+#: * If the `width` is not included, the width is 100 (in pixels)
+#:
+#: * If the `height` is not included, it takes on the natural value (not to
+#: stretch the image)
+#:
+#: * The `tex_size` will be computed by `width * 1000/600`
+BEGIN_PGML
+
+* A static image: [!Graph of an exponential!]{'image.png'}{120}
+
+* A static image from an external link (note: this does not work for hardcopy)
+[!Runestone Logo!]{"https://runestone.academy/runestone/static/images/RAIcon.png"}{120}
+
+* A WWplot graph [!A simple parabola plot!]{$WWPlot}{120}
+
+* A TikZ graph [!A circle!]{$TikZ}{120}
+
+* A LaTeXImage: [!A graph with node A going to node B going to node C, going to node D, and back to node A!]{$LaTeXImage}{120}
+
+* A graphtool plot [!A graphtool plot with a circle!]{$gt}{120}
+
+END_PGML
+
+ENDDOCUMENT();

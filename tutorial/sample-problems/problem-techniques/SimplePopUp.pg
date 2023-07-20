@@ -1,0 +1,64 @@
+## DESCRIPTION
+## Answers are lists of points
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('algebra', 'list of points')
+
+#:% name = Simple Popup
+#:% type = technique
+
+#:% section = preamble
+#: We need to load `parserPopUp.pl` for this feature.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This shows a number of ways to use either `PopUp` (the legacy version) or
+#: `DropDown` (a more flexible version).  Both create an HTML select object.
+#: The `PopUp` takes a array reference of option and the correct answer and
+#: creates the options.  Notice in `Popup` the first element is shown, but
+#: selectable, whereas in `DropDown`, the first either defaults to `?` or
+#: whatever is in the `placeholder` option.  In `Dropdown`, the first element
+#: is not selectable.
+#:
+#: Similar to other `parser` objects, inserting another array reference,
+#: randomizes those options.
+#:
+#: Lastly, the `DropDownTF` creates a true/false dropdown for simplicity.
+$popup = PopUp([ "?", "one", "two", "three" ], "three");
+
+$dropdown1 = DropDown([ 'one', 'two', 'three' ], 'two');
+$dropdown2 = DropDown([ 'one', 'two', 'three' ],
+    'one', placeholder => 'Select an option');
+$dropdown3 =
+    DropDown([ 'one', [ 'two', 'three', 'four', 'five' ], 'six' ], 'six');
+
+$tf = DropDownTF('T');
+
+#:% section = statement
+BEGIN_PGML
+
+- [_]{$popup} (ans: 'three')
+- [_]{$dropdown1} (ans: 'two')
+- [_]{$dropdown2} (ans: 'one')
+- [_]{$dropdown3} (ans: 'six')
+- [_]{$tf} (ans: 'True')
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+COMMENT('MathObject version. Uses PGML.');
+
+ENDDOCUMENT();

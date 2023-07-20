@@ -1,0 +1,68 @@
+## DESCRIPTION
+## Restricting answers that should reduce to a fraction.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('answer', 'fraction')
+
+#:% name = Restrict Answers to a Fraction
+#:% type = [technique, sample]
+#:% subject = [answer]
+#:% see_also = [RestrictingFunctions.pg]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Here we specify that we are using the `Fractions-NoDecimals` Context, which
+#: requires that answers be fractions and not decimals. To ensure that
+#: students do the simplification rather than typing the answer without
+#: expanding it, we undefine operators other than division (see Restricting
+#: Functions and Operators).
+#:
+#: Note that because we've undefined these operators for all MathObjects,
+#: we can't define the answer as `$frac=Compute("$b/($c + $a^2)");`.
+#: The operators + and ^ are undefined, so we don't have them available.
+#: In this case we do the calculation of the denominator using Perl first,
+#: and then use the MathObject to create the answer.
+#:
+#: Also note that by default a Fraction will be reduced to lowest terms.
+Context("Fraction-NoDecimals");
+Context()->operators->undefine('+', '-', '*', '*', '**', '^');
+
+$a    = random(2, 4);
+$b    = random(1, 9);
+$c    = random(1, 9);
+$den  = $c + $a * $a;
+$frac = Compute("$b/$den");
+$ans  = $frac->cmp(
+    studentsMustReduceFractions => 1,
+    strictFractions             => 1,
+    strictMinus                 => 1,
+    strictMultiplication        => 1
+);
+#:% section = statement
+BEGIN_PGML
+Find and simplify completely the value of
+[`f([$a])`] if [`` f(x) = \frac{[$b]}{[$c] + x^2}. ``]
+
+[`f([$a]) = `] [__]{$ans}
+
+_(Simplify your answer as much as possible, and enter a fraction instead of
+a decimal.)_
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

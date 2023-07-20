@@ -1,0 +1,72 @@
+## DESCRIPTION
+## Answer blank in the exponent
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('algebra', 'answer blank in the exponent')
+
+#:% name = Answer Blank in the Exponent
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [exponent]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We want the only variables to be `a` and `b` and choose a random power.
+#:
+#: The exponential layout is in HTML using a pair of adjacent `span` elements
+#: with the right one shifted up using the CSS style `vertical-align`.
+#: In hardcopy mode, we use the LaTeX exponent.
+Context()->variables->are(a => 'Real', b => 'Real');
+
+$n = random(3, 9);
+
+# TeX
+$expression = "a^{$n} b^{$n}";
+
+# MathObjects
+$base     = Formula("a*b");
+$exponent = Formula("$n");
+
+# Display exponents nicely
+$exp = MODES(
+    HTML => "<span>\(\displaystyle $expression= \Big(\)"
+        . ans_rule(4)
+        . '\(\Big)\)</span><span style="vertical-align: 12pt;">'
+        . ans_rule(4)
+        . '</span>',
+    TeX => "\( \displaystyle $expression = ("
+        . ans_rule(4) . ")^{"
+        . ans_rule(4) . "}\)"
+);
+
+#:% section = statement
+#: We insert exponential stored as `$exp`.
+BEGIN_PGML
+Rewrite the following using a single exponent.
+
+[$exp]*
+END_PGML
+
+#:% section = answer
+#: Because the answer blanks are traditional ans_rule, then we need to use this
+#: style of answer checking.
+ANS($base->cmp());
+ANS($exponent->cmp());
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

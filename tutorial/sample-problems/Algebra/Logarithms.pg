@@ -1,0 +1,64 @@
+## DESCRIPTION
+## Laws of logarithms
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('algebra', 'laws of logarithms')
+
+#:% name = Logarithms
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [logarithm]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: We add the variables to the context and reset their limits since logarithms are
+#: not defined on the default domain [-1,1]. After defining `$answer`, then we
+#: undefine certain operators and functions so that students will have to simplify
+#: their answer. Since the answer requires multiplication no matter how it is written,
+#: we cannot prevent students from entering an answer such as `ln(x*x*x...)` instead
+#: of `$a * ln(x)`, but by choosing large values for `$a, $b, $c`, we can strongly
+#: discourage them from entering `ln(x*x*x...)`.
+Context()->variables->are(x => 'Real', y => 'Real', z => 'Real');
+Context()->variables->set(x => { limits => [ 2, 3 ] });
+Context()->variables->set(y => { limits => [ 2, 3 ] });
+Context()->variables->set(z => { limits => [ 2, 3 ] });
+
+$a = random(20, 40);
+$b = random(20, 40);
+do { $c = random(20, 40); } until ($c != $b);
+
+# TeX
+$expr =
+    "\displaystyle \ln \left( \frac{ x^{$a} y^{$b} }{ z^{$c} } \right)";
+
+$answer = Compute("$a * ln(x) + $b * ln(y) - $c * ln(z)");
+
+Context()->operators->undefine('/', '^', '**');
+Context()->functions->undefine('sqrt');
+
+#:% section = statement
+BEGIN_PGML
+Using laws of logarithms, write the expression below using sums and/or
+differences of logarithmic expressions which do not contain the logarithms of
+products, quotients, or powers.
+
+[`\displaystyle [$expr] =`] [_]{$answer}{20}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
