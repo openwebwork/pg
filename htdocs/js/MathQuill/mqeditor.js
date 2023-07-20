@@ -477,7 +477,9 @@
 				delete answerQuill.toolbar;
 
 				// For ww2 homework, depends on $pg{options}{enterKey}
-				document.getElementById('enter_key_submit')?.click();
+				const enterKeySubmit = document.getElementById('enter_key_submit');
+				if (enterKeySubmit) enterKeySubmit.click();
+				else document.getElementById('previewAnswers_id')?.click();
 				// For gateway quizzes, always the preview button
 				document.querySelector('input[name=previewAnswers]')?.click();
 				// For ww3
