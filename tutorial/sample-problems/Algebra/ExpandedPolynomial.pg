@@ -16,10 +16,10 @@
 #:% name = Expanded Polynomial
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories = [polynomial]
+#:% categories = [polynomials]
 
 #:% section = preamble
-#: We must load `contextLimitedPolynomial.pl`
+#: Load the PODLINK('contextLimitedPolynomial.pl') macro.
 DOCUMENT();
 
 loadMacros(
@@ -28,21 +28,25 @@ loadMacros(
 );
 
 #:% section = setup
-#: The macro contextLimitedPolynomial.pl provides two contexts:
+#: The PODLINK('contextLimitedPolynomial.pl') macro provides two contexts:
 #:
-#:```{#contexts .perl}
+#: ```{#contexts .perl}
 #: Context('LimitedPolynomial');
 #: Context('LimitedPolynomial-Strict');
-#:```
-#: The strict version does not allow any mathematical operations within coefficients,
-#: so `(5+3)x` must be simplified to `8x`. For more details, see PODLINK('contextLimitedPolynomial.pl').
+#: ```
+#: The strict version does not allow any mathematical operations within
+#: coefficients, so `(5+3)x` must be simplified to `8x`. For more details, see
+#: PODLINK('contextLimitedPolynomial.pl').
 #:
-#: We use the LimitedPolynomial-Strict context, construct the coefficients $b and $c
-#: as Perl reals, and then construct $expandedform using these pre-computed coefficients.
-#: This is because the `LimitedPolynomial-Strict` context balks at answers that are not
-#: already simplified completely. Notice that we called the `->reduce()` method on the
-#: expanded form of the polynomial, which will ensure that the polynomial will be
-#: displayed as `x^2 - 6x + 4` instead of `x^2 + -6x + 4`.
+#: Switch to the `LimitedPolynomial-Strict` context, construct the coefficients
+#: `$b` and `$c`, and then construct `$expandedform` using these coefficients.
+#: Note that the coefficients must be provided as simplified numeric values
+#: because the `LimitedPolynomial-Strict` context will not accept answers that
+#: are not already simplified completely. That is done here by computing those
+#: values in Perl before using them in the formula definition. Notice that the
+#: `reduce` method is called for the expanded form of the polynomial, which
+#: ensures that the polynomial will be displayed as `x^2 - 6x + 4` instead of
+#: `x^2 + -6x + 4`.
 Context('Numeric');
 $h          = 3;
 $k          = 5;
@@ -55,8 +59,8 @@ $c            = $h**2 - $k;
 $expandedform = Formula("x^2 + $b x + $c")->reduce();
 
 #:% section = statement
-#: To help students understand how to format their answers, we give an example
-#: `ax^2+bx+c` of what the answer should look like.
+#: The example form `ax^2+bx+c` for the answer is given to help students
+#: understand how to format their answers.
 BEGIN_PGML
 The quadratic expression [`[$vertexform]`] is written in vertex form.
 Write the expression in expanded form [`ax^2 + bx + c`].

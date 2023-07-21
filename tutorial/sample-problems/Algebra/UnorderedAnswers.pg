@@ -14,16 +14,17 @@
 #:% name = Unordered Answers
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories = [answer]
+#:% categories = [answers]
 
 #:% section = preamble
-#: The macro `unorderedAnswer.pl` must be loaded.
+#: The macro PODLINK('unorderedAnswer.pl') must be loaded.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'unorderedAnswer.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: Because the answers have the variables x, y, and z, add the latter two.
+#: The answers use the variables `x`, `y`, and `z`.  The variable `x` is already
+#: in the default `Numeric` context, but `y` and `z` need to be added.
 Context()->variables->add(y => 'Real', z => 'Real');
 
 $a = random(2, 9);
@@ -41,10 +42,10 @@ much as possible.
 END_PGML
 
 #:% section = answer
-#: We use `UNORDERED_ANS(checker1, checker2, ...);` to evaluate the answers. It is
-#: possible to withhold feedback and credit until everything is correct by using
-#: the standard problem grader, which awards no partial credit and full credit
-#: only when everything is correct.
+#: The method `UNORDERED_ANS(checker1, checker2, ...)` is used to associate the
+#: unordered answer evaluator with the answer rules defined in the problem. The
+#: variable `$showPartialCorrectAnswers` is set to 0 to withhold feedback until
+#: all answers are correct.
 $showPartialCorrectAnswers = 0;
 
 UNORDERED_ANS($answer1->cmp, $answer2->cmp, $answer3->cmp);

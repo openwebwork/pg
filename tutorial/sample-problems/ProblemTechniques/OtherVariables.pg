@@ -1,0 +1,60 @@
+## DESCRIPTION
+## Add variables to the context.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('variables')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Adding Variables to the Context
+#:% type = technique
+#:% categories = [variables]
+
+#:% section = preamble
+
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Typically the variables for the answers in the problem are set at the
+#: beginning of the setup section.  In this case, the variables `y`, `z` and `t`
+#: are added as `Real` numbers.
+#:
+#: The variable `rho` is also added as a `Real` number. Its TeX representation
+#: is specified to be `\rho` which means that if an answer that uses the
+#: variable is displayed in math mode, then the variable will appear as the
+#: Greek letter rho.
+#:
+#: If the variables were set with `Context()->variables->are` instead, then all
+#: other variables in the context would be deleted, and if a removed variable
+#: were used in a student answer the message "Variable '?' is not defined in
+#: this context" would be shown.
+Context()->variables->add(t => 'Real', y => 'Real', z => 'Real');
+$f = Compute('-16 t^2 + 5 t + 4');
+$g = Compute('x^2 + y^2 + z^2');
+
+Context()->variables->add(rho => [ 'Real', TeX => '\rho' ]);
+$h = Compute("sqrt(1 + rho^2)");
+
+#:% section = statement
+BEGIN_PGML
+Enter the following formulas:
+
+* [`[$f] =`] [____]{$f}
+* [`[$g] =`] [____]{$g}
+* [`[$h] =`] [____]{$h}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

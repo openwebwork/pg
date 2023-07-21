@@ -1,0 +1,97 @@
+## DESCRIPTION
+## Inserting images in PGML.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('images')
+
+#:% name = Inserting Images in PGML
+#:% type = [technique]
+
+#:% section = preamble
+#: The PODLINK('PGgraphmacros.pl'), PODLINK('PGtikz.pl'),
+#: PODLINK('PGlateximage.pl') and PODLINK('parserGraphTool.pl') macros are used
+#: to create the images.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',    'PGML.pl',
+    'PGgraphmacros.pl', 'PGtikz.pl',
+    'PGlateximage.pl',  'parserGraphTool.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
+#: A WWPlot using PODLINK('PGgraphmacros.pl'), a TikZ plot using
+#: PODLINK('PGtikz.pl'), LaTeX image using PODLINK('PGlateximage.pl'), and
+#: Graphtool using PODLINK('parserGraphTool.pl') are made.
+$WWPlot = init_graph(-1, -1, 4, 4);
+add_functions($WWPlot, 'x^2 / 4 for x in <-1,4> using color:blue and weight:2');
+
+$TikZ = createTikZImage();
+$TikZ->BEGIN_TIKZ
+\draw (0,0) circle[radius = 1.5];
+END_TIKZ
+
+$LaTeXImage = createLaTeXImage();
+$LaTeXImage->texPackages([ [ 'xy', 'all' ] ]);
+$LaTeXImage->BEGIN_LATEX_IMAGE
+\xymatrix{ A \ar[r] & B \ar[d] \\\\
+           D \ar[u] & C \ar[l] }
+END_LATEX_IMAGE
+
+$LaTeXImageAltText =
+    'A graph with four nodes labeled A, B, C, and D. '
+    . 'There are directed edges from node A to node B, node B to node C, '
+    . 'node C to node D, and node D to node A';
+
+$gt = GraphTool('{circle, solid, (1, 1), (2, 2)}');
+
+#:% section = statement
+#: In each of these cases, the PGML syntax for images is used.
+#:
+#: ```
+#: [!alt text!]{image}{width (optional)}{height (optional)}
+#: ```
+#:
+#: * The image can be a string (either a local image file or a URL), a
+#: WWPlot, TikZ plot, LaTeXImage, or GraphTool plot. The local file should be
+#: in the same directory as the problem.
+#:
+#: * An alternate text for accessibility should always be included.
+#:
+#: * If the `width` is not included, the width is 100 (in pixels).
+#:
+#: * If the `height` is not included, the image's natural height relative to the
+#:   width is used.
+#:
+#: * The `tex_size` will be computed by `width * 1000 / 600`.
+#:
+#: Note that the `GraphTool` is not generally intended for displaying static
+#: graphs. It is intended to be used to show an interactive graphing tool in
+#: which student's are expected to graph requested objects, in this case the
+#: circle that has center `(1, 1)` and passes through the point `(2, 2)`.
+#: However, static images can be diplayed as is shown in this example. The
+#: intent for this usage is to show the correct graph in a solution.
+BEGIN_PGML
+* A static image: [!Graph of an exponential!]{'image.png'}{120}
+
+* A static image from an external link (Note: This does not work for hardcopy.)
+[!Runestone Logo!]{'https://runestone.academy/runestone/static/images/RAIcon.png'}{120}
+
+* A WWplot graph [!A simple parabola plot!]{$WWPlot}{120}
+
+* A TikZ graph [!A circle!]{$TikZ}{120}
+
+* A LaTeXImage: [![$LaTeXImageAltText]!]{$LaTeXImage}{120}
+
+* A graphtool plot [!A graphtool plot with a circle!]{$gt}{120}
+END_PGML
+
+ENDDOCUMENT();

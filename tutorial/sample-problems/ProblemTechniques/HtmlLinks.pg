@@ -1,0 +1,72 @@
+## DESCRIPTION
+## This shows how to make an html link in a PG problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('link')
+
+#:% name = HTML Links
+#:% type = [snippet, technique]
+
+#:% section = preamble
+#: An example below uses units, so the PODLINK('parserNumberWithUnits.pl') is
+#: loaded.
+DOCUMENT();
+loadMacros(
+    'PGstandard.pl',            'PGML.pl',
+    'parserNumberWithUnits.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
+$ans = NumberWithUnits('4', 'ft');
+
+#:% section = statement
+#: The `htmlLink` function is used to insert links in the first three examples.
+#: The page to load is given is the first argument to `htmlLink`, and the text
+#: to display for the link is the second argument.
+#:
+#: The first example is a link to a general URL.
+#:
+#: The second example shows how to link to a page that is in the same directory
+#: on the WeBWorK server as the PG file. The alias function creates the correct
+#: link to this file. Setting the target to be _blank will open a new (blank)
+#: window or tab.
+#:
+#: The third example shows how to link to a page that is under the html
+#: subdirectory of a course's main directory. In this example, `plotter.html` is
+#: a file that has been placed in the course's html directory. The course's html
+#: directory can be linked using `${htmlURL}` as in the example given or by
+#: using `alias("${htmlDirectory}plotter.html")`. Note that this will not work
+#: unless this problem is used in a course and a `plotter.html` file placed into
+#: the course's `html` directory.
+#:
+#: The fourth example uses the `helpLink` method defined in
+#: PODLINK('PGbasicmacros.pl'). The following is a list of all help topics:
+#: `angle`, `decimal`, `equation`, `exponent`, `formula`, `fraction`,
+#: `inequality`, `limit`, `log`, `matrix`, `number`, `point`, `vector`,
+#: `interval`, `unit`, and `syntax`.
+BEGIN_PGML
+The answer to all questions is on
+[@ htmlLink('http://www.google.com/', 'this page') @]*.
+
+A link to a
+[@ htmlLink(alias('local.html'), 'local file', 'TARGET="_blank"') @]*.
+
+It helps to [@htmlLink(
+	"${htmlURL}plotter.html",
+	'sketch the graph',
+	'TARGET="plotter"'
+)@]*.
+
+Enter 4 feet: [__]{$ans}
+
+Don't forget to enter [@ helpLink('units') @]*.
+END_PGML
+
+ENDDOCUMENT();

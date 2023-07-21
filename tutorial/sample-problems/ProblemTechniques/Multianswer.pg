@@ -1,0 +1,107 @@
+## DESCRIPTION
+## A simple multianswer problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('tolerance')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Multianswer Problem
+#:% type = [technique, sample]
+#:% subject = [algebra, precalculus]
+#:% categories = [multianswer]
+
+#:% section = preamble
+#: Load the PODLINK('parserMultianswer.pl') which provides the `MultiAnswer`
+#: method.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This problem is shown as an example of using PODLINK('parserMultiAnswer.pl').
+#: Another approach for this type of problem is shown in
+#: PROBLINK('FactoredPolynomial.pg').
+#:
+#: Define a `MultiAnswer` object that takes two answers and check that they are
+#: correct (in either order).
+#:
+#: The `singleResult => 0` option indicates that the different answers in the
+#: problem will be evaluated as separate answers, rather than as a single unit.
+#: Other useful flags include `allowBlankAnswers`, `checkTypes`, `separator` and
+#: `tex_separator`. These are noted below.
+#:
+#: The `checker => sub { ... }` option defines a subroutine to check the answer.
+#: Its inputs are a reference to an array of correct answers, a reference to an
+#: array of student answers, and a reference to the `MultiAnswer` object itself.
+#: (There is a fourth input, as well. It is the answer hash, but that is not
+#: needed in this example.)
+#:
+#: The checker routine then returns a reference to a list of scores for the
+#: answers. In this case there are two answer blanks, so there are two return
+#: values. All return values should be a number from `0` to `1`. Of course `1`
+#: means the answer is fully correct, `0` means it is completely incorrect, and
+#: a number between means it is partially correct. Note that if
+#: `singleResult => 1` were set then only one return value needed and must
+#: be a number from 0 and 1.
+#:
+#: It is possible to set an answer message that will be displayed for an answer
+#: part. For example, a message could be shown for answers that result from a
+#: common mistake that is made in working the problem. For example the following
+#: code could be used in the checker.
+#:
+#: ```{.perl}
+#: if ($f1 == $f1stu || $f2 == $f1stu) {
+#:     $self->setMessage(1, 'This is correct.');
+#:     $self->setMessage(2, 'Check your answer by using FOIL.');
+#:     return [ 1, 0 ];
+#: } elsif ($f1 == $f1stu || $f2 == $f2stu) {
+#:     $self->setMessage(1, 'Check your answer by using FOIL.');
+#:     $self->setMessage(2, 'This is correct.');
+#:     return [ 0, 1 ];
+#: } else {
+#:     return [0, 0];
+#: }
+#: ```
+$fac1 = Formula("(1 - x)");
+$fac2 = Formula("(1 + x)");
+
+$multians = MultiAnswer($fac1, $fac2)->with(
+    singleResult => 0,
+    checker      => sub {
+        my ($correct, $student, $self) = @_;
+        my ($f1stu, $f2stu) = @$student;
+        my ($f1,    $f2)    = @$correct;
+        if (($f1 == $f1stu && $f2 == $f2stu)
+            || ($f1 == $f2stu && $f2 == $f1stu))
+        {
+            return [ 1, 1 ];
+        } else {
+            if ($f1 == $f1stu || $f2 == $f1stu) {
+                return [ 1, 0 ];
+            } elsif ($f1 == $f2stu || $f2 == $f2stu) {
+                return [ 0, 1 ];
+            } else {
+                return [ 0, 0 ];
+            }
+        }
+    }
+);
+
+BEGIN_PGML
+Factor:
+[`1-x^2 = \big(`] [___]{$multians} [`\big)\big(`] [___]{$multians} [`\big)`]
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

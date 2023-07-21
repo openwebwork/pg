@@ -23,22 +23,28 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: There are several predefined strings, such as NONE, DNE, INF, INFINITY. If you
-#: need another string added to the context, see PROBLINK('StringsInContext.pg').
+#: There are several predefined strings, such as `NONE`, `DNE`, `INF`, and
+#: `INFINITY`. If another string is needed it will need to be added to the
+#: context. See PROBLINK('StringsInContext.pg').
 #:
-#: When `$answer = Formula('2x')` and a student enters the string `NONE`, they will
-#: not get any error message because when the answer checker expects a formula and
-#: gets a string it is set up not to balk. However, when `$answer = String('none')`
-#: and a student enters the formula `2x`, they will get an error message. This is
-#: because the answer checker is expecting a string and gets a formula, and when
-#: this happens it balks. We must use `typeMatch => Formula('x')` so that in the event
-#: the answer is a string, no error message will appear.
+#: When `$answer = Formula('2x')` and a student enters the string `NONE`, there
+#: will not be an error message. This is because MathObject formula answers
+#: are set up to accept string answers that are defined in the context. However,
+#: when `$answer = String('none')` and a student enters the formula `2x`, they
+#: will get an error message. This is because string answers do not also accept
+#: formulas. So use `typeMatch => Formula('x')` so that in this case no error
+#: message will appear.
+#:
+#: It is recommended that you do not use the technique demonstrated in this
+#: sample problem anymore. Instead use the method demonstrated in
+#: PROBLINK('NoSolution.pg'). That method is more intuitive for students, and
+#: does not lead to an invalid statement for the answer such as `y = NONE`.
 $y = random(0, 4);
 
 if ($y < 4) {
     $answer = String('none')->cmp(typeMatch => Formula('x'));
 } else {
-    $answer = Formula('2*x')->cmp(typeMatch => Formula('x'));
+    $answer = Formula('2x');
 }
 
 #:% section = statement

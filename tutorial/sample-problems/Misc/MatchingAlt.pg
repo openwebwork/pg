@@ -15,9 +15,9 @@
 #:% categories = [multiple choice, misc]
 
 #:% section = preamble
-#: The `parserPopUp.pl` macro is used to create drop down menus for answers, and
-#: the custom problem grader fluid from `PGgraders.pl` is used for incremental
-#: grading.
+#: The PODLINK('parserPopUp.pl') macro is used to create drop down menus for
+#: answers, and the custom problem grader fluid from PODLINK('PGgraders.pl') is
+#: used for incremental grading.
 DOCUMENT();
 
 loadMacros(
@@ -29,14 +29,14 @@ loadMacros(
 #: Withhold feedback when answers are submitted by setting
 #: `$showPartialCorrectAnswers = 0;`.
 #:
-#: This problem uses an incremental grader called the `custom_problem_grader_fluid`.
-#: With this problem grader, the number of correct answers `[2, 4, 6]`
-#: and their corresponding scores `[0.3, 0.6, 1]` must be specified. The last
-#: entry in the `grader_numright` array must be the total number of questions
-#: asked, and the last entry in the `grader_scores` array must be 1
-#: (otherwise nobody can earn full credit!). The grader message can also
-#: be customized by setting the value of `grader_message` to the desired custom
-#: message.
+#: This problem uses an incremental grader called the
+#: `custom_problem_grader_fluid`. With this problem grader, the number of
+#: correct answers `[2, 4, 6]` and their corresponding scores `[0.3, 0.6, 1]`
+#: must be specified. The last entry in the `grader_numright` array must be the
+#: total number of questions asked, and the last entry in the `grader_scores`
+#: array must be 1 (otherwise nobody can earn full credit!). The grader message
+#: can also be customized by setting the value of `grader_message` to the
+#: desired custom message.
 #:
 #: If a grader is desired that awards full credit when all questions are correct
 #: and no credit otherwise, use the commented out `std_problem_grader` code
@@ -100,22 +100,24 @@ push(@shuffle, scalar(@shuffle));
 #: and the answers on the right. On narrow screens the answers will be below
 #: the questions.
 #:
-#: In the problem text a `div` with the css class defined in the style snippet
+#: In the problem text a `div` with the CSS class defined in the style snippet
 #: wraps the questions and answers. Inside that the questions are in the first
 #: inner `div`, and the answers in the second inner `div`.
 #:
-#: When a hardcopy of the problem is generated two side by side parboxes are
+#: When a hard copy of the problem is generated two side by side `\parboxes` are
 #: used instead.
 #:
-#: Both the questions and answers are added as PGML parsed strings.
+#: The HTML and TeX are inserted into the problem using the `PGML` tag syntax.
+#:
+#: Both the questions and answers are added as `PGML` parsed strings.
 HEADER_TEXT(MODES(TeX => '', HTML => <<END_STYLE));
 <style>
 .two-column {
     display: flex;
-	flex-wrap: wrap;
-	gap: 2rem;
-	align-items: center;
-	justify-content: space-evenly;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+    justify-content: space-evenly;
 }
 </style>
 END_STYLE
@@ -123,25 +125,27 @@ END_STYLE
 BEGIN_PGML
 Match each question with its answer.
 
-[@ MODES(TeX => '\\parbox{0.4\\linewidth}{',
-	HTML => '<div class="two-column"><div>') @]*
-[@ join(
-    "\n\n",
-    map {
-        '[_]{$answer_dropdowns[' . $_ . ']} '
-            . '*' . ($_ + 1) . '.* '
-            . '[$q_and_a[' . $_ . '][0]]'
-    } 0 .. $#q_and_a
-) @]**
-[@ MODES(TeX => '}\\hfill\\parbox{0.4\\linewidth}{',
-	HTML => '</div><div>') @]*
-[@ join(
-    "\n\n",
-    map {
-        '*' . $ALPHABET[($_)] . '.* [$answers[$shuffle[' . $_ . ']]]'
-    } 0 .. $#answers
-) @]**
-[@ MODES(TeX => '}', HTML => '</div></div>') @]*
+[<
+    [<
+        [@ join(
+            "\n\n",
+            map {
+                '[_]{$answer_dropdowns[' . $_ . ']} '
+                    . '*' . ($_ + 1) . '.* '
+                    . '[$q_and_a[' . $_ . '][0]]'
+            } 0 .. $#q_and_a
+        ) @]**
+    >]{ [ 'div' ] }{ [ '\\parbox{0.55\\linewidth}{', '}' ] }
+	[@ MODES(TeX => '\\hfill', HTML => '') @]*
+    [<
+        [@ join(
+            "\n\n",
+            map {
+                '*' . $ALPHABET[($_)] . '.* [$answers[$shuffle[' . $_ . ']]]'
+            } 0 .. $#answers
+        ) @]**
+    >]{ [ 'div' ] }{ [ '\\parbox{0.25\\linewidth}{', '}' ] }
+>]{ [ 'div', class => 'two-column' ] }
 END_PGML
 
 #:% section = solution

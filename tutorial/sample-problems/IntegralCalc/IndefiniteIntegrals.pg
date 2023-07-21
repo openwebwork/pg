@@ -17,8 +17,8 @@
 #:% categories = [antiderivatives]
 
 #:% section = preamble
-#: The macro `parserFormulaUpToConstant.pl` will allow the entry of formula with a
-#: general constant like the antiderivative.
+#: The macro PODLINK('parserFormulaUpToConstant.pl') will allow the entry of
+#: formula with a general constant like the antiderivative.
 DOCUMENT();
 
 loadMacros(
@@ -27,14 +27,12 @@ loadMacros(
 );
 
 #:% section = setup
-#: Examples of specific and general antiderivatives:
+#: The specific antiderivative is an ordinary formula. When the `cmp` method is
+#: called for this answer the `upToConstant` option will be passed to specify
+#: that it be a formula evaluated up to a constant.
 #:
-#: - Specific antiderivatives: `e^x, e^x + pi`
-#: - General antiderivatives: `e^x + C`, `e^x + C - 3`, `e^x + K`
-#: The specific antiderivative is an ordinary formula, and we check this answer, we
-#: will specify that it be a formula evaluated up to a constant (see the first answer
-#: blank in the section below). For the general antiderivative, we use the
-#: `FormulaUpToConstant()` constructor provided by `parserFormulaUpToConstant.pl`.
+#: For the general antiderivative the `FormulaUpToConstant` method provided by
+#: PODLINK('parserFormulaUpToConstant.pl') is used.
 
 # Specific antiderivative:  Marks correct e^x, e^x + pi, etc
 $specific = Formula('e^x');
@@ -43,11 +41,14 @@ $specific = Formula('e^x');
 $general = FormulaUpToConstant('e^x');
 
 #:% section = statement
-#: In the first answer blank, we look for the answer with an additive constant
-#: using the option `upToConstant => 1` in the `cmp` method.
+#: The option `upToConstant => 1` is passed to the `cmp` method for the first
+#: answer rule to specify that the any answer that differs from the given answer
+#: only by a constant is to be accepted.
 #:
-#: The second is a standard answer blank, but `$general` is created with.
-#: `FormulaUpToConstant`
+#: The second answer `$general` is created with `FormulaUpToConstant` which
+#: means that an arbitrary additive constant must be included in the answer.
+#: Any letter aside that is not a variable in the context or $e$ can be used to
+#: represent the arbitrary constant.
 BEGIN_PGML
 a. Enter a specific antiderivative for [`e^x`]:
 [_]{ $specific->cmp(upToConstant => 1) }{10}

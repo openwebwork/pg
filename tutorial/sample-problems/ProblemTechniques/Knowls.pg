@@ -1,0 +1,56 @@
+## DESCRIPTION
+## This shows how to use intervals in a problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('interval')
+
+# created as a full problem by Peter Staab  2023.06.02
+
+#:% name = Knowls
+#:% type = [technique, snippet]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = statement
+#: Knowls can be added to a text section of the problem file.
+#:
+#: You can specify a value, as in the first example, which gives the text to
+#: appear in the knowl.
+#:
+#: Math can be included in the text of a knowl as shown in the second example.
+#:
+#: You can instead specify a URL for the knowl, as shown in the third example.
+#: Note that the URL must be for a file located on the same server.  A URL for
+#: another server will result in a cross-origin request which will generally be
+#: blocked.  Generally, this should only be used in local problems to show
+#: custom content, and should not be used for problems in the OPL.
+BEGIN_PGML
+Here is a knowl
+[@ knowlLink(
+    'click me',
+    value => 'This is the inside of a knowl. If you click again, I will go away'
+) @]*
+
+Here is a
+[@ knowlLink(
+    'math knowl',
+    value => 'the sine function is \\(\\frac{2}{3}\\)'
+) @]*
+
+Here is another knowl
+[@ knowlLink(
+	'click me',
+	url => '/webwork2_files/helpFiles/Entering-Angles.html'
+) @]*
+END_PGML
+
+ENDDOCUMENT();

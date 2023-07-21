@@ -16,25 +16,30 @@
 #:% type = Sample
 #:% categories = [graph]
 
-#:% section=preamble
-#: We need to include the macros file `LiveGraphicsVectorField3D.pl`.
+#:% section = preamble
+#: Include the PODLINK('LiveGraphicsVectorField3D.pl') macro. Note that the
+#: PODLINK('LiveGraphics3D.pl') macro is loaded by that macro and provides the
+#: `Live3Ddata` method.
 DOCUMENT();
 loadMacros(
     'PGstandard.pl',                'PGML.pl',
     'LiveGraphicsVectorField3D.pl', 'PGcourse.pl'
 );
 
-#:% section=setup
-#: The `VectorField3D()` routine returns a string of plot data consisting of a list of line
-#: segments (the vectors) along with other plot options. The arguments `RGBColor[a,b,c]` are
-#: numbers a, b, and c between 0 and 1 inclusive. You can uniformly scale all of the vectors
-#: in the vector field by the same amount using vectorscale. The outputtype feature controls
-#: how much of the string of plot data is generated, and setting it equal to 4 generates all
-#: of the plot information necessary to be displayed.
+#:% section = setup
+#: The `VectorField3D` method returns a string of plot data suitable for use
+#: with the `Live3Ddata` method consisting of a list of line segments (the
+#: vectors) along with other plot options. The arguments `a`, `b`, and `c` in
+#: `RGBColor[a, b, c]` are numbers from 0 to 1. You can uniformly scale all of
+#: the vectors in the vector field by the same amount using `vectorscale`.
 #:
-#: Setting outputtype to something other than 4 will require you to read the source code of
-#: `LiveGraphicsVectorField3D.pl` and familiarize yourself with the details of the LiveGraphics3D
-#: javascript applet.
+#: The `outputtype` feature controls how much of the string of plot data is
+#: generated. Setting it equal to 4 generates all of the plot information
+#: necessary to generate a single graph. Setting `outputtype` to something other
+#: than 4 is used to combine output from multiple live graphics 3D methods into
+#: a single graph.
+#:
+#: See PODLINK('LiveGraphicsVectorField3D.pl') for more details.
 Context()->variables->are(x => 'Real', y => 'Real', z => 'Real');
 
 $plot = VectorField3D(
@@ -57,30 +62,29 @@ $plot = VectorField3D(
     xaxislabel      => 'X',
     yaxislabel      => 'Y',
     zaxislabel      => 'Z',
-    vectorcolor     => "RGBColor[0.0,0.0,1.0]",
+    vectorcolor     => 'RGBColor[0.0, 0.0, 1.0]',
     vectorscale     => 0.2,
     vectorthickness => 0.01,
     outputtype      => 4,
 );
 
-#:% section=statement
-#: This just shows the plot.
+#:% section = statement
+#: Show the plot.
 BEGIN_PGML
-
-The following is the 3D vector field give by
->> [`` \vec{v} = \left<x,y,z\right> ``] <<
+The following is the 3D vector field given by
+>> [``\vec{v} = \left<x, y, z\right>``] <<
 
 >> [@ Live3Ddata(
 	$plot,
-	image => alias("exploding-vector-field.png"),
-	size => [400,400],
-	tex_size => 600,
+	image      => alias('exploding-vector-field.png'),
+	size       => [ 400, 400 ],
+	tex_size   => 600,
 	tex_center => 1,
-	scale => 1.25,
-); @]* <<
+	scale      => 1.25,
+) @]* <<
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

@@ -1,0 +1,43 @@
+## DESCRIPTION
+## This demonstrates the Percent context.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('percent')
+
+#:% name = Percent Context
+#:% type = [technique]
+
+#:% section = preamble
+#: The PODLINK('contextPercent.pl') macro must be loaded.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextPercent.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Select the `Percent` context, generate a random percentage, and `Compute` the
+#: percent MathObject for the answer. Note that the `%` symbol or the word
+#: `percent` must be included in the `Compute` call for the answer to be
+#: interpreted as a percent.
+Context('Percent');
+
+$p   = random(5, 95, 5);
+$ans = Compute("$p %");
+
+#:% section = statement
+#: The answer can be entered with a `%` symbol or with the word `percent`.
+BEGIN_PGML
+Enter [`[$ans]`]: [__]{$ans}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

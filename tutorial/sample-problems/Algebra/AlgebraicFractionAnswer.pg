@@ -17,44 +17,40 @@
 #:% categories = [fraction]
 
 #:% section = preamble
-#: We include the macros file `niceTables.pl` to be able to display the answer boxes
-#: on top of each other (as a fraction).
+#: Load the PODLINK('parserMultiAnswer.pl') macro to be able to consider two
+#: answer rules together (the numerator and denominator) in the answer checker.
+#: Note that the PODLINK('niceTables.pl') macro is implicitly used, and is
+#: automatically loaded by the `PGML.pl` macro.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl', 'PGML.pl',
-    'niceTables.pl', 'parserMultiAnswer.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We define MathObjects formulas `$num` and `$den` that are the correct
-#: numerator and denominator for the answer, as well as some bogus answers
-#: `$numbogus` and `$denbogus` that result from not finding a common
-#: denominator. We use `MultiAnswer` to manipulate both student answers at
-#: the same time. In `$multians` we allow for answers to be left blank,
-#: which requires one of two things: either we disable the error message or
-#: do type checking on the students input by using `ref($f1) eq ref($f1stu)`
-#: to see if the correct numerator `$f1` and the student numerator `$f1stu`
-#: have the same type. We used the code
-#: `Context()->{error}{msg}{"Operands of '*' can't be words"} = ' ';` to
-#: disable the error message because this method allows the
-#: "Simplify your answer" feature to work more reliably. We also allow for
-#: the student to enter the fraction as either
-#: `(6y-3)/(y-2)` or `(3-6y)/(2-y)`, since both are correct and it is not
-#: clear that one is preferable to the other, which requires that we check
-#: `$f1 == $f1stu || -$f1 == $f1stu`. Here `||` is perl's "or" operator. We
-#: provide some custom answer hints by testing for bogus numerators and
-#: denominators and displaying answer messages via
-#: `$self->setMessage(1, "Simplify your answer further");`,
-#: where the 1 stands for the first answer blank.
+#: Define MathObject formulas `$num` and `$den` which are the correct numerator
+#: and denominator for the answer, as well as the bogus answers `$numbogus` and
+#: `$denbogus` that result from not finding a common denominator (used in the
+#: custom answer checker). A `MultiAnswer` is used to check the numerator and
+#: denominator together.
 #:
-#: The fraction answer is created using a `LayoutTable` from `niceTables.pl`.
-#: The outer `LayoutTable` has a single row with the mathematical expression
-#: and then another `LayoutTable` that formats the fraction with a bottom
-#: horizontal line. The padding is changed to improve the look of the fraction.
+#: The `allowBlankAnswers => 1` option for the `MultiAnswer` object is set which
+#: allows the answers to be left blank, so that partial credit can be given if
+#: the student has the numerator or denominator correct but does not enter both.
+#: This requires that the type of the students input be checked before using
+#: those values in computations or warnings will be issued (in this case the
+#: warning "Operands of '*' can't be words" is issued if
+#: `$f1 * $f2stu == $f1stu * $f2` is computed). This is done for the
+#: numerator, for example, with `Value::classMatch($f1stu, 'Formula')`.
+#:
+#: The student is also allowed to enter the fraction as either `(6y-3)/(y-2)` or
+#: `(3-6y)/(2-y)`, since both are correct and it is not clear that one is
+#: preferable to the other. For this the check `$f1 == $f1stu || -$f1 == $f1stu`
+#: is used. Note that `||` is perl's "or" operator.
+#:
+#: Custom answer messages can be displayed by calling the `setMessage` method of
+#: the `MultiAnswer` object that `$self` refers to.  For example, with
+#: `$self->setMessage(1, "Simplify your answer further")`,
+#: where 1 means to set the message for the first answer blank.
 Context()->variables->are(y => 'Real');
-Context()->{error}{msg}{"Operands of '*' can't be words"} = ' ';
 
 do {
     $a = random(2, 8, 2);
@@ -69,12 +65,11 @@ $numbogus = Formula("$a*y+$b");
 $denbogus = Formula("(y-$c)*($c-y)");
 
 $multians = MultiAnswer($num, $den)->with(
-    singleResult      => 0,
     allowBlankAnswers => 1,
     checker           => sub {
         my ($correct, $student, $self) = @_;
-        my ($f1stu, $f2stu) = @{$student};
-        my ($f1,    $f2)    = @{$correct};
+        my ($f1stu, $f2stu) = @$student;
+        my ($f1,    $f2)    = @$correct;
 
         if (($f1 == $f1stu && $f2 == $f2stu)
             || (-$f1 == $f1stu && -$f2 == $f2stu))
@@ -90,7 +85,10 @@ $multians = MultiAnswer($num, $den)->with(
             return [ 0, 0 ];
         } elsif ($f2 == $f2stu || -$f2 == $f2stu) {
             return [ 0, 1 ];
-        } elsif ($f1 * $f2stu == $f1stu * $f2) {
+        } elsif (Value::classMatch($f1stu, 'Formula')
+            && Value::classMatch($f2stu, 'Formula')
+            && $f1 * $f2stu == $f1stu * $f2)
+        {
             $self->setMessage(1, "Simplify your answer further");
             $self->setMessage(2, "Simplify your answer further");
             return [ 0, 0 ];
@@ -100,31 +98,33 @@ $multians = MultiAnswer($num, $den)->with(
     }
 );
 
-$frac = LayoutTable(
-    [ [
-        "\(\displaystyle\frac{$a y}{y-$c} + \frac{$b}{$c - y}=\)",
-        LayoutTable(
-            [ [ [ ans_rule(4), bottom => 1 ] ], [ ans_rule(4) ], ],
-            padding => [ 0.5, 0 ],
-        )
-    ] ],
-    padding => [ 0, 0.5 ],
-    valign  => 'middle',
-);
-
 #:% section = statement
-#: Everything is as usual. Insert the fraction and answer blanks using `$showfraction`.
+#: The fraction answer is created using a `LayoutTable` from
+#: PODLINK('niceTables.pl') via its `PGML` syntax. A `LayoutTable` is started
+#: with `[#` and is ended with `#]*`. Options for the table are set in braces
+#: after the ending `#]*`. Cells of the table are started wtih `[.` and ended
+#: with `.]`. Options for a cell (some of which apply to the row as a whole)
+#: are set in braces after the cell's ending `.]`. Rows of the table are ended
+#: by a starred cell. For example `[. ... .]*`. Note that the second cell of
+#: this table contains a nested `LayoutTable`.
+#:
+#: The outer `LayoutTable` has a single row with the mathematical expression and
+#: then another `LayoutTable` with two rows that formats the fraction with a
+#: bottom horizontal line under the first row. The padding is changed to improve
+#: the look of the fraction.
 BEGIN_PGML
 Perform the indicated operations. Express your answer in reduced form.
 
-[$frac]*
-
+[#
+    [. [``\frac{[$a]y}{y - [$c]} + \frac{[$b]}{[$c] - y} =``] .]
+    [.
+        [#
+            [. [_]{$multians} .]*{ bottom => 1 }
+            [. [_]{$multians} .]
+        #]*{ padding => [ 0.5, 0 ] }
+    .]
+#]*{ padding => [ 0, 0.5 ], valign => 'middle' }
 END_PGML
-
-#:% section = answer
-#: It is necessary to use the answer evaluator `ANS` since
-#: `ans_rule` was used to produce answer blanks.
-ANS($multians->cmp());
 
 #:% section = solution
 BEGIN_PGML_SOLUTION

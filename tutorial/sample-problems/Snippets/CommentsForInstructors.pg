@@ -1,0 +1,31 @@
+## DESCRIPTION
+## Shows a Comment
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('snippet', 'comment')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Comment for Instructors
+#:% type = snippet
+#:% categories = [comments]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = statement
+#: Call `COMMENT` to add a comment that is visible when the PG file is viewed in
+#: the Library Browser or the PG problem editor. Students do not see these
+#: comments.
+COMMENT('This problem is not randomized.');
+
+ENDDOCUMENT();

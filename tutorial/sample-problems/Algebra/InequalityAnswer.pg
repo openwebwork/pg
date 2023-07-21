@@ -17,19 +17,19 @@
 #:% categories = [fraction]
 
 #:% section = preamble
-#: We must load `contextInequalities.pl`.
+#: The PODLINK('contextInequalities.pl') macro must be loaded
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We require students to use inequalities by using `Context('Inequalities-Only')`.
-#: If we had used `Context('Inequalities')` instead, then students could also enter
-#: their answer using interval notation. For more details, please see
+#: Require students to use inequalities by using `Context('Inequalities-Only')`.
+#: Note that if `Context('Inequalities')` is used instead, then students could
+#: also enter answers using interval notation. For more details, please see
 #: PODLINK('contextInequalities.pl').
 #:
-#: We use `formatStudentAnswer => 'parsed'` and `Compute()` so that the student's
-#: answer is left as a fraction rather than reduced to a decimal.
+#: The context flag `formatStudentAnswer => 'parsed'` is used so that the
+#: student's answer is left as a fraction rather than reduced to a decimal.
 Context('Inequalities-Only');
 Context()->flags->set(formatStudentAnswer => 'parsed');
 

@@ -1,0 +1,58 @@
+## DESCRIPTION
+## Provides constants in a PG problem.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('constants')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Constants in Problems
+#:% type = technique
+#:% categories = [constant]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Add the constant `k` with value `0.023431412` to the context. Choose a value
+#: for `k` that is not easy to guess, because if the value were guessed it would
+#: lead to unexpected results. For example, if a value of `1` were chosen, and a
+#: student entered `1` for the answer in this problem, then it would be counted
+#: as correct which is not desired.
+#:
+#: Note that in this case `constants->add` is used, so that the constant `k` is
+#: added to existing constants in the context. If `constants->are` were used
+#: instead, then all existing constants would be removed from the context and
+#: `k` would be added as the only constant in the context. This is similar to
+#: the use of `variables->add` and `variables->are` when defining variables in a
+#: problem.
+#:
+#: One other tweak that might be desired is to set a context flag so that
+#: student answers are not reduced to numerical values. This is done by setting
+#: `formatStudentAnswer => 'parsed'` as shown.
+Context()->constants->add(k => 0.023431412);
+
+Context()->flags->set(formatStudentAnswer => 'parsed');
+
+$ans = Compute('k');
+
+#:% section = statement
+BEGIN_PGML
+Let [`f(x) = x - k`] where [`k`] is a constant. Then [`f(x) = 0`] when
+[`x =`] [___]{$ans}.
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

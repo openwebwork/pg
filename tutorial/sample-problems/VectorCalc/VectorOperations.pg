@@ -15,20 +15,29 @@
 #:% subject = Vector Calculus
 #:% type = Sample
 
-#:% section=preamble
-#: We load `parserVectorUtils.pl` to have access to functions on vectors like norm and unit.
+#:% section = preamble
+#: Load PODLINK('parserVectorUtils.pl') for the `non_zero_vector3D` method.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
 
-#:% section=setup
-#: We use `non_zero_vector3D(low,high,increment)` to randomly generate some vectors. Calling `$U->value`
-#: returns a (Perl) array of numbers. (Note that `->value` does not work on a vector whose
-#: components are non-constant formulas.) MathObjects defines the operators `.` and `x` to be the
-#: dot product and cross product when they occur between two vectors (that is, these operations
-#: are overloaded). The functions norm and unit calculate the length of a vector and a unit
-#: vector in the same direction. We undefine the dot and cross product as well as the functions
-#: norm and unit so that students cannot enter them in their answers.
+#:% section = setup
+#: Use `non_zero_vector3D(low, high, increment)` to randomly generate two
+#: vectors.
+#:
+#: Calling `$U->value` returns a (Perl) array of numbers which are the
+#: components of the vector `$U`. (Note that `->value` does not work on a vector
+#: whose components are non-constant formulas.)
+#:
+#: The operators `.` and `x` are defined to be the dot product and cross
+#: product, respectively, if the operands are vectors.
+#:
+#: The `norm` function computes the length of a vector, and the `unit` function
+#: computes the unit vector in the same direction as a vector.
+#:
+#: The dot and cross products as well as all `Vector` functions (including
+#: `norm` and `unit`) are undefined so that students cannot enter them in
+#: answers.
 Context('Vector');
 
 $U = non_zero_vector3D(-9, 9, 1);
@@ -44,28 +53,29 @@ $Vlength = norm($V);
 $Vunit   = unit($V);
 
 # Prevent students from entering the dot and cross products,
-# and the vector functions norm and unit.
-
-Context()->operators->undefine('.', "><");
+# and using the vector functions such as norm and unit.
+Context()->operators->undefine('.', '><');
 Context()->functions->disable('Vector');
 
 BEGIN_PGML
-Suppose [` \vec{u} = [$U] `] and [` \vec{v} = [$V] `].
+Suppose [`\vec{u} = [$U]`] and [`\vec{v} = [$V]`].
 
-a. The second component of [` \vec{u} `] is [___________]{$Ucomp2}
+a. The second component of [`\vec{u}`] is [_]{$Ucomp2}{5}
 
-b. [` \vec{u} \cdot \vec{v} = `] [___________]{$UdotV}
+b. [`\vec{u} \cdot \vec{v} =`] [_]{$UdotV}{5}
 
-c. [` \vec{u} \times \vec{v} = `] [________________]{$UcrossV}
+c. [`\vec{u} \times \vec{v} =`] [_]{$UcrossV}{15}
 
-d. [` \left\| \vec{v} \right\| = `] [___________]{$Vlength}
+d. [`\left\|\vec{v}\right\| =`] [_]{$Vlength}{10}
 
-e. Enter a unit vector in the direction of [` \vec{v} `]. [______________]{$Vunit}
+e. Enter a unit vector in the direction of [`\vec{v}`].  
+   [_]{$Vunit}{15}
 
-f. Enter a vector parallel to [` \vec{v} `]. [________________]{$V->cmp( parallel=>1 )}
+f. Enter a vector parallel to [`\vec{v}`].  
+   [_]{$V->cmp(parallel => 1)}{15}
 
-g. Enter a vector in the same direction as [` \vec{v} `].
-[__________]{$V->cmp( parallel=>1, sameDirection=>1 )}
+g. Enter a vector in the same direction as [`\vec{v}`].  
+   [_]{$V->cmp( parallel => 1, sameDirection => 1 )}{15}
 END_PGML
 
 #:% section = solution

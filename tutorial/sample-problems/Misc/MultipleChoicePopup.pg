@@ -18,23 +18,28 @@
 #:% see_also = [MultipleChoiceRadio.pg, MultipleChoiceCheckbox.pg, ManyMultipleChoice.pg]
 
 #:% section = preamble
-#: The macro `parserPopUp.pl` must be loaded.
+#: The macro PODLINK('parserPopUp.pl') is used for pop up (or drop down) menus.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: To create a radio object, use `$popup = PopUp([choices,...],correct);`
-#: For details, see parserPopUp.pl The context is not really necessary, but multiple
-#: choice questions are often follow-up questions, so we leave it in.
+#: Call `PopUp` or `DropDown` to create a pop up answer object. The format is
 #:
-#: The `parsePopUp.pl` macro has two methods `PopUp` and `DropDown`. The former requires
-#: that a default `?` is coded in the first element.  The latter will put that in
-#: unless the `placeholder` option is there.
+#: ```{#constructor .perl}
+#: PopUp([choices, ...], correct, options);
+#: DropDown([choices, ...], correct, options);
+#: ```
 #:
-#: Note: setting the `$showPartialCorrectAnswers` to 0 is often desirable for
-#: multiple choice problems so students don't know which part is incorrect and
-#: could therefore just guess the answer.
+#: The difference between the `PopUp` and `DropDown` methods is that the latter
+#: will add an unselectable placeholder value. The value is `?` by default, but
+#: can be customized with the `placeholder` option. Generally, you should use
+#: the `DropDown` method. The `PopUp` method is considered deprecated.
+#:
+#: For details, see PODLINK('parserPopUp.pl').
+#:
+#: Setting the `$showPartialCorrectAnswers` to 0 is often desirable for
+#: multiple choice problems to prevent guessing of answers.
 $showPartialCorrectAnswers = 0;
 
 $popup = PopUp([ '?', 'Red', 'Blue', 'Green' ], 'Blue');
@@ -48,11 +53,11 @@ $dropdown2 =
 BEGIN_PGML
 Select my favorite color [_]{$popup}
 
-**Same thing, but using DropDown**
+*Same thing, but using DropDown*
 
 Select my favorite color [_]{$dropdown1}
 
-**Same thing, but using DropDown with placeholder option**
+*Same thing, but using DropDown with placeholder option*
 
 Select my favorite color [_]{$dropdown2}
 END_PGML

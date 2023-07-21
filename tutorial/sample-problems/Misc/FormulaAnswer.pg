@@ -14,7 +14,7 @@
 #:% name = Formula Answer
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories = [answer]
+#:% categories = [answers]
 
 #:% section = preamble
 DOCUMENT();
@@ -22,11 +22,11 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl');
 
 #:% section = setup
-#: Use `do { $b = random(2, 9) } until ( $b != $a );` to generate distinct
-#: random numbers.
+#: Use `do { $b = random(2, 9) } until $b != $a` to generate distinct random
+#: numbers.
 
 $a = non_zero_random(-9, 9);
-do { $b = random(2, 9) } until ($b != $a);
+do { $b = random(2, 9) } until $b != $a;
 
 $answer1 = Compute("$a");
 $answer2 = Compute("($a x^($b) + $b)/x")->reduce();

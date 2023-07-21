@@ -1,0 +1,140 @@
+## DESCRIPTION
+## Creating a set of graphs and displaying the options in a table.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('parametric', 'graph')
+
+#:% name = Graphs in a Table
+#:% types = [Sample, technique]
+
+#:% section = preamble
+#: The PODLINK('PGtikz.pl') macro is used to generate the graph,
+#: the PODLINK('parserPopUp.pl') macro is used for a pop up (select) answer,
+#: the PODLINK('niceTables.pl') macro (loaded automatically via `PGML.pl`) is
+#: used for layout, and the PODLINK('PGchoicemacros.pl') macro provides the
+#: `shuffle` and `invert` functions.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',     'PGML.pl',
+    'PGtikz.pl',         'parserPopUp.pl',
+    'PGchoicemacros.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
+#: First, `@eqn_plot`, `@eqn`, `@alt_text`, and `@graph` arrays are defined
+#: containing the form of each equation for the TikZ graph, the TeX form of each
+#: equation, alternate text descriptions of the graphs for accessibility, and
+#: the TikZ graph for each equation. Because the graphs are shuffled and the
+#: correct graph picked randomly, the four arrays must be in the same order.
+
+#: Then one equation is picked at random (using `$k`) to be the correct choice.
+#: The graphs are shuffled using a permutation, and the inverse permutation used
+#: to recall the correct answer in the answer evaluation section.
+#:
+#: If, instead, there were six graphs and it were desired to organize the graphs
+#: into three columns the `tex_size` would need to be adjusted. However, you are
+#: strongly discouraged from using more than three columns of graphs, because
+#: the graphs would need to be scaled down so much that they would become
+#: unreadable (especially in TeX mode).
+@eqn_plot = ('-exp(\x)', 'exp(-\x)', '-exp(-\x)', 'exp(\x)');
+
+# The tex form of the functions.
+@eqn = ('y = -e^{x}', 'y = e^{-x}', 'y = -e^{-x}', 'y = e^{x}');
+
+# Alternate text for each image.
+@alt_text = (
+    'A graph that starts close to and below the x-axis on the left '
+        . 'and decreases to the right, decreasing more rapidly as '
+        . 'it continues to the right.',
+    'A graph that starts in the extreme upper left and decreases toward the '
+        . 'x-axis, decreasing less rapidly as it continues to the right.',
+    'A graph that starts in the extreme lower left and increases toward the '
+        . 'x-axis, increasing less rapidly as it continues to the right.',
+    'A graph that starts close to and above the x-axis on the left, '
+        . 'and increases to the right, increasing more rapidly as '
+        . 'it continues to the right.',
+);
+
+for my $i (0 .. 3) {
+    $graph[$i] = createTikZImage();
+    $graph[$i]->tikzLibraries('arrows.meta');
+    $graph[$i]->BEGIN_TIKZ
+\tikzset{>={Stealth[scale = 1.5]}}
+\filldraw[
+    draw = LightBlue,
+    fill = white,
+    rounded corners = 10pt,
+    thick,
+    use as bounding box
+] (-3, -3) rectangle (3, 3);
+\draw[->] (-3, 0) -- (3, 0) node[above left, outer sep = 3pt] {\(x\)};
+\draw[->] (0, -3) -- (0, 3) node[below right, outer sep = 3pt] {\(y\)};
+\draw[DarkBlue, thick] plot [smooth, domain = -3:3]
+    (\x, {$eqn_plot[$i]});
+END_TIKZ
+}
+
+$k = random(0, 3);
+
+@perm     = shuffle(4);
+@graph    = @graph[@perm];
+@alt_text = @alt_text[@perm];
+@inv      = invert(@perm);
+
+@letters = ('A', 'B', 'C', 'D');
+$popup   = DropDown(~~@letters, $letters[ $inv[$k] ]);
+
+#:% section = statement
+#: The `LayoutTable` method provided by PODLINK('niceTables.pl') is used via its
+#: `PGML` syntax to organize the graphs into columns. See
+#: PROBLINK('LayoutTable.pg') for a more detailed example of how to do this.
+BEGIN_PGML
+Consider the exponential equation [`[$eqn[$k]]`].  Sketch a graph of this
+equation on paper without using a calculator.
+
+Which graph below most closely matches the graph you drew? [_]{$popup}
+
+[#
+    [.
+        [#
+            [.A.]*
+            [.[![$alt_text[0]]!]{$graph[0]}.]
+        #]*{ padding => [ 0, 0.1 ] }
+    .]
+    [.
+        [#
+            [.B.]*
+            [.[![$alt_text[1]]!]{$graph[1]}.]
+        #]*{ padding => [ 0, 0.1 ] }
+    .]*
+
+    [.
+        [#
+            [.C.]*
+            [.[![$alt_text[2]]!]{$graph[2]}.]
+        #]*{ padding => [ 0, 0.1 ] }
+    .]
+    [.
+        [#
+            [.D.]*
+            [.[![$alt_text[3]]!]{$graph[3]}.]
+        #]*{ padding => [ 0, 0.1 ] }
+    .]
+#]*{ align => 'cc' }  
+>>(Click on a graph to enlarge it.)<<
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

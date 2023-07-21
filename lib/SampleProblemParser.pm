@@ -91,7 +91,7 @@ sub parseSampleProblem ($file, %global) {
 			@code_rows = ();
 		} elsif ($row =~ /^#:/) {
 			# This section is documentation to be parsed.
-			$row = $row =~ s/^#://r;
+			$row = $row =~ s/^#:\s?//r;
 
 			# Parse any LINK/PODLINK/PROBLINK commands in the documentation.
 			if ($row =~ /(POD|PROB)?LINK\('(.*?)'\s*(,\s*'(.*)')?\)/) {

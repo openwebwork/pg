@@ -18,8 +18,8 @@
 
 #:% section = preamble
 #: This example shows how to get student input in the form of points
-#: by using interactive graphing tools. Load the `parserGraphTool.pl` macro for
-#: this.
+#: by using interactive graphing tools. Load the PODLINK('parserGraphTool.pl')
+#: macro for this.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
@@ -39,13 +39,13 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #: In this case the options that are set are:
 #:
 #: * `bBox`: This is an array reference of four values `xmin, ymax, xmax, ymin`
-#: indicating the upper left and lower right corners of the visible graph.
+#:   indicating the upper left and lower right corners of the visible graph.
 #: * `availableTools`: This determines which tools will be available for the
-#: student to use.
+#:   student to use.
 #: * `showCoordinateHints`: Setting this to 0 turns off coordinate hints, which
-#: would show students the coordinates the cursor is over.
+#:   would show the coordinates of the point the cursor is over.
 #:
-#: For more details, see the PODLINK('POD documentation','parserGraphTool.pl')
+#: For more details, see the PODLINK('POD','parserGraphTool.pl').
 $x1 = non_zero_random(-5, 5);
 $y1 = non_zero_random(-5, 5);
 
@@ -66,10 +66,9 @@ Graph the points [`([$x1], [$y1])`] and [`([$x2], [$y2])`].
 [_]{$gt}
 END_PGML
 
-#:% section=solution
-
+#:% section = solution
 BEGIN_PGML_SOLUTION
-
+Solution explanation goes here.
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

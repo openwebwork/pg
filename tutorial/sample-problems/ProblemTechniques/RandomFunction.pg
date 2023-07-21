@@ -1,0 +1,55 @@
+## DESCRIPTION
+## This demonstrates how to get a random function.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('random function')
+
+#:% name = Random Function
+#:% type = [technique]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: First, generate the random numbers needed as well as an array of functions
+#: that depend on the random numbers generated.
+#:
+#: The statement `$functions[ random(0, $#functions) ]` generates a random
+#: number between 0 and the index of the last element of the @functions array
+#: (in this case 4), and selects that element of the @functions array. The
+#: selected element is then converted to a MathObject `Formula` which will be
+#: the answer for this problem.
+$a = non_zero_random(-8, 8);
+$b = random(1, 8);
+$n = random(2, 4);
+
+@functions = (
+    "1 + $a*x + $b x^2",
+    "$a / (1 + $b x)",
+    "$a x^3 + $b",
+    "($a - x) / ($b + x^2)",
+    "cos($n*x)"
+);
+
+# This select one of the functions at random.
+$f = Formula($functions[ random(0, $#functions) ])->reduce;
+
+#:% section = statement
+BEGIN_PGML
+Enter [``[$f]``]: [____]{$f}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
