@@ -17,9 +17,9 @@
 #:% categories = [answers]
 
 #:% section = preamble
-#: For this problem, we want to enter in differential equations, and the variables
-#: will be `y', y''` and the resulting equation will be implicit, so the macro
-#: `parserImplicitEquation.pl` is used.
+#: For this problem a differential equation is the answer, the variables in
+#: that equation will include `y'` and `y''`, and the resulting equation will be
+#: implicit. So the macro PODLINK('parserImplicitEquation.pl') is used.
 DOCUMENT();
 
 loadMacros(
@@ -28,9 +28,11 @@ loadMacros(
 );
 
 #:% section = setup
-#: We switch the context to `ImplicitEquation` and then includes the variable `y, y', y''`
-#: and `t`.  The line `Context()->variables->{namePattern} = qr/[ty]'*/i;` is used to make sure
-#: that primes can be included in the answer.
+#: Switch to the `ImplicitEquation` context and then include the variables `y`,
+#: `y'`, `y''`, and `t`.
+#:
+#: Setting `Context()->variables->{namePattern} = qr/[ty]'*/i` allows primes to
+#: be included in the answer.
 Context('ImplicitEquation');
 Context()->variables->{namePattern} = qr/[ty]'*/i;
 Context()->variables->are(

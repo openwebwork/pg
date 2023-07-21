@@ -17,26 +17,30 @@
 #:% see_also = [MultipleChoiceRadio.pg, MultipleChoicePopup.pg, ManyMultipleChoice.pg]
 
 #:% section = preamble
-#: Include `parserCheckboxList.pl` in the `loadMacros`.
+#: The PODLINK('parserCheckboxList.pl') is used for check box answers.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserCheckboxList.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: To setup, `CheckboxList` creates a new object. The format is
-#:```{#constructor .perl}
-#: $checks = CheckboxList([choices, ...], [correct_choices, ...], options);
-#:```
-#: where the `correct_choices` can either match those in `choices` or be the indices
-#: (starting at 0).
+#: First, call `CheckboxList` to create a check box list answer object. The
+#: format is
 #:
-#: If we nest `choices` in another arrayref, then the order of the choices will be randomized.
+#: ```{#constructor .perl}
+#: CheckboxList([choices, ...], [correct_choices, ...], options);
+#: ```
 #:
-#: Using the option `separator` and setting to `$SPACE x 10` results in
-#: a horizontal checklist.  Note that `$SPACE` should be used and not `&nbsp;` so that
-#: this works in both html and hardcopy.
+#: where the `correct_choices` can either match those in `choices` or be the
+#: indices (starting at 0).
 #:
-#: See PODLINK('the POD', 'parserCheckboxList.pl') for more options.
+#: If we nest `choices` in another array reference, then the order of the
+#: choices will be randomized.
+#:
+#: Setting the option `separator` to `$SPACE x 10` results in a horizontal
+#: checklist.  Note that `$SPACE` should be used and not `&nbsp;` so that
+#: this works in both html and hard copy.
+#:
+#: See PODLINK('parserCheckboxList.pl') for more options.
 $checks1 = CheckboxList(
     [
         "\(e^{x^2} e^{1/x}\)",
@@ -78,11 +82,11 @@ There may be more than one correct answer.
 
 [_]{$checks1}
 
-**Alternative with randomly ordered choices**
+*Alternative with randomly ordered choices*
 
 [_]{$checks2}
 
-**Alternative shown with horizontal spacing**
+*Alternative shown with horizontal spacing*
 
 [_]{$checks3}
 END_PGML

@@ -21,13 +21,12 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: To use complex numbers, we need to switch context with `Context('Complex')`.
-#: There are many ways to create a complex number.  Notice on the 4th one
-#: `i` is defined and can be used naturally.
+#: To use complex numbers, switch to the `Complex` context with
+#: `Context('Complex')`.
 #:
-#: Also, the standard operations go through as expected.
-#: Notice that for the first two questions, we give the store the answer in
-#: a variable.
+#: Several ways to create a complex number that are demonstrated. Notice for the
+#: 4th example that `i` is defined as a MathObject complex number that can be
+#: used directly in Perl computations.
 Context('Complex');
 
 $z0 = Complex(non_zero_random(-5, 4), non_zero_random(-5, 5));
@@ -41,22 +40,26 @@ $a1   = random(1, 5);
 $ans2 = Compute("$a0*$z1-$a1*$z2");
 
 #:% section = statement
-#: Note that in the last three answer blanks, the correct answer is
-#: in the `{}` instead of stored as a variable, like the first two.
-#: Either method is correct and it varies on which to use.
-#: Recall that the perl power `**` is used in the last one.
+#: For the last three answer rules, the correct answer is directly computed from
+#: previously defined variables in the answer rule option braces `{...}` instead
+#: of being stored in another variable, as in the first two answer rules. Either
+#: method is correct. Usually you would only need store the answer in a variable
+#: if it will be used in other places in the code as well which is not done even
+#: for the first two answers rules in this case.
+#:
+#: Note that the `**` in the last answer is the Perl exponent operator.
 BEGIN_PGML
-Let [`z_0=[$z0]`], [`z_1=[$z1]`], [`z_2=[$z2]`] and [`z_3=[$z3]`]. Find
+Let [`z_0 = [$z0]`], [`z_1 = [$z1]`], [`z_2 = [$z2]`] and [`z_3 = [$z3]`]. Find
 
-[`z_0+z_1=`] [___]{$ans1}
+[`z_0+z_1 =`] [___]{$ans1}
 
-[`[$a0]z_1-[$a1]z_2=`] [_____]{$ans2}
+[`[$a0]z_1 - [$a1]z_2 =`] [_____]{$ans2}
 
-[`z_1z_2=`] [___]{$z1*$z2}
+[`z_1 z_2 =`] [___]{$z1*$z2}
 
-[``\frac{z_3}{z_0}= ``] [___]{$z3/$z0}
+[``\frac{z_3}{z_0} =``] [___]{$z3/$z0}
 
-[`` z_2^2=``] [__]{$z2**2}
+[``z_2^2 =``] [__]{$z2**2}
 END_PGML
 
 #:% section = solution

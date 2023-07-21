@@ -18,13 +18,14 @@
 #:% section = preamble
 #: This example shows how to get student input in the form of a graph (a circle)
 #: by using interactive graphing tools, and demonstrates the usage of a custom
-#: checker.  Load the `parserGraphTool.pl` macro for this.
+#: checker.  Load the PODLINK('parserGraphTool.pl') macro for this.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: The variables `$h`, `$k` and `$r` randomly pick a center and radius of the circle.
+#: The variables `$h`, `$k` and `$r` randomly pick a center and radius of the
+#: circle.
 #:
 #: The lines
 #:
@@ -49,8 +50,8 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #:
 #: * `bBox`: this is an array reference of four values xmin, ymax, xmax, ymin
 #: indicating the upper left and lower right corners of the visible graph.
-#: * `cmpOptions`: this is a hash of options passed to the cmp method for checking
-#: the answer.
+#: * `cmpOptions`: this is a hash of options passed to the cmp method for
+#: checking the answer.
 #:
 #: The option
 #:
@@ -140,7 +141,7 @@ $gt = GraphTool("{circle, solid, ($h, $k), ($h + $r, $k)}")->with(
 );
 
 #:% section = statement
-#: This asks to graph the circle given by the equation. The code
+#: This asks the student to graph the circle given by the equation. The code
 #: `[_]{$gt}` inserts the GraphTool.
 BEGIN_PGML
 Graph the circle given by the following equation.
@@ -154,14 +155,14 @@ END_PGML
 #: The solution describes how to obtain the graph of the circle from the
 #: equation.
 BEGIN_PGML_SOLUTION
-The equation of the circle of the form:
+The equation of the circle given by the equation
 
     [`[$circle_eq_lhs] = [$r ** 2]`]
 
-has a center at [`([$h],[$k])`] and radius [$r].  To enter the graph, click the
-circle tool, then click the center at [`([$h],[$k])`] and then click a second
-point that is [$r] units from the center.  This is easist going left, right, up
-or down from the center.
+has center at [`([$h],[$k])`] and radius [$r].  To enter the graph, click the
+circle tool, then click on the center at [`([$h],[$k])`] and then click on a
+second point that is [$r] units from the center.  This is easiest going left,
+right, up or down from the center.
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

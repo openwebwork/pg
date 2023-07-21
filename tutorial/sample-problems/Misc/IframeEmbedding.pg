@@ -21,13 +21,13 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We create a mode dependent variable `$slideshow` that displays a
-#: Google slideshow inside an html `iframe` when in html mode, and
-#: the message "An embedded Google slide show." in TeX mode.  If you omit the
-#: TeX mode stuff, then there will be errors when the pdf hardcopy is generated.
-#: Similarly for the `$video`.  (Searching the web for "YouTube embed
-#: video" should bring up instructions for how to get the code to embed a YouTube
-#: video into a webpage.)
+#: Create a mode dependent variable `$slideshow` that displays a Google
+#: slideshow inside an html `iframe` when in html mode, and the message
+#: "An embedded Google slide show." in TeX mode. If you omit the TeX mode, then
+#: there will be errors when the PDF hard copy is generated. Similarly for the
+#: `$video`. (Searching the web for "YouTube embed video" should bring up
+#: instructions for how to get the code to embed a YouTube video into a
+#: webpage.)
 
 $slideshow = MODES(
     HTML => tag(
@@ -52,7 +52,7 @@ $video = MODES(
 );
 
 #:% section = statement
-#: Include the `$slideshow` and `$video` wherever you like.
+#: Include the `$slideshow` and `$video`.
 BEGIN_PGML
 # Embedded Google slides
 

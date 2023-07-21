@@ -17,36 +17,38 @@
 #:% categories = [volume, solid of revolution, disk method]
 
 #:% section = preamble
-#: We load `weightedGrader.pl` and install it. We load `answerHints.pl` to give
-#: student feedback on particular incorrect answers. We load `niceTables.pl` so
-#: that we can construct tables in HTML mode that will make the answer blanks
-#: for the limits of integration appear at the top and bottom of the integral
-#: symbol.
+#: Load the PODLINK('weightedGrader.pl') macro so that weights can be assigned
+#: to the various answers in the problem. Load the PODLINK('answerHints.pl')
+#: macro to give student feedback on particular incorrect answers. Note that the
+#: PODLINK('niceTables.pl') macro is loaded via the `PGML.pl` macro, and is used
+#: to construct a table that will make the answer rules for the limits of
+#: integration appear at the top and bottom of the integral symbol.
 #:
-#: If the weighted grader is to be used, the command
-#: `install_weighted_grader();` must be called.
+#: Then call the `install_weighted_grader` method to use the weighted grader.
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',     'PGML.pl',
-    'niceTables.pl',     'answerHints.pl',
-    'weightedGrader.pl', 'PGcourse.pl'
+    'PGstandard.pl',  'PGML.pl',
+    'answerHints.pl', 'weightedGrader.pl',
+    'PGcourse.pl'
 );
 
 install_weighted_grader();
 
 #:% section = setup
-#: To keep the code that needs to be modified compartmentalized, we define the
-#: functions involved, the limits of integration, the integrand, the volume, and
-#: an array of weights (which sum to 100) for each of these answers.
+#: First, the variables `x`, `dx`, `y`, and `dy` are added to the context.
 #:
-#: The code for correctly displaying the answer blanks creates `$integral` which
-#: will be displayed correctly both in TeX and HTML modes. Notice that it uses
-#: `NAMED_ANS_RULE(name, width)` for all of the answer blanks instead of
-#: `ans_rule(width)`.
+#: Then the limits of integration, the integrand, and the volume are computed.
 #:
-#: We define `$integral` to display the integral and answer
-#: blanks correctly using a `LayoutTable` from PODLINK('niceTables.pl').
+#: Finally, answer names are generated for all of the answers in the problem.
+#: Never use hard coded made up answer names in problems. Always obtain an
+#: answer name using the `NEW_ANS_NAME` method. Problems that use hard coded
+#: made up answer names will not work correctly in many situations. Also note
+#: that answer names are not actually needed for this problem. They could be
+#: removed entirely and it would still function correctly. However, they are
+#: needed for the method to give full credit for a correct volume answer
+#: if the answers given for the other answer rules are left blank (or are
+#: correct) that is described in the statement section.
 Context()->variables->are(x => 'Real', dx => 'Real', y => 'Real', dy => 'Real');
 
 $upper = Real('1');
@@ -54,90 +56,77 @@ $lower = Real('0');
 $int   = Compute('(pi x^2 - pi x^4) dx');
 $vol   = Compute('2pi/15');
 
-$integral = LayoutTable(
-    [
-        [ ' ', NAMED_ANS_RULE('upperlimit', 4) ],
-        [
-            '\(V= \)',
-            '\(\displaystyle \int \;\;\)'
-                . NAMED_ANS_RULE('integrand', 10)
-                . '\(\;=\;  \)'
-                . NAMED_ANS_RULE('volume', 4)
-        ],
-        [ ' ', NAMED_ANS_RULE('lowerlimit', 4) ],
-    ],
-    align      => 'rl',
-    valign     => 'middle',
-    allcellcss => { padding => '3pt' }
-);
+$upperLimit = NEW_ANS_NAME();
+$lowerLimit = NEW_ANS_NAME();
+$integrand  = NEW_ANS_NAME();
+$volume     = NEW_ANS_NAME();
 
-@weights = (5, 5, 40, 50);
 #:% section = statement
-#: Standard PGML and latex is used to describe the problem.  The integral
-#: that was formatted using a table above is inserted with `[$integral]*`
+#: Standard PGML is used to describe the problem.
 #:
-#: A note is added that specifies for the students how the
-#: answer will be graded (the `weightedGrader.pl` macro does not do this
-#: automatically, as some other graders do.)
+#: Then the integral is formatted with a `LayoutTable` from the
+#: PODLINK('niceTables.pl') macro using its `PGML` syntax. Note that each answer
+#: rule is given the appropriate name from the names generated before in the
+#: last answer rule option. In addition the weight for each answer is passed via
+#: the `weight` option to the `cmp` method.
+#:
+#: Answer hints for various incorrect answers are provided for the integrand
+#: answer by adding `->withPostFilter(AnswerHints(...))` to the `cmp` call.
+#:
+#: If you would like to give full credit for a correct volume answer if the
+#: answers given for the other answer rules are left blank (or are correct),
+#: then change
+#: `[.[_]{$vol->cmp(weight => 50)}{4}{$volume}.]*` to
+#: ```{.perl}
+#: [.
+#:     [_]{
+#:         $vol->cmp(
+#:             weight => 50,
+#:             credit => [ $upperLimit, $lowerLimit, $integrand ]
+#:         )
+#:     }{4}{$volume}
+#: .]*
+#: ```
+#:
+#: If you want to give equal credit for all answers, then remove the weight
+#: options from the `cmp` calls.
 BEGIN_PGML
 Set up and evaluate an integral for the volume of the solid of revolution
 obtained by rotating the region bounded by [`y = x`] and [`y = x^2`] about
 the [`x`]-axis.
 
-[$integral]*
+[#
+    [. .] [.[_]{$upper->cmp(weight => 5)}{4}{$upperLimit}.]*
 
-[@ MODES(
-    TeX  => '',
-    HTML => << "END_HTML"
-${BITALIC}${BBOLD}Note:${EBOLD} You can earn
-$weights[0]${PERCENT} for the upper limit of integration,
-$weights[1]${PERCENT} for the lower limit of integration,
-$weights[2]${PERCENT} for the integrand, and
-$weights[3]${PERCENT} for the finding the volume.
-${EITALIC}
-END_HTML
-) @]*
+    [.[`V =`].]
+    [.[``\int``].]
+    [.
+        [_]{
+            $int->cmp(weight => 40)->withPostFilter(AnswerHints(
+                Formula('pi x^2 - pi x^4 dx') =>
+                    "Don't forget to multiply every term in the integrand by dx",
+                Formula('pi(x^2 - x^4)')   => "Don't forget the differential dx",
+                Formula('pi(x^4 - x^2)dx') => 'Is the parabola above the line?',
+                Formula('pi(x^4 - x^2)')   => 'Is the parabola above the line?',
+                Formula('pi(x - x^2)')     => 'Make sure you use the disk method.',
+                Formula('pi(x - x^2)dx')   => 'Make sure you use the disk method.',
+            ))
+        }{10}{$integrand}
+    .]
+    [.[`\;=\;`].]
+    [.[_]{$vol->cmp(weight => 50)}{4}{$volume}.]*
+
+    [. .] [.[_]{$lower->cmp(weight => 5)}{4}{$lowerLimit}.]
+#]*{
+    align      => 'rl',
+    valign     => 'middle',
+    allcellcss => { padding => '3pt' }
+}
 END_PGML
-
-#:% section = answer
-#: To install the answer evaluator call
-#: `NAMED_WEIGHTED_ANS(name => $answer->cmp()->withPostFilter(), weight)`
-#: instead of using `ANS($answer->cmp()->withPostFilter())`. Providing
-#: customized answer hints for students is a good idea, because the whole point
-#: of this homework exercise it to learn how to set up this integral using
-#: proper notation. If we just wanted to ask for the volume, we could have done
-#: it using only one answer blank.
-#:
-#: If you would like to give full credit for the overall volume, you can
-#: replace the last `NAMED_WEIGHTED_ANS` with
-#:```{.perl}
-#:CREDIT_ANS($vol->cmp, [ 'upperlimit', 'lowerlimit', 'integrand' ], $weights[3]);
-#:```
-#:
-#: Of course, if you want to give equal credit, then each of the
-#: `NAMED_WEIGHTED_ANS` commands can be replaced with `ANS`, however
-#: make sure that they listed in order.
-NAMED_WEIGHTED_ANS(upperlimit => $upper->cmp, $weights[0]);
-NAMED_WEIGHTED_ANS(lowerlimit => $lower->cmp, $weights[1]);
-NAMED_WEIGHTED_ANS(
-    integrand => $int->cmp->withPostFilter(AnswerHints(
-        Formula('pi x^2 - pi x^4 dx') =>
-            "Don't forget to multiply every term in the integrand by dx",
-        Formula('pi (x^2 - x^4)')  => "Don't forget the differential dx",
-        Formula('pi(x^4 - x^2)dx') => 'Is the parabola above the line?',
-        Formula('pi(x^4 - x^2)')   => 'Is the parabola above the line?',
-        Formula('pi(x - x^2)')     => 'Make sure you use the disk method.',
-        Formula('pi(x - x^2)dx')   => 'Make sure you use the disk method.',
-    )),
-    $weights[2]
-);
-NAMED_WEIGHTED_ANS('volume' => $vol->cmp, $weights[3]);
 
 #:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-COMMENT('Weights each answer blank separately.');
 
 ENDDOCUMENT();
