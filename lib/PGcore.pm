@@ -682,14 +682,12 @@ sub DESTROY {
 	# doing nothing about destruction, hope that isn't dangerous
 }
 
-# This creates on the fly graphs
-
 =head2 insertGraph
 
 	# returns a path to the file containing the graph image.
 	$filePath = insertGraph($graphObject);
 
-insertGraph writes a GIF or PNG image file to the images subdirectory of the
+insertGraph writes an image file to the images subdirectory of the
 current course's HTML temp directory. The file name is obtained from the graph
 object. Warnings are issued if errors occur while writing to the file.
 
@@ -701,40 +699,40 @@ image. This is most often used in the construct
 where alias converts the directory address to a URL when serving HTML pages and
 insures that an EPS file is generated when creating TeX code for downloading.
 
+Note that a file is only actually written in the temporary directory if the file
+does not already exist, or the last modified time of the problem file is sooner
+than the last modified time of existing temporary file, or the set is an
+undefined set (for instance, the problem is loaded from the library browser), or
+C<$refreshCachedImages> is true.
+
 =cut
 
-# ^function insertGraph
-# ^uses $WWPlot::use_png
-# ^uses convertPath
-# ^uses surePathToTmpFile
-# ^uses PG_restricted_eval
-# ^uses $refreshCachedImages
-# ^uses $templateDirectory
-# ^uses %envir
 sub insertGraph {
-	# Convert the image to GIF and print it on standard output
-	my $self              = shift;
-	my $graph             = shift;
-	my $fileName          = $graph->imageName . "." . $graph->ext;
-	my $filePath          = $self->convertPath("images/$fileName");
-	my $templateDirectory = $self->{envir}{templateDirectory};
-	$filePath = $self->surePathToTmpFile($filePath);
-	my $refreshCachedImages = $self->PG_restricted_eval(q!$refreshCachedImages!);
-	# Check to see if we already have this graph, or if we have to make it
-	if (
-		not -e $filePath                                                                         # does it exist?
-		or
-		((stat "$templateDirectory" . $self->{envir}{probFileName})[9] > (stat $filePath)[9])    # source has changed
-		or $self->{envir}{setNumber} =~ /Undefined_Set/    # problems from SetMaker and its ilk should always be redone
-		or $refreshCachedImages
-		)
+	my ($self, $graph) = @_;
+
+	my $fileName = $graph->imageName . '.' . $graph->ext;
+	my $filePath = $self->surePathToTmpFile($self->convertPath("images/$fileName"));
+
+	# Check to see if we already have this graph, or if we have to make it.
+	if (!-e $filePath
+		|| (stat "$self->{envir}{templateDirectory}$self->{envir}{probFileName}")[9] > (stat $filePath)[9]
+		|| $self->{envir}{setNumber} =~ /Undefined_Set/
+		|| $self->PG_restricted_eval(q!$refreshCachedImages!))
 	{
-		open(my $fh, ">", $filePath) || warn("$0", "Can't open $filePath<BR>", "");
-		chmod(0777, $filePath);
-		print $fh $graph->draw || warn("$0", "Can't print graph to $filePath<BR>", "");
-		close($fh)             || warn("$0", "Can't close $filePath<BR>",          "");
+		my $graphData = $graph->draw;
+		if ($graphData) {
+			if (open(my $fh, '>', $filePath)) {
+				chmod(0777, $filePath);
+				print $fh $graphData;
+				close($fh) or warn "Can't close $filePath";
+			} else {
+				warn "Can't open $filePath";
+			}
+		} else {
+			warn "Error generating graph for $filePath";
+		}
 	}
-	$filePath;
+	return $filePath;
 }
 
 =head2 getUniqueName
