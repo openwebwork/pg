@@ -65,7 +65,7 @@ sub convertFile ($file) {
 
 	while (my $row = shift @file_contents) {
 		chomp($row);
-		if ($row =~ /BEGIN_(TEXT|HINT|SOLUTION)/) {
+		if ($row =~ /BEGIN_(TEXT|HINT|SOLUTION)/ || $row =~ /SOLUTION\(EV3\(<<\'END_SOLUTION\'\)\);/) {
 			push(@pgml_block, $row);
 			$in_pgml_block = 1;
 		} elsif ($row =~ /END_(TEXT|HINT|SOLUTION)/) {
@@ -73,6 +73,8 @@ sub convertFile ($file) {
 			$in_pgml_block = 0;
 			my $pgml_rows = convertPGMLBlock(\@pgml_block);
 			push(@all_lines, @$pgml_rows);
+			# print Dumper $pgml_rows;
+			@pgml_block = ();
 		} elsif ($in_pgml_block) {
 			push(@pgml_block, $row);
 		} elsif ($row =~ /loadMacros\(/) {
@@ -136,24 +138,35 @@ sub convertPGMLBlock ($block) {
 		my $add_blank_line = ($row =~ /\$PAR/);
 		$row = $row =~ s/(BEGIN|END)_TEXT/$1_PGML/r;
 		$row = $row =~ s/(BEGIN|END)_(SOLUTION|HINT)/$1_PGML_$2/r;
+		$row = $row =~ s/SOLUTION\(EV3\(<<\'END_PGML_SOLUTION\'\)\);/BEGIN_PGML_SOLUTION/r;
+		# remove $PAR, and $SPACE
 		$row = $row =~ s/\$PAR//gr;
+		$row = $row =~ s/\$SPACE//gr;
+
 		# need to add blank lines;
-		$row = $row =~ s/\$BR$/ /gr;
+		$row = $row =~ s/\$BR$/  /gr;
 		# how to handle $BR in middle of a line
-		$row = $row =~ s/\$(E|B)BOLD/*/gr;
-		$row = $row =~ s/\$(E|B)ITALICS/_/gr;
+		$row = $row =~ s/\s*\$EBOLD/*/gr;
+		$row = $row =~ s/\$BBOLD\s*/*/gr;
+		$row = $row =~ s/\s*\$EITALICS/*/gr;
+		$row = $row =~ s/\$BITALICS\s*/*/gr;
+
 		$row = $row =~ s/\$BCENTER/>>/r;
 		$row = $row =~ s/\$ECENTER/<</r;
 		$row = $row =~ s/\\\(/[`/gr;
 		$row = $row =~ s/\\\)/`]/gr;
 		$row = $row =~ s/\\\[/[``/gr;
 		$row = $row =~ s/\\\]/``]/gr;
-		$row = $row =~ s/(\$\w+)(\W)/[$1]$2/gr;
+		# replace the variables in the PGML block.  Don't if it is in a \{ \}
+		# Note that the first is for variables at the end of the line.
+		$row = $row =~ s/(\$\w+)$/[$1]/gr;
+		$row = $row =~ s/(\$\w+)(\W)/[$1]$2/gr
+			unless $row =~ /\\\{.*(\$\w+)(\W).*\\\}/;
 
 		$row = $row =~ s/\\\{\s*ans_rule\((\d+)\)\s*\\\}/\[_\]{}{$1}/gr;
 
 		$row = $row =~ s/\\\{/[@/r;
-		$row = $row =~ s/\\\}/@]/r;
+		$row = $row =~ s/\\\}/@]*/r;
 		push(@new_rows, $row);
 		push(@new_rows, '') if $add_blank_line;
 	}
