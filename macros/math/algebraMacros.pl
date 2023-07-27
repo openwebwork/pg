@@ -3,7 +3,7 @@
 # define any custom subroutines you want and then use them in
 # problems by including the file in loadMacros() calls.
 
-sub _init_macro_template {
+sub _algebraMacros_init {
 
 	#Possibly add initialization code here
 	#sub routine is not required, but prevents the macro from being re-loaded
