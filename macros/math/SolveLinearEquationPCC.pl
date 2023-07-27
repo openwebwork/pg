@@ -2,7 +2,7 @@
 
 loadMacros('PCCmacros.pl');
 
-sub _init_SolveLinearEquationPCC {
+sub _SolveLinearEquationPCC_init {
 
 	#Possibly add initialization code here
 	#sub routine is not required, but prevents the macro from being re-loaded
