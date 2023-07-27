@@ -771,7 +771,7 @@ sub translate {
 	# PG preprocessing code
 	$evalString =
 		'BEGIN { my $eval = __FILE__; $main::envir{__files__}{$eval} = "'
-		. $self->{envir}{probFileName} . '" };' . "\n"
+		. $self->{envir}{probFileName} . '" };'
 		. &{ $self->{preprocess_code} }($evalString);
 
 	my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_POST_HEADER_TEXT_REF, $PG_ANSWER_HASH_REF, $PG_FLAGS_REF,
@@ -1243,7 +1243,7 @@ sub PG_restricted_eval_helper {
 	# Many macros redefine methods using PG_restricted_eval.  This hides those warnings.
 	no warnings 'redefine';
 
-	return eval("package main;\n$code");
+	return eval("package main; $code");
 }
 
 sub PG_macro_file_eval {
@@ -1258,7 +1258,7 @@ sub PG_macro_file_eval {
 	my ($out, $errors) =
 		PG_macro_file_eval_helper('package main; be_strict();'
 			. 'BEGIN { my $eval = __FILE__; $main::envir{__files__}{$eval} = "'
-			. $filePath . '" };' . "\n"
+			. $filePath . '" };'
 			. $string);
 
 	if ($warnings) {
