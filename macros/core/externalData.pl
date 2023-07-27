@@ -20,7 +20,7 @@ a problem to the database. This is useful for using data common to multiple prob
 
 =cut
 
-sub _init_externalData { }
+sub _externalData_init { }
 
 =head2 store_number_list
 
