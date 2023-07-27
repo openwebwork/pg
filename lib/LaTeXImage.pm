@@ -203,7 +203,7 @@ sub draw {
 		close $fh;
 		system "cd $working_dir && "
 			. WeBWorK::PG::IO::externalCommand('latex')
-			. " image-dvisvgm.tex > latex.stdout 2> /dev/null && "
+			. " --interaction=nonstopmode image-dvisvgm.tex > latex.stdout 2> /dev/null && "
 			. WeBWorK::PG::IO::externalCommand('mv')
 			. " image-dvisvgm.dvi image.dvi";
 		chmod(0777, "$working_dir/image.dvi");
@@ -218,7 +218,7 @@ sub draw {
 		close $fh;
 		system "cd $working_dir && "
 			. WeBWorK::PG::IO::externalCommand('pdflatex')
-			. " image.tex > pdflatex.stdout 2> /dev/null";
+			. " --interaction=nonstopmode image.tex > pdflatex.stdout 2> /dev/null";
 		chmod(0777, "$working_dir/image.pdf");
 	}
 
