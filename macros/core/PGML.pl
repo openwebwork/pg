@@ -538,12 +538,12 @@ sub Quoted {
 			$pcount++;
 		} elsif ($open && $text eq $close && $pcount > 0) {
 			$pcount--;
-		} elsif (!$open || ($text ne $qclose && $pcount == 0)) {
+		} elsif ($pcount == 0 && $text ne $qclose) {
 			my $i = index($text, $close);
 			if ($i > -1) {
 				$self->Text(substr($text, 0, $i + 1));
 				$self->{split}[ $self->{i} ] = substr($text, $i + 1);
-				++$self->{i} if $open && $self->{split}[ $self->{i} ] =~ /\s*/;
+				$self->Text($self->{split}[ $self->{i}++ ]) if $self->{i} % 2;
 				return;
 			}
 		}
