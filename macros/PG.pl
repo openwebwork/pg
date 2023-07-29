@@ -1,7 +1,88 @@
-#use AnswerEvaluator;
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
 
-# provided by the translator
-# initialize PGcore and PGrandom
+=head1 NAME
+
+PG.pl - Provides core Program Generation Language functionality.
+
+=head1 SYNPOSIS
+
+In a PG problem:
+
+    DOCUMENT();             # should be the first statment in the problem
+
+    loadMacros(.....);      # (optional) load other macro files if needed.
+
+    HEADER_TEXT(...);       # (optional) used only for inserting javaScript into problems.
+
+    TEXT(                   # insert text of problems
+        "Problem text to be displayed. ",
+        "Enter 1 in this blank:",
+        ans_rule(30)        # ans_rule(30) defines an answer blank 30 characters long.
+                            # It is defined in PGbasicmacros.pl.
+    );
+
+    ANS(answer_evalutors);  # see PGanswermacros.pl for examples of answer evaluatiors.
+
+    ENDDOCUMENT()           # must be the last statement in the problem
+
+=head1 DESCRIPTION
+
+This file provides the fundamental macros that define the PG language. It
+maintains a problem's text, header text, and answers:
+
+=over
+
+=item *
+
+Problem text: The text to appear in the body of the problem. See L</TEXT>
+below.
+
+=item *
+
+Header text: When a problem is processed in an HTML-based display mode, this
+variable can contain text that the caller should place in the HEAD of the
+resulting HTML page. See L</HEADER_TEXT> below.
+
+=item *
+
+Implicitly labeled answers: Answers that have not been explicitly assigned
+names, and are associated with their answer blanks by the order in which they
+appear in the problem. These types of answers are designated using the L</ANS>
+macro.
+
+=item *
+
+Explicitly labeled answers: Answers that have been explicitly assigned names
+with the L</LABELED_ANS> macro, or a macro that uses it. An explicitly labeled
+answer is associated with its answer blank by name.
+
+=item *
+
+"Extra" answers: Names of answer blanks that do not have a 1-to-1 correspondence
+to an answer evaluator. For example, in matrix problems, there will be several
+input fields that correspond to the same answer evaluator.
+
+=back
+
+=head1 MACROS
+
+This file is automatically loaded into the namespace of every PG problem. The
+macros within can then be called to define the structure of the problem.
+
+=cut
 
 sub _PG_init {
 	$main::VERSION = "PG-2.15";
@@ -32,8 +113,14 @@ sub WARN_MESSAGE {
 	$PG->warning_message("---- " . join(" ", caller()) . " ------", @msg, "__________________________");
 }
 
-sub DOCUMENT {
+=head2 DOCUMENT
 
+C<DOCUMENT()> should be the first executable statement in any problem. It
+initializes variables and defines the problem environment.
+
+=cut
+
+sub DOCUMENT {
 	# get environment
 	$rh_envir = \%envir;      #KLUDGE FIXME
 							  # warn "rh_envir is ",ref($rh_envir);
@@ -80,30 +167,110 @@ sub DOCUMENT {
 $main::displayMode = $PG->{displayMode};
 $main::PG          = $PG;
 
+=head2 TEXT
+
+C<TEXT()> concatenates its arguments and appends them to the stored problem text
+string. It is used to define the text which will appear in the body of the
+problem. It can be used more than once in a file. For example,
+
+    TEXT("string1", "string2", "string3");
+
+This macro has no effect if rendering has been stopped with the
+C<STOP_RENDERING()> macro.
+
+This macro defines text which will appear in the problem. All text must be
+passed to this macro, passed to another macro that calls this macro, or included
+via a BEGIN_TEXT/END_TEXT or BEGIN_PGML/END_PGML block which uses this macro
+internally. No other statements in a PG file will directly appear in the output.
+Think of this as the "print" function for the PG language.
+
+Spaces are placed between the arguments during concatenation, but no spaces are
+introduced between the existing content of the header text string and the new
+content being appended.
+
+=cut
+
 sub TEXT {
 	$PG->TEXT(@_);
 }
+
+=head2 HEADER_TEXT
+
+C<HEADER_TEXT()> concatenates its arguments and appends them to the stored
+header text string. It can be used more than once in a file. For example,
+
+    HEADER_TEXT("string1", "string2", "string3");
+
+The macro is used for material which is destined to be placed in the HEAD of
+the page when in HTML mode, such as JavaScript code.
+
+Spaces are placed between the arguments during concatenation, but no spaces are
+introduced between the existing content of the header text string and the new
+content being appended.
+
+=cut
 
 sub HEADER_TEXT {
 	$PG->HEADER_TEXT(@_);
 }
 
+=head2 POST_HEADER_TEXT
+
+DEPRECATED
+
+Content added by this method is appended just after the page head. This method
+should no longer be used. There is no valid reason to add content after the
+page head, and not in the problem itself.
+
+=cut
+
 sub POST_HEADER_TEXT {
 	$PG->POST_HEADER_TEXT(@_);
 }
 
-# We expect valid HTML language codes, but there can also include a region code, or other
-# settings.
-#    See https://www.w3.org/International/questions/qa-choosing-language-tags
-# Example settings: en-US, en-UK, he-IL
-# Some special language codes (zh-Hans) are longer
-#    http://www.rfc-editor.org/rfc/bcp/bcp47.txt
-#    https://www.w3.org/International/articles/language-tags/
-#    https://www.w3.org/International/questions/qa-lang-2or3.en.html
-#    http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
-#    https://www.w3schools.com/tags/ref_language_codes.asp
-#    https://www.w3schools.com/tags/ref_country_codes.asp
-# Tester at https://r12a.github.io/app-subtags/
+=head2 SET_PROBLEM_LANGUAGE
+
+Valid HTML language codes are expected, but a region code or other settings may
+be included. See L<https://www.w3.org/International/questions/qa-choosing-language-tags>.
+
+    SET_PROBLEM_LANGUAGE($language)
+
+Example language codes: en-US, en-UK, he-IL
+
+Some special language codes (e.g. zh-Hans) are longer. See the following
+references.
+
+=over
+
+=item *
+
+L<http://www.rfc-editor.org/rfc/bcp/bcp47.txt>
+
+=item *
+
+L<https://www.w3.org/International/articles/language-tags/>
+
+=item *
+
+L<https://www.w3.org/International/questions/qa-lang-2or3.en.html>
+
+=item *
+
+L<http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry>
+
+=item *
+
+L<https://www.w3schools.com/tags/ref_language_codes.asp>
+
+=item *
+
+L<https://www.w3schools.com/tags/ref_country_codes.asp>
+
+=back
+
+There is a tester located at L<https://r12a.github.io/app-subtags/>
+
+=cut
 
 sub SET_PROBLEM_LANGUAGE {
 	my $requested_lang = shift;
@@ -118,18 +285,25 @@ sub SET_PROBLEM_LANGUAGE {
 	$PG->{flags}->{"language"} = $selected_lang;
 }
 
-# SET_PROBLEM_TEXTDIRECTION to set the HTML DIRection attribute to be applied
-# to the DIV element containing this problem.
+=head2 SET_PROBLEM_TEXTDIRECTION
 
-# We only permit valid settings for the HTML direction attribute:
-#      dir="ltr|rtl|auto"
-# https://www.w3schools.com/tags/att_global_dir.asp
+Call C<SET_PROBLEM_TEXTDIRECTION> to set the HTML C<dir> attribute to be applied
+to the C<div> element containing the problem.
 
-# It is likely that only problems written in RTL scripts
-# will need to call the following function to set the base text direction
-# for the problem.
+    SET_PROBLEM_TEXTDIRECTION($dir)
 
-# Note the flag may not be set, and then webwork2 will use default behavior.
+Only valid settings for the HTML C<dir> attribute are permitted.
+
+    dir="ltr|rtl|auto"
+
+See L<https://www.w3schools.com/tags/att_global_dir.asp>.
+
+It is likely that only problems written in RTL scripts will need to call the
+following function to set the base text direction for the problem.
+
+Note the flag may not be set, and then the default behavior will be used.
+
+=cut
 
 sub SET_PROBLEM_TEXTDIRECTION {
 	my $requested_dir = shift;
@@ -147,15 +321,16 @@ sub SET_PROBLEM_TEXTDIRECTION {
 	}
 }
 
-=head4 ADD_CSS_FILE
+=head2 ADD_CSS_FILE
 
-Request that the problem HTML page also include additional CSS files
-from the webwork2/htdocs/ directory or from an external location.
+Request that the problem HTML page also include additional CSS files from the
+C<pg/htdocs> directory or from an external location.
 
 	ADD_CSS_FILE($file, $external);
 
-If external is 1, it is assumed the full url is provided.  If external is 0 or
-not given, then file name will be prefixed with the webwork2/htdocs/ directory.
+If external is 1, it is assumed the full URL is provided. If external is 0 or
+not given, then file will be served from the C<pg/htdocs> directory (if found).
+
 For example:
 
 	ADD_CSS_FILE("css/rtl.css");
@@ -185,23 +360,24 @@ sub load_css() {
 	}
 }
 
-=head4 ADD_JS_FILE
+=head2 ADD_JS_FILE
 
-Request that the problem HTML page also include additional JS files
-from the webwork2/htdocs/ directory or from an external location.
+Request that the problem HTML page also include additional JavaScript files from
+the C<pg/htdocs> directory or from an external location.
 
 	ADD_JS_FILE($file, $external);
 
-If external is 1, it is assumed the full url is provided.  If external is 0 or
-not given, then file name will be prefixed with the webwork2/htdocs/ directory.
+If external is 1, it is assumed the full URL is provided. If external is 0 or
+not given, then file name will be served from the C<pg/htdocs> directory (if
+found).
 
 Additional attributes can be passed as a hash reference in the optional third
-argument.  These attributes will be added as attributes to the script tag.
+argument. These attributes will be added as attributes to the script tag.
 
 For example:
 
 	ADD_JS_FILE("js/Base64/Base64.js");
-	ADD_JS_FILE("//web.geogebra.org/4.4/web/web.nocache.js", 1);
+	ADD_JS_FILE("https://cdn.geogebra.org/apps/deployggb.js", 1);
 	ADD_JS_FILE("js/GraphTool/graphtool.js", 0, { id => "gt_script", defer => undef });
 
 =cut
@@ -247,6 +423,20 @@ sub sageReturnedFail {
 	return (not defined($obj) or (defined($obj->{success}) and $obj->{success} == 0));
 }
 
+=head2 LABELED_ANS
+
+Adds the answer evaluators listed to the list of labeled answer evaluators.
+They will be paired with labeled answer rules (a.k.a. answer blanks) in the
+order entered. This allows pairing of answer evaluators and answer rules that
+may not have been entered in the same order.
+
+An example of the usage is:
+
+    TEXT(labeled_ans_rule("name1"), labeled_ans_rule("name2"));
+    LABELED_ANS(name1 => answer_evaluator1, name2 => answer_evaluator2);
+
+=cut
+
 sub LABELED_ANS {
 	my @in  = @_;
 	my @out = ();
@@ -258,18 +448,61 @@ sub LABELED_ANS {
 	$PG->LABELED_ANS(@out);    # returns pointer to the labeled answer group
 }
 
+=head2 NAMED_ANS
+
+Alias for LABELED_ANS
+
+=cut
+
 sub NAMED_ANS {
 	&LABELED_ANS(@_);          # returns pointer to the labeled answer group
 }
 
+=head2 ANS
+
+Adds the answer evaluators listed to the list of unlabeled answer evaluators.
+They will be paired with unlabeled answer rules (a.k.a. answer blanks) in the
+order entered. This is the standard method for entering answers.
+
+    TEXT(ans_rule(), ans_rule(), ans_rule());
+    ANS($answer_evaluator1, $answer_evaluator2, $answer_evaluator3);
+
+In the above example, C<answer_evaluator1> will be associated with the first
+answer rule, C<answer_evaluator2> with the second, and C<answer_evaluator3> with
+the third. In practice, the arguments to C<ANS()> will usually be calls to an
+answer evaluator generator such as the C<cmp()> method of MathObjects or the
+C<num_cmp()> macro in L<PGanswermacros.pl>.
+
+=cut
+
 sub ANS {
 	#warn "using PGnew for ANS";
-	$PG->ANS(@_);              # returns pointer to the labeled answer group
+	$PG->ANS(@_);    # returns pointer to the labeled answer group
 }
+
+=head2 RECORD_ANS_NAME
+
+Records the label for an answer blank. Used internally by L<PGbasicmacros.pl>
+to record the order of explicitly labelled answer blanks.
+
+    RECORD_ANS_NAME("label", "VALUE");
+
+=cut
 
 sub RECORD_ANS_NAME {
 	$PG->record_ans_name(@_);
 }
+
+=head2 inc_ans_rule_count
+
+DEPRECATED
+
+Increments the internal count of the number of answer blanks that have been
+defined (C<$ans_rule_count>) and returns the new count. This should only be used
+when one is about to define a new answer blank, for example with
+C<NEW_ANS_NAME()>.
+
+=cut
 
 sub inc_ans_rule_count {
 	#$PG->{unlabeled_answer_blank_count}++;
@@ -282,6 +515,16 @@ sub inc_ans_rule_count {
 sub ans_rule_count {
 	$PG->{unlabeled_answer_blank_count};
 }
+
+=head2 NEW_ANS_NAME
+
+Generates an anonymous answer label from the internal count The label is added
+to the list of implicitly labeled answers. This is used internally by
+L<PGbasicmacros.pl> to generate labels for unlabeled answer blanks.
+
+    NEW_ANS_NAME();
+
+=cut
 
 sub NEW_ANS_NAME {
 	return "" if $PG_STOP_FLAG;
@@ -303,6 +546,19 @@ sub NEW_ANS_BLANK {
 	$PG->record_unlabeled_ans_name(@_);
 }
 
+=head2 ANS_NUM_TO_NAME
+
+Generates an answer label from the supplied answer number, but does not add it
+to the list of implicitly-labeled answers. Used internally by
+L<PGbasicmacros.pl> in generating answers blanks that use radio buttons or
+check boxes. (This type of answer blank uses multiple HTML INPUT elements with
+the same label, but the label should only be added to the list of implicitly
+labeled answers once.)
+
+    ANS_NUM_TO_NAME($num);
+
+=cut
+
 sub ANS_NUM_TO_NAME {
 	$PG->new_label(@_);    # behaves as in PG.pl
 }
@@ -322,6 +578,15 @@ sub get_persistent_data {
 	return $PG->get_persistent_data($label);
 }
 
+=head2 RECORD_FORM_LABEL
+
+Stores the label of a form field in the "extra" answers list. This is used to
+keep track of answer blanks that are not associated with an answer evaluator.
+
+    RECORD_FORM_LABEL("label");
+
+=cut
+
 sub RECORD_FORM_LABEL {    # this stores form data (such as sticky answers), but does nothing more
 						   # it's a bit of hack since we are storing these in the
 						   # KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
@@ -338,6 +603,15 @@ sub RECORD_EXTRA_ANSWERS {
 	$label;
 
 }
+
+=head2 NEW_ANS_ARRAY_NAME
+
+Generates a new answer label for an array (vector) element and adds it to the
+list of implicitly labeled answers.
+
+    NEW_ANS_ARRAY_NAME($num, $row, $col);
+
+=cut
 
 sub NEW_ANS_ARRAY_NAME {    # this keeps track of the answers within an array which are entered implicitly,
 							# rather than with a specific label
@@ -356,6 +630,15 @@ sub NEW_ANS_ARRAY_NAME {    # this keeps track of the answers within an array wh
 	#       my $array_label = shift;
 	$PG->record_array_name($label);    # returns $array_label, $ans_label
 }
+
+=head2 NEW_ANS_ARRAY_NAME_EXTENSION
+
+Generate an additional answer label for an existing array (vector) element and
+add it to the list of "extra" answers.
+
+    NEW_ANS_ARRAY_NAME_EXTENSION($num, $row, $col);
+
+=cut
 
 sub NEW_ANS_ARRAY_NAME_EXTENSION {
 	NEW_ANS_ARRAY_ELEMENT_NAME(@_);
@@ -436,6 +719,109 @@ sub EXTEND_RESPONSE {    # for radio buttons and checkboxes
 	}
 	'';
 }
+
+=head2 ENDDOCUMENT
+
+When PG problems are evaluated, the result of evaluating the entire problem is
+interpreted as the return value of C<ENDDOCUMENT()>. Therefore, C<ENDDOCUMENT()>
+must be the last executable statement of every problem. It can only appear once.
+It returns a list consisting of:
+
+=over
+
+=item *
+
+A reference to a string containing the rendered text of the problem.
+
+=item *
+
+A reference to a string containing text to be placed in the HEAD block
+when in and HTML-based mode (e.g. for JavaScript).
+
+=item *
+
+A reference to a string containing text to be placed immediately after the HEAD
+block when in and HTML-based mode.
+
+=item *
+
+A reference to the hash mapping answer labels to answer evaluators.
+
+=item *
+
+A reference to a hash containing various flags.  This includes the following
+flags:
+
+=over
+
+=item *
+
+C<showPartialCorrectAnswers>: determines whether students are told which of
+their answers in a problem are wrong.
+
+=item *
+
+C<recordSubmittedAnswers>: determines whether students submitted answers are
+saved.
+
+=item *
+
+C<refreshCachedImages>: determines whether the cached image of the problem in
+typeset mode is always refreshed (i.e. setting this to 1 means cached images are
+not used).
+
+=item *
+
+C<solutionExits>: indicates the existence of a solution.
+
+=item *
+
+C<hintExits>: indicates the existence of a hint.
+
+=item *
+
+C<comment>: contents of COMMENT commands if any.
+
+=item *
+
+C<PROBLEM_GRADER_TO_USE>: a reference to the chosen problem grader.
+C<ENDDOCUMENT> chooses the problem grader as follows:
+
+=over
+
+=item *
+
+If a problem grader has been chosen in the problem by calling
+C<install_problem_grader(\&grader)>, it is used.
+
+=item *
+
+Otherwise, if the C<PROBLEM_GRADER_TO_USE> PG environment variable contains a
+reference to a subroutine, it is used.
+
+=item *
+
+Otherwise, if the C<PROBLEM_GRADER_TO_USE> PG environment variable contains the
+string C<std_problem_grader> or the string C<avg_problem_grader>,
+C<&std_problem_grader> or C<&avg_problem_grader> are used. These graders are
+defined in L<PGanswermacros.pl>.
+
+=item *
+
+Otherwise, the C<PROBLEM_GRADER_TO_USE> flag will contain an empty value and the
+PG translator should select C<&std_problem_grader>.
+
+=back
+
+=back
+
+=item *
+
+A reference to the C<PGcore> object for this problem.
+
+=back
+
+=cut
 
 sub ENDDOCUMENT {
 	# Insert MathQuill responses if MathQuill is enabled.  Add responses to each answer's response group that store the
@@ -635,7 +1021,6 @@ sub ENDDOCUMENT {
 }
 
 sub alias {
-	#warn "alias called ",@_;
 	$PG->{PG_alias}->make_alias(@_);
 }
 
@@ -666,10 +1051,6 @@ sub findAppletCodebase {
 sub loadMacros {
 	$PG->{PG_loadMacros}->loadMacros(@_);
 }
-
-=head2 Problem Grader Subroutines
-
-=cut
 
 ## Problem Grader Subroutines
 
@@ -765,123 +1146,16 @@ sub ParserDefineLog {
 	}
 }
 
-=head2 Filter utilities
+=head2 includePGproblem
 
-These two subroutines can be used in filters to set default options.  They
-help make filters perform in uniform, predictable ways, and also make it
-easy to recognize from the code which options a given filter expects.
+Essentially runs the pg problem specified by C<$filePath>, which is a path
+relative to the top of the templates directory. The output of that problem
+appears in the given problem.
 
-
-=head4 assign_option_aliases
-
-Use this to assign aliases for the standard options.  It must come before set_default_options
-within the subroutine.
-
-		assign_option_aliases(\%options,
-				'alias1'	=> 'option5'
-				'alias2'	=> 'option7'
-		);
-
-
-If the subroutine is called with an option  " alias1 => 23 " it will behave as if it had been
-called with the option " option5 => 23 "
+    includePGproblem($filePath);
 
 =cut
 
-# ^function assign_option_aliases
-sub assign_option_aliases {
-	my $rh_options = shift;
-	warn "The first entry to set_default_options must be a reference to the option hash"
-		unless ref($rh_options) eq 'HASH';
-	my @option_aliases = @_;
-	while (@option_aliases) {
-		my $alias      = shift @option_aliases;
-		my $option_key = shift @option_aliases;
-
-		if (defined($rh_options->{$alias})) {    # if the alias appears in the option list
-			if (not defined($rh_options->{$option_key})) {    # and the option itself is not defined,
-				$rh_options->{$option_key} =
-					$rh_options->{$alias};    # insert the value defined by the alias into the option value
-											  # the FIRST alias for a given option takes precedence
-											  # (after the option itself)
-			} else {
-				warn "option $option_key is already defined as", $rh_options->{$option_key}, "<br>\n",
-					"The attempt to override this option with the alias $alias with value ", $rh_options->{$alias},
-					" was ignored.";
-			}
-		}
-		delete($rh_options->{$alias});    # remove the alias from the initial list
-	}
-
-}
-
-=head4 set_default_options
-
-		set_default_options(\%options,
-				'_filter_name'	=>	'filter',
-				'option5'		=>  .0001,
-				'option7'		=>	'ascii',
-				'allow_unknown_options	=>	0,
-		}
-
-Note that the first entry is a reference to the options with which the filter was called.
-
-The option5 is set to .0001 unless the option is explicitly set when the subroutine is called.
-
-The B<'_filter_name'> option should always be set, although there is no error if it is missing.
-It is used mainly for debugging answer evaluators and allows
-you to keep track of which filter is currently processing the answer.
-
-If B<'allow_unknown_options'> is set to 0 then if the filter is called with options which do NOT appear in the
-set_default_options list an error will be signaled and a warning message will be printed out.  This provides
-error checking against misspelling an option and is generally what is desired for most filters.
-
-Occasionally one wants to write a filter which accepts a long list of options, not all of which are known in advance,
-but only uses a subset of the options
-provided.  In this case, setting 'allow_unkown_options' to 1 prevents the error from being signaled.
-
-=cut
-
-# ^function set_default_options
-# ^uses pretty_print
-sub set_default_options {
-	my $rh_options = shift;
-	warn "The first entry to set_default_options must be a reference to the option hash"
-		unless ref($rh_options) eq 'HASH';
-	my %default_options = @_;
-	unless (defined($default_options{allow_unknown_options}) and $default_options{allow_unknown_options} == 1) {
-		foreach my $key1 (keys %$rh_options) {
-			warn "This option |$key1| is not recognized in this subroutine<br> ", pretty_print($rh_options)
-				unless exists($default_options{$key1});
-		}
-	}
-	foreach my $key (keys %default_options) {
-		if (not defined($rh_options->{$key}) and defined($default_options{$key})) {
-			$rh_options->{$key} =
-				$default_options{$key};    #this allows     tol   => undef to allow the tol option, but doesn't define
-										   # this key unless tol is explicitly defined.
-		}
-	}
-}
-
-=over
-
-=item includePGproblem($filePath)
-
- includePGproblem($filePath);
-
- Essentially runs the pg problem specified by $filePath, which is
- a path relative to the top of the templates directory.  The output
- of that problem appears in the given problem.
-
-=back
-
-=cut
-
-# ^function includePGproblem
-# ^uses %envir
-# ^uses &read_whole_problem_file
-# ^uses &includePGtext
 sub includePGproblem {
 	my $filePath     = shift;
 	my %save_envir   = %main::envir;
@@ -914,392 +1188,108 @@ sub includePGproblem {
 
 sub beginproblem;    # announce that beginproblem is a macro
 
-1;
-__END__
+=head1 FILTER UTILITIES
 
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
+These two subroutines can be used in filters to set default options. They help
+make filters perform in uniform, predictable ways, and also make it easy to
+recognize from the code which options a given filter expects.
 
-=head1 NAME
+=head2 assign_option_aliases
 
-PG.pl - Provides core Program Generation Language functionality.
+Use this to assign aliases for the standard options. It must come before
+set_default_options within the subroutine.
 
-=head1 SYNPOSIS
+    assign_option_aliases(\%options,
+        alias1 => 'option5'
+        alias2 => 'option7'
+    );
 
-In a PG problem:
-
-	DOCUMENT();             # should be the first statment in the problem
-
-	loadMacros(.....);      # (optional) load other macro files if needed.
-
-	HEADER_TEXT(...);       # (optional) used only for inserting javaScript into problems.
-
-	TEXT(                   # insert text of problems
-		"Problem text to be displayed. ",
-		"Enter 1 in this blank:",
-		ANS_RULE(1,30)      # ANS_RULE() defines an answer blank 30 characters long.
- 		                	# It is defined in F<PGbasicmacros.pl>
-	);
-
-	ANS(answer_evalutors);  # see F<PGanswermacros.pl> for examples of answer evaluatiors.
-
-	ENDDOCUMENT()           # must be the last statement in the problem
-
-=head1 DESCRIPTION
-
-This file provides the fundamental macros that define the PG language. It
-maintains a problem's text, header text, and answers:
-
-=over
-
-=item *
-
-Problem text: The text to appear in the body of the problem. See TEXT()
-below.
-
-=item *
-
-Header text: When a problem is processed in an HTML-based display mode,
-this variable can contain text that the caller should place in the HEAD of the
-resulting HTML page. See HEADER_TEXT() below.
-
-=item *
-
-Implicitly-labeled answers: Answers that have not been explicitly
-assigned names, and are associated with their answer blanks by the order in
-which they appear in the problem. These types of answers are designated using
-the ANS() macro.
-
-=item *
-
-Explicitly-labeled answers: Answers that have been explicitly assigned
-names with the LABELED_ANS() macro, or a macro that uses it. An explicitly-
-labeled answer is associated with its answer blank by name.
-
-=item *
-
-"Extra" answers: Names of answer blanks that do not have a 1-to-1
-correspondance to an answer evaluator. For example, in matrix problems, there
-will be several input fields that correspond to the same answer evaluator.
-
-=back
-
-=head1 USAGE
-
-This file is automatically loaded into the namespace of every PG problem. The
-macros within can then be called to define the structure of the problem.
-
-DOCUMENT() should be the first executable statement in any problem. It
-initializes vriables and defines the problem environment.
-
-ENDDOCUMENT() must be the last executable statement in any problem. It packs
-up the results of problem processing for delivery back to WeBWorK.
-
-The HEADER_TEXT(), TEXT(), and ANS() macros add to the header text string,
-body text string, and answer evaluator queue, respectively.
-
-=over
-
-=item HEADER_TEXT()
-
- HEADER_TEXT("string1", "string2", "string3");
-
-HEADER_TEXT() concatenates its arguments and appends them to the stored header
-text string. It can be used more than once in a file.
-
-The macro is used for material which is destined to be placed in the HEAD of
-the page when in HTML mode, such as JavaScript code.
-
-Spaces are placed between the arguments during concatenation, but no spaces are
-introduced between the existing content of the header text string and the new
-content being appended.
-
-
-
-=item TEXT()
-
- TEXT("string1", "string2", "string3");
-
-TEXT() concatenates its arguments and appends them to the stored problem text
-string. It is used to define the text which will appear in the body of the
-problem. It can be used more than once in a file.
-
-This macro has no effect if rendering has been stopped with the STOP_RENDERING()
-macro.
-
-This macro defines text which will appear in the problem. All text must be
-passed to this macro, passed to another macro that calls this macro, or included
-in a BEGIN_TEXT/END_TEXT block, which uses this macro internally. No other
-statements in a PG file will directly appear in the output. Think of this as the
-"print" function for the PG language.
-
-Spaces are placed between the arguments during concatenation, but no spaces are
-introduced between the existing content of the header text string and the new
-content being appended.
-
-
-
-=item ANS()
-
- TEXT(ans_rule(), ans_rule(), ans_rule());
- ANS($answer_evaluator1, $answer_evaluator2, $answer_evaluator3);
-
-Adds the answer evaluators listed to the list of unlabeled answer evaluators.
-They will be paired with unlabeled answer rules (a.k.a. answer blanks) in the
-order entered. This is the standard method for entering answers.
-
-In the above example, answer_evaluator1 will be associated with the first
-answer rule, answer_evaluator2 with the second, and answer_evaluator3 with the
-third. In practice, the arguments to ANS() will usually be calls to an answer
-evaluator generator such as the cmp() method of MathObjects or the num_cmp()
-macro in L<PGanswermacros.pl>.
-
-
-
-=item LABELED_ANS()
-
- TEXT(labeled_ans_rule("name1"), labeled_ans_rule("name2"));
- LABELED_ANS(name1 => answer_evaluator1, name2 => answer_evaluator2);
-
-Adds the answer evaluators listed to the list of labeled answer evaluators.
-They will be paired with labeled answer rules (a.k.a. answer blanks) in the
-order entered. This allows pairing of answer evaluators and answer rules that
-may not have been entered in the same order.
-
-
-
-
-=item STOP_RENDERING()
-
- STOP_RENDERING() unless all_answers_are_correct();
-
-Temporarily suspends accumulation of problem text and storing of answer blanks
-and answer evaluators until RESUME_RENDERING() is called.
-
-
-
-=item RESUME_RENDERING()
-
- RESUME_RENDERING();
-
-Resumes accumulating problem text and storing answer blanks and answer
-evaluators. Reverses the effect of STOP_RENDERING().
-
-
-
-=item ENDDOCUMENT()
-
- ENDDOCUMENT();
-
-When PG problems are evaluated, the result of evaluating the entire problem is
-interpreted as the return value of ENDDOCUMENT(). Therefore, ENDDOCUMENT() must
-be the last executable statement of every problem. It can only appear once. It
-returns a list consisting of:
-
-=back
-
-=over
-
-=item *
-
-A reference to a string containing the rendered text of the problem.
-
-=item *
-
-A reference to a string containing text to be placed in the HEAD block
-when in and HTML-based mode (e.g. for JavaScript).
-
-=item *
-
-A reference to the hash mapping answer labels to answer evaluators.
-
-=item *
-
-A reference to a hash containing various flags:
-
-
-
-=item *
-
-C<showPartialCorrectAnswers>: determines whether students are told which of their answers in a problem are wrong.
-
-=item *
-
-C<recordSubmittedAnswers>: determines whether students submitted answers are saved.
-
-=item *
-
-C<refreshCachedImages>: determines whether the cached image of the problem in typeset mode is always refreshed
-(i.e. setting this to 1 means cached images are not used).
-
-=item *
-
-C<solutionExits>: indicates the existence of a solution.
-
-=item *
-
-C<hintExits>: indicates the existence of a hint.
-
-=item *
-
-C<comment>: contents of COMMENT commands if any.
-
-=item *
-
-C<PROBLEM_GRADER_TO_USE>: a reference to the chosen problem grader.
-ENDDOCUMENT chooses the problem grader as follows:
-
-=over
-
-=item *
-
-If a problem grader has been chosen in the problem by calling
-C<install_problem_grader(\&grader)>, it is used.
-
-=item *
-
-Otherwise, if the C<PROBLEM_GRADER_TO_USE> PG environment variable
-contains a reference to a subroutine, it is used.
-
-=item *
-
-Otherwise, if the C<PROBLEM_GRADER_TO_USE> PG environment variable
-contains the string C<std_problem_grader> or the string C<avg_problem_grader>,
-C<&std_problem_grader> or C<&avg_problem_grader> are used. These graders are defined
-in L<PGanswermacros.pl>.
-
-=item *
-
-Otherwise, the PROBLEM_GRADER_TO_USE flag will contain an empty value
-and the PG translator should select C<&std_problem_grader>.
-
-=back
-
-=back
-
-
+If the subroutine is called with an option C<< alias1 => 23 >> it will behave as
+if it had been called with the option C<< option5 => 23 >>.
 
 =cut
 
+sub assign_option_aliases {
+	my $rh_options = shift;
+	warn "The first entry to set_default_options must be a reference to the option hash"
+		unless ref($rh_options) eq 'HASH';
+	my @option_aliases = @_;
+	while (@option_aliases) {
+		my $alias      = shift @option_aliases;
+		my $option_key = shift @option_aliases;
 
-################################################################################
+		if (defined($rh_options->{$alias})) {    # if the alias appears in the option list
+			if (not defined($rh_options->{$option_key})) {    # and the option itself is not defined,
+				$rh_options->{$option_key} =
+					$rh_options->{$alias};    # insert the value defined by the alias into the option value
+											  # the FIRST alias for a given option takes precedence
+											  # (after the option itself)
+			} else {
+				warn "option $option_key is already defined as", $rh_options->{$option_key}, "<br>\n",
+					"The attempt to override this option with the alias $alias with value ", $rh_options->{$alias},
+					" was ignored.";
+			}
+		}
+		delete($rh_options->{$alias});    # remove the alias from the initial list
+	}
 
-=head1 PRIVATE MACROS
+}
 
-These macros should only be used by other macro files. In practice, they are
-used exclusively by L<PGbasicmacros.pl>.
+=head2 set_default_options
 
-=over
+    set_default_options(\%options,
+        _filter_name          => 'filter',
+        option5               => .0001,
+        option7               => 'ascii',
+        allow_unknown_options => 0,
+    }
 
-=item inc_ans_rule_count()
+Note that the first entry is a reference to the options with which the filter
+was called.
 
-DEPRECATED
+The C<option5> is set to .0001 unless the option is explicitly set when the
+subroutine is called.
 
-Increments the internal count of the number of answer blanks that have been
-defined ($ans_rule_count) and returns the new count. This should only be used
-when one is about to define a new answer blank, for example with NEW_ANS_NAME().
+The C<_filter_name> option should always be set, although there is no error if
+it is missing. It is used mainly for debugging answer evaluators and allows you
+to keep track of which filter is currently processing the answer.
 
-=cut
+If C<allow_unknown_options> is set to 0 then if the filter is called with
+options which do NOT appear in the set_default_options list an error will be
+signaled and a warning message will be printed out. This provides error checking
+against misspelling an option and is generally what is desired for most filters.
 
-=item RECORD_ANS_NAME()
-
- RECORD_ANS_NAME("label", "VALUE");
-
-Records the label for an answer blank. Used internally by L<PGbasicmacros.pl>
-to record the order of explicitly-labelled answer blanks.
-
-=cut
-
-=item NEW_ANS_NAME()
-
- NEW_ANS_NAME();
-
-Generates an anonymous answer label from the internal count The label is
-added to the list of implicity-labeled answers. Used internally by
-L<PGbasicmacros.pl> to generate labels for unlabeled answer blanks.
-
-=cut
-
-=item ANS_NUM_TO_NAME()
-
- ANS_NUM_TO_NAME($num);
-
-Generates an answer label from the supplied answer number, but does not add it
-to the list of inplicitly-labeled answers. Used internally by
-L<PGbasicmacros.pl> in generating answers blanks that use radio buttons or
-check boxes. (This type of answer blank uses multiple HTML INPUT elements with
-the same label, but the label should only be added to the list of implicitly-
-labeled answers once.)
-
-=cut
-
-=item RECORD_FROM_LABEL()
-
- RECORD_FORM_LABEL("label");
-
-Stores the label of a form field in the "extra" answers list. This is used to
-keep track of answer blanks that are not associated with an answer evaluator.
+Occasionally one wants to write a filter which accepts a long list of options,
+not all of which are known in advance, but only uses a subset of the options
+provided. In this case, setting C<allow_unkown_options> to 1 prevents the error
+from being signaled.
 
 =cut
 
-=item NEW_ANS_ARRAY_NAME()
-
- NEW_ANS_ARRAY_NAME($num, $row, $col);
-
-Generates a new answer label for an array (vector) element and adds it to the
-list of implicitly-labeled answers.
-
-=cut
-
-=item NEW_ANS_ARRAY_NAME_EXTENSION()
-
- NEW_ANS_ARRAY_NAME_EXTENSION($num, $row, $col);
-
-Generate an additional answer label for an existing array (vector) element and
-add it to the list of "extra" answers.
-
-=cut
-
-=item get_PG_ANSWERS_HASH()
-
- get_PG_ANSWERS_HASH();
- get_PG_ANSWERS_HASH($key);
-
-
-
-=cut
-
-=item includePGproblem($filePath)
-
- includePGproblem($filePath);
-
- Essentially runs the pg problem specified by $filePath, which is
- a path relative to the top of the templates directory.  The output
- of that problem appears in the given problem.
-
-=cut
-
-=back
+sub set_default_options {
+	my $rh_options = shift;
+	warn "The first entry to set_default_options must be a reference to the option hash"
+		unless ref($rh_options) eq 'HASH';
+	my %default_options = @_;
+	unless (defined($default_options{allow_unknown_options}) and $default_options{allow_unknown_options} == 1) {
+		foreach my $key1 (keys %$rh_options) {
+			warn "This option |$key1| is not recognized in this subroutine<br> ", pretty_print($rh_options)
+				unless exists($default_options{$key1});
+		}
+	}
+	foreach my $key (keys %default_options) {
+		if (not defined($rh_options->{$key}) and defined($default_options{$key})) {
+			$rh_options->{$key} =
+				$default_options{$key};    #this allows     tol   => undef to allow the tol option, but doesn't define
+										   # this key unless tol is explicitly defined.
+		}
+	}
+}
 
 =head1 SEE ALSO
 
 L<PGbasicmacros.pl>, L<PGanswermacros.pl>.
 
 =cut
-
-
-
 
 1;
