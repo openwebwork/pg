@@ -12,229 +12,210 @@
 # FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
 # Artistic License for more details.
 ################################################################################
+
 package PGUtil;
+use parent 'Exporter';
 
-##################################
-# Utility macro
-##################################
+=head1 NAME
 
-=head2  Utility Macros
+PGUtil.pm - Utility Methods
 
-
-=head4  not_null
-     
-  not_null(item)  returns 1 or 0
-     
-     empty arrays, empty hashes, strings containing only whitespace are all NULL and return 0
-     all undefined quantities are null and return 0
-
+=head1 METHODS
 
 =cut
 
 use strict;
 use warnings;
-use Exporter 'import';
-our @EXPORT = qw(
-	not_null
-	pretty_print
-);
 
-sub not_null {    # empty arrays, empty hashes and strings containing only whitespace are all NULL
-				  # in modern perl // would be a reasonable and more robust substitute
-				  # a function, not a method
+our @EXPORT_OK = qw(not_null pretty_print);
+
+=head2 not_null
+
+Usage:
+
+    not_null($item)
+
+Returns 1 if C<$item> is not null, and 0 otherwise.  Undefined quantities, empty
+arrays, empty hashes, and strings containing only whitespace are null and return
+0.
+
+=cut
+
+sub not_null {
 	my $item = shift;
-	return 0 unless defined($item);
+	return 0 unless defined $item;
 	if (ref($item) =~ /ARRAY/) {
-		return scalar(@{$item});    # return the length
+		return scalar(@$item);    # return the length
 	} elsif (ref($item) =~ /HASH/) {
-		return scalar(keys %{$item});
+		return scalar(keys %$item);
 	} else {    # string case return 1 if none empty
 		return ($item =~ /\S/) ? 1 : 0;
 	}
 }
 
-=head4 pretty_print
+=head2 pretty_print
 
-	Usage: warn pretty_print( $rh_hash_input, displayMode, level)
-		   TEXT(pretty_print($ans_hash, displayMode, level));
-		   TEXT(pretty_print(~~%envir, displayMode, level ));
+Usage:
 
-This can be very useful for printing out HTML messages about objects while debugging
+    pretty_print($rh_hash_input, $displayMode, $level)
+
+This method is useful for displaying the contents of objects while debugging.
+
+The C<$displayMode> parameter should be one of "TeX", "text", or "html"
+The default is "html".
+
+The C<$level> parameter is the cut off for the depth into objects to show.  The
+default is 5.
+
+WARNING: This is not the C<pretty_print> method that is directly available in
+problems.  The C<pretty_print> method that is directly available in problems is
+defined in L<PG.pl>, and the usage of that method is C<pretty_print($rh_hash_input)>.
+Note that it does not accept the second two parameters of this method.  That
+method calls the C<pretty_print> method defined in L<PGcore.pm> which in turn
+calls this method.
 
 =cut
 
-# ^function pretty_print
-# ^uses lex_sort
-# ^uses pretty_print
-
 sub pretty_print {
-	my $r_input     = shift;
-	my $displayMode = shift // 'html';    # default printing style is html
-	my $level       = shift // 5;         # default is 5 levels deep
-	my $out         = '';
+	my ($r_input, $displayMode, $level) = @_;
+	$displayMode //= 'html';    # default printing style is html
+	$level       //= 5;         # default is 5 levels deep
 	if ($displayMode eq 'TeX') {
-		$out .= "{\\tiny";
-		$out .= pretty_print_tex($r_input, $level);
-		$out .= "}";
+		return '{\\tiny' . pretty_print_tex($r_input, $level) . '}';
 	} elsif ($displayMode eq 'text') {
-		$out = pretty_print_text($r_input, $level);
+		return pretty_print_text($r_input, $level);
 	} else {
-		$out = pretty_print_html($r_input, $level);    #default
+		return pretty_print_html($r_input, $level);    #default
 	}
-	$out;
 }
 
+# Note that the following methods use `eval { %$r_input || 1 }` to detect all objectes that can be accessed like a hash.
+# `ref $r_input` will not see blessed objects that can be accessed like a hash.  Previously `"$r_input" =~ /hash/i` was
+# used.  This will also detect strings containing the word hash, and will cause errors.
+
 sub pretty_print_html {    # provides html output -- NOT a method
-	my $r_input = shift;
-	return '' unless defined $r_input;
-	my $level = shift;
-	$level--;
-	return "PGalias has too much info. Try \$PG->{PG_alias}->{resource_list}"
-		if ref($r_input) eq 'PGalias';    # PGalias just has too much information
-	return 'too deep' unless $level > 0;  # only print four levels of hashes (safety feature)
-	my $out = '';
-	# protect against modules defined in Safe which can't find their stringify procedure.
-	my $dummy = eval {"$r_input"};
-	if ($@) {
-		$out = "Unable to determine stringify for this item\n";
-		$out .= $@ . "\n";
-		return ($out);
-	}
+	my ($r_input, $level) = @_;
+	return 'undef' unless defined $r_input;
 
-	if (not ref($r_input)) {
-		$out = $r_input if defined $r_input;    # not a reference
-		$out =~ s/</&lt;/g;                     # protect for HTML output
-	} elsif ("$r_input" =~ /hash/i)
-	{    # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
-		local ($^W) = 0;
+	my $ref = ref $r_input;
 
-		$out .= "$r_input " . "<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
+	# Don't display PGalias.  It has too much information.
+	return 'PGalias has too much info. Try $PG->{PG_alias}{resource_list}' if $ref eq 'PGalias';
 
-		foreach my $key (sort (keys %$r_input)) {
-			$out .=
-				"<tr><TD> $key</TD><TD>=&gt;</td><td>&nbsp;"
-				. pretty_print_html($r_input->{$key}, $level)
-				. "</td></tr>";
-		}
-		$out .= "</table>";
-	} elsif (ref($r_input) eq 'ARRAY') {
-		my @array = @$r_input;
-		$out .= "( ";
-		while (@array) {
-			$out .= pretty_print_html(shift @array, $level) . " , ";
-		}
-		$out .= " )";
-	} elsif (ref($r_input) eq 'CODE') {
-		$out = "$r_input";
+	--$level;
+	return 'too deep' unless $level > 0;
+
+	# Protect against modules defined in Safe which can't find their stringify procedure.
+	return "Unable to determine stringify for this item.\n$@\n" if !eval { "$r_input" || 1 } || $@;
+
+	if (!$ref) {
+		return $r_input =~ s/</&lt;/gr;
+	} elsif (eval { %$r_input || 1 }) {
+		return '<div style="display:table;border:1px solid black;background-color:#fff;">'
+			. ($ref eq 'HASH'
+				? ''
+				: '<div style="'
+				. 'display:table-caption;padding:3px;border:1px solid black;background-color:#fff;text-align:center;">'
+				. "$ref</div>")
+			. '<div style="display:table-row-group">'
+			. join(
+				'',
+				map {
+					'<div style="display:table-row"><div style="display:table-cell;vertical-align:middle;padding:3px">'
+					. ($_ =~ s/</&lt;/gr)
+					. '</div>'
+					. qq{<div style="display:table-cell;vertical-align:middle;padding:3px">=&gt;</div>}
+					. qq{<div style="display:table-cell;vertical-align:middle;padding:3px">}
+					. pretty_print_html($r_input->{$_}, $level)
+					. '</div></div>'
+				}
+				sort keys %$r_input
+			) . '</div></div>';
+	} elsif ($ref eq 'ARRAY') {
+		return '[ ' . join(', ', map { pretty_print_html($_, $level) } @$r_input) . ' ]';
+	} elsif ($ref eq 'CODE') {
+		return 'CODE';
 	} else {
-		$out = $r_input;
-		$out =~ s/</&lt;/g;    # protect for HTML output
+		return $r_input =~ s/</&lt;/gr;
 	}
-	$out;
 }
 
 sub pretty_print_tex {
-	my $r_input = shift;
-	my $level   = shift;
-	$level--;
-	return "PGalias has too much info. Try \\\$PG->{PG\\_alias}->{resource\\_list}"
-		if ref($r_input) eq 'PGalias';    # PGalias just has too much information
-	return 'too deep' unless $level > 0;  #only print four levels of hashes (safety feature)
+	my ($r_input, $level) = @_;
+	return 'undef' unless defined $r_input;
 
-	my $protect_tex = sub { my $str = shift; $str =~ s/_/\\\_/g; $str };
+	my $ref = ref($r_input);
 
-	my $out   = '';
-	my $dummy = eval {"$r_input"};
-	if ($@) {
-		$out = "Unable to determine stringify for this item\n";
-		$out .= $@ . "\n";
-		return ($out);
-	}
+	# Don't display PGalias.  It has too much information.
+	return 'PGalias has too much info. Try \\$PG->{PG\\_alias}->{resource\\_list}' if $ref eq 'PGalias';
 
-	if (not ref($r_input)) {
-		$out = $r_input if defined $r_input;
-		$out =~ s/_/\\\_/g;    # protect tex
-		$out =~ s/&/\\\&/g;
-		$out =~ s/\$/\\\$/g;
-		#FIXME -- how should mathobjects be handled??
-	} elsif ("$r_input" =~ /hash/i)
-	{    # ref($r_input) or "$r_input" will pick up objects whose '$self' is hash and so works better than ref($r_iput).
-		local ($^W) = 0;
+	--$level;
+	return 'too deep' unless $level > 0;
 
-		$out .= "\\begin{tabular}{| l | l |}\\hline\n\\multicolumn{2}{|l|}{$r_input}\\\\ \\hline\n";
+	# Protect against modules defined in Safe which can't find their stringify procedure.
+	return "Unable to determine stringify for this item.\n$@\n" if !eval { "$r_input" || 1 } || $@;
 
-		foreach my $key (sort (keys %$r_input)) {
-			$out .= &$protect_tex($key) . " & " . pretty_print_tex($r_input->{$key}, $level) . "\\\\ \\hline\n";
-		}
-		$out .= "\\end{tabular}\n";
-	} elsif (ref($r_input) eq 'ARRAY') {
-		my @array = @$r_input;
-		$out .= "( ";
-		while (@array) {
-			$out .= pretty_print_tex(shift @array, $level) . " , ";
-		}
-		$out .= " )";
-	} elsif (ref($r_input) eq 'CODE') {
-		$out = "$r_input";
+	my $protect_tex = sub { my $str = shift; return (($str =~ s/_/\\\_/gr) =~ s/&/\\\&/gr) =~ s/\$/\\\$/gr; };
+
+	# Note: Do not add newlines to this.  If this is in a PGML section
+	# those will cause errors due to PGML's catcode hackery.
+	if (!$ref) {
+		return $protect_tex->($r_input);
+	} elsif (eval { %$r_input || 1 }) {
+		return
+			"\\begin{tabular}{|l|l|}\\hline "
+			. ($ref eq 'HASH' ? '' : "\\multicolumn{2}{|l|}{" . $protect_tex->($ref) . "}\\\\ \\hline ")
+			. join('',
+			map { $protect_tex->($_) . " & " . pretty_print_tex($r_input->{$_}, $level) . "\\\\ \\hline "; }
+			sort (keys %$r_input))
+			. "\\end{tabular}";
+	} elsif ($ref eq 'ARRAY') {
+		return '[ ' . join(', ', map { pretty_print_tex($_, $level) } @$r_input) . ' ]';
+	} elsif ($ref eq 'CODE') {
+		return 'CODE';
 	} else {
-		$out = $r_input if defined $r_input;
-		$out =~ s/_/\\\_/g;    # protect tex
-		$out =~ s/&/\\\&/g;
+		return $protect_tex->($r_input);
 	}
-	$out;
 }
 
 sub pretty_print_text {
-	my $r_input = shift;
-	my $level   = shift;
-	return '' unless defined $r_input;
-	$level--;
-	return "PGalias has too much info. Try \\\$PG->{PG\\_alias}->{resource\\_list}"
-		if ref($r_input) eq 'PGalias';    # PGalias just has too much information
-	return 'too deep' unless $level > 0;  #only print four levels of hashes (safety feature)
+	my ($r_input, $level, $print_level) = @_;
+	return 'undef' unless defined $r_input;
 
-	my $out   = "";
-	my $dummy = eval {"$r_input"};
-	if ($@) {
-		$out = "Unable to determine stringify for this item\n";
-		$out .= $@ . "\n";
-		return ($out);
-	}
+	my $ref = ref($r_input);
 
-	my $type = ref($r_input);
+	# Don't display PGalias.  It has too much information.
+	return 'PGalias has too much info. Try $PG->{PG_alias}->{resource_list}' if $ref eq 'PGalias';
 
-	if (defined($type) and $type) {
-		$out .= " type = $type; ";
-	} elsif (!defined($r_input)) {
-		$out .= " type = UNDEFINED; ";
-	}
-	return $out . " " unless defined($r_input);
+	--$level;
+	return 'too deep' unless $level > 0;
 
-	if (ref($r_input) =~ /HASH/ or "$r_input" =~ /HASH/) {
-		$out .= "{\n";
-		$level++;
-		foreach my $key (sort keys %{$r_input}) {
-			$out .= "  " x $level . "$key => " . pretty_print_text($r_input->{$key}, $level) . "\n";
-		}
-		$level--;
-		$out .= "\n" . "  " x $level . "}\n";
+	# Protect against modules defined in Safe which can't find their stringify procedure.
+	return "Unable to determine stringify for this item.\n$@\n" if !eval { "$r_input" || 1 } || $@;
 
-	} elsif (ref($r_input) =~ /ARRAY/ or "$r_input" =~ /ARRAY/) {
-		$out .= " ( ";
-		foreach my $elem (@{$r_input}) {
-			$out .= pretty_print_text($elem, $level);
+	$print_level //= 1;
 
-		}
-		$out .= " ) \n";
-	} elsif (ref($r_input) =~ /SCALAR/) {
-		$out .= "scalar reference " . ${$r_input};
-	} elsif (ref($r_input) =~ /Base64/) {
-		$out .= "base64 reference " . $$r_input;
+	if (!$ref) {
+		return $r_input;
+	} elsif (eval { %$r_input || 1 }) {
+		return
+			($ref eq 'HASH' ? '' : "$ref ") . "{\n"
+			. join(",\n",
+			map { ('  ' x $print_level) . "$_ => " . pretty_print_text($r_input->{$_}, $level, $print_level + 1) }
+			sort keys %$r_input)
+			. "\n"
+			. ('  ' x ($print_level - 1)) . "}";
+	} elsif ($ref eq 'ARRAY') {
+		return
+			"[\n"
+			. join(",\n", map { ('  ' x $print_level) . pretty_print_text($_, $level, $print_level + 1) } @$r_input)
+			. "\n"
+			. ('  ' x ($print_level - 1)) . "]";
+	} elsif ($ref eq 'CODE') {
+		return 'CODE';
 	} else {
-		$out .= $r_input;
+		return $r_input;
 	}
-
-	return $out . " ";
 }
 
 1;
