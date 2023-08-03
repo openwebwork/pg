@@ -522,7 +522,7 @@ sub Preformatted {
 sub Quoted {
 	my $self  = shift;
 	my $token = shift;
-	my $next  = $self->{split}[ $self->{i} ];
+	my $next  = $self->{split}[ $self->{i} ] || $self->{split}[ ++$self->{i} ];
 	my $quote = substr($next, 0, 1);
 	$self->{split}[ $self->{i} ] = substr($next, 1);
 	my $pcount = 0;
@@ -538,11 +538,12 @@ sub Quoted {
 			$pcount++;
 		} elsif ($open && $text eq $close && $pcount > 0) {
 			$pcount--;
-		} elsif (!$open || ($text ne $qclose && $pcount == 0)) {
+		} elsif ($pcount == 0 && $text ne $qclose) {
 			my $i = index($text, $close);
 			if ($i > -1) {
 				$self->Text(substr($text, 0, $i + 1));
-				$text = $self->{split}[ $self->{i} ] = substr($text, $i + 1);
+				$self->{split}[ $self->{i} ] = substr($text, $i + 1);
+				$self->Text($self->{split}[ $self->{i}++ ]) if $self->{i} % 2;
 				return;
 			}
 		}
