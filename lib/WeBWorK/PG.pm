@@ -140,7 +140,7 @@ sub new_helper ($invocant, %options) {
 		}
 	}
 
-	$translator->translate();
+	$translator->translate;
 
 	# IMPORTANT: The translator environment should not be trusted after the problem code runs.
 
@@ -174,6 +174,8 @@ sub new_helper ($invocant, %options) {
 	}
 
 	# HTML_dpng uses an ImageGenerator. We have to render the queued equations.
+	# This must be done before the post processing, since the image tags output by the image generator initially
+	# include markers which are invalid html. Mojo::DOM will change these markers into attributes and this will fail.
 	if ($image_generator) {
 		my $sourceFile = "$options{templateDirectory}$options{sourceFilePath}";
 		$image_generator->render(
@@ -181,6 +183,8 @@ sub new_helper ($invocant, %options) {
 			body_text => $translator->r_text,
 		);
 	}
+
+	$translator->post_process_content if ref($translator->{rh_pgcore}) eq 'PGcore';
 
 	return bless {
 		translator       => $translator,

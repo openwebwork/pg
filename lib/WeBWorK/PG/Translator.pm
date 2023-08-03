@@ -15,6 +15,47 @@
 
 package WeBWorK::PG::Translator;
 
+=head1 NAME
+
+WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
+
+=head1 SYNPOSIS
+
+    my $pt = WeBWorK::PG::Translator->new;   # create a translator
+    $pt->environment(\%envir);               # provide the environment variable for the problem
+    $pt->initialize;                         # initialize the translator
+    $pt->set_mask;                           # set the operation mask for the translator safe compartment
+
+    $pt->source_string($source);             # provide the source string for the problem
+                                             # or
+    $pt->source_file($sourceFilePath);       # provide the proble file containing the source
+
+    # Load the unprotected macro files.
+    # These files are evaluated with the Safe compartment wide open.
+    # Other macros are loaded from within the problem using loadMacros.
+    # This should not be done if the safe cache is used which is only the case if $ENV{MOJO_MODE} exists.
+    $pt->unrestricted_load("${pgMacrosDirectory}PG.pl");
+
+    $pt->translate;    # translate the problem (the following pieces of information are created)
+
+    $PG_PROBLEM_TEXT_REF = $pt->r_text;               # reference to output text for the body of problem
+    $PG_HEADER_TEXT_REF = $pt->r_header;              # reference to text for the header in HTML output
+    $PG_POST_HEADER_TEXT_REF = $pt->r_post_header;
+    $PG_ANSWER_HASH_REF = $pt->rh_correct_answers;    # a hash of answer evaluators
+    $PG_FLAGS_REF = $pt->rh_flags;                    # misc. status flags.
+
+    $pt->process_answers;                                 # evaluates all of the answers
+    my $rh_answer_results = $pt->rh_evaluated_answers;    # provides a hash of the results of evaluating the answers.
+    my $rh_problem_result = $pt->grade_problem(%options); # grades the problem.
+
+    $pt->post_process_content;   # Execute macro or problem hooks that further modify the problem content.
+
+=head1 DESCRIPTION
+
+This module defines an object which will translate a problem written in the Problem Generating (PG) language
+
+=cut
+
 use strict;
 use warnings;
 
@@ -24,47 +65,11 @@ binmode(STDOUT, ":encoding(UTF-8)");
 
 use Opcode;
 use Carp;
+use Mojo::DOM;
 
 use WWSafe;
 use PGUtil qw(pretty_print);
 use WeBWorK::PG::IO qw(fileFromPath);
-
-=head1 NAME
-
-WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
-
-=head1 SYNPOSIS
-
-    my $pt = new WeBWorK::PG::Translator;    # create a translator
-    $pt->environment(\%envir);               # provide the environment variable for the problem
-    $pt->initialize();                       # initialize the translator
-    $pt-> set_mask();                        # set the operation mask for the translator safe compartment
-    $pt->source_string($source);             # provide the source string for the problem
-
-    # Load the unprotected macro files.
-    # These files are evaluated with the Safe compartment wide open.
-    # Other macros are loaded from within the problem using loadMacros.
-    $pt->unrestricted_load("${courseScriptsDirectory}PG.pl");
-
-    $pt->translate();    # translate the problem (the following pieces of information are created)
-
-    $PG_PROBLEM_TEXT_ARRAY_REF = $pt->ra_text();      # output text for the body of the HTML file (in array form)
-    $PG_PROBLEM_TEXT_REF = $pt->r_text();             # output text for the body of the HTML file
-    $PG_HEADER_TEXT_REF = $pt->r_header;              # text for the header of the HTML file
-    $PG_POST_HEADER_TEXT_REF = $pt->r_post_header
-    $PG_ANSWER_HASH_REF = $pt->rh_correct_answers;    # a hash of answer evaluators
-    $PG_FLAGS_REF = $pt->rh_flags;                    # misc. status flags.
-
-    $pt->process_answers;    # evaluates all of the answers
-
-    my $rh_answer_results = $pt->rh_evaluated_answers;  # provides a hash of the results of evaluating the answers.
-    my $rh_problem_result = $pt->grade_problem;         # grades the problem using the default problem grading method.
-
-=head1 DESCRIPTION
-
-This module defines an object which will translate a problem written in the Problem Generating (PG) language
-
-=cut
 
 =head2 be_strict
 
@@ -146,15 +151,18 @@ BEGIN {
 	}
 
 	# Also define in Main:: for PG modules.
-	sub Main::be_strict { return &be_strict; }
+	sub Main::be_strict { return be_strict(); }
 }
 
 =head2 evaluate_modules
 
-    Usage:  $obj->evaluate_modules('WWPlot', 'Fun', 'Circle');
+Adds modules to the list of modules which can be used by the PG problems.
 
-Adds the modules WWPlot.pm, Fun.pm and Circle.pm in the courseScripts directory to the list of modules
-which can be used by the PG problems.
+For example,
+
+    $obj->evaluate_modules('LaTeXImage', 'DragNDrop');
+
+adds modules to the C<LaTeXImage> and C<DragNDrop> modules.
 
 =cut
 
@@ -179,13 +187,13 @@ sub evaluate_modules {
 
 =head2 load_extra_packages
 
-    Usage:  $obj->load_extra_packages('AlgParserWithImplicitExpand',
-                                      'Expr','ExprWithImplicitExpand');
+Loads extra packages for modules that contain more than one package.  Works in
+conjunction with evaluate_modules.  It is assumed that the file containing the
+extra packages (along with the base package name which is the same as the name
+of the file minus the .pm extension) has already been loaded using
+evaluate_modules.
 
-Loads extra packages for modules that contain more than one package.  Works in conjunction with
-evaluate_modules.  It is assumed that the file containing the extra packages (along with the base
-package name which is the same as the name of the file minus the .pm extension) has already been
-loaded using evaluate_modules
+    Usage:  $obj->load_extra_packages('AlgParserWithImplicitExpand', 'ExprWithImplicitExpand');
 
 =cut
 
@@ -209,7 +217,7 @@ sub load_extra_packages {
 
 =head2 new
 
-    Creates the translator object.
+Creates the translator object.
 
 =cut
 
@@ -220,25 +228,24 @@ sub new {
 	my $safe_cmpt = exists($ENV{MOJO_MODE}) ? $WeBWorK::Translator::safeCache : WWSafe->new;
 
 	my $self = {
-		preprocess_code           => \&default_preprocess_code,
-		postprocess_code          => \&default_postprocess_code,
-		envir                     => undef,
-		PG_PROBLEM_TEXT_ARRAY_REF => [],
-		PG_PROBLEM_TEXT_REF       => 0,
-		PG_HEADER_TEXT_REF        => 0,
-		PG_POST_HEADER_TEXT_REF   => 0,
-		PG_ANSWER_HASH_REF        => {},
-		PG_FLAGS_REF              => {},
-		rh_pgcore                 => undef,
-		safe                      => $safe_cmpt,
-		safe_compartment_name     => $safe_cmpt->root,
-		errors                    => '',
-		source                    => '',
-		rh_correct_answers        => {},
-		rh_student_answers        => {},
-		rh_evaluated_answers      => {},
-		rh_problem_result         => {},
-		rh_problem_state          => {
+		preprocess_code         => \&default_preprocess_code,
+		postprocess_code        => \&default_postprocess_code,
+		envir                   => undef,
+		PG_PROBLEM_TEXT_REF     => 0,
+		PG_HEADER_TEXT_REF      => 0,
+		PG_POST_HEADER_TEXT_REF => 0,
+		PG_ANSWER_HASH_REF      => {},
+		PG_FLAGS_REF            => {},
+		rh_pgcore               => undef,
+		safe                    => $safe_cmpt,
+		safe_compartment_name   => $safe_cmpt->root,
+		errors                  => '',
+		source                  => '',
+		rh_correct_answers      => {},
+		rh_student_answers      => {},
+		rh_evaluated_answers    => {},
+		rh_problem_result       => {},
+		rh_problem_state        => {
 			recorded_score       => 0,
 			num_of_correct_ans   => 0,
 			num_of_incorrect_ans => 0,
@@ -249,38 +256,19 @@ sub new {
 	return bless $self, $class;
 }
 
-=pod
+=head2 initialize
 
-(b) The following routines defined within the PG module are shared:
+The following translator methods are shared to the safe compartment:
 
-    &be_strict
-    &read_whole_problem_file
-    &surePathToTmpFile
-    &fileFromPath
-    &directoryFromPath
-    &PG_answer_eval
-    &PG_restricted_eval
-    &send_mail_to
+	&PG_answer_eval
+	&PG_restricted_eval
+	&PG_macro_file_eval
+	&be_strict
+
+Also all methods that are exported by WeBWorK::PG::IO are shared.
 
 In addition the environment hash C<%envir> is shared.  This variable is unpacked
-when PG.pl is run and provides most of the environment variables for each problem
-template.
-
-=for html
-    <a href = "${Global::webworkDocsURL}techdescription/pglanguage/PGenvironment.html">environment variables</a>
-
-(c) Sharing macros:
-
-The macros shared with the safe compartment are
-
-    '&read_whole_problem_file'
-    '&surePathToTmpFile'
-    '&fileFromPath'
-    '&directoryFromPath'
-    '&PG_answer_eval'
-    '&PG_restricted_eval'
-    '&be_strict'
-    '&send_mail_to'
+when PG.pl is run.
 
 =cut
 
@@ -443,11 +431,6 @@ sub nameSpace {
 	return $self->{safe}->root;
 }
 
-sub a_text {
-	my $self = shift;
-	return @{ $self->{PG_PROBLEM_TEXT_ARRAY_REF} };
-}
-
 sub header {
 	my $self = shift;
 	return ${ $self->{PG_HEADER_TEXT_REF} };
@@ -471,11 +454,6 @@ sub rh_flags {
 sub h_answers {
 	my $self = shift;
 	return %{ $self->{PG_ANSWER_HASH_REF} };
-}
-
-sub ra_text {
-	my $self = shift;
-	return $self->{PG_PROBLEM_TEXT_ARRAY_REF};
 }
 
 sub r_text {
@@ -524,10 +502,10 @@ sub errors {
 
 =head2 set_mask
 
-(e) Now we close the safe compartment.  Only the certain operations can be used
-within PG problems and the PG macro files.  These include the subroutines
-shared with the safe compartment as defined above and most Perl commands which
-do not involve file access, access to the system or evaluation.
+Limit allowed operations in the safe compartment.  Only the certain operations
+can be used within PG problems and the PG macro files.  These include the
+subroutines shared with the safe compartment as defined above and most Perl
+commands which do not involve file access, access to the system or evaluation.
 
 Specifically the following are allowed:
 
@@ -644,7 +622,7 @@ sub PG_errorMessage {
 
 =head2 Translate
 
-(3) B<Preprocess the problem text>
+B<Preprocess the problem text>
 
 The input text is subjected to some global replacements.
 
@@ -701,26 +679,23 @@ Note that there are several other replacements that are now done that are not
 documented here.  See the C<default_preprocess_code> method for all
 replacements that are done.
 
-(4) B<Evaluate the problem text>
+B<Evaluate the problem text>
 
 Evaluate the text within the safe compartment.  Save the errors. The safe
 compartment is a new one unless the $safeCompartment was set to zero in which
 case the previously defined safe compartment is used. (See item 1.)
 
-(5) B<Process errors>
+B<Process errors>
 
 The error provided by Perl is truncated slightly and returned. In the text
 string which would normally contain the rendered problem.
 
 The original text string is given line numbers and concatenated to the errors.
 
-(6) B<Prepare return values>
+B<Prepare return values>
 
 Sets the following hash keys of the translator object:
-    PG_PROBLEM_TEXT_ARRAY_REF:  Reference to an array of strings containing the
-        rendered text.
-    PG_PROBLEM_TEXT_REF: Reference to a string resulting from joining the above
-        array with the empty string.
+    PG_PROBLEM_TEXT_REF: Reference to a string containing the rendered text.
     PG_HEADER_TEXT_REF:  Reference to a string containing material to be placed
         in the header.
     PG_POST_HEADER_TEXT_REF:  Reference to a string containing material to
@@ -737,10 +712,9 @@ Sets the following hash keys of the translator object:
 my %XML = ('&' => '&amp;', '<' => '&lt;', '>' => '&gt;', '"' => '&quot;', '\'' => '&#39;');
 
 sub translate {
-	my $self                = shift;
-	my @PROBLEM_TEXT_OUTPUT = ();
-	my $safe_cmpt           = $self->{safe};
-	my $evalString          = $self->{source};
+	my $self       = shift;
+	my $safe_cmpt  = $self->{safe};
+	my $evalString = $self->{source};
 	$self->{errors} .= qq{ERROR:  This problem file was empty!\n} unless ($evalString);
 	$self->{errors} .= qq{ERROR:  You must define the environment before translating.}
 		unless defined($self->{envir});
@@ -783,6 +757,7 @@ sub translate {
 	# WARNING and DEBUG tracks are being handled elsewhere (in Problem.pm?)
 	$self->{errors} .= "ERRORS from evaluating PG file:\n$@\n" if $@;
 
+	my @PROBLEM_TEXT_OUTPUT;
 	push(@PROBLEM_TEXT_OUTPUT, split(/^/, $$PG_PROBLEM_TEXT_REF)) if ref($PG_PROBLEM_TEXT_REF) eq 'SCALAR';
 	# This is better than using defined($$PG_PROBLEM_TEXT_REF)
 	# Because more pleasant feedback is given when the problem doesn't render.
@@ -836,11 +811,10 @@ sub translate {
 		}
 	}
 
-	$PG_FLAGS_REF->{'error_flag'} = 1 if $self->{errors};
+	$PG_FLAGS_REF->{error_flag} = 1 if $self->{errors};
 	my $PG_PROBLEM_TEXT = join("", @PROBLEM_TEXT_OUTPUT);
 
-	$self->{PG_PROBLEM_TEXT_REF}       = \$PG_PROBLEM_TEXT;
-	$self->{PG_PROBLEM_TEXT_ARRAY_REF} = \@PROBLEM_TEXT_OUTPUT;
+	$self->{PG_PROBLEM_TEXT_REF} = \$PG_PROBLEM_TEXT;
 
 	# Make sure that these variables are defined.  If the eval failed with
 	# errors, one or more of these variables won't be defined.
@@ -858,7 +832,7 @@ sub translate {
 
 =cut
 
-=head3  access methods
+=head3 access methods
 
     $obj->rh_student_answers
 
@@ -1177,6 +1151,68 @@ sub avg_problem_grader {
 	return (\%problem_result, \%problem_state);
 }
 
+=head2 post_process_content
+
+Call hooks added via macros or the problem via C<add_content_post_processor> to
+post process content.  Hooks are called in the order they were added.
+
+This method should be called in the rendering process after answer processing
+has occurred.
+
+If the display mode is TeX, then each hook subroutine is passed a reference to
+the problem text string generated in the C<translate> method.
+
+For all other display modes each hook subroutine is passed two Mojo::DOM
+objects.  The first containing the parsed problem text string, and the second
+contains the parsed header text string, both of which were generated in the
+C<translate> method.  After all hooks are called and modifications are made to
+the Mojo::DOM contents by the hooks, the Mojo::DOM objects are converted back to
+strings and the translator problem text and header references are updated with
+the contents of those strings.
+
+=cut
+
+sub post_process_content {
+	my $self = shift;
+
+	my $outer_sig_warn = $SIG{__WARN__};
+	my @warnings;
+	local $SIG{__WARN__} = sub { push(@warnings, $_[0]) };
+
+	my $outer_sig_die = $SIG{__DIE__};
+	local $SIG{__DIE__} = sub {
+		ref $outer_sig_die eq "CODE"
+			? $outer_sig_die->(PG_errorMessage('traceback', $_[0]))
+			: die PG_errorMessage('traceback', $_[0]);
+	};
+
+	if ($self->{rh_pgcore}{displayMode} eq 'TeX') {
+		our $PG_PROBLEM_TEXT_REF = $self->{PG_PROBLEM_TEXT_REF};
+		$self->{safe}->share('$PG_PROBLEM_TEXT_REF');
+		$self->{safe}->reval('for (@{ $main::PG->{content_post_processors} }) { $_->($PG_PROBLEM_TEXT_REF); }', 1);
+		warn "ERRORS from post processing PG text:\n$@\n" if $@;
+	} else {
+		$self->{safe}->share_from('main', [qw(%Mojo::Base:: %Mojo::Collection:: %Mojo::DOM::)]);
+		our $problemDOM = Mojo::DOM->new(${ $self->{PG_PROBLEM_TEXT_REF} });
+		$problemDOM->xml(1) if $self->{rh_pgcore}{displayMode} eq 'PTX';
+		our $pageHeader = Mojo::DOM->new(${ $self->{PG_HEADER_TEXT_REF} });
+		$self->{safe}->share('$problemDOM', '$pageHeader');
+		$self->{safe}->reval('for (@{ $main::PG->{content_post_processors} }) { $_->($problemDOM, $pageHeader); }', 1);
+		warn "ERRORS from post processing PG text:\n$@\n" if $@;
+
+		$self->{PG_PROBLEM_TEXT_REF} = \($problemDOM->to_string);
+		$self->{PG_HEADER_TEXT_REF}  = \($pageHeader->to_string);
+	}
+
+	if (@warnings) {
+		ref $outer_sig_warn eq "CODE"
+			? $outer_sig_warn->(PG_errorMessage('message', @warnings))
+			: warn PG_errorMessage('message', @warnings);
+	}
+
+	return;
+}
+
 =head2 PG_restricted_eval
 
     PG_restricted_eval($string)
@@ -1205,7 +1241,7 @@ sub PG_restricted_eval {
 
 	my $out        = PG_restricted_eval_helper($string);
 	my $err        = $@;
-	my $err_report = $err if $err =~ /\S/;
+	my $err_report = $err =~ /\S/ ? $err : undef;
 	return wantarray ? ($out, $err, $err_report) : $out;
 }
 

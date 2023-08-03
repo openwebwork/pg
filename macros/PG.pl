@@ -581,6 +581,12 @@ sub get_persistent_data {
 	return $PG->get_persistent_data($label);
 }
 
+sub add_content_post_processor {
+	my $handler = shift;
+	$PG->add_content_post_processor($handler);
+	return;
+}
+
 =head2 RECORD_FORM_LABEL
 
 Stores the label of a form field in the "extra" answers list. This is used to
@@ -829,7 +835,7 @@ A reference to the C<PGcore> object for this problem.
 sub ENDDOCUMENT {
 	# Insert MathQuill responses if MathQuill is enabled.  Add responses to each answer's response group that store the
 	# latex form of the students' answers and add corresponding hidden input boxes to the page.
-	if ($envir{useMathQuill}) {
+	if ($envir{useMathQuill} && $main::displayMode =~ /HTML/i) {
 		for my $answerLabel (keys %{ $PG->{PG_ANSWERS_HASH} }) {
 			my $answerGroup = $PG->{PG_ANSWERS_HASH}{$answerLabel};
 			my $mq_opts     = $answerGroup->{ans_eval}{rh_ans}{mathQuillOpts} // {};
@@ -874,151 +880,115 @@ sub ENDDOCUMENT {
 				$mq_part_opts->{rootsAreExponents} = 0
 					if $context && $context->functions->get('root') && !defined $mq_part_opts->{rootsAreExponents};
 
-				my $name         = "MaThQuIlL_$response";
-				my $answer_value = '';
-				$answer_value = $inputs_ref->{$name} if defined($inputs_ref->{$name});
+				my $name = "MaThQuIlL_$response";
 				RECORD_EXTRA_ANSWERS($name);
-				$answer_value = encode_pg_and_html($answer_value);
-				my $data_mq_opts =
-					scalar(keys %$mq_part_opts)
-					? qq!data-mq-opts="@{[encode_pg_and_html(JSON->new->encode($mq_part_opts))]}"!
-					: "";
-				TEXT(MODES(
-					TeX  => "",
-					PTX  => "",
-					HTML => qq!<input type=hidden name="$name" id="$name" value="$answer_value" $data_mq_opts>!
-				));
+
+				add_content_post_processor(sub {
+					my $problemContents = shift;
+					my $input           = $problemContents->at(qq{input[name="$response"]})
+						|| $problemContents->at(qq{textarea[name="$response"]});
+					return unless $input;
+					$input->append(
+						Mojo::DOM->new_tag(
+							'input',
+							type  => 'hidden',
+							name  => $name,
+							id    => $name,
+							value => $inputs_ref->{$name} // '',
+							scalar(keys %$mq_part_opts)
+							? (data => { mq_opts => JSON->new->encode($mq_part_opts) })
+							: ''
+						)->to_string
+					);
+				});
 			}
 		}
 	}
 
-	# check that answers match
-	# gather up PG_FLAGS elements
+	# Gather flags
+	$PG->{flags}{showPartialCorrectAnswers} = $showPartialCorrectAnswers // 1;
+	$PG->{flags}{recordSubmittedAnswers}    = $recordSubmittedAnswers    // 1;
+	$PG->{flags}{refreshCachedImages}       = $refreshCachedImages       // 0;
+	$PG->{flags}{hintExists}                = $hintExists                // 0;
+	$PG->{flags}{solutionExists}            = $solutionExists            // 0;
+	$PG->{flags}{comment}                   = $pgComment                 // '';
 
-	$PG->{flags}->{showPartialCorrectAnswers} = defined($showPartialCorrectAnswers) ? $showPartialCorrectAnswers : 1;
-	$PG->{flags}->{recordSubmittedAnswers}    = defined($recordSubmittedAnswers)    ? $recordSubmittedAnswers    : 1;
-	$PG->{flags}->{refreshCachedImages}       = defined($refreshCachedImages)       ? $refreshCachedImages       : 0;
-	$PG->{flags}->{hintExists}                = defined($hintExists)                ? $hintExists                : 0;
-	$PG->{flags}->{solutionExists}            = defined($solutionExists)            ? $solutionExists            : 0;
-	$PG->{flags}->{comment}                   = defined($pgComment)                 ? $pgComment                 : '';
-
-	# install problem grader
-	if (defined($PG->{flags}->{PROBLEM_GRADER_TO_USE})) {
-		# problem grader defined within problem -- no further action needed
+	# Install problem grader.
+	# WeBWorK::PG::Translator will install its default problem grader if none of the conditions below are true.
+	if (defined($PG->{flags}{PROBLEM_GRADER_TO_USE})) {
+		# Problem grader defined within problem.  No further action needed.
 	} elsif (defined($rh_envir->{PROBLEM_GRADER_TO_USE})) {
-		if (ref($rh_envir->{PROBLEM_GRADER_TO_USE}) eq 'CODE') {    # user defined grader
-			$PG->{flags}->{PROBLEM_GRADER_TO_USE} = $rh_envir->{PROBLEM_GRADER_TO_USE};
+		if (ref($rh_envir->{PROBLEM_GRADER_TO_USE}) eq 'CODE') {
+			# User defined grader.
+			$PG->{flags}{PROBLEM_GRADER_TO_USE} = $rh_envir->{PROBLEM_GRADER_TO_USE};
 		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'std_problem_grader') {
-			if (defined(&std_problem_grader)) {
-				$PG->{flags}->{PROBLEM_GRADER_TO_USE} = \&std_problem_grader;    # defined in PGanswermacros.pl
-			}    # std_problem_grader is the default in any case so don't give a warning.
+			$PG->{flags}{PROBLEM_GRADER_TO_USE} = \&std_problem_grader if (defined(&std_problem_grader));
 		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'avg_problem_grader') {
-			if (defined(&avg_problem_grader)) {
-				$PG->{flags}->{PROBLEM_GRADER_TO_USE} = \&avg_problem_grader;    # defined in PGanswermacros.pl
-			}
+			$PG->{flags}{PROBLEM_GRADER_TO_USE} = \&avg_problem_grader if (defined(&avg_problem_grader));
 		} else {
-			warn "Error:  " . $PG->{flags}->{PROBLEM_GRADER_TO_USE} . "is not a known program grader.";
+			warn "Error: $PG->{flags}{PROBLEM_GRADER_TO_USE} is not a known problem grader.";
 		}
 	} elsif (defined(&std_problem_grader)) {
-		$PG->{flags}->{PROBLEM_GRADER_TO_USE} = \&std_problem_grader;    # defined in PGanswermacros.pl
-	} else {
-		# PGtranslator will install its default problem grader
+		$PG->{flags}{PROBLEM_GRADER_TO_USE} = \&std_problem_grader;
 	}
 
-	# add javaScripts
-	if ($rh_envir->{displayMode} eq 'HTML_jsMath') {
-		TEXT('<script> jsMath.wwProcess() </script>');
-	} elsif ($rh_envir->{displayMode} eq 'HTML_asciimath') {
-		TEXT('<script> translate() </script>');
-		my $STRING = join("", @{ $PG->{HEADER_ARRAY} });
-		unless ($STRING =~ m/mathplayer/) {
-			HEADER_TEXT('<object id="mathplayer" classid="clsid:32F66A20-7614-11D4-BD11-00104BD3F987">' . "\n"
-					. '</object><?import namespace="mml" implementation="#mathplayer"?>');
-		}
-
-	}
 	TEXT(MODES(%{ $rh_envir->{problemPostamble} }));
 
-	@PG_ANSWERS = ();
 	if ($inputs_ref->{showResourceInfo} && $rh_envir->{show_resource_info}) {
-		my %resources      = %{ $PG->{PG_alias}->{resource_list} };
-		my $str            = '';
-		my @resource_names = ();
-		foreach my $key (keys %resources) {
-			$str .= knowlLink("$key$BR", value => "$key$BR" . pretty_print($resources{$key}) . "$BR$BR", base64 => 0);
-			push @resource_names, $key;
-		}
-		if ($str eq '') {
-			$str = "No auxiliary resources<br/>";
+		if (keys %{ $PG->{PG_alias}{resource_list} }) {
+			$PG->debug_message(
+				'<p>Resources</p><ul>' . join(
+					'',
+					map {
+						'<li>' . knowlLink($_, value => pretty_print($PG->{PG_alias}{resource_list}{$_})) . '</li>'
+					}
+						sort keys %{ $PG->{PG_alias}{resource_list} }
+					)
+					. '</ul>'
+			);
 		} else {
-			my $summary = "## RESOURCES('" . join("','", @resource_names) . "')$BR\n";
-			$PG->debug_message($summary . $str);
+			$PG->debug_message('No auxiliary resources.');
 		}
 	}
+
 	if ($inputs_ref->{showPGInfo} && $rh_envir->{show_pg_info}) {
 		my $context = $$Value::context->{flags};
 		$PG->debug_message(
-			$HR, "Form variables",      $BR, pretty_print($inputs_ref), $HR, "Environment variables",
-			$BR, pretty_print(\%envir), $HR, "Context flags",           $BR, pretty_print($context),
+			"$HR<p>Form variables</p><div>" . pretty_print($inputs_ref) . '</div>',
+			"$HR<p>Environment variables</p><div>" . pretty_print(\%envir) . '</div>',
+			"$HR<p>Context flags</p><div>" . pretty_print($context) . '</div>'
 		);
 	}
 
-	#warn keys %{ $PG->{PG_ANSWERS_HASH} };
-	@PG_ANSWER_ENTRY_ORDER = ();
-	my $ans_debug = 0;
-	foreach my $key (keys %{ $PG->{PG_ANSWERS_HASH} }) {
-		$answergroup = $PG->{PG_ANSWERS_HASH}->{$key};
-		#warn "$key is defined =", defined($answergroup), "PG object is $PG";
-		#################
+	my (%PG_ANSWERS_HASH, @PG_ANSWER_ENTRY_ORDER);
+	for my $key (keys %{ $PG->{PG_ANSWERS_HASH} }) {
+		my $answergroup = $PG->{PG_ANSWERS_HASH}{$key};
+
 		# EXTRA ANSWERS KLUDGE
-		#################
-		# The first response in each answer group is placed in @PG_ANSER_ENTRY_ORDER and %PG_ANSWERS_HASH
-		# The remainder of the response keys are placed in the EXTRA ANSWERS ARRAY
-		if (defined($answergroup)) {
-			my @response_keys = $answergroup->{response}->response_labels;
+		# The first response label in each answer group is placed in the @PG_ANSWER_ENTRY_ORDER array, and the first
+		# response evaluator is placed in %PG_ANSWERS_HASH identified by its label.  The remainder of the response
+		# labels are placed in the @KEPT_EXTRA_ANSWERS array.
+		if (defined $answergroup) {
 			if ($inputs_ref->{showAnsGroupInfo} && $rh_envir->{show_answer_group_info}) {
 				$PG->debug_message(pretty_print($answergroup));
 				$PG->debug_message(pretty_print($answergroup->{response}));
 			}
-			my $response_key = $response_keys[0];
-			my $answer_key   = $answergroup->{ans_label};
-			#unshift @response_keys, $response_key unless ($response_key eq $answer_group->{ans_label});
-			# don't save the first response key if it is the same as the ans_label
-			# maybe we should insure that the first response key is always the same as the answer label?
-			#          warn "first response key label and answer key label don't agree"
-			#                 unless ($response_key eq $answer_key);
 
-			# even if no answer blank is printed for it? or a hidden answer blank?
-			# this is still a KLUDGE
-			# for compatibility the first response key is closer to the old method than the $ans_label
-			# this is because a response key might indicate an array but an answer label won't
-			#push @PG_ANSWERS, $response_key,$answergroup->{ans_eval};
-			$PG_ANSWERS_HASH{$answer_key} = $answergroup->{ans_eval};
-			push @PG_ANSWER_ENTRY_ORDER, $answer_key;
-			# @KEPT_EXTRA_ANSWERS could be replaced by saving all of the responses for this answergroup
-			push @KEPT_EXTRA_ANSWERS, @response_keys;
+			$PG_ANSWERS_HASH{ $answergroup->{ans_label} } = $answergroup->{ans_eval};
+			push @PG_ANSWER_ENTRY_ORDER, $answergroup->{ans_label};
+
+			push @KEPT_EXTRA_ANSWERS, $answergroup->{response}->response_labels;
 		} else {
-			warn "$key is ", join("|", %{ $PG->{PG_ANSWERS_HASH}->{$key} });
+			warn "$key does not have a valid answer group.";
 		}
 	}
 
-	$PG->{flags}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
-	$PG->{flags}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
+	$PG->{flags}{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
+	$PG->{flags}{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
 
-	# these should not be needed any longer since PG_alias warning queue is attached to PGcore's
-	# $PG->warning_message( @{ $PG->{PG_alias}->{flags}->{WARNING_messages}} );
-	# $PG->debug_message( @{ $PG->{PG_alias}->{flags}->{DEBUG_messages}}   );
-
-	warn "KEPT_EXTRA_ANSWERS",    join(" ", @KEPT_EXTRA_ANSWERS),    $BR if $ans_debug == 1;
-	warn "PG_ANSWER_ENTRY_ORDER", join(" ", @PG_ANSWER_ENTRY_ORDER), $BR if $ans_debug == 1;
-	# not needed for the moment:
-	# warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
-	warn "INTERNAL_DEBUG messages", join("$BR", @{ $PG->get_internal_debug_messages }) if $ans_debug == 1;
-	$STRINGforOUTPUT          = join("", @{ $PG->{OUTPUT_ARRAY} });
-	$STRINGforHEADER_TEXT     = join("", @{ $PG->{HEADER_ARRAY} });
-	$STRINGforPOSTHEADER_TEXT = join("", @{ $PG->{POST_HEADER_ARRAY} });
-	# warn pretty_print($PG->{PG_ANSWERS_HASH});
-	#warn "printing another warning";
+	my $STRINGforOUTPUT          = join('', @{ $PG->{OUTPUT_ARRAY} });
+	my $STRINGforHEADER_TEXT     = join('', @{ $PG->{HEADER_ARRAY} });
+	my $STRINGforPOSTHEADER_TEXT = join('', @{ $PG->{POST_HEADER_ARRAY} });
 
 	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT, \$STRINGforPOSTHEADER_TEXT, \%PG_ANSWERS_HASH, $PG->{flags}, $PG);
 }

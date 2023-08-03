@@ -42,7 +42,7 @@
 				answerInput.focus();
 			});
 		} else {
-			answerLink.href = '';
+			answerLink.removeAttribute('href');
 		}
 	};
 
