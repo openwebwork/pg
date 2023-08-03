@@ -52,7 +52,6 @@ directories:
     - $pg_root/macros/ui
     - $pg_root/macros/deprecated
 
-
 URLs:
   # The public URL of the html directory above.
   html: /pg_files
@@ -201,9 +200,10 @@ displayModeOptions:
       passwd: ''
 
 # PG modules to load
-# The first item of each list is the module to load. The remaining items are additional packages to import.
-# That is: If you wish to include a module MyModule.pm which depends on additional modules Dependency1.pm and
-# Dependency2.pm, these should appear as [Mymodule, Dependency1, Dependency2]
+# The first item of each list is the module file to load. The remaining items are additional packages to import that are
+# also contained in that file.
+# That is, if you wish to include a file MyModule.pm which containes the package MyModule and the additional packages
+# Dependency1 and Dependency2, then these should appear as [Mymodule, Dependency1, Dependency2].
 modules:
   - [Encode]
   - ['Encode::Encoding']
@@ -212,7 +212,8 @@ modules:
   - [DynaLoader]
   - [Exporter]
   - [GD]
-  - [AlgParser, AlgParserWithImplicitExpand, Expr, ExprWithImplicitExpand, utf8]
+  - [utf8]
+  - [AlgParser, AlgParserWithImplicitExpand, Expr, ExprWithImplicitExpand]
   - [AnswerHash, AnswerEvaluator]
   - [LaTeXImage]
   - [WWPlot] # required by Circle (and others)
@@ -235,14 +236,23 @@ modules:
   - [Select]
   - [Units]
   - [VectorField]
-  - [Parser, Value]
+  - [Parser]
+  - [Value]
   - ['Parser::Legacy']
   - [Statistics]
   - [Chromatic] # for Northern Arizona graph problems
   - [Applet]
-  - [PGcore, PGalias, PGresource, PGloadfiles, PGanswergroup, PGresponsegroup, 'Tie::IxHash']
+  - [PGcore]
+  - [PGalias]
+  - [PGresource]
+  - [PGloadfiles]
+  - [PGanswergroup]
+  - [PGresponsegroup]
+  - ['Tie::IxHash']
   - ['Locale::Maketext']
   - [JSON]
-  - [Rserve, 'Class::Tiny', 'IO::Handle']
+  - ['Class::Tiny']
+  - ['IO::Handle']
+  - ['Rserve']
   - [DragNDrop]
   - ['Types::Serialiser']

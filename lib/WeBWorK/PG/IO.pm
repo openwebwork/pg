@@ -37,20 +37,14 @@ WeBWorK::PG::IO - Functions used by WeBWorK::PG::Translator for file IO.
 
 =cut
 
-our @EXPORT = qw(
+our @EXPORT_OK = qw(
 	includePGtext
 	read_whole_problem_file
 	read_whole_file
 	convertPath
 	fileFromPath
 	directoryFromPath
-	createDirectory
 );
-
-=head1 SYNOPSIS
-
- use WeBWorK::PG::IO;
- my %functions_to_share = %WeBWorK::PG::IO::SHARE;
 
 =head1 DESCRIPTION
 

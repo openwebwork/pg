@@ -18,13 +18,13 @@
 # simple images using LaTeX, and converting them into a web-useable format.  Its
 # typical usage is via the macro PGtikz.pl and is documented there.
 
+package LaTeXImage;
+
 use strict;
 use warnings;
-use Carp;
-use WeBWorK::PG::IO;
-use WeBWorK::PG::ImageGenerator;
 
-package LaTeXImage;
+require WeBWorK::PG::IO;
+require WeBWorK::PG::ImageGenerator;
 
 # The constructor (it takes no parameters)
 sub new {
