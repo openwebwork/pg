@@ -545,19 +545,47 @@ sub ANS_NUM_TO_NAME {
 	$PG->new_label(@_);
 }
 
+=head2 persistent_data
+
+Save to or retrieve data from the persistence hash. The persistence hash is data
+that will persist for this problem.  It is saved when answers are submitted, and
+can be retrieved and used within a problem.
+
+    persistent_data($label);
+    persistent_data($label, $value);
+
+The C<$label> parameter is the key in the persistence hash.  If the C<$value>
+parameter is not given then the value of the C<$label> key in the hash will be
+returned.  If the C<$value> parameter is given then the value of the C<$label>
+key in the hash will be saved or updated.  Note that if the C<$value> parameter
+is given but is undefined then the C<$label> key will be deleted from the hash.
+Anything that can be JSON encoded can be stored.
+
+=cut
+
+sub persistent_data {
+	my ($label, @value) = @_;
+	return $PG->persistent_data($label, @value);
+}
+
+# The store_persistent_data, update_persistent_data, and get_persistent_data methods are deprecated and are only still
+# here for backward compatability. Use the persistent_data method instead which can do everything these three methods
+# can do. Note that if you use the persistent_data method, then you will need to join the values as strings if you want
+# that. Even better pass the persistent_data method an array reference containing the values so you can avoid the hassle
+# of splitting the values when they are retrieved.
 sub store_persistent_data {
 	my ($label, @values) = @_;
-	$PG->store_persistent_data($label, @values);
+	return $PG->persistent_data($label, join('', @values));
 }
 
 sub update_persistent_data {
 	my ($label, @values) = @_;
-	$PG->update_persistent_data($label, @values);
+	return $PG->persistent_data($label, join('', @values));
 }
 
 sub get_persistent_data {
 	my ($label) = @_;
-	return $PG->get_persistent_data($label);
+	return $PG->persistent_data($label);
 }
 
 sub add_content_post_processor {

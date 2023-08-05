@@ -75,7 +75,6 @@ sub new {
 
 		# Holds other data, besides answers, which persists during a session and beyond.
 		PERSISTENCE_HASH            => $envir->{PERSISTENCE_HASH} // {},    # Main data, received from DB
-		PERSISTENCE_HASH_UPDATED    => {},                      # Keys whose updated values should be saved by the DB
 		answer_name_count           => 0,
 		implicit_named_answer_stack => [],
 		implicit_answer_eval_stack  => [],
@@ -83,10 +82,10 @@ sub new {
 		KEPT_EXTRA_ANSWERS          => [],
 		ANSWER_PREFIX               => 'AnSwEr',
 		ARRAY_PREFIX                => 'ArRaY',
-		vec_num                     => 0,                       # for distinguishing matrices
+		vec_num                     => 0,                                   # for distinguishing matrices
 		QUIZ_PREFIX                 => $envir->{QUIZ_PREFIX},
 		PG_VERSION                  => $ENV{PG_VERSION},
-		PG_ACTIVE                   => 1,                       # toggle to zero to stop processing
+		PG_ACTIVE                   => 1,                                   # toggle to zero to stop processing
 		submittedAnswers            => 0,        # have any answers been submitted? is this the first time this session?
 		PG_session_persistence_hash => {},       # stores data from one invoction of the session to the next.
 		PG_original_problem_seed    => 0,
@@ -477,25 +476,20 @@ sub extend_ans_group {    # modifies the group type
 	return $label;
 }
 
-sub store_persistent_data {    # will store strings only (so far)
-	my ($self, $label, @values) = @_;
-	if (defined($self->{PERSISTENCE_HASH}->{$label})) {
-		warn "can' overwrite $label in persistent data";
-	} else {
-		$self->{PERSISTENCE_HASH_UPDATED}{$label} = 1;
-		$self->{PERSISTENCE_HASH}{$label}         = join("", @values);
+# Save to or retrieve data from the persistence hash.  The $label parameter is the key in the persistence hash.  If the
+# $value parameter is not given then the value of the $label key in the hash will be returned.  If the $value parameter
+# is given then the value of the $label key in the hash will be saved or updated.  Note that if the $value parameter is
+# given but is undefined then the $label key will be deleted from the hash.  Anything that can be JSON encoded can be
+# stored.
+sub persistent_data {
+	my ($self, $label, $value) = @_;
+	if (@_ > 2) {
+		if (defined $value) {
+			$self->{PERSISTENCE_HASH}{$label} = $value;
+		} else {
+			delete $self->{PERSISTENCE_HASH}{$label};
+		}
 	}
-	$label;
-}
-
-sub update_persistent_data {    # will store strings only (so far)
-	my ($self, $label, @values) = @_;
-	$self->{PERSISTENCE_HASH_UPDATED}{$label} = 1;
-	$self->{PERSISTENCE_HASH}{$label}         = join("", @values);
-}
-
-sub get_persistent_data {
-	my ($self, $label) = @_;
 	return $self->{PERSISTENCE_HASH}{$label};
 }
 
