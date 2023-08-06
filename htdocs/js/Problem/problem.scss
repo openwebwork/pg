@@ -77,18 +77,18 @@
 	}
 
 	input[type=text], span.mq-editable-field {
-		background-size: auto 80%;
+		background-size: 20px auto;
 		background-position: right;
 		background-repeat: no-repeat;
 
 		&.correct {
-			padding-right: 30px;
-			background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='20px' width='30px'><text x='24' y='16' fill='%23060' text-anchor='end'>✓</text></svg>");
+			padding-right: 27px;
+			background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='20px' width='27px'><text x='18' y='16' fill='%23060' text-anchor='end'>✓</text></svg>");
 		}
 
 		&.incorrect {
-			padding-right: 30px;
-			background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='22px' width='30px'><text x='28' y='18' fill='%23943D3D' text-anchor='end'>⚠</text></svg>");
+			padding-right: 27px;
+			background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='22px' width='27px'><text x='24' y='18' fill='%23AE5757' text-anchor='end'>⚠</text></svg>");
 		}
 	}
 
