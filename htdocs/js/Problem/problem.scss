@@ -76,6 +76,24 @@
 		}
 	}
 
+	input[type=text], span.mq-editable-field {
+		background-size: auto 80%;
+		background-position: right;
+		background-repeat: no-repeat;
+
+		&.correct {
+			padding-right: 30px;
+			background-color: #8F8; /* green */
+			background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='20px' width='30px'><text x='24' y='16' fill='%23060' text-anchor='end'>✓</text></svg>");
+		}
+
+		&.incorrect {
+			padding-right: 30px;
+			background-color: #DAA; /* red */
+			background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='22px' width='30px'><text x='28' y='18' fill='%23943D3D' text-anchor='end'>⚠</text></svg>");
+		}
+	}
+
 	input[type=radio] {
 		margin-right: 0.25rem;
 	}
