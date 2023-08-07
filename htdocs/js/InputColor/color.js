@@ -17,7 +17,10 @@
 					if (!radioGroups[input.name]) radioGroups[input.name] = [];
 					radioGroups[input.name].push(input);
 				} else {
-					input.classList.add(type);
+					if (input.type.toLowerCase() === 'text') {
+						if (type === 'correct' || input.value !== '') input.classList.add(type);
+					} else
+						input.classList.add(type);
 				}
 			});
 
