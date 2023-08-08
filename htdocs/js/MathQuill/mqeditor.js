@@ -501,7 +501,9 @@
 			if (answerLabel.includes(tableLink.dataset.answerId)) {
 				if (tableLink.parentNode.classList.contains('ResultsWithoutError'))
 					answerQuill.classList.add('correct');
-				else answerQuill.classList.add('incorrect');
+				else {
+					if (answerQuill.input.value !== '') answerQuill.classList.add('incorrect');
+				}
 			}
 
 			// Make a click on the results table link give focus to the mathquill answer box.
