@@ -54,7 +54,10 @@ sub append_response {
 	if (not_null($response_label)) {
 		if (not exists($self->{responses}{$response_label})) {
 			push @{ $self->{response_order} }, $response_label;
-			$self->{responses}{$response_label} = $response_value;
+			$self->{responses}{$response_label} =
+				ref($response_value) eq 'HASH'
+				? [ map { [ $_ => $response_value->{$_} ] } keys %$response_value ]
+				: $response_value;
 		} else {
 			$self->internal_debug_message(
 				"PGresponsegroup::append_response error: there is already an answer labeled $response_label",
