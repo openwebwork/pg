@@ -2,6 +2,18 @@
 	cursor: pointer;
 }
 
+.image-view-elt.top {
+	vertical-align: text-top;
+}
+
+.image-view-elt.middle {
+	vertical-align: middle;
+}
+
+.image-view-elt.bottom {
+	vertical-align: baseline;
+}
+
 .image-view-dialog.modal {
 	padding: 0 !important;
 }
