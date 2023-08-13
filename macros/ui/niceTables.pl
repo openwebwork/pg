@@ -758,6 +758,10 @@ sub Rows {
 					if $x->{bottom};
 			}
 
+			# if this row had a row color, disable that now or else with nested tables
+			# the row color will extend into subsequent rows (this seems like a colortbl bug)
+			$row = suffix($row, '\hiderowcolors', ' ') if $rowcolor;
+
 			push(@rows, $row);
 		} elsif ($main::displayMode eq 'PTX') {
 			my $ptxbottom = '';
