@@ -57,7 +57,6 @@ sub make_csv_alias {
 
 	# Define the file name, clean it up and convert to a url.
 	my $filePath = "data/$studentLogin-$problemSeed-set" . $setName . "prob$prob.html";
-	$filePath = $self->{PG}->convertPath($filePath);
 	$filePath = $self->{PG}->surePathToTmpFile($filePath);
 	my $url = $self->{PG}->{PG_alias}->make_alias($filePath);
 

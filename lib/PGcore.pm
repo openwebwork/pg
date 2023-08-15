@@ -711,7 +711,7 @@ sub insertGraph {
 	my ($self, $graph) = @_;
 
 	my $fileName = $graph->imageName . '.' . $graph->ext;
-	my $filePath = $self->surePathToTmpFile($self->convertPath("images/$fileName"));
+	my $filePath = $self->surePathToTmpFile("images/$fileName");
 
 	# Check to see if we already have this graph, or if we have to make it.
 	if (!-e $filePath
@@ -761,7 +761,6 @@ sub getUniqueName {
 
 		includePGtext
 		read_whole_problem_file
-		convertPath
 		fileFromPath
 		directoryFromPath
 
@@ -785,11 +784,6 @@ sub read_whole_problem_file {
 	WeBWorK::PG::IO::read_whole_problem_file(@_);
 }
 
-sub convertPath {
-	my $self = shift;
-	WeBWorK::PG::IO::convertPath(@_);
-}
-
 sub fileFromPath {
 	my $self = shift;
 	WeBWorK::PG::IO::fileFromPath(@_);
@@ -804,7 +798,7 @@ sub AskSage {
 	my $self    = shift;
 	my $python  = shift;
 	my $options = shift;
-	$options->{curlCommand} = WeBWorK::PG::IO::curlCommand();
+	$options->{curlCommand} = WeBWorK::PG::IO::externalCommand('curl');
 	WeBWorK::PG::IO::AskSage($python, $options);
 }
 
@@ -862,7 +856,7 @@ sub surePathToTmpFile {
 	$path = $tmpDirectory;
 
 	while (@nodes > 1) {
-		$path = $path . shift(@nodes) . "/";    #convertPath($path . shift (@nodes) . "/");
+		$path = $path . shift(@nodes) . "/";
 
 		unless (-e $path) {
 			WeBWorK::PG::IO::createDirectory($path, $perms, $groupID)
@@ -872,7 +866,7 @@ sub surePathToTmpFile {
 
 	}
 
-	$path = $path . shift(@nodes);    #convertPath($path . shift(@nodes));
+	$path = $path . shift(@nodes);
 	return $path;
 }
 

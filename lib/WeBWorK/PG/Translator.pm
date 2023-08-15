@@ -255,7 +255,6 @@ sub new {
 
     &be_strict
     &read_whole_problem_file
-    &convertPath
     &surePathToTmpFile
     &fileFromPath
     &directoryFromPath
@@ -275,7 +274,6 @@ template.
 The macros shared with the safe compartment are
 
     '&read_whole_problem_file'
-    '&convertPath'
     '&surePathToTmpFile'
     '&fileFromPath'
     '&directoryFromPath'
