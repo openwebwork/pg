@@ -34,6 +34,7 @@ use utf8;
 use Encode qw(encode decode);
 use JSON qw(decode_json);
 use File::Spec::Functions qw(canonpath);
+use File::Find qw(finddepth);
 
 use PGUtil qw(not_null);
 use WeBWorK::PG::Environment;
@@ -227,6 +228,26 @@ sub createDirectory {
 	} else {
 		return 1;
 	}
+}
+
+=head2 remove_tree
+
+Usage: C<remove_tree($dir)>
+
+Remove a directory and its contents.
+
+=cut
+
+sub remove_tree {
+	my $dir = shift;
+
+	finddepth sub {
+		if (!-l && -d _) {
+			rmdir($File::Find::name) or warn "Unable to remove directory $File::Find::name: $!";
+		} else {
+			unlink($File::Find::name) or warn "Unable to delete file $File::Find::name: $!";
+		}
+	}, $dir;
 }
 
 # This is needed for the subroutine below.  It is copied from WeBWorK::Utils.
