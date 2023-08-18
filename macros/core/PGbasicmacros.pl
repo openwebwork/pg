@@ -3054,13 +3054,13 @@ sub image {
 			# alias should have given us the path to a PNG image.
 			if ($imagePath) {
 				if ($valign eq 'top') {
-					$out =
-						"\\raisebox{-\\height + \\fontcharht\\font`I}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+					$out = '\settoheight{\strutheight}{\strut}'
+						. "\\raisebox{-\\height + \\strutheight}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
 				} elsif ($valign eq 'bottom') {
 					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
 				} else {
-					$out =
-						"\\raisebox{-0.5\\height + 0.5\\fontcharht\\font`I}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+					$out = '\settoheight{\strutheight}{\strut}'
+						. "\\raisebox{-0.5\\height + 0.5\\strutheight}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
 				}
 			} else {
 				$out = "";
