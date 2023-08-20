@@ -596,7 +596,10 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		ignoreIndent => 1,
 		terminator   => qr/#\]/,
 		allowStar    => 1,
-		options      => [ "align", "midrules", "center" ]
+		options      => [ qw(
+			center caption horizontalrules texalignment align      Xratio  encase    rowheaders headerrules
+			valign padding tablecss        captioncss   columnscss datacss headercss allcellcss booktabs
+		) ]
 	},
 	"[-" => {
 		type         => 'table-row',
@@ -611,8 +614,11 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		parseAll    => 1,
 		isContainer => 1,
 		container   => 'table-row',
-		terminator  => qr/.\]/,
-		options     => ["headerrow"]
+		terminator  => qr/\.\]/,
+		options     => [ qw(
+			halign  header color   bgcolor   b        i      m         noencase colspan   top    bottom
+			cellcss texpre texpost texencase rowcolor rowcss headerrow rowtop   rowbottom valign
+		) ]
 	},
 	"[:" => {
 		type               => 'math',
@@ -1273,7 +1279,6 @@ sub string {
 	foreach my $item (@{ $block->{stack} }) {
 		$self->{item} = $item;
 		$self->{nl}   = (!defined($strings[-1]) || $strings[-1] =~ m/\n$/ ? "" : "\n");
-		# warn "type: $item->{type}";
 		for ($item->{type}) {
 			/indent/   && do { $string = $self->Indent($item);                    last };
 			/align/    && do { $string = $self->Align($item);                     last };
@@ -1300,7 +1305,7 @@ sub string {
 			/table/    && do { $string = $self->Table($item);                     last };
 			PGML::Warning "Warning: unknown block type '$item->{type}' in " . ref($self) . "::format\n";
 		}
-		push(@strings, $string) unless $string eq '';
+		push(@strings, $string) unless (!defined $string || $string eq '');
 	}
 	$self->{nl} = (!defined($strings[-1]) || $strings[-1] =~ m/\n$/ ? "" : "\n");
 	return join('', @strings);
@@ -1336,14 +1341,18 @@ sub Table {
 	my $self = shift;
 	my $item = shift;
 	return "[misplaced $item->{type}]" if $item->{hasWarning};
-	my $def = [ $item->{type} eq 'table-cell' ? $self->string($item) : map { $self->Table($_) } @{ $item->{stack} } ];
-	my @options = ();
+	my @options;
 	foreach my $option (@{ $item->{options} || [] }) {
 		push(@options, $option => $item->{$option}) if defined($item->{$option});
 	}
-	push(@$def, @options) if @options;
-	return $def unless $item->{type} eq 'table';
-	return ($item->{hasStar} ? main::LayoutTable($def) : main::DataTable($def));
+	if ($item->{type} eq 'table-cell') {
+		return [ $self->string($item), @options ];
+	} elsif ($item->{type} eq 'table-row') {
+		return [ map { $self->Table($_) } @{ $item->{stack} } ];
+	} elsif ($item->{type} eq 'table') {
+		my $def = [ map { $self->Table($_) } @{ $item->{stack} } ];
+		return ($item->{hasStar} ? main::LayoutTable($def, @options) : main::DataTable($def, @options));
+	}
 }
 
 sub Math {
