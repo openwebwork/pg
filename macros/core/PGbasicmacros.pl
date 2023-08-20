@@ -2940,7 +2940,7 @@ sub row {
 
 Usage:
 
-    image($image, width => 200, height => 200, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
+    image($image, width => 200, height => 200, tex_size => 800, valign => 'middle', alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
 
 where C<$image> can be a local file path, URL, WWPlot object, PGlateximage object,
 PGtikz object, or parser::GraphTool object.
@@ -2956,6 +2956,9 @@ For example 800 leads to 0.8\linewidth. If over 1000, then 1000 will be used.
 If missing, this defaults to C<int(width/0.6)> so the image is proportional to its
 HTML version with a 600 pixel wide reading area. If C<width> is missing and C<height>
 is declared, we presume this is a wide image and then C<tex_size> defaults to 800.
+
+C<valign> can be 'top', 'middle', or 'bottom'.  This aligns the image relative to
+the surrounding line of text.
 
     image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => ['alt text 1','alt text 2'], extra_html_tags => 'style="border:solid black 1pt"');
     image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => 'common alt text', extra_html_tags => 'style="border:solid black 1pt"');
@@ -2976,6 +2979,7 @@ sub image {
 		width    => '',
 		height   => '',
 		tex_size => '',
+		valign   => 'middle',
 		# default value for alt is undef, since an empty string is the explicit indicator of a decorative image
 		alt             => undef,
 		extra_html_tags => '',
@@ -3004,6 +3008,9 @@ sub image {
 	my $width_ratio = $tex_size * (.001);
 	my @image_list  = ();
 	my @alt_list    = ();
+	my $valign      = 'middle';
+	$valign = 'top'    if ($out_options{valign} eq 'top');
+	$valign = 'bottom' if ($out_options{valign} eq 'bottom');
 
 	# if width and/or height are explicit, create string for attribute to be used in HTML, LaTeX2HTML
 	my $width_attrib  = ($width)  ? qq{ width="$width"}   : '';
@@ -3046,7 +3053,15 @@ sub image {
 			# We're going to create PDF files with our TeX (using pdflatex), so
 			# alias should have given us the path to a PNG image.
 			if ($imagePath) {
-				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				if ($valign eq 'top') {
+					$out = '\settoheight{\strutheight}{\strut}'
+						. "\\raisebox{-\\height + \\strutheight}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+				} elsif ($valign eq 'bottom') {
+					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				} else {
+					$out = '\settoheight{\strutheight}{\strut}'
+						. "\\raisebox{-0.5\\height + 0.5\\strutheight}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+				}
 			} else {
 				$out = "";
 			}
@@ -3067,7 +3082,7 @@ sub image {
 			my $altattrib = '';
 			if (defined $alt_list[0]) { $altattrib = 'alt="' . encode_pg_and_html(shift @alt_list) . '"' }
 			$out =
-				qq!<IMG SRC="$imageURL" class="image-view-elt" tabindex="0" role="button"$width_attrib$height_attrib $out_options{extra_html_tags} $altattrib>!;
+				qq!<IMG SRC="$imageURL" class="image-view-elt $valign" tabindex="0" role="button"$width_attrib$height_attrib $out_options{extra_html_tags} $altattrib>!;
 		} elsif ($displayMode eq 'PTX') {
 			my $ptxwidth = ($width ? int($width / 6) : 80);
 			if (defined $alt) {
