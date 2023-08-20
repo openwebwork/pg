@@ -47,8 +47,8 @@ my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?=.)|\bq[qr]?(?=\W)';
 my $emphasis  = '\*+|_+';
 my $chars     = '\\\\.|[{}[\]()\'"]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
-my $open      = '\[(?:[!<%@$]|::?:?|``?`?|\|+ ?)';
-my $close     = '(?:[!>%@$]|::?:?|``?`?| ?\|+)\]';
+my $open      = '\[(?:[!<%@$#.-]|::?:?|``?`?|\|+ ?)';
+my $close     = '(?:[!>%@$#.-]|::?:?|``?`?| ?\|+)\]';
 my $noop      = '\[\]';
 
 my $splitPattern =
@@ -151,7 +151,8 @@ sub Parse {
 		my $token = $self->{split}[ ($self->{i})++ ];
 		next unless defined $token && $token ne '';
 		for ($token) {
-			$block->{terminator} && /^$block->{terminator}\z/ && do { $self->Terminate($token); last };
+			$block->{terminator}   && /^$block->{terminator}\z/   && do { $self->Terminate($token);    last };
+			$block->{containerEnd} && /^$block->{containerEnd}\z/ && do { $self->EndContainer($token); last };
 			/^\[[@\$]/ && ($block->{parseAll} || $block->{parseSubstitutions}) && do { $self->Begin($token); last };
 			/^\[%/     && ($block->{parseAll} || $block->{parseComments})      && do { $self->Begin($token); last };
 			/^\\./     && ($block->{parseAll} || $block->{parseSlashes})       && do { $self->Slash($token); last };
@@ -208,8 +209,17 @@ sub Begin {
 	my $options = shift || {};
 	my $def     = { %{ $BlockDefs{$id} }, %$options, token => $token };
 	my $type    = $def->{type};
+	my $class   = $def->{class} || 'PGML::Block';
 	delete $def->{type};
-	my $block = PGML::Block->new($type, $def);
+	delete $def->{class};
+	my $block = $class->new($type, $def);
+	my $end   = $self->{block}{isContainer} ? $self->{block}{terminator} : $self->{block}{containerEnd};
+	$block->{containerEnd} = $end if $end;
+
+	if ($block->{container} && $self->{block}{type} ne $block->{container}) {
+		PGML::Warning "A $type must appear in a $block->{container}";
+		$block->{hasWarning} = 1;
+	}
 	$self->{block}->pushItem($block);
 	$block->{prev}        = $self->{block};
 	$self->{block}        = $block;
@@ -222,6 +232,7 @@ sub End {
 	my $action = shift || "paragraph ends";
 	my $endAt  = shift;
 	my $block  = $self->{block};
+	return          if $block->{isContainer};
 	$block->popItem if $block->topItem->{type} eq 'break' && $block->{type} ne 'align';
 	while ($block->{type} ne 'root') {
 		if (ref($block->{terminator}) eq 'Regexp' || $block->{cancelPar}) {
@@ -247,7 +258,7 @@ sub Terminate {
 	foreach my $field (
 		"prev",     "parseComments",    "parseSubstitutions", "parseSlashes",
 		"parseAll", "cancelUnbalanced", "cancelNL",           "cancelPar",
-		"balance",  "terminateMethod",  "noIndent"
+		"balance",  "terminateMethod",  "noIndent",           "ignoreIndent"
 		)
 	{
 		delete $block->{$field};
@@ -257,6 +268,15 @@ sub Terminate {
 		if    (scalar(@{ $block->{stack} }) == 0) { $prev->popItem }
 		elsif ($block->{combine})                 { $prev->combineTopItems }
 	}
+}
+
+sub EndContainer {
+	my $self  = shift;
+	my $token = shift;
+	while (!$self->{block}{isContainer}) {
+		$self->Terminate($token);
+	}
+	$self->Terminate($token);
 }
 
 sub Unbalanced {
@@ -334,6 +354,7 @@ sub Par {
 sub Indent {
 	my $self  = shift;
 	my $token = shift;
+	return if $self->{block}{ignoreIndent};
 	if ($self->{atLineStart}) {
 		my $tabs = $token;
 		$tabs =~ s/    /\t/g;    # turn spaces into tabs
@@ -568,6 +589,31 @@ sub NOOP {
 my $balanceAll = qr/[\{\[\'\"]/;
 
 %BlockDefs = (
+	"[#" => {
+		type         => 'table',
+		class        => 'PGML::Block::Table',
+		parseAll     => 1,
+		ignoreIndent => 1,
+		terminator   => qr/#\]/,
+		allowStar    => 1,
+		options      => [ "align", "midrules", "center" ]
+	},
+	"[-" => {
+		type         => 'table-row',
+		class        => 'PGML::Block::TableRow',
+		parseAll     => 1,
+		ignoreIndent => 1,
+		container    => 'table',
+		terminator   => qr/-\]/
+	},
+	"[." => {
+		type        => 'table-cell',
+		parseAll    => 1,
+		isContainer => 1,
+		container   => 'table-row',
+		terminator  => qr/.\]/,
+		options     => ["headerrow"]
+	},
 	"[:" => {
 		type               => 'math',
 		parseComments      => 1,
@@ -1130,6 +1176,46 @@ sub pushItem {
 }
 
 ######################################################################
+
+package PGML::Block::Table;
+our @ISA = ('PGML::Block');
+
+sub pushItem {
+	my $self = shift;
+	my $item;
+	while ($item = shift) {
+		if ($item->{type} eq 'text') {
+			my $text = join('', @{ $item->{stack} });
+			PGML::Warning 'Table text must be in cells' unless $text =~ m/^\s*$/;
+		} elsif ($item->{type} eq 'table-row') {
+			$self->SUPER::pushItem($item);
+		} elsif ($item->{type} eq 'comment') {
+		} else {
+			PGML::Warning 'Tables can contain only table rows';
+		}
+	}
+}
+
+package PGML::Block::TableRow;
+our @ISA = ('PGML::Block');
+
+sub pushItem {
+	my $self = shift;
+	my $item;
+	while ($item = shift) {
+		if ($item->{type} eq 'text') {
+			my $text = join('', @{ $item->{stack} });
+			PGML::Warning 'Table row text must be in cells' unless $text =~ m/^\s*$/;
+		} elsif ($item->{type} eq 'table-cell') {
+			$self->SUPER::pushItem($item);
+		} elsif ($item->{type} eq 'comment') {
+		} else {
+			PGML::Warning 'Table rows can contain only table cells';
+		}
+	}
+}
+
+######################################################################
 ######################################################################
 
 package PGML::Text;
@@ -1211,6 +1297,7 @@ sub string {
 			/break/    && do { $string = $self->Break($item);                     last };
 			/forced/   && do { $string = $self->Forced($item);                    last };
 			/comment/  && do { $string = $self->Comment($item);                   last };
+			/table/    && do { $string = $self->Table($item);                     last };
 			PGML::Warning "Warning: unknown block type '$item->{type}' in " . ref($self) . "::format\n";
 		}
 		push(@strings, $string) unless $string eq '';
@@ -1244,6 +1331,20 @@ sub Verbatim { return "" }
 sub Break    { return "" }
 sub Forced   { return "" }
 sub Comment  { return "" }
+
+sub Table {
+	my $self = shift;
+	my $item = shift;
+	return "[misplaced $item->{type}]" if $item->{hasWarning};
+	my $def = [ $item->{type} eq 'table-cell' ? $self->string($item) : map { $self->Table($_) } @{ $item->{stack} } ];
+	my @options = ();
+	foreach my $option (@{ $item->{options} || [] }) {
+		push(@options, $option => $item->{$option}) if defined($item->{$option});
+	}
+	push(@$def, @options) if @options;
+	return $def unless $item->{type} eq 'table';
+	return ($item->{hasStar} ? main::LayoutTable($def) : main::DataTable($def));
+}
 
 sub Math {
 	my $self = shift;
@@ -1869,7 +1970,7 @@ package main;
 
 sub _PGML_init {
 	PG_restricted_eval('sub PGML {PGML::Format2(@_)}');
-	loadMacros("MathObjects.pl");
+	loadMacros("MathObjects.pl", "niceTables.pl");
 	my $context = Context();    # prevent Typeset context from becoming active
 	loadMacros("contextTypeset.pl");
 	Context($context);
