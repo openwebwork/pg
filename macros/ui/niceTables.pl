@@ -942,6 +942,7 @@ sub Row {
 				$columntype =~ s/^p/b/ if ($valign eq 'bottom');
 				$columntype =~ s/^p/m/ if ($tableOpts->{valign} eq 'middle');
 				$columntype =~ s/^p/b/ if ($tableOpts->{valign} eq 'bottom');
+				$columntype = ">{$cellAlign->{tex}}" . $columntype if $cellAlign->{tex};
 				$columntype = getLaTeXcolumnWidth($alignment->[0]{left}) . $columntype
 					if ($i == 0 && $alignment->[0]{left} && !$cellOpts->{halign});
 
