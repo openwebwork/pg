@@ -758,6 +758,10 @@ sub Rows {
 					if $x->{bottom};
 			}
 
+			# if this row had a row color, disable that now or else with nested tables
+			# the row color will extend into subsequent rows (this seems like a colortbl bug)
+			$row = suffix($row, '\hiderowcolors', ' ') if $rowcolor;
+
 			push(@rows, $row);
 		} elsif ($main::displayMode eq 'PTX') {
 			my $ptxbottom = '';
@@ -942,6 +946,7 @@ sub Row {
 				$columntype =~ s/^p/b/ if ($valign eq 'bottom');
 				$columntype =~ s/^p/m/ if ($tableOpts->{valign} eq 'middle');
 				$columntype =~ s/^p/b/ if ($tableOpts->{valign} eq 'bottom');
+				$columntype = ">{$cellAlign->{tex}}" . $columntype if $cellAlign->{tex};
 				$columntype = getLaTeXcolumnWidth($alignment->[0]{left}) . $columntype
 					if ($i == 0 && $alignment->[0]{left} && !$cellOpts->{halign});
 
@@ -1492,7 +1497,7 @@ sub getLaTeXthickness {
 	my $input  = shift;
 	my $output = '';
 	if ($input =~ /^\s*(\.\d+|\d+\.?\d*)\s*$/) {
-		$output = "$1px" if $1;
+		$output = $1 * 0.75 . 'pt' if $1;
 	} elsif ($input) {
 		$output = "$input";
 	}
