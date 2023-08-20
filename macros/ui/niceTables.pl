@@ -1492,7 +1492,7 @@ sub getLaTeXthickness {
 	my $input  = shift;
 	my $output = '';
 	if ($input =~ /^\s*(\.\d+|\d+\.?\d*)\s*$/) {
-		$output = "$1px" if $1;
+		$output = $1 * 0.75 . 'pt' if $1;
 	} elsif ($input) {
 		$output = "$input";
 	}
