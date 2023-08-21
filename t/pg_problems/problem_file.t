@@ -16,8 +16,6 @@ ok my $pg = WeBWorK::PG->new(
 
 is($pg->{head_text}, '', 'head_text is empty');
 
-is($pg->{post_header_text}, '', 'post_header_text is empty');
-
 is(
 	$pg->{body_text},
 	qq{<div class="PGML">\n}
