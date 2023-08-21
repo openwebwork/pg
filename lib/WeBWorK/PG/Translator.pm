@@ -25,7 +25,6 @@ WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
 
     $PG_PROBLEM_TEXT_REF = $pt->r_text;               # reference to output text for the body of problem
     $PG_HEADER_TEXT_REF = $pt->r_header;              # reference to text for the header in HTML output
-    $PG_POST_HEADER_TEXT_REF = $pt->r_post_header;
     $PG_ANSWER_HASH_REF = $pt->rh_correct_answers;    # a hash of answer evaluators
     $PG_FLAGS_REF = $pt->rh_flags;                    # misc. status flags.
 
@@ -206,24 +205,23 @@ sub new {
 	my $safe_cmpt = exists($ENV{MOJO_MODE}) ? $WeBWorK::Translator::safeCache : WWSafe->new;
 
 	my $self = {
-		preprocess_code         => \&default_preprocess_code,
-		postprocess_code        => \&default_postprocess_code,
-		envir                   => undef,
-		PG_PROBLEM_TEXT_REF     => 0,
-		PG_HEADER_TEXT_REF      => 0,
-		PG_POST_HEADER_TEXT_REF => 0,
-		PG_ANSWER_HASH_REF      => {},
-		PG_FLAGS_REF            => {},
-		rh_pgcore               => undef,
-		safe                    => $safe_cmpt,
-		safe_compartment_name   => $safe_cmpt->root,
-		errors                  => '',
-		source                  => '',
-		rh_correct_answers      => {},
-		rh_student_answers      => {},
-		rh_evaluated_answers    => {},
-		rh_problem_result       => {},
-		rh_problem_state        => {
+		preprocess_code       => \&default_preprocess_code,
+		postprocess_code      => \&default_postprocess_code,
+		envir                 => undef,
+		PG_PROBLEM_TEXT_REF   => 0,
+		PG_HEADER_TEXT_REF    => 0,
+		PG_ANSWER_HASH_REF    => {},
+		PG_FLAGS_REF          => {},
+		rh_pgcore             => undef,
+		safe                  => $safe_cmpt,
+		safe_compartment_name => $safe_cmpt->root,
+		errors                => '',
+		source                => '',
+		rh_correct_answers    => {},
+		rh_student_answers    => {},
+		rh_evaluated_answers  => {},
+		rh_problem_result     => {},
+		rh_problem_state      => {
 			recorded_score       => 0,
 			num_of_correct_ans   => 0,
 			num_of_incorrect_ans => 0,
@@ -426,11 +424,6 @@ sub header {
 	return ${ $self->{PG_HEADER_TEXT_REF} };
 }
 
-sub post_header {
-	my $self = shift;
-	return ${ $self->{PG_POST_HEADER_TEXT_REF} };
-}
-
 sub h_flags {
 	my $self = shift;
 	return %{ $self->{PG_FLAGS_REF} };
@@ -454,11 +447,6 @@ sub r_text {
 sub r_header {
 	my $self = shift;
 	return $self->{PG_HEADER_TEXT_REF};
-}
-
-sub r_post_header {
-	my $self = shift;
-	return $self->{PG_POST_HEADER_TEXT_REF};
 }
 
 sub rh_correct_answers {
@@ -688,8 +676,6 @@ Sets the following hash keys of the translator object:
     PG_PROBLEM_TEXT_REF: Reference to a string containing the rendered text.
     PG_HEADER_TEXT_REF:  Reference to a string containing material to be placed
         in the header.
-    PG_POST_HEADER_TEXT_REF:  Reference to a string containing material to
-        be placed in body above form.
     rh_correct_answers:  Reference to an array containing the answer evaluators.
         Constructed from keys of $PGcore->{PG_ANSWERS_HASH}.
     PG_FLAGS_REF:  Reference to a hash containing flags and other references:
@@ -736,9 +722,8 @@ sub translate {
 		. $self->{envir}{probFileName} . '" };'
 		. &{ $self->{preprocess_code} }($evalString);
 
-	my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_POST_HEADER_TEXT_REF, $PG_ANSWER_HASH_REF, $PG_FLAGS_REF,
-		$PGcore)
-		= $safe_cmpt->reval($evalString);
+	my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore) =
+		$safe_cmpt->reval($evalString);
 
 	# This section could use some more error messages.  In particular if a problem doesn't produce the right output,
 	# the user needs information about which problem was at fault.
@@ -808,10 +793,9 @@ sub translate {
 
 	# Make sure that these variables are defined.  If the eval failed with
 	# errors, one or more of these variables won't be defined.
-	$self->{PG_HEADER_TEXT_REF}      = $PG_HEADER_TEXT_REF      // \('');
-	$self->{PG_POST_HEADER_TEXT_REF} = $PG_POST_HEADER_TEXT_REF // \('');
-	$self->{rh_correct_answers}      = $PG_ANSWER_HASH_REF      // {};
-	$self->{PG_FLAGS_REF}            = $PG_FLAGS_REF            // {};
+	$self->{PG_HEADER_TEXT_REF} = $PG_HEADER_TEXT_REF // \('');
+	$self->{rh_correct_answers} = $PG_ANSWER_HASH_REF // {};
+	$self->{PG_FLAGS_REF}       = $PG_FLAGS_REF       // {};
 
 	$self->{rh_pgcore} = $PGcore;
 
