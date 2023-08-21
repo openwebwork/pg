@@ -2286,11 +2286,12 @@ sub EV3P {
 	my $option_ref = {};
 	$option_ref = shift if ref($_[0]) eq 'HASH';
 	my %options = (
-		processCommands  => 1,
-		processVariables => 1,
-		processParser    => 1,
-		processMath      => 1,
-		fixDollars       => 1,
+		processCommands        => 1,
+		processVariables       => 1,
+		processParser          => 1,
+		processMath            => 1,
+		fixDollars             => 1,
+		escapeBraceBackslashes => 1,
 		%{$option_ref},
 	);
 	my $string = join(" ", @_);
@@ -2298,6 +2299,7 @@ sub EV3P {
 	if ($options{processVariables}) {
 		my $eval_string = $string;
 		$eval_string =~ s/\$(?![a-z\{])/\${DOLLAR}/gi if $options{fixDollars};
+		$eval_string =~ s/\{(?=\\\\[^\\])/\\\{/g      if $options{escapeBraceBackslashes};
 		my ($evaluated_string, $PG_eval_errors, $PG_full_errors) =
 			PG_restricted_eval("<<END_OF_EVALUATION_STRING\n$eval_string\nEND_OF_EVALUATION_STRING\n");
 		if ($PG_eval_errors) {
