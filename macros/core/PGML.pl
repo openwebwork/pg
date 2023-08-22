@@ -1212,7 +1212,7 @@ sub pushItem {
 		if ($item->{type} eq 'text') {
 			my $text = join('', @{ $item->{stack} });
 			PGML::Warning 'Table row text must be in cells' unless $text =~ m/^\s*$/;
-		} elsif ($item->{type} eq 'table-cell') {
+		} elsif ($item->{type} eq 'table-cell' || $item->{type} eq 'options') {
 			$self->SUPER::pushItem($item);
 		} elsif ($item->{type} eq 'comment') {
 		} else {
