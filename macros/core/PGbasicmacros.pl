@@ -2070,6 +2070,12 @@ sub safe_ev {
 	($out, $PG_eval_errors, $PG_full_error_report);
 }
 
+sub safe_evp {
+	my @result = &safe_ev;
+	$result[0] = '${__blank__}' . $result[0] . '${__blank__}';
+	return @result;
+}
+
 sub old_safe_ev {
 	my $in = shift;
 	my ($out, $PG_eval_errors, $PG_full_error_report) = PG_restricted_eval($in);
@@ -2289,12 +2295,13 @@ sub EV3P {
 		%{$option_ref},
 	);
 	my $string = join(" ", @_);
-	$string = ev_substring($string, "\\\\{", "\\\\}", \&safe_ev) if $options{processCommands};
+	$string = ev_substring($string, "\\\\{", "\\\\}", $options{processVariables} ? \&safe_evp : \&safe_ev)
+		if $options{processCommands};
 	if ($options{processVariables}) {
 		my $eval_string = $string;
 		$eval_string =~ s/\$(?![a-z\{])/\${DOLLAR}/gi if $options{fixDollars};
-		my ($evaluated_string, $PG_eval_errors, $PG_full_errors) =
-			PG_restricted_eval("<<END_OF_EVALUATION_STRING\n$eval_string\nEND_OF_EVALUATION_STRING\n");
+		my ($evaluated_string, $PG_eval_errors, $PG_full_errors) = PG_restricted_eval(
+			q{my $__blank__ = '';} . "<<END_OF_EVALUATION_STRING\n$eval_string\nEND_OF_EVALUATION_STRING\n");
 		if ($PG_eval_errors) {
 			my $error = (split("\n", $PG_eval_errors))[0];
 			$error  =~ s/at \(eval.*//gs;
