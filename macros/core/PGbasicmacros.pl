@@ -2072,23 +2072,18 @@ sub safe_ev {
 
 sub old_safe_ev {
 	my $in = shift;
-	my ($out, $PG_eval_errors, $PG_full_error_report) = PG_restricted_eval("$in;");
-	# the addition of the ; seems to provide better error reporting
+	my ($out, $PG_eval_errors, $PG_full_error_report) = PG_restricted_eval($in);
 	if ($PG_eval_errors) {
 		my @errorLines = split("\n", $PG_eval_errors);
-#$out = "<PRE>$PAR % ERROR in $0:old_safe_ev, PGbasicmacros.pl: $PAR % There is an error occuring inside evaluation brackets \\{ ...code... \\} $BR % somewhere in an EV2 or EV3 or BEGIN_TEXT block. $BR % Code evaluated:$BR $in $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR % $BR % $BR </PRE> ";
-		warn " ERROR in old_safe_ev, PGbasicmacros.pl: <PRE>
-		## There is an error occuring inside evaluation brackets \\{ ...code... \\}
-		## somewhere in an EV2 or EV3 or BEGIN_TEXT block.
-		## Code evaluated:
-		## $in
-		##" . join("\n     ", @errorLines) . "
-		##</PRE>$BR
-		";
-		$out = "$PAR $BBOLD  $in $EBOLD $PAR";
+		warn "There is an error occuring inside evaluation brackets \\{ ...code... \\}\n"
+			. "somewhere in an EV2, EV3, or BEGIN_TEXT block.\n"
+			. "Code evaluated:\n$in\n"
+			. "Errors:\n"
+			. join("\n", @errorLines) . "\n";
+		$out = "$BBOLD$in$EBOLD";
 	}
 
-	($out, $PG_eval_errors, $PG_full_error_report);
+	return ($out, $PG_eval_errors, $PG_full_error_report);
 }
 
 sub FEQ {    # Format EQuations
