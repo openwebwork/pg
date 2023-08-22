@@ -2297,6 +2297,7 @@ sub EV3P {
 	$string = ev_substring($string, "\\\\{", "\\\\}", \&safe_ev) if $options{processCommands};
 	if ($options{processVariables}) {
 		my $eval_string = $string;
+		$eval_string =~ s/\{(?!\s*[\w\$])/\\\{/g      if ($displayMode eq 'TeX');
 		$eval_string =~ s/\$(?![a-z\{])/\${DOLLAR}/gi if $options{fixDollars};
 		my ($evaluated_string, $PG_eval_errors, $PG_full_errors) =
 			PG_restricted_eval("<<END_OF_EVALUATION_STRING\n$eval_string\nEND_OF_EVALUATION_STRING\n");
