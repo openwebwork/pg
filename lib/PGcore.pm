@@ -32,7 +32,7 @@ use PGrandom;
 use PGalias;
 use PGloadfiles;
 use AnswerHash;
-use WeBWorK::PG::IO();    # don't important any command directly
+require WeBWorK::PG::IO;
 use Tie::IxHash;
 use MIME::Base64();
 use PGUtil();
@@ -764,7 +764,6 @@ sub getUniqueName {
 		convertPath
 		fileFromPath
 		directoryFromPath
-		createDirectory
 
 =cut
 
@@ -801,11 +800,6 @@ sub directoryFromPath {
 	WeBWorK::PG::IO::directoryFromPath(@_);
 }
 
-sub createDirectory {
-	my $self = shift;
-	WeBWorK::PG::IO::createDirectory(@_);
-}
-
 sub AskSage {
 	my $self    = shift;
 	my $python  = shift;
@@ -835,7 +829,6 @@ course temp directory.
 
 # ^function surePathToTmpFile
 # ^uses getCourseTempDirectory
-# ^uses createDirectory
 
 sub surePathToTmpFile {
 	# constructs intermediate directories if needed beginning at ${Global::htmlDirectory}tmp/
@@ -851,7 +844,7 @@ sub surePathToTmpFile {
 		$parentDirectory = $self->directoryFromPath($parentDirectory);
 		my ($perms, $groupID) = (stat $parentDirectory)[ 2, 5 ];
 		#warn "Creating tmp directory at $tmpDirectory, perms $perms groupID $groupID";
-		$self->createDirectory($tmpDirectory, $perms, $groupID)
+		WeBWorK::PG::IO::createDirectory($tmpDirectory, $perms, $groupID)
 			or warn "Failed to create parent tmp directory at $path";
 
 	}
@@ -872,7 +865,7 @@ sub surePathToTmpFile {
 		$path = $path . shift(@nodes) . "/";    #convertPath($path . shift (@nodes) . "/");
 
 		unless (-e $path) {
-			$self->createDirectory($path, $perms, $groupID)
+			WeBWorK::PG::IO::createDirectory($path, $perms, $groupID)
 				or $self->warning_message(
 					"Failed to create directory at $path with permissions $perms and groupID $groupID");
 		}

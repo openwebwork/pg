@@ -302,7 +302,7 @@ sub initialize {
 	my $safe_cmpt = $self->{safe};
 
 	$safe_cmpt->share_from('WeBWorK::PG::Translator', \@Translator_shared_subroutine_array);
-	$safe_cmpt->share_from('WeBWorK::PG::IO',         \@WeBWorK::PG::IO::EXPORT);
+	$safe_cmpt->share_from('WeBWorK::PG::IO',         \@WeBWorK::PG::IO::EXPORT_OK);
 
 	no strict;
 	local (%envir) = %{ $self->{envir} };
