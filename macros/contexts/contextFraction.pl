@@ -296,59 +296,34 @@ sub Init {
 	main::PG_restricted_eval('sub Fraction {Value->Package("Fraction()")->new(@_)};');
 }
 
-#
 # contFrac($x, $maxdenominator)
-#
-# Recursive subroutine that takes positive real input $x and outputs
-# an array (a,b) where a/b is a very good fraction approximation with
-# b no larger than maxdenominator
-#
-
+# Subroutine that takes a positive real input $x and outputs an array
+# (a,b) where a/b is a very good fraction approximation with b no
+# larger than maxdenominator.
 sub contFrac {
-	my $x              = shift;
-	my $maxdenominator = shift;
-	my %sequences      = @_;      # an => continued fraction sequence (reference)
-								  # hn => sequence of numerators (reference)
-								  # kn => sequence of denominators (reference)
+	my ($x, $maxdenominator) = @_;
 
-	# dereference sequences
-	my @an = (int($x));
-	@an = @{ $sequences{"an"} } if defined($sequences{"an"});
-	my @hn = (int($x));
-	@hn = @{ $sequences{"hn"} } if defined($sequences{"hn"});
-	my @kn = (1);
-	@kn = @{ $sequences{"kn"} } if defined($sequences{"kn"});
-
-	# calculate what real the continued fraciton process leaves at this level
 	my $step = $x;
-	for my $i (0 .. $#an - 1) { $step = ($step - $an[$i])**(-1); }
-	# if this is an integer, stop
-	if ($step == int($step)) { return ($hn[-1], $kn[-1]); }
+	my $n    = int($step);
+	my ($h0, $h1, $k0, $k1) = (1, $n, 0, 1);
 
-	$step = ($step - $an[-1])**(-1);
+	# End when $step is an integer.
+	while ($step != $n) {
+		$step = 1 / ($step - $n);
 
-	# next integer from continued fraction sequence
-	# next numerator and denominator, according to continued fraction formulas
-	my $newa = int($step);
-	my $newh;
-	my $newk;
-	if   ($#an > 0) { $newh = $newa * $hn[-1] + $hn[-2]; }
-	else            { $newh = $newa * $an[0] + 1; }
-	if   ($#an > 0) { $newk = $newa * $kn[-1] + $kn[-2]; }
-	else            { $newk = $newa; }
+		# Compute the next integer from the continued fraction sequence.
+		$n = int($step);
 
-	# machine rounding error may begin to make denominators skyrocket out of control
-	if ($newk > $maxdenominator) { return ($hn[-1], $kn[-1]); }
+		# Compute the next numerator and denominator according to the continued fraction formulas.
+		my ($newh, $newk) = ($n * $h1 + $h0, $n * $k1 + $k0);
 
-	#otherwise, create sequence references and pass one level deeper
-	@an = (@an, $newa);
-	@hn = (@hn, $newh);
-	@kn = (@kn, $newk);
-	my $anref = \@an;
-	my $hnref = \@hn;
-	my $knref = \@kn;
-	return contFrac($x, $maxdenominator, an => $anref, hn => $hnref, kn => $knref);
+		# Machine rounding error may begin to make denominators skyrocket out of control
+		last if ($newk > $maxdenominator);
 
+		($h0, $h1, $k0, $k1) = ($h1, $newh, $k1, $newk);
+	}
+
+	return ($h1, $k1);
 }
 
 #
