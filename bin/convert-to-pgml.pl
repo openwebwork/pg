@@ -24,8 +24,26 @@ convert-to-pgml.pl -- Convert pg problem with non-pgml structure to PGML structu
 
 =head1 DESCRIPTION
 
-This converts each pg file to PGML formatting.  Note: many of the features are
-converted correctly, but often there will be errors after the conversion.
+This converts each pg file to PGML formatting.  In particular, text blocks are
+converted to their PGML forms.  This includes BEGIN_TEXT/END_TEXT, BEGIN_HINT/END_HINT,
+BEGIN_SOLUTION/END_SOLUTION.
+
+Within each block, the following are converted:  math modes to their PGML version,
+$BR and $PAR to line breaks or empty lines, C<$HR> to C<--->, bold and italics pairs,
+any variables of the form C<$var> to C<[$var]>, scripts from \{ \} to [@ @], and C<ans_rule>
+to the form C<[_]{}>
+
+Many code features that are no longer needed are removed including
+C<TEXT(beginproblem())>, C<<Context()->texStrings;>> and C<<Context()->normalStrings;>>.
+Any C<ANS> commands are commented out.
+
+The C<loadMacros> command is parsed, the C<PGML.pl> is included and C<MathObjects.pl>
+is removed (because it is loaded by C<PGML.pl>) and C<PGcourse.pl> is added to the
+end of the list.
+
+Note: many of the features are converted correctly, but often there will be errors
+after the conversion.  Generally after using this script, the PGML style answers
+will need to have their corresponding variable added.
 
 =cut
 
@@ -34,19 +52,14 @@ use warnings;
 use experimental 'signatures';
 use feature 'say';
 
-use Getopt::Long;
 use File::Copy;
 
-use Data::Dumper;
+die 'arguments must have a list of pg files' unless @ARGV > 0;
+convertFile($_) for (grep { $_ =~ /.pg$/ } @ARGV);
 
-my $problem_dir;
-# GetOptions("d|problem_dir=s" => \$problem_dir,);
+# This subroutine converts the file assumed to be an older-style PG file with
+# BEGIN_TEXT/END_TEXT, BEGIN_SOLUTION/END_SOLUTION, and BEGIN_HINT/END_HINT blocks.
 
-convertFile($_) for (@ARGV);
-
-# This subroutine converts the file passed in to PGML format.  This includes
-# * converting BEGIN_TEXT/END_TEXT, BEGIN_SOLUTION/END_SOLUTION, and BEGIN_HINT/END_HINT
-#    blocks to PGML.
 # * parses the loadMacros line(s) to include PGML.pl (and eliminate MathObjects.pl, which)
 #    are included in PGML.pl.  This also adds PGcourse.pl to the end of the list.
 
@@ -73,7 +86,6 @@ sub convertFile ($file) {
 			$in_pgml_block = 0;
 			my $pgml_rows = convertPGMLBlock(\@pgml_block);
 			push(@all_lines, @$pgml_rows);
-			# print Dumper $pgml_rows;
 			@pgml_block = ();
 		} elsif ($in_pgml_block) {
 			push(@pgml_block, $row);
@@ -90,8 +102,6 @@ sub convertFile ($file) {
 			my @macros = map  {s/['"\s]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
 			my @m2     = grep { $_ !~ /(PGstandard|PGML|MathObjects|PGcourse).pl/ } @macros;
 
-			# print Dumper \@macros;
-			# print Dumper \@m2;
 			push(@all_lines,
 				"loadMacros('PGstandard.pl', 'PGML.pl', " . join(', ', map {"'$_'"} @m2) . ", 'PGcourse.pl');");
 		} else {
@@ -124,6 +134,7 @@ sub convertFile ($file) {
 # * converting BEGIN_SOLUTION/END_SOLUTION to BEGIN_PGML_SOLUTION/END_PGML_SOLUTION
 # * converting begin end math with PGML versions
 # * removing $PAR and $BR
+# * converting $HR to ---
 # * converting other variables from $var to [$var]
 # * converting ans_rule to [_]{} format
 # * converting \{ \} to [@ @]
@@ -131,6 +142,7 @@ sub convertFile ($file) {
 # * removing TEXT(beginproblem())
 # * removing Context()->texStrings;
 # * removing Context()->normalStrings;
+# * comment out ANS().
 
 sub convertPGMLBlock ($block) {
 	my @new_rows;
@@ -138,45 +150,55 @@ sub convertPGMLBlock ($block) {
 		my $add_blank_line = ($row =~ /\$PAR/);
 		$row = $row =~ s/(BEGIN|END)_TEXT/$1_PGML/r;
 		$row = $row =~ s/(BEGIN|END)_(SOLUTION|HINT)/$1_PGML_$2/r;
-		$row = $row =~ s/SOLUTION\(EV3\(<<\'END_PGML_SOLUTION\'\)\);/BEGIN_PGML_SOLUTION/r;
+		$row = $row =~ s/SOLUTION\(EV3P?\(<<\'END_PGML_SOLUTION\'\)\);/BEGIN_PGML_SOLUTION/r;
 		# remove $PAR, and $SPACE
 		$row = $row =~ s/\$PAR//gr;
 		$row = $row =~ s/\$SPACE//gr;
 
-		# need to add blank lines;
+		# If a $BR is at the end of the line add two spaces, else make two blank lines.
 		$row = $row =~ s/\$BR$/  /gr;
-		# how to handle $BR in middle of a line
-		$row = $row =~ s/\s*\$EBOLD/*/gr;
-		$row = $row =~ s/\$BBOLD\s*/*/gr;
-		$row = $row =~ s/\s*\$EITALICS/*/gr;
-		$row = $row =~ s/\$BITALICS\s*/*/gr;
+		$row = $row =~ s/\$BR/\n\n/gr;
 
-		$row = $row =~ s/\$BCENTER/>>/r;
-		$row = $row =~ s/\$ECENTER/<</r;
+		# Switch bold, italics, centering and math modes.
+		$row = $row =~ s/\s*\$\{?EBOLD\}?/*/gr;
+		$row = $row =~ s/\$\{?BBOLD\}?\s*/*/gr;
+		$row = $row =~ s/\s*\$\{?EITALICS\}?/_/gr;
+		$row = $row =~ s/\$\{?BITALICS\}?\s*/_/gr;
+		$row = $row =~ s/\$\{?BCENTER\}?/>>/gr;
+		$row = $row =~ s/\$\{?ECENTER\}?/<</gr;
 		$row = $row =~ s/\\\(/[`/gr;
 		$row = $row =~ s/\\\)/`]/gr;
 		$row = $row =~ s/\\\[/[``/gr;
 		$row = $row =~ s/\\\]/``]/gr;
+		$row = $row =~ s/\$HR/\n---\n/gr;
+
 		# replace the variables in the PGML block.  Don't if it is in a \{ \}
 		# Note that the first is for variables at the end of the line.
 		$row = $row =~ s/(\$\w+)$/[$1]/gr;
-		$row = $row =~ s/(\$\w+)(\W)/[$1]$2/gr
-			unless $row =~ /\\\{.*(\$\w+)(\W).*\\\}/;
+		$row = $row =~ s/(\$\w+)(\W)/[$1]$2/gr unless $row =~ /\\\{.*(\$\w+)(\W).*\\\}/;
 
-		$row = $row =~ s/\\\{\s*ans_rule\((\d+)\)\s*\\\}/\[_\]{}{$1}/gr;
+		# match all forms of ans_rule
+		if ($row =~ /(.*)\\\{\s*((\$\w+)->)?ans_rule(\((\d+)\))?\s*\\\}(.*)$/) {
+			my $var  = $3 // '';
+			my $size = $5 ? "{$5}" : '';
+			$row = $1 . '[_]' . "{$var}$size$6";
+		}
 
-		$row = $row =~ s/\\\{/[@/r;
-		$row = $row =~ s/\\\}/@]*/r;
+		$row = $row =~ s/\\\{/[@/gr;
+		$row = $row =~ s/\\\}/@]*/gr;
 		push(@new_rows, $row);
 		push(@new_rows, '') if $add_blank_line;
 	}
 	return \@new_rows;
 }
 
+# remove some unnecessary code
+
 sub cleanUpCode ($row) {
 	$row = $row =~ s/Context\(\)->normalStrings;//r;
 	$row = $row =~ s/Context\(\)->texStrings;//r;
-	$row = $row =~ s/TEXT\(\s*beginproblem\(\)\s*\);//r;
+	$row = $row =~ s/TEXT\(\s*beginproblem(\(\))?\s*\);//r;
+	$row = $row =~ s/^ANS(.*)/# ANS$1/r;
 	return $row;
 }
 
