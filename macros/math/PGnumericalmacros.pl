@@ -23,8 +23,7 @@ BEGIN {
 	be_strict();
 }
 
-sub _PGnumericalmacros_init {
-}
+sub _PGnumericalmacros_init { }
 
 =head2 Interpolation  methods
 
@@ -107,7 +106,7 @@ Produces the newton polynomial
 Generates a subroutine which evaluates a polynomial passing through the points
 C<(x0,q0), (x1,q1), (x2, q2)>, ... using Horner's method.
 
-The array refs for C<x> and C<q> can be any length but must be the same.
+The array refs for C<x> and C<q> can be any length but must be the same length.
 
 =head4 Example
 
@@ -161,8 +160,7 @@ returns C<0.25>.
 sub hermite {
 	my ($x_ref, $y_ref, $yp_ref) = @_;
 	die 'The input array refs all must be the same length'
-		unless scalar(@$x_ref) == scalar(@$y_ref)
-		&& scalar(@$y_ref) == scalar(@$yp_ref);
+		unless scalar(@$x_ref) == scalar(@$y_ref) && scalar(@$y_ref) == scalar(@$yp_ref);
 	my (@zvals, @qvals);
 	my $n = $#{$x_ref};
 
@@ -302,29 +300,19 @@ sub eval_cubic_spline {
 	#	The knot points given by $t_ref should be in order.
 	my $i   = 0;
 	my $out = 0;
-	while (defined($t_ref->[ $i + 1 ]) && $x > $t_ref->[ $i + 1 ]) {
-
-		$i++;
-	}
-	unless (defined($t_ref->[$i])
-		&& ($t_ref->[$i] <= $x)
-		&& ($x <= $t_ref->[ $i + 1 ]))
-	{
+	$i++ while (defined($t_ref->[ $i + 1 ]) && $x > $t_ref->[ $i + 1 ]);
+	unless (defined($t_ref->[$i]) && ($t_ref->[$i] <= $x) && ($x <= $t_ref->[ $i + 1 ])) {
 		$out = undef;
 		# input value is not in the range defined by the function.
 	} else {
 		$out =
 			($t_ref->[ $i + 1 ] - $x) * (($d_ref->[$i]) + ($a_ref->[$i]) * ($t_ref->[ $i + 1 ] - $x)**2) +
 			($x - $t_ref->[$i]) * (($b_ref->[$i]) * ($x - $t_ref->[$i])**2 + ($c_ref->[$i]));
-
 	}
 	return $out;
 }
 
-##########################################################################
-# Cubic spline algorithm adapted from p319 of Kincaid and Cheney's Numerical Analysis
-##########################################################################
-
+# Cubic spline algorithm adapted from p319 of Kincaid and Cheney's Numerical Analysis.
 sub create_cubic_spline {
 	my ($t_ref, $y_ref) = @_;
 	#	The knot points are given by $t_ref (in order) and the function values by $y_ref
@@ -351,8 +339,7 @@ sub create_cubic_spline {
 	for my $i (0 .. $num - 1) {
 		$a_ref->[$i] = $z[$i] / (6 * $h[$i]);
 		$b_ref->[$i] = $z[ $i + 1 ] / (6 * $h[$i]);
-		$c_ref->[$i] =
-			(($y_ref->[ $i + 1 ]) / $h[$i] - $z[ $i + 1 ] * $h[$i] / 6);
+		$c_ref->[$i] = (($y_ref->[ $i + 1 ]) / $h[$i] - $z[ $i + 1 ] * $h[$i] / 6);
 		$d_ref->[$i] = (($y_ref->[$i]) / $h[$i] - $z[$i] * $h[$i] / 6);
 	}
 	return ($t_ref, $a_ref, $b_ref, $c_ref, $d_ref);
@@ -421,9 +408,9 @@ END_OF_JAVA_TEXT
 	$output_str;
 }
 
-=head3 C<newtonDividedDifference>
+=head3 Newton Divided Difference
 
-Computes the newton divided difference table.
+Computes the newton divided difference table with the function C<newtonDividedDifference>.
 
 =head4 Arguments
 
@@ -500,7 +487,7 @@ optional and defaults to 30.
 sub lefthandsum {
 	my ($fn_ref, $x0, $x1, %options) = @_;
 	assign_option_aliases(\%options, intervals => 'steps',);
-	set_default_options(\%options, steps => 30,);
+	set_default_options(\%options, steps => 30);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
 	my $sum   = 0;
@@ -526,7 +513,7 @@ is optional and defaults to 30.
 sub righthandsum {
 	my ($fn_ref, $x0, $x1, %options) = @_;
 	assign_option_aliases(\%options, intervals => 'steps',);
-	set_default_options(\%options, steps => 30,);
+	set_default_options(\%options, steps => 30);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
 	my $sum   = 0;
@@ -543,7 +530,7 @@ Usage:
 
     midpoint(function_reference, start, end, steps=>30 );
 
-Implements the Midpoint rule using 30 intervals between 'start' and 'end'.
+Implements the Midpoint rule between 'start' and 'end'.
 The first three arguments are required.  The final argument (number of steps)
 is optional and defaults to 30.
 
@@ -567,7 +554,7 @@ sub midpoint {
 
     Usage:  simpson(function_reference, start, end, steps=>30 );
 
-Implements Simpson's rule using 30 intervals between 'start' and 'end'.
+Implements Simpson's rule between 'start' and 'end'.
 The first three arguments are required.  The final argument (number of steps) is
 optional and defaults to 30, but must be even.
 
@@ -576,10 +563,9 @@ optional and defaults to 30, but must be even.
 sub simpson {
 	my ($fn_ref, $x0, $x1, %options) = @_;
 	assign_option_aliases(\%options, intervals => 'steps',);
-	set_default_options(\%options, steps => 30,);
+	set_default_options(\%options, steps => 30);
 	my $steps = $options{steps};
-	die "Error: Simpson's rule requires an even number of steps."
-		unless $steps % 2 == 0;
+	die "Error: Simpson's rule requires an even number of steps." unless $steps % 2 == 0;
 
 	my $delta = ($x1 - $x0) / $steps;
 	my $sum   = 0;
@@ -608,7 +594,7 @@ is optional and defaults to 30.
 sub trapezoid {
 	my ($fn_ref, $x0, $x1, %options) = @_;
 	assign_option_aliases(\%options, intervals => 'steps',);
-	set_default_options(\%options, steps => 30,);
+	set_default_options(\%options, steps => 30);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
 	my $sum   = 0;
@@ -632,7 +618,7 @@ Implements the Romberg integration routine through 'level' recursive steps.  Lev
 
 sub romberg {
 	my ($fn_ref, $x0, $x1, %options) = @_;
-	set_default_options(\%options, level => 6,);
+	set_default_options(\%options, level => 6);
 	my $level = $options{level};
 	romberg_iter($fn_ref, $x0, $x1, $level, $level);
 }
@@ -669,11 +655,7 @@ value is the z value for the 90th percentile.
 
 sub inv_romberg {
 	my ($fn_ref, $a, $value) = @_;
-	my $b     = $a;
-	my $delta = 1;
-	my $i     = 0;
-	my $funct;
-	my $deriv;
+	my ($b, $delta, $i, $funct, $deriv) = ($a, 1, 0);
 
 	while (abs($delta) > 0.000001 && $i++ < 5000) {
 		$funct = romberg($fn_ref, $a, $b) - $value;
@@ -692,11 +674,85 @@ sub inv_romberg {
 	return $b;
 }
 
+=head3 Newton Cotes functions.
+
+Perform quadrature (numerical integration) using a newtonCotes composite formula (trapezoid,
+Simpson's, the 3/8 rule or Boole's).
+
+Usage:
+
+    newtonCotes($f,$a,$b, n=> 4, method => 'simpson')
+
+where C<$f> is a subroutine reference (function that takes a single numerical value and
+returns a single value), C<$a> and C<$b> is the interval C<[$a,$b]>.
+
+=head4 options
+
+=over
+
+=item method
+
+The method options are either open or closed methods. The closed newton-cotes formula methods
+are trapezoid, simpson, three-eighths, boole.  The open newton-cotes formula methods are
+open1, open2, open3, open4, the number indicates the number of used nodes for the formula.
+
+=item n
+
+This number is the number of subintervals to use for a composite version of the formula.
+If n is set to 1, then this uses the non-composite version of the method.
+
+=back
+
+=cut
+
+sub newtonCotes {
+	my ($f, $a, $b, @args) = @_;
+	my %opts = (n => 10, method => 'simpson', @args);
+	my $h    = ($b - $a) / $opts{n};
+	my @weights;
+	my @innernodes;
+
+	if ($opts{method} eq 'trapezoid') {
+		@weights    = (1 / 2, 1 / 2);
+		@innernodes = (0, 1);
+	} elsif ($opts{method} eq 'simpson') {
+		@weights    = (1 / 6, 4 / 6, 1 / 6);
+		@innernodes = (0, 0.5, 1);
+	} elsif ($opts{method} eq 'three-eighths') {
+		@weights    = (1 / 8, 3 / 8, 3 / 8, 1 / 8);
+		@innernodes = (0, 1 / 3, 2 / 3, 1);
+	} elsif ($opts{method} eq 'boole') {
+		@weights    = (7 / 90, 32 / 90, 12 / 90, 32 / 90, 7 / 90);
+		@innernodes = (0, 1 / 4, 1 / 2, 3 / 4, 1);
+	} elsif ($opts{method} eq 'open1') {
+		@weights    = (undef, 1);
+		@innernodes = (undef, 0.5);
+	} elsif ($opts{method} eq 'open2') {
+		@weights    = (undef, 1 / 2, 1 / 2);
+		@innernodes = (undef, 1 / 3, 2 / 3);
+	} elsif ($opts{method} eq 'open3' || $opts{method} eq 'milne') {
+		@weights    = (undef, 2 / 3, -1 / 3, 2 / 3);
+		@innernodes = (undef, 1 / 4, 1 / 2,  3 / 4);
+	} elsif ($opts{method} eq 'open4') {
+		@weights    = (undef, 11 / 24, 1 / 24, 1 / 24, 11 / 24);
+		@innernodes = (undef, 1 / 5,   2 / 5,  3 / 5,  4 / 5);
+	}
+
+	my $quad = 0;
+	for my $i (0 .. $opts{n} - 1) {
+		for my $k (0 .. $#innernodes) {
+			$quad += &$f($a + ($i + $innernodes[$k]) * $h) * $weights[$k] if $weights[$k];
+		}
+	}
+	return $h * $quad;
+}
+
 =head2 Differential Equation Methods
 
-=head3 rungeKutta4
+=head3 4th-order Runge-Kutta
 
-Finds integral curve of a vector field using the 4th order Runge Kutta method.
+Finds integral curve of a vector field using the 4th order Runge Kutta method by
+providing the function C<rungeKutta4>
 
 Usage:
 
@@ -761,15 +817,18 @@ sub rungeKutta4 {
 	}
 }
 
-=head3 C<solveDiffEqn>
+=head3 Robust Differential Equation Solver
 
-Produces a numerical solution to the differential equation y'=f(x,y).
+Produces a numerical solution to the differential equation y'=f(x,y) with the
+function C<solveDiffEqn>.
 
 =head4 Arguments
 
 =over
 
-=item * C<f> a MathObjects Formula with variables x and y
+=item * C<f> an subroutine reference that take two inputs (x,y) and returns
+a single number. Note: if you use a Formula to generate a function, create a perl
+function with the C<<$f->perlFunction>> method.
 
 =item * C<y0> a real-values number for the initial point
 
@@ -808,14 +867,20 @@ An hash with the following fields:
 The following performs Euler's method on C<y'=xy, y(0) = 1> using C<h=0.5> for C<n=10> points, so
 the last x value is 5.
 
-    $sol1 = solveDiffEqn(Formula('x y'),1,x0=>0,h=>0.5,n=>10, method => 'euler');
+    $f = sub { my ($x, $y) = @_; return $x*$y; }
+    $sol1 = solveDiffEqn($f,1,x0=>0,h=>0.5,n=>10, method => 'euler');
 
 The output C<$sol> is a hash ref with fields x and y, where each have 11 points.
 
 The following uses the improved Euler method on C<y'=x^2+y^2, y(0)=1> using C<h=0.2> for C<n=5> points
-(the last x value is 1.0)
+(the last x value is 1.0).  Note, this shows how to pass the perl function to the method.
 
-    $sol2 = solveDiffEqn(Formula('x^2+y^2'),1, method => 'improved_euler', x0=>0, h=>0.2,n=>5);
+    Context()->variables->add(y => 'Real');
+    $G = Formula("x^2+y^2");
+    $g = $G->perlFunction;
+    $sol2 = solveDiffEqn($g, 1, method => 'improved_euler', x0=>0, h=>0.2,n=>5);
+
+In this case, C<$sol2> returns both x and y, but also, the values of C<k1> and C<k2>.
 
 =cut
 
@@ -823,9 +888,9 @@ sub solveDiffEqn {
 	my ($f, $y0, @args) = @_;
 	my %opts = (x0 => 0, h => 0.25, n => 4, method => 'euler', @args);
 
-	die 'The function must be of type Formula'    unless ref($f) eq 'Value::Formula';
-	die 'The option n must be a positive integer' unless $opts{n} =~ /^\d+$/;
-	die 'The option h must be a positive number'  unless $opts{h} > 0;
+	die 'The first argument must be a subroutine reference' unless ref($f) eq 'CODE';
+	die 'The option n must be a positive integer'           unless $opts{n} =~ /^\d+$/;
+	die 'The option h must be a positive number'            unless $opts{h} > 0;
 	die 'The option method must be one of euler/improved_euler/heun/rk4'
 		unless grep { $opts{method} eq $_ } qw/euler improved_euler heun rk4/;
 
@@ -840,20 +905,20 @@ sub solveDiffEqn {
 
 	for my $j (1 .. $opts{n}) {
 		if ($opts{method} eq 'euler') {
-			$y[$j] = $y[ $j - 1 ] + $h * $f->eval(x => $x[ $j - 1 ], y => $y[ $j - 1 ])->value;
+			$y[$j] = $y[ $j - 1 ] + $h * &$f($x[ $j - 1 ], $y[ $j - 1 ]);
 		} elsif ($opts{method} eq 'improved_euler') {
-			$k1[$j] = $f->eval(x => $x[ $j - 1 ], y => $y[ $j - 1 ])->value;
-			$k2[$j] = $f->eval(x => $x[$j],       y => $y[ $j - 1 ] + $h * $k1[$j])->value;
+			$k1[$j] = &$f($x[ $j - 1 ], $y[ $j - 1 ]);
+			$k2[$j] = &$f($x[$j],       $y[ $j - 1 ] + $h * $k1[$j]);
 			$y[$j]  = $y[ $j - 1 ] + 0.5 * $h * ($k1[$j] + $k2[$j]);
 		} elsif ($opts{method} eq 'heun') {
-			$k1[$j] = $f->eval(x => $x[ $j - 1 ],              y => $y[ $j - 1 ])->value;
-			$k2[$j] = $f->eval(x => $x[ $j - 1 ] + 2 * $h / 3, y => $y[ $j - 1 ] + 2 * $h / 3 * $k1[$j])->value;
+			$k1[$j] = &$f($x[ $j - 1 ],              $y[ $j - 1 ]);
+			$k2[$j] = &$f($x[ $j - 1 ] + 2 * $h / 3, $y[ $j - 1 ] + 2 * $h / 3 * $k1[$j]);
 			$y[$j]  = $y[ $j - 1 ] + 0.25 * $h * ($k1[$j] + 3 * $k2[$j]);
 		} elsif ($opts{method} eq 'rk4') {
-			$k1[$j] = $f->eval(x => $x[ $j - 1 ],            y => $y[ $j - 1 ])->value;
-			$k2[$j] = $f->eval(x => $x[ $j - 1 ] + 0.5 * $h, y => $y[ $j - 1 ] + $h * 0.5 * $k1[$j])->value;
-			$k3[$j] = $f->eval(x => $x[ $j - 1 ] + 0.5 * $h, y => $y[ $j - 1 ] + $h * 0.5 * $k2[$j])->value;
-			$k4[$j] = $f->eval(x => $x[$j],                  y => $y[ $j - 1 ] + $h * $k3[$j])->value;
+			$k1[$j] = &$f($x[ $j - 1 ],            $y[ $j - 1 ]);
+			$k2[$j] = &$f($x[ $j - 1 ] + 0.5 * $h, $y[ $j - 1 ] + $h * 0.5 * $k1[$j]);
+			$k3[$j] = &$f($x[ $j - 1 ] + 0.5 * $h, $y[ $j - 1 ] + $h * 0.5 * $k2[$j]);
+			$k4[$j] = &$f($x[$j],                  $y[ $j - 1 ] + $h * $k3[$j]);
 			$y[$j]  = $y[ $j - 1 ] + $h / 6 * ($k1[$j] + 2 * $k2[$j] + 2 * $k3[$j] + $k4[$j]);
 		}
 	}
@@ -880,8 +945,8 @@ sub solveDiffEqn {
 Performs the bisection method for the function C<$f> and initial interval C<$int> (arrayref).
 An example is
 
-  $f = Formula('x^2-2');
-  $bisect = bisection($f,[1,2]);
+  $f = sub { $x = shift; $x**2-2;}
+  $bisect = bisection($f, [1, 2]);
 
 The result is a hash with fields root (the estimated root), intervals (an array ref or
 intervals for each step of bisection) or a hash with field C<error> if there is an
@@ -891,7 +956,8 @@ error with either the inputs or from the method.
 
 =over
 
-=item * C<f>, a math object C<Formula> of the single variable C<x>.
+=item * C<f>, a reference to a subroutine with a single input number and single output
+value.
 
 =item * C<int>, an array ref of the interval C<[a,b]> where a < b.
 
@@ -928,7 +994,7 @@ sub bisection {
 	my %opts = (eps => 1e-6, max_iter => 40, @args);
 
 	# Check that the arguments/options are valid.
-	return { error => 'The function must be of type Formula' } unless ref($f) eq 'Value::Formula';
+	return { error => 'The function must be a code reference' } unless ref($f) eq 'CODE';
 
 	return { error => 'The interval must be an array ref of length 2' }
 		unless ref($int) eq 'ARRAY' && scalar(@$int) == 2;
@@ -936,7 +1002,7 @@ sub bisection {
 	return { error => 'The initial interval [a, b] must satisfy a < b' } unless $int->[0] < $int->[1];
 
 	return { error => 'The function may not have a root on the given interval' }
-		unless $f->eval(x => $int->[0]) * $f->eval(x => $int->[1]) < 0;
+		unless &$f($int->[0]) * &$f($int->[1]) < 0;
 
 	return { error => 'The option eps must be a positive number' } unless $opts{eps} > 0;
 
@@ -948,9 +1014,8 @@ sub bisection {
 	my $i    = 0;
 	do {
 		my $mid  = 0.5 * ($ints->[$i][0] + $ints->[$i][1]);
-		my $fmid = $f->eval(x => $mid);
-		push(@$ints,
-			$fmid * $f->eval(x => $ints->[$i][0]) < 0 ? [ $ints->[$i][0], $mid ] : [ $mid, $ints->[$i][1] ]);
+		my $fmid = &$f($mid);
+		push(@$ints, $fmid * &$f($ints->[$i][0]) < 0 ? [ $ints->[$i][0], $mid ] : [ $mid, $ints->[$i][1] ]);
 		$i++;
 	} while ($i < $opts{max_iter}
 			&& ($ints->[$i][1] - $ints->[$i][0]) > $opts{eps});
@@ -971,8 +1036,9 @@ sub bisection {
 Performs newton's method for the function C<$f> and initial point C<$x0>.
 An example is
 
-  $f = Formula('x^2-2');
-  $newton = newton($f,1);
+  $f = sub { my $x = shift; return $x**2-2; }
+	$df = sub { my $x = shift; return 2*$x; }
+  $newton = newton($f, $df, 1);
 
 The result is a hash with fields C<root> (the estimated root) and C<intervals> (an arrayref
 of the iterations with the first being C<$x0>. The result hash will contain the field C<error>
@@ -982,7 +1048,10 @@ if there is an error.
 
 =over
 
-=item * C<f>, a math object C<Formula> of the single variable C<x>.
+=item * C<f>, a reference to a subroutine with a single input number and single output
+value.
+
+=item * C<df>, a subroutine reference that is the derivative of f.
 
 =item * C<x0>, a perl number or math object number.
 
@@ -1020,12 +1089,11 @@ A hash with the following fields
 =cut
 
 sub newton {
-	my ($f, $x0, @args) = @_;
+	my ($f, $df, $x0, @args) = @_;
 	my %opts = (eps => 1e-8, feps => 1e-10, max_iter => 15, @args);
 
 	# Check that the arguments/options are valid.
-	return { error => 'The function must be of type Formula' }
-		unless ref($f) eq 'Value::Formula';
+	return { error => 'The function must be a code reference' } unless ref($f) eq 'CODE';
 
 	return { error => 'The option eps must be a positive number' }
 		unless $opts{eps} > 0;
@@ -1036,16 +1104,14 @@ sub newton {
 	return { error => 'The option max_iter must be a positive integer' }
 		unless $opts{max_iter} > 0;
 
-	my $df   = $f->D('x');
 	my @iter = ($x0);
 	my $i    = 0;
 	do {
-		$iter[ $i + 1 ] = $iter[$i] - $f->eval(x => $iter[$i])->value / $df->eval(x => $iter[$i])->value;
+		$iter[ $i + 1 ] = $iter[$i] - &$f($iter[$i]) / &$df($iter[$i]);
 		$i++;
 		return { error => "Newton's method did not converge in $opts{max_iter} steps" }
 			if $i > $opts{max_iter};
-	} while abs($iter[$i] - $iter[ $i - 1 ]) > $opts{eps}
-		|| $f->eval(x => $iter[$i])->value > $opts{feps};
+	} while abs($iter[$i] - $iter[ $i - 1 ]) > $opts{eps} || &$f($iter[$i]) > $opts{feps};
 
 	return { root => $iter[$i], iterations => \@iter };
 }
@@ -1055,8 +1121,8 @@ sub newton {
 Performs the secant method for finding a root of the function C<$f> with initial points C<$x0> and C<$x1>
 An example is
 
-  $f = Formula('x^2-2');
-  $secant = newton($f,1,2);
+  $f = sub { my $x = shift; return $x**2-2; }
+  $secant = secant($f,1,2);
 
 The result is a hash with fields C<root> (the estimated root) and C<intervals> (an arrayref
 of the iterations with the first two being C<$x0> and C<$x1>. The result hash will contain
@@ -1066,11 +1132,12 @@ the field C<error> if there is an error.
 
 =over
 
-=item * C<f>, a math object C<Formula> of the single variable C<x>.
+=item * C<f>, a reference to a subroutine with a single input number and single output
+value.
 
-=item * C<x0>, a perl number or math object number.
+=item * C<x0>, a number.
 
-=item * C<x1>, a perl number or math object number.
+=item * C<x1>, a number.
 
 =back
 
@@ -1110,8 +1177,7 @@ sub secant {
 	my %opts = (eps => 1e-8, feps => 1e-10, max_iter => 20, @args);
 
 	# Check that the arguments/options are valid.
-	return { error => 'The function must be of type Formula' }
-		unless ref($f) eq 'Value::Formula';
+	return { error => 'The function must be a code reference' } unless ref($f) eq 'CODE';
 
 	return { error => 'The option eps must be a positive number' }
 		unless $opts{eps} > 0;
@@ -1125,9 +1191,8 @@ sub secant {
 	my @iter = ($x0, $x1);
 	my $i    = 1;
 	do {
-		my $m =
-			($f->eval(x => $iter[$i])->value - $f->eval(x => $iter[ $i - 1 ])->value) / ($iter[$i] - $iter[ $i - 1 ]);
-		$iter[ $i + 1 ] = $iter[$i] - $f->eval(x => $iter[$i])->value / $m;
+		my $m = (&$f($iter[$i]) - &$f($iter[ $i - 1 ])) / ($iter[$i] - $iter[ $i - 1 ]);
+		$iter[ $i + 1 ] = $iter[$i] - &$f($iter[$i]) / $m;
 		$i++;
 		return { error => "The secant method did not converge in $opts{max_iter} steps" }
 			if $i > $opts{max_iter};
