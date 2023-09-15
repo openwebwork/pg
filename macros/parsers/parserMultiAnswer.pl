@@ -234,6 +234,13 @@ sub cmp {
 			});
 		}
 	}
+	# showing type warnings will prevent the custom checker
+	# from being called, regardless of the checkTypes setting
+	if (!$self->{checkTypes}) {
+		foreach my $cmp (@{ $self->{cmp} }) {
+			$cmp->ans_hash(showTypeWarnings => 0);
+		}
+	}
 	my @cmp = ();
 	if ($self->{singleResult}) {
 		push(@cmp, $self->ANS_NAME(0)) if $self->{namedRules};
@@ -372,7 +379,7 @@ sub entry_cmp {
 }
 
 #
-#  Call the correct answser's checker to check for syntax and type errors.
+#  Call the correct answer's checker to check for syntax and type errors.
 #  If this is the last one, perform the user's checker routine as well
 #  Return the individual answer (our answer hash is discarded).
 #
@@ -424,7 +431,7 @@ sub perform_check {
 	$rh_ans->{isPreview} = $inputs->{previewAnswers}
 		|| ($inputs_{action} && $inputs->{action} =~ m/^Preview/);
 
-	Parser::Context->current(undef, $context);                                 # change to multi-answser's context
+	Parser::Context->current(undef, $context);                                 # change to multi-answer's context
 	my $flags = Value::contextSet($context, $self->cmp_contextFlags($ans));    # save old context flags
 	$context->{answerHash} = $rh_ans;                                          # attach the answerHash
 	my @result = Value::cmp_compare([@correct], [@student], $self, $rh_ans);
