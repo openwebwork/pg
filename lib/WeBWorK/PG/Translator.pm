@@ -49,6 +49,7 @@ WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
     my $rh_problem_result = $pt->grade_problem(%options); # grades the problem.
 
     $pt->post_process_content;   # Execute macro or problem hooks that further modify the problem content.
+    $pt->stringify_answers;      # Convert objects to strings in the answer hash
 
 =head1 DESCRIPTION
 
@@ -1036,7 +1037,6 @@ sub grade_problem {
 	use strict;
 
 	die $@ if $@;
-	$self->stringify_answers;
 	return ($self->{rh_problem_result}, $self->{rh_problem_state});
 }
 
