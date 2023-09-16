@@ -1,0 +1,65 @@
+#!/bin/bash
+
+function print_help_exit
+{
+	printf "Usage: %s [options]\n" $(basename $0) >&2
+	printf " Update the pg.pot and language .po files with translation strings from the code.\n" >&2
+	printf "  options:\n" >&2
+	printf "    -p|--po-update  Update po files as well.  By default only the pg.pot file is updated.\n" >&2
+	printf "    -l|--langauge   Update the only given language in addition to updating the pg.pot file.\n" >&2
+	printf "    -h|--help       Show this help.\n" >&2
+	exit 1
+}
+
+TEMP=$(getopt -a -o pl:h -l po-update,language:,help -n "$(basename $0)" -- "$@")
+
+eval set -- "$TEMP"
+
+UPDATE_PO=false
+LANGUAGE=""
+
+while [ ! "$1" = "--" ]
+do
+	case "$1" in
+		-p|--po-update)
+			UPDATE_PO=true
+			shift 1
+			;;
+		-l|--language)
+			LANGUAGE=$2
+			shift 2
+			;;
+		-h|--help)
+			print_help_exit
+			;;
+		*)
+			echo "Internal error!"
+			exit 1
+			;;
+	esac
+done
+
+if [ -z "$PG_ROOT" ]; then
+    echo >&2 "You need to set the PG_ROOT environment variable.  Aborting."
+    exit 1
+fi
+
+command -v xgettext.pl >/dev/null 2>&1 || {
+    echo >&2 "xgettext.pl needs to be installed.  It is inlcuded in the perl package Locale::Maketext::Extract. Aborting.";
+    exit 1;
+}
+
+LOCDIR=$PG_ROOT/lib/WeBWorK/PG/Localize
+
+cd $LOCDIR
+
+echo "Updating $LOCDIR/pg.pot"
+
+xgettext.pl -o pg.pot -D $PG_ROOT/lib -D $PG_ROOT/macros
+
+if $UPDATE_PO; then
+	find $LOCDIR -name '*.po' -exec bash -c "echo \"Updating {}\"; msgmerge -qUN {} pg.pot" \;
+elif [[ $LANGUAGE != "" && -e "$LANGUAGE.po" ]]; then
+	echo "Updating $LOCDIR/$LANGUAGE.po"
+	msgmerge -qUN $LANGUAGE.po pg.pot
+fi

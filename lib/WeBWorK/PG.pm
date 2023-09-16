@@ -24,6 +24,7 @@ use WeBWorK::PG::Environment;
 use WeBWorK::PG::Translator;
 use WeBWorK::PG::RestrictedClosureClass;
 use WeBWorK::PG::Constants;
+use WeBWorK::PG::Localize;
 
 use constant DISPLAY_MODES => {
 	# display name   # mode name
@@ -260,8 +261,8 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		mathViewLocale => $options->{mathViewLocale} // $pg_envir->{options}{mathViewLocale},
 
 		# Internationalization
-		language            => $options->{language}            // 'en',
-		language_subroutine => $options->{language_subroutine} // sub (@args) { return $args[0]; },
+		language            => $options->{language} // 'en',
+		language_subroutine => WeBWorK::PG::Localize::getLoc($options->{language} // 'en'),
 
 		# Directories and URLs
 		pgMacrosDir       => "$pg_envir->{directories}{root}/macros",

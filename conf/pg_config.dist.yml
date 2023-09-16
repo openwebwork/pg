@@ -247,6 +247,7 @@ modules:
   - [PGresponsegroup]
   - ['Tie::IxHash']
   - ['Locale::Maketext']
+  - ['WeBWorK::PG::Localize']
   - [JSON]
   - ['Class::Tiny']
   - ['IO::Handle']
