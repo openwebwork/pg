@@ -13,85 +13,6 @@
 # Artistic License for more details.
 ################################################################################
 
-=head1 NAME
-
-parserMultiAnswer.pl - Tie several blanks to a single answer checker.
-
-=head1 DESCRIPTION
-
-MultiAnswer objects let you tie several answer blanks to a single
-answer checker, so you can have the answer in one blank influence
-the answer in another.  The MultiAnswer can produce either a single
-result in the answer results area, or a separate result for each
-blank.
-
-To create a MultiAnswer pass a list of answers to MultiAnswer() in the
-order they will appear in the problem.  For example:
-
-    $mp = MultiAnswer("x^2",-1,1);
-
-or
-
-    $mp = MultiAnswer(Vector(1,1,1),Vector(2,2,2))->with(singleResult=>1);
-
-Then, use $mp->ans_rule to create answer blanks for the various parts
-just as you would ans_rule.  You can pass the width of the blank, which
-defaults to 20 otherwise.  For example:
-
-    BEGIN_TEXT
-    \(f(x)\) = \{$mp->ans_rule(20)\} produces the same value
-    at \(x\) = \{$mp->ans_rule(10)\} as it does at \(x\) = \{$mp->ans_rule(10)\}.
-    END_TEXT
-
-Finally, call $mp->cmp to produce the answer checker(s) used in the MultiAnswer.
-You need to provide a checker routine that will be called to determine if the
-answers are correct or not.  The checker will only be called if the student
-answers have no syntax errors and their types match the types of the professor's
-answers, so you don't have to worry about handling bad data from the student
-(at least as far as typechecking goes).
-
-The checker routine should accept four parameters:  a reference to the array
-of correct answers, a reference to the array of student answers, a reference
-to the MultiAnswer itself, and a reference to the answer hash.  It should do
-whatever checking it needs to do and then return a score for the MultiAnswer
-as a whole (every answer blank will be given the same score), or a reference
-to an array of scores, one for each blank.  The routine can set error messages
-via the MultiAnswer's setMessage() method (e.g.,
-
-    $mp->setMessage(1,"The function can't be the identity");
-
-would set the message for the first answer blank of the MultiAnswer), or can
-call Value::Error() to generate an error and die.
-
-The checker routine can be supplied either when the MultiAnswer is created, or
-when the cmp() method is called.  For example:
-
-    $mp = MultiAnswer("x^2",1,-1)->with(
-        singleResult => 1,
-        checker => sub {
-            my ($correct,$student,$self) = @_;  # get the parameters
-            my ($f,$x1,$x2) = @{$student};      # extract the student answers
-            Value::Error("Function can't be the identity") if ($f == 'x');
-            Value::Error("Function can't be constant") if ($f->isConstant);
-            return $f->eval(x=>$x1) == $f->eval(x=>$x2);
-        },
-    );
-    ANS($mp->cmp);
-
-or
-
-    $mp = MultiAnswer("x^2",1,-1)->with(singleResult=>1);
-    sub check {
-        my ($correct,$student,$self) = @_;  # get the parameters
-        my ($f,$x1,$x2) = @{$student};      # extract the student answers
-        Value::Error("Function can't be the identity") if ($f == 'x');
-        Value::Error("Function can't be constant") if ($f->isConstant);
-        return $f->eval(x=>$x1) == $f->eval(x=>$x2);
-    };
-    ANS($mp->cmp(checker=>~~&check));
-
-=cut
-
 loadMacros("MathObjects.pl");
 
 sub _parserMultiAnswer_init {
@@ -105,72 +26,6 @@ our @ISA = qw(Value);
 
 our $answerPrefix = "MuLtIaNsWeR_";    # answer rule prefix
 our $separator    = ';';               # separator for singleResult previews
-
-=head1 CONSTRUCTOR
-
-	MultiAnswer($answer1, $answer2, ...);
-	MultiAnswer($answer1, $answer2, ...)->with(...);
-
-Create a new MultiAnswer item from a list of items. The items are converted if
-Value items, if they aren't already. You can set the following fields of the
-resulting item:
-
-    checker => code            a subroutine to be called to check the
-                               student answers.  The routine is passed
-                               four parameters: a reference to the array
-                               or correct answers, a reference to the
-                               array of student answers, a reference to the
-                               MultiAnswer object itself, and a reference to
-                               the checker's answer hash.  The routine
-                               should return either a score or a reference
-                               to an array of scores (one for each answer).
-
-    singleResult => 0 or 1     whether to show only one entry in the
-                               results area at the top of the page,
-                               or one for each answer rule.
-                               (Default: 0)
-
-    namedRules => 0 or 1       whether to use named rules or default
-                               rule names.  Use named rules if you need
-                               to intersperse other rules with the
-                               ones for the MultiAnswer, in which case
-                               you must use NAMED_ANS not ANS.
-                               (Default: 0)
-
-    checkTypes => 0 or 1       whether the types of the student and
-                               professor's answers must match exactly
-                               or just pass the usual type-match error
-                               checking (in which case, you should check
-                               the types before you use the data).
-                               (Default: 1)
-
-    allowBlankAnswers=>0 or 1  whether to remove the blank-check prefilter
-                               from the answer checkers used for type
-                               checking the student's answers.
-                               (Default: 0)
-
-    separator => string        the string to use between entries in the
-                               results area when singleResult is set.
-                               (Default: semicolon)
-
-    tex_separator => string    same, but for the preview area.
-                               (Default: semicolon followed by thinspace)
-
-    format => string           an sprintf-style string used to format the
-                               students answers for the results area
-                               when singleResults is true.  If undefined,
-                               the separator parameter (above) is used to
-                               form the string.
-                               (Default: undef)
-
-    tex_format => string       an sprintf-style string used to format the
-                               students answer previews when singleResults
-                               mode is in effect.  If undefined, the
-                               tex_separator (above) is used to form the
-                               string.
-                               (Default: undef)
-
-=cut
 
 my @ans_defaults = (
 	checker             => sub {0},
@@ -557,3 +412,163 @@ sub ans_array {
 ######################################################################
 
 1;
+
+=head1 NAME
+
+parserMultiAnswer.pl - Represents mathematical objects with interrelated answers
+
+=head1 DESCRIPTION
+
+The C<MultiAnswer> class is designed to represent MathObjects with interrelated answers.
+It provides functionality to tie several answer rules to a single answer checker, allowing one
+answer to influence another. You can choose to produce either a single result in the answer table
+or a separate result for each rule.
+
+=head1 ATTRIBUTES
+
+Create a new C<MultiAnswer> item by passing a list of answers to the constructor. The answers
+are converted into C<MathObjects> if they aren't already.
+
+C<MultiAnswer> objects have the following attributes:
+
+=head2 checker
+
+A coderef to be called to check student answers. This is the only required attribute.
+
+The C<checker> routine is passed four parameters: a reference to the array of correct answers,
+a reference to the array of student answers, a reference to the C<MultiAnswer> object itself,
+and a reference to the checker's answer hash. The routine should return either a score or a
+reference to an array of scores (one for each answer).
+
+=head2 singleResult
+
+Indicates whether to show only one entry in the results table (C<< singleResult => 1 >>)
+or one for each answer rule (C<< singleResult => 0 >>). Default: 0.
+
+=head2 namedRules
+
+Indicates whether to use named rules or default rule names. Use named rules (C<< namedRules => 1 >>)
+if you need to intersperse other rules with the ones for the C<MultiAnswer>. In this case, you must
+use C<NAMED_ANS> instead of C<ANS>. Default: 0.
+
+=head2 checkTypes
+
+Specifies whether the types of the student and professor's answers must match exactly
+(C<< checkTypes => 1 >>) or just pass the usual type-match error checking (in which case, you should
+check the types before you use the data). Default: 1.
+
+=head2 allowBlankAnswers
+
+Indicates whether to remove the blank-check prefilter from the answer checkers used for type checking
+the student's answers. Default: 0.
+
+=head2 format
+
+An sprintf-style string used to format the students' answers for the results table when C<singleResult>
+is true. If undefined, the C<separator> parameter (below) is used to form the string. Default: undef.
+
+=head2 tex_format
+
+An sprintf-style string used to format the students' answer previews when C<singleResult> mode is
+in effect. If undefined, the C<tex_separator> (below) is used to form the string. Default: undef.
+
+=head2 separator
+
+The string to use between entries in the results table when C<singleResult> is set and C<format> is not.
+Default: semicolon.
+
+=head2 tex_separator
+
+The string to use as a separator between entries in the preview area when C<singleResult> is set
+and C<tex_format> is not. Default: semicolon followed by thinspace.
+
+=head1 METHODS
+
+=head2 setCmpFlags
+
+    $multianswer_obj->setCmpFlags($which_rule, %flags)
+
+Configure a specific comparison object within the C<MathObject> instance by setting various flags
+and their corresponding values.
+
+C<$which_rule> begins counting at 1.
+
+If the specified C<$which_rule> does not correspond to an existing comparison object within
+the C<MultiAnswer> instance, this method will throw an error with the message
+"Answer $which_rule is not defined."
+
+    $success = MultiAnswer($fraction_obj)->setCmpFlags(1, studentsMustReduceFractions => 1);
+    $failure = MultiAnswer($fraction_obj)->setCmpFlags(2, studentsMustReduceFractions => 1);
+
+=head2 setMessage
+
+    $multianswer_obj->setMessage($which_rule, $message_string)
+
+Meant for use in C<checker>, setMessage provides feedback targeting the specified answer rule.
+
+Note that using C<Value::Error("message")> will halt the answer checker and return early with
+your message. This message will not be tied to any specific answer rule.
+
+This method sets the provided message and does B<not> return early -- allowing an answer checker
+to return a non-zero value for partial credit.
+
+C<$which_rule> begins counting at 1.
+
+If the specified C<$which_rule> does not correspond to an existing answer rule, this method
+will throw an error with the message "Answer $which_rule is not defined."
+
+    $failure = MultiAnswer($math_obj)->setMessage(2, "It's like a jungle sometimes...");
+
+=head1 USAGE
+
+To create a MultiAnswer pass a list of answers to MultiAnswer() in the order they
+will appear in the problem. These answers may be provides as strings, or as C<MathObjects>.
+For example:
+
+    $multipart_ans = MultiAnswer("x^2",-1,1);
+
+or
+
+    $multipart_ans = MultiAnswer(Vector(1,1,1),Vector(2,2,2));
+
+In PGML, use the C<MultiAnswer> object as you would any other with the only difference
+that the C<MultiAnswer> is used multiple times:
+
+    Give the first part of the answer: [__]{$multipart_ans}
+    Give the second part of the answer: [__]{$multipart_ans}
+
+Properties of a C<MultiAnswer> object can be set by chaining the C<with> method to the constructor
+during the initial assignment. For example, here we configure the results table to include only one
+entry for our C<$multipart_ans>, and then pass in our answer checker:
+
+    $multipart_ans = MultiAnswer("x^2",1,-1)->with(
+        singleResult => 1,
+        checker => sub {
+            my ($correct,$student,$multi_ans,$ans_hash) = @_;  # get the parameters
+            my ($f,$x1,$x2) = @{$student};                     # extract the student answers
+            return $f->eval(x=>$x1) == $f->eval(x=>$x2);
+        },
+    );
+    ANS($mp->cmp);
+
+We can also make use of named subroutines. If using C<with> after assigning the C<MultiAnswer> to a
+variable, note that the C<with> method returns a shallow copy of the C<MultiAnswer> object. If you
+do not store the result when calling C<with>, your parameters will not be applied. 
+
+    sub check {
+            my ($correct,$student,$multi_ans,$ans_hash) = @_;  # get the parameters
+            my ($f,$x1,$x2) = @{$student};                     # extract the student answers
+            if ($f->class ne 'Formula' || $f->isConstant) {
+                # use setMessage so that partial credit can be given
+                $multi_ans->setMessage(1,"For full-credit, find a non-trivial \(f(x)\).");
+                return 0.25;
+            }
+			# no partial credit necessary for this error, and a specific answer rule is not targeted
+            Value::Error("It's not fair to use the same x-value twice") if ($x1 == $x2);
+            return $f->eval(x=>$x1) == $f->eval(x=>$x2);
+    };
+
+    $mp = MultiAnswer("x^2",1,-1);
+    $mp = $mp->with(singleResult=>1, checker=>~~&check);
+
+=cut
