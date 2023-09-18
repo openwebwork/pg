@@ -461,10 +461,9 @@ sub perform_check {
 #  for the n-th answer blank.
 #
 sub setMessage {
-	my $self    = shift;
-	my $i       = (shift) - 1;
-	my $message = shift;
-	$self->{ans}[$i]->{ans_message} = $self->{ans}[$i]->{error_message} = $message;
+	my ($self, $i, $message) = @_;
+	die "Answer $i is not defined." unless defined($self->{ans}[ $i - 1 ]);
+	$self->{ans}[ $i - 1 ]{ans_message} = $self->{ans}[ $i - 1 ]{error_message} = $message;
 }
 
 ######################################################################
