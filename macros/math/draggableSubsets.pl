@@ -322,7 +322,12 @@ sub cmp_defaults {
 		ordered           => $self->{OrderedSubsets},
 		implicitList      => 0,
 		requireParenMatch => 0,
-		entry_type        => 'subset'
+		entry_type        => 'subset',
+		feedback_options  => sub {
+			my ($ansHash, $options) = @_;
+			$options->{btnAddClass} = '';
+			$options->{showEntered} = 0;    # Suppress output of the feedback entered answer.
+		}
 	);
 }
 

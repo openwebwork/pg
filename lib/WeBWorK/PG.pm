@@ -177,7 +177,6 @@ sub new_helper ($invocant, %options) {
 	# processing, since the image tags output by the image generator initially include markers which are invalid html.
 	# Mojo::DOM will change these markers into attributes with values and this will fail.
 	if ($image_generator) {
-		my $sourceFile = "$options{templateDirectory}$options{sourceFilePath}";
 		$image_generator->render(
 			refresh   => $options{refreshMath2img} // 0,
 			body_text => $translator->r_text,
@@ -186,6 +185,12 @@ sub new_helper ($invocant, %options) {
 
 	$translator->post_process_content if ref($translator->{rh_pgcore}) eq 'PGcore';
 	$translator->stringify_answers;
+
+	# Add the result summary set in post processing into the result.
+	$result->{summary} = $translator->{rh_pgcore}{result_summary}
+		if ref($translator->{rh_pgcore}) eq 'PGcore'
+		&& $translator->{rh_pgcore}{result_summary}
+		&& (!defined $result->{summary} || $result->{summary} !~ /\S/);
 
 	return bless {
 		translator       => $translator,
@@ -249,6 +254,15 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		answersAvailable   => $options->{answersAvailable}   // 0,
 		isInstructor       => $options->{isInstructor}       // 0,
 		PERSISTENCE_HASH   => $options->{PERSISTENCE_HASH}   // {},
+
+		# Attempt Results
+		showFeedback            => $options->{showFeedback}            // 0,
+		showAttemptAnswers      => $options->{showAttemptAnswers}      // 1,
+		showAttemptPreviews     => $options->{showAttemptPreviews}     // 1,
+		forceShowAttemptResults => $options->{forceShowAttemptResults} // 0,
+		showAttemptResults      => $options->{showAttemptResults}      // 0,
+		showMessages            => $options->{showMessages}            // 1,
+		showCorrectAnswers      => $options->{showCorrectAnswers}      // 0,
 
 		# The next has marks what data was updated and needs to be saved
 		# by the front end.
@@ -464,6 +478,44 @@ This may contain the following keys (example values are shown)
     numZeroLevelTolDefault: 1E-12
     useBaseTenLog: 0
     defaultDisplayMatrixStyle: '[s]' # left delimiter, middle line delimiters, right delimiter
+
+=item showFeedback (boolean, default: 0)
+
+Determines if feedback will be shown for answers in the problem. Note that
+feedback will be shown if forceShowAttemptResults is true regardless of
+the value of this option.
+
+=item showAttemptAnswers (boolean, default: 1)
+
+Determines if the student's evaluated (i.e. "Entered") answers will be shown in feedback.
+
+=item showAttemptPreviews (boolean, default: 1)
+
+Determines if the student's answer previews will be shown in feedback.
+
+=item showAttemptResults (boolean, default: 0)
+
+Determines if attempt results will be revealed in feedback.  In other words,
+if the student's answers are correct, incorrect, or partially correct.  This
+honors the value of the PG C<showPartialCorrectAnswers> flag.  If that flag is
+false, then attempt results will still not be shown.
+
+If this is true, then a summary of results will also be generated.  The
+summary will be returned in the C<summary> key of the C<result> hash.
+
+=item forceShowAttemptResults (boolean, default: 0)
+
+If this is true then feedback will be shown with attempt results.  This ignores
+the PG C<showPartialCorrectAnswers> flag and shows attempt results in any case.
+The summary will also be generated if this is true.
+
+=item showMessages (boolean, default: 1)
+
+Determines if any messages generated in answer evaluation will be shown.
+
+=item showCorrectAnswers (boolean, default: 0)
+
+Determines if correct answers will be shown.
 
 =item answerPrefix (string, default: '')
 

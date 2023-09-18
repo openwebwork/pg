@@ -13,9 +13,6 @@
 # Artistic License for more details.
 ################################################################################
 
-# FIXME TODO:
-# Document and maybe split out: filters, graders, utilities
-
 =head1 NAME
 
 PGessaymacros.pl - Macros for building answer evaluators.
@@ -26,20 +23,23 @@ Answer Evaluators:
 
     essay_cmp()
 
-Answer Boxes
+Answer Boxes:
 
     essay_box()
 
-To use essay answers just put an C<essay_box()> into your problem file wherever you want the
-input box to go and then use C<essay_cmp()> for the corresponding checker.  You will then need
-grade the problem manually.  The grader can be found in the "Detail Set List".
+To use essay answers call C<essay_box()> in your problem file wherever you want
+the input box to go, and then use C<essay_cmp()> for the corresponding checker.
+You will then need to grade the problem manually.
 
     explanation_box()
 
-Like an C<essay_box()>, except can be turned off at a configuration level. Intended for two-part
-questions where the first answer is automatically assessible, and the second part is an explanation
-or "showing your work". An instructor may want to turn these off to use the problem but without the
-manual grading component. These necessarily supply their own C<essay_cmp()>.
+Like an C<essay_box()>, except that it can be turned off at a configuration
+level.  This is intended for two-part questions where the first answer is
+automatically assessible, and the second part is an explanation or "show your
+work" type answer. An instructor may want to turn these off to use the problem
+but without the manual grading component. These necessarily supply their own
+C<essay_cmp()>.
+
 =cut
 
 sub _PGessaymacros_init {
@@ -47,114 +47,118 @@ sub _PGessaymacros_init {
 }
 
 sub essay_cmp {
-
-	my $self = shift;
-	my $ans  = new AnswerEvaluator;
+	my (%options) = @_;
+	my $ans = AnswerEvaluator->new;
 
 	$ans->ans_hash(
-		type          => "essay",
-		correct_ans   => "Undefined",
-		correct_value => $self,
-		@_,
+		type             => 'essay',
+		correct_ans      => 'Undefined',
+		correct_value    => '',
+		scaffold_force   => 1,
+		feedback_options => sub {
+			my ($ansHash, $options) = @_;
+			$options->{resultTitle}      = maketext('Ungraded');
+			$options->{resultClass}      = '';
+			$options->{insertMethod}     = 'append_content';
+			$options->{btnClass}         = 'btn-info';
+			$options->{btnAddClass}      = '';
+			$options->{wrapPreviewInTex} = 0;
+			$options->{showEntered}      = 0;                      # Suppress output of the feedback entered answer.
+			$options->{showCorrect}      = 0;                      # Suppress output of the feedback correct answer.
+		},
+		%options,
 	);
 
 	$ans->install_evaluator(sub {
-		my $student          = shift;
-		my %response_options = @_;
+		my $ans_hash = shift;
 
-		$student->{original_student_ans} =
-			(defined $student->{original_student_ans}) ? $student->{original_student_ans} : '';
+		$ans_hash->{original_student_ans} //= '';
+		$ans_hash->{_filter_name}        = 'Essay Check';
+		$ans_hash->{score}               = 0;
+		$ans_hash->{ans_message}         = maketext('This answer will be graded at a later time.');
+		$ans_hash->{preview_text_string} = '';
 
-		my $answer_value = $student->{original_student_ans};
-
-		# always returns false but stuff should check for the essay flag and avoid the red highlighting
-		loadMacros("contextTypeset.pl");
+		loadMacros('contextTypeset.pl');
 		my $oldContext = Context();
-		Context("Typeset");
-		$answer_value = EV3P({ processCommands => 0, processVariables => 0 }, text2PG($answer_value));
-
+		Context('Typeset');
+		$ans_hash->{preview_latex_string} =
+			EV3P({ processCommands => 0, processVariables => 0 }, text2PG($ans_hash->{original_student_ans}));
 		Context($oldContext);
-		my $ans_hash = new AnswerHash(
-			'score'       => "0",
-			'correct_ans' => "Undefined",
-			#	    'student_ans'=>$student->{student_ans},
-			'student_ans'          => '',                                 #supresses output to original answer field
-			'original_student_ans' => $student->{original_student_ans},
-			'type'                 => 'essay',
-			'ans_message'          => 'This answer will be graded at a later time.',
-			'preview_text_string'  => '',
-			'preview_latex_string' => $answer_value,
-		);
 
 		return $ans_hash;
 	});
-
-	$ans->install_pre_filter('erase') if $self->{ans_name};
 
 	return $ans;
 }
 
 sub NAMED_ESSAY_BOX {
 	my ($name, $row, $col) = @_;
-	$row = 8  unless defined($row);
-	$col = 75 unless defined($col);
+	$row //= 8;
+	$col //= 75;
 
 	my $height       = .07 * $row;
-	my $answer_value = '';
-	$answer_value = $inputs_ref->{$name} if defined($inputs_ref->{$name});
-	$name         = RECORD_ANS_NAME($name, $answer_value);
+	my $answer_value = $inputs_ref->{$name} // '';
+	$name = RECORD_ANS_NAME($name, $answer_value);
 
-	my $label = generate_aria_label($name);
-	#	$answer_value =~ tr/$@//d;   #`## make sure student answers can not be interpolated by e.g. EV3
-
-	#### Answer Value needs to have special characters replaced by the html codes
-	$answer_value = encode_pg_and_html($answer_value);
-
-	# Get rid of tabs since they mess up the past answer db
+	# Get rid of tabs since they mess up the past answer db.
+	# FIXME: This fails because this only modifies the value for the next submission.
+	# It doesn't change the value in the already submitted form.
 	$answer_value =~ s/\t/\&nbsp;\&nbsp;\&nbsp;\&nbsp;\&nbsp;/;
 
-	#INSERT_RESPONSE($name,$name,$answer_value); # no longer needed?
-	my $out = MODES(
-		TeX        => qq!\\vskip $height in \\hrulefill\\quad !,
-		Latex2HTML =>
-			qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" >$answer_value</TEXTAREA>\\end{rawhtml}!,
-		HTML => qq!
-         <TEXTAREA NAME="$name" id="$name" aria-label="$label" ROWS="$row" COLS="$col" class="latexentryfield"
-               title="Enclose math expressions with backticks or use LaTeX.">$answer_value</TEXTAREA>
-           <INPUT TYPE=HIDDEN  NAME="previous_$name" VALUE = "$answer_value">
-            !,
+	return MODES(
+		TeX  => qq!\\vskip $height in \\hrulefill\\quad !,
+		HTML => tag(
+			'textarea',
+			name       => $name,
+			id         => $name,
+			aria_label => generate_aria_label($name),
+			rows       => $row,
+			cols       => $col,
+			class      => 'latexentryfield',
+			title      => 'Enclose math expressions with backticks or use LaTeX.',
+			# Answer Value needs to have special characters replaced by the html codes
+			encode_pg_and_html($answer_value)
+			)
+			. tag(
+				'div',
+				class                        => 'latexentry-button-container d-flex gap-1 mt-1',
+				id                           => "$name-latexentry-button-container",
+				data_feedback_insert_element => $name,
+				tag(
+					'button',
+					class => 'latexentry-preview btn btn-secondary btn-sm',
+					type  => 'button',
+					maketext('Preview')
+				)
+			)
+			. tag('input', type => 'hidden', name => "previous_$name", value => $answer_value),
 		PTX => '<var form="essay" width="' . $col . '" height="' . $row . '" />',
 	);
-
-	$out;
 }
 
 sub essay_help {
-
-	my $out = MODES(
-		TeX        => '',
-		Latex2HTML => '',
-		HTML       => qq!
-            <P>  This is an essay answer text box.  You can type your answer in here and, after you hit submit,
-                 it will be saved so that your instructor can grade it at a later date.  If your instructor makes
-                 any comments on your answer those comments will appear on this page after the question has been
-                 graded.  You can use LaTeX to make your math equations look pretty.
-                 LaTeX expressions should be enclosed using the parenthesis notation and not dollar signs.
-            </P>
-           !,
+	return MODES(
+		TeX  => '',
+		HTML => tag(
+			'p',
+			maketext(
+				'This is an essay answer text box. You can type your answer in here and, after you hit submit, '
+					. 'it will be saved so that your instructor can grade it at a later date. If your instructor '
+					. 'makes any comments on your answer those comments will appear on this page after the question '
+					. 'has been graded. You can use LaTeX to make your math equations look pretty. '
+					. 'LaTeX expressions should be enclosed using the parenthesis notation and not dollar signs.'
+			)
+		),
 		PTX => '',
 	);
-
-	$out;
 }
 
 sub essay_box {
-	my $row = shift;
-	my $col = shift;
-	$row = 8  unless $row;
-	$col = 75 unless $col;
+	my ($row, $col) = @_;
+	$row ||= 8;
+	$col ||= 75;
 	my $name = NEW_ANS_NAME();
-	NAMED_ESSAY_BOX($name, $row, $col);
+	return NAMED_ESSAY_BOX($name, $row, $col);
 
 }
 
@@ -167,20 +171,16 @@ sub essay_box {
 #   help: boolean for whether to display the essay help message; default is true
 sub explanation_box {
 	my %options = @_;
-	my $row     = 8;
-	my $col     = 75;
-	$row = $options{height} if defined $options{height};
-	$col = $options{width}  if defined $options{width};
-	$row = $options{row}    if defined $options{row};
-	$col = $options{col}    if defined $options{col};
-	my $message = 'Explain.';
-	if (defined $options{message}) { $message = $options{message} }
-	my $help = 1;
-	$help = $options{help} if defined $options{help};
-	if ($envir{waiveExplanations}) { }
-	else {
+
+	if ($envir{waiveExplanations}) {
+		return '';
+	} else {
 		ANS(essay_cmp());
-		return $message . $PAR . essay_box($row, $col) . ($help ? essay_help() : '');
+		return
+			($options{message} // 'Explain.')
+			. $PAR
+			. essay_box($options{row} // $options{height} // 8, $options{col} // $options{width} // 75)
+			. (($options{help} // 1) ? essay_help() : '');
 	}
 }
 

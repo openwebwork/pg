@@ -400,8 +400,34 @@ sub cmp {
 			? sprintf($self->{tex_formats}[ $self->{correct} ], @correct_tex)
 			: join($self->{tex_separator}, @correct_tex)
 		),
-		type           => 'RadioMultiAnswer',
-		correct_choice => $self->{values}[ $self->{correct} ],
+		type             => 'RadioMultiAnswer',
+		correct_choice   => $self->{values}[ $self->{correct} ],
+		feedback_options => sub {
+			my ($ansHash, $options) = @_;
+
+			# Find the radio buttons (not including and checks or radios in sub parts).
+			my $radios = $options->{feedbackElements}->grep(sub { $_->attr('name') eq $self->ANS_NAME(0) });
+
+			return unless @$radios;    # Sanity check. This shouldn't happen.
+
+			$options->{insertMethod} = 'append_content';
+			$options->{btnAddClass}  = 'ms-3';
+
+			# Find the checked radios, and if there is one, the answers in that part.
+			# Those will be the elements that the feedback classes are added to.
+			my $selected = $radios->grep(sub { exists $_->attr->{checked} });
+			if (@$selected == 1) {
+				$options->{insertElement} = $selected->first->parent;
+				my $contents = $selected->first->parent->at('div.radio-content[data-radio]');
+				if ($contents) {
+					my $partNames = JSON->new->decode($contents->attr('data-part-names'));
+					push(@$selected, $contents->at(qq{[name="$_"]})) for (@$partNames);
+					$options->{feedbackElements} = $selected;
+				}
+			} else {
+				$options->{insertElement} = $radios->first->parent->parent;
+			}
+		},
 		%options
 	);
 	$ans->install_evaluator(sub { my $ans = shift; (shift)->answer_evaluator($ans) }, $self);
@@ -634,10 +660,12 @@ sub ans_rule {
 		push(@rules, $rule);
 	}
 
-	return
-		main::MODES(TeX => '\\begin{itemize}', HTML => '')
+	return main::MODES(
+		TeX  => '\\begin{itemize}',
+		HTML => '<div class="radio-multianswer-container">'
+		)
 		. join(main::MODES(TeX => '\vskip\baselineskip', HTML => main::tag('div', style => 'margin-top:1rem')), @rules)
-		. main::MODES(TeX => '\\end{itemize}', HTML => '');
+		. main::MODES(TeX => '\\end{itemize}', HTML => '</div>');
 }
 
 # Format a label.

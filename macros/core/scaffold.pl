@@ -571,16 +571,14 @@ sub add_container {
 		# Nothing needs to be done for the PTX display mode.
 		return if $Scaffold::isPTX;
 
-		# Essay answers never return as correct, so there is a special for case them.  Also provide a "scaffold_force"
-		# option in the AnswerHash that can be used to force Scaffold to consider the score to be 1 (a bug in
-		# PGessaymacros.pl prevents it from working in essay_cmp() though -- it actually does work, both answer hashes
-		# defined in essay_cmp() need the setting though).
+		# Provide a "scaffold_force" option in the AnswerHash that can be used to force
+		# Scaffold to consider the score to be 1. This is used by PGessaymacros.pl.
 		for (@{ $self->{ans_names} }) {
 			next unless defined $PG_ANSWERS_HASH->{$_};
-			$scaffold->{scores}{$_} = $PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{score};
-			$scaffold->{scores}{$_} = 1
-				if ($PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{type} || '') eq 'essay'
-				|| $PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{scaffold_force};
+			$scaffold->{scores}{$_} =
+				$PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{scaffold_force}
+				? 1
+				: $PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{score};
 		}
 
 		# Set the active scaffold to the scaffold for this section so that is_correct, can_open,

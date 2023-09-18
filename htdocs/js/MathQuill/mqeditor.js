@@ -31,6 +31,14 @@
 		input.classList.add('mq-edit');
 		answerQuill.latexInput = mq_input;
 
+		// Give the mathquill answer box the correct/incorrect colors.
+		if (input.classList.contains('correct')) answerQuill.classList.add('correct');
+		if (input.classList.contains('incorrect')) answerQuill.classList.add('incorrect');
+		if (input.classList.contains('partially-correct')) answerQuill.classList.add('partially-correct');
+
+		const ariaDescribedBy = input.getAttribute('aria-describedby');
+		if (ariaDescribedBy) answerQuill.setAttribute('aria-describedby', ariaDescribedBy);
+
 		// Default options.
 		const cfgOptions = {
 			spaceBehavesLikeTab: true,
@@ -130,8 +138,8 @@
 			button.append(icon);
 
 			// Find the preview button container, and add the equation editor button to that.
-			const buttonContainer = container.nextElementSibling;
-			if (buttonContainer && buttonContainer.classList.contains('latexentry-button-container')) {
+			const buttonContainer = document.getElementById(`${answerLabel}-latexentry-button-container`);
+			if (buttonContainer) {
 				buttonContainer.classList.add('d-flex', 'gap-1');
 				buttonContainer.prepend(button);
 				innerContainer.append(buttonContainer);
@@ -494,26 +502,6 @@
 		answerQuill.mathField.latex(answerQuill.latexInput.value);
 		answerQuill.mathField.moveToLeftEnd();
 		answerQuill.mathField.blur();
-
-		// Look for a result in the attempts table for this answer.
-		for (const tableLink of document.querySelectorAll('td a[data-answer-id]')) {
-			// Give the mathquill answer box the correct/incorrect colors.
-			if (answerLabel.includes(tableLink.dataset.answerId)) {
-				if (tableLink.parentNode.classList.contains('ResultsWithoutError'))
-					answerQuill.classList.add('correct');
-				else {
-					if (answerQuill.input.value !== '') answerQuill.classList.add('incorrect');
-				}
-			}
-
-			// Make a click on the results table link give focus to the mathquill answer box.
-			if (answerLabel === tableLink.dataset.answerId) {
-				tableLink.addEventListener('click', (e) => {
-					e.preventDefault();
-					answerQuill.textarea.focus();
-				});
-			}
-		}
 	};
 
 	// Set up MathQuill inputs that are already in the page.
