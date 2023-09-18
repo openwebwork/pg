@@ -209,6 +209,15 @@ sub new {
 }
 
 #
+#  Set flags to be passed to individual answer checkers
+#
+sub setCmpFlags {
+	my ($self, $cmp_number, %flags) = @_;
+	die "Answer $cmp_number is not defined." unless defined($self->{cmp}[ $cmp_number - 1 ]);
+	$self->{cmp}[ $cmp_number - 1 ]->ans_hash(%flags);
+}
+
+#
 #  Creates an answer checker (or array of same) to be passed
 #  to ANS() or NAMED_ANS().  Any parameters are passed to
 #  the individual answer checkers.
