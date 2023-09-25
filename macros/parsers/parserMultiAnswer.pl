@@ -42,8 +42,17 @@ sub new {
 	my @cmp;
 	Value::Error("%s lists can't be empty", $class) if scalar(@data) == 0;
 	foreach my $x (@data) {
-		$x = Value::makeValue($x, context => $context) unless Value::isValue($x);
-		push(@cmp, $x->cmp(@ans_defaults));
+		if (ref($x) eq 'AnswerEvaluator') {
+			my $correct_value = $x->{rh_ans}{correct_value};
+			Value::Error('Only MathObject answer checkers can be passed to MultiAnswer()')
+				unless (defined $correct_value);
+			push(@cmp, $x);
+			$x = $correct_value;
+		} else {
+			$x = Value::makeValue($x, context => $context)
+				unless Value::isValue($x);
+			push(@cmp, $x->cmp(@ans_defaults));
+		}
 	}
 	bless {
 		data              => [@data],
