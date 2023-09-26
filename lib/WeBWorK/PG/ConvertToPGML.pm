@@ -23,7 +23,6 @@ Converts a pg file to PGML format.
 
 =head1 OPTIONS
 
-
 =cut
 
 package WeBWorK::PG::ConvertToPGML;
@@ -33,8 +32,6 @@ use strict;
 use warnings;
 
 our @EXPORT = qw(convertToPGML);
-
-use Data::Dumper;
 
 # This subroutine converts the file that is passed in as a multi-line string and
 # assumed to be an older-style PG file with BEGIN_TEXT/END_TEXT, BEGIN_SOLUTION/END_SOLUTION,
@@ -79,14 +76,15 @@ sub convertToPGML {
 			}
 			# Split by commas and pull out the quotes.
 			my @macros = map {s/['"\s]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
-			print Dumper \@macros;
 			@macros = grep {
 				$_ !~ /(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse).pl/
 			} @macros;
 			@macros = grep { $_ !~ /^#/ } @macros;
 
 			push(@all_lines,
-				"loadMacros('PGstandard.pl', 'PGML.pl', " . join(', ', map {"'$_'"} @macros) . ", 'PGcourse.pl');");
+				'loadMacros('
+					. join(', ', map {"'$_'"} ('PGstandard.pl', 'PGML.pl', @macros, 'PGcourse.pl'))
+					. ');');
 		} else {
 			$row = cleanUpCode($row);
 			push(@all_lines, $row);
@@ -138,14 +136,14 @@ sub convertPGMLBlock {
 		# Switch bold, italics, centering and math modes.
 		$row = $row =~ s/\s*\$\{?EBOLD\}?/*/gr;
 		$row = $row =~ s/\$\{?BBOLD\}?\s*/*/gr;
-		$row = $row =~ s/\s*\$\{?EITALICS\}?/_/gr;
-		$row = $row =~ s/\$\{?BITALICS\}?\s*/_/gr;
+		$row = $row =~ s/\s*\$\{?EITALIC\}?/_/gr;
+		$row = $row =~ s/\$\{?BITALIC\}?\s*/_/gr;
 		$row = $row =~ s/\$\{?BCENTER\}?/>>/gr;
 		$row = $row =~ s/\$\{?ECENTER\}?/<</gr;
 		$row = $row =~ s/\\\(/[`/gr;
 		$row = $row =~ s/\\\)/`]/gr;
-		$row = $row =~ s/\\\[/[``/gr;
-		$row = $row =~ s/\\\]/``]/gr;
+		$row = $row =~ s/\\\[/[```/gr;
+		$row = $row =~ s/\\\]/```]/gr;
 		$row = $row =~ s/\$HR/\n---\n/gr;
 
 		# replace the variables in the PGML block.  Don't if it is in a \{ \}
@@ -172,6 +170,7 @@ sub convertPGMLBlock {
 
 sub cleanUpCode {
 	my ($row) = @_;
+	$row = $row =~ s/^\s*#+\s*$//r;
 	$row = $row =~ s/Context\(\)->normalStrings;//r;
 	$row = $row =~ s/Context\(\)->texStrings;//r;
 	$row = $row =~ s/TEXT\(\s*beginproblem(\(\))?\s*\);//r;
