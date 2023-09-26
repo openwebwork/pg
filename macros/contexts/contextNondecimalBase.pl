@@ -128,19 +128,21 @@ If one wants to use a different set of digits, say 0..9, 'T', 'E' for base-12 as
 
 =cut
 
+my $convertContext;
+
 sub convert {
 	my ($value, %options) = @_;
 	my $from = $options{'from'} // 10;
 	my $to   = $options{'to'}   // 10;
 
-	my $context = $main::context{NondecimalBase}->copy;
+	$convertContext = $main::context{NondecimalBase}->copy unless $convertContext;
 	if ($from != 10) {
-		$context->setBase($from);
-		$value = $context->fromBase($value);
+		$convertContext->setBase($from);
+		$value = $convertContext->fromBase($value);
 	}
 	if ($to != 10) {
-		$context->setBase($to);
-		$value = $context->toBase($value);
+		$convertContext->setBase($to);
+		$value = $convertContext->toBase($value);
 	}
 	return $value;
 }
@@ -159,7 +161,7 @@ sub new {
 	$context->{value}{Real}    = 'context::NondecimalBase::Real';
 	$context->functions->disable('All');
 	$context->constants->clear();
-	$self->{pattern}{number}               = '[' . join('', 0 .. 9, 'A' .. 'Z') . ']+';
+	$context->{pattern}{number}            = '[' . join('', 0 .. 9, 'A' .. 'Z') . ']+';
 	$context->{precedence}{NondecimalBase} = $context->{precedence}{special};
 	$context->flags->set(limits => [ -1000, 1000, 1 ]);
 	return $context;
@@ -181,9 +183,13 @@ sub setBase {
 		$digits = [ ('0' .. '9', 'A' .. 'Z')[ 0 .. $base - 1 ] ];
 	}
 
-	$self->{base}     = $base;
-	$self->{digits}   = $digits;
-	$self->{digitMap} = { map { ($digits->[$_], $_) } (0 .. $base - 1) };
+	$self->{base}            = $base;
+	$self->{digits}          = $digits;
+	$self->{digitMap}        = { map { ($digits->[$_], $_) } (0 .. $base - 1) };
+	$self->{pattern}{number} = '[' . join('', @$digits) . ']+';
+	my $msg = 'Numbers should consist only of the digits: ' . join(',', @$digits);
+	$self->{error}{msg}{"Variable '%s' is not defined in this context"} = $msg;
+	$self->{error}{msg}{"'%s' is not defined in this context"}          = $msg;
 	$self->update;
 }
 

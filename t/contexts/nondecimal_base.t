@@ -67,7 +67,7 @@ subtest 'Check that the Context parses number correct' => sub {
 };
 
 subtest 'check that non-valid digits return errors' => sub {
-	like dies { Compute('456'); }, qr/The number should only consist of the digits:/,
+	like dies { Compute('456'); }, qr/Numbers should consist only of the digits:/,
 		'Try to build a base-5 number will illegal digits';
 };
 
@@ -132,9 +132,7 @@ subtest 'Use alternative digits' => sub {
 	is $a1->value, 141, "Base-12 number E9=141";
 
 	ok my $a2 = Compute("3TE"), "Base 12 number '3TE' with T=ten and E = eleven";
-	like dies { Compute('A5'); },
-		qr/The number should only consist of the digits:/,
-		'Check that A=10 is not allowed';
+	like dies { Compute('A5'); }, qr/Numbers should consist only of the digits:/, 'Check that A=10 is not allowed';
 };
 
 subtest 'check for other errors' => sub {
