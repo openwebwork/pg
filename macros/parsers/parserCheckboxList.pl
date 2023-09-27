@@ -470,7 +470,7 @@ sub cmp_defaults {
 # Adjust student preview and answer strings to be the actual choice strings rather than the value strings.
 sub cmp_preprocess {
 	my ($self, $ans) = @_;
-	if (defined $ans->{student_value} && @{ $ans->{student_value}->data }) {
+	if (defined $ans->{student_value} && (grep { defined && /\S/ } @{ $ans->{student_value}->data })) {
 		$ans->{original_student_ans} = join(', ', map { $self->labelText($_) } @{ $ans->{student_value}->data });
 		$ans->{preview_latex_string} = $self->quoteTeX($ans->{original_student_ans});
 		$ans->{student_ans}          = $self->quoteHTML($ans->{original_student_ans});
