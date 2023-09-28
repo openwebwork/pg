@@ -1103,7 +1103,6 @@ sub ENDDOCUMENT {
 				my $isEssay     = ($ansHash->{type} // '') eq 'essay';
 				++$numCorrect if $answerScore >= 1;
 				++$numEssay   if $isEssay;
-				++$numBlank unless $isEssay || (($ansHash->{student_ans} // '') =~ /\S/ || $answerScore >= 1);
 
 				my %options = (
 					resultTitle      => maketext('Preview'),
@@ -1164,6 +1163,11 @@ sub ENDDOCUMENT {
 				# If a feedback_options method is provided, it can override anything set above.
 				$ansHash->{feedback_options}->($ansHash, \%options, $problemContents)
 					if ref($ansHash->{feedback_options}) eq 'CODE';
+
+				# Update the count of the number of unanswered questions.  This should be after the custom
+				# feedback_options call as that method can change the answerGiven option.  (The draggableProof.pl macro
+				# does this.)
+				++$numBlank unless $isEssay || $options{answerGiven} || $answerScore >= 1;
 
 				# Don't show the results popover if there is nothing to show.
 				next
