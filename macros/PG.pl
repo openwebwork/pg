@@ -1320,7 +1320,7 @@ sub ENDDOCUMENT {
 								}
 						)->to_string,
 						},
-						sub { Mojo::DOM->new_tag('i', class => 'fa-solid fa-caret-down') }
+						sub { Mojo::DOM->new_tag('i', class => $options{resultClass}) }
 				)->to_string;
 
 				if ($options{insertElement} && $options{insertElement}->can($options{insertMethod})) {
