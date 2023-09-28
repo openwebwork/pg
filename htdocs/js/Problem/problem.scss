@@ -72,25 +72,22 @@
 	input[type='checkbox'],
 	span[id^='mq-answer'],
 	.graphtool-container {
-		&.correct {
-			border-color: rgba(81, 153, 81, 0.8); /* green */
+		&.correct:not(:focus):not(.mq-focused) {
+			border-color: rgba(81, 153, 81, 1); /* green */
 			outline: 0;
-			box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px 2px rgba(81, 153, 81, 0.6);
-			color: inherit;
+			box-shadow: inset 0 0 2px 1px rgba(0, 0, 0, 0.25), 0 0 8px 2px rgba(81, 153, 81, 1);
 		}
 
-		&.incorrect {
-			border-color: rgba(191, 84, 84, 0.8); /* red */
+		&.incorrect:not(:focus):not(.mq-focused) {
+			border-color: rgba(191, 84, 84, 1); /* red */
 			outline: 0;
-			box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px 2px rgba(191, 84, 84, 0.6);
-			color: inherit;
+			box-shadow: inset 0 0 2px 1px rgba(0, 0, 0, 0.25), 0 0 8px 2px rgba(191, 84, 84, 1);
 		}
 
-		&.partially-correct {
-			border-color: rgba(255, 193, 7, 0.8); /* yellow */
+		&.partially-correct:not(:focus):not(.mq-focused) {
+			border-color: rgba(255, 193, 7, 1); /* yellow */
 			outline: 0;
-			box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px 2px rgba(255, 193, 7, 0.6);
-			color: inherit;
+			box-shadow: inset 0 0 2px 1px rgba(0, 0, 0, 0.25), 0 0 8px 2px rgba(255, 193, 7, 1);
 		}
 	}
 
