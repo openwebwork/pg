@@ -130,6 +130,25 @@ sub _contextLimitedRadical_init {
 
 ###########################
 #
+# Convenience
+#
+# Pass $a,$b, get Formula("$a sqrt($b)") but simplified
+
+sub preprad {
+	my $a = shift;
+	my $b = shift;
+	if ($a == 0 or $b == 0) { return Formula("0"); }
+	my $sign        = ($a > 0)       ? ''    : '-';
+	my $simplifieda = (abs($a) == 1) ? $sign : $a;
+	if ($b == 1) {
+		return Formula("$a");
+	} else {
+		return Formula("$simplifieda sqrt($b)");
+	}
+}
+
+###########################
+#
 #  Create root(n, x)
 #
 
