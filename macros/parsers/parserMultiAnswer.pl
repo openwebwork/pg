@@ -79,6 +79,7 @@ sub setCmpFlags {
 	my ($self, $cmp_number, %flags) = @_;
 	die "Answer $cmp_number is not defined." unless defined($self->{cmp}[ $cmp_number - 1 ]);
 	$self->{cmp}[ $cmp_number - 1 ]->ans_hash(%flags);
+	return $self;
 }
 
 #
@@ -435,19 +436,28 @@ or a separate result for each rule.
 
 =head1 ATTRIBUTES
 
-Create a new C<MultiAnswer> item by passing a list of answers to the constructor. The answers
-are converted into C<MathObjects> if they aren't already.
+Create a new C<MultiAnswer> item by passing a list of answers to the constructor.
+
+The answers may be provided as C<MathObjects>, C<AnswerEvaluators>, or as strings (which will be
+converted into C<MathObjects>).
 
 C<MultiAnswer> objects have the following attributes:
 
-=head2 checker
+=head2 checker (required)
 
 A coderef to be called to check student answers. This is the only required attribute.
 
-The C<checker> routine is passed four parameters: a reference to the array of correct answers,
+The C<checker> routine receives four parameters: a reference to the array of correct answers,
 a reference to the array of student answers, a reference to the C<MultiAnswer> object itself,
 and a reference to the checker's answer hash. The routine should return either a score or a
 reference to an array of scores (one for each answer).
+
+    # this checker will give full credit for any answers
+    sub always_right {
+		my ($correct,$student,$multi_ans,$ans_hash) = @_;  # get the parameters
+		return [ (1) x scalar(@$correct) ];                # return an array of scores
+	}
+	$multianswer_obj = $multianswer_obj->with(checker=>~~&always_right);
 
 =head2 singleResult
 
@@ -506,8 +516,9 @@ If the specified C<$which_rule> does not correspond to an existing comparison ob
 the C<MultiAnswer> instance, this method will throw an error with the message
 "Answer $which_rule is not defined."
 
-    $success = MultiAnswer($fraction_obj)->setCmpFlags(1, studentsMustReduceFractions => 1);
-    $failure = MultiAnswer($fraction_obj)->setCmpFlags(2, studentsMustReduceFractions => 1);
+    $ma_obj = MultiAnswer($fraction_obj);
+    $ma_obj->setCmpFlags(1, studentsMustReduceFractions => 1); # succeeds
+    $ma_obj->setCmpFlags(2, studentsMustReduceFractions => 1); # fails
 
 =head2 setMessage
 
@@ -526,13 +537,15 @@ C<$which_rule> begins counting at 1.
 If the specified C<$which_rule> does not correspond to an existing answer rule, this method
 will throw an error with the message "Answer $which_rule is not defined."
 
-    $failure = MultiAnswer($math_obj)->setMessage(2, "It's like a jungle sometimes...");
+    $ma_obj = MultiAnswer($math_obj1, $math_obj2);
+    $ma_obj->setMessage(2, "It's like a jungle sometimes..."); # succeeds
+    $ma_obj->setMessage(3, "It's like a jungle sometimes..."); # fails
 
 =head1 USAGE
 
 To create a MultiAnswer pass a list of answers to MultiAnswer() in the order they
-will appear in the problem. These answers may be provides as strings, or as C<MathObjects>.
-For example:
+will appear in the problem. These answers may be provides as strings, as C<MathObjects>,
+or as C<AnswerEvaluators>. For example:
 
     $multipart_ans = MultiAnswer("x^2",-1,1);
 
@@ -540,11 +553,15 @@ or
 
     $multipart_ans = MultiAnswer(Vector(1,1,1),Vector(2,2,2));
 
+or
+
+    $multipart_ans = MultiAnswer($math_obj1->cmp(),$math_obj2->cmp());
+
 In PGML, use the C<MultiAnswer> object as you would any other with the only difference
 that the C<MultiAnswer> is used multiple times:
 
-    Give the first part of the answer: [__]{$multipart_ans}
-    Give the second part of the answer: [__]{$multipart_ans}
+    Give the first part of the answer: [__]{$multipart_ans}{15}
+    Give the second part of the answer: [__]{$multipart_ans}{15}
 
 Properties of a C<MultiAnswer> object can be set by chaining the C<with> method to the constructor
 during the initial assignment. For example, here we configure the results table to include only one
@@ -562,7 +579,7 @@ entry for our C<$multipart_ans>, and then pass in our answer checker:
 
 We can also make use of named subroutines. If using C<with> after assigning the C<MultiAnswer> to a
 variable, note that the C<with> method returns a shallow copy of the C<MultiAnswer> object. If you
-do not store the result when calling C<with>, your parameters will not be applied. 
+do not store the result when calling C<with>, your parameters will not be applied.
 
     sub check {
             my ($correct,$student,$multi_ans,$ans_hash) = @_;  # get the parameters
@@ -572,7 +589,7 @@ do not store the result when calling C<with>, your parameters will not be applie
                 $multi_ans->setMessage(1,"For full-credit, find a non-trivial \(f(x)\).");
                 return 0.25;
             }
-			# no partial credit necessary for this error, and a specific answer rule is not targeted
+			# no partial credit for this error, and a specific answer rule is not targeted
             Value::Error("It's not fair to use the same x-value twice") if ($x1 == $x2);
             return $f->eval(x=>$x1) == $f->eval(x=>$x2);
     };
