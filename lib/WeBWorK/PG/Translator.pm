@@ -915,38 +915,21 @@ sub process_answers {
 		? @{ $self->{PG_FLAGS_REF}->{ANSWER_ENTRY_ORDER} }
 		: keys %{$rh_correct_answers};
 
-	# Define custom warn/die handlers for answer evaluation. These used to be inside the for loop around the conditional
-	# involving $new_rf_fun, but for efficiency we've moved it out here. This means that the handlers will be active
-	# during the code before and after the actual answer evaluation.
-
+	# Define custom warn/die handlers for answer evaluation.
 	my $outer_sig_warn = $SIG{__WARN__};
 	local $SIG{__WARN__} = sub {
-		ref $outer_sig_warn eq "CODE"
+		ref $outer_sig_warn eq 'CODE'
 			? &$outer_sig_warn(PG_errorMessage('message', $_[0]))
 			: warn PG_errorMessage('message', $_[0]);
 	};
 
-	# The die handler is a closure over %errorTable and $outer_sig_die.
-	#
-	# %errorTable accumulates a "full" error message for each error that occurs during answer evaluation. then, right
-	# after the evaluation (which is done within a call to Safe::reval), $@ is checked and it's value is looked up in
-	# %errorTable to get the full error to report.
-	#
-	# my question: Why is this a hash? This is die, so once one occurs, we exit the reval.
-	# Wouldn't it be sufficient to have a scalar like $backtrace_for_last_error?
-	#
-	# Note that %errorTable is cleared for each answer.
-	my %errorTable;
+	my $fullerror;
 	my $outer_sig_die = $SIG{__DIE__};
 	local $SIG{__DIE__} = sub {
-		my $fullerror = PG_errorMessage('traceback', @_);
-		my ($error, $traceback) = split /\n/, $fullerror, 2;
-		$fullerror =~ s/\n	 /<br\/>&nbsp;&nbsp;&nbsp;/g;
-		$fullerror =~ s/\n/<br\/>/g;
+		$fullerror = PG_errorMessage('traceback', @_);
+		my ($error) = split /\n/, $fullerror, 2;
 		$error .= "\n";
-		$errorTable{$error} = $fullerror;
-
-		ref $outer_sig_die eq "CODE" ? &$outer_sig_die($error) : die $error;
+		ref $outer_sig_die eq 'CODE' ? &$outer_sig_die($error) : die $error;
 	};
 	my $PG = $self->{rh_pgcore};
 
@@ -956,7 +939,7 @@ sub process_answers {
 		$PG->debug_message("Executing answer evaluator $ans_name ") if $local_debug;
 
 		# gather answers and answer evaluator
-		local ($new_rf_fun, $new_temp_ans) = (undef, undef);
+		local ($new_rf_fun, $new_temp_ans);
 		# This has all answer evaluators AND answer blanks (just to be sure).
 		my $answergrp   = $PG->{PG_ANSWERS_HASH}->{$ans_name};
 		my $responsegrp = $answergrp->response_obj;
@@ -991,24 +974,18 @@ sub process_answers {
 
 		$self->{safe}->share('$new_rf_fun', '$new_temp_ans');
 
-		# Clear %errorTable for each problem
-		%errorTable = ();    # Is the error table being used? Perhaps by math objects?
-
 		my ($rh_ans_evaluation_result, $new_rh_ans_evaluation_result);
 
 		if (ref($new_rf_fun) eq 'CODE') {
 			$PG->warning_message('CODE objects cannot be used directly as answer evaluators.  Use AnswerEvaluator');
 		} elsif (!$skip_evaluation) {
-			#  Get full traceback, but save it in local variable $errorTable so that we can add it later.  This is
-			#  because some evaluators use eval to trap errors and then report them in the message column of the results
-			#  table, and we don't want to include the traceback there.
-
 			$new_rh_ans_evaluation_result =
 				$self->{safe}->reval('$new_rf_fun->evaluate($new_temp_ans, ans_label => \'' . $ans_name . '\')');
-			$@ = $errorTable{$@} if $@ && defined $errorTable{$@};    # Are we redefining error messages here?
 
-			# The following needs more work for the new rh_ans_evaluation
-			if (ref($new_rh_ans_evaluation_result) =~ /AnswerHash/i) {
+			if ($@) {
+				$PG->warning_message($@);
+				$PG->debug_message(split /\n/, $fullerror) if $fullerror && $self->{envir}{view_problem_debugging_info};
+			} elsif (ref($new_rh_ans_evaluation_result) =~ /AnswerHash/i) {
 				$PG->warning_message(
 					"Evaluation error in new process: Answer $ans_name:<br/>\n",
 					$new_rh_ans_evaluation_result->error_flag(),
@@ -1018,7 +995,7 @@ sub process_answers {
 					&& ref $new_rh_ans_evaluation_result
 					&& defined $new_rh_ans_evaluation_result->error_flag();
 			} else {
-				$PG->warning_message(' The evaluated answer is not an answer hash '
+				$PG->warning_message('The evaluated answer is not an answer hash '
 						. ($new_rh_ans_evaluation_result // '') . ': |'
 						. ref($new_rh_ans_evaluation_result)
 						. '|.');
