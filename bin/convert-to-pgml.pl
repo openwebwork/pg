@@ -20,7 +20,7 @@ convert-to-pgml.pl -- Convert pg problem with non-pgml structure to PGML structu
 
 =head1 SYNOPSIS
 
-    convert-to-pgml file1.pg file2.pg ...
+    convert-to-pgml -b -s pgml file1.pg file2.pg ...
 
 =head1 DESCRIPTION
 
@@ -45,6 +45,15 @@ Note: many of the features are converted correctly, but often there will be erro
 after the conversion.  Generally after using this script, the PGML style answers
 will need to have their corresponding variable added.
 
+=head2 OPTIONS
+
+The option C<-b> or C<--backup> will create a C<.bak> file with the original code and
+replace the current file with the converted code.
+
+The option C<-s xyz> or C<--suffix=xyz> will convert the code and write the results in a file
+with the given suffix C<xyz> appended to the file name.  If this is not given
+C<pgml> is used. If the C<-b> flag is used, this option will be ignored.
+
 =cut
 
 use strict;
@@ -52,13 +61,24 @@ use warnings;
 use experimental 'signatures';
 
 use Mojo::File qw(curfile);
+use Getopt::Long;
 
 use lib curfile->dirname->dirname . '/lib';
 
 use WeBWorK::PG::ConvertToPGML qw(convertToPGML);
 
+my $backup  = 0;
+my $verbose = 0;
+my $suffix  = 'pgml';
+
+GetOptions(
+	"b|backup"   => \$backup,
+	"s|suffix=s" => \$suffix,
+	"v|verbose"  => \$verbose,
+);
+
 die 'arguments must have a list of pg files' unless @ARGV > 0;
-convertFile($_) for (grep { $_ =~ /.pg$/ } @ARGV);
+convertFile($_) for (grep { $_ =~ /\.pg$/ } @ARGV);
 
 sub convertFile ($filename) {
 	my $path = Mojo::File->new($filename);
@@ -66,10 +86,14 @@ sub convertFile ($filename) {
 
 	my $pg_source        = $path->slurp;
 	my $converted_source = convertToPGML($pg_source);
-	print "$converted_source\n";
+
 	# copy the original file to a backup and then write the file
-	$path->copy_to($filename =~ s/.pg$/.pg.bak/r);
-	$path->spurt($converted_source);
+	my $new_path    = $backup ? $path : Mojo::File->new($filename =~ s/\.pg/.$suffix/r);
+	my $backup_file = $filename =~ s/\.pg$/.pg.bak/r;
+	$path->copy_to($backup_file) if $backup;
+	$new_path->spurt($converted_source);
+	print "Writing converted file to $new_path\n"      if $verbose;
+	print "Backing up original file to $backup_file\n" if $verbose && $backup;
 }
 
 1;
