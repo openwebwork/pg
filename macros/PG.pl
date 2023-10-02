@@ -1266,8 +1266,9 @@ sub ENDDOCUMENT {
 					)
 					. Mojo::DOM->new_tag(
 						'button',
-						type         => 'button',
-						class        => "ww-feedback-btn btn btn-sm $options{btnClass} $options{btnAddClass}",
+						type  => 'button',
+						class => "ww-feedback-btn btn btn-sm $options{btnClass} $options{btnAddClass}"
+						. ($rh_envir->{showMessages} && $ansHash->{ans_message} ? ' with-message' : ''),
 						'aria-label' => $options{resultTitle},
 						data         => {
 							$showResults && $options{resultTitle} ? (bs_title => $options{resultTitle}) : (),
