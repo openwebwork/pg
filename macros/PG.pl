@@ -100,8 +100,8 @@ our $PG;
 sub not_null { $PG->not_null(@_) }
 
 sub pretty_print {
-	my ($input, $level, $print_level) = @_;
-	$PG->pretty_print($input, $level // $main::displayMode, $print_level // 5);
+	my ($input, $display_mode, $print_level) = @_;
+	$PG->pretty_print($input, $display_mode // $main::displayMode, $print_level // 5);
 }
 
 sub encode_pg_and_html { PGcore::encode_pg_and_html(@_) }
