@@ -1347,7 +1347,7 @@ sub ENDDOCUMENT {
 							@summary,
 							Mojo::DOM->new_tag(
 								'div',
-								class => 'ResultsWithoutError mb-2',
+								class => 'alert alert-success mb-2 p-1',
 								maketext('The answer is correct.')
 							)
 						);
@@ -1356,7 +1356,7 @@ sub ENDDOCUMENT {
 							@summary,
 							Mojo::DOM->new_tag(
 								'div',
-								class => 'ResultsAlert mb-2',
+								class => 'alert alert-info mb-2 p-1',
 								maketext('The answer will be graded later.')
 							)
 						);
@@ -1365,7 +1365,7 @@ sub ENDDOCUMENT {
 							@summary,
 							Mojo::DOM->new_tag(
 								'div',
-								class => 'ResultsAlert mb-2',
+								class => 'alert alert-warning mb-2 p-1',
 								maketext('The question has not been answered.')
 							)
 						);
@@ -1374,7 +1374,7 @@ sub ENDDOCUMENT {
 							@summary,
 							Mojo::DOM->new_tag(
 								'div',
-								class => 'ResultsWithError mb-2',
+								class => 'alert alert-danger mb-2 p-1',
 								maketext('The answer is NOT correct.')
 							)
 						);
@@ -1386,7 +1386,7 @@ sub ENDDOCUMENT {
 								@summary,
 								Mojo::DOM->new_tag(
 									'div',
-									class => 'ResultsWithoutError mb-2',
+									class => 'alert alert-success mb-2 p-1',
 									maketext('All of the gradeable answers are correct.')
 								)
 							);
@@ -1395,7 +1395,7 @@ sub ENDDOCUMENT {
 								@summary,
 								Mojo::DOM->new_tag(
 									'div',
-									class => 'ResultsWithoutError mb-2',
+									class => 'alert alert-success mb-2 p-1',
 									maketext('All of the answers are correct.')
 								)
 							);
@@ -1405,7 +1405,7 @@ sub ENDDOCUMENT {
 							@summary,
 							Mojo::DOM->new_tag(
 								'div',
-								class => 'ResultsWithError mb-2',
+								class => 'alert alert-danger mb-2 p-1',
 								maketext(
 									'[_1] of the answers [plural,_1,is,are] NOT correct.',
 									@answerNames - $numBlank - $numCorrect - $numEssay
@@ -1418,7 +1418,7 @@ sub ENDDOCUMENT {
 							@summary,
 							Mojo::DOM->new_tag(
 								'div',
-								class => 'ResultsAlert mb-2',
+								class => 'alert alert-warning mb-2 p-1',
 								maketext(
 									'[quant,_1,of the questions remains,of the questions remain] unanswered.',
 									$numBlank
@@ -1431,7 +1431,7 @@ sub ENDDOCUMENT {
 							@summary,
 							Mojo::DOM->new_tag(
 								'div',
-								class => 'ResultsAlert mb-2',
+								class => 'alert alert-info mb-2 p-1',
 								maketext('[_1] of the answers will be graded later.', $numEssay)
 							)
 						);

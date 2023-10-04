@@ -49,6 +49,11 @@
 		.rma-state-disabled {
 			opacity: 0.35;
 		}
+
+		.ww-feedback-btn {
+			top: 50%;
+			transform: translateY(-50%);
+		}
 	}
 
 	.ww-feedback-btn {
