@@ -67,13 +67,6 @@ The default is "html".
 The C<$level> parameter is the cut off for the depth into objects to show.  The
 default is 5.
 
-WARNING: This is not the C<pretty_print> method that is directly available in
-problems.  The C<pretty_print> method that is directly available in problems is
-defined in L<PG.pl>, and the usage of that method is C<pretty_print($rh_hash_input)>.
-Note that it does not accept the second two parameters of this method.  That
-method calls the C<pretty_print> method defined in L<PGcore.pm> which in turn
-calls this method.
-
 =cut
 
 sub pretty_print {
