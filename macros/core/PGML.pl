@@ -47,8 +47,8 @@ my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?=.)|\bq[qr]?(?=\W)';
 my $emphasis  = '\*+|_+';
 my $chars     = '\\\\.|[{}[\]()\'"]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
-my $open      = '\[(?:[!<%@$#.-]|::?:?|``?`?|\|+ ?)';
-my $close     = '(?:[!>%@$#.-]|::?:?|``?`?| ?\|+)\]';
+my $open      = '\[(?:[!<%@$#.]|::?:?|``?`?|\|+ ?)';
+my $close     = '(?:[!>%@$#.]|::?:?|``?`?| ?\|+)\]';
 my $noop      = '\[\]';
 
 my $splitPattern =
@@ -601,20 +601,13 @@ my $balanceAll = qr/[\{\[\'\"]/;
 			valign padding tablecss        captioncss   columnscss datacss headercss allcellcss booktabs
 		) ]
 	},
-	"[-" => {
-		type         => 'table-row',
-		class        => 'PGML::Block::TableRow',
-		parseAll     => 1,
-		ignoreIndent => 1,
-		container    => 'table',
-		terminator   => qr/-\]/
-	},
 	"[." => {
 		type        => 'table-cell',
 		parseAll    => 1,
 		isContainer => 1,
-		container   => 'table-row',
+		container   => 'table',
 		terminator  => qr/\.\]/,
+		allowStar   => 1,
 		options     => [ qw(
 			halign  header color   bgcolor   b        i      m         noencase colspan   top    bottom
 			cellcss texpre texpost texencase rowcolor rowcss headerrow rowtop   rowbottom valign
@@ -1193,30 +1186,11 @@ sub pushItem {
 		if ($item->{type} eq 'text') {
 			my $text = join('', @{ $item->{stack} });
 			PGML::Warning 'Table text must be in cells' unless $text =~ m/^\s*$/;
-		} elsif ($item->{type} eq 'table-row') {
-			$self->SUPER::pushItem($item);
-		} elsif ($item->{type} eq 'comment') {
-		} else {
-			PGML::Warning 'Tables can contain only table rows';
-		}
-	}
-}
-
-package PGML::Block::TableRow;
-our @ISA = ('PGML::Block');
-
-sub pushItem {
-	my $self = shift;
-	my $item;
-	while ($item = shift) {
-		if ($item->{type} eq 'text') {
-			my $text = join('', @{ $item->{stack} });
-			PGML::Warning 'Table row text must be in cells' unless $text =~ m/^\s*$/;
 		} elsif ($item->{type} eq 'table-cell' || $item->{type} eq 'options') {
 			$self->SUPER::pushItem($item);
 		} elsif ($item->{type} eq 'comment') {
 		} else {
-			PGML::Warning 'Table rows can contain only table cells';
+			PGML::Warning 'Tables can contain only table cells';
 		}
 	}
 }
@@ -1345,14 +1319,18 @@ sub Table {
 	foreach my $option (@{ $item->{options} || [] }) {
 		push(@options, $option => $item->{$option}) if defined($item->{$option});
 	}
-	if ($item->{type} eq 'table-cell') {
-		return [ $self->string($item), @options ];
-	} elsif ($item->{type} eq 'table-row') {
-		return [ map { $self->Table($_) } @{ $item->{stack} } ];
-	} elsif ($item->{type} eq 'table') {
-		my $def = [ map { $self->Table($_) } @{ $item->{stack} } ];
-		return ($item->{hasStar} ? main::LayoutTable($def, @options) : main::DataTable($def, @options));
+	return [ $self->string($item), @options ] if $item->{type} eq 'table-cell';
+	my $table = [];
+	my $row   = [];
+	for my $cell (@{ $item->{stack} }) {
+		push(@$row, $self->Table($cell));
+		if ($cell->{hasStar}) {
+			push(@$table, $row);
+			$row = [];
+		}
 	}
+	push(@$table, $row) if @$row;
+	return ($item->{hasStar} ? main::LayoutTable($table, @options) : main::DataTable($table, @options));
 }
 
 sub Math {
