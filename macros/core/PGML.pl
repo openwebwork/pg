@@ -594,6 +594,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		class        => 'PGML::Block::Table',
 		parseAll     => 1,
 		ignoreIndent => 1,
+		allowPar     => 1,
 		terminator   => qr/#\]/,
 		allowStar    => 1,
 		options      => [ qw(
