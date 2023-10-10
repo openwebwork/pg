@@ -136,7 +136,7 @@ sub _contextLimitedRadical_init {
 
 sub preprad {
 	my ($a, $b) = @_;
-	return Formula("0")  if $a == 0 or $b == 0;
+	return Formula("0")  if $a == 0 || $b == 0;
 	return Formula("$a") if $b == 1;
 	my $simplifieda = abs($a) == 1 ? ($a > 0 ? '' : '-') : $a;
 	return Formula("$simplifieda sqrt($b)");
