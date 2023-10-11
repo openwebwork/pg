@@ -50,7 +50,7 @@ the Formula object's cmp() method directly if possible.
 
 =cut
 
-BEGIN { be_strict() }
+BEGIN { strict->import; }
 
 # Until we get the PG cacheing business sorted out, we need to use
 # PG_restricted_eval to get the correct values for some(?) PG environment

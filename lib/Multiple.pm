@@ -178,14 +178,10 @@ instead of radio_cmp().
 
 =cut
 
-BEGIN {
-	be_strict();
-}
-
-#use strict;
 package Multiple;
 
-@Multiple::ISA = ();
+use strict;
+
 @Multiple::ISA = qw( Exporter ChoiceList );
 
 # *** Subroutines which overload ChoiceList.pm ***

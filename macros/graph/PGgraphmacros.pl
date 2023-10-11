@@ -84,9 +84,7 @@ If you want axes or grids you need to specify them in options. But the default v
 
 =cut
 
-BEGIN {
-	be_strict();
-}
+BEGIN { strict->import; }
 
 sub _PGgraphmacros_init {
 

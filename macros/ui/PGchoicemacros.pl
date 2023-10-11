@@ -84,18 +84,11 @@ choice question.
 
 =cut
 
-# ^uses be_strict
-BEGIN {
-	be_strict;
-}
+BEGIN { strict->import; }
 
 loadMacros('PGauxiliaryFunctions.pl');
 
 package main;
-
-BEGIN {
-	be_strict();
-}
 
 # ^function _PGchoicemacros_init
 

@@ -6,11 +6,8 @@
 =cut
 
 #!/usr/bin/perl -w
-#use strict;
-#use Carp;
-BEGIN {
-	be_strict();    #all variables must be declared local or global
-}
+
+BEGIN { strict->import; }
 
 #my @answer = oldivy(1,2,1,8,4);
 #print ("The old program says:\n");

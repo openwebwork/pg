@@ -29,7 +29,7 @@ use this method directly if possible.
 
 =cut
 
-BEGIN { be_strict() }
+BEGIN { strict->import; }
 sub _PGmiscevaluators_init { }
 
 =head1 checkbox_cmp

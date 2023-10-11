@@ -124,11 +124,6 @@ The answer hash class is guaranteed to contain the following instance variables:
 
 =cut
 
-BEGIN {
-   #	main::be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-
-}
-
 package AnswerHash;
 use Exporter;
 use PGUtil qw(not_null pretty_print);

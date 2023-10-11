@@ -38,9 +38,7 @@ MathObjects Matrix types are preferable.
 
 =cut
 
-BEGIN {
-	be_strict();
-}
+BEGIN { strict->import; }
 
 sub _PGmatrixmacros_init {
 }

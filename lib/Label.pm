@@ -39,12 +39,10 @@ This module defines labels for the graph objects (WWPlot).
 
 =cut
 
-BEGIN {
-	be_strict();    # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-}
-
 package Label;
+
 use strict;
+
 #use Exporter;
 #use DynaLoader;
 #use GD;   # this is needed to be able to define GD::gdMediumBoldFont and other terms used by GD

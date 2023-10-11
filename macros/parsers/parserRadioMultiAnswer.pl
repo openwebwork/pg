@@ -249,6 +249,8 @@ is checked.  If this is set to "shift", unchecking requires the shift key to be 
 
 =cut
 
+BEGIN { strict->import }
+
 loadMacros('MathObjects.pl', 'PGbasicmacros.pl');
 
 sub _parserRadioMultiAnswer_init {

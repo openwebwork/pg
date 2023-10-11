@@ -166,12 +166,9 @@ These functions translate from real world to pixel coordinates.
 
 =cut
 
-BEGIN {
-	be_strict();    # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-
-}
-
 package WWPlot;
+
+use strict;
 
 #use Exporter;
 #use DynaLoader;

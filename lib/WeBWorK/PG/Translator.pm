@@ -72,12 +72,40 @@ use WWSafe;
 use PGUtil qw(pretty_print);
 use WeBWorK::PG::IO qw(fileFromPath);
 
-=head2 be_strict
+=head1 NAME
 
-This creates a substitute for C<use strict;> which cannot be used in PG problem
-sets or PG macro files.  Use this way to imitate the behavior of C<use strict;>
+WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
 
-    BEGIN { be_strict(); }
+=head1 SYNPOSIS
+
+    my $pt = new WeBWorK::PG::Translator;    # create a translator
+    $pt->environment(\%envir);               # provide the environment variable for the problem
+    $pt->initialize();                       # initialize the translator
+    $pt-> set_mask();                        # set the operation mask for the translator safe compartment
+    $pt->source_string($source);             # provide the source string for the problem
+
+    # Load the unprotected macro files.
+    # These files are evaluated with the Safe compartment wide open.
+    # Other macros are loaded from within the problem using loadMacros.
+    $pt->unrestricted_load("${courseScriptsDirectory}PG.pl");
+
+    $pt->translate();    # translate the problem (the following pieces of information are created)
+
+    $PG_PROBLEM_TEXT_ARRAY_REF = $pt->ra_text();      # output text for the body of the HTML file (in array form)
+    $PG_PROBLEM_TEXT_REF = $pt->r_text();             # output text for the body of the HTML file
+    $PG_HEADER_TEXT_REF = $pt->r_header;              # text for the header of the HTML file
+    $PG_POST_HEADER_TEXT_REF = $pt->r_post_header
+    $PG_ANSWER_HASH_REF = $pt->rh_correct_answers;    # a hash of answer evaluators
+    $PG_FLAGS_REF = $pt->rh_flags;                    # misc. status flags.
+
+    $pt->process_answers;    # evaluates all of the answers
+
+    my $rh_answer_results = $pt->rh_evaluated_answers;  # provides a hash of the results of evaluating the answers.
+    my $rh_problem_result = $pt->grade_problem;         # grades the problem using the default problem grading method.
+
+=head1 DESCRIPTION
+
+This module defines an object which will translate a problem written in the Problem Generating (PG) language
 
 =cut
 
@@ -143,16 +171,6 @@ BEGIN {
 		# Stash the safe cache in a package variable.
 		$WeBWorK::Translator::safeCache = $safeCache;
 	}
-
-	# Allows the use of strict within macro packages.
-	sub be_strict {
-		require ww_strict;
-		strict::import();
-		return;
-	}
-
-	# Also define in Main:: for PG modules.
-	sub Main::be_strict { return be_strict(); }
 }
 
 =head2 evaluate_modules
@@ -264,7 +282,6 @@ The following translator methods are shared to the safe compartment:
 	&PG_answer_eval
 	&PG_restricted_eval
 	&PG_macro_file_eval
-	&be_strict
 
 Also all methods that are exported by WeBWorK::PG::IO are shared.
 
@@ -281,7 +298,6 @@ my @Translator_shared_subroutine_array = qw(
 	&PG_answer_eval
 	&PG_restricted_eval
 	&PG_macro_file_eval
-	&be_strict
 );
 
 sub initialize {
@@ -1274,7 +1290,7 @@ sub PG_macro_file_eval {
 	}
 
 	my ($out, $errors) =
-		PG_macro_file_eval_helper('package main; be_strict();'
+		PG_macro_file_eval_helper('package main; strict->import;'
 			. 'BEGIN { my $eval = __FILE__; $main::envir{__files__}{$eval} = "'
 			. $filePath . '" };'
 			. $string);
@@ -1296,7 +1312,6 @@ sub PG_macro_file_eval {
 
 # This is another helper that doesn't use any lexicals.
 # It would nice to be able to remove the "no strict" call so "use strict" applies to the files that it evaluates.
-# Note that the "be_strict" method is not the same.
 sub PG_macro_file_eval_helper {
 	my $string = shift;
 

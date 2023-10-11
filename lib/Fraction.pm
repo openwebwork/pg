@@ -18,7 +18,7 @@
 		numerator	#numerator of fraction
 		denominator	#denominator of fraction
 
-	Arithmetic Methods	#these will all accept a scalar value or 
+	Arithmetic Methods	#these will all accept a scalar value or
 				#another fraction as an argument
 
 		plus		#returns the sum of the fraction and argument
@@ -33,7 +33,7 @@
 
 
 	Other methods
-		
+
 		reduce		#reduces to lowest terms, and makes sure denominator is positive
 		scalar		#returns the scalar value numerator/denominator
 		print		#prints the fraction
@@ -45,16 +45,14 @@
 
 	The fraction object stores two variables, numerator and denominator.  The basic
 arithmatic methods listed above can be performed on a fraction, and it can return its own
-scalar value for use with functions expecting a scalar (ie, sqrt($frac->scalar) ).  
+scalar value for use with functions expecting a scalar (ie, sqrt($frac->scalar) ).
 
 
 =cut
 
-BEGIN {
-	be_strict();
-}
-
 package Fraction;
+
+use strict;
 
 my %fields = (
 	numerator   => undef,
