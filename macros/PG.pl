@@ -395,11 +395,12 @@ sub ADD_JS_FILE {
 # Some problems use jquery-ui still, and so the requestor should also load the js for that if those problems are used,
 # although those problems should also be rewritten to not use jquery-ui.
 sub load_js() {
-	ADD_JS_FILE('js/InputColor/color.js',    0, { defer => undef });
-	ADD_JS_FILE('js/Base64/Base64.js',       0, { defer => undef });
-	ADD_JS_FILE('js/Knowls/knowl.js',        0, { defer => undef });
-	ADD_JS_FILE('js/ImageView/imageview.js', 0, { defer => undef });
-	ADD_JS_FILE('js/Essay/essay.js',         0, { defer => undef });
+	ADD_JS_FILE('js/InputColor/color.js',          0, { defer => undef });
+	ADD_JS_FILE('js/Base64/Base64.js',             0, { defer => undef });
+	ADD_JS_FILE('js/Knowls/knowl.js',              0, { defer => undef });
+	ADD_JS_FILE('js/Problem/details-accordion.js', 0, { defer => undef });
+	ADD_JS_FILE('js/ImageView/imageview.js',       0, { defer => undef });
+	ADD_JS_FILE('js/Essay/essay.js',               0, { defer => undef });
 
 	if ($envir{useMathQuill}) {
 		ADD_JS_FILE('node_modules/mathquill/dist/mathquill.js', 0, { defer => undef });
