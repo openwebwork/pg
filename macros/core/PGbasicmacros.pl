@@ -1190,10 +1190,14 @@ sub SOLUTION {
 				class => 'accordion-item',
 				tag(
 					'summary',
-					class => 'accordion-button',
+					class => 'accordion-button collapsed',
 					tag('div', class => 'accordion-header user-select-none', SOLUTION_HEADING())
 					)
-					. tag('div', class => 'accordion-body', $solution_body)
+					. tag(
+						'div',
+						class => 'accordion-collapse collapse',
+						tag('div', class => 'accordion-body', $solution_body)
+					)
 			)
 		));
 	} elsif ($displayMode =~ /TeX/) {
@@ -1228,10 +1232,14 @@ sub HINT {
 				class => 'accordion-item',
 				tag(
 					'summary',
-					class => 'accordion-button',
+					class => 'accordion-button collapsed',
 					tag('div', class => 'accordion-header user-select-none', HINT_HEADING())
 					)
-					. tag('div', class => 'accordion-body', $hint_body)
+					. tag(
+						'div',
+						class => 'accordion-collapse collapse',
+						tag('div', class => 'accordion-body', $hint_body)
+					)
 			)
 		));
 	} elsif ($displayMode =~ /TeX/) {

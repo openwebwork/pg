@@ -1,65 +1,39 @@
 (() => {
-	class Accordion {
-		constructor(details) {
-			this.details = details;
-			this.summary = details.querySelector('summary');
-			this.content = details.querySelector('.accordion-body');
-			this.animation = null;
-			this.isClosing = false;
-			this.isExpanding = false;
-			this.summary.addEventListener('click', (e) => this.onClick(e));
-		}
+	const setupAccordion = (accordion) => {
+		const collapseEl = accordion.querySelector('.collapse');
+		const button = accordion.querySelector('summary.accordion-button');
+		const details = accordion.querySelector('details.accordion-item');
+		if (!collapseEl || !button || !details) return;
 
-		onClick(e) {
-			e.preventDefault();
-			this.details.style.overflow = 'hidden';
-			if (this.isClosing || !this.details.open) this.open();
-			else if (this.isExpanding || this.details.open) this.shrink();
-		}
+		const collapse = new bootstrap.Collapse(collapseEl, { toggle: false });
+		button.addEventListener('click', () => collapse.toggle());
 
-		shrink() {
-			this.isClosing = true;
-			this.details.classList.add('closing');
-			if (this.animation) this.animation.cancel();
-			this.animation = this.details.animate(
-				{ height: [`${this.details.offsetHeight}px`, `${this.summary.offsetHeight}px`] },
-				{ duration: 200, easing: 'ease-in-out' }
-			);
-			this.animation.addEventListener('finish', () => this.onAnimationFinish(false), { once: true });
-			this.animation.addEventListener('cancel', () => (this.isClosing = false), { once: true });
-		}
+		details.addEventListener('click', (e) => e.preventDefault());
+		collapseEl.addEventListener('show.bs.collapse', () => {
+			details.open = true;
+			button.classList.remove('collapsed');
+		});
+		collapseEl.addEventListener('hide.bs.collapse', () => button.classList.add('collapsed'));
+		collapseEl.addEventListener('hidden.bs.collapse', () => (details.open = false));
+	};
 
-		open() {
-			this.details.style.height = `${this.details.offsetHeight}px`;
-			this.details.open = true;
-			window.requestAnimationFrame(() => this.expand());
-		}
+	// Deal with solution/hint details that are already on the page.
+	document.querySelectorAll('.solution.accordion, .hint.accordion').forEach(setupAccordion);
 
-		expand() {
-			this.isExpanding = true;
-			if (this.animation) this.animation.cancel();
-			this.animation = this.details.animate(
-				{
-					height: [
-						`${this.details.offsetHeight}px`,
-						`${this.summary.offsetHeight + this.content.offsetHeight}px`
-					]
-				},
-				{ duration: 400, easing: 'ease-out' }
-			);
-			this.animation.addEventListener('finish', () => this.onAnimationFinish(true), { once: true });
-			this.animation.addEventListener('cancel', () => (this.isExpanding = false), { once: true });
-		}
-
-		onAnimationFinish(isOpen) {
-			this.details.open = isOpen;
-			this.details.classList.remove('closing');
-			this.animation = null;
-			this.isClosing = false;
-			this.isExpanding = false;
-			this.details.style.height = this.details.style.overflow = '';
-		}
-	}
-
-	document.querySelectorAll('.solution > details,.hint > details').forEach((details) => new Accordion(details));
+	// Deal with solution/hint details that are added to the page later.
+	const observer = new MutationObserver((mutationsList) => {
+		mutationsList.forEach((mutation) => {
+			mutation.addedNodes.forEach((node) => {
+				if (node instanceof Element) {
+					if (
+						(node.classList.contains('solution') || node.classList.contains('hint')) &&
+						node.classList.contains('accordion')
+					)
+						setupAccordion(node);
+					else node.querySelectorAll('.solution.accordion, .hint.accordion').forEach(setupAccordion);
+				}
+			});
+		});
+	});
+	observer.observe(document.body, { childList: true, subtree: true });
 })();
