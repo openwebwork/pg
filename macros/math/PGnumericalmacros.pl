@@ -747,6 +747,157 @@ sub newtonCotes {
 	return $h * $quad;
 }
 
+=head3 Legendre Polynomials
+
+Returns a code reference to the Legendre Polynomial of degree C<n>.
+
+Usage:
+
+    $poly = legendreP($n)
+
+And then evaluations can be found with C<&$poly(0.5)> for example to evaluate the polynomial at
+C<x=5>. Even though this is a polynomial, the standard domain of these are [-1,1], although this
+subroutine does not check for that.
+
+=cut
+
+# This uses the recurrence formula (n+1)P_{n+1}(x) = (2n+1)P_n(x) - n P_{n-1}(x), with  P_0 (x)=1 and P_1(x)=x.
+# After testing, this is found to have less round off error than other formula.
+sub legendreP {
+	my ($n) = @_;
+	return sub {
+		my ($x) = @_;
+		return 1  if $n == 0;
+		return $x if $n == 1;
+		my $P1 = legendreP($n - 1);
+		my $P2 = legendreP($n - 2);
+		return ((2 * $n - 1) * $x * &$P1($x) - ($n - 1) * &$P2($x)) / $n;
+	};
+}
+
+=head3 derivative of Legendre Polynomials
+
+Returns a code reference to the derivative of the Legendre polynomial of degree C<n>.
+
+Usage:
+
+    $dp = diffLegendreP($n)
+
+If C<$dp = diffLegendreP(5)>, then C<&$dp(0.5)> will find the value of the derivative of the 5th degree
+legendre polynomial at C<x=0.5>.
+
+=cut
+
+# This uses the recurrence relation P'_{n+1}(x) = (n+1)P_n(x)  + x P'_n(x). Like the subroutine
+# legendreP, it was found that round off error is smaller for this method than others.
+sub diffLegendreP {
+	my ($n) = @_;
+	return sub {
+		my ($x) = @_;
+		return 0 if $n == 0;
+		my $P  = legendreP($n - 1);
+		my $dP = diffLegendreP($n - 1);
+		return $n * &$P($x) + $x * &$dP($x);
+	};
+}
+
+=head3 Nodes and Weights of Legendre Polynomial
+
+Finds the nodes (roots) and weights of the Legendre Polynomials of degree C<n>. These are used in
+Gaussian Quadrature.
+
+Usage:
+
+    ($nodes, $weights) = legendreP_nodes_weights($n)
+
+=cut
+
+# this calculates the roots and weights of the Legendre polynomial of degree n.  The roots
+# can be determined exactly for n<=9, due to symmetry, however, this uses newton's method
+# to solve them based on an approximate value
+# (see https://math.stackexchange.com/questions/12160/roots-of-legendre-polynomial )
+#
+# the weights can then be calculated based on a formula shown in
+# https://en.wikipedia.org/wiki/Gaussian_quadrature
+sub legendreP_nodes_weights {
+	my ($n) = @_;
+
+	my $leg  = legendreP($n);
+	my $dleg = diffLegendreP($n);
+	my $pi   = 4 * atan(1.0);
+
+	my @nodes;
+	my @weights;
+	my $m;
+	# If $n is odd, then there is a node at x=0.
+	if ($n % 2 == 1) {
+		push(@nodes,   0);
+		push(@weights, 2 / &$dleg(0)**2);
+		$m = ($n + 1) / 2 + 1;
+	} else {
+		$m = $n / 2 + 1;
+	}
+	# Compute only nodes for half of the nodes and use symmetry to fill in the rest.
+	for my $k ($m .. $n) {
+		my $node = newton(
+			$leg, $dleg,
+			(1 - 1 / (8 * $n**2) + 1 / (8 * $n**3)) * cos($pi * (4 * $k - 1) / (4 * $n + 2)),
+			feps => 1e-14
+		)->{root};
+		my $w = 2 / ((1 - $node**2) * &$dleg($node)**2);
+		unshift(@nodes, $node);
+		push(@nodes, -$node);
+
+		unshift(@weights, $w);
+		push(@weights, $w);
+	}
+	return (\@nodes, \@weights);
+}
+
+=head3 Gaussian Quadrature
+
+Compute the integral of a function C<$f> on an interval C<[a,b]> using Gassian
+Quadrature.
+
+Usage:
+
+     gauss_quad($f,n=>5, a => -1, b => 1, weights => $w, nodes => $nodes)
+
+where C<$f> is a code reference to a function from R => R, C<a> and C<b> are the endpoints of the
+interval, C<n> is the number of nodes to use.  The weights and nodes will depend on the value of
+C<n>.
+
+If C<weights> or C<nodes> are included, they must both be used and will override the C<n> option.
+These will not be checked and assumed to be correct.  These should be used for performance
+in that calculating the weights and nodes have some computational time.
+
+=cut
+
+sub gauss_quad {
+	my ($f, %opts) = @_;
+	# defines default values.
+	%opts = (n => 5, a => -1, b => 1, %opts);
+	die 'The optional value n must be an integer >=2' unless $opts{n} =~ /\d+/ && $opts{n} >= 2;
+	die 'The optional value a must be a number'       unless $opts{a} =~ /[+-]?\d*\.?\d+/;
+	die 'The optional value b must be a number'       unless $opts{b} =~ /[+-]?\d*\.?\d+/;
+	die 'The optional value b must be greater than a' unless $opts{b} > $opts{a};
+	die 'The argument f must be a code ref'           unless ref($f) eq 'CODE';
+
+	my ($x, $w) = ($opts{nodes}, $opts{weights});
+	if ((!defined($w) && !defined($x))) {
+		($x, $w) = legendreP_nodes_weights($opts{n});
+	} elsif (!defined($w) || !defined($w)) {
+		die 'If either option "weights" or "nodes" is used, both must be used.';
+	}
+	die 'The options weights and nodes must be array refs of the same length'
+		unless ref $w eq 'ARRAY' && ref $x eq 'ARRAY' && scalar($x) == scalar($x);
+
+	my $sum = 0;
+	$sum += $w->[$_] * &$f(0.5 * ($opts{b} + $opts{a}) + 0.5 * ($opts{b} - $opts{a}) * $x->[$_])
+		for (0 .. scalar(@$w) - 1);
+	return 0.5 * ($opts{b} - $opts{a}) * $sum;
+}
+
 =head2 Differential Equation Methods
 
 =head3 4th-order Runge-Kutta

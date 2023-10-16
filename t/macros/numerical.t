@@ -154,11 +154,97 @@ subtest 'Quadrature - Open Newton-Cotes' => sub {
 	is newtonCotes($f, 0, 2, n => 1, method => 'open4'), 8 / 3,  'Newton-Cotes (open, k=4) of x^2 on [0,2]';
 };
 
-sub roundArray {
-	my ($arr, %options) = @_;
-	%options = (digits => 6, %options);
-	return [ map { defined($_) ? Round($_, $options{digits}) : $_ } @$arr ];
-}
+subtest 'nChooseK' => sub {
+	is nChooseK(5,  3), 10,  '5 choose 3 = 10';
+	is nChooseK(10, 8), 45,  '10 choose 8 = 45';
+	is nChooseK(10, 4), 210, '10 choose 4 = 210';
+	is nChooseK(10, 6), 210, '10 choose 6 = 210';
+};
+
+subtest 'Legendre Polynomial' => sub {
+	my $leg3 = legendreP(3);
+	is &$leg3(0.5),  (5 * (0.5)**3 - 3 * (0.5)) / 2.0,   'testing legendreP(3,0.5)';
+	is &$leg3(-0.9), (5 * (-0.9)**3 - 3 * (-0.9)) / 2.0, 'testing legendreP(3,0.5)';
+	is &$leg3(1),  1,  'testing legendreP(3,1)';
+	is &$leg3(-1), -1, 'testing legendreP(3,-1)';
+
+	my $leg6 = legendreP(6);
+	is &$leg6(0.5), (231 * 0.5**6 - 315 * 0.5**4 + 105 * 0.5**2 - 5) / 16.0, 'testing legendreP(6,0.5)';
+	is Round(&$leg6(-0.3), 10), Round((231 * (-0.3)**6 - 315 * (-0.3)**4 + 105 * (-0.3)**2 - 5) / 16.0, 10),
+		'testing legendreP(6,-0.3)';
+	is &$leg6(1),  1, 'testing legendreP(6,1)';
+	is &$leg6(-1), 1, 'testing legendreP(6,-1)';
+
+	my $leg12 = legendreP(12);
+	is Round(&$leg12(0.5),  15), Round(980431 / 4194304,                  15), 'evaluating legendreP(12,0.5)';
+	is Round(&$leg12(-0.9), 15), Round(41726683414959 / 1024000000000000, 15), 'evaluating legendreP(12,-0.9)';
+
+	my $dleg3 = diffLegendreP(3);
+	is &$dleg3(0.5),  (15 * (0.5)**2 - 3) / 2.0, 'testing diffLegendreP(3,0.5)';
+	is &$dleg3(-0.9), (15 * (0.9)**2 - 3) / 2.0, 'testing diffLegendreP(3,-0.9)';
+
+	my $dleg10 = diffLegendreP(10);
+	is &$dleg10(0.4), -2.70832364, 'testing diffLegendreP(10) at x=0.4';
+
+	my $dleg12 = diffLegendreP(12);
+
+	is &$dleg12(-0.8), -16152097767 / 3125000000, 'testing diffLegendreP(12) at x=-0.8';
+
+};
+
+subtest 'Legendre Polynomial Roots and Weights' => sub {
+	my ($roots5, $weights5) = legendreP_nodes_weights(5);
+	is $roots5, [ -0.906179845938664, -0.5384693101056831, 0.0, 0.5384693101056831, 0.906179845938664 ],
+		'roots of LegendreP(5)';
+	is $weights5,
+		[ 0.23692688505618908, 0.47862867049936647, 0.5688888888888889, 0.47862867049936647, 0.23692688505618908 ],
+		'weights of LegendreP(5)';
+	my ($roots12, $weights12) = legendreP_nodes_weights(12);
+	is roundArray($roots12, digits => 14),
+		roundArray(
+			[
+				-0.9815606342467192, -0.9041172563704748, -0.7699026741943047, -0.5873179542866175,
+				-0.3678314989981802, -0.1252334085114689, 0.1252334085114689,  0.3678314989981802,
+				0.5873179542866175,  0.7699026741943047,  0.9041172563704748,  0.9815606342467192
+			],
+			digits => 14
+		),
+		'roots of LegendreP(12)';
+	is roundArray($weights12, digits => 14),
+		roundArray(
+			[
+				0.04717533638651175, 0.10693932599531826, 0.16007832854334625, 0.20316742672306587,
+				0.23349253653835492, 0.24914704581340288, 0.24914704581340288, 0.23349253653835492,
+				0.20316742672306587, 0.16007832854334625, 0.10693932599531826, 0.04717533638651175
+			],
+			digits => 14
+		),
+		'weights of LegendreP(12)';
+
+};
+
+subtest 'Gaussian Quadrature' => sub {
+	my $f = sub { my $x = shift; return $x**3; };
+	is Round(gauss_quad($f),                 15), 0,    'gauss_quad(x^3) on [-1,1]';
+	is Round(gauss_quad($f, a => 0, b => 1), 15), 0.25, 'gauss_quad(x^3) on [0,1]';
+
+	is gauss_quad($f, n => 2, a => 0, b => 1), 0.25, 'gauss_quad(x^3, n=>2) on [0,1]';
+
+	my $g = sub { my $x = shift; return $x**6; };
+	is gauss_quad($g),                    2 / 7,                           'gauss_quad(x^6) on [-1,1]';
+	is Round(gauss_quad($g, n => 2), 15), Round(2 * (1 / sqrt(3))**6, 15), 'gauss_quad(x^6) on [-1,1]';
+
+	my $e_x = sub { my $x = shift; return exp($x); };
+	is Round(gauss_quad($e_x, n => 3), 15), Round(5 * (exp(-sqrt(3 / 5)) + exp(sqrt(3 / 5))) / 9 + 8 / 9, 15),
+		'gauss_quad(x^6) on [-1,1]';
+	is Round(gauss_quad($e_x, n => 15, a => 0, b => 1), 14), Round(exp(1) - 1, 14),
+		'gauss_quad(e^x,n=>15) on [-1,1]';
+
+	my ($nodes, $weights) = legendreP_nodes_weights(14);
+	is Round(gauss_quad($e_x, a => 0, b => 1, nodes => $nodes, weights => $weights), 14), Round(exp(1) - 1, 14),
+		'gauss_quad(e^x,n=>15) on [-1,1]';
+
+};
 
 subtest 'Runge Kutta 4th order' => sub {
 	my $f = sub {
@@ -407,5 +493,11 @@ subtest 'Find a root using the Secant method' => sub {
 		'iterations of the secant method';
 
 };
+
+sub roundArray {
+	my ($arr, %options) = @_;
+	%options = (digits => 6, %options);
+	return [ map { defined($_) ? Round($_, $options{digits}) : $_ } @$arr ];
+}
 
 done_testing;
