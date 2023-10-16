@@ -1365,7 +1365,7 @@ sub ParseAlignment {
 
 			# could parse these further for color identification, etc
 		} else {
-			main::WARN_MESSAGE("Token $token in texalignment could not be parsed");
+			main::WARN_MESSAGE("Token $token in texalignment could not be parsed") unless ($token =~ /^\s*$/);
 		}
 	}
 
