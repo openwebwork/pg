@@ -1505,19 +1505,17 @@ sub END_ONE_COLUMN {    # deprecated
 
 sub SOLUTION_HEADING {
 	MODES(
-		TeX        => '{\\bf ' . maketext('Solution: ') . ' }',
-		Latex2HTML => '\\par {\\bf ' . maketext('Solution:') . ' }',
-		HTML       => '<B>' . maketext('Solution:') . '</B> ',
-		PTX        => ''
+		TeX  => '{\\bf ' . maketext('Solution:') . ' }',
+		HTML => '<B>' . maketext('Solution:') . '</B> ',
+		PTX  => ''
 	);
 }
 
 sub HINT_HEADING {
 	MODES(
-		TeX        => "{\\bf " . maketext('Hint: ') . "}",
-		Latex2HTML => "\\par {\\bf " . maketext('Hint:') . " }",
-		HTML       => "<B>" . maketext('Hint:') . "</B> ",
-		PTX        => ''
+		TeX  => '{\\bf ' . maketext('Hint:') . ' }',
+		HTML => '<B>' . maketext('Hint:') . '</B> ',
+		PTX  => ''
 	);
 }
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_', PTX => '_'); };    # underscore, e.g. file${US}name

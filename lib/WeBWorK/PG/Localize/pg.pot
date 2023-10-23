@@ -34,12 +34,8 @@ msgstr ""
 msgid "Hardcopy will always print the original version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1518 /opt/webwork/pg/macros/core/PGbasicmacros.pl:1519
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1516 /opt/webwork/pg/macros/core/PGbasicmacros.pl:1517
 msgid "Hint:"
-msgstr ""
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1517
-msgid "Hint: "
 msgstr ""
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:425
@@ -54,12 +50,8 @@ msgstr ""
 msgid "Set random seed to:"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1509 /opt/webwork/pg/macros/core/PGbasicmacros.pl:1510
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1508 /opt/webwork/pg/macros/core/PGbasicmacros.pl:1509
 msgid "Solution:"
-msgstr ""
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1508
-msgid "Solution: "
 msgstr ""
 
 #: /opt/webwork/pg/macros/core/compoundProblem.pl:525
@@ -70,7 +62,7 @@ msgstr ""
 msgid "This is a new (re-randomized) version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3181
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3179
 msgid "This problem contains a video which must be viewed online."
 msgstr ""
 
@@ -94,7 +86,7 @@ msgstr ""
 msgid "You may not change your answers when going on to the next part!"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3174
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3172
 msgid "Your browser does not support the video tag."
 msgstr ""
 
