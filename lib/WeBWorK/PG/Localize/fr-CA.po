@@ -1,0 +1,170 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+# Hélène Larue <helene.larue@videotron.ca>, 2017
+# Jonathan Desaulniers <jonathan.desaulniers@cegepmontpetit.ca>, 2018-2019,2021-2022
+# Julie Tremblay <julie.tremblay@bdeb.qc.ca>, 2016-2017
+msgid ""
+msgstr ""
+"Project-Id-Version: webwork2\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2023-09-16 14:01-0500\n"
+"Last-Translator: Jonathan Desaulniers <jonathan.desaulniers@cegepmontpetit."
+"ca>, 2018-2019,2021-2022\n"
+"Language-Team: French (Canada) (http://app.transifex.com/webwork/webwork2/"
+"language/fr_CA/)\n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % "
+"1000000 == 0 ? 1 : 2;\n"
+
+#: /opt/webwork/pg/macros/parsers/parserPopUp.pl:285
+msgid "False"
+msgstr "Faux"
+
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:186
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:187
+msgid "Get a new version of this problem"
+msgstr "Obtenir une nouvelle version du problème"
+
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:483
+msgid "Go back to Part 1"
+msgstr "Retour à la partie 1"
+
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:293
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:498
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:512
+msgid "Go on to next part"
+msgstr "Aller à la partie suivante"
+
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:427
+msgid "Hardcopy will always print the original version of the problem."
+msgstr ""
+"Le document sera toujours imprimer avec la version originale du problème."
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1518
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1519
+msgid "Hint:"
+msgstr "Indice :"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1517
+msgid "Hint: "
+msgstr "Indice:"
+
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:425
+msgid "If you come back to it later, it may revert to its original version."
+msgstr ""
+"Si vous revenez plus tard, le problème pourrait être revenu à sa version "
+"originale."
+
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:396
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:422
+msgid "Note:"
+msgstr "Note:"
+
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:188
+msgid "Set random seed to:"
+msgstr "Définir la source aléatoire à:"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1509
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1510
+msgid "Solution:"
+msgstr "Solution :"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1508
+msgid "Solution: "
+msgstr "Solution:"
+
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:525
+msgid "Submit your answers again to go on to the next part."
+msgstr "Soumettre votre réponse à nouveau pour passer à la partie suivante."
+
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:423
+msgid "This is a new (re-randomized) version of the problem."
+msgstr "Voici une nouvelle version (à nouveau randomisée) du problème."
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3181
+msgid "This problem contains a video which must be viewed online."
+msgstr "Ce problème contient une vidéo qui doit être consultée en ligne."
+
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:631
+msgid "This problem has more than one part."
+msgstr "Ce problème comporte plusieurs parties."
+
+#: /opt/webwork/pg/macros/parsers/parserPopUp.pl:284
+msgid "True"
+msgstr "Vrai"
+
+#: /opt/webwork/pg/macros/core/PGanswermacros.pl:1616
+msgid "You can earn partial credit on this problem."
+msgstr "Vous pouvez obtenir une partie des points pour ce problème."
+
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:397
+msgid "You can get a new version of this problem after the due date."
+msgstr ""
+"Vous pouvez obtenir une nouvelle version du problème après la date de remise."
+
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:646
+msgid "You may not change your answers when going on to the next part!"
+msgstr ""
+"Vous ne pouvez pas modifier vos réponses en passant à la partie suivante!"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3174
+msgid "Your browser does not support the video tag."
+msgstr "Votre navigateur ne supporte pas l'environnement vidéo."
+
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:634
+msgid "Your score for this attempt is for this part only;"
+msgstr ""
+"Votre résultat pour cette tentative correspond à cette partie seulement;"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:610
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:621
+msgid "answer"
+msgstr "réponse"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:633
+msgid "column"
+msgstr "colonne"
+
+# does not need to be translated
+#. ('j', 'k', '_0')
+#. ('j', 'k')
+#: /opt/webwork/pg/lib/Parser/List/Vector.pm:39
+#: /opt/webwork/pg/lib/Value/Vector.pm:303
+#: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:95
+msgid "i"
+msgstr "Je"
+
+#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:840
+msgid "if"
+msgstr "Si"
+
+#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:843
+msgid "otherwise"
+msgstr "autrement"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:627
+msgid "part"
+msgstr "partie"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:616
+msgid "problem"
+msgstr "problème"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:633
+msgid "row"
+msgstr "ligne"
+
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:485
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:500
+msgid "when you submit your answers"
+msgstr "Quand vous soumettez vos réponses"
+
+#: /opt/webwork/pg/macros/core/compoundProblem.pl:638
+msgid "your overall score is for all the parts combined."
+msgstr "Votre résultat d'ensemble est pour chacune des parties combinées."
