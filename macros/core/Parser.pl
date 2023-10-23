@@ -95,6 +95,14 @@ original can be obtained from the C<original_formula> property.
 sub Compute {
 	my $string  = shift;
 	my $formula = Formula($string);
+	if (Value::matchNumber($string)) {
+		my $real = Real($string);
+		warn "Compute() called with ambiguous value: $string\n"
+			. '-- use Real() for scientific notation'
+			. " ($real) or use Formula() for $formula \n"
+			unless ($real == $formula);
+		return $real;
+	}
 	$formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
 	my $context = $formula->context;
 	my $flags   = Value::contextSet($context, reduceConstants => 0, reduceConstantFunctions => 0, showExtraParens => 0);
