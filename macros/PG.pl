@@ -1239,7 +1239,7 @@ sub ENDDOCUMENT {
 					return '' unless defined $line && $line =~ /\S/;
 					return Mojo::DOM->new_tag(
 						'div',
-						class => 'card-header text-center',
+						class => 'card-header text-center p-1',
 						sub { Mojo::DOM->new_tag('h4', class => 'card-title fs-6 m-0', $title); }
 					) . Mojo::DOM->new_tag('div', class => "card-body text-center $class", sub {$line});
 				}

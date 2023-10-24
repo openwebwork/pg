@@ -3,7 +3,7 @@
 		if (feedbackBtn.dataset.popoverInitialized) return;
 		feedbackBtn.dataset.popoverInitialized = 'true';
 
-		new bootstrap.Popover(feedbackBtn, { sanitize: false });
+		new bootstrap.Popover(feedbackBtn, { sanitize: false, container: feedbackBtn.parentElement });
 
 		// Render MathJax previews.
 		if (window.MathJax) {
@@ -12,15 +12,19 @@
 			});
 		}
 
-		// Execute javascript in the answer preview.
 		feedbackBtn.addEventListener('shown.bs.popover', () => {
 			const bsPopover = bootstrap.Popover.getInstance(feedbackBtn);
+
+			// Execute javascript in the answer preview.
 			bsPopover.tip?.querySelectorAll('script').forEach((origScript) => {
 				const newScript = document.createElement('script');
 				Array.from(origScript.attributes).forEach((attr) => newScript.setAttribute(attr.name, attr.value));
 				newScript.appendChild(document.createTextNode(origScript.innerHTML));
 				origScript.parentNode.replaceChild(newScript, origScript);
 			});
+
+			// Make a click on the popover header close the popover.
+			bsPopover.tip?.querySelector('.popover-header')?.addEventListener('click', () => bsPopover?.hide());
 		});
 	};
 
