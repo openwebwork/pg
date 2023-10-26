@@ -1184,16 +1184,20 @@ sub SOLUTION {
 	if ($displayMode =~ /HTML/) {
 		TEXT(tag(
 			'div',
-			class => 'solution accordion border-bottom-0',
+			class => 'solution accordion my-3',
 			tag(
 				'details',
-				class => 'accordion-item border-bottom-0',
+				class => 'accordion-item',
 				tag(
 					'summary',
-					class => 'accordion-button',
+					class => 'accordion-button collapsed',
 					tag('div', class => 'accordion-header user-select-none', SOLUTION_HEADING())
 					)
-					. tag('div', class => 'accordion-body border-bottom', $solution_body)
+					. tag(
+						'div',
+						class => 'accordion-collapse collapse',
+						tag('div', class => 'accordion-body', $solution_body)
+					)
 			)
 		));
 	} elsif ($displayMode =~ /TeX/) {
@@ -1222,16 +1226,20 @@ sub HINT {
 	if ($displayMode =~ /HTML/) {
 		TEXT(tag(
 			'div',
-			class => 'hint accordion border-bottom-0',
+			class => 'hint accordion my-3',
 			tag(
 				'details',
-				class => 'accordion-item border-bottom-0',
+				class => 'accordion-item',
 				tag(
 					'summary',
-					class => 'accordion-button',
+					class => 'accordion-button collapsed',
 					tag('div', class => 'accordion-header user-select-none', HINT_HEADING())
 					)
-					. tag('div', class => 'accordion-body border-bottom', $hint_body)
+					. tag(
+						'div',
+						class => 'accordion-collapse collapse',
+						tag('div', class => 'accordion-body', $hint_body)
+					)
 			)
 		));
 	} elsif ($displayMode =~ /TeX/) {
