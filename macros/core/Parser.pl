@@ -97,11 +97,12 @@ sub Compute {
 	my $formula = Formula($string);
 	if (Value::matchNumber($string)) {
 		my $real = Real($string);
-		warn "Compute() called with ambiguous value: $string\n"
-			. '-- use Real() for scientific notation'
-			. " ($real) or use Formula() for $formula \n"
-			unless ($real == $formula);
-		return $real;
+		unless ($real == $formula) {
+			warn "Compute() called with ambiguous value: $string\n"
+				. '-- use Real() for scientific notation'
+				. " ($real) or use Formula() for $formula \n";
+			return $real;
+		}
 	}
 	$formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
 	my $context = $formula->context;
