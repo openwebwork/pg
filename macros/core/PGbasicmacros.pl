@@ -1190,7 +1190,7 @@ sub SOLUTION {
 				class => 'accordion-item',
 				tag(
 					'summary',
-					class => 'accordion-button collapsed',
+					class => 'accordion-button collapsed p-2',
 					tag('div', class => 'accordion-header user-select-none', SOLUTION_HEADING())
 					)
 					. tag(
@@ -1232,7 +1232,7 @@ sub HINT {
 				class => 'accordion-item',
 				tag(
 					'summary',
-					class => 'accordion-button collapsed',
+					class => 'accordion-button collapsed p-2',
 					tag('div', class => 'accordion-header user-select-none', HINT_HEADING())
 					)
 					. tag(
