@@ -95,7 +95,7 @@ original can be obtained from the C<original_formula> property.
 sub Compute {
 	my $string  = shift;
 	my $formula = Formula($string);
-	if (Value::matchNumber($string)) {
+	if (!ref($string) && Value::matchNumber($string)) {
 		my $real = Real($string);
 		warn "Compute() called with ambiguous value: $string\n"
 			. '-- use Real() for scientific notation'
