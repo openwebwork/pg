@@ -42,6 +42,8 @@ sub ans_array {
 	my ($self, $size, @options) = @_;
 
 	my $name = main::NEW_ANS_NAME();
+	main::RECORD_IMPLICIT_ANS_NAME($name);
+
 	my ($rows, $columns) = $self->dimensions;
 
 	return main::tag(
@@ -77,7 +79,7 @@ sub MATRIX_ENTRY_BUTTON {
 		# Given a MathObject matrix.
 		($rows, $columns) = $matrix->dimensions;
 		# This assumes that the quick entry button comes before the matrix answer blanks.
-		$answer_number = $main::PG->{unlabeled_answer_blank_count} + 1;
+		$answer_number = $main::PG->{answer_name_count} + 1;
 	} else {
 		$answer_number = $matrix;
 	}

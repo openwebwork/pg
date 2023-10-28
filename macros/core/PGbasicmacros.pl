@@ -187,83 +187,101 @@ EndOfFile
 
 =head2  Answer blank macros:
 
-These produce answer blanks of various sizes or pop up lists or radio answer buttons.
-The names for the answer blanks are
-generated implicitly.
+These produce answer blanks of various sizes or pop up lists or radio answer
+buttons. The names for the answer blanks are generated and implicitly
+associated with answer evaluators via the C<ANS> method.
 
-    ans_rule( width )
-    tex_ans_rule( width )
-    ans_radio_buttons(value1 => label1, value2, label2 => value3, label3 => ...)
-    pop_up_list(@list)   # list consists of (value => label,  PR => "Product rule", ...)
-    pop_up_list([@list]) # list consists of values
+    ans_rule(width)
+    ans_radio_buttons(value1 => name1, value2, name2 => value3, name3 => ...)
+    pop_up_list(@list)      # list consists of (value => label, PR => "Product rule", ...)
+    pop_up_list([@list])    # list consists of values
 
 In the last case, one can use C<pop_up_list(['?', 'yes', 'no'])> to produce a
 pop-up list containing the three strings listed, and then use str_cmp to check
 the answer.
 
-To indicate the checked position of radio buttons put a '%' in front of the value: C<ans_radio_buttons(1, 'Yes', '%2', 'No')>
-will have 'No' checked.  C<tex_ans_rule> works inside math equations in C<HTML_tth> mode.  It does not work in C<Latex2HTML> mode since this mode produces gif pictures.
+To indicate the checked position of radio buttons put a '%' in front of the
+value: C<ans_radio_buttons(1, 'Yes', '%2', 'No')> will have 'No' checked.
 
-The following method is defined in F<PG.pl> for entering the answer evaluators corresponding
-to answer rules with automatically generated names.  The answer evaluators are matched with the
-answer rules in the order in which they appear on the page.
+The following method is defined in F<PG.pl> for entering the answer evaluators
+corresponding to answer rules with automatically generated names. The answer
+evaluators are matched with the answer rules in the order in which they appear
+on the page.
 
     ANS(ans_evaluator1, ans_evaluator2, ...);
 
-These are more primitive macros which produce answer blanks for specialized cases when complete
-control over the matching of answers blanks and answer evaluators is desired.
-The names of the answer blanks must be generated manually, and it is best if they do NOT begin
-with the default answer prefix (currently AnSwEr).
-
-    labeled_ans_rule(name, width)  # an alias for NAMED_ANS_RULE where width defaults to 20 if omitted.
+These are more primitive macros which produce answer blanks for specialized
+cases when complete control over the matching of answers blanks and answer
+evaluators is desired.  The names of the answer blanks must be generated
+manually, and it is best if they do NOT begin with the default answer prefix
+(currently AnSwEr).
 
     NAMED_ANS_RULE(name, width)
-    NAMED_ANS_BOX(name, rows, cols)
-    NAMED_ANS_RADIO(name, value, label)
-    NAMED_ANS_RADIO_EXTENSION(name, value, label)
-    NAMED_ANS_RADIO_BUTTONS(name, value1, label1, value2, label2, ...)
-    check_box('-name' => answer5, '-value' => 'statement3', '-label' => 'I loved this course!')
-    NAMED_POP_UP_LIST($name, @list) # list consists of (value => tag,  PR => "Product rule", ...)
-    NAMED_POP_UP_LIST($name, [@list]) # list consists of a list of values (and each tag will be set to the corresponding value)
+    labeled_ans_rule(name, width)    # alias for NAMED_ANS_RULE
+	NAMED_ANS_BOX(name, rows, cols)
+    NAMED_ANS_RADIO(name, value, name)
+    NAMED_ANS_RADIO_EXTENSION(name, value, name)
+    NAMED_ANS_RADIO_BUTTONS(name, value1, name1, value2, name2, ...)
+    NAMED_POP_UP_LIST($name, @list)     # list consists of (value => tag, PR => "Product rule", ...)
+    NAMED_POP_UP_LIST($name, [@list])   # list consists of a list of values
+                                        # (and each tag will be set to the corresponding value)
 
-(Name is the name of the variable, value is the value given to the variable when this option is selected,
-and label is the text printed next to the button or check box.    Check box variables can have multiple values.)
+(Name is the name of the input, value is the value given to the input when
+this option is selected, and label is the text printed next to the button or
+check box. Check box variables can have multiple values.)
 
-NAMED_ANS_RADIO_BUTTONS creates a sequence of NAMED_ANS_RADIO and NAMED_ANS_RADIO_EXTENSION  items which
-are  output either as an array or, in scalar context, as the array glued together with spaces.  It is
-usually easier to use this than to manually construct the radio buttons by hand.  However, sometimes
- extra flexibility is desiredin which case:
+NAMED_ANS_RADIO_BUTTONS creates a sequence of NAMED_ANS_RADIO and
+NAMED_ANS_RADIO_EXTENSION items which are output either as an array or, in
+scalar context, as the array glued together with spaces. It is usually easier
+to use this than to manually construct the radio buttons by hand. However,
+sometimes extra flexibility is desiredin which case:
 
-When entering radio buttons using the "NAMED" format, you should use NAMED_ANS_RADIO button for the first button
-and then use NAMED_ANS_RADIO_EXTENSION for the remaining buttons.  NAMED_ANS_RADIO requires a matching answer evalutor,
-while NAMED_ANS_RADIO_EXTENSION does not. The name used for NAMED_ANS_RADIO_EXTENSION should match the name
-used for NAMED_ANS_RADIO (and the associated answer evaluator).
+When entering radio buttons using the "NAMED" format, you should use
+NAMED_ANS_RADIO button for the first button and then use
+NAMED_ANS_RADIO_EXTENSION for the remaining buttons. NAMED_ANS_RADIO requires a
+matching answer evalutor, while NAMED_ANS_RADIO_EXTENSION does not. The name
+used for NAMED_ANS_RADIO_EXTENSION should match the name used for
+NAMED_ANS_RADIO (and the associated answer evaluator).
 
-The following method is defined in  F<PG.pl> for entering the answer evaluators corresponding
-to answer rules with automatically generated names.  The answer evaluators are matched with the
-answer rules in the order in which they appear on the page.
+The following method is defined for entering the answer evaluators corresponding
+to answer rules. The answer evaluators are matched with the answer rules in the
+order in which they appear on the page.
 
     NAMED_ANS(name1 => ans_evaluator1, name2 => ans_evaluator2, ...);
 
-These auxiliary macros are defined in PG.pl
+Auxiliary macros defined in PG.pl:
 
-    NEW_ANS_NAME(        );   # produces a new anonymous answer blank name  by appending a number to the prefix (AnSwEr)
-                              # and registers this name as an implicitly labeled answer
-                              # Its use is paired with each answer evaluator being entered using ANS()
+=over
 
-    ANS_NUM_TO_NAME(number);  # prepends the prefix (AnSwEr) to the number, but does nothing else.
+=item NEW_ANS_NAME()
 
-    RECORD_ANS_NAME( name );  # records the order in which the answer blank  is rendered
-                              # This is called by all of the constructs above, but must
-                              # be called explicitly if an input blank is constructed explictly
-                              # using HTML code.
+Produces a new anonymous answer blank name by appending a number to the prefix
+(AnSwEr).
 
-These are legacy macros:
+=item ANS_NUM_TO_NAME(number)
 
-    ANS_RULE( number, width );                       # equivalent to NAMED_ANS_RULE( NEW_ANS_NAME(  ), width)
-    ANS_BOX( question_number, height, width );       # equivalent to NAMED_ANS_BOX( NEW_ANS_NAME(  ), height, width)
-    ANS_RADIO( question_number, value, tag );        # equivalent to NAMED_ANS_RADIO( NEW_ANS_NAME( ), value, tag)
-    ANS_RADIO_OPTION( question_number, value, tag ); # equivalent to NAMED_ANS_RADIO_EXTENSION( ANS_NUM_TO_NAME(number), value, tag)
+Prepends the prefix (AnSwEr) to the number, but does nothing else.
+
+=item RECORD_ANS_NAME(name)
+
+Records the order in which the answer blank is rendered. All answer rules must
+be recorded by this method. All named answer rule methods in this macro do this.
+Most answer rules created elsewhere call a named answer rule method in this
+macro to handle this.
+
+=item RECORD_IMPLICIT_ANS_NAME(name)
+
+Records answer names which are to be implicitly associated with an answer This
+is called by the internal answer rule methods, but must be called for all answer
+rules constructed elsewhere as well. After this is called C<RECORD_ANS_NAME>
+must be called as well. Usually the appropriate named answer rule method should
+be called which will do this.
+
+=back
+
+Deprecated macro (still used by many problems):
+
+    ANS_RULE(number, width);    # equivalent to ans_rule(width) -- number is ignored
 
 =cut
 
@@ -395,9 +413,11 @@ sub NAMED_ANS_RULE_EXTENSION {
 	);
 }
 
-sub ANS_RULE {    #deprecated
+# Deprecated
+sub ANS_RULE {
 	my ($number, $col) = @_;
-	my $name = NEW_ANS_NAME($number);
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
 	return NAMED_ANS_RULE($name, $col);
 }
 
@@ -429,12 +449,6 @@ sub NAMED_ANS_BOX {
 			. tag('input', type => 'hidden', name => "previous_$name", value => $answer_value),
 		PTX => '<var name="' . "$name" . '" height="' . "$row" . '" width="' . "$col" . '" />',
 	);
-}
-
-sub ANS_BOX {    #deprecated
-	my ($number, $row, $col) = @_;
-	my $name = NEW_ANS_NAME();
-	return NAMED_ANS_BOX($name, $row, $col);
 }
 
 sub NAMED_ANS_RADIO {
@@ -518,32 +532,9 @@ sub NAMED_ANS_RADIO_BUTTONS {
 	return wantarray ? @out : join(" ", @out);
 }
 
-sub ANS_RADIO {
-	my ($number, $value, $tag) = @_;
-	return NAMED_ANS_RADIO(NEW_ANS_NAME(), $value, $tag);
-}
-
-sub ANS_RADIO_OPTION {
-	my ($number, $value, $tag) = @_;
-	return NAMED_ANS_RADIO_EXTENSION(ANS_NUM_TO_NAME($number), $value, $tag);
-}
-
-sub ANS_RADIO_BUTTONS {
-	my ($number, $value, $tag, @buttons) = @_;
-
-	my @out;
-	push(@out, ANS_RADIO($number, $value, $tag));
-	while (@buttons) {
-		$value = shift @buttons;
-		$tag   = shift @buttons;
-		push(@out, ANS_RADIO_OPTION($number, $value, $tag));
-	}
-	return wantarray ? @out : join(" ", @out);
-}
-
 ##############################################
 #   generate_aria_label( $name )
-#   takes the name of an ANS_RULE or ANS_BOX and generates an appropriate
+#   takes the name of an ANS_RULE and generates an appropriate
 #   aria label for screen readers
 ##############################################
 
@@ -645,7 +636,6 @@ sub NAMED_ANS_CHECKBOX {
 		),
 		PTX => "<li>$tag</li>\n",
 	);
-
 }
 
 sub NAMED_ANS_CHECKBOX_OPTION {
@@ -697,43 +687,16 @@ sub NAMED_ANS_CHECKBOX_BUTTONS {
 	return wantarray ? @out : join(" ", @out);
 }
 
-sub ANS_CHECKBOX {
-	my ($number, $value, $tag) = @_;
-	return NAMED_ANS_CHECKBOX(NEW_ANS_NAME(), $value, $tag);
-}
-
-sub ANS_CHECKBOX_OPTION {
-	my ($number, $value, $tag) = @_;
-	return NAMED_ANS_CHECKBOX_OPTION(ANS_NUM_TO_NAME($number), $value, $tag);
-}
-
-sub ANS_CHECKBOX_BUTTONS {
-	my ($number, $value, $tag, @buttons) = @_;
-
-	my @out;
-	push(@out, ANS_CHECKBOX($number, $value, $tag));
-
-	while (@buttons) {
-		$value = shift @buttons;
-		$tag   = shift @buttons;
-		push(@out, ANS_CHECKBOX_OPTION($number, $value, $tag));
-	}
-
-	return wantarray ? @out : join(" ", @out);
-}
-
 sub ans_rule {
-	my $len = shift || 20;
-	return NAMED_ANS_RULE(NEW_ANS_NAME(), $len);
-}
-
-sub ans_rule_extension {
-	my $len = shift || 20;
-	return NAMED_ANS_RULE(NEW_ANS_NAME(), $len);
+	my $len  = shift;
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
+	return NAMED_ANS_RULE($name, $len || 20);
 }
 
 sub ans_radio_buttons {
-	my $name          = NEW_ANS_NAME();
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
 	my @radio_buttons = NAMED_ANS_RADIO_BUTTONS($name, @_);
 
 	if ($displayMode eq 'TeX') {
@@ -754,7 +717,8 @@ sub ans_radio_buttons {
 }
 
 sub ans_checkbox {
-	my $name       = NEW_ANS_NAME();
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
 	my @checkboxes = NAMED_ANS_CHECKBOX_BUTTONS($name, @_);
 
 	if ($displayMode eq 'TeX') {
@@ -774,63 +738,11 @@ sub ans_checkbox {
 	return wantarray ? @checkboxes : join(" ", @checkboxes);
 }
 
-# define a version of ans_rule which will work inside TeX math mode or display math mode -- at least for tth mode.
-# This is great for displayed fractions.
-sub tex_ans_rule {
-	my $len = shift || 20;
-	# Call NAMED_ANS_RULE before MODES.  Otherwise three answer rules will be created.
-	my $answer_rule = NAMED_ANS_RULE(NEW_ANS_NAME(), $len);
-	return MODES(
-		'TeX'       => $answer_rule,
-		'HTML_tth'  => '\\begin{rawhtml} ' . $answer_rule . '\\end{rawhtml}',
-		'HTML_dpng' => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML'      => $answer_rule,
-		'PTX'       => 'Answer boxes cannot be placed inside typeset equations',
-	);
-}
-
-sub tex_ans_rule_extension {
-	my $len = shift || 20;
-	# Call NAMED_ANS_RULE before MODES.  Otherwise three answer rules will be created.
-	my $answer_rule = NAMED_ANS_RULE(NEW_ANS_NAME($$r_ans_rule_count), $len);
-	return MODES(
-		'TeX'       => $answer_rule,
-		'HTML_tth'  => '\\begin{rawhtml} ' . $answer_rule . '\\end{rawhtml}',
-		'HTML_dpng' => '\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML'      => $answer_rule,
-		'PTX'       => 'Answer boxes cannot be placed inside typeset equations',
-	);
-}
-
-sub NAMED_TEX_ANS_RULE {
-	my ($name, $len) = @_;
-	# Call NAMED_ANS_RULE before MODES.  Otherwise three answer rules will be created.
-	my $answer_rule = NAMED_ANS_RULE($name, $len || 20);
-	return MODES(
-		'TeX'       => $answer_rule,
-		'HTML_tth'  => '\\begin{rawhtml} ' . $answer_rule . '\\end{rawhtml}',
-		'HTML_dpng' => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML'      => $answer_rule,
-		'PTX'       => 'Answer boxes cannot be placed inside typeset equations',
-	);
-}
-
-sub NAMED_TEX_ANS_RULE_EXTENSION {
-	my ($name, $len) = @_;
-	# Call NAMED_ANS_RULE before MODES.  Otherwise three answer rules will be created.
-	my $answer_rule = NAMED_ANS_RULE_EXTENSION($name, $len || 20);
-	return MODES(
-		'TeX'       => $answer_rule,
-		'HTML_tth'  => '\\begin{rawhtml} ' . $answer_rule . '\\end{rawhtml}',
-		'HTML_dpng' => '\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML'      => $answer_rule,
-		'PTX'       => 'Answer boxes cannot be placed inside typeset equations',
-	);
-}
-
 sub ans_box {
 	my ($row, $col) = @_;
-	return NAMED_ANS_BOX(NEW_ANS_NAME(), $row || 5, $col || 80);
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
+	return NAMED_ANS_BOX($name, $row || 5, $col || 80);
 }
 
 # this is legacy code; use ans_checkbox instead
@@ -879,7 +791,9 @@ sub NAMED_POP_UP_LIST {
 
 sub pop_up_list {
 	my @list = @_;
-	return NAMED_POP_UP_LIST(NEW_ANS_NAME(), @list);
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
+	return NAMED_POP_UP_LIST($name, @list);
 }
 
 =head2  answer_matrix
@@ -983,45 +897,26 @@ sub ans_array {
 	$col ||= 20;
 
 	my $ans_label = NEW_ANS_NAME();
-	my $num       = ans_rule_count();
-	my @array;
+	RECORD_IMPLICIT_ANS_NAME($ans_label);
+
 	$main::vecnum = -1;
 	CLEAR_RESPONSES($ans_label);
 
+	my @array;
 	for (my $i = 0; $i < $n; $i += 1) {
-		$array[0][$i] =
-			NAMED_ANS_ARRAY_EXTENSION(NEW_ANS_ARRAY_NAME_EXTENSION($num, 0, $i), $col, ans_label => $ans_label);
+		my $name = NEW_ANS_ARRAY_NAME_EXTENSION(0, $i);
+		$array[0][$i] = NAMED_ANS_ARRAY_EXTENSION($name, $col, ans_label => $ans_label);
 	}
 
 	for (my $j = 1; $j < $m; $j += 1) {
 		for (my $i = 0; $i < $n; $i += 1) {
-			$array[$j][$i] =
-				NAMED_ANS_ARRAY_EXTENSION(NEW_ANS_ARRAY_NAME_EXTENSION($num, $j, $i), $col, ans_label => $ans_label);
+			my $name = NEW_ANS_ARRAY_NAME_EXTENSION($j, $i);
+			$array[$j][$i] = NAMED_ANS_ARRAY_EXTENSION($name, $col, ans_label => $ans_label);
 		}
 	}
 	my $ra_local_display_matrix = PG_restricted_eval(q!\&main::display_matrix!);
-	return &$ra_local_display_matrix(\@array, @options);
-}
 
-sub ans_array_extension {
-	my ($m, $n, $col, @options) = @_;
-	$col ||= 20;
-
-	my $num = ans_rule_count();    # hack -- ans_rule_count is updated after being used
-	my @array;
-	my $ans_label = $main::PG->new_label($num);
-
-	for (my $j = 0; $j < $m; $j += 1) {
-		for (my $i = 0; $i < $n; $i += 1) {
-			$array[$j][$i] = NAMED_ANS_ARRAY_EXTENSION(
-				NEW_ANS_ARRAY_NAME_EXTENSION($num, $j, $i), $col,
-				answer_group_name => $ans_label,
-				@options
-			);
-		}
-	}
-	my $ra_local_display_matrix = PG_restricted_eval(q!\&main::display_matrix!);
-	return &$ra_local_display_matrix(\@array, @options);
+	return $ra_local_display_matrix->(\@array, @options);
 }
 
 # end answer blank macros

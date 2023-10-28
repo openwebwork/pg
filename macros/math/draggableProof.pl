@@ -278,7 +278,7 @@ sub new {
 
 sub ANS_NAME {
 	my $self = shift;
-	$self->{answer_name} = main::NEW_ANS_NAME() unless defined $self->{answer_name};
+	main::RECORD_IMPLICIT_ANS_NAME($self->{answer_name} = main::NEW_ANS_NAME()) unless defined $self->{answer_name};
 	return $self->{answer_name};
 }
 

@@ -446,9 +446,8 @@ sub ans_matrix {
 	my $named_extension = pgRef('NAMED_ANS_ARRAY_EXTENSION');
 	my $named_ans_rule  = pgRef('NAMED_ANS_RULE');
 	my $HTML            = "";
-	my $ename           = $name;
-	$name             = pgCall('NEW_ANS_NAME') if ($name eq '');
-	$ename            = "${answerPrefix}_${name}";
+	pgCall('RECORD_IMPLICIT_ANS_NAME', $name = pgCall('NEW_ANS_NAME')) unless $name;
+	my $ename = "${answerPrefix}_${name}";
 	$self->{ans_name} = $ename;
 	$self->{ans_rows} = $rows;
 	$self->{ans_cols} = $cols;

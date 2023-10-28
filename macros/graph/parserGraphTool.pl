@@ -1067,7 +1067,7 @@ parser::GraphTool->addTools(
 
 sub ANS_NAME {
 	my $self = shift;
-	$self->{name} = main::NEW_ANS_NAME() unless defined($self->{name});
+	main::RECORD_IMPLICIT_ANS_NAME($self->{name} = main::NEW_ANS_NAME()) unless defined $self->{name};
 	return $self->{name};
 }
 

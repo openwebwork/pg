@@ -371,6 +371,7 @@ sub ans_rule {
 	my $name = $self->ANS_NAME($self->{part}++);
 	if ($self->{singleResult} && $self->{part} == 1) {
 		my $label = main::generate_aria_label($answerPrefix . $name . "_0");
+		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
 		return $data->named_ans_rule($name, $size, @_, aria_label => $label);
 	}
 	if ($self->{singleResult} && $self->{part} > 1) {
@@ -382,6 +383,7 @@ sub ans_rule {
 		# warn "extension rule created: $extension_ans_rule for ", ref($data);
 		return $extension_ans_rule;
 	} else {
+		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
 		return $data->named_ans_rule($name, $size, @_);
 	}
 }
@@ -399,6 +401,7 @@ sub ans_array {
 	my $name = $self->ANS_NAME($self->{part}++);
 	if ($self->{singleResult} && $self->{part} == 1) {
 		my $label = main::generate_aria_label($answerPrefix . $name . "_0");
+		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
 		return $data->named_ans_array(
 			$name, $size,
 			answer_group_name => $self->{answerNames}{0},
@@ -413,6 +416,7 @@ sub ans_array {
 		);
 		# warn "array extension rule created: $HTML for ", ref($data);
 	} else {
+		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
 		$HTML = $data->named_ans_array($name, $size, @_);
 	}
 	$self->{cmp}[ $self->{part} - 1 ] = $data->cmp(@ans_defaults);
