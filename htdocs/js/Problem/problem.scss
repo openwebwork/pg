@@ -214,6 +214,8 @@
 	--bs-popover-body-padding-y: 0;
 	--bs-popover-max-width: 600px;
 	--bs-popover-zindex: 18;
+	display: inline;
+	min-width: 200px;
 
 	.popover-header {
 		text-align: center;
