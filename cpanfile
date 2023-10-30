@@ -18,6 +18,7 @@ on runtime => sub {
 	requires 'JSON::XS';
 	requires 'Locale::Maketext';
 	requires 'Locale::Maketext::Lexicon';
+	requires 'Mojolicious';
 	requires 'Tie::IxHash';
 	requires 'Types::Serialiser';
 	requires 'UUID::Tiny';

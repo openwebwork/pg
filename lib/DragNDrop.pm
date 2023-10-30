@@ -160,7 +160,8 @@ sub HTML {
 	$out .= qq{ data-label-format="$self->{bucketLabelFormat}"} if $self->{bucketLabelFormat};
 	$out .= '>';
 
-	$out .= '<div class="dd-buttons">';
+	$out .= '<div class="dd-buttons"';
+	$out .= qq{ data-feedback-insert-element="$self->{answerName}" data-feedback-insert-method="append_content">};
 	$out .= qq{<button type="button" class="btn btn-secondary dd-reset-buckets">$self->{resetButtonText}</button>};
 	$out .= qq{<button type="button" class="btn btn-secondary dd-add-bucket">$self->{addButtonText}</button>}
 		if ($self->{allowNewBuckets});

@@ -4,12 +4,19 @@
 			section.addEventListener('shown.bs.collapse', () => {
 				// Reflow MathQuill answer boxes so that their contents are rendered correctly
 				if (window.answerQuills) {
-					Object.keys(answerQuills).forEach(
-						(quill) => { if (section.querySelector('#' + quill)) answerQuills[quill].mathField.reflow(); }
-					);
+					Object.keys(answerQuills).forEach((quill) => {
+						if (section.querySelector('#' + quill)) answerQuills[quill].mathField.reflow();
+					});
 				}
 			});
-		})
+
+			section.addEventListener('hide.bs.collapse', () => {
+				// Close any open feedback popovers in this scaffold.
+				for (const button of section.querySelectorAll('.ww-feedback-btn')) {
+					bootstrap.Popover.getInstance(button)?.hide();
+				}
+			});
+		});
 	};
 
 	// Set up any scaffolds already on the page.

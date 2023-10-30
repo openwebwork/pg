@@ -18,7 +18,7 @@ is($inputs[0]->attributes->{name}, $name,  'basicmacros: test NAMED_ANS_RULE nam
 is($inputs[0]->attributes->{type}, 'text', 'basicmacros: test NAMED_ANS_RULE type attribute');
 ok(!$inputs[0]->attributes->{value}, 'basicmacros: test NAMED_ANS_RULE value attribute');
 
-is($inputs[1]->attributes->{name}, "previous_$name", 'basicmacros: test NAMED_ANS_RULE hidden name attribute');
-is($inputs[1]->attributes->{type}, 'hidden',         'basicmacros: test NAMED_ANS_RULE hidden type attribute');
+is($inputs[1]->attributes->{name}, "previous&#95;$name", 'basicmacros: test NAMED_ANS_RULE hidden name attribute');
+is($inputs[1]->attributes->{type}, 'hidden',             'basicmacros: test NAMED_ANS_RULE hidden type attribute');
 
 done_testing();

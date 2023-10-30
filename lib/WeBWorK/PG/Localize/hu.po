@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: webwork2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2023-09-16 14:01-0500\n"
+"PO-Revision-Date: 2023-10-05 06:44-0500\n"
 "Last-Translator: pcsiba <pcsiba@gmail.com>, 2014,2016-2017\n"
 "Language-Team: Hungarian (http://app.transifex.com/webwork/webwork2/language/"
 "hu/)\n"
@@ -18,7 +18,43 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: /opt/webwork/pg/macros/parsers/parserPopUp.pl:285
+#. (@answerNames - $numBlank - $numCorrect - $numEssay)
+#: /opt/webwork/pg/macros/PG.pl:1412
+msgid "%1 of the answers %plural(%1,is,are) NOT correct."
+msgstr ""
+
+#. ($numEssay)
+#: /opt/webwork/pg/macros/PG.pl:1435
+msgid "%1 of the answers will be graded later."
+msgstr ""
+
+#. (round($answerScore * 100)
+#: /opt/webwork/pg/macros/PG.pl:1157
+msgid "%1% correct"
+msgstr "%1% helyes"
+
+#. ($numBlank)
+#: /opt/webwork/pg/macros/PG.pl:1425
+msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgstr "%quant(%1,kérdés maradt,kérdés maradt) megválaszolatlan."
+
+#: /opt/webwork/pg/macros/PG.pl:1399
+msgid "All of the answers are correct."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1390
+msgid "All of the gradeable answers are correct."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1149
+msgid "Correct"
+msgstr "Helyes"
+
+#: /opt/webwork/pg/macros/PG.pl:1308
+msgid "Correct Answer"
+msgstr "Helyes válasz"
+
+#: /opt/webwork/pg/macros/parsers/parserPopUp.pl:314
 msgid "False"
 msgstr ""
 
@@ -41,12 +77,12 @@ msgstr ""
 msgid "Hardcopy will always print the original version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1518
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1519
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1404
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1405
 msgid "Hint:"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1517
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1403
 msgid "Hint: "
 msgstr ""
 
@@ -54,21 +90,38 @@ msgstr ""
 msgid "If you come back to it later, it may revert to its original version."
 msgstr ""
 
+#: /opt/webwork/pg/macros/PG.pl:1153
+msgid "Incorrect"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1319
+msgid "Message"
+msgstr ""
+
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:396
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:422
 msgid "Note:"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1108
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:131
+msgid "Preview"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1295
+msgid "Preview of Your Answer"
 msgstr ""
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:188
 msgid "Set random seed to:"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1509
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1510
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1395
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1396
 msgid "Solution:"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1508
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1394
 msgid "Solution: "
 msgstr ""
 
@@ -76,11 +129,41 @@ msgstr ""
 msgid "Submit your answers again to go on to the next part."
 msgstr ""
 
+#: /opt/webwork/pg/macros/PG.pl:1378
+msgid "The answer is NOT correct."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1351
+msgid "The answer is correct."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1360
+msgid "The answer will be graded later."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1369
+msgid "The question has not been answered."
+msgstr ""
+
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:78
+msgid "This answer will be graded at a later time."
+msgstr ""
+
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:423
 msgid "This is a new (re-randomized) version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3181
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:145
+msgid ""
+"This is an essay answer text box. You can type your answer in here and, "
+"after you hit submit, it will be saved so that your instructor can grade it "
+"at a later date. If your instructor makes any comments on your answer those "
+"comments will appear on this page after the question has been graded. You "
+"can use LaTeX to make your math equations look pretty. LaTeX expressions "
+"should be enclosed using the parenthesis notation and not dollar signs."
+msgstr ""
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3064
 msgid "This problem contains a video which must be viewed online."
 msgstr ""
 
@@ -88,9 +171,17 @@ msgstr ""
 msgid "This problem has more than one part."
 msgstr ""
 
-#: /opt/webwork/pg/macros/parsers/parserPopUp.pl:284
+#: /opt/webwork/pg/macros/parsers/parserPopUp.pl:313
 msgid "True"
 msgstr "Igaz"
+
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:60
+msgid "Ungraded"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1290
+msgid "You Entered"
+msgstr ""
 
 #: /opt/webwork/pg/macros/core/PGanswermacros.pl:1616
 msgid "You can earn partial credit on this problem."
@@ -104,7 +195,7 @@ msgstr ""
 msgid "You may not change your answers when going on to the next part!"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3174
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3057
 msgid "Your browser does not support the video tag."
 msgstr ""
 
@@ -112,12 +203,12 @@ msgstr ""
 msgid "Your score for this attempt is for this part only;"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:610
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:621
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:558
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:569
 msgid "answer"
 msgstr "válasz"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:633
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:581
 msgid "column"
 msgstr "oszlop"
 
@@ -138,15 +229,15 @@ msgstr ""
 msgid "otherwise"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:627
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:575
 msgid "part"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:616
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:564
 msgid "problem"
 msgstr "feladat"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:633
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:581
 msgid "row"
 msgstr "sor"
 

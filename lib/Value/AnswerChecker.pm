@@ -490,7 +490,14 @@ sub ans_matrix {
 		}
 		push(@array, [@row]);
 	}
-	$self->format_matrix([@array], open => $open, close => $close, sep => $sep, top_labels => $toplabels);
+	$self->format_matrix(
+		[@array],
+		open          => $open,
+		close         => $close,
+		sep           => $sep,
+		top_labels    => $toplabels,
+		ans_last_name => ANS_NAME($ename, $rows - 1, $cols - 1)
+	);
 }
 
 sub ANS_NAME {
@@ -599,7 +606,13 @@ sub format_matrix_HTML {
 			. $close
 			. '</span>';
 	}
-	return '<span class="ans_array" style="display:inline-block;vertical-align:.5ex">' . $HTML . '</span>';
+	return '<span class="ans_array" style="display:inline-block;vertical-align:.5ex"'
+		. ($options{ans_last_name}
+			? qq{ data-feedback-insert-element="$options{ans_last_name}" data-feedback-insert-method="append_content"}
+			: '')
+		. '>'
+		. $HTML
+		. '</span>';
 }
 
 sub EVALUATE {

@@ -103,6 +103,7 @@ sub _contextFiniteSolutionSets_init {
 		"none"              => { alias => 'no real solutions' },
 		"no solution"       => { alias => 'no real solutions' },
 		"no solutions"      => { alias => 'no real solutions' },
+		"\x{2205}"          => { alias => 'no real solutions' },
 		#Hack. Investigate making all of this be a constant.
 		"{}"                        => { alias => 'no real solutions' },
 		"{ }"                       => { alias => 'no real solutions' },

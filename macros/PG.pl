@@ -395,7 +395,8 @@ sub ADD_JS_FILE {
 # Some problems use jquery-ui still, and so the requestor should also load the js for that if those problems are used,
 # although those problems should also be rewritten to not use jquery-ui.
 sub load_js() {
-	ADD_JS_FILE('js/InputColor/color.js',          0, { defer => undef });
+
+	ADD_JS_FILE('js/Feedback/feedback.js',         0, { defer => undef });
 	ADD_JS_FILE('js/Base64/Base64.js',             0, { defer => undef });
 	ADD_JS_FILE('js/Knowls/knowl.js',              0, { defer => undef });
 	ADD_JS_FILE('js/Problem/details-accordion.js', 0, { defer => undef });
@@ -582,6 +583,12 @@ sub get_persistent_data {
 	return $PG->get_persistent_data($label);
 }
 
+sub add_content_post_processor {
+	my $handler = shift;
+	$PG->add_content_post_processor($handler);
+	return;
+}
+
 =head2 RECORD_FORM_LABEL
 
 Stores the label of a form field in the "extra" answers list. This is used to
@@ -727,9 +734,10 @@ sub EXTEND_RESPONSE {    # for radio buttons and checkboxes
 =head2 ENDDOCUMENT
 
 When PG problems are evaluated, the result of evaluating the entire problem is
-interpreted as the return value of C<ENDDOCUMENT()>. Therefore, C<ENDDOCUMENT()>
-must be the last executable statement of every problem. It can only appear once.
-It returns a list consisting of:
+interpreted as the return value of C<ENDDOCUMENT()>. Furthermore, a post
+processing hook is added that injects feedback into the problem text.
+Therefore, C<ENDDOCUMENT()> must be the last executable statement of every
+problem. It can only appear once. It returns a list consisting of:
 
 =over
 
@@ -825,12 +833,183 @@ A reference to the C<PGcore> object for this problem.
 
 =back
 
+The post processing hook added in this method adds a feedback button for each
+answer response group that when clicked opens a popover containing feedback for
+the answer. A result class is also added to each C<feedbackElement> (see this
+option below) for coloring answer rules via CSS. In addition visually hidden
+spans are added that provide feedback for screen reader users. Each
+C<feedbackElement> will be C<aria-describedby> these spans.
+
+When and what feedback is shown is determined by translator options described in
+L<WeBWorK::PG/OPTIONS> as well as options described below. The hook handles
+standard answer types effectively, but macros that add special answer types and
+in some case problems (particularly those that use C<MultiAnswer> questions with
+C<singleResult> true) may need to help the method for proper placement of the
+feedback button and other aspects of feedback.
+
+There are several options that can be modified, and a few different ways to make
+these modifications. Unfortunately, this is perhaps a little bit complicated to
+understand, and that really can not be helped. The reason for this is the
+extremely loose connection between answer rules, answer labels, and answer
+evaluators in PG.
+
+How these options are set can be controlled in three ways.
+
+First, an answer hash can have the C<feedback_options> key set to a CODE
+reference. If this is the case, then the subroutine referenced by this key will
+be called and passed the answer hash itself, a reference to the hash of options
+described below (any of which can be modified by this subroutine), and a
+Mojo::DOM object containing the problem text. Note that if this method sets the
+C<insertElement> option, then the other ways of controlling how these options
+are set will not be used.
+
+Second, an element can be added to the DOM that contains an answer rule that has
+the class C<ww-feedback-container>, and if that answer rule is initially chosen
+to be the C<insertElement> and that is not set by the C<feedback_options>
+method, then this added element will replace it as the C<insertElement>.
+
+Third, data attributes may be added to elements in the DOM will affect where the
+feedback button will be placed. The following data attributes are honored.
+
+=over
+
+=item *
+
+C<data-feedback-insert-element>: If an element in the DOM has this data
+attribute and the value of this attribute is the answer name (or label), then
+the element that has this data attribute will be used for the C<insertElement>
+option described below.
+
+=item *
+
+C<data-feedback-insert-method>: If the C<insertElement> is not set by the
+C<feedback_options> method of the answer hash, and the C<insertElement> also has
+this attribute, then the value of this attribute will be used for the
+C<insertMethod> option described below.
+
+=item *
+
+C<data-feedback-btn-add-class>: If the C<insertElement> is not set by the
+C<feedback_options> method of the answer hash, and the C<insertElement> also has
+this attribute, then the value of this attribute will be used for the
+C<btnAddClass> option described below.
+
+=back
+
+The options that can be modified are as follows.
+
+=over
+
+=item *
+
+C<resultTitle>: This is the title that is displayed in the feedback popover for
+the answers in the response group. By default this is "Preview", "Correct",
+"Incorrect", or "n% correct", depending on the status of the answer and the type
+of submission. Those strings are translated via C<maketext>. Usually this should
+not be changed, but in some cases the default status titles are not appropriate
+for certain types of answers. For example, the L<PGessaymacros.pl> macros
+changes this to "Ungraded" for essay answers.
+
+=item *
+
+C<resultClass>: This is the CSS class that is added to each answer input in the
+response group. By default it is set to the empty string, "correct",
+"incorrect", or "partially-correct" depending on the status of the answer and
+the type of submission.
+
+=item *
+
+C<btnClass>: This is the bootstrap button class added to the feedback button.
+By default it is "btn-info", "btn-success", "btn-danger", or "btn-warning"
+depending on the status of the answer and the type of submission.
+
+=item *
+
+C<btnAddClass>: This is a string containing additional space separated CSS
+classes to add to the feedback button. This is "ms-1" by default. Macros can
+change this to affect positioning of the button. This generally should not be
+used to change the appearance of the button.
+
+=item *
+
+C<feedbackElements>: This is a Mojo::Collection of elements in the DOM to which
+the feedback C<resultClass> and C<aria-describedby> attribute will be added. By
+default this is all elements in the DOM that have a name in the list of response
+labels for the response group. Note that for radio buttons and checkboxes, only
+the checked elements will be in this collection by default.
+
+=item *
+
+C<insertElement>: This is the element in the DOM to insert the feedback button
+in or around. How the element is inserted is determined by the C<insertMethod>
+option.  How this option is set is slightly complicated. First, if this option
+is set by the answer hash C<feedback_options> method, then that is used. If the
+C<feedback_options> method does not exist or does not set this option, then
+initially the last C<feedbackElement> is used for this. However, if that last
+C<feedbackElement> is contained in another DOM element that has the
+C<ww-feedback-container> class, then that is used for this instead. If such a
+container is not found and there is an element in the DOM that has the
+C<data-feedback-insert-element> attribute set whose value is equal to the name
+of this last C<feedbackElement>, then that element is used for the
+C<insertElement> instead. Finally, if the C<insertElement> determined as just
+described happens to be a radio button or checkbox, then the C<insertElement>
+will instead be the parent of the radio button or checkbox (which will hopefully
+be the label for that input).
+
+=item *
+
+C<insertMethod>: The Mojo::DOM method to use to insert the feedback button
+relative to the C<insertElement>. It can be C<append> (insert after the
+C<insertElement>), C<append_content> (insert as the last child of
+C<insertElement>), C<prepend> (insert before C<insertElement>), or
+C<prepend_content> (insert as the first child of C<insertElement>).
+
+=item *
+
+C<wrapPreviewInTex>: This is a boolean value that is 1 by default. If true and
+the display mode is HTML_MathJax, then the answer previews are wrapped in a
+math/tex type script tag.
+
+=item *
+
+C<showEntered>: This is a boolean value that is 1 by default. If true and the
+translator option C<showAttemptAnswers> is also true, then the student's
+evaluated (or "Entered") answer is shown in the feedback popover if the student
+has entered an answer.
+
+=item *
+
+C<showPreview>: This is a boolean value that is 1 by default. If true and the
+translator option C<showAttemptPreviews> is also true, then a preview of the
+student's answer is shown in the feedback popover. Most likely this should
+always be true, and most likely this option (and the translator option)
+shouldn't even exist!
+
+=item *
+
+C<showCorrect>: This is a boolean value that is 1 by default. If this is true
+and the translator option C<showCorrectAnswers> is also true, then a preview of
+the correct answer is shown in the feedback popover.
+
+=item *
+
+C<answerGiven>: This is a boolean value. This should be true if a student has
+answered a question, and false otherwise. By default this is set to 1 if the
+responses for all answers in the response group are non-empty, and 0 otherwise.
+For radio buttons and checkboxes this is if one of the inputs are checked or
+not. However, for some answers a non-empty response can occur even if a student
+has not answered a question (for example, this occurs for answers to questions
+created with the L<draggableProof.pl> macro) . So macros that create answers
+with responses like that should override this.
+
+=back
+
 =cut
 
 sub ENDDOCUMENT {
 	# Insert MathQuill responses if MathQuill is enabled.  Add responses to each answer's response group that store the
 	# latex form of the students' answers and add corresponding hidden input boxes to the page.
-	if ($envir{useMathQuill}) {
+	if ($envir{useMathQuill} && $main::displayMode =~ /HTML/i) {
 		for my $answerLabel (keys %{ $PG->{PG_ANSWERS_HASH} }) {
 			my $answerGroup = $PG->{PG_ANSWERS_HASH}{$answerLabel};
 			my $mq_opts     = $answerGroup->{ans_eval}{rh_ans}{mathQuillOpts} // {};
@@ -875,151 +1054,472 @@ sub ENDDOCUMENT {
 				$mq_part_opts->{rootsAreExponents} = 0
 					if $context && $context->functions->get('root') && !defined $mq_part_opts->{rootsAreExponents};
 
-				my $name         = "MaThQuIlL_$response";
-				my $answer_value = '';
-				$answer_value = $inputs_ref->{$name} if defined($inputs_ref->{$name});
+				my $name = "MaThQuIlL_$response";
 				RECORD_EXTRA_ANSWERS($name);
-				$answer_value = encode_pg_and_html($answer_value);
-				my $data_mq_opts =
-					scalar(keys %$mq_part_opts)
-					? qq!data-mq-opts="@{[encode_pg_and_html(JSON->new->encode($mq_part_opts))]}"!
-					: "";
-				TEXT(MODES(
-					TeX  => "",
-					PTX  => "",
-					HTML => qq!<input type=hidden name="$name" id="$name" value="$answer_value" $data_mq_opts>!
-				));
+
+				add_content_post_processor(sub {
+					my $problemContents = shift;
+					my $input           = $problemContents->at(qq{input[name="$response"]})
+						|| $problemContents->at(qq{textarea[name="$response"]});
+					return unless $input;
+					$input->append(
+						Mojo::DOM->new_tag(
+							'input',
+							type  => 'hidden',
+							name  => $name,
+							id    => $name,
+							value => $inputs_ref->{$name} // '',
+							scalar(keys %$mq_part_opts)
+							? (data => { mq_opts => JSON->new->encode($mq_part_opts) })
+							: ''
+						)->to_string
+					);
+				});
 			}
 		}
 	}
 
-	# check that answers match
-	# gather up PG_FLAGS elements
+	# Gather flags
+	$PG->{flags}{showPartialCorrectAnswers} = $showPartialCorrectAnswers // 1;
+	$PG->{flags}{recordSubmittedAnswers}    = $recordSubmittedAnswers    // 1;
+	$PG->{flags}{refreshCachedImages}       = $refreshCachedImages       // 0;
+	$PG->{flags}{hintExists}                = $hintExists                // 0;
+	$PG->{flags}{solutionExists}            = $solutionExists            // 0;
+	$PG->{flags}{comment}                   = $pgComment                 // '';
 
-	$PG->{flags}->{showPartialCorrectAnswers} = defined($showPartialCorrectAnswers) ? $showPartialCorrectAnswers : 1;
-	$PG->{flags}->{recordSubmittedAnswers}    = defined($recordSubmittedAnswers)    ? $recordSubmittedAnswers    : 1;
-	$PG->{flags}->{refreshCachedImages}       = defined($refreshCachedImages)       ? $refreshCachedImages       : 0;
-	$PG->{flags}->{hintExists}                = defined($hintExists)                ? $hintExists                : 0;
-	$PG->{flags}->{solutionExists}            = defined($solutionExists)            ? $solutionExists            : 0;
-	$PG->{flags}->{comment}                   = defined($pgComment)                 ? $pgComment                 : '';
+	if ($main::displayMode =~ /HTML/i && ($rh_envir->{showFeedback} || $rh_envir->{forceShowAttemptResults})) {
+		add_content_post_processor(sub {
+			my $problemContents = shift;
 
-	# install problem grader
-	if (defined($PG->{flags}->{PROBLEM_GRADER_TO_USE})) {
-		# problem grader defined within problem -- no further action needed
-	} elsif (defined($rh_envir->{PROBLEM_GRADER_TO_USE})) {
-		if (ref($rh_envir->{PROBLEM_GRADER_TO_USE}) eq 'CODE') {    # user defined grader
-			$PG->{flags}->{PROBLEM_GRADER_TO_USE} = $rh_envir->{PROBLEM_GRADER_TO_USE};
-		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'std_problem_grader') {
-			if (defined(&std_problem_grader)) {
-				$PG->{flags}->{PROBLEM_GRADER_TO_USE} = \&std_problem_grader;    # defined in PGanswermacros.pl
-			}    # std_problem_grader is the default in any case so don't give a warning.
-		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'avg_problem_grader') {
-			if (defined(&avg_problem_grader)) {
-				$PG->{flags}->{PROBLEM_GRADER_TO_USE} = \&avg_problem_grader;    # defined in PGanswermacros.pl
+			my $numCorrect = 0;
+			my $numBlank   = 0;
+			my $numEssay   = 0;
+
+			my @answerNames = keys %{ $PG->{PG_ANSWERS_HASH} };
+
+			for my $answerLabel (@answerNames) {
+				my $response_obj = $PG->{PG_ANSWERS_HASH}{$answerLabel}->response_obj;
+				my $ansHash      = $PG->{PG_ANSWERS_HASH}{$answerLabel}{ans_eval}{rh_ans};
+
+				my $answerScore = $ansHash->{score} // 0;
+				my $isEssay     = ($ansHash->{type} // '') eq 'essay';
+				++$numCorrect if $answerScore >= 1;
+				++$numEssay   if $isEssay;
+
+				my %options = (
+					resultTitle      => maketext('Preview'),
+					resultClass      => '',
+					btnClass         => 'btn-info',
+					btnAddClass      => 'ms-1',
+					feedbackElements => Mojo::Collection->new,
+					insertElement    => undef,
+					insertMethod     => 'append',    # Can be append, append_content, prepend, or prepend_content.
+					wrapPreviewInTex => defined $ansHash->{non_tex_preview} ? !$ansHash->{non_tex_preview} : 1,
+					showEntered      => 1,
+					showPreview      => 1,
+					showCorrect      => 1,
+					answerGiven      => 0
+				);
+
+				# Determine if the student gave an answer to any of the questions in this response group and find the
+				# inputs associated to this response group that the correct/incorrect/partially-correct feedback classes
+				# will be added to.
+				for my $responseLabel ($response_obj->response_labels) {
+					my $response = $response_obj->get_response($responseLabel);
+					my $elements = $problemContents->find(qq{[name="$responseLabel"]});
+
+					if (ref($response) eq 'ARRAY') {
+						# This is the case of checkboxes or radios.
+						# Feedback classes are added only to those that are checked.
+						for (@$response) { $options{answerGiven} = 1 if $_->[1] =~ /^checked$/i; }
+						my $checked = $elements->grep(sub {
+							my $element = $_;
+							grep { $_->[0] eq $element->attr('value') && $_->[1] =~ /^checked$/i } @$response;
+						});
+						$elements = $checked if @$checked;
+					} else {
+						$options{answerGiven} = 1 if defined $response && $response =~ /\S/;
+					}
+					push(@{ $options{feedbackElements} }, @$elements);
+				}
+
+				my $showResults = ($rh_envir->{showAttemptResults} && $PG->{flags}{showPartialCorrectAnswers})
+					|| $rh_envir->{forceShowAttemptResults};
+
+				if ($showResults) {
+					if ($answerScore >= 1) {
+						$options{resultTitle} = maketext('Correct');
+						$options{resultClass} = 'correct';
+						$options{btnClass}    = 'btn-success';
+					} elsif ($answerScore == 0) {
+						$options{resultTitle} = maketext('Incorrect');
+						$options{resultClass} = 'incorrect';
+						$options{btnClass}    = 'btn-danger';
+					} else {
+						$options{resultTitle} = maketext('[_1]% correct', round($answerScore * 100));
+						$options{resultClass} = 'partially-correct';
+						$options{btnClass}    = 'btn-warning';
+					}
+				}
+
+				# If a feedback_options method is provided, it can override anything set above.
+				$ansHash->{feedback_options}->($ansHash, \%options, $problemContents)
+					if ref($ansHash->{feedback_options}) eq 'CODE';
+
+				# Update the count of the number of unanswered questions.  This should be after the custom
+				# feedback_options call as that method can change the answerGiven option.  (The draggableProof.pl macro
+				# does this.)
+				++$numBlank unless $isEssay || $options{answerGiven} || $answerScore >= 1;
+
+				# Don't show the results popover if there is nothing to show.
+				next
+					unless @{ $options{feedbackElements} }
+					&& ($answerScore > 0
+						|| $options{answerGiven}
+						|| $ansHash->{ans_message}
+						|| $rh_envir->{showCorrectAnswers});
+
+				# Find an element to insert the button in or around if one has not been provided.
+				unless ($options{insertElement}) {
+					# Use the last feedback element by default.
+					$options{insertElement} = $options{feedbackElements}->last;
+
+					# Check to see if the last feedback element is contained in a feedback container. If so use that.
+					# Note that this class should not be used by PG or macros directly.  It is provided for authors to
+					# use as an override.
+					my $ancestorContainer = $options{insertElement}->ancestors('.ww-feedback-container')->first;
+					if ($ancestorContainer) {
+						$options{insertElement} = $ancestorContainer;
+						$options{insertMethod}  = 'append_content';
+					} else {
+						# Otherwise check to see if the last feedback element has a special element to attach the
+						# button to defined in its data attributes, and if so use that instead.
+						$options{insertElement} = $problemContents->at(
+							'[data-feedback-insert-element="' . $options{insertElement}->attr('name') . '"]')
+							|| $options{insertElement};
+					}
+
+					# For radio or checkbox answers place the feedback button after the label by default.
+					if (lc($options{insertElement}->attr('type')) =~ /^(radio|checkbox)$/) {
+						$options{btnAddClass}   = 'ms-3';
+						$options{insertElement} = $options{insertElement}->parent;
+					}
+
+					# Check to see if this element has details for placement defined in its data attributes.
+					$options{btnAddClass} = $options{insertElement}->attr->{'data-feedback-btn-add-class'}
+						if $options{insertElement} && $options{insertElement}->attr->{'data-feedback-btn-add-class'};
+					$options{insertMethod} = $options{insertElement}->attr->{'data-feedback-insert-method'}
+						if $options{insertElement} && $options{insertElement}->attr->{'data-feedback-insert-method'};
+				}
+
+				# Add the correct/incorrect/partially-correct class and
+				# aria-described by attribute to the feedback elements.
+				for (@{ $options{feedbackElements} }) {
+					$_->attr(class => join(' ', $options{resultClass}, $_->attr->{class} || ()))
+						if $options{resultClass};
+					$_->attr('aria-describedby' => "ww-feedback-$answerLabel");
+				}
+
+				sub previewAnswer {
+					my ($preview, $wrapPreviewInTex, $fallback) = @_;
+
+					return $fallback unless defined $preview && $preview =~ /\S/;
+
+					if ($main::displayMode eq 'HTML' || !$wrapPreviewInTex) {
+						return $preview;
+					} elsif ($main::displayMode eq 'HTML_dpng') {
+						return $rh_envir->{imagegen}->add($preview);
+					} elsif ($main::displayMode eq 'HTML_MathJax') {
+						return Mojo::DOM->new_tag('script', type => 'math/tex; mode=display', sub {$preview})
+							->to_string;
+					}
+				}
+
+				sub feedbackLine {
+					my ($title, $line, $class) = @_;
+					$class //= '';
+					return '' unless defined $line && $line =~ /\S/;
+					return Mojo::DOM->new_tag(
+						'div',
+						class => 'card-header text-center p-1',
+						sub { Mojo::DOM->new_tag('h4', class => 'card-title fs-6 m-0', $title); }
+					) . Mojo::DOM->new_tag('div', class => "card-body text-center $class", sub {$line});
+				}
+
+				my $answerPreview = previewAnswer($ansHash->{preview_latex_string}, $options{wrapPreviewInTex});
+
+				# Create the screen reader only span holding the aria description, create the feedback button and
+				# popover, and insert the button at the requested location.
+				my $feedback = (
+					# Add a visually hidden span to provide feedback to screen reader users immediately.
+					$showResults || ($rh_envir->{showMessages} && $ansHash->{ans_message})
+					? Mojo::DOM->new_tag(
+						'span',
+						class => 'visually-hidden',
+						id    => "ww-feedback-$answerLabel",
+						sub {
+							($showResults ? Mojo::DOM->new_tag('span', $options{resultTitle}) : '')
+								. ($rh_envir->{showMessages} && $ansHash->{ans_message}
+									? Mojo::DOM->new_tag('span', $ansHash->{ans_message})
+									: '');
+						}
+						)->to_string
+					: ''
+					)
+					. Mojo::DOM->new_tag(
+						'button',
+						type  => 'button',
+						class => "ww-feedback-btn btn btn-sm $options{btnClass} $options{btnAddClass}"
+						. ($rh_envir->{showMessages} && $ansHash->{ans_message} ? ' with-message' : ''),
+						'aria-label' => $options{resultTitle},
+						data         => {
+							$showResults && $options{resultTitle} ? (bs_title => $options{resultTitle}) : (),
+							bs_toggle              => 'popover',
+							bs_trigger             => 'click',
+							bs_placement           => 'bottom',
+							bs_html                => 'true',
+							bs_custom_class        => join(' ', 'ww-feedback-popover', $options{resultClass} || ()),
+							bs_fallback_placements => '[]',
+							bs_content             => Mojo::DOM->new_tag(
+								'div',
+								id => "$answerLabel-feedback",
+								sub {
+									Mojo::DOM->new_tag(
+										'div',
+										class => 'card',
+										sub {
+											($rh_envir->{showAttemptAnswers} && $options{showEntered}
+												? feedbackLine(maketext('You Entered'), $ansHash->{student_ans})
+												: '')
+											. (
+												$rh_envir->{showAttemptPreviews} && $options{showPreview}
+												? feedbackLine(
+													maketext('Preview of Your Answer'),
+													(
+														(defined $answerPreview && $answerPreview =~ /\S/)
+														|| $rh_envir->{showAttemptAnswers}
+														? $answerPreview
+														: $ansHash->{student_ans}
+													)
+												)
+												: ''
+											)
+											. (
+												$rh_envir->{showCorrectAnswers} && $options{showCorrect}
+												? feedbackLine(
+													maketext('Correct Answer'),
+													previewAnswer(
+														$ansHash->{correct_ans_latex_string},
+														$options{wrapPreviewInTex},
+														$ansHash->{correct_ans}
+													)
+												)
+												: ''
+											)
+											. (
+												($rh_envir->{showMessages} && $ansHash->{ans_message})
+												? feedbackLine(maketext('Message'), $ansHash->{ans_message},
+													'feedback-message')
+												: ''
+											);
+										}
+									);
+								}
+						)->to_string,
+						},
+						sub { Mojo::DOM->new_tag('i', class => $options{resultClass}) }
+				)->to_string;
+
+				if ($options{insertElement} && $options{insertElement}->can($options{insertMethod})) {
+					my $insertMethod = $options{insertMethod};
+					$options{insertElement}->$insertMethod($feedback);
+				}
 			}
+
+			# Generate the result summary if results are being shown.
+			# FIXME: This is set up to occur when it did previously.  That is it ignores the value of
+			# $PG->{flags}{showPartialCorrectAnswers}. It seems that is incorrect, as it makes that setting rather
+			# pointless.  The summary still reveals if the answer is correct or not.
+			if ($rh_envir->{showAttemptResults} || $rh_envir->{forceShowAttemptResults}) {
+				my @summary;
+
+				if (@answerNames == 1) {
+					if ($numCorrect == 1) {
+						push(
+							@summary,
+							Mojo::DOM->new_tag(
+								'div',
+								class => 'alert alert-success mb-2 p-1',
+								maketext('The answer is correct.')
+							)
+						);
+					} elsif ($numEssay) {
+						push(
+							@summary,
+							Mojo::DOM->new_tag(
+								'div',
+								class => 'alert alert-info mb-2 p-1',
+								maketext('The answer will be graded later.')
+							)
+						);
+					} elsif ($numBlank) {
+						push(
+							@summary,
+							Mojo::DOM->new_tag(
+								'div',
+								class => 'alert alert-warning mb-2 p-1',
+								maketext('The question has not been answered.')
+							)
+						);
+					} else {
+						push(
+							@summary,
+							Mojo::DOM->new_tag(
+								'div',
+								class => 'alert alert-danger mb-2 p-1',
+								maketext('The answer is NOT correct.')
+							)
+						);
+					}
+				} else {
+					if ($numCorrect + $numEssay == @answerNames) {
+						if ($numEssay) {
+							push(
+								@summary,
+								Mojo::DOM->new_tag(
+									'div',
+									class => 'alert alert-success mb-2 p-1',
+									maketext('All of the gradeable answers are correct.')
+								)
+							);
+						} else {
+							push(
+								@summary,
+								Mojo::DOM->new_tag(
+									'div',
+									class => 'alert alert-success mb-2 p-1',
+									maketext('All of the answers are correct.')
+								)
+							);
+						}
+					} elsif ($numBlank + $numEssay + $numCorrect != @answerNames) {
+						push(
+							@summary,
+							Mojo::DOM->new_tag(
+								'div',
+								class => 'alert alert-danger mb-2 p-1',
+								maketext(
+									'[_1] of the answers [plural,_1,is,are] NOT correct.',
+									@answerNames - $numBlank - $numCorrect - $numEssay
+								)
+							)
+						);
+					}
+					if ($numBlank) {
+						push(
+							@summary,
+							Mojo::DOM->new_tag(
+								'div',
+								class => 'alert alert-warning mb-2 p-1',
+								maketext(
+									'[quant,_1,of the questions remains,of the questions remain] unanswered.',
+									$numBlank
+								)
+							)
+						);
+					}
+					if ($numEssay) {
+						push(
+							@summary,
+							Mojo::DOM->new_tag(
+								'div',
+								class => 'alert alert-info mb-2 p-1',
+								maketext('[_1] of the answers will be graded later.', $numEssay)
+							)
+						);
+					}
+				}
+				$PG->{result_summary} = join('', @summary);
+			}
+		});
+	}
+
+	# Install problem grader.
+	# WeBWorK::PG::Translator will install its default problem grader if none of the conditions below are true.
+	if (defined($PG->{flags}{PROBLEM_GRADER_TO_USE})) {
+		# Problem grader defined within problem.  No further action needed.
+	} elsif (defined($rh_envir->{PROBLEM_GRADER_TO_USE})) {
+		if (ref($rh_envir->{PROBLEM_GRADER_TO_USE}) eq 'CODE') {
+			# User defined grader.
+			$PG->{flags}{PROBLEM_GRADER_TO_USE} = $rh_envir->{PROBLEM_GRADER_TO_USE};
+		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'std_problem_grader') {
+			$PG->{flags}{PROBLEM_GRADER_TO_USE} = \&std_problem_grader if (defined(&std_problem_grader));
+		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'avg_problem_grader') {
+			$PG->{flags}{PROBLEM_GRADER_TO_USE} = \&avg_problem_grader if (defined(&avg_problem_grader));
 		} else {
-			warn "Error:  " . $PG->{flags}->{PROBLEM_GRADER_TO_USE} . "is not a known program grader.";
+			warn "Error: $PG->{flags}{PROBLEM_GRADER_TO_USE} is not a known problem grader.";
 		}
 	} elsif (defined(&std_problem_grader)) {
-		$PG->{flags}->{PROBLEM_GRADER_TO_USE} = \&std_problem_grader;    # defined in PGanswermacros.pl
-	} else {
-		# PGtranslator will install its default problem grader
+		$PG->{flags}{PROBLEM_GRADER_TO_USE} = \&std_problem_grader;
 	}
 
-	# add javaScripts
-	if ($rh_envir->{displayMode} eq 'HTML_jsMath') {
-		TEXT('<script> jsMath.wwProcess() </script>');
-	} elsif ($rh_envir->{displayMode} eq 'HTML_asciimath') {
-		TEXT('<script> translate() </script>');
-		my $STRING = join("", @{ $PG->{HEADER_ARRAY} });
-		unless ($STRING =~ m/mathplayer/) {
-			HEADER_TEXT('<object id="mathplayer" classid="clsid:32F66A20-7614-11D4-BD11-00104BD3F987">' . "\n"
-					. '</object><?import namespace="mml" implementation="#mathplayer"?>');
-		}
-
-	}
 	TEXT(MODES(%{ $rh_envir->{problemPostamble} }));
 
-	@PG_ANSWERS = ();
 	if ($inputs_ref->{showResourceInfo} && $rh_envir->{show_resource_info}) {
-		my %resources      = %{ $PG->{PG_alias}->{resource_list} };
-		my $str            = '';
-		my @resource_names = ();
-		foreach my $key (keys %resources) {
-			$str .= knowlLink("$key$BR", value => "$key$BR" . pretty_print($resources{$key}) . "$BR$BR", base64 => 0);
-			push @resource_names, $key;
-		}
-		if ($str eq '') {
-			$str = "No auxiliary resources<br/>";
+		if (keys %{ $PG->{PG_alias}{resource_list} }) {
+			$PG->debug_message(
+				'<p>Resources</p><ul>' . join(
+					'',
+					map {
+						'<li>' . knowlLink($_, value => pretty_print($PG->{PG_alias}{resource_list}{$_})) . '</li>'
+					}
+						sort keys %{ $PG->{PG_alias}{resource_list} }
+					)
+					. '</ul>'
+			);
 		} else {
-			my $summary = "## RESOURCES('" . join("','", @resource_names) . "')$BR\n";
-			$PG->debug_message($summary . $str);
+			$PG->debug_message('No auxiliary resources.');
 		}
 	}
+
 	if ($inputs_ref->{showPGInfo} && $rh_envir->{show_pg_info}) {
 		my $context = $$Value::context->{flags};
 		$PG->debug_message(
-			$HR, "Form variables",      $BR, pretty_print($inputs_ref), $HR, "Environment variables",
-			$BR, pretty_print(\%envir), $HR, "Context flags",           $BR, pretty_print($context),
+			"$HR<p>Form variables</p><div>" . pretty_print($inputs_ref) . '</div>',
+			"$HR<p>Environment variables</p><div>" . pretty_print(\%envir) . '</div>',
+			"$HR<p>Context flags</p><div>" . pretty_print($context) . '</div>'
 		);
 	}
 
-	#warn keys %{ $PG->{PG_ANSWERS_HASH} };
-	@PG_ANSWER_ENTRY_ORDER = ();
-	my $ans_debug = 0;
-	foreach my $key (keys %{ $PG->{PG_ANSWERS_HASH} }) {
-		$answergroup = $PG->{PG_ANSWERS_HASH}->{$key};
-		#warn "$key is defined =", defined($answergroup), "PG object is $PG";
-		#################
+	my (%PG_ANSWERS_HASH, @PG_ANSWER_ENTRY_ORDER);
+	for my $key (keys %{ $PG->{PG_ANSWERS_HASH} }) {
+		my $answergroup = $PG->{PG_ANSWERS_HASH}{$key};
+
 		# EXTRA ANSWERS KLUDGE
-		#################
-		# The first response in each answer group is placed in @PG_ANSER_ENTRY_ORDER and %PG_ANSWERS_HASH
-		# The remainder of the response keys are placed in the EXTRA ANSWERS ARRAY
-		if (defined($answergroup)) {
-			my @response_keys = $answergroup->{response}->response_labels;
+		# The first response label in each answer group is placed in the @PG_ANSWER_ENTRY_ORDER array, and the first
+		# response evaluator is placed in %PG_ANSWERS_HASH identified by its label.  The remainder of the response
+		# labels are placed in the @KEPT_EXTRA_ANSWERS array.
+		if (defined $answergroup) {
 			if ($inputs_ref->{showAnsGroupInfo} && $rh_envir->{show_answer_group_info}) {
 				$PG->debug_message(pretty_print($answergroup));
 				$PG->debug_message(pretty_print($answergroup->{response}));
 			}
-			my $response_key = $response_keys[0];
-			my $answer_key   = $answergroup->{ans_label};
-			#unshift @response_keys, $response_key unless ($response_key eq $answer_group->{ans_label});
-			# don't save the first response key if it is the same as the ans_label
-			# maybe we should insure that the first response key is always the same as the answer label?
-			#          warn "first response key label and answer key label don't agree"
-			#                 unless ($response_key eq $answer_key);
 
-			# even if no answer blank is printed for it? or a hidden answer blank?
-			# this is still a KLUDGE
-			# for compatibility the first response key is closer to the old method than the $ans_label
-			# this is because a response key might indicate an array but an answer label won't
-			#push @PG_ANSWERS, $response_key,$answergroup->{ans_eval};
-			$PG_ANSWERS_HASH{$answer_key} = $answergroup->{ans_eval};
-			push @PG_ANSWER_ENTRY_ORDER, $answer_key;
-			# @KEPT_EXTRA_ANSWERS could be replaced by saving all of the responses for this answergroup
-			push @KEPT_EXTRA_ANSWERS, @response_keys;
+			$PG_ANSWERS_HASH{ $answergroup->{ans_label} } = $answergroup->{ans_eval};
+			push @PG_ANSWER_ENTRY_ORDER, $answergroup->{ans_label};
+
+			push @KEPT_EXTRA_ANSWERS, $answergroup->{response}->response_labels;
 		} else {
-			warn "$key is ", join("|", %{ $PG->{PG_ANSWERS_HASH}->{$key} });
+			warn "$key does not have a valid answer group.";
 		}
 	}
 
-	$PG->{flags}->{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
-	$PG->{flags}->{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
+	$PG->{flags}{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
+	$PG->{flags}{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
 
-	# these should not be needed any longer since PG_alias warning queue is attached to PGcore's
-	# $PG->warning_message( @{ $PG->{PG_alias}->{flags}->{WARNING_messages}} );
-	# $PG->debug_message( @{ $PG->{PG_alias}->{flags}->{DEBUG_messages}}   );
-
-	warn "KEPT_EXTRA_ANSWERS",    join(" ", @KEPT_EXTRA_ANSWERS),    $BR if $ans_debug == 1;
-	warn "PG_ANSWER_ENTRY_ORDER", join(" ", @PG_ANSWER_ENTRY_ORDER), $BR if $ans_debug == 1;
-	# not needed for the moment:
-	# warn "DEBUG messages", join( "$BR",@{$PG->get_debug_messages} ) if $ans_debug==1;
-	warn "INTERNAL_DEBUG messages", join("$BR", @{ $PG->get_internal_debug_messages }) if $ans_debug == 1;
-	$STRINGforOUTPUT          = join("", @{ $PG->{OUTPUT_ARRAY} });
-	$STRINGforHEADER_TEXT     = join("", @{ $PG->{HEADER_ARRAY} });
-	$STRINGforPOSTHEADER_TEXT = join("", @{ $PG->{POST_HEADER_ARRAY} });
-	# warn pretty_print($PG->{PG_ANSWERS_HASH});
-	#warn "printing another warning";
+	my $STRINGforOUTPUT          = join('', @{ $PG->{OUTPUT_ARRAY} });
+	my $STRINGforHEADER_TEXT     = join('', @{ $PG->{HEADER_ARRAY} });
+	my $STRINGforPOSTHEADER_TEXT = join('', @{ $PG->{POST_HEADER_ARRAY} });
 
 	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT, \$STRINGforPOSTHEADER_TEXT, \%PG_ANSWERS_HASH, $PG->{flags}, $PG);
 }

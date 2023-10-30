@@ -202,14 +202,43 @@ sub MENU {
 	my $label        = main::generate_aria_label($name);
 
 	if ($main::displayMode =~ m/^HTML/) {
-		$menu = qq!<select class="pg-select" name="$name" id="$name" aria-label="$label" size="1">\n!;
-		$menu .= qq!<option disabled selected value="" class="tex2jax_ignore">$placeholder</option>\n! if $placeholder;
-		foreach my $item (@list) {
-			my $selected = ($item eq $answer_value) ? " selected" : "";
-			my $option   = $self->quoteHTML($item, 1);
-			$menu .= qq!<option$selected value="$option" class="tex2jax_ignore">$option</option>\n!;
-		}
-		$menu .= "</select>";
+		$menu = main::tag(
+			'span',
+			class                       => 'text-nowrap',
+			data_feedback_insert_elt    => $name,
+			data_feedback_insert_method => 'append_content',
+			main::tag(
+				'select',
+				class      => 'pg-select',
+				name       => $name,
+				id         => $name,
+				aria_label => $label,
+				size       => 1,
+				(
+					$placeholder
+					? main::tag(
+						'option',
+						disabled => undef,
+						selected => undef,
+						value    => '',
+						class    => 'tex2jax_ignore',
+						$placeholder
+						)
+					: ''
+					)
+					. join(
+						'',
+						map {
+							main::tag(
+								'option', $_ eq $answer_value ? (selected => undef) : (),
+								value => $_,
+								class => 'tex2jax_ignore',
+								$self->quoteHTML($_, 1)
+							)
+						} @list
+					)
+			)
+		);
 	} elsif ($main::displayMode eq 'PTX') {
 		if ($self->{showInStatic}) {
 			$menu = qq(<var form="popup" name="$name">) . "\n";

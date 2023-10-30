@@ -97,6 +97,7 @@ sub new {
 		PG_alias                     => undef,
 		PG_problem_grader            => undef,
 		displayMode                  => undef,
+		content_post_processors      => [],
 		envir                        => $envir,
 		WARNING_messages             => [],
 		DEBUG_messages               => [],
@@ -559,6 +560,12 @@ sub update_persistent_data {    # will store strings only (so far)
 sub get_persistent_data {
 	my ($self, $label) = @_;
 	return $self->{PERSISTENCE_HASH}{$label};
+}
+
+sub add_content_post_processor {
+	my ($self, $handler) = @_;
+	push(@{ $self->{content_post_processors} }, $handler) if ref($handler) eq 'CODE';
+	return;
 }
 
 sub check_answer_hash {
