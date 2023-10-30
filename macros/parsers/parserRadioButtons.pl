@@ -658,21 +658,25 @@ sub BUTTONS {
 			);
 		}
 	}
-	#
-	#  Taken from PGbasicmacros.pl
-	#  It is wrong to have \item in the radio buttons and to add itemize here,
-	#    but that is the way PGbasicmacros.pl does it.
-	#
+
+	# Taken from PGbasicmacros.pl
+	# It is wrong to have \item in the radio buttons and to add itemize here,
+	# but that is the way PGbasicmacros.pl does it.
 	if ($main::displayMode eq 'TeX') {
 		$radio[0] = "\n\\begin{itemize}\n" . $radio[0];
-		$radio[$#radio_buttons] .= "\n\\end{itemize}\n";
-	}
-	if ($main::displayMode eq 'PTX') {
+		$radio[-1] .= "\n\\end{itemize}\n";
+	} elsif ($main::displayMode eq 'PTX') {
 		$radio[0] = qq(<ul name="$name">) . "\n" . $radio[0];
-		$radio[$#radio_buttons] .= '</ul>';
+		$radio[-1] .= '</ul>';
 		#turn any math delimiters
 		@radio = map { $_ =~ s/\\\(/<m>/g;   $_ } (@radio);
 		@radio = map { $_ =~ s/\\\)/<\/m>/g; $_ } (@radio);
+	} else {
+		$radio[0] =
+			qq{<div class="radio-buttons-container" }
+			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
+			. qq{data-feedback-btn-add-class="ms-3">$radio[0]};
+		$radio[-1] .= "</div>";
 	}
 	(wantarray) ? @radio : join(($main::displayMode eq 'PTX') ? '' : $self->{separator}, @radio);
 }

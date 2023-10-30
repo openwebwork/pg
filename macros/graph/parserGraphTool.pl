@@ -1128,14 +1128,19 @@ sub ans_rule {
 		return '';
 	} else {
 		$self->constructJSXGraphOptions;
-		return main::tag('input', type => 'hidden', name => $ans_name, id => $ans_name, value => $answer_value)
-			. main::tag(
-				'input',
-				type  => 'hidden',
-				name  => "previous_$ans_name",
-				id    => "previous_$ans_name",
-				value => $answer_value
-			) . <<END_SCRIPT;
+		return main::tag(
+			'div',
+			data_feedback_insert_element => $ans_name,
+			class                        => 'graphtool-outer-container',
+			main::tag('input', type => 'hidden', name => $ans_name, id => $ans_name, value => $answer_value)
+				. main::tag(
+					'input',
+					type  => 'hidden',
+					name  => "previous_$ans_name",
+					id    => "previous_$ans_name",
+					value => $answer_value
+				)
+				. <<END_SCRIPT);
 <div id='${ans_name}_graphbox' class='graphtool-container'></div>
 <script>
 (() => {
@@ -1202,7 +1207,19 @@ sub cmp_preprocess {
 # displayed in the "Correct Answer" box of the results table.
 sub cmp {
 	my ($self, %options) = @_;
-	my $cmp = $self->SUPER::cmp(non_tex_preview => 1, %{ $self->{cmpOptions} }, %options);
+	my $cmp = $self->SUPER::cmp(
+		feedback_options => sub {
+			my ($ansHash, $options, $problemContents) = @_;
+			$options->{wrapPreviewInTex} = 0;
+			$options->{showEntered}      = 0;
+			$options->{feedbackElements} = $problemContents->find('[id="' . $self->ANS_NAME . '_graphbox"]');
+			$options->{insertElement} =
+				$problemContents->at('[data-feedback-insert-element="' . $self->ANS_NAME . '"]');
+			$options->{insertMethod} = 'append_content';
+		},
+		%{ $self->{cmpOptions} },
+		%options
+	);
 
 	unless (ref($cmp->{rh_ans}{list_checker}) eq 'CODE' || ref($cmp->{rh_ans}{checker}) eq 'CODE') {
 		$cmp->{rh_ans}{list_checker} = sub {

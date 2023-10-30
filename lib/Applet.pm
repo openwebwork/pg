@@ -524,7 +524,11 @@ sub insertObject {
 
 	my $objectText = $self->{objectText};
 	$objectText =~ s/(\$\w+)/$1/gee;
-	return $objectText;
+	return
+		qq{<div class="applet-container" data-feedback-insert-element="$self->{answerBoxAlias}" }
+		. 'data-feedback-insert-method="append_content">'
+		. $objectText
+		. '</div>';
 }
 
 # These methods are defined so that they can be used in the derived objects in the AppletObjects.pl macro file.

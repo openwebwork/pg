@@ -477,7 +477,7 @@ sub fix_markers ($self) {
 	my %depths = %{ $self->{depths} };
 	for my $depthkey (keys %depths) {
 		if ($depths{$depthkey} eq 'none') {
-			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align:"$self->{dvipng_align}"/g;
+			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align:$self->{dvipng_align}"/g;
 		} else {
 			my $ndepth = 0 - $depths{$depthkey};
 			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align:${ndepth}px"/g;

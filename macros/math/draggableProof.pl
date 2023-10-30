@@ -325,8 +325,14 @@ sub cmp_defaults {
 	my ($self, %options) = @_;
 	return (
 		$self->SUPER::cmp_defaults(%options),
-		ordered   => 1,
-		list_type => 'statement',
+		ordered          => 1,
+		list_type        => 'statement',
+		feedback_options => sub {
+			my ($ansHash, $options) = @_;
+			$options->{btnAddClass} = '';
+			$options->{showEntered} = 0;
+			$options->{answerGiven} = ($ansHash->{student_ans} // '') eq '(see preview)';
+		}
 	);
 }
 

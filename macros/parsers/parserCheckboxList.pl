@@ -599,7 +599,10 @@ sub CHECKS {
 		@checks = map { $_ =~ s/\\\(/<m>/gr } @checks;
 		@checks = map { $_ =~ s/\\\)/<\/m>/gr } @checks;
 	} else {
-		$checks[0] = qq(<div class="checkboxes-container">\n$checks[0]);
+		$checks[0] =
+			qq{<div class="checkboxes-container" }
+			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
+			. qq{data-feedback-btn-add-class="ms-3">\n$checks[0]};
 		$checks[-1] .= "</div>";
 	}
 
