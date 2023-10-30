@@ -107,6 +107,7 @@ is(
 			{ file => 'js/Feedback/feedback.js',                  external => 0, attributes => { defer => undef } },
 			{ file => 'js/Base64/Base64.js',                      external => 0, attributes => { defer => undef } },
 			{ file => 'js/Knowls/knowl.js',                       external => 0, attributes => { defer => undef } },
+			{ file => 'js/Problem/details-accordion.js',          external => 0, attributes => { defer => undef } },
 			{ file => 'js/ImageView/imageview.js',                external => 0, attributes => { defer => undef } },
 			{ file => 'js/Essay/essay.js',                        external => 0, attributes => { defer => undef } },
 			{ file => 'node_modules/mathquill/dist/mathquill.js', external => 0, attributes => { defer => undef } },

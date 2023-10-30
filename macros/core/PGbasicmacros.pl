@@ -1066,8 +1066,24 @@ sub SOLUTION {
 	return "" if $solution_body eq "";
 
 	if ($displayMode =~ /HTML/) {
-		TEXT('<div class="knowl-container">',
-			knowlLink(SOLUTION_HEADING(), value => $solution_body, type => 'solution'), '</div>');
+		TEXT(tag(
+			'div',
+			class => 'solution accordion my-3',
+			tag(
+				'details',
+				class => 'accordion-item',
+				tag(
+					'summary',
+					class => 'accordion-button collapsed text-primary fw-bold py-2',
+					tag('div', class => 'accordion-header user-select-none', SOLUTION_HEADING())
+					)
+					. tag(
+						'div',
+						class => 'accordion-collapse collapse',
+						tag('div', class => 'accordion-body', $solution_body)
+					)
+			)
+		));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN SOLUTION\n"
@@ -1092,7 +1108,24 @@ sub HINT {
 	my $hint_body = hint(@_);
 	return unless $hint_body;
 	if ($displayMode =~ /HTML/) {
-		TEXT('<div class="knowl-container">', knowlLink(HINT_HEADING(), value => $hint_body, type => 'hint'), '</div>');
+		TEXT(tag(
+			'div',
+			class => 'hint accordion my-3',
+			tag(
+				'details',
+				class => 'accordion-item',
+				tag(
+					'summary',
+					class => 'accordion-button collapsed text-primary fw-bold py-2',
+					tag('div', class => 'accordion-header user-select-none', HINT_HEADING())
+					)
+					. tag(
+						'div',
+						class => 'accordion-collapse collapse',
+						tag('div', class => 'accordion-body', $hint_body)
+					)
+			)
+		));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN HINT\n"
@@ -1390,7 +1423,7 @@ sub END_ONE_COLUMN {    # deprecated
 sub SOLUTION_HEADING {
 	MODES(
 		TeX  => '{\\bf ' . maketext('Solution:') . ' }',
-		HTML => '<B>' . maketext('Solution:') . '</B> ',
+		HTML => maketext('Solution'),
 		PTX  => ''
 	);
 }
@@ -1398,7 +1431,7 @@ sub SOLUTION_HEADING {
 sub HINT_HEADING {
 	MODES(
 		TeX  => '{\\bf ' . maketext('Hint:') . ' }',
-		HTML => '<B>' . maketext('Hint:') . '</B> ',
+		HTML => maketext('Hint'),
 		PTX  => ''
 	);
 }
