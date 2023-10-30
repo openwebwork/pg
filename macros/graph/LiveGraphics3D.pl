@@ -126,6 +126,12 @@ sub LiveGraphics3D {
 		# In html mode check to see if we use javascript or not
 	} else {
 		my ($w, $h) = @{ $options{size} };
+		$out .= $bHTML if ($main::displayMode eq "Latex2HTML");
+		#
+		#  Put the js in a table
+		#
+		$out .= qq{\n<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="0">\n<TR>};
+		$out .= qq{<TD WIDTH="$w" HEIGHT="$h" ALIGN="CENTER">};
 
 		$archive_input = $options{archive} // '';
 		$file_input    = $options{file}    // '';
@@ -133,14 +139,16 @@ sub LiveGraphics3D {
 
 		$direct_input =~ s/\n//g;
 
-		# include any independent variables
+		#
+		#  include any independent variables
+		#
 		$ind_vars = '{}';
 
 		if ($options{vars}) {
 			$ind_vars = "{";
 			%vars     = @{ $options{vars} };
 
-			for $var (keys %vars) {
+			foreach $var (keys %vars) {
 				$ind_vars .= "\"$var\":\"" . $vars{$var} . "\",";
 			}
 
@@ -148,25 +156,26 @@ sub LiveGraphics3D {
 		}
 
 		$out .= <<EOS;
-<div style="width:fit-content;height:fit-content;border:1px solid black;">
-<script>
-(() => {
-	const thisTD = jQuery('script:last').parent();
-	const options = {
-		width: $w,
-		height: $h,
-		file: '$file_input',
-		input: '$direct_input',
-		archive: '$archive_input',
-		vars: $ind_vars,
-	};
-	if (typeof LiveGraphics3D !== 'undefined') {
-		new LiveGraphics3D(thisTD[0],options);
-	}
-})();
-</script>
-</div>
+    <script>
+    var thisTD = jQuery('script:last').parent();
+    var options = { width : $w,
+		    height : $h,
+		    file : '$file_input',
+		    input : '$direct_input',
+		    archive : '$archive_input',
+		    vars : $ind_vars,
+    };
+
+    if (typeof LiveGraphics3D !== 'undefined') {
+        var graph = new LiveGraphics3D(thisTD[0],options);
+    }
+
+    </script>
 EOS
+
+		$out .= "</TD></TD>\n</TABLE>\n";
+		$out .= $eHTML if ($main::displayMode eq "Latex2HTML");
+		# otherwise use the applet
 	}
 
 	return $out;
