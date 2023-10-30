@@ -93,16 +93,16 @@ original can be obtained from the C<original_formula> property.
 # ^uses Formula
 # ^uses Value::contextSet
 sub Compute {
-	my $string  = shift;
-	my $formula = Formula($string);
-	if (Value::matchNumber($string)) {
-		my $real = Real($string);
+	my $string = shift;
+	if ($string =~ m/^\s*-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]\d+)\s*$/
+		&& Value::matchNumber($string)
+		&& ($string ^ $string) eq '0')
+	{
 		warn "Compute() called with ambiguous value: $string\n"
-			. '-- use Real() for scientific notation'
-			. " ($real) or use Formula() for $formula \n"
-			unless ($real == $formula);
-		return $real;
+			. "-- use Real() for scientific notation or Formula() for Euler's number e\n";
+		$string = uc($string);
 	}
+	my $formula = Formula($string);
 	$formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
 	my $context = $formula->context;
 	my $flags   = Value::contextSet($context, reduceConstants => 0, reduceConstantFunctions => 0, showExtraParens => 0);
