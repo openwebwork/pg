@@ -1,0 +1,65 @@
+.image-view-elt {
+	&:hover {
+		cursor: pointer;
+	}
+
+	&.top {
+		vertical-align: text-top;
+	}
+
+	&.middle {
+		vertical-align: middle;
+	}
+
+	&.bottom {
+		vertical-align: baseline;
+	}
+}
+
+.image-view-dialog {
+	&.modal {
+		padding: 0 !important;
+	}
+
+	.modal-dialog {
+		margin: 0;
+	}
+
+	.modal-body {
+		overflow: unset;
+		padding: 8px;
+		text-align: center;
+		box-sizing: content-box !important;
+
+		img {
+			max-width: 100%;
+			height: 100%;
+		}
+
+		svg {
+			overflow: visible;
+		}
+	}
+
+	.modal-header {
+		padding: 0.1rem 0.5rem;
+
+		.drag-handle {
+			cursor: pointer;
+			width: 100%;
+			height: 26px;
+			touch-action: none;
+		}
+
+		.btn {
+			padding: 0 0.2rem;
+			margin: 0 0.25rem 0 0;
+			border: none;
+		}
+
+		.btn-close {
+			padding: 0.25rem 0.25rem;
+			margin: -0.5rem 0 -0.5rem auto;
+		}
+	}
+}
