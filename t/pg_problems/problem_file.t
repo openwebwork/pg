@@ -23,11 +23,11 @@ is(
 	qq{<div class="PGML">\n}
 		. qq{Enter a value for <script type="math/tex">\\pi</script>.\n}
 		. qq{<div style="margin-top:1em"></div>\n}
-		. qq{<span class="text-nowrap">}
+		. qq{<div class="text-nowrap d-inline">}
 		. qq{<input aria-label="answer 1 " autocapitalize="off" autocomplete="off" class="codeshard" }
 		. qq{dir="auto" id="AnSwEr0001" name="AnSwEr0001" size="5" spellcheck="false" type="text" value="3.14159">}
 		. qq{<input id="MaThQuIlL_AnSwEr0001" name="MaThQuIlL_AnSwEr0001" type="hidden" value="">}
-		. qq{</span>}
+		. qq{</div>}
 		. qq{<input name="previous_AnSwEr0001" type="hidden" value="3.14159">\n}
 		. qq{</div>\n},
 	'body_text has correct content'

@@ -298,8 +298,8 @@ sub NAMED_ANS_RULE {
 		TeX => "{\\answerRule[$name]{$tcol}}",
 		# Note: codeshard is used in the css to identify input elements that come from pg.
 		HTML => tag(
-			'span',
-			class => 'text-nowrap',
+			'div',
+			class => 'text-nowrap d-inline',
 			tag(
 				'input',
 				type           => 'text',
@@ -414,8 +414,8 @@ sub NAMED_ANS_BOX {
 	return MODES(
 		TeX  => qq!\\vskip $height in \\hrulefill\\quad !,
 		HTML => tag(
-			'span',
-			class => 'text-nowrap',
+			'div',
+			class => 'text-nowrap d-inline',
 			tag(
 				'textarea',
 				name       => $name,
@@ -855,8 +855,8 @@ sub NAMED_POP_UP_LIST {
 		|| $displayMode eq 'HTML_tth')
 	{
 		return tag(
-			'span',
-			class => 'text-nowrap',
+			'div',
+			class => 'text-nowrap d-inline',
 			tag(
 				'select',
 				class => 'pg-select',
@@ -1359,7 +1359,7 @@ sub PAR {
 	MODES(
 		TeX        => '\\vskip\\baselineskip ',
 		Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}',
-		HTML       => '<P>',
+		HTML       => '<div style="margin-top:1em"></div>',
 		PTX        => "\n\n"
 	);
 }
