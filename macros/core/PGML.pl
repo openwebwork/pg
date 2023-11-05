@@ -438,7 +438,7 @@ sub Rule {
 	my $token = shift;
 	if ($self->{atLineStart}) {
 ### check for line end or braces
-		$self->Item("rule", $token, { options => [ "width", "size" ] });
+		$self->Item("rule", $token, { options => [ "width", "height", "size" ] });
 		$self->{ignoreNL} = 1;
 	} else {
 		$self->Text($token);
@@ -1589,20 +1589,31 @@ sub Quote {
 }
 
 sub Rule {
-	my $self  = shift;
-	my $item  = shift;
-	my $width = " width:100%; ";
-	my $size  = "";
-	$width = ' width:' . $item->{width} . '; ' if defined $item->{width};
-	$size  = ' size="' . $item->{size} . '"'   if defined $item->{size};
-	my $html = '<hr' . $size . ' style="margin:.3em auto" />';
-	$html = '<div>'
-		. '<span style="'
-		. $width
-		. 'display:-moz-inline-box; display:inline-block; margin:.3em auto">'
-		. $html
-		. '</span>'
-		. '</div>';    # if $width ne '' && $item->{width} !~ m/%/;
+	my $self   = shift;
+	my $item   = shift;
+	my $width  = '100%;';
+	my $height = '1px';
+	if (defined $item->{width}) {
+		$width = $item->{width};
+		$width .= 'px' if ($width =~ /^\d*\.?\d+$/);
+	}
+	if (defined $item->{height}) {
+		$height = $item->{height};
+		$height .= 'px' if ($height =~ /^\d*\.?\d+$/);
+	} elsif (defined $item->{size}) {
+		$height = $item->{size};
+		$height .= 'px' if ($height =~ /^\d*\.?\d+$/);
+	}
+	my $html = main::tag(
+		'div',
+		main::tag(
+			'span',
+			style => "width:$width; display:inline-block; margin:0.3em auto",
+			main::tag(
+				'hr', style => "width:$width; height:$height; background-color:currentColor; margin:0.3em auto;"
+			)
+		)
+	);
 	return $self->nl . $html . "\n";
 }
 
@@ -1736,17 +1747,18 @@ sub Quote {
 }
 
 sub Rule {
-	my $self  = shift;
-	my $item  = shift;
-	my $width = "100%";
-	my $size  = "1";
-	$width = $item->{width} if defined $item->{width};
-	$size  = $item->{size}  if defined $item->{size};
-	$width =~ s/%/\\pgmlPercent/;
-	$size  =~ s/%/\\pgmlPercent/;
-	$width .= "\\pgmlPixels" if $width =~ m/^\d+$/;
-	$size  .= "\\pgmlPixels" if $size  =~ m/^\d+$/;
-	return $self->nl . "\\pgmlRule{$width}{$size}%\n";
+	my $self   = shift;
+	my $item   = shift;
+	my $width  = "100%";
+	my $height = "1";
+	$width  = $item->{width}  if defined $item->{width};
+	$height = $item->{size}   if defined $item->{size};
+	$height = $item->{height} if defined $item->{height};
+	$width  =~ s/%/\\pgmlPercent/;
+	$height =~ s/%/\\pgmlPercent/;
+	$width  .= "\\pgmlPixels" if $width  =~ m/^\d+$/;
+	$height .= "\\pgmlPixels" if $height =~ m/^\d+$/;
+	return $self->nl . "\\pgmlRule{$width}{$height}%\n";
 }
 
 sub Verbatim {
