@@ -1604,17 +1604,17 @@ sub Rule {
 		$height = $item->{size};
 		$height .= 'px' if ($height =~ /^\d*\.?\d+$/);
 	}
-	my $html = main::tag(
-		'div',
-		main::tag(
-			'span',
-			style => "width:$width; display:inline-block; margin:0.3em auto",
+	return $self->nl
+		. main::tag(
+			'div',
 			main::tag(
-				'hr', style => "width:$width; height:$height; background-color:currentColor; margin:0.3em auto;"
+				'span',
+				style => "width:$width; display:inline-block; margin:0.3em auto",
+				main::tag(
+					'hr', style => "width:$width; height:$height; background-color:currentColor; margin:0.3em auto;"
+				)
 			)
-		)
-	);
-	return $self->nl . $html . "\n";
+		);
 }
 
 sub Verbatim {
