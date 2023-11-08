@@ -1,18 +1,6 @@
 'use strict';
 
 (() => {
-	// Convenience method for easily constructing nested x3dom elements with code that clearly reveals the structure.
-	const createX3DElement = (type, attributes = null, ...children) => {
-		const element = document.createElement(type);
-		if (attributes) {
-			for (const [attribute, value] of Object.entries(attributes)) {
-				element.setAttribute(attribute, value);
-			}
-		}
-		element.append(...children);
-		return element;
-	};
-
 	const liveGraphics3D = (container) => {
 		const options = JSON.parse(container.dataset.options);
 
@@ -22,112 +10,32 @@
 		options.showAxes = options.showAxes ?? false;
 		options.showAxesCube = options.showAxesCube ?? true;
 		options.numTicks = options.numTicks ?? 4;
-		options.tickSize = options.tickSize ?? 0.1;
-		options.tickFontSize = options.tickFontSize ?? 0.15;
-		options.axisKey = options.axisKey ?? ['X', 'Y', 'Z'];
+		options.axisKey = options.axisKey ?? ['x', 'y', 'z'];
 		options.drawMesh = options.drawMesh ?? true;
-
-		// Define the x3d element and scene.
-		const x3d = createX3DElement('x3d', { width: `${options.width}px`, height: `${options.height}px` });
-		container.append(x3d);
 
 		const screenReaderOnly = document.createElement('span');
 		screenReaderOnly.classList.add('visually-hidden');
 		screenReaderOnly.textContent = 'A manipulable 3d graph.';
 		container.append(screenReaderOnly);
 
-		const scene = createX3DElement('scene');
-		x3d.append(scene);
+		// Inital view point and up vector.
+		const eye = { x: 1.25, y: 1.25, z: 1.25 };
+		const up = { x: 0, y: 0, z: 1 };
 
-		// Arrays of colors and thicknesses drawn from input.
+		// Colors and thicknesses drawn from input.
 		const colors = {};
 		const lineThickness = {};
 
-		// Scale elements capturing scale of plotted data.
-		let windowScale = 0;
-		let coordMins;
-		let coordMaxs;
-
 		// Block indexes are used to associate objects to colors and thicknesses.
 		let blockIndex = 0;
-		let surfaceBlockIndex = 0;
 
-		// Data from input.
-		const surfaceCoords = [];
-		const surfaceIndex = [];
-		const lineCoords = [];
+		// Data from input (translated into plotly traces).
+		const surfaces = {};
+		const lines = {};
 		const points = [];
 		const labels = [];
 
 		let variables = '';
-
-		// This is the color map for shading surfaces based on elevation.
-		const colormap = [
-			[0.0, 0.0, 0.5],
-			[0.0, 0.0, 0.56349],
-			[0.0, 0.0, 0.62698],
-			[0.0, 0.0, 0.69048],
-			[0.0, 0.0, 0.75397],
-			[0.0, 0.0, 0.81746],
-			[0.0, 0.0, 0.88095],
-			[0.0, 0.0, 0.94444],
-			[0.0, 0.00794, 1.0],
-			[0.0, 0.07143, 1.0],
-			[0.0, 0.13492, 1.0],
-			[0.0, 0.19841, 1.0],
-			[0.0, 0.2619, 1.0],
-			[0.0, 0.3254, 1.0],
-			[0.0, 0.38889, 1.0],
-			[0.0, 0.45238, 1.0],
-			[0.0, 0.51587, 1.0],
-			[0.0, 0.57937, 1.0],
-			[0.0, 0.64286, 1.0],
-			[0.0, 0.70635, 1.0],
-			[0.0, 0.76984, 1.0],
-			[0.0, 0.83333, 1.0],
-			[0.0, 0.89683, 1.0],
-			[0.0, 0.96032, 1.0],
-			[0.02381, 1.0, 0.97619],
-			[0.0873, 1.0, 0.9127],
-			[0.15079, 1.0, 0.84921],
-			[0.21429, 1.0, 0.78571],
-			[0.27778, 1.0, 0.72222],
-			[0.34127, 1.0, 0.65873],
-			[0.40476, 1.0, 0.59524],
-			[0.46825, 1.0, 0.53175],
-			[0.53175, 1.0, 0.46825],
-			[0.59524, 1.0, 0.40476],
-			[0.65873, 1.0, 0.34127],
-			[0.72222, 1.0, 0.27778],
-			[0.78571, 1.0, 0.21429],
-			[0.84921, 1.0, 0.15079],
-			[0.9127, 1.0, 0.0873],
-			[0.97619, 1.0, 0.02381],
-			[1.0, 0.96032, 0.0],
-			[1.0, 0.89683, 0.0],
-			[1.0, 0.83333, 0.0],
-			[1.0, 0.76984, 0.0],
-			[1.0, 0.70635, 0.0],
-			[1.0, 0.64286, 0.0],
-			[1.0, 0.57937, 0.0],
-			[1.0, 0.51587, 0.0],
-			[1.0, 0.45238, 0.0],
-			[1.0, 0.38889, 0.0],
-			[1.0, 0.3254, 0.0],
-			[1.0, 0.2619, 0.0],
-			[1.0, 0.19841, 0.0],
-			[1.0, 0.13492, 0.0],
-			[1.0, 0.07143, 0.0],
-			[1.0, 0.00794, 0.0],
-			[0.94444, 0.0, 0.0],
-			[0.88095, 0.0, 0.0],
-			[0.81746, 0.0, 0.0],
-			[0.75397, 0.0, 0.0],
-			[0.69048, 0.0, 0.0],
-			[0.62698, 0.0, 0.0],
-			[0.56349, 0.0, 0.0],
-			[0.5, 0.0, 0.0]
-		];
 
 		// Split a list of mathematica commands into blocks.
 		const splitMathematicaBlocks = (text) => {
@@ -141,7 +49,7 @@
 				if (text.charAt(i) === '[') ++bracketcount;
 
 				if (text.charAt(i) === ']') {
-					bracketcount--;
+					--bracketcount;
 					if (bracketcount == 0) {
 						++i;
 						blocks.push(block);
@@ -160,21 +68,15 @@
 			const blocks = [];
 			let block = '';
 
-			if (initialcount) {
-				bracketcount = initialcount;
-			}
+			if (initialcount) bracketcount = initialcount;
 
 			for (let i = 0; i < text.length; ++i) {
-				if (text.charAt(i) === '{') {
-					++bracketcount;
-				}
+				if (text.charAt(i) === '{') ++bracketcount;
 
-				if (bracketcount > 0) {
-					block += text.charAt(i);
-				}
+				if (bracketcount > 0) block += text.charAt(i);
 
 				if (text.charAt(i) === '}') {
-					bracketcount--;
+					--bracketcount;
 					if (bracketcount == 0) {
 						blocks.push(block.substring(1, block.length - 1));
 						block = '';
@@ -193,31 +95,50 @@
 					// This is a block inside of a block.  So recurse.
 					parseMathematicaBlocks(recurseMathematicaBlocks(block));
 				} else if (block.match(/Point/)) {
-					// Find any individual points that need to be plotted.
 					// Points are defined by short blocks so don't split into individual commands.
-					let str = block.match(/Point\[\s*\{\s*(-?\d*\.?\d*)\s*,\s*(-?\d*\.?\d*)\s*,\s*(-?\d*\.?\d*)\s*\}/);
-					const point = {};
-
-					if (!str) {
+					let pointStr = block.match(
+						/Point\[\s*\{\s*(-?\d*\.?\d*)\s*,\s*(-?\d*\.?\d*)\s*,\s*(-?\d*\.?\d*)\s*\}/
+					);
+					if (!pointStr || pointStr.length < 4) {
 						console.log('Error Parsing Point');
 						continue;
 					}
 
-					point.coords = [parseFloat(str[1]), parseFloat(str[2]), parseFloat(str[3])];
+					// Points are implemented as the top and bottom half of a sphere.  Note that using a marker in a
+					// scatter3d trace results in bad clipping since markers are really only two dimensional circles.
+					const point = { type: 'mesh3d', x: [], y: [], z: [], color: 'black', hoverinfo: 'none' };
 
-					str = block.match(/PointSize\[\s*(\d*\.?\d*)\s*\]/);
+					const x = parseFloat(pointStr[1]),
+						y = parseFloat(pointStr[2]),
+						z = parseFloat(pointStr[3]);
 
-					if (str) {
-						point.radius = parseFloat(str[1]);
+					const pointSizeStr = block.match(/PointSize\[\s*(\d*\.?\d*)\s*\]/);
+					const r = pointSizeStr && pointSizeStr.length == 2 ? parseFloat(pointSizeStr[1]) * 2.5 : 0.025;
+
+					const colorStr = block.match(/RGBColor\[\s*(\d*\.?\d*)\s*,\s*(\d*\.?\d*)\s*,\s*(\d*\.?\d*)\s*\]/);
+					if (colorStr) point.color = `rgb(${colorStr[1] * 255},${colorStr[2] * 255},${colorStr[3] * 255})`;
+
+					const samples = 20;
+
+					const phiValues = Array(samples)
+						.fill(0)
+						.map((_v, i) => (i * (Math.PI / 2)) / (samples - 1));
+
+					const thetaValues = Array(samples)
+						.fill(0)
+						.map((_v, i) => (2 * i * Math.PI) / (samples - 1));
+
+					for (const phi of phiValues) {
+						for (const theta of thetaValues) {
+							point.x.push(x + r * Math.cos(theta) * Math.sin(phi));
+							point.y.push(y + r * Math.sin(theta) * Math.sin(phi));
+							point.z.push(z + r * Math.cos(phi));
+						}
 					}
 
-					str = block.match(/RGBColor\[\s*(\d*\.?\d*)\s*,\s*(\d*\.?\d*)\s*,\s*(\d*\.?\d*)\s*\]/);
-
-					if (str) {
-						point.rgb = [parseFloat(str[1]), parseFloat(str[2]), parseFloat(str[3])];
-					}
-
-					points.push(point);
+					// The lower hemisphere is obtained by duplicating the upper hemisphere and negating its z
+					// coordinate relative to the z position of the center.
+					points.push(point, { ...point, z: point.z.map((v) => 2 * z - v) });
 				} else {
 					// Otherwise its a list of commands that need to be individually processed.
 					for (const command of splitMathematicaBlocks(block)) {
@@ -225,97 +146,191 @@
 							// This is a block inside of a block.  So recurse.
 							parseMathematicaBlocks(recurseMathematicaBlocks(block));
 						} else if (command.match(/Polygon/)) {
-							if (!surfaceBlockIndex) surfaceBlockIndex = blockIndex;
-
-							// Extract all points for each polygon.
-							for (const pointstring of recurseMathematicaBlocks(
-								command.replace(/Polygon\[([^\]]*)\]/, '$1'),
-								-1
-							)) {
-								const splitstring = pointstring.replace(/\{([^\{]*)\}/, '$1').split(',');
-								const point = [];
-
-								for (let i = 0; i < 3; ++i) {
-									point[i] = parseFloat(
-										new Function(`'use strict'; { ${variables} return ${splitstring[i]} }`)()
-									);
-								}
-
-								// Find the index of the point in surfaceCoords.
-								// If the point is not in surfaceCoords, then add it.
-								const pointIndex = surfaceCoords.findIndex(
-									(p) => p[0] === point[0] && p[1] === point[1] && p[2] === point[2]
-								);
-
-								if (pointIndex === -1) {
-									surfaceIndex.push(surfaceCoords.length);
-									surfaceCoords.push(point);
-								} else {
-									surfaceIndex.push(pointIndex);
-								}
-							}
-
-							surfaceIndex.push(-1);
-						} else if (command.match(/Line/)) {
-							// Add a line to the line array.
-							const pointstrings = recurseMathematicaBlocks(
-								command.replace(/Line\[([^\]]*)\],/, '$1'),
-								-1
-							);
-
-							const line = [];
-
+							// Extract all points of the polygon.
+							const polygonPoints = [];
 							try {
-								for (let i = 0; i < 2; ++i) {
-									pointstrings[i] = pointstrings[i].replace(/\{([^\{]*)\}/, '$1');
-									const splitstring = pointstrings[i].split(',');
+								const pointStrings = recurseMathematicaBlocks(
+									command.replace(/Polygon\[([^\]]*)\]/, '$1'),
+									-1
+								);
+								if (pointStrings.length < 3) throw 'Polygons must have at least thre points.';
+
+								for (const pointString of pointStrings) {
+									const coordStrings = pointString.replace(/\{([^\{]*)\}/, '$1').split(',');
+									if (coordStrings.length !== 3) throw 'Points must have three coordinates.';
+
 									const point = [];
 
-									for (let j = 0; j < 3; ++j) {
-										point[j] = parseFloat(
-											new Function(`'use strict'; { ${variables} return ${splitstring[j]} }`)()
+									for (const coordString of coordStrings) {
+										point.push(
+											parseFloat(
+												new Function(`'use strict'; { ${variables} return ${coordString} }`)()
+											)
 										);
 									}
 
-									line.push(point);
+									polygonPoints.push(point);
 								}
 							} catch (e) {
-								console.log(`Error Parsing Line: ${e}`);
+								console.log(`Error parsing polygon: ${e}`);
+								continue;
+							}
+							if (!surfaces[blockIndex]) {
+								surfaces[blockIndex] = {
+									surface: {
+										type: 'mesh3d',
+										x: [],
+										y: [],
+										z: [],
+										i: [],
+										j: [],
+										k: [],
+										showscale: false,
+										hoverinfo: 'none'
+									},
+									mesh: {
+										type: 'scatter3d',
+										mode: 'lines',
+										x: [],
+										y: [],
+										z: [],
+										line: { width: 1, color: 'black' },
+										hoverinfo: 'none'
+									}
+								};
+							}
+
+							const polygonIndices = [];
+
+							for (const point of polygonPoints) {
+								// Find the index of the point in the surface x, y, z coordinate arrays.
+								// If the point is not in the arrays, then add it.
+								let pointIndex = 0;
+								for (; pointIndex < surfaces[blockIndex].surface.x.length; ++pointIndex) {
+									if (
+										surfaces[blockIndex].surface.x[pointIndex] === point[0] &&
+										surfaces[blockIndex].surface.y[pointIndex] === point[1] &&
+										surfaces[blockIndex].surface.z[pointIndex] === point[2]
+									)
+										break;
+								}
+
+								if (pointIndex === surfaces[blockIndex].surface.x.length) {
+									surfaces[blockIndex].surface.x.push(point[0]);
+									surfaces[blockIndex].surface.y.push(point[1]);
+									surfaces[blockIndex].surface.z.push(point[2]);
+								}
+
+								surfaces[blockIndex].mesh.x.push(point[0]);
+								surfaces[blockIndex].mesh.y.push(point[1]);
+								surfaces[blockIndex].mesh.z.push(point[2]);
+
+								polygonIndices.push(pointIndex);
+							}
+
+							// Split the polygon into triangle faces, and add the indices of the vertices of these
+							// triangles to the face index arrays.
+							for (let i = 1; i < polygonIndices.length - 1; ++i) {
+								surfaces[blockIndex].surface.i.push(polygonIndices[0]);
+								surfaces[blockIndex].surface.j.push(polygonIndices[i]);
+								surfaces[blockIndex].surface.k.push(polygonIndices[i + 1]);
+							}
+
+							surfaces[blockIndex].mesh.x.push('None');
+							surfaces[blockIndex].mesh.y.push('None');
+							surfaces[blockIndex].mesh.z.push('None');
+						} else if (command.match(/Line/)) {
+							const x = [],
+								y = [],
+								z = [];
+
+							try {
+								const pointStrings = recurseMathematicaBlocks(
+									command.replace(/Line\[([^\]]*)\],/, '$1'),
+									-1
+								);
+								if (pointStrings.length < 2) throw 'Lines must have at least two points.';
+
+								for (const pointString of pointStrings) {
+									const coordStrings = pointString.split(',');
+									if (coordStrings.length !== 3) throw 'Points must have three coordinates.';
+
+									const point = [];
+
+									for (const coordString of coordStrings) {
+										point.push(
+											parseFloat(
+												new Function(`'use strict'; { ${variables} return ${coordString} }`)()
+											)
+										);
+									}
+
+									x.push(point[0]);
+									y.push(point[1]);
+									z.push(point[2]);
+								}
+							} catch (e) {
+								console.log(`Error parsing line: ${e}`);
 								continue;
 							}
 
-							line.push(blockIndex);
-							lineCoords.push(line);
+							x.push('None');
+							y.push('None');
+							z.push('None');
+
+							if (lines[blockIndex]) {
+								lines[blockIndex].x.push(...x);
+								lines[blockIndex].y.push(...y);
+								lines[blockIndex].z.push(...z);
+							} else {
+								lines[blockIndex] = {
+									type: 'scatter3d',
+									mode: 'lines',
+									x,
+									y,
+									z,
+									line: { width: 5 },
+									hoverinfo: 'none'
+								};
+							}
 						} else if (command.match(/RGBColor/)) {
 							const str = command.match(
 								/RGBColor\[\s*(\d*\.?\d*)\s*,\s*(\d*\.?\d*)\s*,\s*(\d*\.?\d*)\s*\]/
 							);
-
-							colors[blockIndex] = [parseFloat(str[1]), parseFloat(str[2]), parseFloat(str[3])];
+							if (str && str.length === 4)
+								colors[blockIndex] = [parseFloat(str[1]), parseFloat(str[2]), parseFloat(str[3])];
 						} else if (command.match(/Thickness/)) {
-							lineThickness[blockIndex] = parseFloat(command.match(/Thickness\[\s*(\d*\.?\d*)\s*\]/)[1]);
+							const str = command.match(/Thickness\[\s*(\d*\.?\d*)\s*\]/);
+							if (str && str.length === 2) lineThickness[blockIndex] = parseFloat(str[1]);
 						} else if (command.match(/Text/)) {
-							// Find any individual labels that need to be plotted.
-							const label = {};
-
 							const labelStr = command.match(
 								/\{\s*(-?\d*\.?\d*)\s*,\s*(-?\d*\.?\d*)\s*,\s*(-?\d*\.?\d*)\s*\}/
 							);
-							if (!labelStr) {
+							if (!labelStr || labelStr.length !== 4) {
 								console.log('Error Parsing Label');
 								continue;
 							}
 
-							label.coords = [parseFloat(labelStr[1]), parseFloat(labelStr[2]), parseFloat(labelStr[3])];
+							const label = {
+								type: 'scatter3d',
+								mode: 'text',
+								textfont: { color: 'black', size: 12, family: 'mono' },
+								textposition: 'top center',
+								hoverinfo: 'none'
+							};
+
+							label.x = [parseFloat(labelStr[1])];
+							label.y = [parseFloat(labelStr[2])];
+							label.z = [parseFloat(labelStr[3])];
 
 							const optionsStr = command.match(/StyleForm\[\s*(\w+),\s*FontSize\s*->\s*(\d+)\s*\]/);
-							if (!optionsStr) {
-								console.log('Error Parsing Label');
+							if (!optionsStr || optionsStr.length < 3) {
+								console.log('Error parsing label.');
 								continue;
 							}
 
-							label.text = optionsStr[1];
-							label.fontSize = optionsStr[2];
+							label.text = [optionsStr[1]];
+							label.textfont.size = optionsStr[2];
 
 							labels.push(label);
 						}
@@ -334,532 +349,99 @@
 			if (text.match(/Axes\s*->\s*True/)) options.showAxes = true;
 
 			const labels = text.match(/AxesLabel\s*->\s*\{\s*(\w+),\s*(\w+),\s*(\w+)\s*\}/);
-			if (labels) options.axisKey = [labels[1], labels[2], labels[3]];
+			if (labels && labels.length === 4) options.axisKey = [labels[1], labels[2], labels[3]];
+
+			const viewPoint = text.match(
+				/ViewPoint\s*->\s*\{\s*(-?\d*\.?\d*)\s*,\s*(-?\d*\.?\d*)\s*,\s*(-?\d*\.?\d*)\s*\}/
+			);
+			if (viewPoint && viewPoint.length === 4) {
+				eye.x = parseFloat(viewPoint[1]);
+				eye.y = parseFloat(viewPoint[2]);
+				eye.z = parseFloat(viewPoint[3]);
+			}
+
+			const viewVertical = text.match(
+				/ViewVertical\s*->\s*\{\s*(-?\d*\.?\d*)\s*,\s*(-?\d*\.?\d*)\s*,\s*(-?\d*\.?\d*)\s*\}/
+			);
+			if (viewVertical && viewVertical.length === 4) {
+				up.x = parseFloat(viewVertical[1]);
+				up.y = parseFloat(viewVertical[2]);
+				up.z = parseFloat(viewVertical[3]);
+			}
 
 			// Split the input into blocks and parse.
 			parseMathematicaBlocks(recurseMathematicaBlocks(text));
 		};
 
-		// Find the maximum and minimum of all mesh coordinate points and the maximum coordinate value for the scale.
-		const setExtremum = () => {
-			const min = [0, 0, 0];
-			const max = [0, 0, 0];
-
-			for (const point of surfaceCoords) {
-				for (let i = 0; i < 3; ++i) {
-					if (point[i] < min[i]) min[i] = point[i];
-					else if (point[i] > max[i]) max[i] = point[i];
-				}
-			}
-
-			for (const line of lineCoords) {
-				for (let i = 0; i < 2; ++i) {
-					for (let j = 0; j < 3; ++j) {
-						if (line[i][j] < min[j]) {
-							min[j] = line[i][j];
-						} else if (line[i][j] > max[j]) {
-							max[j] = line[i][j];
-						}
-					}
-				}
-			}
-
-			coordMins = min;
-			coordMaxs = max;
-
-			let sum = 0;
-			for (let i = 0; i < 3; ++i) {
-				sum += max[i] - min[i];
-			}
-
-			windowScale = sum / 3;
-		};
-
-		// Build the ticks, tick labels, and axis label for the axis with the given index.
-		const makeAxisTicks = (index) => {
-			const shapes = [];
-
-			for (let i = 0; i < options.numTicks - 1; ++i) {
-				// Coordinate of tick and label
-				const coord = ((coordMaxs[index] - coordMins[index]) / options.numTicks) * (i + 1) + coordMins[index];
-
-				// Ticks are boxes defined by tickSize
-				shapes.push(
-					createX3DElement(
-						'transform',
-						{ translation: [coord, 0, 0] },
-						createX3DElement(
-							'shape',
-							null,
-							createX3DElement(
-								'appearance',
-								null,
-								createX3DElement('material', { diffuseColor: 'black' })
-							),
-							createX3DElement('box', {
-								size: `${options.tickSize} ${options.tickSize} ${options.tickSize}`
-							})
-						)
-					)
-				);
-
-				// Labels have two decimal places and always point towards view.
-				shapes.push(
-					createX3DElement(
-						'transform',
-						{ translation: [coord, 0.1, 0] },
-						createX3DElement(
-							'billboard',
-							{ axisOfRotation: '0 0 0' },
-							createX3DElement(
-								'shape',
-								null,
-								createX3DElement(
-									'appearance',
-									null,
-									createX3DElement('material', { diffuseColor: 'black' })
-								),
-								createX3DElement(
-									'text',
-									{ string: coord.toFixed(2), solid: 'true' },
-									createX3DElement('fontstyle', {
-										size: options.tickFontSize * windowScale,
-										family: 'mono',
-										style: 'bold',
-										justify: 'MIDDLE'
-									})
-								)
-							)
-						)
-					)
-				);
-			}
-
-			// Add the axis label to the end of the axis.
-			shapes.push(
-				createX3DElement(
-					'transform',
-					{ translation: [coordMaxs[index], 0.1, 0] },
-					createX3DElement(
-						'billboard',
-						{ axisOfRotation: '0 0 0' },
-						createX3DElement(
-							'shape',
-							null,
-							createX3DElement(
-								'appearance',
-								null,
-								createX3DElement('material', { diffuseColor: 'black' })
-							),
-							createX3DElement(
-								'text',
-								{ string: options.axisKey[index], solid: 'true' },
-								createX3DElement('fontstyle', {
-									size: options.tickFontSize * windowScale,
-									family: 'mono',
-									style: 'bold',
-									justify: 'MIDDLE'
-								})
-							)
-						)
-					)
-				)
-			);
-
-			return shapes;
-		};
-
-		const drawAxes = () => {
-			// Build the x axis and add the ticks.
-			scene.append(
-				createX3DElement(
-					'transform',
-					{ translation: [0, coordMins[1], coordMins[2]] },
-					createX3DElement(
-						'group',
-						null,
-						createX3DElement(
-							'shape',
-							null,
-							createX3DElement(
-								'appearance',
-								null,
-								createX3DElement('material', { emissiveColor: 'black' })
-							),
-							createX3DElement('Polyline2D', { lineSegments: coordMins[0] + ' 0 ' + coordMaxs[0] + ' 0' })
-						),
-						...makeAxisTicks(0)
-					)
-				)
-			);
-
-			if (options.showAxesCube) {
-				for (const translation of [
-					[0, coordMins[1], coordMaxs[2]],
-					[0, coordMaxs[1], coordMins[2]],
-					[0, coordMaxs[1], coordMaxs[2]]
-				]) {
-					scene.append(
-						createX3DElement(
-							'transform',
-							{ translation },
-							createX3DElement(
-								'shape',
-								null,
-								createX3DElement(
-									'appearance',
-									null,
-									createX3DElement('material', { emissiveColor: 'black' })
-								),
-								createX3DElement('Polyline2D', {
-									lineSegments: coordMins[0] + ' 0 ' + coordMaxs[0] + ' 0'
-								})
-							)
-						)
-					);
-				}
-			}
-
-			// Build the y axis and add the ticks.
-			scene.append(
-				createX3DElement(
-					'transform',
-					{ translation: [coordMins[0], 0, coordMins[2]], rotation: [0, 0, 1, Math.PI / 2] },
-					createX3DElement(
-						'group',
-						null,
-						createX3DElement(
-							'shape',
-							null,
-							createX3DElement(
-								'appearance',
-								null,
-								createX3DElement('material', { emissiveColor: 'black' })
-							),
-							createX3DElement('Polyline2D', { lineSegments: coordMins[1] + ' 0 ' + coordMaxs[1] + ' 0' })
-						),
-						...makeAxisTicks(1)
-					)
-				)
-			);
-
-			if (options.showAxesCube) {
-				for (const translation of [
-					[coordMins[0], 0, coordMaxs[2]],
-					[coordMaxs[0], 0, coordMins[2]],
-					[coordMaxs[0], 0, coordMaxs[2]]
-				]) {
-					scene.append(
-						createX3DElement(
-							'transform',
-							{ translation, rotation: [0, 0, 1, Math.PI / 2] },
-							createX3DElement(
-								'shape',
-								null,
-								createX3DElement(
-									'appearance',
-									null,
-									createX3DElement('material', { emissiveColor: 'black' })
-								),
-								createX3DElement('Polyline2D', {
-									lineSegments: coordMins[1] + ' 0 ' + coordMaxs[1] + ' 0'
-								})
-							)
-						)
-					);
-				}
-			}
-
-			// Build the z axis and add the ticks.
-			scene.append(
-				createX3DElement(
-					'transform',
-					{ translation: [coordMins[0], coordMins[1], 0], rotation: [0, 1, 0, -Math.PI / 2] },
-					createX3DElement(
-						'group',
-						null,
-						createX3DElement(
-							'shape',
-							null,
-							createX3DElement(
-								'appearance',
-								null,
-								createX3DElement('material', { emissiveColor: 'black' })
-							),
-							createX3DElement('Polyline2D', { lineSegments: coordMins[2] + ' 0 ' + coordMaxs[2] + ' 0' })
-						),
-						...makeAxisTicks(2)
-					)
-				)
-			);
-
-			if (options.showAxesCube) {
-				for (const translation of [
-					[coordMins[0], coordMaxs[1], 0],
-					[coordMaxs[0], coordMins[1], 0],
-					[coordMaxs[0], coordMaxs[1], 0]
-				]) {
-					scene.append(
-						createX3DElement(
-							'transform',
-							{ translation, rotation: [0, 1, 0, -Math.PI / 2] },
-							createX3DElement(
-								'shape',
-								null,
-								createX3DElement(
-									'appearance',
-									null,
-									createX3DElement('material', { emissiveColor: 'black' })
-								),
-								createX3DElement('Polyline2D', {
-									lineSegments: coordMins[2] + ' 0 ' + coordMaxs[2] + ' 0'
-								})
-							)
-						)
-					);
-				}
-			}
-		};
-
-		const drawSurface = () => {
-			if (surfaceCoords.length == 0) return;
-
-			let coordstr = '';
-			let indexstr = '';
-			let colorstr = '';
-			let colorindstr = '';
-
-			// Build a string with all the surface coodinates.
-			for (const point of surfaceCoords) {
-				coordstr += point.join(' ') + ' ';
-			}
-
-			// Build a string with all the surface indexes.  At the same time build
-			// a string with color data and the associated color indexes.
-			for (const index of surfaceIndex) {
-				indexstr += index + ' ';
-
-				if (index == -1) {
-					colorindstr += '-1 ';
-					continue;
-				}
-
-				let cindex = parseInt(
-					((surfaceCoords[index][2] - coordMins[2]) / (coordMaxs[2] - coordMins[2])) * colormap.length
-				);
-
-				if (cindex == colormap.length) {
-					--cindex;
-				}
-
-				colorindstr += cindex + ' ';
-			}
-
-			for (const color of colormap) {
-				for (let i = 0; i < 3; ++i) {
-					color[i] += 0.2;
-					color[i] = Math.min(color[i], 1);
-				}
-
-				colorstr += color[0] + ' ' + color[1] + ' ' + color[2] + ' ';
-			}
-
-			let flatcolor = false;
-			let color = [];
-
-			if (surfaceBlockIndex in colors) {
-				flatcolor = true;
-				color = colors[surfaceBlockIndex];
-			}
-
-			// Add surface to scene as an indexedfaceset
-			const surface = createX3DElement(
-				'shape',
-				null,
-				createX3DElement(
-					'appearance',
-					null,
-					createX3DElement('material', {
-						ambientIntensity: '0',
-						convex: 'false',
-						creaseangle: Math.PI,
-						diffusecolor: color,
-						shininess: '.015'
-					})
-				)
-			);
-
-			const indexedfaceset = createX3DElement(
-				'indexedfaceset',
-				{ coordindex: indexstr, solid: 'false' },
-				createX3DElement('coordinate', { point: coordstr })
-			);
-
-			if (!flatcolor) {
-				indexedfaceset.setAttribute('colorindex', colorindstr);
-				indexedfaceset.append(createX3DElement('color', { color: colorstr }));
-			}
-
-			// Append the indexed face set to the shape after it is assembled.
-			// Otherwise sometimes x3d tries to access the various data before its ready.
-			surface.append(indexedfaceset);
-
-			scene.append(surface);
-
-			if (options.drawMesh) {
-				scene.append(
-					createX3DElement(
-						'shape',
-						null,
-						createX3DElement('appearance', null, createX3DElement('material', { diffusecolor: [0, 0, 0] })),
-						createX3DElement(
-							'indexedlineset',
-							{ coordindex: indexstr, solid: 'true' },
-							createX3DElement('coordinate', { point: coordstr })
-						)
-					)
-				);
-			}
-		};
-
-		const drawLines = () => {
-			if (lineCoords.length == 0) return;
-
-			const lineGroup = createX3DElement('group');
-
-			for (const line of lineCoords) {
-				// Lines are cylinders that start centered at the origin along the y axis.
-				// They need to be translated and rotated into place.
-				const length = Math.sqrt(
-					Math.pow(line[0][0] - line[1][0], 2) +
-						Math.pow(line[0][1] - line[1][1], 2) +
-						Math.pow(line[0][2] - line[1][2], 2)
-				);
-				if (length == 0) continue;
-
-				const rotation = [];
-				rotation[0] = line[1][2] - line[0][2];
-				rotation[1] = 0;
-				rotation[2] = line[0][0] - line[1][0];
-				rotation[3] = Math.acos((line[1][1] - line[0][1]) / length);
-
-				const translation = [0, 0, 0];
-
-				for (let i = 0; i < 3; ++i) {
-					translation[i] = (line[1][i] + line[0][i]) / 2;
-				}
-
-				let color = [0, 0, 0];
-				let radius = 0.005;
-
-				if (line[2] in colors) color = colors[line[2]];
-				if (line[2] in lineThickness) radius = Math.max(lineThickness[line[2]], 0.005);
-
-				lineGroup.append(
-					createX3DElement(
-						'transform',
-						{ translation, rotation },
-						createX3DElement(
-							'shape',
-							null,
-							createX3DElement('appearance', null, createX3DElement('material', { diffusecolor: color })),
-							createX3DElement('Cylinder', { height: length, radius: radius * 2 })
-						)
-					)
-				);
-			}
-
-			scene.append(lineGroup);
-		};
-
-		const drawPoints = () => {
-			for (const point of points) {
-				// Points are drawn as spheres.
-				scene.append(
-					createX3DElement(
-						'transform',
-						{ translation: point.coords },
-						createX3DElement(
-							'shape',
-							null,
-							createX3DElement(
-								'appearance',
-								null,
-								createX3DElement('material', { diffuseColor: point.rgb ?? 'black' })
-							),
-							createX3DElement('sphere', { radius: point.radius * 2.25 })
-						)
-					)
-				);
-			}
-		};
-
-		const drawLabels = () => {
-			for (const label of labels) {
-				// The text is a billboard that automatically faces the user.
-				scene.append(
-					createX3DElement(
-						'transform',
-						{ translation: label.coords },
-						createX3DElement(
-							'billboard',
-							{ axisOfRotation: '0 0 0' },
-							createX3DElement(
-								'shape',
-								null,
-								createX3DElement(
-									'appearance',
-									null,
-									createX3DElement('material', { diffuseColor: 'black' })
-								),
-								createX3DElement(
-									'text',
-									{ string: label.text, solid: 'true' },
-									createX3DElement('fontstyle', {
-										// Mathematica label sizes are fontsizes, where
-										// the units for x3dom are local coordinate sizes.
-										size: label.size ? label.size / (1.5 * windowScale) : '.5',
-										family: 'mono',
-										justify: 'MIDDLE'
-									})
-								)
-							)
-						)
-					)
-				);
-			}
-		};
-
-		// Intialization function.  This takes the mathmatica data string and actually sets up the
-		// dom structure for the graph.  The actual graphing is done automatically by x3dom.
+		// Parse the data string and translate it into plotly traces.
 		const initialize = (datastring) => {
-			// Parse matlab string.
+			// Parse LiveGraphics3D string.
 			parseLive3DData(datastring);
 
-			// Find extremum for axis and window scale.
-			setExtremum();
+			const traces = [];
 
-			// Set up scene veiwpoint to be along the x axis looking to the origin.
-			scene.append(
-				createX3DElement(
-					'transform',
-					{ rotation: [1, 0, 0, Math.PI / 2] },
-					createX3DElement('viewpoint', {
-						fieldofview: 0.9,
-						position: [2 * windowScale, 0, 0],
-						orientation: [0, 1, 0, Math.PI / 2]
-					})
-				)
+			for (const [blockIndex, surface] of Object.entries(surfaces)) {
+				if (blockIndex in colors) {
+					surface.surface.color = `rgb(${colors[blockIndex][0] * 255},${colors[blockIndex][1] * 255},${
+						colors[blockIndex][2] * 255
+					})`;
+				} else {
+					surface.surface.intensity = surface.surface.z;
+					surface.surface.colorscale = 'RdBu';
+				}
+
+				traces.push(surface.surface);
+				if (options.drawMesh) traces.push(surface.mesh);
+			}
+
+			for (const [blockIndex, line] of Object.entries(lines)) {
+				if (blockIndex in colors)
+					line.line.color = `rgb(${colors[blockIndex][0] * 255},${colors[blockIndex][1] * 255},${
+						colors[blockIndex][2] * 255
+					})`;
+
+				if (blockIndex in lineThickness) {
+					line.line.width = Math.max(lineThickness[blockIndex], 0.005) * 400;
+				}
+
+				traces.push(line);
+			}
+
+			traces.push(...points, ...labels);
+
+			Plotly.newPlot(
+				container,
+				traces,
+				{
+					width: options.width,
+					height: options.height,
+					margin: { l: 5, r: 5, b: 5, t: 5 },
+					showlegend: false,
+					paper_bgcolor: 'white',
+					scene: {
+						xaxis: {
+							visible: options.showAxes,
+							title: options.axisKey[0],
+							nticks: options.numTicks + 2,
+							showspikes: false
+						},
+						yaxis: {
+							visible: options.showAxes,
+							title: options.axisKey[1],
+							nticks: options.numTicks + 2,
+							showspikes: false
+						},
+						zaxis: {
+							visible: options.showAxes,
+							title: options.axisKey[2],
+							nticks: options.numTicks + 2,
+							showspikes: false
+						},
+						camera: { eye, up }
+					}
+				},
+				{ displaylogo: false }
 			);
-
-			scene.append(createX3DElement('background', { skycolor: '1 1 1' }));
-
-			// Draw components of scene
-			if (options.showAxes) drawAxes();
-			drawSurface();
-			drawLines();
-			drawPoints();
-			drawLabels();
 		};
 
 		// This section of code is run whenever the object is created.  It obtains the data either from direct input, a

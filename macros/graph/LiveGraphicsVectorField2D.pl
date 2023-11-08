@@ -187,17 +187,16 @@ sub VectorField2D {
 
 	my $plotoptions = "";
 
-	if (($options{outputtype} > 1) || ($options{axesframed} == 1)) {
-
+	if ($options{outputtype} > 1) {
 		$plotoptions =
 			$plotoptions
 			. "PlotRange->{{$options{xmin},$options{xmax}},{$options{ymin},$options{ymax}},{-0.1,0.1}},"
 			. "ViewPoint->{0,0,1000},"
 			. "ViewVertical->{0,1,0},"
 			. "Lighting->False,"
-			. "AxesLabel->{$options{xaxislabel},$options{yaxislabel},Z},"
-			.    #; # .
-			"Axes->{True,True,False}";
+			. ($options{axesframed} == 1
+				? "AxesLabel->{$options{xaxislabel},$options{yaxislabel},Z},Axes->{True,True,False}"
+				: '');
 
 	}
 

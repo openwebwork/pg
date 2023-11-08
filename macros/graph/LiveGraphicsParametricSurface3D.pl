@@ -233,7 +233,7 @@ sub ParametricSurface3D {
 
 	my $plotoptions = "";
 
-	if (($options{outputtype} > 1) || ($options{axesframed} == 1)) {
+	if ($options{outputtype} > 1 && $options{axesframed} == 1) {
 		$plotoptions =
 			$plotoptions
 			. "Axes->True,AxesLabel->"

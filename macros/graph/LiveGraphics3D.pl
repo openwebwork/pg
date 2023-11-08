@@ -19,13 +19,17 @@ LiveGraphics3D.pl - provides the ability to have an interactive 3D plot.
 
 =head1 DESCRIPTION
 
-Macros for handling interactive 3D graphics via the LiveGraphics3D Java applet.
-The applet needs to be in the course html directory.  (If it is in the system
-html area, you will need to change the default below or supply the jar option
-explicitly).
+Macros for handling interactive 3D graphics.
 
-The LiveGraphics3D applet displays a Mathematica Graphics3D object that is
-stored in a .m file (or a compressed one).  Use Mathematica to create one.
+This parses LiveGraphics3D data into L<Plotly|https://plotly.com/javascript>
+traces. See L<https://www-users.cse.umn.edu/~rogness/lg3d/mma_syntax.html> for
+information about the Mathematica syntax of the LiveGraphics3D format. Note that
+not all of the syntax is supported by this macro. Instead of creating this data
+directly, it is recommended to use one of the other LiveGraphics PG macros that
+generate this data. See L<LiveGraphicsCylindricalPlot3D.pl>,
+L<LiveGraphicsParametricCurve3D.pl>, L<LiveGraphicsParametricSurface3D.pl>,
+L<LiveGraphicsRectangularPlot3D.pl>, L<LiveGraphicsVectorField2D.pl>, and
+L<LiveGraphicsVectorField3D.pl>.
 
 =head1 METHODS
 
@@ -104,11 +108,10 @@ also be given.
 =cut
 
 sub _LiveGraphics3D_init {
-	ADD_CSS_FILE('https://www.x3dom.org/download/1.8.3/x3dom.css', 1);
-	ADD_JS_FILE('https://www.x3dom.org/download/1.8.3/x3dom-full.js', 1);
-	ADD_JS_FILE('node_modules/jszip/dist/jszip.min.js',               0, { defer => undef });
-	ADD_JS_FILE('node_modules/jszip-utils/dist/jszip-utils.min.js',   0, { defer => undef });
-	ADD_JS_FILE('js/LiveGraphics/liveGraphics.js',                    0, { defer => undef });
+	ADD_JS_FILE('node_modules/plotly.js-dist-min/plotly.min.js',    0, { defer => undef });
+	ADD_JS_FILE('node_modules/jszip/dist/jszip.min.js',             0, { defer => undef });
+	ADD_JS_FILE('node_modules/jszip-utils/dist/jszip-utils.min.js', 0, { defer => undef });
+	ADD_JS_FILE('js/LiveGraphics/liveGraphics.js',                  0, { defer => undef });
 }
 
 sub LiveGraphics3D {
@@ -143,14 +146,14 @@ sub LiveGraphics3D {
 		return tag(
 			'div',
 			class        => 'live-graphics-3d-container',
-			style        => "width:fit-content;height:fit-content;border:1px solid black;",
+			style        => "width:${w}px;height:${h}px;border:1px solid black;",
 			data_options => JSON->new->encode({
-				width   => $w,
-				height  => $h,
+				width   => $w - 2,
+				height  => $h - 2,
 				file    => $options{file} // '',
 				input   => ($options{input} // '') =~ s/\n//gr,
 				archive => $options{archive} // '',
-				vars    => \%vars,
+				vars    => \%vars
 			})
 		);
 	}
