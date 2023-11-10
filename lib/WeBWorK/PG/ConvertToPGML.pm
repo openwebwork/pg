@@ -126,8 +126,8 @@ sub convertPGMLBlock {
 	my ($block) = @_;
 	my @new_rows;
 	for my $row (@$block) {
-		my $add_blank_line_before = ($row =~ /^\$PAR/);
-		my $add_blank_line_after  = ($row =~ /\$PAR$/);
+		my $add_blank_line_before = ($row =~ /^\s*\$PAR/);
+		my $add_blank_line_after  = ($row =~ /\$PAR\s*$/);
 		$row =~ s/(BEGIN|END)_TEXT/$1_PGML/;
 		$row =~ s/(BEGIN|END)_(SOLUTION|HINT)/$1_PGML_$2/;
 		$row =~ s/SOLUTION\(EV3P?\(<<\'END_PGML_SOLUTION\'\)\);/BEGIN_PGML_SOLUTION/;
@@ -168,7 +168,7 @@ sub convertPGMLBlock {
 		} elsif ($add_blank_line_before) {
 			push @new_rows, '', $row;
 		} elsif ($add_blank_line_after) {
-			push @new_rows, '', $row;
+			push @new_rows, $row, '';
 		} else {
 			push @new_rows, $row;
 		}
