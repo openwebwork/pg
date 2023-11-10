@@ -1266,6 +1266,13 @@ sub PG_macro_file_eval {
 
 	local $SIG{__DIE__} = 'DEFAULT';
 
+	if ($string =~ /^=/) {
+		$string = "\n$string";
+		warn "The first line of a macro must not contain a POD directive at $filePath line 1.\n"
+			. "A new line will be added, but this will result in errors and warnings from "
+			. "this file being reported on the incorrect line number.\n";
+	}
+
 	my ($out, $errors) =
 		PG_macro_file_eval_helper('package main; be_strict();'
 			. 'BEGIN { my $eval = __FILE__; $main::envir{__files__}{$eval} = "'
