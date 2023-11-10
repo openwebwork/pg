@@ -1318,8 +1318,10 @@ sub ENDDOCUMENT {
 											)
 											. (
 												($rh_envir->{showMessages} && $ansHash->{ans_message})
-												? feedbackLine(maketext('Message'), $ansHash->{ans_message},
-													'feedback-message')
+												? feedbackLine(
+													maketext('Message'), $ansHash->{ans_message} =~ s/\n/<br>/gr,
+													'feedback-message'
+												)
 												: ''
 											);
 										}
