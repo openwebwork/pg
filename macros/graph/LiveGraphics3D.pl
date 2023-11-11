@@ -61,6 +61,12 @@ String containing Graphics3D data to be displayed by the applet.
 
 Width and height of applet.
 
+=item * C<< max_ticks => n >>
+
+Maximum number of ticks to show on the C<x>, C<y>, and C<z> axes.  This can be
+given as a single positive integer, or can be a reference to an array of three
+positive integers.
+
 =item * C<< vars => [vars] >>
 
 Hash of variables to pass as independent variables to the applet, together with
@@ -121,6 +127,7 @@ sub LiveGraphics3D {
 		scale      => 1,
 		tex_size   => 500,
 		tex_center => 0,
+		max_ticks  => 6,
 		@_
 	);
 
@@ -148,12 +155,13 @@ sub LiveGraphics3D {
 			class        => 'live-graphics-3d-container',
 			style        => "width:${w}px;height:${h}px;border:1px solid black;",
 			data_options => JSON->new->encode({
-				width   => $w - 2,
-				height  => $h - 2,
-				file    => $options{file} // '',
-				input   => ($options{input} // '') =~ s/\n//gr,
-				archive => $options{archive} // '',
-				vars    => \%vars
+				width    => $w - 2,
+				height   => $h - 2,
+				maxTicks => $options{max_ticks},
+				file     => $options{file} // '',
+				input    => ($options{input} // '') =~ s/\n//gr,
+				archive  => $options{archive} // '',
+				vars     => \%vars
 			})
 		);
 	}
