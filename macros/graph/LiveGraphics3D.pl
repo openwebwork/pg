@@ -76,10 +76,6 @@ their initial values, e.g., C<< vars => [ a => 1, b => 1 ] >>.
 
 The background color to use (default is white).
 
-=item * C<< scale => n >>
-
-Scaling factor for applet (default is 1).
-
 =item * C<< image => file >>
 
 A file containing an image to use in TeX mode.
@@ -118,13 +114,13 @@ sub _LiveGraphics3D_init {
 	ADD_JS_FILE('node_modules/jszip/dist/jszip.min.js',             0, { defer => undef });
 	ADD_JS_FILE('node_modules/jszip-utils/dist/jszip-utils.min.js', 0, { defer => undef });
 	ADD_JS_FILE('js/LiveGraphics/liveGraphics.js',                  0, { defer => undef });
+	return;
 }
 
 sub LiveGraphics3D {
 	my %options = (
 		size       => [ 250, 250 ],
 		background => '#FFFFFF',
-		scale      => 1,
 		tex_size   => 500,
 		tex_center => 0,
 		max_ticks  => 6,
@@ -169,14 +165,14 @@ sub LiveGraphics3D {
 
 # Syntactic sugar to make it easier to pass files and data to LiveGraphics3D.
 sub Live3Dfile {
-	my $file = shift;
-	LiveGraphics3D(file => $file, @_);
+	my ($file, %options) = @_;
+	return LiveGraphics3D(file => $file, %options);
 }
 
 # Syntactic sugar to make it easier to pass raw Graohics3D data to LiveGraphics3D.
 sub Live3Ddata {
-	my $data = shift;
-	LiveGraphics3D(input => $data, @_);
+	my ($data, %options) = @_;
+	return LiveGraphics3D(input => $data, %options);
 }
 
 # A message you can use for a caption under a graph.

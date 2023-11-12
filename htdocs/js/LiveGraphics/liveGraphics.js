@@ -378,11 +378,6 @@
 			stream.shift();
 
 			while (stream.length) {
-				if (stream[0].match(/^\s/)) {
-					stream.shift();
-					continue;
-				}
-
 				const char = stream.shift();
 
 				if (char === oppDelim) {
