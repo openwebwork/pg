@@ -19,13 +19,17 @@ LiveGraphics3D.pl - provides the ability to have an interactive 3D plot.
 
 =head1 DESCRIPTION
 
-Macros for handling interactive 3D graphics via the LiveGraphics3D Java applet.
-The applet needs to be in the course html directory.  (If it is in the system
-html area, you will need to change the default below or supply the jar option
-explicitly).
+Macros for handling interactive 3D graphics.
 
-The LiveGraphics3D applet displays a Mathematica Graphics3D object that is
-stored in a .m file (or a compressed one).  Use Mathematica to create one.
+This parses LiveGraphics3D data into L<Plotly|https://plotly.com/javascript>
+traces. See L<https://www-users.cse.umn.edu/~rogness/lg3d/mma_syntax.html> for
+information about the Mathematica syntax of the LiveGraphics3D format. Note that
+not all of the syntax is supported by this macro. Instead of creating this data
+directly, it is recommended to use one of the other LiveGraphics PG macros that
+generate this data. See L<LiveGraphicsCylindricalPlot3D.pl>,
+L<LiveGraphicsParametricCurve3D.pl>, L<LiveGraphicsParametricSurface3D.pl>,
+L<LiveGraphicsRectangularPlot3D.pl>, L<LiveGraphicsVectorField2D.pl>, and
+L<LiveGraphicsVectorField3D.pl>.
 
 =head1 METHODS
 
@@ -57,6 +61,12 @@ String containing Graphics3D data to be displayed by the applet.
 
 Width and height of applet.
 
+=item * C<< max_ticks => n >>
+
+Maximum number of ticks to show on the C<x>, C<y>, and C<z> axes.  This can be
+given as a single positive integer, or can be a reference to an array of three
+positive integers.
+
 =item * C<< vars => [vars] >>
 
 Hash of variables to pass as independent variables to the applet, together with
@@ -65,10 +75,6 @@ their initial values, e.g., C<< vars => [ a => 1, b => 1 ] >>.
 =item * C<< background => "#RRGGBB" >>
 
 The background color to use (default is white).
-
-=item * C<< scale => n >>
-
-Scaling factor for applet (default is 1).
 
 =item * C<< image => file >>
 
@@ -104,20 +110,20 @@ also be given.
 =cut
 
 sub _LiveGraphics3D_init {
-	ADD_CSS_FILE('https://www.x3dom.org/download/1.8.3/x3dom.css', 1);
-	ADD_JS_FILE('https://www.x3dom.org/download/1.8.3/x3dom-full.js', 1);
-	ADD_JS_FILE('node_modules/jszip/dist/jszip.min.js',               0, { defer => undef });
-	ADD_JS_FILE('node_modules/jszip-utils/dist/jszip-utils.min.js',   0, { defer => undef });
-	ADD_JS_FILE('js/LiveGraphics/liveGraphics.js',                    0, { defer => undef });
+	ADD_JS_FILE('node_modules/plotly.js-dist-min/plotly.min.js',    0, { defer => undef });
+	ADD_JS_FILE('node_modules/jszip/dist/jszip.min.js',             0, { defer => undef });
+	ADD_JS_FILE('node_modules/jszip-utils/dist/jszip-utils.min.js', 0, { defer => undef });
+	ADD_JS_FILE('js/LiveGraphics/liveGraphics.js',                  0, { defer => undef });
+	return;
 }
 
 sub LiveGraphics3D {
 	my %options = (
 		size       => [ 250, 250 ],
 		background => '#FFFFFF',
-		scale      => 1,
 		tex_size   => 500,
 		tex_center => 0,
+		max_ticks  => 6,
 		@_
 	);
 
@@ -143,14 +149,15 @@ sub LiveGraphics3D {
 		return tag(
 			'div',
 			class        => 'live-graphics-3d-container',
-			style        => "width:fit-content;height:fit-content;border:1px solid black;",
+			style        => "width:${w}px;height:${h}px;border:1px solid black;",
 			data_options => JSON->new->encode({
-				width   => $w,
-				height  => $h,
-				file    => $options{file} // '',
-				input   => ($options{input} // '') =~ s/\n//gr,
-				archive => $options{archive} // '',
-				vars    => \%vars,
+				width    => $w - 2,
+				height   => $h - 2,
+				maxTicks => $options{max_ticks},
+				file     => $options{file} // '',
+				input    => ($options{input} // '') =~ s/\n//gr,
+				archive  => $options{archive} // '',
+				vars     => \%vars
 			})
 		);
 	}
@@ -158,14 +165,14 @@ sub LiveGraphics3D {
 
 # Syntactic sugar to make it easier to pass files and data to LiveGraphics3D.
 sub Live3Dfile {
-	my $file = shift;
-	LiveGraphics3D(file => $file, @_);
+	my ($file, %options) = @_;
+	return LiveGraphics3D(file => $file, %options);
 }
 
 # Syntactic sugar to make it easier to pass raw Graohics3D data to LiveGraphics3D.
 sub Live3Ddata {
-	my $data = shift;
-	LiveGraphics3D(input => $data, @_);
+	my ($data, %options) = @_;
+	return LiveGraphics3D(input => $data, %options);
 }
 
 # A message you can use for a caption under a graph.

@@ -19,81 +19,160 @@ LiveGraphicsVectorField3D.pl - provide an interactive plot of a 3D vector field.
 
 =head1 DESCRIPTION
 
-C<LiveGraphicsVectorField3D.pl> provides a macros for creating an
-interactive plot of a vector field via the C<LiveGraphics3D> Javascript applet.
-The routine C<VectorField3D()> takes three C<MathObject> Formulas of
-3 variables as input and returns a string of plot data that can be
-displayed using the C<Live3Ddata()> routine of the C<LiveGraphics3D.pl> macro.
+This macro provides a method for creating an interactive plot of a vector field
+via the C<LiveGraphics3D> JavaScript applet.  The method takes three
+C<MathObject> Formulas of three variables as input and returns a string of plot
+data that can be displayed using the C<Live3Ddata> routine of the
+L<LiveGraphics3D.pl> macro.
 
-=head1 USAGE
+=head1 METHODS
 
-    VectorField3D(options);
+=head2 VectorField3D
 
-Options are:
+Usage: C<VectorField3D(%options)>
 
-    Fx => Formula("y"),    F = < Fx, Fy, Fz > where Fx, Fy, Fz are each
-    Fy => Formula("-x"),   functions of 3 variables
-    Fz => Formula("z"),
+The available options are as follows.
 
-    xvar => "r",           independent variable name, default "x"
-    yvar => "s",           independent variable name, default "y"
-    zvar => "t",           independent variable name, default "z"
+=over
 
-    xmin => -3,            domain for xvar
-    xmax =>  3,
+=item C<< Fx => Formula('y') >>
 
-    ymin => -3,            domain for yvar
-    ymax =>  3,
+Function for the C<x>-coordinate.
 
-    zmin => -3,            domain for zvar
-    zmax =>  3,
+=item C<< Fy => Formula('-x') >>
 
-    xsamples => 3,         deltax = (xmax - xmin) / xsamples
-    ysamples => 3,         deltay = (ymax - ymin) / ysamples
-    zsamples => 3,         deltaz = (zmax - zmin) / zsamples
+Function for the C<y>-coordinate.
 
-    axesframed => 1,       1 displays framed axes, 0 hides framed axes
+=item C<< Fz => Formula('x + y + z') >>
 
-    xaxislabel => "R",     Capital letters may be easier to read
-    yaxislabel => "S",
-    zaxislabel => "T",
+Function for the C<z>-coordinate.
 
-    vectorcolor => "RGBColor[0.0,0.0,1.0]",
-    vectorscale => 0.2,
-    vectorthickness => 0.001,
+=item C<< xvar => 'x' >>
 
-    outputtype => 1,       return string of only polygons (or mesh)
-                  2,       return string of only plotoptions
-                  3,       return string of polygons (or mesh) and plotoptions
-                  4,       return complete plot
+First independent variable name, default 'x'. This must correspond to the first
+variable used in the C<Fx>, C<Fy>, and C<Fz>.
 
+=item C<< yvar => 'y' >>
 
+Second independent variable name, default 'y'. This must correspond to the
+second variable used in the C<Fx>, C<Fy>, and C<Fz>.
 
+=item C<< zvar => 'z' >>
+
+Third independent variable name, default 'z'. This must correspond to the
+third variable used in the C<Fx>, C<Fy>, and C<Fz>.
+
+=item C<< xmin => -3 >>
+
+Lower bound for the domain of the first independent variable.
+
+=item C<< xmax => 3 >>
+
+Upper bound for the domain of the first independent variable.
+
+=item C<< ymin => -3 >>
+
+Lower bound for the domain of the second independent variable.
+
+=item C<< ymax => 3 >>
+
+Upper bound for the domain of the second independent variable.
+
+=item C<< zmin => -3 >>
+
+Lower bound for the domain of the third independent variable.
+
+=item C<< zmax => 3 >>
+
+Upper bound for the domain of the third independent variable.
+
+=item C<< xsamples => 20 >>
+
+The number of sample values for the first independent variable in the interval
+from C<xmin> to C<xmax> to use.
+
+=item C<< ysamples => 20 >>
+
+The number of sample values for the second independent variable in the interval
+from C<ymin> to C<ymax> to use.
+
+=item C<< zsamples => 20 >>
+
+The number of sample values for the third independent variable in the interval
+from C<zmin> to C<zmax> to use.
+
+=item C<< axesframed => 1 >>
+
+If set to 1 then the framed axes are displayed.  If set to 0, the the framed
+axes are not shown. This is 1 by default.
+
+=item C<< xaxislabel => 'x' >>
+
+Label for the axis corresponding to the first independent variable.
+
+=item C<< yaxislabel => 'y' >>
+
+Label for the axis corresponding to the second independent variable.
+
+=item C<< zaxislabel => 'z' >>
+
+Label for the axis corresponding to the third independent variable.
+
+=item C<< vectorcolor => 'RGBColor[0.0, 0.0, 1.0]' >>
+
+Color of vectors shown in the slope field.
+
+=item C<< vectorscale => 0.2 >>
+
+Multiplier that determines the lentgh of vectors shown in the slope field.
+
+=item C<< vectorthickness => 0.001 >>
+
+Thickness (or width) of the line segments used to construct the vectors shown in
+the slope field.
+
+=item C<< outputtype => 1 >>
+
+This determines what is contained in the string that the method returns. The
+values of 1 through 4 are accepted, and have the following meaning.
+
+=over
+
+=item 1.
+
+Return a string of only polygons (or edge mesh).
+
+=item 2.
+
+Return a string of only plot options.
+
+=item 3.
+
+Return a string of polygons (or edge mesh) and plot options.
+
+=item 4.
+
+Return the complete plot to be passed directly to the C<Live3DData> method.
+
+=back
+
+=back
 
 =cut
 
-sub _LiveGraphicsVectorField3D_init { };    # don't reload this file
+sub _LiveGraphicsVectorField3D_init { }
 
-loadMacros("MathObjects.pl", "LiveGraphics3D.pl");
+loadMacros('MathObjects.pl', 'LiveGraphics3D.pl');
 
-$beginplot = "Graphics3D[";
-$endplot   = "]";
-
-###########################################
-###########################################
-#  Begin VectorField3D
+$main::beginplot = 'Graphics3D[';
+$main::endplot   = ']';
 
 sub VectorField3D {
-
-###########################################
-	#
-	#  Set default options
-	#
-
+	# Set default options.
 	my %options = (
-		Fx              => Formula("1"),
-		Fy              => Formula("1"),
-		Fz              => Formula("1"),
+		Fx              => Formula('1'),
+		Fy              => Formula('1'),
+		Fz              => Formula('1'),
 		xvar            => 'x',
 		yvar            => 'y',
 		zvar            => 'z',
@@ -107,10 +186,10 @@ sub VectorField3D {
 		ysamples        => 20,
 		zsamples        => 20,
 		axesframed      => 1,
-		xaxislabel      => "X",
-		yaxislabel      => "Y",
-		zaxislabel      => "Z",
-		vectorcolor     => "RGBColor[0.0,0.0,1.0]",
+		xaxislabel      => 'x',
+		yaxislabel      => 'y',
+		zaxislabel      => 'z',
+		vectorcolor     => 'RGBColor[0.0,0.0,1.0]',
 		vectorscale     => 0.2,
 		vectorthickness => 0.001,
 		xavoid          => 1000000,
@@ -120,148 +199,96 @@ sub VectorField3D {
 		@_
 	);
 
-	my $Fxsubroutine;
-	my $Fysubroutine;
-	my $Fzsubroutine;
+	$options{Fx}->perlFunction('Fxsubroutine', [ $options{xvar}, $options{yvar}, $options{zvar} ]);
+	$options{Fy}->perlFunction('Fysubroutine', [ $options{xvar}, $options{yvar}, $options{zvar} ]);
+	$options{Fz}->perlFunction('Fzsubroutine', [ $options{xvar}, $options{yvar}, $options{zvar} ]);
 
-	$options{Fx}->perlFunction('Fxsubroutine', [ "$options{xvar}", "$options{yvar}", "$options{zvar}" ]);
-	$options{Fy}->perlFunction('Fysubroutine', [ "$options{xvar}", "$options{yvar}", "$options{zvar}" ]);
-	$options{Fz}->perlFunction('Fzsubroutine', [ "$options{xvar}", "$options{yvar}", "$options{zvar}" ]);
-
-######################################################
-	#
-	#  Generate plot data
-	#
+	# Generate plot data.
 
 	my $dx = ($options{xmax} - $options{xmin}) / $options{xsamples};
 	my $dy = ($options{ymax} - $options{ymin}) / $options{ysamples};
 	my $dz = ($options{zmax} - $options{zmin}) / $options{zsamples};
 
-	my $xtail;
-	my $ytail;
-	my $ztail;
+	my (@xtail, @ytail, @ztail, @xtip, @ytip, @ztip, @xleftbarb, @xrightbarb, @yleftbarb, @yrightbarb, @zbarb);
 
-	foreach my $i (0 .. $options{xsamples}) {
+	for my $i (0 .. $options{xsamples}) {
 		$xtail[$i] = $options{xmin} + $i * $dx;
-		foreach my $j (0 .. $options{ysamples}) {
+		for my $j (0 .. $options{ysamples}) {
 			$ytail[$j] = $options{ymin} + $j * $dy;
-			foreach my $k (0 .. $options{zsamples}) {
+			for my $k (0 .. $options{zsamples}) {
 				$ztail[$k] = $options{zmin} + $k * $dz;
 
-				if ($xtail[$i] == $options{xavoid} && $ytail[$j] == $options{yavoid} && $ztail[$k] == $options{zavoid})
+				my ($Fx, $Fy, $Fz) = (0, 0, 0);
+
+				if ($xtail[$i] != $options{xavoid} || $ytail[$j] != $options{yavoid} || $ztail[$k] != $options{zavoid})
 				{
-
-					$FX[$i][$j][$k] = 0;
-					$FY[$i][$j][$k] = 0;
-					$FZ[$i][$j][$k] = 0;
-
-				} else {
-
-					$FX[$i][$j][$k] = sprintf("%.3f",
-						$options{vectorscale} * (Fxsubroutine($xtail[$i], $ytail[$j], $ztail[$k])->value));
-					$FY[$i][$j][$k] = sprintf("%.3f",
-						$options{vectorscale} * (Fysubroutine($xtail[$i], $ytail[$j], $ztail[$k])->value));
-					$FZ[$i][$j][$k] = sprintf("%.3f",
-						$options{vectorscale} * (Fzsubroutine($xtail[$i], $ytail[$j], $ztail[$k])->value));
-
+					$Fx = sprintf('%.3f',
+						$options{vectorscale} * Fxsubroutine($xtail[$i], $ytail[$j], $ztail[$k])->value);
+					$Fy = sprintf('%.3f',
+						$options{vectorscale} * Fysubroutine($xtail[$i], $ytail[$j], $ztail[$k])->value);
+					$Fz = sprintf('%.3f',
+						$options{vectorscale} * Fzsubroutine($xtail[$i], $ytail[$j], $ztail[$k])->value);
 				}
 
-				$xtail[$i] = sprintf("%.3f", $xtail[$i]);
-				$ytail[$j] = sprintf("%.3f", $ytail[$j]);
-				$ztail[$k] = sprintf("%.3f", $ztail[$k]);
+				$xtail[$i] = sprintf('%.3f', $xtail[$i]);
+				$ytail[$j] = sprintf('%.3f', $ytail[$j]);
+				$ztail[$k] = sprintf('%.3f', $ztail[$k]);
 
-				$xtip[$i][$j][$k] = $xtail[$i] + sprintf("%.3f", $FX[$i][$j][$k]);
-				$ytip[$i][$j][$k] = $ytail[$j] + sprintf("%.3f", $FY[$i][$j][$k]);
-				$ztip[$i][$j][$k] = $ztail[$k] + sprintf("%.3f", $FZ[$i][$j][$k]);
+				$xtip[$i][$j][$k] = $xtail[$i] + sprintf('%.3f', $Fx);
+				$ytip[$i][$j][$k] = $ytail[$j] + sprintf('%.3f', $Fy);
+				$ztip[$i][$j][$k] = $ztail[$k] + sprintf('%.3f', $Fz);
 
-				$xleftbarb[$i][$j][$k] = sprintf("%.3f", $xtail[$i] + 0.8 * $FX[$i][$j][$k] - 0.2 * $FY[$i][$j][$k]);
-				$yleftbarb[$i][$j][$k] = sprintf("%.3f", $ytail[$j] + 0.8 * $FY[$i][$j][$k] + 0.2 * $FX[$i][$j][$k]);
+				$xleftbarb[$i][$j][$k] = sprintf('%.3f', $xtail[$i] + 0.8 * $Fx - 0.2 * $Fy);
+				$yleftbarb[$i][$j][$k] = sprintf('%.3f', $ytail[$j] + 0.8 * $Fy + 0.2 * $Fx);
 
-				$xrightbarb[$i][$j][$k] = sprintf("%.3f", $xtail[$i] + 0.8 * $FX[$i][$j][$k] + 0.2 * $FY[$i][$j][$k]);
-				$yrightbarb[$i][$j][$k] = sprintf("%.3f", $ytail[$j] + 0.8 * $FY[$i][$j][$k] - 0.2 * $FX[$i][$j][$k]);
+				$xrightbarb[$i][$j][$k] = sprintf('%.3f', $xtail[$i] + 0.8 * $Fx + 0.2 * $Fy);
+				$yrightbarb[$i][$j][$k] = sprintf('%.3f', $ytail[$j] + 0.8 * $Fy - 0.2 * $Fx);
 
-				$zbarb[$i][$j][$k] = sprintf("%.3f", $ztail[$k] + 0.8 * $FZ[$i][$j][$k]);
-
+				$zbarb[$i][$j][$k] = sprintf("%.3f", $ztail[$k] + 0.8 * $Fz);
 			}
 		}
 	}
 
-###########################################################################
-	#
-	#  Generate plotstructure from the plotdata.
-	#
-	#  The plotstucture is a list of arrows (made of lines) that
-	#  LiveGraphics3D reads as input.
-	#
-	#  For more information on the format of the plotstructure, see
-	#  http://www.math.umn.edu/~rogness/lg3d/page_NoMathematica.html
-	#  http://www.vis.uni-stuttgart.de/~kraus/LiveGraphics3D/documentation.html
-	#
-###########################################
-	#
-	#  Generate the polygons in the plotstructure
-	#
+	# Generate plotstructure from the plotdata.  This is a list of arrows (made of lines) that LiveGraphics3D reads as
+	# input.  For more information on the format of the plotstructure, see
+	# http://www.math.umn.edu/~rogness/lg3d/page_NoMathematica.html.
 
-	my $plotstructure = "{{{{$options{vectorcolor},Thickness[$options{vectorthickness}],";
-
-	foreach my $i (0 .. $options{xsamples}) {
-		foreach my $j (0 .. $options{ysamples}) {
-			foreach my $k (0 .. $options{zsamples}) {
-
-				$plotstructure =
-					$plotstructure
-					. "Line[{"
-					. "{$xtail[$i],$ytail[$j],$ztail[$k]},"
-					. "{$xtip[$i][$j][$k],$ytip[$i][$j][$k],$ztip[$i][$j][$k]}" . "}],"
-					. "Line[{"
-					. "{$xleftbarb[$i][$j][$k],$yleftbarb[$i][$j][$k],$zbarb[$i][$j][$k]},"
-					. "{$xtip[$i][$j][$k],$ytip[$i][$j][$k],$ztip[$i][$j][$k]},"
-					. "{$xrightbarb[$i][$j][$k],$yrightbarb[$i][$j][$k],$zbarb[$i][$j][$k]}" . "}]";
-
-				if (($i < $options{xsamples}) || ($j < $options{ysamples}) || ($k < $options{zsamples})) {
-					$plotstructure = $plotstructure . ",";
-				}
+	# Generate the lines in the plotstructure.
+	my @lines;
+	for my $i (0 .. $options{xsamples}) {
+		for my $j (0 .. $options{ysamples}) {
+			for my $k (0 .. $options{zsamples}) {
+				push(@lines,
+					'Line[{'
+						. "{$xtail[$i],$ytail[$j],$ztail[$k]},"
+						. "{$xtip[$i][$j][$k],$ytip[$i][$j][$k],$ztip[$i][$j][$k]}"
+						. '}],Line[{'
+						. "{$xleftbarb[$i][$j][$k],$yleftbarb[$i][$j][$k],$zbarb[$i][$j][$k]},"
+						. "{$xtip[$i][$j][$k],$ytip[$i][$j][$k],$ztip[$i][$j][$k]},"
+						. "{$xrightbarb[$i][$j][$k],$yrightbarb[$i][$j][$k],$zbarb[$i][$j][$k]}"
+						. '}]');
 			}
 		}
 	}
 
-	$plotstructure = $plotstructure . "}}}}";
+	my $plotstructure = "{{{{$options{vectorcolor},Thickness[$options{vectorthickness}]," . join(',', @lines) . '}}}}';
 
-##############################################
-	#
-	#  Add plot options to the plotoptions string
-	#
-
-	my $plotoptions = "";
-
-	if (($options{outputtype} > 1) || ($options{axesframed} == 1)) {
-		$plotoptions =
-			$plotoptions
-			. "Axes->True,AxesLabel->"
-			. "{$options{xaxislabel},$options{yaxislabel},$options{zaxislabel}}";
-	}
-
-####################################################
-	#
-	#  Return only the plotstring    (if outputtype=>1),
-	#  or only plotoptions           (if outputtype=>2),
-	#  or plotstring, plotoptions    (if outputtype=>2),
-	#  or the entire plot (default)  (if outputtype=>4)
+	my $plotoptions =
+		$options{outputtype} > 1 && $options{axesframed} == 1
+		? "Axes->True,AxesLabel->{$options{xaxislabel},$options{yaxislabel},$options{zaxislabel}}"
+		: '';
 
 	if ($options{outputtype} == 1) {
 		return $plotstructure;
 	} elsif ($options{outputtype} == 2) {
 		return $plotoptions;
 	} elsif ($options{outputtype} == 3) {
-		return "{" . $plotstructure . "," . $plotoptions . "}";
+		return "{$plotstructure,$plotoptions}";
 	} elsif ($options{outputtype} == 4) {
-		return $beginplot . $plotstructure . "," . $plotoptions . $endplot;
+		return "${main::beginplot}${plotstructure},${plotoptions}${main::endplot}";
 	} else {
-		return "Invalid outputtype (outputtype should be a number 1 through 4).";
+		return 'Invalid outputtype (outputtype should be a number 1 through 4).';
 	}
-
-}    #  End VectorField3D
-##############################################
-##############################################
+}
 
 1;

@@ -19,185 +19,179 @@ LiveGraphicsParametricCurve3D.pl - provide an interactive 3D parametric curve.
 
 =head1 DESCRIPTION
 
-C<LiveGraphicsParametricCurve3D.pl> provides a macros for creating an
-interactive plot of a vector field via the C<LiveGraphics3D> Javascript applet.
-The routine C<ParametricCurve3D()> takes three C<MathObject> Formulas of
-3 variables as input and returns a string of plot data that can be
-displayed using the C<Live3Ddata()> routine of the C<LiveGraphics3D.pl> macro.
+This macro provides the C<ParametricCurve3D> method for creating an interactive
+plot of a vector field via the C<LiveGraphics3D> JavaScript applet.  The method
+takes three C<MathObject> Formulas in one variable as input and returns a string
+of plot data that can be displayed using the C<Live3Ddata> routine of the
+L<LiveGraphics3D.pl> macro.
 
-=head1 USAGE
+=head1 METHODS
 
-    ParametricCurve3D(options);
+=head2 ParametricCurve3D
 
-Options are:
+Usage: C<ParametricCurve3D(%options)>
 
-    Fx => Formula("t*cos(t)"),  F = < Fx, Fy, Fz > where Fx, Fy, Fz are each
-    Fy => Formula("t*sin(t)"),  functions of tvar
-    Fz => Formula("t"),
+The available options are as follows.
 
-    tvar => "t",           independent variable name, default "t"
-    tmin => -3,            domain for tvar
-    tmax =>  3,
-    tsamples => 3,         deltat = (tmax - tmin) / tsamples
+=over
 
-    axesframed => 1,       1 displays framed axes, 0 hides framed axes
+=item C<< Fx => Formula('t * cos(t)') >>
 
-    xaxislabel => "X",     Capital letters may be easier to read
-    yaxislabel => "Y",
-    zaxislabel => "Z",
+Parametric function for the C<x>-coordinate.
 
-    orientation => 0,      do not show any orientation arrows
-                => 1,      show only one arrow in the middle
-                => 2,      make the curve entirely of arrows
+=item C<< Fy => Formula('t * sin(t)') >>
 
-    curvecolor => "RGBColor[1.0,0.0,0.0]",
-    curvethickness => 0.001,
+Parametric function for the C<y>-coordinate.
 
-    outputtype => 1,       return string of only polygons (or mesh)
-                  2,       return string of only plotoptions
-                  3,       return string of polygons (or mesh) and plotoptions
-                  4,       return complete plot
+=item C<< Fz => Formula('t') >>
+
+Parametric function for the C<z>-coordinate.
+
+=item C<< tvar => 't' >>
+
+Parameter name, default 't'. This must correspond to the parameter used in
+C<Fx>, C<Fy>, and C<Fz>.
+
+=item C<< tmin => -3 >>
+
+Lower bound for the domain of the parameter.
+
+=item C<< tmax => 3 >>
+
+Upper bound for the domain of the parameter.
+
+=item C<< tsamples => 3 >>
+
+The number of sample values for the parameter in the interval from C<tmin> to
+C<tmax> to use.
+
+=item C<< axesframed => 1 >>
+
+If set to 1 then the framed axes are displayed.  If set to 0, the the framed
+axes are not shown. This is 1 by default.
+
+=item C<< xaxislabel => 'x' >>
+
+Label for the axis corresponding to the first independent variable.
+
+=item C<< yaxislabel => 'y' >>
+
+Label for the axis corresponding to the second independent variable.
+
+=item C<< zaxislabel => 'z' >>
+
+Label for the axis corresponding to the dependent variable.
+
+=item C<< curvecolor => 'RGBColor[1.0, 0.0, 0.0]' >>
+
+The color of the curve.
+
+=item C<< curvethickness => 0.001 >>
+
+The curve thickness.
+
+=item C<< outputtype => 1 >>
+
+This determines what is contained in the string that the method returns. The
+values of 1 through 4 are accepted, and have the following meaning.
+
+=over
+
+=item 1.
+
+Return a string of only polygons (or edge mesh).
+
+=item 2.
+
+Return a string of only plot options.
+
+=item 3.
+
+Return a string of polygons (or edge mesh) and plot options.
+
+=item 4.
+
+Return the complete plot to be passed directly to the C<Live3DData> method.
+
+=back
+
+=back
 
 =cut
 
-sub _LiveGraphicsParametricCurve3D_init { };    # don't reload this file
+sub _LiveGraphicsParametricCurve3D_init { }
 
-loadMacros("MathObjects.pl", "LiveGraphics3D.pl");
+loadMacros('MathObjects.pl', 'LiveGraphics3D.pl');
 
-$beginplot = "Graphics3D[";
-$endplot   = "]";
-
-###########################################
-###########################################
-#  Begin ParametricCurve3D
+$main::beginplot = 'Graphics3D[';
+$main::endplot   = ']';
 
 sub ParametricCurve3D {
-
-###########################################
-	#
-	#  Set default options
-	#
-
+	# Set default options.
 	my %options = (
-		Fx             => Formula("1"),
-		Fy             => Formula("1"),
-		Fz             => Formula("1"),
+		Fx             => Formula('1'),
+		Fy             => Formula('1'),
+		Fz             => Formula('1'),
 		tvar           => 't',
 		tmin           => -3,
 		tmax           => 3,
 		tsamples       => 20,
 		orientation    => 0,
 		axesframed     => 1,
-		xaxislabel     => "X",
-		yaxislabel     => "Y",
-		zaxislabel     => "Z",
-		curvecolor     => "RGBColor[1.0,0.0,0.0]",
+		xaxislabel     => 'x',
+		yaxislabel     => 'y',
+		zaxislabel     => 'z',
+		curvecolor     => 'RGBColor[1.0,0.0,0.0]',
 		curvethickness => 0.001,
 		outputtype     => 4,
 		@_
 	);
 
-	my $Fxsubroutine;
-	my $Fysubroutine;
-	my $Fzsubroutine;
+	$options{Fx}->perlFunction('Fxsubroutine', [ $options{tvar} ]);
+	$options{Fy}->perlFunction('Fysubroutine', [ $options{tvar} ]);
+	$options{Fz}->perlFunction('Fzsubroutine', [ $options{tvar} ]);
 
-	$options{Fx}->perlFunction('Fxsubroutine', ["$options{tvar}"]);
-	$options{Fy}->perlFunction('Fysubroutine', ["$options{tvar}"]);
-	$options{Fz}->perlFunction('Fzsubroutine', ["$options{tvar}"]);
-
-######################################################
-	#
-	#  Generate plot data
-	#
+	# Generate plot data.
 
 	my $dt = ($options{tmax} - $options{tmin}) / $options{tsamples};
 
-	my $t;
+	my (@Fx, @Fy, @Fz);
 
 	#  The curve data
-	foreach my $i (0 .. $options{tsamples}) {
-		$t[$i] = $options{tmin} + $i * $dt;
-
-		$FX[$i] = sprintf("%.3f", (Fxsubroutine($t[$i])->value));
-		$FY[$i] = sprintf("%.3f", (Fysubroutine($t[$i])->value));
-		$FZ[$i] = sprintf("%.3f", (Fzsubroutine($t[$i])->value));
-
+	for my $i (0 .. $options{tsamples}) {
+		my $t = $options{tmin} + $i * $dt;
+		$Fx[$i] = sprintf('%.3f', Fxsubroutine($t)->value);
+		$Fy[$i] = sprintf('%.3f', Fysubroutine($t)->value);
+		$Fz[$i] = sprintf('%.3f', Fzsubroutine($t)->value);
 	}
 
-	if ($options{orientation} > 0) {
-		#
-		#  The arrow head data
-		#
-		my $tmidindex = sprintf("%.0f", $options{tsamples} / 2);
+	# Generate plotstructure from the plotdata.  This is a list of lines that LiveGraphics3D reads as input.  For more
+	# information on the format of the plotstructure, see http://www.math.umn.edu/~rogness/lg3d/page_NoMathematica.html.
 
+	# Generate the line segments in the plotstructure.
+	my @lines;
+	for my $i (0 .. $options{tsamples} - 1) {
+		push(@lines, "Line[{{$Fx[$i],$Fy[$i],$Fz[$i]},{$Fx[$i+1],$Fy[$i+1],$Fz[$i+1]}}]");
 	}
 
-###########################################################################
-	#
-	#  Generate plotstructure from the plotdata.
-	#
-	#  The plotstucture is a list of arrows (made of lines) that
-	#  LiveGraphics3D reads as input.
-	#
-	#  For more information on the format of the plotstructure, see
-	#  http://www.math.umn.edu/~rogness/lg3d/page_NoMathematica.html
-	#  http://www.vis.uni-stuttgart.de/~kraus/LiveGraphics3D/documentation.html
-	#
-###########################################
-	#
-	#  Generate the line segments in the plotstructure
-	#
+	my $plotstructure = "{$options{curvecolor},Thickness[$options{curvethickness}]," . join(',', @lines) . '}';
 
-	my $plotstructure = "{$options{curvecolor},Thickness[$options{curvethickness}],";
-
-	my $tsamples1 = $options{tsamples} - 1;
-
-	foreach my $i (0 .. $tsamples1) {
-
-		$plotstructure =
-			$plotstructure . "Line[{" . "{$FX[$i],$FY[$i],$FZ[$i]}," . "{$FX[$i+1],$FY[$i+1],$FZ[$i+1]}" . "}]";
-
-		if ($i < $tsamples1) { $plotstructure = $plotstructure . "," }
-
-	}
-
-	$plotstructure = $plotstructure . "}";
-
-##############################################
-	#
-	#  Add plot options to the plotoptions string
-	#
-
-	my $plotoptions = "";
-
-	if (($options{outputtype} > 1) || ($options{axesframed} == 1)) {
-		$plotoptions =
-			$plotoptions
-			. "Axes->True,AxesLabel->"
-			. "{$options{xaxislabel},$options{yaxislabel},$options{zaxislabel}}";
-	}
-
-####################################################
-	#
-	#  Return only the plotstring    (if outputtype=>1),
-	#  or only plotoptions           (if outputtype=>2),
-	#  or plotstring, plotoptions    (if outputtype=>2),
-	#  or the entire plot (default)  (if outputtype=>4)
+	my $plotoptions =
+		$options{outputtype} > 1 && $options{axesframed} == 1
+		? "Axes->True,AxesLabel->{$options{xaxislabel},$options{yaxislabel},$options{zaxislabel}}"
+		: '';
 
 	if ($options{outputtype} == 1) {
 		return $plotstructure;
 	} elsif ($options{outputtype} == 2) {
 		return $plotoptions;
 	} elsif ($options{outputtype} == 3) {
-		return "{" . $plotstructure . "," . $plotoptions . "}";
+		return "{$plotstructure,$plotoptions}";
 	} elsif ($options{outputtype} == 4) {
-		return $beginplot . $plotstructure . "," . $plotoptions . $endplot;
+		return "${main::beginplot}${plotstructure},${plotoptions}${main::endplot}";
 	} else {
-		return "Invalid outputtype (outputtype should be a number 1 through 4).";
+		return 'Invalid outputtype (outputtype should be a number 1 through 4).';
 	}
-
-}    #  End ParametricCurve3D
-##############################################
-##############################################
+}
 
 1;
