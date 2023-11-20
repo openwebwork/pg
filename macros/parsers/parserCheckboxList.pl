@@ -542,7 +542,7 @@ sub CHECKS {
 	my ($self, $extend, $name, $size, %options) = @_;
 
 	my @checks;
-	$name = main::NEW_ANS_NAME() unless $name;
+	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 	my $label = main::generate_aria_label($name);
 
 	for my $i (0 .. $#{ $self->{orderedChoices} }) {

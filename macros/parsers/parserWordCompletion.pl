@@ -70,8 +70,9 @@ sub cmp_defaults { return (shift->SUPER::cmp_defaults(@_), mathQuillOpts => 'dis
 
 sub menu {
 	my ($self, $name, $size) = @_;
-	$name ||= main::NEW_ANS_NAME();
 	$size ||= 20;
+
+	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 
 	my $answer_value = $main::inputs_ref->{$name} // '';
 	$answer_value = [ split("\0", $answer_value) ] if $answer_value =~ /\0/;
@@ -83,7 +84,6 @@ sub menu {
 	$answer_value =~ s/\s+/ /g;
 
 	$name = main::RECORD_ANS_NAME($name, $answer_value);
-	my $previous_name = "previous_$name";
 
 	my $tcol = $size / 2 > 3 ? $size / 2 : 3;
 	$tcol = $tcol < 40 ? $tcol : 40;

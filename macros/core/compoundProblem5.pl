@@ -313,9 +313,7 @@ sub ans_evaluators {
 	my $self    = shift;
 	my $section = $self->{sections}{ $self->{current_section} };
 	if ($section->{section_answers}) {
-		my $count = $main::PG->{unlabeled_answer_eval_count};    # Pitty that we have to grab this by hand
-		foreach my $evaluator (@_) {
-			my $name = main::ANS_NUM_TO_NAME(++$count);
+		foreach my $name (@{ $main::PG->{unlabeled_answer_name_stack} }) {
 			push(@{ $self->{ans_names} },          $name);
 			push(@{ $section->{section_answers} }, $name);
 		}
@@ -725,4 +723,3 @@ sub PROCESS_SCAFFOLD      { $Scaffold::scaffold->PROCESS_SCAFFOLD(@_) }
 sub INITIALIZE_SCAFFOLD { $Scaffold::scaffold->{oldstyle} = 1 }    # backward compatibility
 
 1;
-

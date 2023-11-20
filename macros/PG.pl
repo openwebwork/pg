@@ -66,7 +66,7 @@ macro.
 =item *
 
 Explicitly labeled answers: Answers that have been explicitly assigned names
-with the L</LABELED_ANS> macro, or a macro that uses it. An explicitly labeled
+with the L</NAMED_ANS> macro, or a macro that uses it. An explicitly labeled
 answer is associated with its answer blank by name.
 
 =item *
@@ -428,46 +428,47 @@ sub sageReturnedFail {
 	return (not defined($obj) or (defined($obj->{success}) and $obj->{success} == 0));
 }
 
-=head2 LABELED_ANS
+=head2 NAMED_ANS
 
-Adds the answer evaluators listed to the list of labeled answer evaluators.
-They will be paired with labeled answer rules (a.k.a. answer blanks) in the
-order entered. This allows pairing of answer evaluators and answer rules that
-may not have been entered in the same order.
+Associates answer names with answer evaluators.  If the given anwer name has a
+response group in the PG_ANSWERS_HASH, then the evaluator is added to that
+response group.  Otherwise the name and evaluator are added to the hash of
+explicitly named answer evaluators.  They will be paired with exlplicitly
+named answer rules by name. This allows pairing of answer evaluators and
+answer rules that may not have been entered in the same order.
 
 An example of the usage is:
 
-    TEXT(labeled_ans_rule("name1"), labeled_ans_rule("name2"));
-    LABELED_ANS(name1 => answer_evaluator1, name2 => answer_evaluator2);
-
-=cut
-
-sub LABELED_ANS {
-	my @in  = @_;
-	my @out = ();
-	while (@in) {
-		my $label = shift @in;
-		$ans_eval = shift @in;
-		push @out, $label, $ans_eval;
-	}
-	$PG->LABELED_ANS(@out);    # returns pointer to the labeled answer group
-}
-
-=head2 NAMED_ANS
-
-Alias for LABELED_ANS
+    TEXT(NAMED_ANS_RULE("name1"), NAMED_ANS_RULE("name2"));
+    NAMED_ANS(name1 => answer_evaluator1, name2 => answer_evaluator2);
 
 =cut
 
 sub NAMED_ANS {
-	&LABELED_ANS(@_);          # returns pointer to the labeled answer group
+	my @in = @_;
+	$PG->NAMED_ANS(@in);
+}
+
+=head2 LABELED_ANS
+
+Alias for NAMED_ANS
+
+=cut
+
+sub LABELED_ANS {
+	my @in = @_;
+	NAMED_ANS(@in);
 }
 
 =head2 ANS
 
-Adds the answer evaluators listed to the list of unlabeled answer evaluators.
-They will be paired with unlabeled answer rules (a.k.a. answer blanks) in the
-order entered. This is the standard method for entering answers.
+Registers answer evaluators to be implicitly associated with answer names.  If
+there is an answer name in the implicit answer name stack, then a given answer
+evaluator will be paired with the first name in the stack.  Otherwise the
+evaluator will be pushed onto the implicit answer evaluator stack.  This is the
+standard method for entering answers.
+
+An example of the usage is:
 
     TEXT(ans_rule(), ans_rule(), ans_rule());
     ANS($answer_evaluator1, $answer_evaluator2, $answer_evaluator3);
@@ -481,91 +482,67 @@ C<num_cmp()> macro in L<PGanswermacros.pl>.
 =cut
 
 sub ANS {
-	#warn "using PGnew for ANS";
-	$PG->ANS(@_);    # returns pointer to the labeled answer group
+	$PG->ANS(@_);
 }
 
 =head2 RECORD_ANS_NAME
 
-Records the label for an answer blank. Used internally by L<PGbasicmacros.pl>
-to record the order of explicitly labelled answer blanks.
+Records the name for an answer blank. Used internally by L<PGbasicmacros.pl> to
+record the order of answer blanks.  All answer blanks must eventually be
+recorded via this method.
 
-    RECORD_ANS_NAME("label", "VALUE");
+    RECORD_ANS_NAME('name', 'VALUE');
 
 =cut
 
 sub RECORD_ANS_NAME {
-	$PG->record_ans_name(@_);
+	my ($name, $value) = @_;
+	return $PG->record_ans_name($name, $value);
 }
 
-=head2 inc_ans_rule_count
+=head2 RECORD_IMPLICIT_ANS_NAME
 
-DEPRECATED
+Records the name for an answer blank that is implicitly named. Used
+internally by L<PGbasicmacros.pl> to record the order of answer blanks that are
+implicitly nameed. This must also be called by a macro for answer blanks
+created by it that need to be implicitly named.
 
-Increments the internal count of the number of answer blanks that have been
-defined (C<$ans_rule_count>) and returns the new count. This should only be used
-when one is about to define a new answer blank, for example with
-C<NEW_ANS_NAME()>.
+    RECORD_IMPLICIT_ANS_NAME('name');
 
 =cut
 
-sub inc_ans_rule_count {
-	#$PG->{unlabeled_answer_blank_count}++;
-	#my $num = $PG->{unlabeled_answer_blank_count};
-	DEBUG_MESSAGE(" No increment done. Using PG to inc_ans_rule_count = $num ", caller(2));
-	warn " using PG to inc_ans_rule_count = $num ", caller(2);
-	$PG->{unlabeled_answer_blank_count};
+sub RECORD_IMPLICIT_ANS_NAME {
+	my ($name) = @_;
+	return $PG->record_implicit_ans_name($name);
 }
 
 sub ans_rule_count {
-	$PG->{unlabeled_answer_blank_count};
+	scalar keys %{ $PG->{PG_ANSWERS_HASH} };
 }
 
 =head2 NEW_ANS_NAME
 
-Generates an anonymous answer label from the internal count The label is added
-to the list of implicitly labeled answers. This is used internally by
-L<PGbasicmacros.pl> to generate labels for unlabeled answer blanks.
-
-    NEW_ANS_NAME();
+Generates an anonymous answer name from the internal count. This method takes
+no arguments.
 
 =cut
 
 sub NEW_ANS_NAME {
-	return "" if $PG_STOP_FLAG;
-	#my $number=shift;
-	# we have an internal count so the number not actually used.
-	my $name = $PG->record_unlabeled_ans_name();
-	$name;
-}
-
-sub NEW_ARRAY_NAME {
-	return "" if $PG_STOP_FLAG;
-	my $name = $PG->record_unlabeled_array_name();
-	$name;
-}
-
-# new subroutine
-sub NEW_ANS_BLANK {
-	return "" if $PG_STOP_FLAG;
-	$PG->record_unlabeled_ans_name(@_);
+	return $PG->new_ans_name;
 }
 
 =head2 ANS_NUM_TO_NAME
 
-Generates an answer label from the supplied answer number, but does not add it
-to the list of implicitly-labeled answers. Used internally by
-L<PGbasicmacros.pl> in generating answers blanks that use radio buttons or
-check boxes. (This type of answer blank uses multiple HTML INPUT elements with
-the same label, but the label should only be added to the list of implicitly
-labeled answers once.)
+Generates an answer name from the supplied answer number, but does not add it
+to the list of implicitly-named answers.  This is deprecated, and most likely
+will not give something useful.
 
     ANS_NUM_TO_NAME($num);
 
 =cut
 
 sub ANS_NUM_TO_NAME {
-	$PG->new_label(@_);    # behaves as in PG.pl
+	$PG->new_label(@_);
 }
 
 sub store_persistent_data {
@@ -591,144 +568,81 @@ sub add_content_post_processor {
 
 =head2 RECORD_FORM_LABEL
 
-Stores the label of a form field in the "extra" answers list. This is used to
+Stores the name of a form field in the "extra" answers list. This is used to
 keep track of answer blanks that are not associated with an answer evaluator.
 
-    RECORD_FORM_LABEL("label");
+    RECORD_FORM_LABEL("name");
 
 =cut
 
-sub RECORD_FORM_LABEL {    # this stores form data (such as sticky answers), but does nothing more
-						   # it's a bit of hack since we are storing these in the
-						   # KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
-						   #FIXME
-						   # warn "Using RECORD_FORM_LABEL -- deprecated? use $PG->store_persistent_data instead.";
+# This stores form data (such as sticky answers), but does nothing more.
+# It's a bit of hack since we are storing these in the
+# KEPT_EXTRA_ANSWERS queue even if they aren't answers per se.
+sub RECORD_FORM_LABEL {
 	RECORD_EXTRA_ANSWERS(@_);
 }
 
 sub RECORD_EXTRA_ANSWERS {
-	return "" if $PG_STOP_FLAG;
-	my $label = shift;     # the label of the input box or textarea
-	eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!)
-		;                  #put the labels into the hash to be caught later for recording purposes
-	$label;
-
-}
-
-=head2 NEW_ANS_ARRAY_NAME
-
-Generates a new answer label for an array (vector) element and adds it to the
-list of implicitly labeled answers.
-
-    NEW_ANS_ARRAY_NAME($num, $row, $col);
-
-=cut
-
-sub NEW_ANS_ARRAY_NAME {    # this keeps track of the answers within an array which are entered implicitly,
-							# rather than with a specific label
-	return "" if $PG_STOP_FLAG;
-	my $number = shift;
-	$main::vecnum = -1;
-	my $row = shift;
-	my $col = shift;
-	#       my $array_ans_eval_label = "ArRaY"."$number"."__"."$vecnum".":";
-	my $label =
-		$PG->{QUIZ_PREFIX} . $PG->{ARRAY_PREFIX} . "$number" . "__" . "$vecnum" . "-" . "$row" . "-" . "$col" . "__";
-	#		my $response_group = new PGresponsegroup($label,undef);
-	#		$PG->record_ans_name($array_ans_eval_label, $response_group);
-	#       What does vecnum do?
-	#       The name is simply so that it won't conflict when placed on the HTML page
-	#       my $array_label = shift;
-	$PG->record_array_name($label);    # returns $array_label, $ans_label
+	my $label = shift;
+	# Put the labels into the hash to be caught later for recording purposes.
+	eval(q!push(@main::KEPT_EXTRA_ANSWERS, $label)!);
+	return $label;
 }
 
 =head2 NEW_ANS_ARRAY_NAME_EXTENSION
 
-Generate an additional answer label for an existing array (vector) element and
+Generate an additional answer name for an existing array (vector) element and
 add it to the list of "extra" answers.
 
-    NEW_ANS_ARRAY_NAME_EXTENSION($num, $row, $col);
+    NEW_ANS_ARRAY_NAME_EXTENSION($row, $col);
 
 =cut
 
+# Creates a new array element answer name and records it.
 sub NEW_ANS_ARRAY_NAME_EXTENSION {
-	NEW_ANS_ARRAY_ELEMENT_NAME(@_);
-}
-
-sub NEW_ANS_ARRAY_ELEMENT_NAME {    # creates a new array element answer name and records it
-
-	return "" if $PG_STOP_FLAG;
-	my $number  = shift;
 	my $row_num = shift;
 	my $col_num = shift;
 	if ($row_num == 0 && $col_num == 0) {
 		$main::vecnum += 1;
 	}
-	#		my $ans_label = "ArRaY".sprintf("%04u", $number);
-	my $ans_label         = $PG->new_array_label($number);
+	my $ans_label         = $PG->new_ans_name();
 	my $element_ans_label = $PG->new_array_element_label($ans_label, $row_num, $col_num, vec_num => $vecnum);
 	my $response          = new PGresponsegroup($ans_label, $element_ans_label, undef);
 	$PG->extend_ans_group($ans_label, $response);
-	$element_ans_label;
-}
-
-sub NEW_LABELED_ANS_ARRAY {    #not in PG_original
-	my $ans_label     = shift;
-	my @response_list = @_;
-	#$PG->extend_ans_group($ans_label,@response_list);
-	$PG->{PG_ANSWERS_HASH}->{$ans_label}->insert_responses(@response_list);
-	# should this return an array of labeled answer blanks???
-}
-
-sub EXTEND_ANS_ARRAY {    #not in PG_original
-	my $ans_label     = shift;
-	my @response_list = @_;
-	#$PG->extend_ans_group($ans_label,@response_list);
-	$PG->{PG_ANSWERS_HASH}->{$ans_label}->append_responses(@response_list);
+	return $element_ans_label;
 }
 
 sub CLEAR_RESPONSES {
 	my $ans_label = shift;
-	#	my $response_label = shift;
-	#	my $ans_value  = shift;
-	if (defined($PG->{PG_ANSWERS_HASH}->{$ans_label})) {
-		my $responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response};
+	if (defined $PG->{PG_ANSWERS_HASH}{$ans_label}) {
+		my $responsegroup = $PG->{PG_ANSWERS_HASH}{$ans_label}{response};
 		if (ref($responsegroup)) {
 			$responsegroup->clear;
 		} else {
-			$responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response} = new PGresponsegroup($label);
+			$responsegroup = $PG->{PG_ANSWERS_HASH}{$ans_label}{response} = new PGresponsegroup($label);
 		}
 	}
-	'';
+	return;
 }
 
 #FIXME -- examine the difference between insert_response and extend_response
 sub INSERT_RESPONSE {
-	my $ans_label      = shift;
-	my $response_label = shift;
-	my $ans_value      = shift;
-	my $selected       = shift;
-	# warn "\n\nin PG.pl\nanslabel $ans_label responselabel $response_label value $ans_value";
-	if (defined($PG->{PG_ANSWERS_HASH}->{$ans_label})) {
-		my $responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response};
+	my ($ans_label, $response_label, $ans_value, $selected) = @_;
+	if (defined($PG->{PG_ANSWERS_HASH}{$ans_label})) {
+		my $responsegroup = $PG->{PG_ANSWERS_HASH}{$ans_label}{response};
 		$responsegroup->append_response($response_label, $ans_value, $selected);
-		# warn "There are  ", scalar($responsegroup->responses), " $responsegroup responses." ;
 	}
-	'';
+	return;
 }
 
-sub EXTEND_RESPONSE {    # for radio buttons and checkboxes
-	my $ans_label      = shift;
-	my $response_label = shift;
-	my $ans_value      = shift;
-	my $selected       = shift;
-	# warn "\n\nin PG.pl \nanslabel $ans_label responselabel $response_label value $ans_value";
+# For radio buttons and checkboxes.
+sub EXTEND_RESPONSE {
+	my ($ans_label, $response_label, $ans_value, $selected) = @_;
 	if (defined($PG->{PG_ANSWERS_HASH}->{$ans_label})) {
 		my $responsegroup = $PG->{PG_ANSWERS_HASH}->{$ans_label}->{response};
 		$responsegroup->extend_response($response_label, $ans_value, $selected);
-		# warn "\n$responsegroup responses are now ", pretty_print($response_group);
 	}
-	'';
+	return;
 }
 
 =head2 ENDDOCUMENT
@@ -757,7 +671,7 @@ block when in and HTML-based mode.
 
 =item *
 
-A reference to the hash mapping answer labels to answer evaluators.
+A reference to the hash mapping answer names to answer evaluators.
 
 =item *
 

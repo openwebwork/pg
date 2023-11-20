@@ -1402,7 +1402,15 @@ sub Answer {
 			}
 			$rule = $ans->$method(@options);
 			$rule = PGML::LaTeX($rule);
-			if (!(ref($ans) eq 'parser::MultiAnswer' && $ans->{part} > 1)) {
+			my $isMultiAnswer = ref($ans) eq 'parser::MultiAnswer';
+			if ($isMultiAnswer) {
+				$ans->{pgml_cmp} = { cmp => [ $ans->cmp(%{ $item->{cmp_options} }) ] } unless defined $ans->{pgml_cmp};
+				if ($ans->{namedRules}) {
+					main::NAMED_ANS(shift(@{ $ans->{pgml_cmp}{cmp} }), shift(@{ $ans->{pgml_cmp}{cmp} }));
+				} else {
+					main::ANS(shift(@{ $ans->{pgml_cmp}{cmp} })) if @{ $ans->{pgml_cmp}{cmp} };
+				}
+			} else {
 				my @cmp =
 					ref($item->{answer}) eq 'AnswerEvaluator' ? $item->{answer} : $ans->cmp(%{ $item->{cmp_options} });
 				if (defined($item->{name})) {

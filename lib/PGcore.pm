@@ -71,38 +71,35 @@ sub new {
 		OUTPUT_ARRAY      => [],    # holds output body text
 		HEADER_ARRAY      => [],    # holds output for the header text
 		POST_HEADER_ARRAY => [],
-		#		PG_ANSWERS                => [],  # holds answers with labels # deprecated
-		#		PG_UNLABELED_ANSWERS      => [],  # holds unlabeled ans. #deprecated -replaced by PG_ANSWERS_HASH
-		PG_ANSWERS_HASH => {},    # holds label=>answer pairs
+		PG_ANSWERS_HASH   => {},    # holds label=>answer pairs
 
 		# Holds other data, besides answers, which persists during a session and beyond.
-		PERSISTENCE_HASH         => $envir->{PERSISTENCE_HASH} // {},    # Main data, received from DB
-		PERSISTENCE_HASH_UPDATED => {},    # Keys whose updated values should be saved by the DB
-
-		answer_eval_count            => 0,
-		answer_blank_count           => 0,
-		unlabeled_answer_blank_count => 0,
-		unlabeled_answer_eval_count  => 0,
-		KEPT_EXTRA_ANSWERS           => [],
-		ANSWER_PREFIX                => 'AnSwEr',
-		ARRAY_PREFIX                 => 'ArRaY',
-		vec_num                      => 0,                       # for distinguishing matrices
-		QUIZ_PREFIX                  => $envir->{QUIZ_PREFIX},
-		PG_VERSION                   => $ENV{PG_VERSION},
-		PG_ACTIVE                    => 1,                       # toggle to zero to stop processing
-		submittedAnswers             => 0,       # have any answers been submitted? is this the first time this session?
-		PG_session_persistence_hash  => {},      # stores data from one invoction of the session to the next.
-		PG_original_problem_seed     => 0,
-		PG_random_generator          => undef,
-		PG_alias                     => undef,
-		PG_problem_grader            => undef,
-		displayMode                  => undef,
-		content_post_processors      => [],
-		envir                        => $envir,
-		WARNING_messages             => [],
-		DEBUG_messages               => [],
-		names_created                => 0,
-		external_refs                => {},      # record of external references
+		PERSISTENCE_HASH            => $envir->{PERSISTENCE_HASH} // {},    # Main data, received from DB
+		PERSISTENCE_HASH_UPDATED    => {},                      # Keys whose updated values should be saved by the DB
+		answer_name_count           => 0,
+		implicit_named_answer_stack => [],
+		implicit_answer_eval_stack  => [],
+		explicit_answer_name_evals  => {},
+		KEPT_EXTRA_ANSWERS          => [],
+		ANSWER_PREFIX               => 'AnSwEr',
+		ARRAY_PREFIX                => 'ArRaY',
+		vec_num                     => 0,                       # for distinguishing matrices
+		QUIZ_PREFIX                 => $envir->{QUIZ_PREFIX},
+		PG_VERSION                  => $ENV{PG_VERSION},
+		PG_ACTIVE                   => 1,                       # toggle to zero to stop processing
+		submittedAnswers            => 0,        # have any answers been submitted? is this the first time this session?
+		PG_session_persistence_hash => {},       # stores data from one invoction of the session to the next.
+		PG_original_problem_seed    => 0,
+		PG_random_generator         => undef,
+		PG_alias                    => undef,
+		PG_problem_grader           => undef,
+		displayMode                 => undef,
+		content_post_processors     => [],
+		envir                       => $envir,
+		WARNING_messages            => [],
+		DEBUG_messages              => [],
+		names_created               => 0,
+		external_refs               => {},       # record of external references
 		%options,                                # allows overrides and initialization
 	};
 	bless $self, $class;
@@ -160,16 +157,16 @@ resulting HTML page. See HEADER_TEXT() below.
 
 =item *
 
-Implicitly-labeled answers: Answers that have not been explicitly
+Implicitly-named answers: Answers that have not been explicitly
 assigned names, and are associated with their answer blanks by the order in
 which they appear in the problem. These types of answers are designated using
-the ANS() macro.
+the C<ANS> method.
 
 =item *
 
-Explicitly-labeled answers: Answers that have been explicitly assigned
-names with the LABELED_ANS() macro, or a macro that uses it. An explicitly-
-labeled answer is associated with its answer blank by name.
+Explicitly-named answers: Answers that have been explicitly assigned
+names with the C<NAMED_ANS> method, or a macro that uses it. An explicitly-
+named answer is associated with its answer blank by name.
 
 =item *
 
@@ -193,9 +190,9 @@ up the results of problem processing for delivery back to WeBWorK.
 The HEADER_TEXT(), TEXT(), and ANS() macros add to the header text string,
 body text string, and answer evaluator queue, respectively.
 
-=over
+=head1 METHODS
 
-=item HEADER_TEXT()
+=head2 HEADER_TEXT
 
  HEADER_TEXT("string1", "string2", "string3");
 
@@ -219,7 +216,7 @@ sub HEADER_TEXT {
 	$self->{HEADER_ARRAY};
 }
 
-=item POST_HEADER_TEXT()
+=head2 POST_HEADER_TEXT
 
  POST_HEADER_TEXT("string1", "string2", "string3");
 
@@ -244,7 +241,7 @@ sub POST_HEADER_TEXT {
 	$self->{POST_HEADER_ARRAY};
 }
 
-=item TEXT()
+=head2 TEXT
 
  TEXT("string1", "string2", "string3");
 
@@ -268,7 +265,6 @@ content being appended.
 =cut
 
 # ^function TEXT
-# ^uses $PG_STOP_FLAG
 # ^uses $STRINGforOUTPUT
 
 sub TEXT {
@@ -294,49 +290,36 @@ sub envir {
 
 }
 
-=item LABELED_ANS()
+=head2 NAMED_ANS
 
- TEXT(labeled_ans_rule("name1"), labeled_ans_rule("name2"));
- LABELED_ANS(name1 => answer_evaluator1, name2 => answer_evaluator2);
+Associates answer names with answer evaluators.  If the given answer name has a
+response group in the PG_ANSWERS_HASH, then the evaluator is added to that
+response group.  Otherwise the name and evaluator are added to the hash of
+explicitly named answer evaluators.  They will be paired with explicitly named
+answer rules by name. This allows pairing of answer evaluators and answer rules
+that may not have been entered in the same order.
 
-Adds the answer evaluators listed to the list of labeled answer evaluators.
-They will be paired with labeled answer rules (a.k.a. answer blanks) in the
-order entered. This allows pairing of answer evaluators and answer rules that
-may not have been entered in the same order.
+An example of the usage is:
+
+    TEXT(NAMED_ANS_RULE("name1"), NAMED_ANS_RULE("name2"));
+    NAMED_ANS(name1 => answer_evaluator1, name2 => answer_evaluator2);
+
+Note that internally implicitly named evaluators are also associated with
+their names via this method.
 
 =cut
 
-# ^function NAMED_ANS
-# ^uses &LABELED_ANS
 sub NAMED_ANS {
-	&LABELED_ANS;
-}
+	my ($self, @in) = @_;
 
-=item NAMED_ANS()
-
-Old name for LABELED_ANS(). DEPRECATED.
-
-=cut
-
-# ^function NAMED_ANS
-# ^uses $PG_STOP_FLAG
-sub LABELED_ANS {
-	my $self = shift;
-	my @in   = @_;
 	while (@in) {
-		my $label    = shift @in;
-		my $ans_eval = shift @in;
+		my ($label, $ans_eval) = (shift @in, shift @in);
 		$self->warning_message(
-			"<BR><B>Error in LABELED_ANS:|$label|</B>
-					-- inputs must be references to AnswerEvaluator objects or subroutines<BR>"
-			)
-			unless ref($ans_eval) =~ /CODE/
-			or ref($ans_eval) =~ /AnswerEvaluator/;
+			"Error in NAMED_ANS: |$label| -- inputs must be references to AnswerEvaluator objects or subroutines.")
+			unless ref($ans_eval) =~ /CODE/ || ref($ans_eval) =~ /AnswerEvaluator/;
 		if (ref($ans_eval) =~ /CODE/) {
-			#
-			#  Create an AnswerEvaluator that calls the given CODE reference and use that for $ans_eval.
-			#  So we always have an AnswerEvaluator from here on.
-			#
+			# Create an AnswerEvaluator that calls the given CODE reference and use that for $ans_eval.
+			# So we always have an AnswerEvaluator from here on.
 			my $cmp = new AnswerEvaluator;
 			$cmp->install_evaluator(
 				sub {
@@ -344,60 +327,59 @@ sub LABELED_ANS {
 					my $checker = shift;
 					my @args    = ($ans->{student_ans});
 					push(@args, ans_label => $ans->{ans_label}) if defined($ans->{ans_label});
-					$checker->(@args)
-						;    # Call the original checker with the arguments that PG::Translator would have used
+					# Call the original checker with the arguments that PG::Translator would have used
+					$checker->(@args);
 				},
 				$ans_eval
 			);
 			$ans_eval = $cmp;
 		}
-		if (defined($self->{PG_ANSWERS_HASH}->{$label})) {
-			$self->{PG_ANSWERS_HASH}->{$label}
+		if (ref($self->{PG_ANSWERS_HASH}{$label}) eq 'PGanswergroup') {
+			$self->{PG_ANSWERS_HASH}{$label}
 				->insert(ans_label => $label, ans_eval => $ans_eval, active => $self->{PG_ACTIVE});
 		} else {
-			$self->{PG_ANSWERS_HASH}->{$label} =
-				PGanswergroup->new($label, ans_eval => $ans_eval, active => $self->{PG_ACTIVE});
+			$self->{explicit_answer_name_evals}{$label} = $ans_eval;
 		}
-		$self->{answer_eval_count}++;
 	}
-	$self->{PG_ANSWERS_HASH};
+
+	return;
 }
 
-=item ANS()
+=head2 ANS
 
- TEXT(ans_rule(), ans_rule(), ans_rule());
- ANS($answer_evaluator1, $answer_evaluator2, $answer_evaluator3);
+Registers answer evaluators to be implicitly associated with answer names.  If
+there is an answer name in the implicit answer name stack, then a given answer
+evaluator will be paired with the first name in the stack.  Otherwise the
+evaluator will be pushed onto the implicit answer evaluator stack.  This is the
+standard method for entering answers.
 
-Adds the answer evaluators listed to the list of unlabeled answer evaluators.
-They will be paired with unlabeled answer rules (a.k.a. answer blanks) in the
-order entered. This is the standard method for entering answers.
+    TEXT(ans_rule(), ans_rule(), ans_rule());
+    ANS($answer_evaluator1, $answer_evaluator2, $answer_evaluator3);
 
-In the above example, answer_evaluator1 will be associated with the first
-answer rule, answer_evaluator2 with the second, and answer_evaluator3 with the
-third. In practice, the arguments to ANS() will usually be calls to an answer
-evaluator generator such as the cmp() method of MathObjects or the num_cmp()
-macro in L<PGanswermacros.pl>.
+In the above example, C<$answer_evaluator1> will be associated with the first
+answer rule, C<$answer_evaluator2> with the second, and C<$answer_evaluator3>
+with the third.  In practice, the arguments to C<ANS> will usually be calls to
+an answer evaluator generator such as the C<cmp> method of MathObjects or the
+C<num_cmp> macro in L<PGanswermacros.pl>. Note that if the C<ANS> call is made
+before the C<ans_rule> calls, the same pairing would occur.
 
 =cut
 
-# ^function ANS
-# ^uses $PG_STOP_FLAG
-# ^uses @PG_ANSWERS
-
 sub ANS {
-	my $self = shift;
-	my @in   = @_;
+	my ($self, @in) = @_;
 	while (@in) {
-		# create new label
-		$self->{unlabeled_answer_eval_count}++;
-		my $label     = $self->new_label($self->{unlabeled_answer_eval_count});
-		my $evaluator = shift @in;
-		$self->LABELED_ANS($label, $evaluator);
+		if (my $label = shift @{ $self->{implicit_named_answer_stack} }) {
+			$self->NAMED_ANS($label, shift @in);
+		} else {
+			# In this case ANS is called before the answer rule method for this answer.
+			# Defer calling NAMED_ANS until the answer rule method is called and the answer is recorded.
+			push(@{ $self->{implicit_answer_eval_stack} }, shift @in);
+		}
 	}
-	$self->{PG_ANSWERS_HASH};
+	return;
 }
 
-=item STOP_RENDERING()
+=head2 STOP_RENDERING
 
  STOP_RENDERING() unless all_answers_are_correct();
 
@@ -407,14 +389,13 @@ and answer evaluators until RESUME_RENDERING() is called.
 =cut
 
 # ^function STOP_RENDERING
-# ^uses $PG_STOP_FLAG
 sub STOP_RENDERING {
 	my $self = shift;
 	$self->{PG_ACTIVE} = 0;
 	"";
 }
 
-=item RESUME_RENDERING()
+=head2 RESUME_RENDERING
 
  RESUME_RENDERING();
 
@@ -424,88 +405,65 @@ evaluators. Reverses the effect of STOP_RENDERING().
 =cut
 
 # ^function RESUME_RENDERING
-# ^uses $PG_STOP_FLAG
 sub RESUME_RENDERING {
 	my $self = shift;
 	$self->{PG_ACTIVE} = 1;
 	"";
 }
-########
+
 # Internal methods
-#########
-sub new_label {    #creates a new label for unlabeled submissions ASNWER_PREFIX.$number
-	my $self   = shift;
-	my $number = shift;
-	$self->{QUIZ_PREFIX} . $self->{ANSWER_PREFIX} . sprintf("%04u", $number);
+
+# Creates a new name for an answer rule.
+sub new_label {
+	my ($self, $number) = @_;
+	return $self->{QUIZ_PREFIX} . $self->{ANSWER_PREFIX} . sprintf("%04u", $number);
 }
 
-sub new_array_label {    #creates a new label for unlabeled submissions ASNWER_PREFIX.$number
-	my $self   = shift;
-	my $number = shift;
-	$self->{QUIZ_PREFIX} . $self->{ARRAY_PREFIX} . sprintf("%04u", $number);
+# Creates a new name for an element in an array answer rule group.
+# $ans_label is the name of the PGanswer group holding this array.
+sub new_array_element_label {
+	my ($self, $ans_label, $row_num, $col_num, %options) = @_;
+	my $vec_num = $options{vec_num} // 0;
+	return $self->{QUIZ_PREFIX} . $ans_label . '__' . $vec_num . '-' . $row_num . '-' . $col_num . '__';
 }
 
-sub new_array_element_label {    #creates a new label for unlabeled submissions ARRAY_PREFIX.$number
-	my $self      = shift;
-	my $ans_label = shift;                                               # name of the PGanswer group holding this array
-	my $row_num   = shift;
-	my $col_num   = shift;
-	my %options   = @_;
-	my $vec_num   = (defined $options{vec_num}) ? $options{vec_num} : 0;
-	$self->{QUIZ_PREFIX} . $ans_label . '__' . $vec_num . '-' . $row_num . '-' . $col_num . '__';
+sub new_ans_name {
+	my $self = shift;
+	return $self->new_label(++$self->{answer_name_count});
 }
 
-sub new_answer_name {    # bit of a legacy item
-	&new_label;
-}
+sub record_ans_name {
+	my ($self, $label, $value) = @_;
 
-sub record_ans_name {    # the labels in the PGanswer group and response group should match in this case
-	my $self  = shift;
-	my $label = shift;
-	my $value = shift;
-	#$self->internal_debug_message("PGcore::record_ans_name: $label $value");
 	my $response_group = new PGresponsegroup($label, $label, $value);
-	#$self->debug_message("adding a response group $response_group");
-	if (ref($self->{PG_ANSWERS_HASH}->{$label}) =~ /PGanswergroup/) {
-		$self->{PG_ANSWERS_HASH}->{$label}->replace(
-			ans_label => $label,
-			response  => $response_group,
-			active    => $self->{PG_ACTIVE}
-		);
+
+	if (ref($self->{PG_ANSWERS_HASH}{$label}) eq 'PGanswergroup') {
+		# This should really never happen.  Should this warn if it does?
+		$self->{PG_ANSWERS_HASH}{$label}
+			->replace(ans_label => $label, response => $response_group, active => $self->{PG_ACTIVE});
+	} elsif ($self->{explicit_answer_name_evals}{$label}) {
+		$self->{PG_ANSWERS_HASH}{$label} =
+			PGanswergroup->new($label, response => $response_group, active => $self->{PG_ACTIVE});
+		$self->NAMED_ANS($label, delete $self->{explicit_answer_name_evals}{$label});
+	} elsif (my $evaluator = shift @{ $self->{implicit_answer_eval_stack} }) {
+		$self->{PG_ANSWERS_HASH}{$label} =
+			PGanswergroup->new($label, response => $response_group, active => $self->{PG_ACTIVE});
+		$self->NAMED_ANS($label, $evaluator);
 	} else {
-		$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new(
-			$label,
-			response => $response_group,
-			active   => $self->{PG_ACTIVE}
-		);
+		$self->{PG_ANSWERS_HASH}{$label} =
+			PGanswergroup->new($label, response => $response_group, active => $self->{PG_ACTIVE});
 	}
-	$self->{answer_blank_count}++;
-	$label;
+
+	return $label;
 }
 
-sub record_array_name {    # currently the same as record ans name
-	my $self           = shift;
-	my $label          = shift;
-	my $value          = shift;
-	my $response_group = new PGresponsegroup($label, $label, $value);
-	#$self->debug_message("adding a response group $response_group");
-	if (ref($self->{PG_ANSWERS_HASH}->{$label}) =~ /PGanswergroup/) {
-		$self->{PG_ANSWERS_HASH}->{$label}->replace(
-			ans_label => $label,
-			response  => $response_group,
-			active    => $self->{PG_ACTIVE}
-		);
-	} else {
-		$self->{PG_ANSWERS_HASH}->{$label} = PGanswergroup->new(
-			$label,
-			response => $response_group,
-			active   => $self->{PG_ACTIVE}
-		);
-	}
-	$self->{answer_blank_count}++;
-	#$self->{PG_ANSWERS_HASH}->{$label}->{response}->clear;  #why is this ?
-	$label;
-
+sub record_implicit_ans_name {
+	my ($self, $label) = @_;
+	# Do not add to the name stack if there is something in the evaluator stack. Note that if there is something in the
+	# evaluator stack then it will be removed when record_ans_name is called which is done when the named answer rule
+	# method is called.
+	push(@{ $self->{implicit_named_answer_stack} }, $label) unless @{ $self->{implicit_answer_eval_stack} };
+	return $label;
 }
 
 sub extend_ans_group {    # modifies the group type
@@ -513,31 +471,10 @@ sub extend_ans_group {    # modifies the group type
 	my $label         = shift;
 	my @response_list = @_;
 	my $answer_group  = $self->{PG_ANSWERS_HASH}->{$label};
-	if (ref($answer_group) =~ /PGanswergroup/) {
+	if (ref($answer_group) eq 'PGanswergroup') {
 		$answer_group->append_responses(@response_list);
-	} else {
-		#$self->warning_message("The answer |$label| has not yet been defined, you cannot extend it.",caller() );
-		# this error message is correct but misleading for the original way
-		# in which matrix blanks and their response evaluators are matched up
-		# we should restore the warning message once the new matrix evaluation method is in place
-
 	}
-	$label;
-}
-
-sub record_unlabeled_ans_name {
-	my $self = shift;
-	$self->{unlabeled_answer_blank_count}++;
-	my $label = $self->new_label($self->{unlabeled_answer_blank_count});
-	$self->record_ans_name($label);
-	$label;
-}
-
-sub record_unlabeled_array_name {
-	my $self = shift;
-	$self->{unlabeled_answer_blank_count}++;
-	my $ans_label = $self->new_array_label($self->{unlabeled_answer_blank_count});
-	$self->record_array_name($ans_label);
+	return $label;
 }
 
 sub store_persistent_data {    # will store strings only (so far)
@@ -572,10 +509,10 @@ sub check_answer_hash {
 	my $self = shift;
 	foreach my $key (keys %{ $self->{PG_ANSWERS_HASH} }) {
 		my $ans_eval = $self->{PG_ANSWERS_HASH}->{$key}->{ans_eval};
-		unless (ref($ans_eval) =~ /CODE/ or ref($ans_eval) =~ /AnswerEvaluator/) {
+		unless (ref($ans_eval) eq 'CODE' or ref($ans_eval) eq 'AnswerEvaluator') {
 			warn "The answer group labeled $key is missing an answer evaluator";
 		}
-		unless (ref($self->{PG_ANSWERS_HASH}->{$key}->{response}) =~ /PGresponsegroup/) {
+		unless (ref($self->{PG_ANSWERS_HASH}->{$key}->{response}) eq 'PGresponsegroup') {
 			warn "The answer group labeled $key is missing answer blanks ";
 		}
 	}
@@ -586,7 +523,7 @@ sub PG_restricted_eval {
 	WeBWorK::PG::Translator::PG_restricted_eval(@_);
 }
 
-=item base64 encoding and decoding
+=head2 base64 encoding and decoding
 
 	$str       = decode_base64($coded_str);
 	$coded_str = encode_base64($str);
@@ -617,74 +554,6 @@ sub encode_pg_and_html {
 	my $input = shift;
 	$input = HTML::Entities::encode_entities($input, '<>"&\'\$\@\\\\`\\[*_\x00-\x1F\x7F');
 	return $input;
-}
-
-=back
-
-=head2   Message channels
-
-There are three message channels
-	$PG->debug_message()   or in PG:  DEBUG_MESSAGE()
-	$PG->warning_message() or in PG:  WARN_MESSAGE()
-
-They behave the same way, it is simply convention as to how they are used.
-
-To report the messages use:
-
-	$PG->get_debug_messages
-	$PG->get_warning_messages
-
-These are used in Problem.pm for example to report any errors.
-
-There is also
-
-		$PG->internal_debug_message()
-	$PG->get_internal_debug_message
-	$PG->clear_internal_debug_messages();
-
-There were times when things were buggy enough that only the internal_debug_message which are not saved
-inside the PGcore object would report.
-
-=cut
-
-sub debug_message {
-	my ($self, @str) = @_;
-	push @{ $self->{DEBUG_messages} }, @str;
-}
-
-sub get_debug_messages {
-	my $self = shift;
-	$self->{DEBUG_messages};
-}
-
-sub warning_message {
-	my ($self, @str) = @_;
-	# Mark the start of each message.
-	push @{ $self->{WARNING_messages} }, '------', @str;
-}
-
-sub get_warning_messages {
-	my $self = shift;
-	$self->{WARNING_messages};
-}
-
-sub internal_debug_message {
-	my ($self, @str) = @_;
-	push @$internal_debug_messages, @str;
-}
-
-sub get_internal_debug_messages {
-	my $self = shift;
-	$internal_debug_messages;
-}
-
-sub clear_internal_debug_messages {
-	my $self = shift;
-	$internal_debug_messages = [];
-}
-
-sub DESTROY {
-	# doing nothing about destruction, hope that isn't dangerous
 }
 
 =head2 insertGraph
@@ -762,56 +631,6 @@ sub getUniqueName {
 	return $resource->create_unique_id;
 }
 
-=head1 Macros from IO.pm
-
-		includePGtext
-		read_whole_problem_file
-		fileFromPath
-		directoryFromPath
-
-=cut
-
-sub maketext {
-	my $self = shift;
-	# uncomment this to check to see if strings are run through
-	# maketext.
-	# return 'xXx'.  &{ $self->{maketext}}(@_).'xXx';
-	&{ $self->{maketext} }(@_);
-}
-
-sub includePGtext {
-	my $self = shift;
-	WeBWorK::PG::IO::includePGtext(@_);
-}
-
-sub read_whole_problem_file {
-	my $self = shift;
-	WeBWorK::PG::IO::read_whole_problem_file(@_);
-}
-
-sub fileFromPath {
-	my $self = shift;
-	WeBWorK::PG::IO::fileFromPath(@_);
-}
-
-sub directoryFromPath {
-	my $self = shift;
-	WeBWorK::PG::IO::directoryFromPath(@_);
-}
-
-sub AskSage {
-	my $self    = shift;
-	my $python  = shift;
-	my $options = shift;
-	$options->{curlCommand} = WeBWorK::PG::IO::externalCommand('curl');
-	WeBWorK::PG::IO::AskSage($python, $options);
-}
-
-sub tempDirectory {
-	my $self = shift;
-	return $self->{tempDirectory};
-}
-
 =head2 surePathToTmpFile
 
 	$path = surePathToTmpFile($path);
@@ -873,6 +692,122 @@ sub surePathToTmpFile {
 
 	$path = $path . shift(@nodes);
 	return $path;
+}
+
+=head1 Macros from IO.pm
+
+		includePGtext
+		read_whole_problem_file
+		fileFromPath
+		directoryFromPath
+
+=cut
+
+sub maketext {
+	my $self = shift;
+	# uncomment this to check to see if strings are run through
+	# maketext.
+	# return 'xXx'.  &{ $self->{maketext}}(@_).'xXx';
+	&{ $self->{maketext} }(@_);
+}
+
+sub includePGtext {
+	my $self = shift;
+	WeBWorK::PG::IO::includePGtext(@_);
+}
+
+sub read_whole_problem_file {
+	my $self = shift;
+	WeBWorK::PG::IO::read_whole_problem_file(@_);
+}
+
+sub fileFromPath {
+	my $self = shift;
+	WeBWorK::PG::IO::fileFromPath(@_);
+}
+
+sub directoryFromPath {
+	my $self = shift;
+	WeBWorK::PG::IO::directoryFromPath(@_);
+}
+
+sub AskSage {
+	my $self    = shift;
+	my $python  = shift;
+	my $options = shift;
+	$options->{curlCommand} = WeBWorK::PG::IO::externalCommand('curl');
+	WeBWorK::PG::IO::AskSage($python, $options);
+}
+
+sub tempDirectory {
+	my $self = shift;
+	return $self->{tempDirectory};
+}
+
+=head1 Message channels
+
+There are two message channels
+	$PG->debug_message()   or in PG:  DEBUG_MESSAGE()
+	$PG->warning_message() or in PG:  WARN_MESSAGE()
+
+They behave the same way, it is simply convention as to how they are used.
+
+To report the messages use:
+
+	$PG->get_debug_messages
+	$PG->get_warning_messages
+
+These are used in Problem.pm for example to report any errors.
+
+There is also
+
+	$PG->internal_debug_message()
+	$PG->get_internal_debug_message
+	$PG->clear_internal_debug_messages();
+
+There were times when things were buggy enough that only the internal_debug_message which are not saved
+inside the PGcore object would report.
+
+=cut
+
+sub debug_message {
+	my ($self, @str) = @_;
+	push @{ $self->{DEBUG_messages} }, @str;
+}
+
+sub get_debug_messages {
+	my $self = shift;
+	$self->{DEBUG_messages};
+}
+
+sub warning_message {
+	my ($self, @str) = @_;
+	# Mark the start of each message.
+	push @{ $self->{WARNING_messages} }, '------', @str;
+}
+
+sub get_warning_messages {
+	my $self = shift;
+	$self->{WARNING_messages};
+}
+
+sub internal_debug_message {
+	my ($self, @str) = @_;
+	push @$internal_debug_messages, @str;
+}
+
+sub get_internal_debug_messages {
+	my $self = shift;
+	$internal_debug_messages;
+}
+
+sub clear_internal_debug_messages {
+	my $self = shift;
+	$internal_debug_messages = [];
+}
+
+sub DESTROY {
+	# doing nothing about destruction, hope that isn't dangerous
 }
 
 1;

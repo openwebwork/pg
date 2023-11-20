@@ -197,7 +197,7 @@ sub MENU {
 	my @list        = @{ $self->{choices} };
 	my $placeholder = $self->{placeholder};
 	my $menu        = "";
-	$name = main::NEW_ANS_NAME() unless $name;
+	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 	my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
 	my $label        = main::generate_aria_label($name);
 

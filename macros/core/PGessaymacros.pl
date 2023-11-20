@@ -158,7 +158,8 @@ sub essay_box {
 	$row ||= 8;
 	$col ||= 75;
 	my $name = NEW_ANS_NAME();
-	return NAMED_ESSAY_BOX($name, $row, $col);
+	main::RECORD_IMPLICIT_ANS_NAME($name);
+	NAMED_ESSAY_BOX($name, $row, $col);
 
 }
 

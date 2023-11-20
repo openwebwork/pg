@@ -570,7 +570,8 @@ sub appendMessage {
 sub ANS_NAME {
 	my ($self, $i) = @_;
 	return $self->{answerNames}{$i} if defined $self->{answerNames}{$i};
-	$self->{answerNames}{0}  = main::NEW_ANS_NAME() unless defined $self->{answerNames}{0};
+	main::RECORD_IMPLICIT_ANS_NAME($self->{answerNames}{0} = main::NEW_ANS_NAME())
+		unless defined $self->{answerNames}{0};
 	$self->{answerNames}{$i} = $answerPrefix . $self->{answerNames}{0} . '_' . $i unless $i == 0;
 	return $self->{answerNames}{$i};
 }
