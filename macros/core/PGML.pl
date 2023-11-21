@@ -43,7 +43,7 @@ my $list      = '(?:^|(?<=[\t ]))(?:[-+o*]|(?:\d+|[ivxl]+|[IVXL]+|[a-zA-Z])[.)])
 my $align     = '>> *| *<<';
 my $code      = '```';
 my $pre       = ':   ';
-my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?=.)|\bq[qr]?(?=\W)';
+my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?:#.*?(?:\n\s*)+)?(?!=>)(?=.)|\bq[qr]?(?!=>)(?=\W)';
 my $emphasis  = '\*+|_+';
 my $chars     = '\\\\.|[{}[\]()\'"]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
@@ -547,9 +547,9 @@ sub Quoted {
 	my $quote = substr($next, 0, 1);
 	$self->{split}[ $self->{i} ] = substr($next, 1);
 	my $pcount = 0;
-	my $open   = ($quote =~ m/[({[]/ ? $quote : '');
+	my $open   = ($quote =~ m/[({[<]/ ? $quote : '');
 	my $close  = $open || $quote;
-	$close =~ tr/({[/)}]/;
+	$close =~ tr/({[</)}]>/;
 	my $qclose = "\\$close";
 	$self->Text($token . $quote);
 
@@ -701,7 +701,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		parseQuoted        => 1,
 		terminator         => qr/@\]/,
 		terminateMethod    => 'terminateGetString',
-		balance            => qr/[\'\"]/,
+		balance            => qr/[\{\'\"]/,
 		allowStar          => 1,
 		allowDblStar       => 1,
 		allowTriStar       => 1
