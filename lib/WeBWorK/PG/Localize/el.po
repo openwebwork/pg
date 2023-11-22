@@ -144,7 +144,7 @@ msgstr "Η ερώτηση δεν έχει απαντηθεί."
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:78
 msgid "This answer will be graded at a later time."
-msgstr "Η απάντηση θα διορθωθεί αργότερα. "
+msgstr "Η απάντηση θα βαθμολογηθεί αργότερα. "
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:423
 msgid "This is a new (re-randomized) version of the problem."
