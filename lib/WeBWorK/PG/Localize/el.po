@@ -56,7 +56,7 @@ msgstr "Διόρθωση"
 
 #: /opt/webwork/pg/macros/PG.pl:1308
 msgid "Correct Answer"
-msgstr "Διόρθωση Απάντησης"
+msgstr "Σωστή Απάντηση"
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:314
 msgid "False"
