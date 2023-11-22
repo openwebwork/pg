@@ -223,7 +223,7 @@ msgstr "στήλη"
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:95
 msgid "i"
-msgstr "άι"
+msgstr "i "
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:840
 msgid "if"
