@@ -52,7 +52,7 @@ msgstr "Όλες οι απαντήσεις που παίρνουν βαθμό ε
 
 #: /opt/webwork/pg/macros/PG.pl:1149
 msgid "Correct"
-msgstr "Διόρθωση"
+msgstr "Σωστά"
 
 #: /opt/webwork/pg/macros/PG.pl:1308
 msgid "Correct Answer"
