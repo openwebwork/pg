@@ -252,4 +252,4 @@ msgstr "όταν υποβάλλετε τις απαντήσεις σας"
 
 #: /opt/webwork/pg/macros/core/compoundProblem.pl:638
 msgid "your overall score is for all the parts combined."
-msgstr "το συνολικό σκορ σας είναι για όλα τα μέρη που συνδυάζονται."
+msgstr "το συνολικό σκορ σας είναι για όλα τα μέρη μαζί. "
