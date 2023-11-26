@@ -543,7 +543,7 @@ sub generate_aria_label {
 	my $label = '';
 
 	# if we dont have an AnSwEr type name then we do the best we can
-	if ($name !~ /AnSwEr/) {
+	if ($name !~ /AnSwEr\d+/) {
 		return maketext('answer') . ' ' . $name;
 	}
 
