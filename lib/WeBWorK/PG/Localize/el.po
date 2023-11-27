@@ -1,58 +1,34 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
 # Translators:
-# Antonis Troullakis, 2022
-# Athina Psoma, 2022
-# Chaido Skandyla, 2022
-# Christina Liouliou, 2022
-# Despoina, 2022-2023
-# Dimitra Papantoniou, 2022
-# Efthimiou Afroditi, 2022
-# Efthymia Papadopoulou, 2022
-# Elena Kapna, 2022
-# Elisavet, 2022-2023
-# Evangelos Papadopoulos, 2022
-# Ioannis Souldatos, 2022-2023
-# kalliopi Kiosse, 2022-2023
-# Kleopatra Chatziioannou, 2022
-# Kyriaki Kourouni, 2022-2023
-# Lika, 2022-2023
-# Maria Liakou, 2022
-# Maria Sakelliadi, 2022
-# Nikoleta Tentoglou, 2022
-# Panagiota Kosteli, 2022
-# Salma Chasan, 2022
-# Sofia Mavroudi, 2022
-# Stavroula Tziortzii, 2022
-# Tsiatsiou Katerina, 2022
-# Tzivani Marianna, 2022
-# ΑΛΕΞΑΝΔΡΑ ΣΤΕΦΑΝΙΔΟΥ, 2022
-# Παρασκευάς Παπαβασιλείου, 2022
+# Glenn Rice, 2023
+# Ioannis Souldatos, 2023
+# 
 msgid ""
 msgstr ""
-"Project-Id-Version: webwork2\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2023-10-05 06:43-0500\n"
-"Last-Translator: Kyriaki Kourouni, 2022-2023\n"
-"Language-Team: Greek (http://app.transifex.com/webwork/webwork2/language/"
-"el/)\n"
-"Language: el\n"
+"PO-Revision-Date: 2023-11-19 04:33+0000\n"
+"Last-Translator: Ioannis Souldatos, 2023\n"
+"Language-Team: Greek (https://app.transifex.com/webwork/teams/16644/el/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: el\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. (@answerNames - $numBlank - $numCorrect - $numEssay)
 #: /opt/webwork/pg/macros/PG.pl:1412
 msgid "%1 of the answers %plural(%1,is,are) NOT correct."
-msgstr ""
+msgstr "%1 από τις απαντήσεις ΔΕΝ είναι %plural(%1,σωστή, σωστές)."
 
 #. ($numEssay)
 #: /opt/webwork/pg/macros/PG.pl:1435
 msgid "%1 of the answers will be graded later."
-msgstr ""
+msgstr "%1 από τις απαντήσεις θα βαθμολογηθούν αργότερα. "
 
 #. (round($answerScore * 100)
 #: /opt/webwork/pg/macros/PG.pl:1157
@@ -61,25 +37,26 @@ msgstr "%1% σωστό"
 
 #. ($numBlank)
 #: /opt/webwork/pg/macros/PG.pl:1425
-msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgid ""
+"%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr ""
 "%quant(%1,των ερωτήσεων απομένει, των ερωτήσεων απομένουν) αναπάντητες."
 
 #: /opt/webwork/pg/macros/PG.pl:1399
 msgid "All of the answers are correct."
-msgstr ""
+msgstr "Όλες οι απαντήσεις είναι σωστές."
 
 #: /opt/webwork/pg/macros/PG.pl:1390
 msgid "All of the gradeable answers are correct."
-msgstr ""
+msgstr "Όλες οι απαντήσεις που παίρνουν βαθμό είναι σωστές."
 
 #: /opt/webwork/pg/macros/PG.pl:1149
 msgid "Correct"
-msgstr "Διόρθωση"
+msgstr "Σωστό"
 
 #: /opt/webwork/pg/macros/PG.pl:1308
 msgid "Correct Answer"
-msgstr "Διόρθωση Απάντησης"
+msgstr "Σωστή Απάντηση"
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:314
 msgid "False"
@@ -104,18 +81,15 @@ msgstr "Μετάβαση στο επόμενο"
 msgid "Hardcopy will always print the original version of the problem."
 msgstr "Στην έντυπη μορφή εμφανίζεται πάντα η αρχική μορφή του προβλήματος."
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1404
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1405
-msgid "Hint:"
-msgstr "Υπόδειξη:"
-
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1402
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1403
-msgid "Hint: "
+msgid "Hint:"
 msgstr "Υπόδειξη:"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:425
 msgid "If you come back to it later, it may revert to its original version."
-msgstr "Αν επιστρέψετε αργότερα, ενδέχεται να επανέλθει στην αρχική του μορφή."
+msgstr ""
+"Αν επιστρέψετε αργότερα, ενδέχεται να επανέλθει στην αρχική του μορφή."
 
 #: /opt/webwork/pg/macros/PG.pl:1153
 msgid "Incorrect"
@@ -133,24 +107,20 @@ msgstr "Σημείωση:"
 #: /opt/webwork/pg/macros/PG.pl:1108
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:131
 msgid "Preview"
-msgstr ""
+msgstr "Προεπισκόπηση"
 
 #: /opt/webwork/pg/macros/PG.pl:1295
 msgid "Preview of Your Answer"
-msgstr ""
+msgstr "Προεπισκόπηση απάντησης"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:188
 msgid "Set random seed to:"
 msgstr "Ορισμός τυχαίου αριθμού:"
 
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1394
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1395
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1396
 msgid "Solution:"
 msgstr "Απάντηση:"
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1394
-msgid "Solution: "
-msgstr "Λύση:"
 
 #: /opt/webwork/pg/macros/core/compoundProblem.pl:525
 msgid "Submit your answers again to go on to the next part."
@@ -158,23 +128,23 @@ msgstr "Υποβάλετε τις απαντήσεις σας ξανά για ν
 
 #: /opt/webwork/pg/macros/PG.pl:1378
 msgid "The answer is NOT correct."
-msgstr ""
+msgstr "Η απάντηση ΔΕΝ είναι σωστή."
 
 #: /opt/webwork/pg/macros/PG.pl:1351
 msgid "The answer is correct."
-msgstr ""
+msgstr "Η απάντηση είναι σωστή!"
 
 #: /opt/webwork/pg/macros/PG.pl:1360
 msgid "The answer will be graded later."
-msgstr ""
+msgstr "Η απάντηση θα βαθμολογηθεί αργότερα."
 
 #: /opt/webwork/pg/macros/PG.pl:1369
 msgid "The question has not been answered."
-msgstr ""
+msgstr "Η ερώτηση δεν έχει απαντηθεί."
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:78
 msgid "This answer will be graded at a later time."
-msgstr ""
+msgstr "Η απάντηση θα βαθμολογηθεί αργότερα. "
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:423
 msgid "This is a new (re-randomized) version of the problem."
@@ -189,8 +159,13 @@ msgid ""
 "can use LaTeX to make your math equations look pretty. LaTeX expressions "
 "should be enclosed using the parenthesis notation and not dollar signs."
 msgstr ""
+"Εδώ μπορείτε να εισάγετε την απάντησή σας. \n"
+"\n"
+"Όταν υποβάλετε την απάντησή σας, θα αποθηκευτεί και κατόπιν θα διορθωθεί από τον υπεύθυνο καθηγητή. Εάν  ο υπεύθυνος καθηγητής κάνει κάποια σχόλια, τα σχόλια αυτά θα εμφανιστούν σε αυτή τη σελίδα. \n"
+"\n"
+"Μπορείτε να χρησιμοποιήσετε κώδικα LaTeX στην απάντησή σας, όμως ο κώδικας θα πρέπει να μπει μέσα σε παρενθέσεις και όχι μέσα σε σύμβολα $. "
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3064
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3062
 msgid "This problem contains a video which must be viewed online."
 msgstr ""
 "Αυτό το πρόβλημα περιέχει ένα βίντεο που πρέπει να προβληθεί στο διαδίκτυο."
@@ -209,7 +184,7 @@ msgstr "Χωρίς βαθμό"
 
 #: /opt/webwork/pg/macros/PG.pl:1290
 msgid "You Entered"
-msgstr ""
+msgstr "Εισάγατε"
 
 #: /opt/webwork/pg/macros/core/PGanswermacros.pl:1616
 msgid "You can earn partial credit on this problem."
@@ -224,7 +199,7 @@ msgstr ""
 msgid "You may not change your answers when going on to the next part!"
 msgstr "Μη δεκτές αλλαγές σε απαντήσεις αν συνεχίσετε στο επόμενο μέρος!"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3057
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3055
 msgid "Your browser does not support the video tag."
 msgstr "Ο περιηγητής σας δεν υποστηρίζει την ετικέτα βίντεο."
 
@@ -241,14 +216,14 @@ msgstr "απάντηση"
 msgid "column"
 msgstr "στήλη"
 
-# does not need to be translated
 #. ('j', 'k', '_0')
 #. ('j', 'k')
+# does not need to be translated
 #: /opt/webwork/pg/lib/Parser/List/Vector.pm:39
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:95
 msgid "i"
-msgstr "άι"
+msgstr "i "
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:840
 msgid "if"
@@ -277,4 +252,4 @@ msgstr "όταν υποβάλλετε τις απαντήσεις σας"
 
 #: /opt/webwork/pg/macros/core/compoundProblem.pl:638
 msgid "your overall score is for all the parts combined."
-msgstr "το συνολικό σκορ σας είναι για όλα τα μέρη που συνδυάζονται."
+msgstr "το συνολικό σκορ σας είναι για όλα τα μέρη μαζί. "
