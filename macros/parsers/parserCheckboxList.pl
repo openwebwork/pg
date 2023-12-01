@@ -461,6 +461,9 @@ sub cmp_defaults {
 		$self->SUPER::cmp_defaults(%options),
 		entry_type        => 'choice',
 		list_type         => 'selection',
+		showHints         => 0,
+		showLengthHints   => 0,
+		partialCredit     => 0,
 		requireParenMatch => 0,
 		implicitList      => 0,
 		correct_choices   => $self->data
