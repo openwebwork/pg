@@ -1153,10 +1153,14 @@ sub ENDDOCUMENT {
 					my ($title, $line, $class) = @_;
 					$class //= '';
 					return '' unless defined $line && $line =~ /\S/;
-					return Mojo::DOM->new_tag(
-						'div',
-						class => 'card-header text-center p-1',
-						sub { Mojo::DOM->new_tag('h4', class => 'card-title fs-6 m-0', $title); }
+					return (
+						$title
+						? Mojo::DOM->new_tag(
+							'div',
+							class => 'card-header text-center p-1',
+							sub { Mojo::DOM->new_tag('h4', class => 'card-title fs-6 m-0', $title); }
+							)
+						: ''
 					) . Mojo::DOM->new_tag('div', class => "card-body text-center $class", sub {$line});
 				}
 
@@ -1202,7 +1206,13 @@ sub ENDDOCUMENT {
 										'div',
 										class => 'card',
 										sub {
-											($rh_envir->{showAttemptAnswers} && $options{showEntered}
+											(
+												$rh_envir->{showMessages} && $ansHash->{ans_message}
+												? feedbackLine('', $ansHash->{ans_message} =~ s/\n/<br>/gr,
+													'feedback-message')
+												: ''
+											)
+											. ($rh_envir->{showAttemptAnswers} && $options{showEntered}
 												? feedbackLine(maketext('You Entered'), $ansHash->{student_ans})
 												: '')
 											. (
@@ -1227,14 +1237,6 @@ sub ENDDOCUMENT {
 														$options{wrapPreviewInTex},
 														$ansHash->{correct_ans}
 													)
-												)
-												: ''
-											)
-											. (
-												($rh_envir->{showMessages} && $ansHash->{ans_message})
-												? feedbackLine(
-													maketext('Message'), $ansHash->{ans_message} =~ s/\n/<br>/gr,
-													'feedback-message'
 												)
 												: ''
 											);
