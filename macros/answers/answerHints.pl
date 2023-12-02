@@ -200,12 +200,12 @@ sub Compare {
 	$ans->{ans_message} = $ans->{error_message} = "";
 	$ans->{score}       = 0;
 
-	if (sprintf("%p", $self) ne sprintf("%p", $ans->{correct_value})) {
+	if ($self->address != $ans->{correct_value}->address) {
 		$ans->{correct_ans}     = $self->string;
 		$ans->{correct_value}   = $self;
 		$ans->{correct_formula} = Value->Package("Formula")->new($self);
 	}
-	if (sprintf("%p", $other) ne sprintf("%p", $ans->{student_value})) {
+	if ($other->address != $ans->{student_value}->address) {
 		$ans->{student_ans}     = $other->string;
 		$ans->{student_value}   = $other;
 		$ans->{student_formula} = Value->Package("Formula")->new($other);
