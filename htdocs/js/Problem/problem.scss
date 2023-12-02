@@ -277,6 +277,9 @@
 
 				&.feedback-message {
 					background-color: #ede275;
+					&:not(:last-child) {
+						border-bottom: 1px solid black;
+					}
 				}
 			}
 		}
