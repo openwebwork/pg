@@ -220,13 +220,8 @@
 	.popover-header {
 		text-align: center;
 		cursor: pointer;
-	}
-
-	&.preview {
-		.popover-header {
-			--bs-popover-header-bg: var(--bs-info);
-			--bs-popover-header-color: white;
-		}
+		--bs-popover-header-bg: var(--bs-info);
+		--bs-popover-header-color: white;
 	}
 
 	&.correct {

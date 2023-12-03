@@ -1022,7 +1022,7 @@ sub ENDDOCUMENT {
 
 				my %options = (
 					resultTitle      => maketext('Preview'),
-					resultClass      => 'preview',
+					resultClass      => '',
 					btnClass         => 'btn-info',
 					btnAddClass      => 'ms-1',
 					feedbackElements => Mojo::Collection->new,
@@ -1126,10 +1126,11 @@ sub ENDDOCUMENT {
 						if $options{insertElement} && $options{insertElement}->attr->{'data-feedback-insert-method'};
 				}
 
-				# Add the preview/correct/incorrect/partially-correct class and
+				# Add the correct/incorrect/partially-correct class and
 				# aria-described by attribute to the feedback elements.
 				for (@{ $options{feedbackElements} }) {
-					$_->attr(class              => join(' ', $options{resultClass}, $_->attr->{class} || ()));
+					$_->attr(class => join(' ', $options{resultClass}, $_->attr->{class} || ()))
+						if $options{resultClass};
 					$_->attr('aria-describedby' => "ww-feedback-$answerLabel");
 				}
 
@@ -1195,7 +1196,7 @@ sub ENDDOCUMENT {
 							bs_trigger             => 'click',
 							bs_placement           => 'bottom',
 							bs_html                => 'true',
-							bs_custom_class        => join(' ', 'ww-feedback-popover', $options{resultClass}),
+							bs_custom_class        => join(' ', 'ww-feedback-popover', $options{resultClass} || ()),
 							bs_fallback_placements => '[]',
 							bs_content             => Mojo::DOM->new_tag(
 								'div',
