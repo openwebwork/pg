@@ -219,13 +219,13 @@
 
 	.popover-header {
 		text-align: center;
+		cursor: pointer;
 	}
 
 	&.correct {
 		.popover-header {
 			--bs-popover-header-bg: var(--bs-success);
 			--bs-popover-header-color: white;
-			cursor: pointer;
 		}
 	}
 
