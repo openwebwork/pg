@@ -222,6 +222,13 @@
 		cursor: pointer;
 	}
 
+	&.preview {
+		.popover-header {
+			--bs-popover-header-bg: var(--bs-info);
+			--bs-popover-header-color: white;
+		}
+	}
+
 	&.correct {
 		.popover-header {
 			--bs-popover-header-bg: var(--bs-success);

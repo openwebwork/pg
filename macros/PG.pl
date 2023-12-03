@@ -827,8 +827,8 @@ changes this to "Ungraded" for essay answers.
 =item *
 
 C<resultClass>: This is the CSS class that is added to each answer input in the
-response group. By default it is set to the empty string, "correct",
-"incorrect", or "partially-correct" depending on the status of the answer and
+response group. By default it is set to "preview", "correct", "incorrect",
+or "partially-correct" depending on the status of the answer and
 the type of submission.
 
 =item *
@@ -1022,7 +1022,7 @@ sub ENDDOCUMENT {
 
 				my %options = (
 					resultTitle      => maketext('Preview'),
-					resultClass      => '',
+					resultClass      => 'preview',
 					btnClass         => 'btn-info',
 					btnAddClass      => 'ms-1',
 					feedbackElements => Mojo::Collection->new,
@@ -1126,11 +1126,10 @@ sub ENDDOCUMENT {
 						if $options{insertElement} && $options{insertElement}->attr->{'data-feedback-insert-method'};
 				}
 
-				# Add the correct/incorrect/partially-correct class and
+				# Add the preview/correct/incorrect/partially-correct class and
 				# aria-described by attribute to the feedback elements.
 				for (@{ $options{feedbackElements} }) {
-					$_->attr(class => join(' ', $options{resultClass}, $_->attr->{class} || ()))
-						if $options{resultClass};
+					$_->attr(class              => join(' ', $options{resultClass}, $_->attr->{class} || ()));
 					$_->attr('aria-describedby' => "ww-feedback-$answerLabel");
 				}
 
@@ -1191,12 +1190,12 @@ sub ENDDOCUMENT {
 						. ($rh_envir->{showMessages} && $ansHash->{ans_message} ? ' with-message' : ''),
 						'aria-label' => $options{resultTitle},
 						data         => {
-							$showResults && $options{resultTitle} ? (bs_title => $options{resultTitle}) : (),
+							bs_title               => $options{resultTitle},
 							bs_toggle              => 'popover',
 							bs_trigger             => 'click',
 							bs_placement           => 'bottom',
 							bs_html                => 'true',
-							bs_custom_class        => join(' ', 'ww-feedback-popover', $options{resultClass} || ()),
+							bs_custom_class        => join(' ', 'ww-feedback-popover', $options{resultClass}),
 							bs_fallback_placements => '[]',
 							bs_content             => Mojo::DOM->new_tag(
 								'div',
