@@ -280,6 +280,10 @@
 					&:not(:last-child) {
 						border-bottom: 1px solid black;
 					}
+					&:last-child {
+						border-bottom-left-radius: var(--bs-card-inner-border-radius);
+						border-bottom-right-radius: var(--bs-card-inner-border-radius);
+					}
 				}
 			}
 		}
