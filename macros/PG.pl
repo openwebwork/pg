@@ -916,6 +916,19 @@ has not answered a question (for example, this occurs for answers to questions
 created with the L<draggableProof.pl> macro) . So macros that create answers
 with responses like that should override this.
 
+=item *
+
+C<manuallyGraded>: This is a boolean value. This should be true if the answer is
+not graded by the PG problem grader, but is graded manually at a later time, and
+should be false if the PG problem grader sets the grade for this answer. For
+example, essay answers created by the PGessaymacros.pl macro set this to true.
+
+=item *
+
+C<needsGrading>: This is a boolean value. This should be true if the answer is
+not graded by the PG problem grader, but is graded manually at a later time, and
+the answer has changed.
+
 =back
 
 =cut
@@ -1005,9 +1018,10 @@ sub ENDDOCUMENT {
 		add_content_post_processor(sub {
 			my $problemContents = shift;
 
-			my $numCorrect = 0;
-			my $numBlank   = 0;
-			my $numEssay   = 0;
+			my $numCorrect        = 0;
+			my $numBlank          = 0;
+			my $numManuallyGraded = 0;
+			my $needsGrading      = $rh_envir->{needs_grading};
 
 			my @answerNames = keys %{ $PG->{PG_ANSWERS_HASH} };
 
@@ -1016,9 +1030,6 @@ sub ENDDOCUMENT {
 				my $ansHash      = $PG->{PG_ANSWERS_HASH}{$answerLabel}{ans_eval}{rh_ans};
 
 				my $answerScore = $ansHash->{score} // 0;
-				my $isEssay     = ($ansHash->{type} // '') eq 'essay';
-				++$numCorrect if $answerScore >= 1;
-				++$numEssay   if $isEssay;
 
 				my %options = (
 					resultTitle      => maketext('Preview'),
@@ -1032,7 +1043,9 @@ sub ENDDOCUMENT {
 					showEntered      => 1,
 					showPreview      => 1,
 					showCorrect      => 1,
-					answerGiven      => 0
+					answerGiven      => 0,
+					manuallyGraded   => 0,
+					needsGrading     => 0
 				);
 
 				# Determine if the student gave an answer to any of the questions in this response group and find the
@@ -1080,10 +1093,13 @@ sub ENDDOCUMENT {
 				$ansHash->{feedback_options}->($ansHash, \%options, $problemContents)
 					if ref($ansHash->{feedback_options}) eq 'CODE';
 
-				# Update the count of the number of unanswered questions.  This should be after the custom
-				# feedback_options call as that method can change the answerGiven option.  (The draggableProof.pl macro
-				# does this.)
-				++$numBlank unless $isEssay || $options{answerGiven} || $answerScore >= 1;
+				# Update the counts.  This should be after the custom feedback_options call as that method can change
+				# some of the options.  (The draggableProof.pl macro changes the answerGiven option, and the
+				# PGessaymacros.pl macro changes the manuallyGraded and needsGrading options.)
+				++$numCorrect        if $answerScore >= 1;
+				++$numManuallyGraded if $options{manuallyGraded};
+				$needsGrading = 1    if $options{needsGrading};
+				++$numBlank unless $options{manuallyGraded} || $options{answerGiven} || $answerScore >= 1;
 
 				# Don't show the results popover if there is nothing to show.
 				next
@@ -1271,13 +1287,15 @@ sub ENDDOCUMENT {
 								maketext('The answer is correct.')
 							)
 						);
-					} elsif ($numEssay) {
+					} elsif ($numManuallyGraded) {
 						push(
 							@summary,
 							Mojo::DOM->new_tag(
 								'div',
 								class => 'alert alert-info mb-2 p-1',
-								maketext('The answer will be graded later.')
+								$needsGrading
+								? maketext('The answer will be graded later.')
+								: maketext('The answer has been graded.')
 							)
 						);
 					} elsif ($numBlank) {
@@ -1300,8 +1318,8 @@ sub ENDDOCUMENT {
 						);
 					}
 				} else {
-					if ($numCorrect + $numEssay == @answerNames) {
-						if ($numEssay) {
+					if ($numCorrect + $numManuallyGraded == @answerNames) {
+						if ($numManuallyGraded) {
 							push(
 								@summary,
 								Mojo::DOM->new_tag(
@@ -1320,7 +1338,7 @@ sub ENDDOCUMENT {
 								)
 							);
 						}
-					} elsif ($numBlank + $numEssay + $numCorrect != @answerNames) {
+					} elsif ($numBlank + $numManuallyGraded + $numCorrect != @answerNames) {
 						push(
 							@summary,
 							Mojo::DOM->new_tag(
@@ -1328,7 +1346,7 @@ sub ENDDOCUMENT {
 								class => 'alert alert-danger mb-2 p-1',
 								maketext(
 									'[_1] of the answers [plural,_1,is,are] NOT correct.',
-									@answerNames - $numBlank - $numCorrect - $numEssay
+									@answerNames - $numBlank - $numCorrect - $numManuallyGraded
 								)
 							)
 						);
@@ -1346,13 +1364,18 @@ sub ENDDOCUMENT {
 							)
 						);
 					}
-					if ($numEssay) {
+					if ($numManuallyGraded) {
 						push(
 							@summary,
 							Mojo::DOM->new_tag(
 								'div',
 								class => 'alert alert-info mb-2 p-1',
-								maketext('[_1] of the answers will be graded later.', $numEssay)
+								$needsGrading
+								? maketext('[_1] of the answers will be graded later.', $numManuallyGraded)
+								: maketext(
+									'[_1] of the answers [plural,_1,has,have] been graded.',
+									$numManuallyGraded
+								)
 							)
 						);
 					}

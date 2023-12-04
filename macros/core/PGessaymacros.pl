@@ -57,14 +57,27 @@ sub essay_cmp {
 		scaffold_force   => 1,
 		feedback_options => sub {
 			my ($ansHash, $options) = @_;
-			$options->{resultTitle}      = maketext('Ungraded');
+
+			$options->{manuallyGraded} = 1;
+
+			if ($envir{needs_grading}
+				|| !defined $inputs_ref->{"previous_$ansHash->{ans_label}"}
+				|| $inputs_ref->{ $ansHash->{ans_label} } ne $inputs_ref->{"previous_$ansHash->{ans_label}"})
+			{
+				$options->{needsGrading} = 1;
+				$options->{resultTitle}  = maketext('Ungraded');
+			} else {
+				$options->{resultTitle} = maketext('Graded');
+				$ansHash->{ans_message} = '';
+			}
+
 			$options->{resultClass}      = '';
 			$options->{insertMethod}     = 'append_content';
 			$options->{btnClass}         = 'btn-info';
 			$options->{btnAddClass}      = '';
 			$options->{wrapPreviewInTex} = 0;
-			$options->{showEntered}      = 0;                      # Suppress output of the feedback entered answer.
-			$options->{showCorrect}      = 0;                      # Suppress output of the feedback correct answer.
+			$options->{showEntered}      = 0;                  # Suppress output of the feedback entered answer.
+			$options->{showCorrect}      = 0;                  # Suppress output of the feedback correct answer.
 		},
 		%options,
 	);
