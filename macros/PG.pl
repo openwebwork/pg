@@ -827,8 +827,8 @@ changes this to "Ungraded" for essay answers.
 =item *
 
 C<resultClass>: This is the CSS class that is added to each answer input in the
-response group. By default it is set to "preview", "correct", "incorrect",
-or "partially-correct" depending on the status of the answer and
+response group. By default it is set to the empty string, "correct",
+"incorrect", or "partially-correct" depending on the status of the answer and
 the type of submission.
 
 =item *
