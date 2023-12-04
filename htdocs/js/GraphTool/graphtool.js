@@ -419,7 +419,7 @@ window.graphTool = (containerId, options) => {
 	gt.snapRound = (x, snap, precision = 10 ** 5) => Math.round(Math.round(x / snap) * snap * precision) / precision;
 
 	// Convert a decimal number into a fraction or mixed number with denominator at most 10 ** 8.
-	gt.toLatexFrac = (x, mixed = false, snapSize = gt.snapSizeX) => {
+	gt.toLatexFrac = (x, mixed = false, _snapSize = gt.snapSizeX) => {
 		const sign = x ? Math.abs(x) / x : 1, int = mixed ? Math.trunc(sign * x) : 0;
 		let a = 0, step = sign * x - int, h0 = 1, h1 = a, k0 = 0, k1 = 1;
 
@@ -482,7 +482,7 @@ window.graphTool = (containerId, options) => {
 		);
 	};
 
-	gt.setMessageContent = (newContent, confirmation = false) => new Promise((resolve, reject) => {
+	gt.setMessageContent = (newContent, confirmation = false) => new Promise((resolve, _reject) => {
 		if (gt.confirmationActive) return resolve();
 		gt.confirmationActive = confirmation
 
@@ -2266,28 +2266,107 @@ window.graphTool = (containerId, options) => {
 		clearButtonContainer.append(gt.clearButton);
 		gt.buttonBox.append(clearButtonContainer);
 
+		// Full screen mode handlers.
+		const fullscreenScale = () => {
+			gt.graphContainer.style.removeProperty('transform');
+
+			const gtRect = gt.graphContainer.getBoundingClientRect();
+			const fsRect = gt.graphContainer.parentElement.getBoundingClientRect();
+
+			const scale =
+				gtRect.height / gtRect.width < fsRect.height / fsRect.width
+					? (fsRect.width * 0.95) / gtRect.width
+					: (fsRect.height * 0.95) / gtRect.height;
+
+			gt.graphContainer.style.transform = `matrix(${scale},0,0,${scale},0,${
+				(fsRect.height - gtRect.height) * 0.5
+			})`;
+
+			// Update the jsxgraph css transforms so that mouse cursor position is reported correctly.
+            gt.board.updateCSSTransforms();
+		};
+
+		let promiseSupported = false;
+
+		const toggleFullscreen = () => {
+			const wrap_node =
+				document.getElementById(`gt-fullscreenwrap-${containerId}`) || document.createElement('div');
+
+			if (!wrap_node.classList.contains('gt-fullscreenwrap')) {
+				// When the graphtool container is taken out of the DOM and placed in the wrap node in fullscreen mode
+				// the size of the page changes, and thus the current scroll position can change.  So save the current
+				// scroll position so it can be restored when fullscreen mode is exited.
+				wrap_node.currentScroll = { x: window.scrollX, y: window.scrollY };
+
+				wrap_node.classList.add('gt-fullscreenwrap');
+				wrap_node.id = `gt-fullscreenwrap-${containerId}`;
+				gt.graphContainer.before(wrap_node);
+				wrap_node.appendChild(gt.graphContainer);
+			}
+
+			if (document.fullscreenElement || document.webkitFullscreenElement) {
+				document.exitFullscreen?.();
+				document.webkitExitFullscreen?.();
+			} else {
+				wrap_node.requestFullscreen = wrap_node.requestFullscreen || wrap_node.webkitRequestFullscreen;
+				if (wrap_node.requestFullscreen) {
+					// Disable the jsxgraph resize observer.  It conflicts with the local resize observer.
+					gt.board.stopResizeObserver();
+					const fullscreenPromise = wrap_node.requestFullscreen();
+					if (fullscreenPromise instanceof Promise) {
+						promiseSupported = true;
+						fullscreenPromise.then(fullscreenScale);
+					}
+					gt.resizeObserver = new ResizeObserver(fullscreenScale);
+					gt.resizeObserver.observe(wrap_node);
+					gt.resizeObserver.observe(gt.graphContainer);
+				}
+			}
+		};
+
 		// Add a button to switch to full screen mode.
 		gt.fullScreenButton = document.createElement('button');
 		let fullScreenButtonMessage = 'Switch to fullscreen.';
 		gt.fullScreenButton.type = 'button';
 		gt.fullScreenButton.classList.add('gt-button', 'gt-text-button');
 		gt.fullScreenButton.textContent = 'Fullscreen';
-		gt.fullScreenButton.addEventListener('click', () => gt.board.toFullscreen(containerId));
+		gt.fullScreenButton.addEventListener('click', () => toggleFullscreen());
 		gt.fullScreenButton.addEventListener('pointerover', () => gt.setMessageText(fullScreenButtonMessage));
 		gt.fullScreenButton.addEventListener('pointerout', () => gt.updateHelp());
 		gt.fullScreenButton.addEventListener('focus', () => gt.setMessageText(fullScreenButtonMessage));
 		gt.fullScreenButton.addEventListener('blur', () => gt.updateHelp());
-		document.addEventListener('fullscreenchange', () => {
-			if (document.fullscreenElement?.classList.contains('JXG_wrap_private')) {
-				gt.fullScreenButton.textContent = 'Exit Fullscreen';
-				fullScreenButtonMessage = 'Exit fullscreen.';
-				if (!gt.helpEnabled) gt.messageBox.classList.add('gt-disabled-help');
-			} else {
-				gt.fullScreenButton.textContent = 'Fullscreen';
-				fullScreenButtonMessage = 'Switch to fullscreen.';
-				gt.messageBox.classList.remove('gt-disabled-help');
-			}
-		});
+		for (const eventType of ['fullscreenchange', 'webkitfullscreenchange']) {
+			document.addEventListener(eventType, () => {
+				const wrap_node = document.getElementById(`gt-fullscreenwrap-${containerId}`);
+				if (!wrap_node) return;
+				if (
+					document.fullscreenElement === wrap_node ||
+					document.webkitFullscreenElement === wrap_node
+				) {
+					gt.fullScreenButton.textContent = 'Exit Fullscreen';
+					fullScreenButtonMessage = 'Exit fullscreen.';
+					if (!promiseSupported) fullscreenScale();
+				} else {
+					if (gt.resizeObserver) gt.resizeObserver.disconnect();
+					delete gt.resizeObserver;
+					wrap_node.replaceWith(gt.graphContainer);
+					gt.graphContainer.style.removeProperty('transform');
+					gt.board.updateCSSTransforms();
+					// Give resize control back to jsxgraph.
+					gt.board.startResizeObserver();
+					if (wrap_node.currentScroll) {
+						window.scroll({
+							left: wrap_node.currentScroll.x,
+							top: wrap_node.currentScroll.y,
+							behavior: 'instant'
+						});
+					}
+					gt.fullScreenButton.textContent = 'Fullscreen';
+					fullScreenButtonMessage = 'Switch to fullscreen.';
+				}
+				gt.updateHelp();
+			});
+		}
 		gt.buttonBox.append(gt.fullScreenButton);
 
 		// Add a button to disable or enable help.
@@ -2330,6 +2409,7 @@ window.graphTool = (containerId, options) => {
 
 		gt.messageBox = document.createElement('div');
 		gt.messageBox.classList.add('gt-message-box');
+		if (!gt.helpEnabled) gt.messageBox.classList.add('gt-disabled-help');
 		gt.messageBox.setAttribute('role', 'region')
 		gt.messageBox.setAttribute('aria-live', 'polite')
 		gt.graphContainer.append(gt.messageBox);
