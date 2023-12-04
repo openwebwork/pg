@@ -185,14 +185,14 @@
 			margin-left: 0.25rem;
 		}
 
-		&.align-middle {
+		&.ww-fb-align-middle {
 			.ww-feedback-btn {
 				top: 50%;
 				transform: translateY(-50%);
 			}
 		}
 
-		&.align-bottom {
+		&.ww-fb-align-bottom {
 			.ww-feedback-btn {
 				top: unset;
 				bottom: 0;
