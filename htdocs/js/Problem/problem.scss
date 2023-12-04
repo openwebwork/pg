@@ -219,13 +219,15 @@
 
 	.popover-header {
 		text-align: center;
+		cursor: pointer;
+		--bs-popover-header-bg: var(--bs-info);
+		--bs-popover-header-color: white;
 	}
 
 	&.correct {
 		.popover-header {
 			--bs-popover-header-bg: var(--bs-success);
 			--bs-popover-header-color: white;
-			cursor: pointer;
 		}
 	}
 
@@ -277,6 +279,13 @@
 
 				&.feedback-message {
 					background-color: #ede275;
+					&:not(:last-child) {
+						border-bottom: 1px solid black;
+					}
+					&:last-child {
+						border-bottom-left-radius: var(--bs-card-inner-border-radius);
+						border-bottom-right-radius: var(--bs-card-inner-border-radius);
+					}
 				}
 			}
 		}
