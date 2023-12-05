@@ -250,13 +250,9 @@ sub new {
 			precedence    => 10,
 			associativity => $associativity,
 			type          => "unary",
-			string        => (
-				($main::displayMode eq 'TeX' or $main::displayMode eq 'PTX')
-				? Currency::quoteTeX($symbol)
-				: $symbol
-			),
-			TeX   => Currency::quoteTeX($symbol),
-			class => 'Currency::UOP::currency'
+			string        => (($main::displayMode eq 'TeX') ? Currency::quoteTeX($symbol) : $symbol),
+			TeX           => Currency::quoteTeX($symbol),
+			class         => 'Currency::UOP::currency'
 		},
 	);
 	$context->{parser}{Number}  = "Currency::Number";
