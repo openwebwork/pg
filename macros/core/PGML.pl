@@ -28,6 +28,11 @@ sub Eval { main::PG_restricted_eval(@_) }
 
 sub Sort { return main::lex_sort(@_) }
 
+sub isRegexp {
+	my $ref = shift;
+	return $ref && ref($ref) =~ m/Regexp$/;
+}
+
 ######################################################################
 
 package PGML::Parse;
@@ -94,7 +99,7 @@ sub Unwind {
 	$self->{block}->popItem;
 	$self->Text($block->{token});
 	$self->{block}->pushItem(@{ $block->{stack} });
-	$self->Text($block->{terminator}) if $block->{terminator} && ref($block->{terminator}) ne 'Regexp';
+	$self->Text($block->{terminator}) if $block->{terminator} && !PGML::isRegexp($block->{terminator});
 	$self->{atBlockStart} = 0;
 }
 
@@ -235,7 +240,7 @@ sub End {
 	return          if $block->{isContainer};
 	$block->popItem if $block->topItem->{type} eq 'break' && $block->{type} ne 'align';
 	while ($block->{type} ne 'root') {
-		if (ref($block->{terminator}) eq 'Regexp' || $block->{cancelPar}) {
+		if (PGML::isRegexp($block->{terminator}) || $block->{cancelPar}) {
 			$self->blockError("'%s' was not closed before $action");
 		} else {
 			$self->Terminate;
@@ -1350,13 +1355,13 @@ sub Math {
 		my $obj = Parser::Formula($context, $math);
 		if ($context->{error}{flag}) {
 			PGML::Warning "Error parsing mathematics: $context->{error}{message}";
-			return "\\text{math error}";
+			return ("\\text{math error}", 'inline');
 		}
 		$obj  = $obj->reduce if $item->{reduced};
 		$math = $obj->TeX;
 	}
 	$math = "\\displaystyle{$math}" if $item->{displaystyle};
-	my $mathmode = ($item->{display}) ? 'display' : 'inline';
+	my $mathmode = $item->{display} ? 'display' : 'inline';
 	return ($math, $mathmode);
 }
 
