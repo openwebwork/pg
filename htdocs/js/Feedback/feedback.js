@@ -3,7 +3,10 @@
 		if (feedbackBtn.dataset.popoverInitialized) return;
 		feedbackBtn.dataset.popoverInitialized = 'true';
 
-		new bootstrap.Popover(feedbackBtn, { sanitize: false, container: feedbackBtn.parentElement });
+		const feedbackPopover = new bootstrap.Popover(feedbackBtn, {
+			sanitize: false,
+			container: feedbackBtn.parentElement
+		});
 
 		// Render MathJax previews.
 		if (window.MathJax) {
@@ -13,18 +16,35 @@
 		}
 
 		feedbackBtn.addEventListener('shown.bs.popover', () => {
-			const bsPopover = bootstrap.Popover.getInstance(feedbackBtn);
-
 			// Execute javascript in the answer preview.
-			bsPopover.tip?.querySelectorAll('script').forEach((origScript) => {
+			feedbackPopover.tip?.querySelectorAll('script').forEach((origScript) => {
 				const newScript = document.createElement('script');
 				Array.from(origScript.attributes).forEach((attr) => newScript.setAttribute(attr.name, attr.value));
 				newScript.appendChild(document.createTextNode(origScript.innerHTML));
 				origScript.parentNode.replaceChild(newScript, origScript);
+				setTimeout(() => feedbackPopover.update());
 			});
 
 			// Make a click on the popover header close the popover.
-			bsPopover.tip?.querySelector('.popover-header')?.addEventListener('click', () => bsPopover?.hide());
+			feedbackPopover.tip
+				?.querySelector('.popover-header')
+				?.addEventListener('click', () => feedbackPopover.hide());
+
+			const revealCorrectBtn = feedbackPopover.tip?.querySelector('.reveal-correct-btn');
+			revealCorrectBtn?.addEventListener('click', () => {
+				revealCorrectBtn.classList.add('fade-out');
+				revealCorrectBtn.parentElement.classList.add('resize-transition');
+				revealCorrectBtn.parentElement.style.maxWidth = `${revealCorrectBtn.parentElement.offsetWidth}px`;
+				revealCorrectBtn.parentElement.style.maxHeight = `${revealCorrectBtn.parentElement.offsetHeight}px`;
+				revealCorrectBtn.addEventListener('animationend', () => {
+					revealCorrectBtn.nextElementSibling?.classList.remove('d-none');
+					revealCorrectBtn.nextElementSibling?.classList.add('fade-in');
+					revealCorrectBtn.parentElement.style.maxWidth = '1000px';
+					revealCorrectBtn.parentElement.style.maxHeight = '1000px';
+					revealCorrectBtn.remove();
+					feedbackPopover.update();
+				});
+			});
 		});
 	};
 

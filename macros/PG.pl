@@ -902,8 +902,10 @@ shouldn't even exist!
 =item *
 
 C<showCorrect>: This is a boolean value that is 1 by default. If this is true
-and the translator option C<showCorrectAnswers> is also true, then a preview of
-the correct answer is shown in the feedback popover.
+and the translator option C<showCorrectAnswers> is nonzero, then a preview of
+the correct answer is shown in the feedback popover. In other words, this option
+prevents showing correct answers even if the frontend requests that correct
+answers be shown.
 
 =item *
 
@@ -1230,14 +1232,29 @@ sub ENDDOCUMENT {
 											)
 											. (
 												$rh_envir->{showCorrectAnswers} && $options{showCorrect}
-												? feedbackLine(
-													maketext('Correct Answer'),
-													previewAnswer(
+												? do {
+													my $correctAnswer = previewAnswer(
 														$ansHash->{correct_ans_latex_string},
 														$options{wrapPreviewInTex},
 														$ansHash->{correct_ans}
-													)
-												)
+													);
+													feedbackLine(
+														maketext('Correct Answer'),
+														$rh_envir->{showCorrectAnswers} > 1
+														? $correctAnswer
+														: Mojo::DOM->new_tag(
+															'button',
+															type  => 'button',
+															class => 'reveal-correct-btn btn btn-secondary btn-sm',
+															maketext('Reveal')
+														)
+														. Mojo::DOM->new_tag(
+															'div',
+															class => 'd-none',
+															sub {$correctAnswer}
+														)
+													);
+												}
 												: ''
 											);
 										}

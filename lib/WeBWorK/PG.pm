@@ -513,9 +513,12 @@ The summary will also be generated if this is true.
 
 Determines if any messages generated in answer evaluation will be shown.
 
-=item showCorrectAnswers (boolean, default: 0)
+=item showCorrectAnswers (numeric, default: 0)
 
-Determines if correct answers will be shown.
+Determines if correct answers will be shown. If 0, then correct answers are not
+shown. If set to 1, then correct answers are shown but hidden, and a "Reveal"
+button is shown at first. If that button is clicked, then the answer is shown.
+If set to 2, then correct answers are shown immediately.
 
 =item answerPrefix (string, default: '')
 

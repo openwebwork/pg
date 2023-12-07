@@ -288,6 +288,39 @@
 						border-bottom-right-radius: var(--bs-card-inner-border-radius);
 					}
 				}
+
+				&.resize-transition {
+					overflow: clip;
+					transition: max-height 1s ease-in, max-width 1s ease-in;
+				}
+
+				.fade-out {
+					animation: fade-out 0.25s ease-in;
+
+					@keyframes fade-out {
+						0% {
+							opacity: 1;
+						}
+
+						100% {
+							opacity: 0;
+						}
+					}
+				}
+
+				.fade-in {
+					animation: fade-in 0.5s ease-in;
+
+					@keyframes fade-in {
+						0% {
+							opacity: 0;
+						}
+
+						100% {
+							opacity: 1;
+						}
+					}
+				}
 			}
 		}
 	}
