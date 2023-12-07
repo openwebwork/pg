@@ -250,7 +250,7 @@ sub new {
 			precedence    => 10,
 			associativity => $associativity,
 			type          => "unary",
-			string        => (($main::displayMode eq 'TeX') ? Currency::quoteTeX($symbol) : $symbol),
+			string        => ($main::displayMode eq 'TeX' ? Currency::quoteTeX($symbol) : $symbol),
 			TeX           => Currency::quoteTeX($symbol),
 			class         => 'Currency::UOP::currency'
 		},
