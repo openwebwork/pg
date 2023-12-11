@@ -140,6 +140,7 @@ sub DOCUMENT {
 	$hintExists                = $PG->{flags}->{hintExists};
 	$pgComment                 = '';
 	%external_refs             = %{ $PG->{external_refs} };
+	$refreshCachedImages       = $envir{refreshCachedImages} // 0;
 
 	@KEPT_EXTRA_ANSWERS = ();    #temporary hack
 

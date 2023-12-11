@@ -240,20 +240,21 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		# value, or just hard coded defaults.
 
 		# Problem information
-		probFileName       => $options->{sourceFilePath}                                // '',
-		displayMode        => DISPLAY_MODES()->{ $options->{displayMode} || 'MathJax' } // 'HTML_MathJax',
-		problemSeed        => $options->{problemSeed} || 1234,
-		psvn               => $options->{psvn}               // 1,
-		problemUUID        => $options->{problemUUID}        // 0,
-		probNum            => $options->{probNum}            // 1,
-		showHints          => $options->{showHints}          // 1,
-		showSolutions      => $options->{showSolutions}      // 0,
-		forceScaffoldsOpen => $options->{forceScaffoldsOpen} // 0,
-		setOpen            => $options->{setOpen}            // 1,
-		pastDue            => $options->{pastDue}            // 0,
-		answersAvailable   => $options->{answersAvailable}   // 0,
-		isInstructor       => $options->{isInstructor}       // 0,
-		PERSISTENCE_HASH   => $options->{PERSISTENCE_HASH}   // {},
+		probFileName        => $options->{sourceFilePath}                                // '',
+		displayMode         => DISPLAY_MODES()->{ $options->{displayMode} || 'MathJax' } // 'HTML_MathJax',
+		problemSeed         => $options->{problemSeed} || 1234,
+		psvn                => $options->{psvn}                // 1,
+		problemUUID         => $options->{problemUUID}         // 0,
+		probNum             => $options->{probNum}             // 1,
+		showHints           => $options->{showHints}           // 1,
+		showSolutions       => $options->{showSolutions}       // 0,
+		forceScaffoldsOpen  => $options->{forceScaffoldsOpen}  // 0,
+		setOpen             => $options->{setOpen}             // 1,
+		pastDue             => $options->{pastDue}             // 0,
+		answersAvailable    => $options->{answersAvailable}    // 0,
+		isInstructor        => $options->{isInstructor}        // 0,
+		PERSISTENCE_HASH    => $options->{PERSISTENCE_HASH}    // {},
+		refreshCachedImages => $options->{refreshCachedImages} // 0,
 
 		# Attempt Results
 		showFeedback            => $options->{showFeedback}            // 0,
@@ -452,6 +453,10 @@ If 1, call answer evaluators and graders.
 
 Determines if the user is an instructor (certain restrictions are removed for
 these users).
+
+=item refreshCachedImages (boolean, default: 0)
+
+If set to 1, then dynamically generated images will be forced to be regenerated.
 
 =item inputs_ref (hash, default: {})
 
