@@ -12,7 +12,7 @@
  * Artistic License for more details.
  */
 
-/* Styles used in pg problems and by the attempts table. */
+/* Styles used in pg problems. */
 
 .problem-main-form {
 	margin: 0.5rem 0 0;
@@ -241,6 +241,7 @@
 	&.partially-correct {
 		.popover-header {
 			--bs-popover-header-bg: var(--bs-warning);
+			--bs-popover-header-color: black;
 		}
 	}
 
