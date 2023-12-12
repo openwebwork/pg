@@ -627,8 +627,12 @@ sub add_container {
 				Mojo::DOM->new_tag(
 					'div',
 					class => 'accordion-header'
-						. ($iscorrect ? ' iscorrect' : ' iswrong')
-						. ($canopen   ? ' canopen'   : ' cannotopen'),
+						. (
+							$iscorrect && ($main::envir{showFeedback} || $main::envir{forceShowAttemptResults})
+							? ' iscorrect'
+							: ' iswrong'
+						)
+						. ($canopen ? ' canopen' : ' cannotopen'),
 					id => "$label-header",
 					sub {
 						Mojo::DOM->new_tag(
