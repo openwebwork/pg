@@ -640,7 +640,8 @@ sub can_open {
 	return 1 if $Scaffold::forceOpen;
 	my $method = ($Scaffold::isInstructor ? $self->{instructor_can_open} : $self->{can_open});
 	$method = $self->{after_AnswerDate_can_open} if $Scaffold::afterAnswerDate;
-	$method = "Section::can_open::" . $method unless ref($method) eq 'CODE';
+	return $method->($self) if ref($method) eq 'CODE';
+	$method = "Section::can_open::" . $method;
 	return $self->$method;
 }
 
@@ -652,7 +653,8 @@ sub is_open {
 	return 0 unless $self->{can_open};    # only open ones that are allowed to be open
 	my $method = $self->{is_open};
 	$method = $self->{hardcopy_is_open} if $Scaffold::isHardcopy;
-	$method = "Section::is_open::" . $method unless ref($method) eq 'CODE';
+	return $method->($self) if ref($method) eq 'CODE';
+	$method = "Section::is_open::" . $method;
 	return $self->$method;
 }
 
