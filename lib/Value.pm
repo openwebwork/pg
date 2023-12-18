@@ -268,12 +268,11 @@ sub inContext { my $self = shift; $self->context(@_); $self }
 #############################################################
 
 #
-#
 #  The address of a Value object (actually ANY perl value).
 #  Use this to compare two objects to see of they are
 #  the same object (avoids automatic stringification).
 #
-sub address { oct(sprintf("0x%p", shift)) }
+sub address { Scalar::Util::refaddr(shift) }
 
 sub isBlessed    { (Scalar::Util::blessed(shift) // '') ne "" }
 sub blessedClass { Scalar::Util::blessed(shift) }
