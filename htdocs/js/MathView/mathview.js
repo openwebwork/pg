@@ -278,7 +278,7 @@
 
 		// Regenerate the preview in the math viewer whenever the input value changes.
 		regenPreview() {
-			let text = this.inputTextBox.value.replace(/\*\*/g, '^');
+			let text = this.inputTextBox.value;
 
 			if (this.renderingMode === 'LATEX') this.mviewer.textContent = `\\(${text}\\)`;
 			else this.mviewer.textContent = `\`${text}\``;
