@@ -258,6 +258,8 @@ within that section.
 
 =cut
 
+BEGIN { strict->import }
+
 sub _scaffold_init {
 	# Load style and javascript for opening and closing the scaffolds.
 	ADD_CSS_FILE("js/Scaffold/scaffold.css");
@@ -312,18 +314,11 @@ sub Begin {
 # Then the next nested scaffold (if any) is popped off the stack and returned.
 sub End {
 	Scaffold->Error("Scaffold::End() without a corresponding Scaffold::Begin") unless @scaffolds;
-	Scaffold->Error("Scaffold ended with section was still open") if $self->{current_section};
+	Scaffold->Error("Scaffold ended with section was still open") if $scaffold->{current_section};
 	my $self = $scaffold;
 
 	# collect any final non-section output
 	push(@{ $self->{output} }, splice(@$PG_OUTPUT, 0));
-
-	# hide results of unopened sections in the results table
-	main::add_content_post_processor(sub {
-		my ($problemContents, $headerContents) = @_;
-		return if $main::displayMode eq 'TeX';
-		$self->hide_other_results($headerContents, @{ $self->{open} });
-	});
 
 	# put back original output and scaffold output
 	push(@$PG_OUTPUT, @{ $self->{previous_output} }, @{ $self->{output} });
@@ -406,36 +401,6 @@ sub is_open {
 	my ($self, @open_sections) = @_;
 	push(@{ $self->{open} }, map { $_->{number} } @open_sections) if @open_sections;
 	return $self->{open};
-}
-
-# Add CSS to dim the rows of the table that are not in the open section and that are not correct.
-# This is run in post processing after all of the section post processing has been completed.  So at this point
-# everything is known about the status of all answers in this scaffold.
-sub hide_other_results {
-	my ($self, $headerContents, @openSections) = @_;
-
-	# Record the row for each answer evaluator, and mark which sections to show.
-	my %row;
-	my $i = 2;
-	for (keys %{$PG_ANSWERS_HASH}) { $row{$_} = $i; ++$i };    # record the rows for all answers
-	my %show;
-	map { $show{$_} = 1 } @openSections;
-
-	# Get the row numbers for the answers from OTHER sections
-	my @hide;
-	for my $section (keys %{ $self->{sections} }) {
-		push(@hide, map { $row{$_} } @{ $self->{sections}{$section}{ans_names} })
-			if !$show{$section} && !$self->{sections}{$section}{is_correct};
-	}
-
-	# Add styles that dim the hidden rows that are not correct (the other possibility would be to use display:none)
-	if (@hide) {
-		$headerContents->append_content('<style>'
-				. join('', map {".attemptResults > tbody > tr:nth-child($_) {opacity:.5}"} @hide)
-				. '</style>');
-	}
-
-	return;
 }
 
 package Section;
@@ -675,8 +640,9 @@ sub can_open {
 	return 1 if $Scaffold::forceOpen;
 	my $method = ($Scaffold::isInstructor ? $self->{instructor_can_open} : $self->{can_open});
 	$method = $self->{after_AnswerDate_can_open} if $Scaffold::afterAnswerDate;
-	$method = "Section::can_open::" . $method unless ref($method) eq 'CODE';
-	return &{$method}($self);
+	return $method->($self) if ref($method) eq 'CODE';
+	$method = "Section::can_open::" . $method;
+	return $self->$method;
 }
 
 # Perform the is_open check for this section:
@@ -687,8 +653,9 @@ sub is_open {
 	return 0 unless $self->{can_open};    # only open ones that are allowed to be open
 	my $method = $self->{is_open};
 	$method = $self->{hardcopy_is_open} if $Scaffold::isHardcopy;
-	$method = "Section::is_open::" . $method unless ref($method) eq 'CODE';
-	return &{$method}($self);
+	return $method->($self) if ref($method) eq 'CODE';
+	$method = "Section::is_open::" . $method;
+	return $self->$method;
 }
 
 # Return a boolean array where a 1 means that answer blank has
