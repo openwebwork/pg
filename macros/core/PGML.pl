@@ -943,6 +943,9 @@ sub replaceVariable {
 		if   ($block->{parsed}) { $result = $result->string }
 		else                    { $result = '{' . $result->TeX . '}' }
 	}
+	if (Value::isValue($result)) {
+		$result = ($block->{type} eq 'math' && !$block->{parsed} ? '{' . $result->TeX . '}' : $result->string);
+	}
 	return $result;
 }
 

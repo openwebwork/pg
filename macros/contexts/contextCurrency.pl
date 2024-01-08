@@ -250,13 +250,9 @@ sub new {
 			precedence    => 10,
 			associativity => $associativity,
 			type          => "unary",
-			string        => (
-				($main::displayMode eq 'TeX' or $main::displayMode eq 'PTX')
-				? Currency::quoteTeX($symbol)
-				: $symbol
-			),
-			TeX   => Currency::quoteTeX($symbol),
-			class => 'Currency::UOP::currency'
+			string        => $symbol,
+			TeX           => Currency::quoteTeX($symbol),
+			class         => 'Currency::UOP::currency'
 		},
 	);
 	$context->{parser}{Number}  = "Currency::Number";
@@ -269,6 +265,7 @@ sub new {
 		forceDecimals     => 0,
 		noExtraDecimals   => 1,
 		trimTrailingZeros => 0,
+		legacyTeXStrings  => 0,
 	);
 	$context->{_initialized} = 1;
 	$context->update;
@@ -342,7 +339,7 @@ sub addSymbol {
 			$symbol => {
 				%{$def},
 				associativity => $associativity,
-				string        => ($main::displayMode eq 'TeX' ? Currency::quoteTeX($string) : $string),
+				string        => $string,
 				TeX           => Currency::quoteTeX($string),
 			}
 		);
@@ -380,7 +377,7 @@ sub update {
 	$context->operators->set(
 		$data->{symbol} => {
 			associativity => $data->{associativity},
-			string        => ($main::displayMode eq 'TeX' ? Currency::quoteTeX($string) : $string),
+			string        => $string,
 			TeX           => Currency::quoteTeX($string),
 		}
 	);
@@ -526,7 +523,11 @@ sub format {
 	my $currency = ($self->{currency} || $self->context->{currency});
 	my ($symbol, $comma, $decimal) = ($currency->{symbol}, $currency->{comma}, $currency->{decimal});
 	$symbol = $self->context->operators->get($symbol)->{$type} || $symbol;
-	$comma  = "{$comma}" if $type eq 'TeX';
+	$symbol = Currency::quoteTeX($symbol)
+		if $self->context->flag('legacyTeXStrings')
+		&& $type eq 'string'
+		&& $main::displayMode eq 'TeX';
+	$comma = "{$comma}" if $type eq 'TeX';
 	my $s = ($self->value >= 0 ? "" : "-");
 	my $c = main::prfmt(CORE::abs($self->value), "%.2f");
 	$c =~ s/\.00// if $self->getFlag('trimTrailingZeros');
@@ -535,6 +536,14 @@ sub format {
 	$c = ($currency->{associativity} eq "right" ? $s . $c . $symbol : $s . $symbol . $c);
 	$c =~ s/^\s+|\s+$//g;
 	return $c;
+}
+
+sub stringify {
+	my $self = shift;
+	return $self->TeX if $self->context->flag('StringifyAsTeX');
+	my $legacy = $self->context->flag('legacyTeXStrings');
+	my $string = $self->string;
+	return $main::displayMode eq 'TeX' && !$legacy ? Currency::quoteTeX($string) : $string;
 }
 
 sub string { (shift)->format("string") }
