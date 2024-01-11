@@ -14,27 +14,25 @@
 					'segment',
 					[
 						[
-							() => (
+							() =>
 								gt.isNegInfX(point1.X())
 									? gt.board.getBoundingBox()[0] + 8 / gt.board.unitX
 									: gt.isPosInfX(point1.X())
 										? gt.board.getBoundingBox()[2] - 8 / gt.board.unitX
 										: gt.options.useBracketEnds
 											? point1.X()
-											: point1.X() + (point1.X() < point2.X() ? 4 : -4) / gt.board.unitX
-							),
+											: point1.X() + (point1.X() < point2.X() ? 4 : -4) / gt.board.unitX,
 							0
 						],
 						[
-							() => (
+							() =>
 								gt.isNegInfX(point2.X())
 									? gt.board.getBoundingBox()[0] + 8 / gt.board.unitX
 									: gt.isPosInfX(point2.X())
 										? gt.board.getBoundingBox()[2] - 8 / gt.board.unitX
 										: gt.options.useBracketEnds
 											? point2.X()
-											: point2.X() + (point1.X() < point2.X() ? -4 : 4) / gt.board.unitX
-							),
+											: point2.X() + (point1.X() < point2.X() ? -4 : 4) / gt.board.unitX,
 							0
 						]
 					],
@@ -124,8 +122,12 @@
 
 					// The default layer for text is 9.
 					// Setting the layer moves the text in front of any other text objects.
-					point.text?.setAttribute(
-						{ fontSize: 23, highlight: true, strokeColor: gt.color.underConstruction, layer: 9 });
+					point.text?.setAttribute({
+						fontSize: 23,
+						highlight: true,
+						strokeColor: gt.color.underConstruction,
+						layer: 9
+					});
 
 					// The default layer for lines (of which arrows are a part) is 7.
 					// Setting this moves the arrow to the front of arrows of other intervals.
@@ -135,19 +137,23 @@
 					// This makes it so that if the pointer is over the point and it is a hidden point at infinity,
 					// then it looks like the pointer is over the arrow.  The end arrows don't actually receive
 					// hover events, so this has to be done this way.
-					point.on('over',
-						() => point.arrow?.rendNodeTriangleEnd.setAttribute('fill', gt.color.pointHighlightDarker));
+					point.on('over', () =>
+						point.arrow?.rendNodeTriangleEnd.setAttribute('fill', gt.color.pointHighlightDarker)
+					);
 					point.on('out', () => point.arrow?.rendNodeTriangleEnd.setAttribute('fill', gt.color.point));
 
 					point.text?.on('down', () => {
 						point.text.setAttribute({
-							cssStyle: 'cursor:none;font-weight:900', strokeColor: gt.color.pointHighlightDarker
+							cssStyle: 'cursor:none;font-weight:900',
+							strokeColor: gt.color.pointHighlightDarker
 						});
 						point.paired_point?.text?.setAttribute({ cssStyle: 'cursor:none;font-weight:900' });
 					});
 					point.text?.on('up', () => {
-						point.text.setAttribute(
-							{ cssStyle: 'cursor:auto;font-weight:900', strokeColor: gt.color.underConstruction });
+						point.text.setAttribute({
+							cssStyle: 'cursor:auto;font-weight:900',
+							strokeColor: gt.color.underConstruction
+						});
 						point.paired_point?.text?.setAttribute({ cssStyle: 'cursor:auto;font-weight:900' });
 					});
 				}
@@ -162,11 +168,10 @@
 			isEventTarget(_gt, e) {
 				if (this.baseObj.rendNode === e.target) return true;
 				return this.definingPts.some(
-					(point) => (
+					(point) =>
 						point.rendNode === e.target ||
 						point.text?.rendNode === e.target ||
 						point.arrow?.rendNode === e.target
-					)
 				);
 			},
 
@@ -190,9 +195,10 @@
 				const rightX = gt.snapRound(rightEndPoint.X(), gt.snapSizeX);
 
 				return `${gt.isNegInfX(leftX) || leftEndPoint.getAttribute('fillColor') === 'transparent' ? '(' : '['}${
-					gt.isNegInfX(leftX) ? '-infinity' : leftX},${
-					gt.isPosInfX(rightX) ? 'infinity' : rightX}${
-					gt.isPosInfX(rightX) || rightEndPoint.getAttribute('fillColor') === 'transparent' ? ')' : ']'}`;
+					gt.isNegInfX(leftX) ? '-infinity' : leftX
+				},${gt.isPosInfX(rightX) ? 'infinity' : rightX}${
+					gt.isPosInfX(rightX) || rightEndPoint.getAttribute('fillColor') === 'transparent' ? ')' : ']'
+				}`;
 			},
 
 			setSolid() {},
@@ -205,14 +211,19 @@
 			},
 
 			restore(gt, string) {
-				const intervalParts =
-					string.match(new RegExp([
-						/\s*([[(])\s*/,                         // left delimiter
-						/(-?(?:[0-9]*(?:\.[0-9]*)?|infinity))/, // left end point
-						/\s*,\s*/,                              // comma
-						/(-?(?:[0-9]*(?:\.[0-9]*)?|infinity))/, // right end point
-						/\s*([\])])\s*/                         // right delimiter
-					].map((r) => r.source).join('')));
+				const intervalParts = string.match(
+					new RegExp(
+						[
+							/\s*([[(])\s*/, // left delimiter
+							/(-?(?:[0-9]*(?:\.[0-9]*)?|infinity))/, // left end point
+							/\s*,\s*/, // comma
+							/(-?(?:[0-9]*(?:\.[0-9]*)?|infinity))/, // right end point
+							/\s*([\])])\s*/ // right delimiter
+						]
+							.map((r) => r.source)
+							.join('')
+					)
+				);
 				if (!intervalParts || intervalParts.length !== 5) return false;
 
 				const bbox = gt.board.getBoundingBox();
@@ -239,28 +250,28 @@
 					this.focusPoint?.setAttribute({
 						fillColor: include ? gt.color.curve : 'transparent',
 						highlightFillColor: include ? gt.color.pointHighlightDarker : gt.color.pointHighlight,
-						highlightFillOpacity: (gt.options.useBracketEnds || this.focusPoint.arrow)
-							? 0
-							: include ? 1 : 0.5
+						highlightFillOpacity: gt.options.useBracketEnds || this.focusPoint.arrow ? 0 : include ? 1 : 0.5
 					});
 				},
 
 				setFocusBlurPointAttributes(gt, point) {
-					const attributes = this.focused ? {
-						size: 4,
-						strokeWidth: 3,
-						strokeColor: gt.color.underConstruction,
-						fillColor: gt.color.underConstruction,
-						fixed: false,
-						highlight: true
-					} : {
-						size: 3,
-						strokeWidth: 2,
-						strokeColor: gt.color.curve,
-						fillColor: gt.color.curve,
-						fixed: true,
-						highlight: false
-					};
+					const attributes = this.focused
+						? {
+								size: 4,
+								strokeWidth: 3,
+								strokeColor: gt.color.underConstruction,
+								fillColor: gt.color.underConstruction,
+								fixed: false,
+								highlight: true
+							}
+						: {
+								size: 3,
+								strokeWidth: 2,
+								strokeColor: gt.color.curve,
+								fillColor: gt.color.curve,
+								fixed: true,
+								highlight: false
+							};
 					if (!this.focused && point.getAttribute('highlightFillOpacity') !== 0)
 						attributes.highlightFillOpacity = 1;
 					if (point.getAttribute('fillColor') === 'transparent') {
@@ -291,10 +302,10 @@
 							[
 								[
 									this.definingPts[index].X() +
-									(gt.isPosInfX(this.definingPts[index].X()) ? -26 : 26) / gt.board.unitX,
+										(gt.isPosInfX(this.definingPts[index].X()) ? -26 : 26) / gt.board.unitX,
 									0
 								],
-								[ this.definingPts[index].X(), 0 ]
+								[this.definingPts[index].X(), 0]
 							],
 							{
 								fixed: true,
@@ -325,7 +336,8 @@
 								!gt.options.useBracketEnds &&
 								this.focused &&
 								this.definingPts[index].getAttribute('fillColor') === 'transparent'
-									? 0.5 : 1
+									? 0.5
+									: 1
 						});
 					}
 					if (this.definingPts[index].arrow) {
@@ -348,7 +360,8 @@
 
 				createPoint(gt, x, _y, paired_point) {
 					const point = gt.board.create('point', [gt.snapRound(x, gt.snapSizeX), 0], {
-						snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY,
+						snapSizeX: gt.snapSizeX,
+						snapSizeY: gt.snapSizeY,
 						...gt.graphObjectTypes.interval.definingPointAttributes(),
 						...gt.graphObjectTypes.interval.maybeBracketAttributes()
 					});
@@ -368,12 +381,19 @@
 					point.text = gt.board.create(
 						'text',
 						[
-							() => point.X() + (point.paired_point ? (point.paired_point.X() > point.X() ? 1 : -1) : 0)
-								/ gt.board.unitX,
+							() =>
+								point.X() +
+								(point.paired_point ? (point.paired_point.X() > point.X() ? 1 : -1) : 0) /
+									gt.board.unitX,
 							() => 1 / gt.board.unitY,
-							() => point.paired_point && point.paired_point.X() < point.X()
-								? (point.getAttribute('fillColor') === 'transparent' ? ')' : ']')
-								: (point.getAttribute('fillColor') === 'transparent' ? '(' : '[')
+							() =>
+								point.paired_point && point.paired_point.X() < point.X()
+									? point.getAttribute('fillColor') === 'transparent'
+										? ')'
+										: ']'
+									: point.getAttribute('fillColor') === 'transparent'
+										? '('
+										: '['
 						],
 						{
 							fontSize: 23,
@@ -392,8 +412,9 @@
 				pointDown(gt, point) {
 					if (gt.activeTool !== gt.selectTool) return;
 
-					const thisObj =
-						gt.graphedObjs.filter((obj) => obj.definingPts.filter((pt) => pt === point).length)[0];
+					const thisObj = gt.graphedObjs.filter(
+						(obj) => obj.definingPts.filter((pt) => pt === point).length
+					)[0];
 					if (!thisObj) return;
 
 					if (!thisObj.focused) {
@@ -435,7 +456,7 @@
 					return gt.options.useBracketEnds
 						? { strokeOpacity: 0, fillOpacity: 0, highlightStrokeOpacity: 0, highlightFillOpacity: 0 }
 						: {};
-				},
+				}
 			}
 		},
 
@@ -481,13 +502,19 @@
 						point.text = gt.board.create(
 							'text',
 							[
-								() => point.X() +
-									(point.paired_point ? (point.paired_point.X() > point.X() ? 1 : -1) : 0)
-										/ gt.board.unitX,
+								() =>
+									point.X() +
+									(point.paired_point ? (point.paired_point.X() > point.X() ? 1 : -1) : 0) /
+										gt.board.unitX,
 								() => 1 / gt.board.unitY,
-								() => point.paired_point && point.paired_point.X() < point.X()
-									? (point.getAttribute('fillColor') === 'transparent' ? ')' : ']')
-									: (point.getAttribute('fillColor') === 'transparent' ? '(' : '[')
+								() =>
+									point.paired_point && point.paired_point.X() < point.X()
+										? point.getAttribute('fillColor') === 'transparent'
+											? ')'
+											: ']'
+										: point.getAttribute('fillColor') === 'transparent'
+											? '('
+											: '['
 							],
 							{
 								fontSize: 23,
@@ -514,7 +541,8 @@
 
 					this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [newX, 0], gt.board));
 
-					this.helpText = 'Plot the second endpoint. ' +
+					this.helpText =
+						'Plot the second endpoint. ' +
 						'Move the point to the left end for \\(-\\infty\\), ' +
 						'or to the right end for \\(\\infty\\).';
 					gt.updateHelp();
@@ -526,8 +554,10 @@
 
 				this.phase2 = (coords) => {
 					// Don't allow the second point to be created on the first point or off the board.
-					if (this.point1.X() === gt.snapRound(coords[1], gt.snapSizeX)
-						|| !gt.boardHasPoint(coords[1], coords[2]))
+					if (
+						this.point1.X() === gt.snapRound(coords[1], gt.snapSizeX) ||
+						!gt.boardHasPoint(coords[1], coords[2])
+					)
 						return;
 
 					gt.board.off('up');
@@ -587,41 +617,42 @@
 				} else if (e instanceof JXG.Coords) {
 					coords = e;
 					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
-				} else
-					return false;
+				} else return false;
 
 				if (!this.hlObjs.hl_point) {
-					this.hlObjs.hl_point = gt.board.create(
-						'point',
-						[ coords.usrCoords[1], 0 ],
-						{
-							size: 4,
-							strokeWidth: 3,
-							highlight: false,
-							withLabel: false,
-							snapToGrid: true,
-							snapSizeX: gt.snapSizeX,
-							snapSizeY: gt.snapSizeY,
-							strokeColor: gt.color.underConstruction,
-							fillColor: gt.toolTypes.IncludeExcludePointTool.include
-								? gt.color.underConstruction
-								: 'transparent',
-							...gt.graphObjectTypes.interval.maybeBracketAttributes()
-						}
-					);
+					this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], 0], {
+						size: 4,
+						strokeWidth: 3,
+						highlight: false,
+						withLabel: false,
+						snapToGrid: true,
+						snapSizeX: gt.snapSizeX,
+						snapSizeY: gt.snapSizeY,
+						strokeColor: gt.color.underConstruction,
+						fillColor: gt.toolTypes.IncludeExcludePointTool.include
+							? gt.color.underConstruction
+							: 'transparent',
+						...gt.graphObjectTypes.interval.maybeBracketAttributes()
+					});
 
 					if (gt.options.useBracketEnds) {
 						this.hlObjs.hl_point.rendNode.classList.add('hidden-end-point');
 						this.hlObjs.hl_text = gt.board.create(
 							'text',
 							[
-								() => this.hlObjs.hl_point.X() +
+								() =>
+									this.hlObjs.hl_point.X() +
 									(this.point1 ? (this.point1.X() > this.hlObjs.hl_point.X() ? 1 : -1) : 0) /
 										gt.board.unitX,
 								() => 1 / gt.board.unitY,
-								() => gt.toolTypes.IncludeExcludePointTool.include
-									? (this.point1?.X() < this.hlObjs.hl_point?.X() ? ']' : '[')
-									: (this.point1?.X() < this.hlObjs.hl_point?.X() ? ')' : '(')
+								() =>
+									gt.toolTypes.IncludeExcludePointTool.include
+										? this.point1?.X() < this.hlObjs.hl_point?.X()
+											? ']'
+											: '['
+										: this.point1?.X() < this.hlObjs.hl_point?.X()
+											? ')'
+											: '('
 							],
 							{
 								fontSize: 23,
@@ -647,32 +678,29 @@
 						'segment',
 						[
 							[
-								() => (
-									this.point1 ? (
-										gt.isNegInfX(this.point1.X())
+								() =>
+									(this.point1
+										? gt.isNegInfX(this.point1.X())
 											? gt.board.getBoundingBox()[0] + 8 / gt.board.unitX
 											: gt.isPosInfX(this.point1.X())
 												? gt.board.getBoundingBox()[2] - 8 / gt.board.unitX
 												: this.point1.X()
-									)
-										: 0
-								) + (
-									gt.options.useBracketEnds ||
+										: 0) +
+									(gt.options.useBracketEnds ||
 									gt.isNegInfX(this.point1?.X()) ||
 									gt.isPosInfX(this.point1?.X())
 										? 0
-										: (this.point1?.X() < this.hlObjs.hl_point?.X() ? 4 : -4) / gt.board.unitX
-								),
+										: (this.point1?.X() < this.hlObjs.hl_point?.X() ? 4 : -4) / gt.board.unitX),
 								0
 							],
 							[
-								() => (this.hlObjs.hl_point?.X() ?? 0) + (
-									gt.options.useBracketEnds ||
+								() =>
+									(this.hlObjs.hl_point?.X() ?? 0) +
+									(gt.options.useBracketEnds ||
 									gt.isNegInfX(this.hlObjs.hl_point?.X()) ||
 									gt.isPosInfX(this.hlObjs.hl_point?.X())
 										? 0
-										: (this.point1?.X() < this.hlObjs.hl_point?.X() ? -4 : 4) / gt.board.unitX
-								),
+										: (this.point1?.X() < this.hlObjs.hl_point?.X() ? -4 : 4) / gt.board.unitX),
 								0
 							]
 						],
@@ -685,13 +713,14 @@
 				}
 
 				if (this.hlObjs.hl_segment) {
-					if (gt.isNegInfX(gt.snapRound(coords.usrCoords[1], gt.snapSizeX)) ||
-						gt.isPosInfX(gt.snapRound(coords.usrCoords[1], gt.snapSizeX)))
-					{
-						this.hlObjs.hl_segment.setArrow(
-							this.hlObjs.hl_segment.getAttribute('firstArrow'),
-							{ type: 2, size: 4 }
-						);
+					if (
+						gt.isNegInfX(gt.snapRound(coords.usrCoords[1], gt.snapSizeX)) ||
+						gt.isPosInfX(gt.snapRound(coords.usrCoords[1], gt.snapSizeX))
+					) {
+						this.hlObjs.hl_segment.setArrow(this.hlObjs.hl_segment.getAttribute('firstArrow'), {
+							type: 2,
+							size: 4
+						});
 						if (gt.options.useBracketEnds) this.hlObjs.hl_text.setAttribute({ strokeOpacity: 0 });
 						else this.hlObjs.hl_point.setAttribute({ strokeOpacity: 0, fillOpacity: 0 });
 						this.hlObjs.hl_point.rendNode.classList.add('hidden-inf-point');
@@ -702,9 +731,10 @@
 						this.hlObjs.hl_point.rendNode.classList.remove('hidden-inf-point');
 					}
 				} else if (this.hlObjs.hl_point) {
-					if (gt.isNegInfX(gt.snapRound(coords.usrCoords[1], gt.snapSizeX)) ||
-						gt.isPosInfX(gt.snapRound(coords.usrCoords[1], gt.snapSizeX)))
-					{
+					if (
+						gt.isNegInfX(gt.snapRound(coords.usrCoords[1], gt.snapSizeX)) ||
+						gt.isPosInfX(gt.snapRound(coords.usrCoords[1], gt.snapSizeX))
+					) {
 						if (!this.hlObjs.hl_arrow) {
 							this.hlObjs.hl_arrow = gt.board.create(
 								'arrow',
@@ -714,7 +744,7 @@
 											(gt.isPosInfX(this.hlObjs.hl_point.X()) ? -26 : 26) / gt.board.unitX,
 										0
 									],
-									[ this.hlObjs.hl_point.X(), 0 ]
+									[this.hlObjs.hl_point.X(), 0]
 								],
 								{
 									fixed: true,
@@ -760,7 +790,8 @@
 				// Draw a highlight point on the board.
 				this.updateHighlights(new JXG.Coords(JXG.COORDS_BY_USER, [0, 0], gt.board));
 
-				this.helpText = 'Plot the first endpoint. ' +
+				this.helpText =
+					'Plot the first endpoint. ' +
 					'Move the point to the left end for \\(-\\infty\\), ' +
 					'or to the right end for \\(\\infty\\).';
 				gt.updateHelp();
@@ -805,18 +836,17 @@
 				gt.toolTypes.IncludeExcludePointTool.includePointButton.addEventListener('click', (e) =>
 					gt.toolTypes.IncludeExcludePointTool.toggleIncludeExcludePoint(e, true)
 				);
-				gt.toolTypes.IncludeExcludePointTool.includePointButton
-					.addEventListener('focus', () => gt.setMessageText(includeButtonMessage));
-				gt.toolTypes.IncludeExcludePointTool.includePointButton
-					.addEventListener('blur', () => gt.updateHelp());
+				gt.toolTypes.IncludeExcludePointTool.includePointButton.addEventListener('focus', () =>
+					gt.setMessageText(includeButtonMessage)
+				);
+				gt.toolTypes.IncludeExcludePointTool.includePointButton.addEventListener('blur', () => gt.updateHelp());
 				includePointButtonDiv.append(gt.toolTypes.IncludeExcludePointTool.includePointButton);
 				includePointBox.append(includePointButtonDiv);
 
 				const excludePointButtonDiv = document.createElement('div');
 				const excludeButtonMessage = 'Exclude the selected point (e).';
 				excludePointButtonDiv.classList.add('gt-button-div', 'gt-tool-button-pair-bottom');
-				excludePointButtonDiv.addEventListener('pointerover',
-					() => gt.setMessageText(excludeButtonMessage));
+				excludePointButtonDiv.addEventListener('pointerover', () => gt.setMessageText(excludeButtonMessage));
 				excludePointButtonDiv.addEventListener('pointerout', () => gt.updateHelp());
 				gt.toolTypes.IncludeExcludePointTool.excludePointButton = document.createElement('button');
 				gt.toolTypes.IncludeExcludePointTool.excludePointButton.classList.add(
@@ -832,10 +862,10 @@
 				gt.toolTypes.IncludeExcludePointTool.excludePointButton.addEventListener('click', (e) =>
 					gt.toolTypes.IncludeExcludePointTool.toggleIncludeExcludePoint(e, false)
 				);
-				gt.toolTypes.IncludeExcludePointTool.excludePointButton
-					.addEventListener('focus', () => gt.setMessageText(excludeButtonMessage));
-				gt.toolTypes.IncludeExcludePointTool.excludePointButton
-					.addEventListener('blur', () => gt.updateHelp());
+				gt.toolTypes.IncludeExcludePointTool.excludePointButton.addEventListener('focus', () =>
+					gt.setMessageText(excludeButtonMessage)
+				);
+				gt.toolTypes.IncludeExcludePointTool.excludePointButton.addEventListener('blur', () => gt.updateHelp());
 				excludePointButtonDiv.append(gt.toolTypes.IncludeExcludePointTool.excludePointButton);
 				includePointBox.append(excludePointButtonDiv);
 				container.append(includePointBox);
@@ -855,11 +885,9 @@
 				helpText(gt) {
 					return (gt.selectedObj && typeof gt.selectedObj.setIncludePoint === 'function') ||
 						(gt.activeTool && gt.activeTool.supportsIncludeExclude)
-						? (
-							`Use the ${gt.options.useBracketEnds ? '(' : '\\(\\circ\\)'} or ${
+						? `Use the ${gt.options.useBracketEnds ? '(' : '\\(\\circ\\)'} or ${
 								gt.options.useBracketEnds ? '[' : '\\(\\bullet\\)'
 							} button or type e or i to exclude or include the selected endpoint.`
-						)
 						: '';
 				}
 			},

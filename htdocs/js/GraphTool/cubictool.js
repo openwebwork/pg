@@ -8,8 +8,8 @@
 			preInit(gt, point1, point2, point3, point4, solid) {
 				[point1, point2, point3, point4].forEach((point) => {
 					point.setAttribute(gt.definingPointAttributes);
-					point.on('down', () => gt.board.containerObj.style.cursor = 'none');
-					point.on('up', () => gt.board.containerObj.style.cursor = 'auto');
+					point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
+					point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
 				});
 				return gt.graphObjectTypes.cubic.createCubic(point1, point2, point3, point4, solid, gt.color.curve);
 			},
@@ -40,55 +40,94 @@
 					pointData = gt.pointRegexp.exec(string);
 				}
 				if (points.length < 4) return false;
-				var point1 = gt.graphObjectTypes.cubic.createPoint(
-					parseFloat(points[0][0]), parseFloat(points[0][1]));
-				var point2 = gt.graphObjectTypes.cubic.createPoint(
-					parseFloat(points[1][0]), parseFloat(points[1][1]), [point1]);
-				var point3 = gt.graphObjectTypes.cubic.createPoint(
-					parseFloat(points[2][0]), parseFloat(points[2][1]), [point1, point2]);
-				var point4 = gt.graphObjectTypes.cubic.createPoint(
-					parseFloat(points[3][0]), parseFloat(points[3][1]), [point1, point2, point3]);
+				const point1 = gt.graphObjectTypes.cubic.createPoint(
+					parseFloat(points[0][0]),
+					parseFloat(points[0][1])
+				);
+				const point2 = gt.graphObjectTypes.cubic.createPoint(
+					parseFloat(points[1][0]),
+					parseFloat(points[1][1]),
+					[point1]
+				);
+				const point3 = gt.graphObjectTypes.cubic.createPoint(
+					parseFloat(points[2][0]),
+					parseFloat(points[2][1]),
+					[point1, point2]
+				);
+				const point4 = gt.graphObjectTypes.cubic.createPoint(
+					parseFloat(points[3][0]),
+					parseFloat(points[3][1]),
+					[point1, point2, point3]
+				);
 				return new gt.graphObjectTypes.cubic(point1, point2, point3, point4, /solid/.test(string));
 			},
 
 			helperMethods: {
 				createParabola(gt, point1, point2, point3, solid, color) {
-					return gt.board.create('curve', [
-						// x and y coordinates of point on curve
-						(x) => x,
-						(x) => {
-							const x1 = point1.X(), x2 = point2.X(), x3 = point3.X(),
-								y1 = point1.Y(), y2 = point2.Y(), y3 = point3.Y();
-							return (x - x2) * (x - x3) * y1 / ((x1 - x2) * (x1 - x3))
-								+ (x - x1) * (x - x3) * y2 / ((x2 - x1) * (x2 - x3))
-								+ (x - x1) * (x - x2) * y3 / ((x3 - x1) * (x3 - x2));
-						},
-						// domain minimum and maximum
-						() => gt.board.getBoundingBox()[0], () => gt.board.getBoundingBox()[2]
-					], {
-						strokeWidth: 2, highlight: false, strokeColor: color ? color : gt.color.underConstruction,
-						dash: solid ? 0 : 2
-					});
+					return gt.board.create(
+						'curve',
+						[
+							// x and y coordinates of point on curve
+							(x) => x,
+							(x) => {
+								const x1 = point1.X(),
+									x2 = point2.X(),
+									x3 = point3.X(),
+									y1 = point1.Y(),
+									y2 = point2.Y(),
+									y3 = point3.Y();
+								return (
+									((x - x2) * (x - x3) * y1) / ((x1 - x2) * (x1 - x3)) +
+									((x - x1) * (x - x3) * y2) / ((x2 - x1) * (x2 - x3)) +
+									((x - x1) * (x - x2) * y3) / ((x3 - x1) * (x3 - x2))
+								);
+							},
+							// domain minimum and maximum
+							() => gt.board.getBoundingBox()[0],
+							() => gt.board.getBoundingBox()[2]
+						],
+						{
+							strokeWidth: 2,
+							highlight: false,
+							strokeColor: color ? color : gt.color.underConstruction,
+							dash: solid ? 0 : 2
+						}
+					);
 				},
 
 				createCubic(gt, point1, point2, point3, point4, solid, color) {
-					return gt.board.create('curve', [
-						// x and y coordinate of point on curve
-						(x) => x,
-						(x) => {
-							const x1 = point1.X(), x2 = point2.X(), x3 = point3.X(), x4 = point4.X(),
-								y1 = point1.Y(), y2 = point2.Y(), y3 = point3.Y(), y4 = point4.Y();
-							return (x - x2) * (x - x3) * (x - x4) * y1 / ((x1 - x2) * (x1 - x3) * (x1 - x4))
-								+ (x - x1) * (x - x3) * (x - x4) * y2 / ((x2 - x1) * (x2 - x3) * (x2 - x4))
-								+ (x - x1) * (x - x2) * (x - x4) * y3 / ((x3 - x1) * (x3 - x2) * (x3 - x4))
-								+ (x - x1) * (x - x2) * (x - x3) * y4 / ((x4 - x1) * (x4 - x2) * (x4 - x3));
-						},
-						// domain minimum and maximum
-						() => gt.board.getBoundingBox()[0], () => gt.board.getBoundingBox()[2]
-					], {
-						strokeWidth: 2, highlight: false, strokeColor: color ? color : gt.color.underConstruction,
-						dash: solid ? 0 : 2
-					});
+					return gt.board.create(
+						'curve',
+						[
+							// x and y coordinate of point on curve
+							(x) => x,
+							(x) => {
+								const x1 = point1.X(),
+									x2 = point2.X(),
+									x3 = point3.X(),
+									x4 = point4.X(),
+									y1 = point1.Y(),
+									y2 = point2.Y(),
+									y3 = point3.Y(),
+									y4 = point4.Y();
+								return (
+									((x - x2) * (x - x3) * (x - x4) * y1) / ((x1 - x2) * (x1 - x3) * (x1 - x4)) +
+									((x - x1) * (x - x3) * (x - x4) * y2) / ((x2 - x1) * (x2 - x3) * (x2 - x4)) +
+									((x - x1) * (x - x2) * (x - x4) * y3) / ((x3 - x1) * (x3 - x2) * (x3 - x4)) +
+									((x - x1) * (x - x2) * (x - x3) * y4) / ((x4 - x1) * (x4 - x2) * (x4 - x3))
+								);
+							},
+							// domain minimum and maximum
+							() => gt.board.getBoundingBox()[0],
+							() => gt.board.getBoundingBox()[2]
+						],
+						{
+							strokeWidth: 2,
+							highlight: false,
+							strokeColor: color ? color : gt.color.underConstruction,
+							dash: solid ? 0 : 2
+						}
+					);
 				},
 
 				// Prevent a point from being moved off the board by a drag. If a group of other points is provided,
@@ -116,7 +155,7 @@
 						}
 
 						point.setPosition(JXG.COORDS_BY_USER, [
-							left_x < bbox[0] ? right_x : (preferLeft || right_x > bbox[2]) ? left_x : right_x,
+							left_x < bbox[0] ? right_x : preferLeft || right_x > bbox[2] ? left_x : right_x,
 							y
 						]);
 					}
@@ -132,7 +171,12 @@
 					const point = gt.board.create(
 						'point',
 						[gt.snapRound(x, gt.snapSizeX), gt.snapRound(y, gt.snapSizeY)],
-						{ size: 2, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false }
+						{
+							size: 2,
+							snapSizeX: gt.snapSizeX,
+							snapSizeY: gt.snapSizeY,
+							withLabel: false
+						}
 					);
 					point.setAttribute({ snapToGrid: true });
 					if (typeof grouped_points !== 'undefined' && grouped_points.length) {
@@ -144,9 +188,11 @@
 								paired_point.on('drag', gt.graphObjectTypes.cubic.groupedPointDrag);
 							}
 							paired_point.grouped_points.push(point);
-							if (!paired_point.eventHandlers.drag ||
-								paired_point.eventHandlers.drag.every((dragHandler) =>
-									dragHandler.handler !== gt.graphObjectTypes.cubic.groupedPointDrag)
+							if (
+								!paired_point.eventHandlers.drag ||
+								paired_point.eventHandlers.drag.every(
+									(dragHandler) => dragHandler.handler !== gt.graphObjectTypes.cubic.groupedPointDrag
+								)
 							)
 								paired_point.on('drag', gt.graphObjectTypes.cubic.groupedPointDrag);
 						});
@@ -191,8 +237,10 @@
 				this.phase2 = (coords) => {
 					// Don't allow the second point to be created on the same
 					// vertical line as the first point or off the board.
-					if (this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						!gt.boardHasPoint(coords[1], coords[2]))
+					if (
+						this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
+						!gt.boardHasPoint(coords[1], coords[2])
+					)
 						return;
 
 					gt.board.off('up');
@@ -221,14 +269,18 @@
 				this.phase3 = (coords) => {
 					// Don't allow the third point to be created on the same vertical line as the
 					// first point, on the same vertical line as the second point, or off the board.
-					if (this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
+					if (
+						this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
 						this.point2.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						!gt.boardHasPoint(coords[1], coords[2]))
+						!gt.boardHasPoint(coords[1], coords[2])
+					)
 						return;
 
 					gt.board.off('up');
-					this.point3 = gt.graphObjectTypes.cubic.createPoint(coords[1], coords[2],
-						[this.point1, this.point2]);
+					this.point3 = gt.graphObjectTypes.cubic.createPoint(coords[1], coords[2], [
+						this.point1,
+						this.point2
+					]);
 					this.point3.setAttribute({ fixed: true, highlight: false });
 
 					// Get a new x coordinate that is to the right, unless that is off the board.
@@ -257,18 +309,28 @@
 					// Don't allow the fourth point to be created on the same vertical line as the first
 					// point, on the same vertical line as the second point, on the same vertical line as
 					// the third point, or off the board.
-					if (this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
+					if (
+						this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
 						this.point2.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
 						this.point3.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						!gt.boardHasPoint(coords[1], coords[2]))
+						!gt.boardHasPoint(coords[1], coords[2])
+					)
 						return;
 
 					gt.board.off('up');
 
-					const point4 = gt.graphObjectTypes.cubic.createPoint(coords[1], coords[2],
-						[this.point1, this.point2, this.point3]);
-					gt.selectedObj = new gt.graphObjectTypes.cubic(this.point1, this.point2, this.point3, point4,
-						gt.drawSolid);
+					const point4 = gt.graphObjectTypes.cubic.createPoint(coords[1], coords[2], [
+						this.point1,
+						this.point2,
+						this.point3
+					]);
+					gt.selectedObj = new gt.graphObjectTypes.cubic(
+						this.point1,
+						this.point2,
+						this.point3,
+						point4,
+						gt.drawSolid
+					);
 					gt.selectedObj.focusPoint = point4;
 					gt.graphedObjs.push(gt.selectedObj);
 					delete this.point1;
@@ -308,14 +370,17 @@
 				} else if (e instanceof JXG.Coords) {
 					coords = e;
 					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
-				} else
-					return false;
+				} else return false;
 
 				if (!this.hlObjs.hl_point) {
 					this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
-						size: 2, color: gt.color.underConstruction, snapToGrid: true,
-						snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY,
-						highlight: false, withLabel: false
+						size: 2,
+						color: gt.color.underConstruction,
+						snapToGrid: true,
+						snapSizeX: gt.snapSizeX,
+						snapSizeY: gt.snapSizeY,
+						highlight: false,
+						withLabel: false
 					});
 					this.hlObjs.hl_point.rendNode.focus();
 				}
@@ -327,7 +392,7 @@
 					if (this.point1) groupedPoints.push(this.point1);
 					if (this.point2) groupedPoints.push(this.point2);
 					if (this.point3) groupedPoints.push(this.point3);
-					gt.graphObjectTypes.cubic.adjustDragPosition(e, this.hlObjs.hl_point, groupedPoints)
+					gt.graphObjectTypes.cubic.adjustDragPosition(e, this.hlObjs.hl_point, groupedPoints);
 				}
 
 				if (this.point3 && !this.hlObjs.hl_cubic) {
@@ -338,7 +403,12 @@
 					}
 
 					this.hlObjs.hl_cubic = gt.graphObjectTypes.cubic.createCubic(
-						this.point1, this.point2, this.point3, this.hlObjs.hl_point, gt.drawSolid);
+						this.point1,
+						this.point2,
+						this.point3,
+						this.hlObjs.hl_point,
+						gt.drawSolid
+					);
 				} else if (this.point2 && !this.point3 && !this.hlObjs.hl_parabola) {
 					// Delete the temporary highlight line if it exists.
 					if (this.hlObjs.hl_line) {
@@ -347,10 +417,16 @@
 					}
 
 					this.hlObjs.hl_parabola = gt.graphObjectTypes.cubic.createParabola(
-						this.point1, this.point2, this.hlObjs.hl_point, gt.drawSolid);
+						this.point1,
+						this.point2,
+						this.hlObjs.hl_point,
+						gt.drawSolid
+					);
 				} else if (this.point1 && !this.point2 && !this.hlObjs.hl_line) {
 					this.hlObjs.hl_line = gt.board.create('line', [this.point1, this.hlObjs.hl_point], {
-						fixed: true, strokeColor: gt.color.underConstruction, highlight: false,
+						fixed: true,
+						strokeColor: gt.color.underConstruction,
+						highlight: false,
 						dash: gt.drawSolid ? 0 : 2
 					});
 				}
@@ -362,7 +438,7 @@
 			deactivate(gt) {
 				delete this.helpText;
 				gt.board.off('up');
-				['point1', 'point2', 'point3'].forEach(function(point) {
+				['point1', 'point2', 'point3'].forEach(function (point) {
 					if (this[point]) gt.board.removeObject(this[point]);
 					delete this[point];
 				}, this);

@@ -219,7 +219,7 @@
 			// Only do this while the popover is visible.
 			const inputRegenPreview = () => this.regenPreview();
 			this.button.addEventListener('shown.bs.popover', () => {
-				this.inputTextBox.addEventListener('keyup', inputRegenPreview)
+				this.inputTextBox.addEventListener('keyup', inputRegenPreview);
 
 				if (!this.options.decoratedTextBoxAsInput) {
 					this.inputTextBox.focus();
@@ -238,7 +238,7 @@
 			});
 			this.button.addEventListener('hide.bs.popover', () => {
 				this.popover.tip.dispatchEvent(new Event('focusout'));
-				this.inputTextBox.removeEventListener('keyup', inputRegenPreview)
+				this.inputTextBox.removeEventListener('keyup', inputRegenPreview);
 			});
 
 			const closeOther = () => {

@@ -8,7 +8,7 @@
 		elt.innerHTML = html;
 		elt.querySelectorAll('script').forEach((origScript) => {
 			const newScript = document.createElement('script');
-			Array.from(origScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+			Array.from(origScript.attributes).forEach((attr) => newScript.setAttribute(attr.name, attr.value));
 			newScript.appendChild(document.createTextNode(origScript.innerHTML));
 			origScript.parentNode.replaceChild(newScript, origScript);
 		});
@@ -85,8 +85,7 @@
 			if (knowl.dataset.knowlContents) {
 				// Inline html
 				if (knowl.dataset.base64 == '1') {
-					if (window.Base64)
-						setInnerHTML(knowlContent, Base64.decode(knowl.dataset.knowlContents));
+					if (window.Base64) setInnerHTML(knowlContent, Base64.decode(knowl.dataset.knowlContents));
 					else {
 						setInnerHTML(knowlContent, 'ERROR: Base64 decoding not available');
 						knowlContent.classList.add('knowl-error');
@@ -96,12 +95,14 @@
 				}
 				// If we are using MathJax, then render math content.
 				if (window.MathJax) {
-					MathJax.startup.promise =
-						MathJax.startup.promise.then(() => MathJax.typesetPromise([knowlContent]));
+					MathJax.startup.promise = MathJax.startup.promise.then(() =>
+						MathJax.typesetPromise([knowlContent])
+					);
 				}
 			} else if (knowl.dataset.knowlUrl) {
 				// Retrieve url content.
-				fetch(knowl.dataset.knowlUrl).then((response) => response.ok ? response.text() : response)
+				fetch(knowl.dataset.knowlUrl)
+					.then((response) => (response.ok ? response.text() : response))
 					.then((data) => {
 						if (typeof data == 'object') {
 							knowlContent.textContent = `ERROR: ${data.status} ${data.statusText}`;
@@ -111,8 +112,9 @@
 						}
 						// If we are using MathJax, then render math content.
 						if (window.MathJax) {
-							MathJax.startup.promise =
-								MathJax.startup.promise.then(() => MathJax.typesetPromise([knowlContent]));
+							MathJax.startup.promise = MathJax.startup.promise.then(() =>
+								MathJax.typesetPromise([knowlContent])
+							);
 						}
 					});
 			} else {

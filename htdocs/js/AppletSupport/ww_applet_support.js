@@ -31,36 +31,38 @@ const getQE = (name1) => {
 	} else {
 		return obj;
 	}
-}
+};
 
 const getQuestionElement = getQE;
 
 // WW_Applet class definition
 class ww_applet {
 	constructor(appletName) {
-		this.appletName         = appletName;
-		this.type               = '';
-		this.initialState       = '';
-		this.configuration      = '';
-		this.getStateAlias      = '';
-		this.setStateAlias      = '';
-		this.setConfigAlias     = '';
-		this.getConfigAlias     = '';
+		this.appletName = appletName;
+		this.type = '';
+		this.initialState = '';
+		this.configuration = '';
+		this.getStateAlias = '';
+		this.setStateAlias = '';
+		this.setConfigAlias = '';
+		this.getConfigAlias = '';
 		this.submitActionScript = '';
-		this.onInit             = 0;
-		this.debug              = 0;
+		this.onInit = 0;
+		this.debug = 0;
 	}
 
 	// Determine whether an XML string has been base64 encoded.
 	// This returns false if the string is empty, or if it contains a < or > character.
 	// The empty string is not a base64 string, and
 	// base64 can't contain < or > and xml strings contain lots of them.
-	base64Q(str) { return str && !/[<>]+/.exec(str); }
+	base64Q(str) {
+		return str && !/[<>]+/.exec(str);
+	}
 
 	// Make sure that the applet has this function available
 	methodDefined(methodName) {
 		const applet = getApplet(this.appletName);
-		if (methodName && typeof(applet[methodName]) == 'function') return true;
+		if (methodName && typeof applet[methodName] == 'function') return true;
 		if (this.debug) console.log(`${this.appletName}: Method name ${methodName} is not defined`);
 		return false;
 	}
@@ -72,11 +74,15 @@ class ww_applet {
 		const applet = getApplet(this.appletName);
 		try {
 			if (this.methodDefined(this.setConfigAlias)) {
-				if (this.debug) console.log(`${this.appletName}: calling ${this.setConfigAlias}${
-					this.debug > 1 ? `with configuration:\n${this.configuration}` : ''}`);
+				if (this.debug)
+					console.log(
+						`${this.appletName}: calling ${this.setConfigAlias}${
+							this.debug > 1 ? `with configuration:\n${this.configuration}` : ''
+						}`
+					);
 				applet[this.setConfigAlias](this.configuration);
 			}
-		} catch(e) {
+		} catch (e) {
 			console.log(`Error configuring ${this.appletName} using command ${this.setConfigAlias}: ${e}`);
 		}
 	}
@@ -90,15 +96,18 @@ class ww_applet {
 				if (this.debug) console.log(`${this.appletName}: calling ${this.getConfigAlias}`);
 				console.log(applet[this.getConfigAlias]());
 			}
-		} catch(e) {
-			console.log(`Error getting configuration for ${this.appletName} using command ${this.getConfigAlias}: ${e}`);
+		} catch (e) {
+			console.log(
+				`Error getting configuration for ${this.appletName} using command ${this.getConfigAlias}: ${e}`
+			);
 		}
 	}
 
 	// Set the state stored on the HTML page
 	setHTMLAppletState(newState) {
-		if (this.debug) console.log(`${this.appletName}: setHTMLAppletState${this.debug > 1 ? ` to:\n${newState}` : ''}`);
-		if (typeof(newState) === 'undefined') newState = '<xml>restart_applet</xml>';
+		if (this.debug)
+			console.log(`${this.appletName}: setHTMLAppletState${this.debug > 1 ? ` to:\n${newState}` : ''}`);
+		if (typeof newState === 'undefined') newState = '<xml>restart_applet</xml>';
 		const stateInput = ww_applet_list[this.appletName].stateInput;
 		getQE(stateInput).value = newState;
 		getQE(`previous_${stateInput}`).value = newState;
@@ -133,11 +142,10 @@ class ww_applet {
 		//    initialState variable.
 
 		// Exceptional cases
-		if (state.match(/^<xml>restart_applet<\/xml>/) ||
-			state.match(/^\s*$/) ||
-			state.match(/^<xml>\s*<\/xml>/)) {
-
-			if (typeof(this.initialState) == 'undefined') { this.initialState = '<xml></xml>'; }
+		if (state.match(/^<xml>restart_applet<\/xml>/) || state.match(/^\s*$/) || state.match(/^<xml>\s*<\/xml>/)) {
+			if (typeof this.initialState == 'undefined') {
+				this.initialState = '<xml></xml>';
+			}
 			if (this.debug > 1) console.log(`${this.appletName}: Restarting with initial state:\n${this.initialState}`);
 			if (this.initialState.match(/^<xml>\s*<\/xml>/) || this.initialState.match(/^\s*$/)) {
 				// Set the saved state to the empty state, so that the submit action will not be overridden by
@@ -163,13 +171,18 @@ class ww_applet {
 		if (state.match(/\<xml/i) || state.match(/\<\?xml/i)) {
 			try {
 				if (this.methodDefined(this.setStateAlias)) {
-					if (this.debug) console.log( `${this.appletName}: calling ${this.setStateAlias}${
-						this.debug > 1 ? ` with state ${state}` : ''}`);
+					if (this.debug)
+						console.log(
+							`${this.appletName}: calling ${this.setStateAlias}${
+								this.debug > 1 ? ` with state ${state}` : ''
+							}`
+						);
 					applet[this.setStateAlias](state);
 				}
-			} catch(err) {
-				console.log(`Error setting state for ${this.appletName} using command ${
-					this.setStateAlias}: ${err} ${err.number} ${err.description}`);
+			} catch (err) {
+				console.log(
+					`Error setting state for ${this.appletName} using command ${this.setStateAlias}: ${err} ${err.number} ${err.description}`
+				);
 			}
 		}
 	}
@@ -232,14 +245,14 @@ class ww_applet {
 		// Configure the applet.
 		try {
 			this.setConfig();
-		} catch(e) {
+		} catch (e) {
 			console.log(`Unable to configure ${this.appletName}:\n${e}`);
 		}
 
 		// Set the applet state.
 		try {
 			this.setState();
-		} catch(e) {
+		} catch (e) {
 			console.log(`Unable to set the state for ${this.appletName}:\n${e}`);
 		}
 	}
@@ -256,10 +269,15 @@ class ww_applet {
 		if (typeof ggbOnInitFromProblem == 'function') {
 			ggbOnInitFromProblem(appletName);
 		}
-		if (appletName in ww_applet_list && ww_applet_list[appletName].onInit &&
-			ww_applet_list[appletName].onInit != 'ggbOnInit') {
-			if (window[ww_applet_list[appletName].onInit] &&
-				typeof(window[ww_applet_list[appletName].onInit]) == 'function') {
+		if (
+			appletName in ww_applet_list &&
+			ww_applet_list[appletName].onInit &&
+			ww_applet_list[appletName].onInit != 'ggbOnInit'
+		) {
+			if (
+				window[ww_applet_list[appletName].onInit] &&
+				typeof window[ww_applet_list[appletName].onInit] == 'function'
+			) {
 				window[ww_applet_list[appletName].onInit](appletName);
 			} else {
 				eval(ww_applet_list[appletName].onInit);
@@ -350,7 +368,7 @@ class ww_applet {
 				ww_applet_list[appletName].safe_applet_initialize();
 			}
 		}
-	}
+	};
 
 	window.addEventListener('PGContentLoaded', initializeAppletSupport);
 	window.addEventListener('DOMContentLoaded', initializeAppletSupport);
