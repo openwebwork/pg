@@ -21,6 +21,21 @@ WeBWorK::PG::ConvertToPGML
 
 Converts a pg file to PGML format.
 
+This script does a number of conversions:
+
+=over
+=item  Update the loadMacros call to include PGML.pl, eliminate MathObject.pl (since it is loaded by PGML.pl)
+and adds PGcourse.pl to the end of the list.
+=item  Coverts BEGIN_TEXT/END_TEXT (and older versions of this), BEGIN_SOLUTION/END_SOLUTION, BEGIN_HINT/END_HINT
+to their newer BEGIN_PGML blocks.
+=item  Convert math mode in these blocks to PGML style math mode.
+=item  Convert other styling (bold, italics) to PGML style.
+=item Convert variables to the interpolated [$var] PGML style.
+=item  Convert some of the answer rules to newer PGML style.
+=item Remove some outdated code.
+=item A few other minor things.
+=back
+
 =head1 OPTIONS
 
 =cut
@@ -43,8 +58,15 @@ our @EXPORT = qw(convertToPGML);
 # input is a string containing the source of the pg file to be converted.
 # returns a string that is the converted input string.
 
+# This stores the answers inside of ANS and related functions.
+my @ans_list;
+
 sub convertToPGML {
 	my ($pg_source) = @_;
+
+	# First get a list of all of the ANS, LABELED_ANS, etc. in the problem.
+	@ans_list = getANS($pg_source);
+
 	my @pgml_block;
 	my $in_pgml_block = 0;
 	my @all_lines;
@@ -53,10 +75,13 @@ sub convertToPGML {
 
 	while (@rows) {
 		my $row = shift @rows;
-		if ($row =~ /BEGIN_(TEXT|HINT|SOLUTION)/ || $row =~ /SOLUTION\(EV3\(<<\'END_SOLUTION\'\)\);/) {
+		if ($row =~ /BEGIN_(TEXT|HINT|SOLUTION)/
+			|| $row =~ /SOLUTION\(EV3\(<<\'END_SOLUTION\'\)\);/
+			|| $row =~ /TEXT\(EV2\(<<EOT\)\)/)
+		{
 			push(@pgml_block, $row);
 			$in_pgml_block = 1;
-		} elsif ($row =~ /END_(TEXT|HINT|SOLUTION)/) {
+		} elsif ($row =~ /END_(TEXT|HINT|SOLUTION)|EOT/) {
 			push(@pgml_block, $row);
 			$in_pgml_block = 0;
 			push(@all_lines, @{ convertPGMLBlock(\@pgml_block) });
@@ -77,16 +102,11 @@ sub convertToPGML {
 			my @macros =
 				grep { $_ !~ /^#/ }
 				grep {
-					$_ !~ /(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse).pl/
+					$_ !~
+					/(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse|AnswerFormatHelp).pl/
 				}
 				map {s/['"\s]//gr}
 				split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
-
-			# my @macros = map {s/['"\s]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
-			# @macros = grep {
-			# 	$_ !~ /(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse).pl/
-			# } @macros;
-			# @macros = grep { $_ !~ /^#/ } @macros;
 
 			push(@all_lines,
 				'loadMacros('
@@ -120,15 +140,39 @@ sub convertToPGML {
 # * convert center, bold and italics to PGML forms.
 # * converting other variables from $var to [$var]
 # * converting ans_rule to [_]{} format
-# * converting \{ \} to [@ @]
+# * converting \{ \} to [@ @] without altering code within the \{ \}.
 
 sub convertPGMLBlock {
 	my ($block) = @_;
 	my @new_rows;
-	for my $row (@$block) {
+	while (@$block) {
+		my $row                   = shift @$block;
 		my $add_blank_line_before = ($row =~ /^\s*\$PAR/);
 		my $add_blank_line_after  = ($row =~ /\$PAR\s*$/);
+
+		# match all forms of ans_rule
+		$row = convertANSrule($row);
+
+		# Capture any perl blocks inside \{ \}
+		my @perl_block;
+
+		if ($row =~ /^(.*)\\\{(.*)\\\}(.*)/) {
+			push(@perl_block, $2);
+			$row = "$1 PERL_BLOCK $3";
+		} elsif ($row =~ /^(.*)\\\{(.*)$/) {    # This is a multi-line perl block
+			my $tmp = $1;
+			push(@perl_block, $2);
+			do {
+				$row = shift @$block;
+				push(@perl_block, $row) unless $row =~ /^(.*)\\\}(.*)$/;
+			} until $row =~ /^(.*)\\\}(.*)$/;
+			push(@perl_block, $1);
+			$row = "$tmp PERL_BLOCK $2";
+		}
+
 		$row =~ s/(BEGIN|END)_TEXT/$1_PGML/;
+		$row =~ s/TEXT\(EV2\(<<EOT\)\)/BEGIN_PGML/;
+		$row =~ s/EOT/END_PGML/;
 		$row =~ s/(BEGIN|END)_(SOLUTION|HINT)/$1_PGML_$2/;
 		$row =~ s/SOLUTION\(EV3P?\(<<\'END_PGML_SOLUTION\'\)\);/BEGIN_PGML_SOLUTION/;
 		# remove $PAR, and $SPACE
@@ -151,38 +195,56 @@ sub convertPGMLBlock {
 		$row =~ s/\\\[/[```/g;
 		$row =~ s/\\\]/```]/g;
 
-		# replace the variables in the PGML block.  Don't if it is in a \{ \}
-		# Note that the first is for variables at the end of the line.
-		$row =~ s/(\$\w+)$/[$1]/g;
-		$row =~ s/(\$\w+)(\W)/[$1]$2/g unless $row =~ /\\\{.*(\$\w+)(\W).*\\\}/;
-
-		# match all forms of ans_rule
-		$row = convertANSrule($row);
-
-		$row =~ s/\\\{/[@ /g;
-		$row =~ s/\\\}/ @]*/g;
-
 		# if there is an $HR, add blank lines before and after the PGML "---"
-		if ($row =~ /\$HR/) {
-			push @new_rows, '', '---', '';
-		} elsif ($add_blank_line_before) {
+
+		if ($row =~ /^(.*)\$HR(.*)$/) {
+			push @new_rows, $1 // '', '', '---', '', $2 // '';
+		}
+
+		# After many other variables have been replaced, replace the variables in the PGML block.
+		# However if not in a {}, assumed to be in an answer blank.
+		if (my @matches = $row =~ /\$[\w\_]+/g) {
+			for my $m (@matches) {
+				$m =~ s/\$/\\\$/;
+				# Wrap variables in [].  Handle arrays, hashes, array refs and hashrefs.
+				$row =~ s/(?<!\]{)($m+(\[\d+\])?((->)?\{.*?\})?)/[$1]/;
+			}
+		}
+
+		# Do some converting inside a perl block:
+		for (0 .. $#perl_block) {
+			$perl_block[$_] =~ s/AnswerFormatHelp\(["']([\w\s]+)["']\)/helpLink('$1')/g;
+		}
+
+		if ($add_blank_line_before) {
 			push @new_rows, '', $row;
 		} elsif ($add_blank_line_after) {
 			push @new_rows, $row, '';
+		} elsif ($row =~ /^(.*)?\sPERL_BLOCK\s(.*)?$/) {
+			# remove any empty lines in the block
+			@perl_block = grep { $_ !~ /^\s*$/ } @perl_block;
+			# Wrap the perl block in [@ @]
+			if ($#perl_block == 0) {
+				push(@new_rows, ($1 // '') . ' [@ ' . $perl_block[0] . ' @]*' . ($2 // ''));
+			} else {
+				push(@new_rows, ($1 // '') . ' [@ ' . shift(@perl_block), @perl_block, ' @]*' . ($2 // ''));
+			}
 		} else {
 			push @new_rows, $row;
 		}
+
 	}
 	return \@new_rows;
 }
 
-# Convert the ans_rule constructs to [_]{$var}.  This is called recursively to handle multiple ans_rule
-# on a single line.
+# Convert many ans_rule constructs to the PGML answer blank form [_]{$var}.
+# This is called recursively to handle multiple ans_rule on a single line.
 
 sub convertANSrule {
 	my ($str) = @_;
-	if ($str =~ /(.*)\\\{\s*((\$\w+)->)?ans_rule(\((\d+)\))?\s*\\\}(.*)$/) {
-		my $var  = $3 // '';
+	if ($str =~ /(.*)\\\{\s*((\$\w+)->)?ans_rule(\((\d*)\))?\s*\\\}(.*)$/) {
+		my $ans  = shift(@ans_list);
+		my $var  = $3 // $ans->{arg} // '';
 		my $size = $5 ? "{$5}" : '';
 		return convertANSrule($1 // '') . '[_]' . "{$var}$size" . convertANSrule($6 // '');
 	} else {
@@ -205,6 +267,31 @@ sub cleanUpCode {
 	$row =~ s/TEXT\(\s*&?beginproblem(\(\))?\s*\);//;
 	$row =~ s/^(LABELED_|NAMED_|WEIGHTED_|)ANS(.*)/# $1ANS$2/;
 	return $row;
+}
+
+# Loads the entire file searching for instances of ANS, WEIGHTED_ANS, NAMED_ANS or LABELED_ANS
+# and returns an arrayref with an ordered list of them.
+sub getANS {
+	my ($pg_source) = @_;
+	my @ans_list;
+	for my $row (split(/\n/, $pg_source)) {
+		if ($row !~ /^\s*#/ && $row =~ /(LABELED_|NAMED_|WEIGHTED_|)ANS/) {
+			# For style like ANS($ans->cmp());
+			if ($row =~ /((LABELED_|NAMED_|WEIGHTED_|)ANS)\(\s*([\$\w]+)->(\w+)(\(\))?\s*\)/) {
+				push(@ans_list, { type => $1, arg => $3 });
+				# for style like ANS(num_cmp($ans))
+			} elsif ($row =~ /((LABELED_|NAMED_|WEIGHTED_|)ANS)\(\s*(([\w\_]+)\((\$[\w\_]+)\))\)/) {
+				my $type = $1;
+				my $arg  = $3 =~ s/(std_)?num_cmp/Real/r;
+				$arg =~ s/str_cmp|std_num_cmp/String/;
+				$arg =~ s/interval_cmp/Interval/;
+				$arg =~ s/fun_cmp/Formula/;
+				$arg =~ s/radio_cmp|checkbox_cmp//;
+				push(@ans_list, { type => $type, arg => $arg });
+			}
+		}
+	}
+	return @ans_list;
 }
 
 1;
