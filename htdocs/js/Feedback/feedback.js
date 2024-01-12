@@ -1,4 +1,6 @@
 (() => {
+	const feedbackPopovers = [];
+
 	const initializeFeedback = (feedbackBtn) => {
 		if (feedbackBtn.dataset.popoverInitialized) return;
 		feedbackBtn.dataset.popoverInitialized = 'true';
@@ -7,6 +9,7 @@
 			sanitize: false,
 			container: feedbackBtn.parentElement
 		});
+		feedbackPopovers.push(feedbackPopover);
 
 		// Render MathJax previews.
 		if (window.MathJax) {
@@ -24,6 +27,17 @@
 				origScript.parentNode.replaceChild(newScript, origScript);
 				setTimeout(() => feedbackPopover.update());
 			});
+
+			const moveToFront = () => {
+				if (feedbackPopover.tip) feedbackPopover.tip.style.zIndex = 18;
+				for (const popover of feedbackPopovers) {
+					if (popover === feedbackPopover) continue;
+					popover.tip?.style.setProperty('z-index', null);
+				}
+			};
+			feedbackPopover.tip?.addEventListener('click', moveToFront);
+			feedbackPopover.tip?.addEventListener('focusin', moveToFront);
+			moveToFront();
 
 			// Make a click on the popover header close the popover.
 			feedbackPopover.tip
