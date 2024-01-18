@@ -252,7 +252,7 @@ sub input {    #$rh_ans->input('foo') is a synonym for $rh_ans->{student_ans}='f
 sub score {
 	my $self  = shift;
 	my $score = shift;
-	$self->{score} = $score if defined($score);
+	$self->{score} = $score || 0 if defined($score);
 	$self->{score};
 }
 

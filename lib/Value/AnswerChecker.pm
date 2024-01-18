@@ -1708,7 +1708,7 @@ sub cmp_list_compare {
 	#
 	#  Check for empty lists
 	#
-	if (scalar(@correct) == 0) { $ans->score($m == 0); return }
+	if (scalar(@correct) == 0) { $ans->score($m == 0 ? 1 : 0); return }
 
 	#
 	#  Loop through student answers looking for correct ones
