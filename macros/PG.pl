@@ -1325,7 +1325,7 @@ sub ENDDOCUMENT {
 								Mojo::DOM->new_tag(
 									'div',
 									class => 'alert alert-success mb-2 p-1',
-									maketext('All of the gradeable answers are correct.')
+									maketext('All of the computer gradable answers are correct.')
 								)
 							);
 						} else {
