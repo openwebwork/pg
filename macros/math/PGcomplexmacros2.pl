@@ -23,10 +23,7 @@ More macros for handling multivalued functions of a complex variable
 
 =cut
 
-BEGIN {
-	be_strict();
-
-}
+BEGIN { strict->import; }
 
 sub _PGcomplexmacros2_init {
 }

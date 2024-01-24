@@ -22,9 +22,8 @@ Generate random matrices with some features.
 
 =cut
 
-BEGIN {
-	be_strict();
-}
+BEGIN { strict->import; }
+
 # set the prefix used for arrays.
 our $ArRaY = $main::PG->{ARRAY_PREFIX};
 

@@ -29,9 +29,7 @@ This includes constants and basic functions for PG.
 
 # this is equivalent to use strict, but can be used within the Safe compartment
 
-BEGIN {
-	be_strict;
-}
+BEGIN { strict->import; }
 
 my $displayMode;
 

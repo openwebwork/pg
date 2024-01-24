@@ -35,7 +35,7 @@ object's cmp() method directly if possible.
 
 =cut
 
-BEGIN { be_strict() }
+BEGIN { strict->import; }
 sub _PGstringevaluators_init { }
 
 =head1 String Filters

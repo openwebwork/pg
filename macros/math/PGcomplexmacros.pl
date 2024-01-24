@@ -20,10 +20,7 @@ Macros for complex numbers for the PG language
 
 =cut
 
-BEGIN {
-	be_strict();
-
-}
+BEGIN { strict->import; }
 
 sub _PGcomplexmacros_init {
 }

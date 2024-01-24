@@ -401,6 +401,8 @@ The default value is the value of the graph tool object C<texSize> option which 
 
 =cut
 
+BEGIN { strict->import }
+
 sub _parserGraphTool_init {
 	ADD_CSS_FILE('node_modules/jsxgraph/distrib/jsxgraph.css');
 	ADD_CSS_FILE('js/GraphTool/graphtool.css');
@@ -418,7 +420,7 @@ loadMacros('MathObjects.pl', 'PGtikz.pl');
 
 sub GraphTool { parser::GraphTool->new(@_) }
 
-$graphToolObjectCmps = \%parser::GraphTool::graphObjectCmps;
+$main::graphToolObjectCmps = \%parser::GraphTool::graphObjectCmps;
 
 package parser::GraphTool;
 our @ISA = qw(Value::List);

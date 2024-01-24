@@ -33,9 +33,7 @@ Usage:
 
 =cut
 
-BEGIN {
-	be_strict();
-}
+BEGIN { strict->import; }
 
 sub _PGnumericalmacros_init {
 }
