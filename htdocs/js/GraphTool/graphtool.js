@@ -2080,7 +2080,7 @@ window.graphTool = (containerId, options) => {
 
 					handleKeyEvent(e) {
 						if ('handleKeyEvent' in toolObject) toolObject.handleKeyEvent.call(this, gt, e);
-						if (parentTool) super.handleKeyEvent();
+						if (parentTool) super.handleKeyEvent(e);
 					}
 
 					activate() {
