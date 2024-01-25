@@ -254,3 +254,4 @@ modules:
   - ['Rserve']
   - [DragNDrop]
   - ['Types::Serialiser']
+  - [strict]

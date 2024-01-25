@@ -128,7 +128,7 @@ BEGIN {
 
 			# The first item is the main package.
 			$module =~ s/\.pm$//;
-			eval "package Main; require $module; import $module;";
+			eval "package main; require $module; import $module;";
 			warn "Failed to evaluate module $module: $@" if $@;
 			push @$ra_included_modules, "\%${module}::";
 
@@ -194,7 +194,7 @@ sub evaluate_modules {
 		# Ensure that the name is in fact a base name.
 		s/\.pm$//;
 
-		eval "package Main; require $_; import $_";
+		eval "package main; require $_; import $_";
 		warn "Failed to evaluate module $_: $@" if $@;
 
 		# Record this in the appropriate place.
