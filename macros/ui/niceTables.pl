@@ -1282,10 +1282,10 @@ sub ParseAlignment {
 	$alignment =~ s/\R//g;
 
 	# first we parse things like *{20}{...} to expand them
-	my $pattern = qr/\*\{(\d+)\}\{(.*?)\}/;
+	my $pattern = qr/\*\{(\d+)\}(\{((?:(?>[^\{\}]+)|(?2))*)\})/;
 	while ($alignment =~ /$pattern/) {
 		my @captured    = ($alignment =~ /$pattern/);
-		my $replaceWith = $captured[1] x $captured[0];
+		my $replaceWith = $captured[2] x $captured[0];
 		$alignment =~ s/$pattern/$replaceWith/;
 	}
 
