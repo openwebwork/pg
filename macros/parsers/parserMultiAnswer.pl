@@ -201,6 +201,14 @@ sub single_check {
 			. join('<TR><TD HEIGHT="4"></TD></TR>', @errors)
 			. '</TABLE>';
 	}
+	if ($self->{single_ans_message}) {
+		if ($ans->{ans_message}) {
+			$ans->{ans_message} = $ans->{error_message} =
+				'<DIV>' . $self->{single_ans_message} . '</DIV>' . $ans->{ans_message};
+		} else {
+			$ans->{ans_message} = $ans->{error_message} = $self->{single_ans_message};
+		}
+	}
 	if ($nonblank) {
 		$ans->{preview_latex_string} =
 			(
@@ -323,10 +331,14 @@ sub perform_check {
 
 #
 #  The user's checker can call setMessage(n,message) to set the error message
-#  for the n-th answer blank.
+#  for the n-th answer blank. If n is zero, set single_ans_message for singleResult.
 #
 sub setMessage {
 	my ($self, $i, $message) = @_;
+	if ($i == 0 && $self->{singleResult}) {
+		$self->{single_ans_message} = $message;
+		return;
+	}
 	die "Answer $i is not defined." unless defined($self->{ans}[ $i - 1 ]);
 	$self->{ans}[ $i - 1 ]{ans_message} = $self->{ans}[ $i - 1 ]{error_message} = $message;
 }
@@ -535,6 +547,10 @@ your message. This message will not be tied to any specific answer rule.
 
 This method sets the provided message and does B<not> return early -- allowing an answer checker
 to return a non-zero value for partial credit.
+
+If using C<singleResult>, setting C<$which_rule> to 0 will set a single answer message that is not
+tied to any specific answer rule, but not halt like using C<Value::Error("message")>. This allows
+both partial credit and other answer rule specific messages to get through.
 
 C<$which_rule> begins counting at 1.
 
