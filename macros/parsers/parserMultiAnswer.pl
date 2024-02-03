@@ -55,20 +55,21 @@ sub new {
 		}
 	}
 	bless {
-		data              => [@data],
-		cmp               => [@cmp],
-		ans               => [],
-		isValue           => 1,
-		part              => 0,
-		singleResult      => 0,
-		namedRules        => 0,
-		checkTypes        => 1,
-		allowBlankAnswers => 0,
-		tex_separator     => $separator . '\,',
-		separator         => $separator . ' ',
-		tex_format        => undef,
-		format            => undef,
-		context           => $context,
+		data                => [@data],
+		cmp                 => [@cmp],
+		ans                 => [],
+		isValue             => 1,
+		part                => 0,
+		singleResult        => 0,
+		namedRules          => 0,
+		checkTypes          => 1,
+		allowBlankAnswers   => 0,
+		tex_separator       => $separator . '\,',
+		separator           => $separator . ' ',
+		tex_format          => undef,
+		format              => undef,
+		context             => $context,
+		single_ans_messages => [],
 	}, $class;
 }
 
@@ -201,6 +202,10 @@ sub single_check {
 			. join('<TR><TD HEIGHT="4"></TD></TR>', @errors)
 			. '</TABLE>';
 	}
+	if (@{ $self->{single_ans_messages} }) {
+		$ans->{ans_message} = $ans->{error_message} =
+			'<DIV>' . join('</DIV><DIV>', @{ $self->{single_ans_messages} }) . '</DIV>' . $ans->{ans_message};
+	}
 	if ($nonblank) {
 		$ans->{preview_latex_string} =
 			(
@@ -329,6 +334,15 @@ sub setMessage {
 	my ($self, $i, $message) = @_;
 	die "Answer $i is not defined." unless defined($self->{ans}[ $i - 1 ]);
 	$self->{ans}[ $i - 1 ]{ans_message} = $self->{ans}[ $i - 1 ]{error_message} = $message;
+}
+
+# The user's checker can add messages to the single_ans_messages array,
+# which are joined together along with any ans_messages from the
+# individual answers.
+sub addMessage {
+	my ($self, $message) = @_;
+	return unless $message;
+	push(@{ $self->{single_ans_messages} }, $message);
 }
 
 ######################################################################
@@ -544,6 +558,19 @@ will throw an error with the message "Answer $which_rule is not defined."
     $ma_obj = MultiAnswer($math_obj1, $math_obj2);
     $ma_obj->setMessage(2, "It's like a jungle sometimes..."); # succeeds
     $ma_obj->setMessage(3, "It's like a jungle sometimes..."); # fails
+
+=head2 addMessage
+
+    $multianswer_obj->addMessage($message_string)
+
+Meant for use in C<checker> when using C<singleResult> to add feedback messages for the
+combined answer rules.  This will add the message to a message array, which will be all
+joined together to create the final message. These messages are then attached to any
+answer rule messages to be displayed to the user.
+
+Note that unlike C<setMessage>, these messages are not tied to any answer rules, and
+unlike C<Value::Error("message")>, this will not halt the answer checker allowing both
+partial credit and other messages to also be shown.
 
 =head1 USAGE
 
