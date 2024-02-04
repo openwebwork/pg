@@ -196,6 +196,10 @@ C<reduceFractions> is set to 0.  The C<reduce()> method will reduce a
 fraction to lowest terms, and the C<isReduced()> method returns true when
 the fraction is reduced and false otherwise.
 
+Fraction objects also have the C<num> and C<den> methods to return the
+numerator and denominator. Note that these will be the unreduced numerator
+and denominator when the C<reduceFractions> is set to 0.
+
 If you wish to convert a fraction to its numeric (real number) form,
 use the C<Real()> constructor to coerce it to a real.  E.g.,
 
@@ -907,6 +911,14 @@ sub isReduced {
 	my $self = shift;
 	my (($a, $b), ($c, $d)) = ($self->value, $self->reduce->value);
 	return $a == $c && $b == $d;
+}
+
+sub num {
+	return (shift->value)[0];
+}
+
+sub den {
+	return (shift->value)[1];
 }
 
 ##################################################
