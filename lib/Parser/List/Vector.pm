@@ -22,10 +22,9 @@ sub _check {
 			$type = (($type =~ m/^[aeiou]/i) ? "an " : "a ") . $type;
 			$self->{equation}->Error([ "Coordinates of Vectors must be Numbers, not %s", $type ]);
 		}
-		if ($self->context->flag("requireConstantEntries") && !($x->{isConstant})) {
-			$self->{equation}->Error("Coordinates of Vectors must be constant");
-		}
 	}
+	$self->{equation}->Error("Coordinates of a Vector must be constant")
+		if ($self->context->flag("requireConstantVectors") && !($self->{isConstant}));
 }
 
 sub ijk {
