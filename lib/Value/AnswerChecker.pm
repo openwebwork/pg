@@ -337,6 +337,8 @@ sub cmp_error {
 			. protectHTML(substr($string, $s, $e - $s))
 			. '</SPAN>'
 			. protectHTML(substr($string, $e));
+	} else {
+		$ans->{student_ans} = protectHTML($ans->{student_ans});
 	}
 	$self->cmp_Error($ans, $message);
 }
