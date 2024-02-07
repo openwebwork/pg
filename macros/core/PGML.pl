@@ -939,10 +939,6 @@ sub replaceVariable {
 	my ($result, $error) = PGML::Eval($var);
 	PGML::Warning "Error evaluating variable \$$item->{text}: $error" if $error;
 	$result = "" unless defined $result;
-	if ($block->{type} eq 'math' && Value::isValue($result)) {
-		if   ($block->{parsed}) { $result = $result->string }
-		else                    { $result = '{' . $result->TeX . '}' }
-	}
 	if (Value::isValue($result)) {
 		$result = ($block->{type} eq 'math' && !$block->{parsed} ? '{' . $result->TeX . '}' : $result->string);
 	}
