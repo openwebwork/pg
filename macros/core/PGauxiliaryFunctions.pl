@@ -37,6 +37,7 @@ This macro creates the following functions that are available for PG:
     random_pairwise_coprime($ar1, $ar2, ... )
     random_coprime($ar1, $ar2, ... )
     random_subset($n, @set)
+    repeated(@list)
 =cut
 
 # ^uses loadMacros
@@ -553,6 +554,33 @@ sub random_subset {
 		push(@out, splice(@set, random(0, $#set, 1), 1));
 	}
 	return wantarray ? @out : \@out;
+}
+
+=head2 repeated function
+
+Usage: C<repeated(@list)>
+
+This function returns a list of every repeated elements in @list. Comparison is made
+using ==, so two elements may be considered 'repeated' even when they are not literally
+equal.
+
+Note that the function will return () if there are no repeated elements, which
+is false as a boolean. So !repeated(@list) is a way to check if the list has no repeated
+values.
+
+Also note that generally if two items are equivalent, both will be in the returned list.
+However occasionally with MathObjects, x == y is true while y == x is false, and then
+only x (the one that makes the relation true when it is on the left) will be included
+in the returned list.
+
+=cut
+
+sub repeated {
+	my @return;
+	for my $x (@_) {
+		push(@return,$x)  if (grep { $_ == $x } (@_)) > 1;
+	}
+	return @return;
 }
 
 # return 1 so that this file can be included with require
