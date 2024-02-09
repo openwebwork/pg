@@ -19,9 +19,7 @@ Numerical methods for the PG language
 
 =cut
 
-BEGIN {
-	be_strict();
-}
+BEGIN { strict->import; }
 
 sub _PGnumericalmacros_init { }
 
