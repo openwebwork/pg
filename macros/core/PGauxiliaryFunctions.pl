@@ -578,7 +578,7 @@ in the returned list.
 sub repeated {
 	my @return;
 	for my $x (@_) {
-		push(@return,$x)  if (grep { $_ == $x } (@_)) > 1;
+		push(@return, $x) if (grep { $_ == $x } (@_)) > 1;
 	}
 	return @return;
 }
