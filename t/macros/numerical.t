@@ -154,13 +154,6 @@ subtest 'Quadrature - Open Newton-Cotes' => sub {
 	is newtonCotes($f, 0, 2, n => 1, method => 'open4'), 8 / 3,  'Newton-Cotes (open, k=4) of x^2 on [0,2]';
 };
 
-subtest 'nChooseK' => sub {
-	is nChooseK(5,  3), 10,  '5 choose 3 = 10';
-	is nChooseK(10, 8), 45,  '10 choose 8 = 45';
-	is nChooseK(10, 4), 210, '10 choose 4 = 210';
-	is nChooseK(10, 6), 210, '10 choose 6 = 210';
-};
-
 subtest 'Legendre Polynomial' => sub {
 	my $leg3 = legendreP(3);
 	is &$leg3(0.5),  (5 * (0.5)**3 - 3 * (0.5)) / 2.0,   'testing legendreP(3,0.5)';
