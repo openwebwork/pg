@@ -423,7 +423,22 @@ sub cmp {
 				my $contents = $selected->first->parent->at('div.radio-content[data-radio]');
 				if ($contents) {
 					my $partNames = JSON->new->decode($contents->attr('data-part-names'));
-					push(@$selected, $contents->at(qq{[name="$_"]})) for (@$partNames);
+					for (@$partNames) {
+						my $ansRules = $contents->find(qq{[name="$_"]});
+						if (@$ansRules > 1) {
+							# IF there is more than one input with this name, then this is a radio or checkbox answer
+							# group.  So only add the feedback class to the checked inputs if any are checked.
+							# Otherwise add the feedback class to all of them.
+							my $selectedParts = $ansRules->grep(sub { exists $_->attr->{checked} });
+							if (@$selectedParts > 0) {
+								push(@$selected, @$selectedParts);
+							} else {
+								push(@$selected, @$ansRules);
+							}
+						} else {
+							push(@$selected, @$ansRules);
+						}
+					}
 					$options->{feedbackElements} = $selected;
 				}
 			} else {
