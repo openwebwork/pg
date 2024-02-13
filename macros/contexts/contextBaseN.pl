@@ -64,7 +64,7 @@ Then one can use the digits 'T' and 'E' in a number like:
 
     Compute('9TE');
 
-A few strings can be passed with preset meanings:
+A few strings can be passed to the C<setBase> method with preset meanings:
 
     C<binary> for [0,1]
     C<octal> for [0 .. 7]
@@ -209,7 +209,7 @@ sub setBase {
 	$base = [ 0, 1 ]                                     if ($base eq 'binary');
 	$base = [ 0 .. 7 ]                                   if ($base eq 'octal');
 	$base = [ 0 .. 9 ]                                   if ($base eq 'decimal');
-	$base = [ 0 .. 9, '2', 'B' ]                         if ($base eq 'duodecimal');
+	$base = [ 0 .. 9, 'A', 'B' ]                         if ($base eq 'duodecimal');
 	$base = [ 0 .. 9, 'A' .. 'F' ]                       if ($base eq 'hexadecimal');
 	$base = [ 'A' .. 'Z', 'a' .. 'z', 0 .. 9, '_', '?' ] if ($base eq 'base64');
 

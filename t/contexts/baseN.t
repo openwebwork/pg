@@ -170,4 +170,40 @@ subtest 'Test with different set of digits' => sub {
 
 };
 
+subtest 'Test for using named bases' => sub {
+	Context('BaseN')->setBase('binary');
+	my $a1 = Compute('100101');
+	is $a1->value, 37, "check base => 'binary'";
+
+	Context()->setBase('octal');
+	my $a2 = Compute('367');
+	is $a2->value, 247, "check base => 'octal'";
+
+	Context()->setBase('decimal');
+	my $a3 = Compute('459');
+	is $a3->value, 459, "check base => 'decimal'";
+
+	Context()->setBase('duodecimal');
+	my $a4 = Compute('A91');
+	is $a4->value, 1549, "check base => 'duodecimal'";
+
+	Context()->setBase('hexadecimal');
+	my $a5 = Compute('3CB');
+	is $a5->value, 971, "check base => 'hexadecimal'";
+
+	Context()->setBase('base64');
+	my $a6 = Compute('Z_');
+	is $a6->value, 1662, "check base => 'decimal'";
+};
+
+subtest 'Test modulo operator' => sub {
+	Context('BaseN')->setBase('binary');
+	my $a1 = Compute('100101 % 11');
+	is $a1->value, 1, 'check binary modulo 100101 % 11';
+
+	Context()->setBase('octal');
+	my $a2 = Compute('347 % 14');
+	is $a2->value, 3, 'check octal modulo 347 % 14';
+};
+
 done_testing();
