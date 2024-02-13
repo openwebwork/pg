@@ -20,13 +20,13 @@ To use a non-decimal base MathObject, first load the contextNondecimalBase.pl fi
 
     loadMacros('contextNondecimalBase.pl');
 
-There are two contexts: C<NondecimalBase> and C<LimiitedNondecimalBase>, where the former
-allows operations between numbers and the latter only allows numbers. To use either
-first, one must set the base.  For example:
+There are two contexts: C<NondecimalBase> and C<LimitedNondecimalBase>, where the former
+allows operations between numbers and the latter only allows numbers. To use either,
+one must set the base.  For example:
 
     Context('NondecimalBase')->setBase(5);
 
-will now interpret those in Compute and student answers in base 5.
+Now most numerical strings in Compute, Formula, and student answers will be read in base five.
 
     $a = Compute('104');
     $b = Compute('233');
@@ -35,6 +35,18 @@ will now interpret those in Compute and student answers in base 5.
 or a shorter way:
 
     $sum = Compute('104+233');
+
+Also, when a string is the argument to some other Math Object and that string needs to
+be parsed, numerical substrings will be read in base 5:
+
+    $point = Point('(104, 233)');  # this is (29, 68) in base ten
+
+For Math Object constructors that directly accept a number or numbers as arguments,
+the numbers will be read in base ten. All of the following should be read in base ten:
+
+    $r = Real(29);
+    $r = Real('68');
+    $p = Point(29, 68);
 
 For many problems, one may wish to not allow operators in the student answers.  Use
 'LimitedNondecimalBase' for this.
@@ -46,7 +58,7 @@ In both 'NondecimalBase' and 'LimitedNondecimalBase', another option is to pass 
 digits used for the number to the C<setBase> method.  For example, if one wants to use base-12
 and use the alternative digits 0..9,'T','E', then
 
-    Context('NondecimalBase')->setBase([0..9,'T','E']);
+    Context('NondecimalBase')->setBase([0 .. 9, 'T', 'E']);
 
 Then one can use the digits 'T' and 'E' in a number like:
 
@@ -54,7 +66,10 @@ Then one can use the digits 'T' and 'E' in a number like:
 
 =head2 Sample PG problem
 
-A simple PG problem that asks a student to convert a number into base-5 may include:
+A simple PG problem that asks a student to convert a number into base-5:
+
+    DOCUMENT();
+    loadMacros(qw(PGstandard.pl PGML.pl contextNondecimalBase.pl));
 
     Context('LimitedNondecimalBase')->setBase(5);
 
@@ -99,8 +114,8 @@ in C<opts>.  The input C<value> is a positive number or string version of a posi
 
 =item * C<to> the base that C<value> is to be converted to.
 
-=item * C<digits> the digits to be used for the conversion.  The default is 0..9, 'A'.. 'E'
-up through hexadecimal.
+=item * C<digits> the digits to be used for the conversion.  The default is 0..9,'A'..'E', which supports up
+through hexadecimal.
 
 =back
 
@@ -124,7 +139,7 @@ Both C<to> and C<from> can be used together.
 
 If one wants to use a different set of digits, say 0..9, 'T', 'E' for base-12 as an example
 
-    convertBase(565, to => [0..9,'T','E']);  # returns '3E1'
+    convertBase(565, to => [0 .. 9, 'T', 'E']);  # returns '3E1'
 
 =cut
 
