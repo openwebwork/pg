@@ -840,7 +840,7 @@ depending on the status of the answer and the type of submission.
 =item *
 
 C<btnAddClass>: This is a string containing additional space separated CSS
-classes to add to the feedback button. This is "ms-1" by default. Macros can
+classes to add to the feedback button. This is "ms-2" by default. Macros can
 change this to affect positioning of the button. This generally should not be
 used to change the appearance of the button.
 
@@ -1037,7 +1037,7 @@ sub ENDDOCUMENT {
 					resultTitle      => maketext('Answer Preview'),
 					resultClass      => '',
 					btnClass         => 'btn-info',
-					btnAddClass      => 'ms-1',
+					btnAddClass      => 'ms-2',
 					feedbackElements => Mojo::Collection->new,
 					insertElement    => undef,
 					insertMethod     => 'append',    # Can be append, append_content, prepend, or prepend_content.

@@ -137,7 +137,7 @@
 			// Find the preview button container, and add the equation editor button to that.
 			const buttonContainer = document.getElementById(`${answerLabel}-latexentry-button-container`);
 			if (buttonContainer) {
-				buttonContainer.classList.add('d-flex', 'gap-1');
+				buttonContainer.classList.add('d-flex', 'gap-2');
 				buttonContainer.prepend(button);
 				innerContainer.append(buttonContainer);
 			} else {
@@ -146,7 +146,7 @@
 
 			// Create a collapse to hold the editor.
 			const collapse = document.createElement('div');
-			collapse.classList.add('collapse', 'mt-1');
+			collapse.classList.add('collapse', 'mt-2');
 			collapse.id = `${answerLabel}-equation-editor`;
 
 			let blinkInterval;
@@ -221,7 +221,7 @@
 				'pt-0',
 				'pb-2',
 				'px-2',
-				'gap-1',
+				'gap-2',
 				'bg-white',
 				'border-top-0'
 			);
