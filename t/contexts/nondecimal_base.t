@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 
-=head1 NondecimalBase context
+=head1 BaseN context
 
-Test the functionality for the NondecimalBase context.
+Test the functionality for the BaseN context.
 
 =cut
 
@@ -13,13 +13,13 @@ do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
 use lib "$ENV{PG_ROOT}/lib";
 
-loadMacros('PGstandard.pl', 'MathObjects.pl', 'contextNondecimalBase.pl');
+loadMacros('PGstandard.pl', 'MathObjects.pl', 'contextBaseN.pl');
 
 use Value;
 require Parser::Legacy;
 import Parser::Legacy;
 
-Context('NondecimalBase');
+Context('BaseN');
 
 subtest 'conversion from a non-decimal base to base 10' => sub {
 	is convertBase('101010', from => 2),                        42,    'convert from base 2';
@@ -55,7 +55,7 @@ subtest 'Convert between two non-decimal bases' => sub {
 };
 
 # Now test the Context.
-Context('NondecimalBase')->setBase(5);
+Context('BaseN')->setBase(5);
 
 subtest 'Check that the Context parses number correct' => sub {
 	is Context()->{base},   5,          'Check that the base is stored.';
@@ -136,7 +136,7 @@ subtest 'Use alternative digits' => sub {
 };
 
 subtest 'check for other errors' => sub {
-	Context('NondecimalBase');
+	Context('BaseN');
 	like dies { Compute('1234') }, qr/The base must be set for this context/,
 		'Check that there is a error if the base is not set.';
 
@@ -146,8 +146,8 @@ subtest 'check for other errors' => sub {
 		'Check that there is a digit list for large bases';
 };
 
-subtest 'Check the LimitedNondecimalBase features' => sub {
-	Context('LimitedNondecimalBase')->setBase(5);
+subtest 'Check the LimitedBaseN features' => sub {
+	Context('LimitedBaseN')->setBase(5);
 
 	like dies { Compute("104+320"); }, qr/Can't use '\+' in this context/, "Check that '+' is not allowed.";
 	like dies { Compute("320-104"); }, qr/Can't use '\-' in this context/, "Check that '-' is not allowed.";
@@ -159,7 +159,7 @@ subtest 'Check the LimitedNondecimalBase features' => sub {
 };
 
 subtest 'Test with different set of digits' => sub {
-	Context('NondecimalBase')->setBase([ 0 .. 9, 'B', 'D' ]);
+	Context('BaseN')->setBase([ 0 .. 9, 'B', 'D' ]);
 
 	ok my $a1 = Compute("3BD"), "Create '3BD' in base-12 with B=10, D=11";
 	is $a1->value, 563, "'3BD'=563 in base-12 with B=10, D=11";

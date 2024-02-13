@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-contextNonDecimalBase.pl - Implements a MathObject class and context for numbers
+contextBaseN.pl - Implements a MathObject class and context for numbers
 in non-decimal bases
 
 =head1 DESCRIPTION
@@ -16,15 +16,15 @@ Division is defined in an integer sense.
 The original purpose for this is simple conversion and operations in another base, however
 it is not limited to this.
 
-To use a non-decimal base MathObject, first load the contextNondecimalBase.pl file:
+To use a non-decimal base MathObject, first load the contextBaseN.pl file:
 
-    loadMacros('contextNondecimalBase.pl');
+    loadMacros('contextBaseN.pl');
 
-There are two contexts: C<NondecimalBase> and C<LimitedNondecimalBase>, where the former
+There are two contexts: C<BaseN> and C<LimitedBaseN>, where the former
 allows operations between numbers and the latter only allows numbers. To use either,
 one must set the base.  For example:
 
-    Context('NondecimalBase')->setBase(5);
+    Context('BaseN')->setBase(5);
 
 Now most numerical strings in Compute, Formula, and student answers will be read in base five.
 
@@ -49,16 +49,16 @@ the numbers will be read in base ten. All of the following should be read in bas
     $p = Point(29, 68);
 
 For many problems, one may wish to not allow operators in the student answers.  Use
-'LimitedNondecimalBase' for this.
+'LimitedBaseN' for this.
 
-    Context('LimitedNondecimalBase')->setBase(5);
+    Context('LimitedBaseN')->setBase(5);
     $sum = Compute("104+233"); # There will be an error on this line now.
 
-In both 'NondecimalBase' and 'LimitedNondecimalBase', another option is to pass the
+In both contexts, rather than pass the base as a number, another option is to pass the
 digits used for the number to the C<setBase> method.  For example, if one wants to use base-12
 and use the alternative digits 0..9,'T','E', then
 
-    Context('NondecimalBase')->setBase([0 .. 9, 'T', 'E']);
+    Context('BaseN')->setBase([0 .. 9, 'T', 'E']);
 
 Then one can use the digits 'T' and 'E' in a number like:
 
@@ -80,9 +80,9 @@ The last two digits for C<base64> are nonstandard. We want to avoid '+' and '/' 
 A simple PG problem that asks a student to convert a number into base-5:
 
     DOCUMENT();
-    loadMacros(qw(PGstandard.pl PGML.pl contextNondecimalBase.pl));
+    loadMacros(qw(PGstandard.pl PGML.pl contextBaseN.pl));
 
-    Context('LimitedNondecimalBase')->setBase(5);
+    Context('LimitedBaseN')->setBase(5);
 
     # decimal number picked randomly.
     $a = random(130,500);
@@ -96,18 +96,18 @@ A simple PG problem that asks a student to convert a number into base-5:
 
 =cut
 
-sub _contextNondecimalBase_init {
-	context::NondecimalBase::Init(@_);
-	sub convertBase { context::NondecimalBase::convert(@_); }
+sub _contextBaseN_init {
+	context::BaseN::Init(@_);
+	sub convertBase { context::BaseN::convert(@_); }
 }
 
-package context::NondecimalBase;
+package context::BaseN;
 
-# Define the contexts 'NondecimalBase' and 'LimitedNondecimalBase'
+# Define the contexts 'BaseN' and 'LimitedBaseN'
 sub Init {
-	my $context = $main::context{NondecimalBase} = context::NondecimalBase::Context->new();
-	$context         = $main::context{LimitedNondecimalBase} = $context->copy;
-	$context->{name} = 'LimitedNondecimalBase';
+	my $context = $main::context{BaseN} = context::BaseN::Context->new();
+	$context         = $main::context{LimitedBaseN} = $context->copy;
+	$context->{name} = 'LimitedBaseN';
 	$context->operators->undefine($context->operators->names);
 	$context->parens->undefine('|', '{', '[');
 }
@@ -158,7 +158,7 @@ sub convert {
 	my $from = $options{'from'} // 10;
 	my $to   = $options{'to'}   // 10;
 
-	$convertContext = $main::context{NondecimalBase}->copy unless $convertContext;
+	$convertContext = $main::context{BaseN}->copy unless $convertContext;
 	if ($from != 10) {
 		$convertContext->setBase($from);
 		$value = $convertContext->fromBase($value);
@@ -170,31 +170,31 @@ sub convert {
 	return $value;
 }
 
-package context::NondecimalBase::Context;
+package context::BaseN::Context;
 our @ISA = ('Parser::Context');
 
-# Create a Context based on Numeric (Real) that allows +, -, *, / and ^ on nondecimal numbers.
+# Create a Context based on Numeric that allows +, -, *, /, %, and ^ on BaseN integers.
 
 sub new {
 	my $self    = shift;
 	my $class   = ref($self) || $self;
 	my $context = bless Parser::Context->getCopy('Numeric'), $class;
-	$context->{name}           = 'NondecimalBase';
-	$context->{parser}{Number} = 'context::NondecimalBase::Number';
-	$context->{value}{Real}    = 'context::NondecimalBase::Real';
+	$context->{name}           = 'BaseN';
+	$context->{parser}{Number} = 'context::BaseN::Number';
+	$context->{value}{Real}    = 'context::BaseN::Real';
 	$context->functions->disable('All');
 	$context->constants->clear();
-	$context->{pattern}{number}            = '[' . join('', 0 .. 9, 'A' .. 'Z') . ']+';
-	$context->{precedence}{NondecimalBase} = $context->{precedence}{special};
+	$context->{pattern}{number}   = '[' . join('', 0 .. 9, 'A' .. 'Z') . ']+';
+	$context->{precedence}{BaseN} = $context->{precedence}{special};
 	$context->flags->set(limits => [ -1000, 1000, 1 ]);
 	$context->operators->add(
 		'%' => {
-			class => 'context::NondecimalBase::BOP::modulo',
-			precedence => 3,
+			class         => 'context::BaseN::BOP::modulo',
+			precedence    => 3,
 			associativity => 'left',
-			type => 'bin',
-			string => ' % ',
-			TeX => '\mathbin{\%}',
+			type          => 'bin',
+			string        => ' % ',
+			TeX           => '\mathbin{\%}',
 		}
 	);
 	return $context;
@@ -206,12 +206,12 @@ sub setBase {
 	my ($self, $base) = @_;
 	my $digits;
 
-	$base = [0, 1] if ($base eq 'binary');
-	$base = [0 .. 7] if ($base eq 'octal');
-	$base = [0 .. 9] if ($base eq 'decimal');
-	$base = [0 .. 9, '2', 'B'] if ($base eq 'duodecimal');
-	$base = [0 .. 9, 'A' .. 'F'] if ($base eq 'hexadecimal');
-	$base = ['A' .. 'Z', 'a' .. 'z', 0 .. 9, '_', '?'] if ($base eq 'base64');
+	$base = [ 0, 1 ]                                     if ($base eq 'binary');
+	$base = [ 0 .. 7 ]                                   if ($base eq 'octal');
+	$base = [ 0 .. 9 ]                                   if ($base eq 'decimal');
+	$base = [ 0 .. 9, '2', 'B' ]                         if ($base eq 'duodecimal');
+	$base = [ 0 .. 9, 'A' .. 'F' ]                       if ($base eq 'hexadecimal');
+	$base = [ 'A' .. 'Z', 'a' .. 'z', 0 .. 9, '_', '?' ] if ($base eq 'base64');
 
 	if (ref($base) eq 'ARRAY') {
 		$digits = $base;
@@ -277,7 +277,7 @@ sub fromBase {
 
 # A replacement for Parser::Number that accepts numbers in a non-decimal base and
 # converts them to decimal for internal use
-package context::NondecimalBase::Number;
+package context::BaseN::Number;
 our @ISA = ('Parser::Number');
 
 # Create a new number in the given base and convert to base 10.
@@ -297,7 +297,7 @@ sub eval {
 }
 
 # Modulo operator
-package context::NondecimalBase::BOP::modulo;
+package context::BaseN::BOP::modulo;
 our @ISA = ('Parser::BOP::divide');
 
 #
@@ -305,9 +305,8 @@ our @ISA = ('Parser::BOP::divide');
 #
 sub _eval { $_[1] % $_[2] }
 
-
 #  A replacement for Value::Real that handles non-decimal integers
-package context::NondecimalBase::Real;
+package context::BaseN::Real;
 our @ISA = ('Value::Real');
 
 #  Stringify and TeXify the number in the context's base
