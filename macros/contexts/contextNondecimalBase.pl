@@ -187,6 +187,16 @@ sub new {
 	$context->{pattern}{number}            = '[' . join('', 0 .. 9, 'A' .. 'Z') . ']+';
 	$context->{precedence}{NondecimalBase} = $context->{precedence}{special};
 	$context->flags->set(limits => [ -1000, 1000, 1 ]);
+	$context->operators->add(
+		'%' => {
+			class => 'context::NondecimalBase::BOP::modulo',
+			precedence => 3,
+			associativity => 'left',
+			type => 'bin',
+			string => ' % ',
+			TeX => '\mathbin{\%}',
+		}
+	);
 	return $context;
 }
 
@@ -285,6 +295,16 @@ sub eval {
 	$self = shift;
 	return $self->Package('Real')->make($self->context, $self->{value});
 }
+
+# Modulo operator
+package context::NondecimalBase::BOP::modulo;
+our @ISA = ('Parser::BOP::divide');
+
+#
+#  Do the division.
+#
+sub _eval { $_[1] % $_[2] }
+
 
 #  A replacement for Value::Real that handles non-decimal integers
 package context::NondecimalBase::Real;
