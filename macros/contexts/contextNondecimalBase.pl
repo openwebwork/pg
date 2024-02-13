@@ -64,6 +64,17 @@ Then one can use the digits 'T' and 'E' in a number like:
 
     Compute('9TE');
 
+A few strings can be passed with preset meanings:
+
+    C<binary> for [0,1]
+    C<octal> for [0 .. 7]
+    C<decimal> for [0 .. 9]
+    C<duodecimal> for [0 .. 9, 'A', 'B']
+    C<hexadecimal> for [0 .. 9, 'A' .. 'F']
+    C<base64> for ['A' .. 'Z', 'a' .. 'z', 0 .. 9, '_', '?']
+
+The last two digits for C<base64> are nonstandard. We want to avoid '+' and '/' here as they have arithmetic meaning.
+
 =head2 Sample PG problem
 
 A simple PG problem that asks a student to convert a number into base-5:
@@ -110,12 +121,9 @@ in C<opts>.  The input C<value> is a positive number or string version of a posi
 
 =over
 
-=item * C<from> the base that C<value> is in.  Defaults to 10.
+=item * C<from> the base that C<value> is in.  Default is 10.  Can take the same values as C<setBase>.
 
-=item * C<to> the base that C<value> is to be converted to.
-
-=item * C<digits> the digits to be used for the conversion.  The default is 0..9,'A'..'E', which supports up
-through hexadecimal.
+=item * C<to> the base that C<value> will be converted to.  Default is 10.  Can take the same values as C<setBase>.
 
 =back
 
@@ -182,10 +190,18 @@ sub new {
 	return $context;
 }
 
-# set the base of the context.  Either base a number >=2 or an arrayref of digits.
+# set the base of the context.  Either an integer that is at least 2, an arrayref of digits,
+# or a preset: 'binary', 'octal', 'decimal', 'duodecimal', 'hexadecimal', or 'base64'.
 sub setBase {
 	my ($self, $base) = @_;
 	my $digits;
+
+	$base = [0, 1] if ($base eq 'binary');
+	$base = [0 .. 7] if ($base eq 'octal');
+	$base = [0 .. 9] if ($base eq 'decimal');
+	$base = [0 .. 9, '2', 'B'] if ($base eq 'duodecimal');
+	$base = [0 .. 9, 'A' .. 'F'] if ($base eq 'hexadecimal');
+	$base = ['A' .. 'Z', 'a' .. 'z', 0 .. 9, '_', '?'] if ($base eq 'base64');
 
 	if (ref($base) eq 'ARRAY') {
 		$digits = $base;
