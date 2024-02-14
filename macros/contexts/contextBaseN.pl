@@ -10,7 +10,7 @@ This context implements positive integers and some operations on integers in a n
 greater than or equal to 2.  The numbers will be stored internally in decimal, though parsed
 and shown in the chosen base.
 
-In addition, basic integer arithemetic (+,-,*,/,^) are available for these numbers.
+In addition, basic integer arithemetic (+,-,*,/,%,^) are available for these numbers.
 Division is defined in an integer sense.
 
 The original purpose for this is simple conversion and operations in another base, however
@@ -91,9 +91,11 @@ A simple PG problem that asks a student to convert a number into base-5:
     BEGIN_PGML
     Convert [$a] to base-5:
 
-    [$a] = [__]{$a_5}[`_5`]
+    [$a] = [__]*{$a_5}
     END_PGML
+    ENDDOCUMENT();
 
+The star variant answer blank will print the base in subscript after the answer blank.
 =cut
 
 sub _contextBaseN_init {
@@ -318,6 +320,11 @@ sub string {
 sub TeX {
 	my $self = shift;
 	return '\text{' . $self->string . '}';
+}
+
+sub ans_array {
+	my $self = shift;
+	return $self->ans_rule(@_) . main::math_ev3('_{' . $self->context->{base} . '}');
 }
 
 # Define division as integer division.
