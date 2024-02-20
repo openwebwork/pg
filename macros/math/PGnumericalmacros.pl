@@ -17,7 +17,13 @@
 
 Numerical methods for the PG language
 
-=head2 Interpolation  methods
+=cut
+
+BEGIN { strict->import; }
+
+sub _PGnumericalmacros_init { }
+
+=head2 Interpolation methods
 
 =head3 Plotting a list of points (piecewise linear interpolation)
 
@@ -30,13 +36,9 @@ Usage:
     plot_list([x0,x1,x2...], [y0,y1,y2,...]);
     plot_list(\@xarray,\@yarray);
 
-
+It is important that the x values in any form are unique or this method fails.  There is no
+check for this however.
 =cut
-
-BEGIN { strict->import; }
-
-sub _PGnumericalmacros_init {
-}
 
 sub plot_list {
 	my ($xref, $yref) = @_;
@@ -50,10 +52,7 @@ sub plot_list {
 	}
 	my (@x_vals, @y_vals);
 	unless (defined($yref)) {    #with only one entry we assume (x0,y0,x1,y1..);
-		if (@$xref % 2 == 1) {
-			die "ERROR in plot_list -- single array of input has odd number of
-        	elements";
-		}
+		die "ERROR in plot_list -- single array of input has odd number of elements" if (@$xref % 2 == 1);
 
 		my @in = @$xref;
 		while (@in) {
@@ -64,48 +63,53 @@ sub plot_list {
 		$yref = \@y_vals;
 	}
 
-	my $fun = sub {
+	return sub {
 		my $x = shift;
-		my $y;
-		my ($x0, $x1, $y0, $y1);
+		my ($y, $x0, $x1, $y0, $y1);
 		my @x_values = @$xref;
 		my @y_values = @$yref;
-		while ((@x_values and $x > $x_values[0])
-			or (@x_values > 0 and $x >= $x_values[0]))
-		{
+		while ((@x_values and $x > $x_values[0]) || (@x_values > 0 and $x >= $x_values[0])) {
 			$x0 = shift(@x_values);
 			$y0 = shift(@y_values);
 		}
-		# now that we have the left hand of the input
-		#check first that x isn't out of range to the left or right
+		# Now that we have the left hand of the input, check first that x isn't out of range to the left or right
 		if (@x_values && defined($x0)) {
 			$x1 = shift(@x_values);
 			$y1 = shift(@y_values);
 			$y  = $y0 + ($y1 - $y0) * ($x - $x0) / ($x1 - $x0);
 		}
-		$y;
+		return $y;
 	};
-	$fun;
 }
 
-=head2 Horner polynomial/ Newton polynomial
+=head3 Horner polynomial/ Newton polynomial
 
 Usage:
 
-    $fn = horner([x0,x1,x2],[q0,q1,q2]);
+    $fn = horner([x0,x1,x2, ...],[q0,q1,q2, ...]);
 
 Produces the newton polynomial
 
-    &$fn(x) = q0 + q1*(x-x0) +q2*(x-x1)*(x-x0);
+    &$fn(x) = q0 + q1*(x-x0) +q2*(x-x1)*(x-x0) + ...;
 
-Generates a subroutine which evaluates a polynomial passing through the points C<(x0,q0), (x1,q1),
-... > using Horner's method.
+Generates a subroutine which evaluates a polynomial passing through the points
+C<(x0,q0), (x1,q1), (x2, q2)>, ... using Horner's method.
+
+The array refs for C<x> and C<q> can be any length but must be the same length.
+
+=head4 Example
+
+    $h = horner([0,1,2],[1,-1,2]);
+
+Then C<&$h(num)> returns the polynomial at the value C<num>.  For example,
+C<&$h(1.5)=1>.
 
 =cut
 
 sub horner {
 	my ($xref, $qref) = @_;    # get the coefficients
-	my $fn = sub {
+	die 'The x inputs and q inputs must be the same length' unless scalar(@$xref) == scalar(@$qref);
+	return sub {
 		my $x     = shift;
 		my @xvals = @$xref;
 		my @qvals = @$qref;
@@ -114,16 +118,15 @@ sub horner {
 		while (@qvals) {
 			$y = $y * ($x - pop(@xvals)) + pop(@qvals);
 		}
-		$y;
+		return $y;
 	};
-	$fn;
 }
 
-=head2 Hermite polynomials
+=head3 Hermite polynomials
 
 Usage:
 
-    $poly = hermit([x0,x1...],[y0,y1...],[yp0,yp1,...]);
+    $poly = hermite([x0,x1...],[y0,y1...],[yp0,yp1,...]);
 
 Produces a reference to polynomial function with the specified values and first derivatives
 at (x0,x1,...). C<&$poly(34)> gives a number
@@ -133,14 +136,23 @@ with the specified derivatives: (x0,y0,yp0) ...
 The polynomial will be of high degree and may wobble unexpectedly.  Use the Hermite splines
 described below and in Hermite.pm for  most graphing purposes.
 
+=head4 Example
+
+    $h = hermite([0,1],[0,0],[1,-1]);
+
+C<&$h(num)> will evaluate the hermite polynomial at C<num>.  For example, C<&$h(0.5)>
+returns C<0.25>.
+
 =cut
 
 sub hermite {
 	my ($x_ref, $y_ref, $yp_ref) = @_;
+	die 'The input array refs all must be the same length'
+		unless scalar(@$x_ref) == scalar(@$y_ref) && scalar(@$y_ref) == scalar(@$yp_ref);
 	my (@zvals, @qvals);
 	my $n = $#{$x_ref};
-	my $i = 0;
-	foreach $i (0 .. $n) {
+
+	for my $i (0 .. $n) {
 		$zvals[ 2 * $i ]        = $$x_ref[$i];
 		$zvals[ 2 * $i + 1 ]    = $$x_ref[$i];
 		$qvals[ 2 * $i ][0]     = $$y_ref[$i];
@@ -149,22 +161,22 @@ sub hermite {
 		$qvals[ 2 * $i ][1] =
 			($qvals[ 2 * $i ][0] - $qvals[ 2 * $i - 1 ][0]) / ($zvals[ 2 * $i ] - $zvals[ 2 * $i - 1 ])
 			unless $i == 0;
-
 	}
-	my $j;
-	foreach $i (2 .. (2 * $n + 1)) {
-		foreach $j (2 .. $i) {
+
+	for my $i (2 .. (2 * $n + 1)) {
+		for my $j (2 .. $i) {
 			$qvals[$i][$j] = ($qvals[$i][ $j - 1 ] - $qvals[ $i - 1 ][ $j - 1 ]) / ($zvals[$i] - $zvals[ $i - $j ]);
 		}
 	}
+
 	my @output;
-	foreach $i (0 .. 2 * $n + 1) {
+	for my $i (0 .. 2 * $n + 1) {
 		push(@output, $qvals[$i][$i]);
 	}
-	horner(\@zvals, \@output);
+	return horner(\@zvals, \@output);
 }
 
-=head2 Hermite splines
+=head3 Hermite splines
 
 Usage
 
@@ -203,30 +215,31 @@ sub hermite_spline {
 		$yp0 = $yp1;
 	}
 
-	my $hermite_spline_sub = sub {
+	return sub {
 		my $x = shift;
 		my $y;
 		my $fun;
 		my @xvals = @$xref;
 		my @fns   = @polys;
-		return $y = &{ $fns[0] }($x) if $x == $xvals[0];    #handle left most endpoint
 
-		while (@xvals && $x > $xvals[0]) {                  # find the function for this range of x
+		# Handle left most endpoint
+		return $y = &{ $fns[0] }($x) if $x == $xvals[0];
+
+		# Find the function for this range of x
+		while (@xvals && $x > $xvals[0]) {
 			shift(@xvals);
 			$fun = shift(@fns);
 		}
 
-		# now that we have the left hand of the input
-		#check first that x isn't out of range to the left or right
+		# Now that we have the left hand of the input, check first that x isn't out of range to the left or right.
 		if (@xvals && defined($fun)) {
 			$y = &$fun($x);
 		}
-		$y;
+		return $y;
 	};
-	$hermite_spline_sub;
 }
 
-=head2 Cubic spline approximation
+=head3 Cubic spline approximation
 
 Usage:
 
@@ -263,7 +276,7 @@ and can be placed in the header of the HTML output using
 sub cubic_spline {
 	my ($t_ref, $y_ref) = @_;
 	my @spline_coeff = create_cubic_spline($t_ref, $y_ref);
-	sub {
+	return sub {
 		my $x = shift;
 		eval_cubic_spline($x, @spline_coeff);
 	}
@@ -274,54 +287,49 @@ sub eval_cubic_spline {
 	#	The knot points given by $t_ref should be in order.
 	my $i   = 0;
 	my $out = 0;
-	while (defined($t_ref->[ $i + 1 ]) && $x > $t_ref->[ $i + 1 ]) {
-
-		$i++;
-	}
+	$i++ while (defined($t_ref->[ $i + 1 ]) && $x > $t_ref->[ $i + 1 ]);
 	unless (defined($t_ref->[$i]) && ($t_ref->[$i] <= $x) && ($x <= $t_ref->[ $i + 1 ])) {
 		$out = undef;
-		# input value is not in the range defined by the function.
 	} else {
-		$out = ($t_ref->[ $i + 1 ] - $x) * (($d_ref->[$i]) + ($a_ref->[$i]) * ($t_ref->[ $i + 1 ] - $x)**2) +
+		# The input value is not in the range defined by the function.
+		$out =
+			($t_ref->[ $i + 1 ] - $x) * (($d_ref->[$i]) + ($a_ref->[$i]) * ($t_ref->[ $i + 1 ] - $x)**2) +
 			($x - $t_ref->[$i]) * (($b_ref->[$i]) * ($x - $t_ref->[$i])**2 + ($c_ref->[$i]));
-
 	}
-	$out;
+	return $out;
 }
 
-##########################################################################
-# Cubic spline algorithm adapted from p319 of Kincaid and Cheney's Numerical Analysis
-##########################################################################
-
+# Cubic spline algorithm adapted from p319 of Kincaid and Cheney's Numerical Analysis.
 sub create_cubic_spline {
 	my ($t_ref, $y_ref) = @_;
 	#	The knot points are given by $t_ref (in order) and the function values by $y_ref
 	my $num = $#{$t_ref};    # number of knots
-	my $i;
+
 	my (@h, @b, @u, @v, @z);
-	foreach $i (0 .. $num - 1) {
+	for my $i (0 .. $num - 1) {
 		$h[$i] = $t_ref->[ $i + 1 ] - $t_ref->[$i];
 		$b[$i] = 6 * ($y_ref->[ $i + 1 ] - $y_ref->[$i]) / $h[$i];
 	}
 	$u[1] = 2 * ($h[0] + $h[1]);
 	$v[1] = $b[1] - $b[0];
-	foreach $i (2 .. $num - 1) {
+	for my $i (2 .. $num - 1) {
 		$u[$i] = 2 * ($h[$i] + $h[ $i - 1 ]) - ($h[ $i - 1 ])**2 / $u[ $i - 1 ];
-		$v[$i] = $b[$i] - $b[ $i - 1 ] - $h[ $i - 1 ] * $v[ $i - 1 ] / $u[ $i - 1 ];
+		$v[$i] =
+			$b[$i] - $b[ $i - 1 ] - $h[ $i - 1 ] * $v[ $i - 1 ] / $u[ $i - 1 ];
 	}
 	$z[$num] = 0;
-	for ($i = $num - 1; $i > 0; $i--) {
+	for (my $i = $num - 1; $i > 0; $i--) {
 		$z[$i] = ($v[$i] - $h[$i] * $z[ $i + 1 ]) / $u[$i];
 	}
 	$z[0] = 0;
 	my ($a_ref, $b_ref, $c_ref, $d_ref);
-	foreach $i (0 .. $num - 1) {
+	for my $i (0 .. $num - 1) {
 		$a_ref->[$i] = $z[$i] / (6 * $h[$i]);
 		$b_ref->[$i] = $z[ $i + 1 ] / (6 * $h[$i]);
 		$c_ref->[$i] = (($y_ref->[ $i + 1 ]) / $h[$i] - $z[ $i + 1 ] * $h[$i] / 6);
 		$d_ref->[$i] = (($y_ref->[$i]) / $h[$i] - $z[$i] * $h[$i] / 6);
 	}
-	($t_ref, $a_ref, $b_ref, $c_ref, $d_ref);
+	return ($t_ref, $a_ref, $b_ref, $c_ref, $d_ref);
 }
 
 sub javaScript_cubic_spline {
@@ -389,7 +397,7 @@ END_OF_JAVA_TEXT
 
 =head2 Numerical Integration methods
 
-=head3 Integration by Left Hand Sum
+=head3 Left Hand Riemann Sum
 
 Usage:
 
@@ -402,24 +410,20 @@ optional and defaults to 30.
 =cut
 
 sub lefthandsum {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
-	assign_option_aliases(\%options, intervals => 'steps',);
-	set_default_options(\%options, steps => 30,);
+	my ($fn_ref, $x0, $x1, %options) = @_;
+	assign_option_aliases(\%options, intervals => 'steps');
+	set_default_options(\%options, steps => 30);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
-	my $i;
-	my $sum = 0;
+	my $sum   = 0;
 
-	foreach $i (0 .. ($steps - 1)) {
-		$sum = $sum + &$fn_ref($x0 + ($i) * $delta);
+	for my $i (0 .. ($steps - 1)) {
+		$sum += &$fn_ref($x0 + $i * $delta);
 	}
-	$sum * $delta;
+	return $sum * $delta;
 }
 
-=head3 Integration by Right Hand Sum
+=head3 Right Hand Riemann Sum
 
 Usage:
 
@@ -432,93 +436,81 @@ is optional and defaults to 30.
 =cut
 
 sub righthandsum {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
-	assign_option_aliases(\%options, intervals => 'steps',);
-	set_default_options(\%options, steps => 30,);
+	my ($fn_ref, $x0, $x1, %options) = @_;
+	assign_option_aliases(\%options, intervals => 'steps');
+	set_default_options(\%options, steps => 30);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
-	my $i;
-	my $sum = 0;
+	my $sum   = 0;
 
-	foreach $i (1 .. ($steps)) {
-		$sum = $sum + &$fn_ref($x0 + ($i) * $delta);
+	for my $i (1 .. $steps) {
+		$sum += &$fn_ref($x0 + $i * $delta);
 	}
-	$sum * $delta;
+	return $sum * $delta;
 }
 
-=head3 Integration by Midpoint rule
+=head3 Midpoint rule
 
 Usage:
 
-    midpoint(function_reference, start, end, steps=>30 );
+    midpoint(function_reference, start, end, steps=>30);
 
-Implements the Midpoint rule using 30 intervals between 'start' and 'end'.
+Implements the Midpoint rule between 'start' and 'end'.
 The first three arguments are required.  The final argument (number of steps)
 is optional and defaults to 30.
 
 =cut
 
 sub midpoint {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
-	assign_option_aliases(\%options, intervals => 'steps',);
-	set_default_options(\%options, steps => 30,);
+	my ($fn_ref, $x0, $x1, %options) = @_;
+	assign_option_aliases(\%options, intervals => 'steps');
+	set_default_options(\%options, steps => 30);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
-	my $i;
-	my $sum = 0;
+	my $sum   = 0;
 
-	foreach $i (0 .. ($steps - 1)) {
-		$sum = $sum + &$fn_ref($x0 + ($i + 1 / 2) * $delta);
+	for my $i (0 .. ($steps - 1)) {
+		$sum += &$fn_ref($x0 + ($i + 1 / 2) * $delta);
 	}
-	$sum * $delta;
+	return $sum * $delta;
 }
 
-=head3 Integration by Simpson's rule
+=head3 Simpson's rule
 
-    Usage:  simpson(function_reference, start, end, steps=>30 );
+Usage:
 
-Implements Simpson's rule using 30 intervals between 'start' and 'end'.
+    simpson(function_reference, start, end, steps=>30 );
+
+Implements Simpson's rule between 'start' and 'end'.
 The first three arguments are required.  The final argument (number of steps) is
 optional and defaults to 30, but must be even.
 
 =cut
 
 sub simpson {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
-	assign_option_aliases(\%options, intervals => 'steps',);
-	set_default_options(\%options, steps => 30,);
+	my ($fn_ref, $x0, $x1, %options) = @_;
+	assign_option_aliases(\%options, intervals => 'steps');
+	set_default_options(\%options, steps => 30);
 	my $steps = $options{steps};
-	unless ($steps % 2 == 0) {
-		die "Error: Simpson's rule requires an even number of steps.";
-	}
+	die "Error: Simpson's rule requires an even number of steps." unless $steps % 2 == 0;
 
 	my $delta = ($x1 - $x0) / $steps;
-	my $i;
-	my $sum = 0;
-	for ($i = 1; $i < $steps; $i = $i + 2) {    # look this up - loop by two.
-		$sum = $sum + 4 * &$fn_ref($x0 + $i * $delta);
+	my $sum   = 0;
+	for (my $i = 1; $i < $steps; $i = $i + 2) {    # look this up - loop by two.
+		$sum += 4 * &$fn_ref($x0 + $i * $delta);
 	}
-	for ($i = 2; $i < $steps - 1; $i = $i + 2) {    # ditto
-		$sum = $sum + 2 * &$fn_ref($x0 + $i * $delta);
+	for (my $i = 2; $i < $steps - 1; $i = $i + 2) {    # ditto
+		$sum += 2 * &$fn_ref($x0 + $i * $delta);
 	}
-	$sum = $sum + &$fn_ref($x0) + &$fn_ref($x1);
-	$sum * $delta / 3;
+	$sum += &$fn_ref($x0) + &$fn_ref($x1);
+	return $sum * $delta / 3;
 }
 
-=head3 Integration by trapezoid rule
+=head3 trapezoid rule
 
 Usage:
 
-    trapezoid(function_reference, start, end, steps=>30 );
+    trapezoid(function_reference, start, end, steps=>30);
 
 Implements the trapezoid rule using 30 intervals between 'start' and 'end'.
 The first three arguments are required.  The final argument (number of steps)
@@ -527,22 +519,18 @@ is optional and defaults to 30.
 =cut
 
 sub trapezoid {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
-	assign_option_aliases(\%options, intervals => 'steps',);
-	set_default_options(\%options, steps => 30,);
+	my ($fn_ref, $x0, $x1, %options) = @_;
+	assign_option_aliases(\%options, intervals => 'steps');
+	set_default_options(\%options, steps => 30);
 	my $steps = $options{steps};
 	my $delta = ($x1 - $x0) / $steps;
-	my $i;
-	my $sum = 0;
+	my $sum   = 0;
 
-	foreach $i (1 .. ($steps - 1)) {
-		$sum = $sum + &$fn_ref($x0 + $i * $delta);
+	for my $i (1 .. ($steps - 1)) {
+		$sum += &$fn_ref($x0 + $i * $delta);
 	}
-	$sum = $sum + 0.5 * (&$fn_ref($x0) + &$fn_ref($x1));
-	$sum * $delta;
+	$sum += 0.5 * (&$fn_ref($x0) + &$fn_ref($x1));
+	return $sum * $delta;
 }
 
 =head3  Romberg method of integration
@@ -556,32 +544,17 @@ Implements the Romberg integration routine through 'level' recursive steps.  Lev
 =cut
 
 sub romberg {
-	my $fn_ref  = shift;
-	my $x0      = shift;
-	my $x1      = shift;
-	my %options = @_;
-	set_default_options(\%options, level => 6,);
-	my $level = $options{level};
-	romberg_iter($fn_ref, $x0, $x1, $level, $level);
+	my ($fn_ref, $x0, $x1, %options) = @_;
+	set_default_options(\%options, level => 6);
+	return romberg_iter($fn_ref, $x0, $x1, $options{level}, $options{level});
 }
 
 sub romberg_iter {
-	my $fn_ref = shift;
-	my $x0     = shift;
-	my $x1     = shift;
-	my $j      = shift;
-	my $k      = shift;
-	my $out;
-	if ($k == 1) {
-		$out = trapezoid($fn_ref, $x0, $x1, steps => 2**($j - 1));
-	} else {
-
-		$out =
-			(4**($k - 1) * romberg_iter($fn_ref, $x0, $x1, $j, $k - 1) -
-				romberg_iter($fn_ref, $x0, $x1, $j - 1, $k - 1)) /
-			(4**($k - 1) - 1);
-	}
-	$out;
+	my ($fn_ref, $x0, $x1, $j, $k) = @_;
+	return $k == 1
+		? trapezoid($fn_ref, $x0, $x1, steps => 2**($j - 1))
+		: (4**($k - 1) * romberg_iter($fn_ref, $x0, $x1, $j, $k - 1) - romberg_iter($fn_ref, $x0, $x1, $j - 1, $k - 1))
+		/ (4**($k - 1) - 1);
 }
 
 =head3 Inverse Romberg
@@ -594,19 +567,23 @@ Finds b such that the integral of the function from a to b is equal to value.
 Assumes that the function is continuous and doesn't take on the zero value.
 Uses Newton's method of approximating roots of equations, and Romberg to evaluate definite integrals.
 
+=head4 Example
+
+Find the value of b such that the integral of e^(-x^2/2)/sqrt(2*pi) from 0 to b is 0.25.
+
+    $f = sub { my $x = shift; return exp(-$x*$x/2)/sqrt(4*acos(0));};
+    $b = inv_romberg($f,0,0.45);
+
+this returns C<1.64485362695934>.   This is the standard normal curve and this
+value is the z value for the 90th percentile.
+
 =cut
 
 sub inv_romberg {
-	my $fn_ref = shift;
-	my $a      = shift;
-	my $value  = shift;
-	my $b      = $a;
-	my $delta  = 1;
-	my $i      = 0;
-	my $funct;
-	my $deriv;
+	my ($fn_ref, $a, $value) = @_;
+	my ($b, $delta, $i, $funct, $deriv) = ($a, 1, 0);
 
-	while (abs($delta) > 0.000001 && $i < 5000) {
+	while (abs($delta) > 0.000001 && $i++ < 5000) {
 		$funct = romberg($fn_ref, $a, $b) - $value;
 		$deriv = &$fn_ref($b);
 		if ($deriv == 0) {
@@ -614,35 +591,35 @@ sub inv_romberg {
 			return;
 		}
 		$delta = $funct / $deriv;
-		$b     = $b - $delta;
-		$i++;
+		$b -= $delta;
 	}
 	if ($i == 5000) {
 		warn 'Newtons method does not converge.';
 		return;
 	}
-	$b;
+	return $b;
 }
 
 =head2 Differential Equation Methods
 
-=head3 rungeKutta4
+=head3 4th-order Runge-Kutta
 
-Finds integral curve of a vector field using the 4th order Runge Kutta method.
+Finds integral curve of a vector field using the 4th order Runge Kutta method by
+providing the function C<rungeKutta4>
 
 Usage:
 
     rungeKutta4( &vectorField(t,x),%options);
 
-    Returns:  \@array of points [t,y})
+Returns:  array ref of points [t,y]
 
     Default %options:
-    			'initial_t'					=>	1,
-			    'initial_y'					=>	1,
-			    'dt'						=>  .01,
-			    'num_of_points'				=>  10,     #number of reported points
-			    'interior_points'			=>  5,      # number of 'interior' steps between reported points
-			    'debug'
+        'initial_t'       => 1,
+        'initial_y'       => 1,
+        'dt'              => 0.01,
+        'num_of_points'   => 10,     # number of reported points
+        'interior_points' => 5,      # number of 'interior' steps between reported points
+        'debug'
 
 =cut
 
@@ -654,7 +631,7 @@ sub rungeKutta4 {
 		'initial_t'       => 1,
 		'initial_y'       => 1,
 		'dt'              => .01,
-		'num_of_points'   => 10,    #number of reported points
+		'num_of_points'   => 10,    # number of reported points
 		'interior_points' => 5,     # number of 'interior' steps between reported points
 		'debug'           => 1,     # remind programmers to always pass the debug parameter
 	);
@@ -674,16 +651,14 @@ sub rungeKutta4 {
 	};
 
 	my @output = ([ $t, $y ]);
-	my ($i, $j, $K1, $K2, $K3, $K4);
-
-	for ($j = 0; $j < $num; $j++) {
-		for ($i = 0; $i < $num2; $i++) {
-			$K1 = $dt * &$rf_rhs($t,           $y);
-			$K2 = $dt * &$rf_rhs($t + $dt / 2, $y + $K1 / 2);
-			$K3 = $dt * &$rf_rhs($t + $dt / 2, $y + $K2 / 2);
-			$K4 = $dt * &$rf_rhs($t + $dt,     $y + $K3);
-			$y  = $y + ($K1 + 2 * $K2 + 2 * $K3 + $K4) / 6;
-			$t  = $t + $dt;
+	for my $j (0 .. $num - 1) {
+		for my $i (0 .. $num2 - 1) {
+			my $K1 = $dt * &$rf_rhs($t,           $y);
+			my $K2 = $dt * &$rf_rhs($t + $dt / 2, $y + $K1 / 2);
+			my $K3 = $dt * &$rf_rhs($t + $dt / 2, $y + $K2 / 2);
+			my $K4 = $dt * &$rf_rhs($t + $dt,     $y + $K3);
+			$y += ($K1 + 2 * $K2 + 2 * $K3 + $K4) / 6;
+			$t += $dt;
 		}
 		push(@output, [ $t, $y ]);
 	}
@@ -695,4 +670,3 @@ sub rungeKutta4 {
 }
 
 1;
-
