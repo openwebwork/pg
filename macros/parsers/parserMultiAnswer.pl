@@ -303,12 +303,12 @@ sub perform_check {
 	$rh_ans->{isPreview} = $inputs->{previewAnswers}
 		|| ($inputs_{action} && $inputs->{action} =~ m/^Preview/);
 
-	Parser::Context->current(undef, $context);                                 # change to multi-answer's context
-	my $flags = Value::contextSet($context, $self->cmp_contextFlags($ans));    # save old context flags
-	$context->{answerHash} = $rh_ans;                                          # attach the answerHash
+	Parser::Context->current(undef, $context);                                    # change to multi-answer's context
+	my $flags = Value::contextSet($context, $self->cmp_contextFlags($rh_ans));    # save old context flags
+	$context->{answerHash} = $rh_ans;                                             # attach the answerHash
 	my @result = Value::cmp_compare([@correct], [@student], $self, $rh_ans);
-	Value::contextSet($context, %{$flags});                                    # restore context values
-	$context->{answerHash} = undef;                                            # remove answerHash
+	Value::contextSet($context, %{$flags});                                       # restore context values
+	$context->{answerHash} = undef;                                               # remove answerHash
 	if (!@result && $context->{error}{flag}) { $self->cmp_error($self->{ans}[0]); return 1 }
 
 	my $result = (scalar(@result) > 1 ? [@result] : $result[0] || 0);
