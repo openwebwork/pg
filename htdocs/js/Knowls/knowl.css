@@ -26,7 +26,8 @@
 	background: #cce;
 }
 
-div > .knowl, p > .knowl {
+div > .knowl,
+p > .knowl {
 	position: relative;
 }
 
@@ -58,7 +59,8 @@ div > .knowl, p > .knowl {
 	margin-right: 0;
 }
 
-.knowl-output h1, .knowl-output h2 {
+.knowl-output h1,
+.knowl-output h2 {
 	margin: 5px 0;
 }
 
@@ -86,7 +88,7 @@ div > .knowl, p > .knowl {
 	background: #ddf;
 	color: #555;
 	padding: 4px 0 4px 10px;
-	margin:  -10px 0 0 0;
+	margin: -10px 0 0 0;
 }
 
 .knowl-footer a {

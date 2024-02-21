@@ -51,8 +51,9 @@
 					button.addEventListener(
 						'show.bs.popover',
 						() => {
-							MathJax.startup.promise =
-								MathJax.startup.promise.then(() => MathJax.typesetPromise(['.popover-body']));
+							MathJax.startup.promise = MathJax.startup.promise.then(() =>
+								MathJax.typesetPromise(['.popover-body'])
+							);
 						},
 						{ once: true }
 					);

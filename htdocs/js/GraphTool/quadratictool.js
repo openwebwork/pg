@@ -8,8 +8,8 @@
 			preInit(gt, point1, point2, point3, solid) {
 				[point1, point2, point3].forEach((point) => {
 					point.setAttribute(gt.definingPointAttributes);
-					point.on('down', () => gt.board.containerObj.style.cursor = 'none');
-					point.on('up', () => gt.board.containerObj.style.cursor = 'auto');
+					point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
+					point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
 				});
 				return gt.graphObjectTypes.quadratic.createQuadratic(point1, point2, point3, solid, gt.color.curve);
 			},
@@ -41,32 +41,53 @@
 				}
 				if (points.length < 3) return false;
 				const point1 = gt.graphObjectTypes.quadratic.createPoint(
-					parseFloat(points[0][0]), parseFloat(points[0][1]));
+					parseFloat(points[0][0]),
+					parseFloat(points[0][1])
+				);
 				const point2 = gt.graphObjectTypes.quadratic.createPoint(
-					parseFloat(points[1][0]), parseFloat(points[1][1]), [point1]);
+					parseFloat(points[1][0]),
+					parseFloat(points[1][1]),
+					[point1]
+				);
 				const point3 = gt.graphObjectTypes.quadratic.createPoint(
-					parseFloat(points[2][0]), parseFloat(points[2][1]), [point1, point2]);
+					parseFloat(points[2][0]),
+					parseFloat(points[2][1]),
+					[point1, point2]
+				);
 				return new gt.graphObjectTypes.quadratic(point1, point2, point3, /solid/.test(string));
 			},
 
 			helperMethods: {
 				createQuadratic(gt, point1, point2, point3, solid, color) {
-					return gt.board.create('curve', [
-						// x and y coordinates of point on curve
-						(x) => x,
-						(x) => {
-							const x1 = point1.X(), x2 = point2.X(), x3 = point3.X(),
-								y1 = point1.Y(), y2 = point2.Y(), y3 = point3.Y();
-							return (x - x2) * (x - x3) * y1 / ((x1 - x2) * (x1 - x3))
-								+ (x - x1) * (x - x3) * y2 / ((x2 - x1) * (x2 - x3))
-								+ (x - x1) * (x - x2) * y3 / ((x3 - x1) * (x3 - x2));
-						},
-						// domain minimum and maximum
-						() => gt.board.getBoundingBox()[0], () => gt.board.getBoundingBox()[2]
-					], {
-						strokeWidth: 2, highlight: false, strokeColor: color ? color : gt.color.underConstruction,
-						dash: solid ? 0 : 2
-					});
+					return gt.board.create(
+						'curve',
+						[
+							// x and y coordinates of point on curve
+							(x) => x,
+							(x) => {
+								const x1 = point1.X(),
+									x2 = point2.X(),
+									x3 = point3.X(),
+									y1 = point1.Y(),
+									y2 = point2.Y(),
+									y3 = point3.Y();
+								return (
+									((x - x2) * (x - x3) * y1) / ((x1 - x2) * (x1 - x3)) +
+									((x - x1) * (x - x3) * y2) / ((x2 - x1) * (x2 - x3)) +
+									((x - x1) * (x - x2) * y3) / ((x3 - x1) * (x3 - x2))
+								);
+							},
+							// domain minimum and maximum
+							() => gt.board.getBoundingBox()[0],
+							() => gt.board.getBoundingBox()[2]
+						],
+						{
+							strokeWidth: 2,
+							highlight: false,
+							strokeColor: color ? color : gt.color.underConstruction,
+							dash: solid ? 0 : 2
+						}
+					);
 				},
 
 				// Prevent a point from being moved off the board by a drag. If a group of other points is provided,
@@ -94,7 +115,7 @@
 						}
 
 						point.setPosition(JXG.COORDS_BY_USER, [
-							left_x < bbox[0] ? right_x : (preferLeft || right_x > bbox[2]) ? left_x : right_x,
+							left_x < bbox[0] ? right_x : preferLeft || right_x > bbox[2] ? left_x : right_x,
 							y
 						]);
 					}
@@ -110,7 +131,12 @@
 					const point = gt.board.create(
 						'point',
 						[gt.snapRound(x, gt.snapSizeX), gt.snapRound(y, gt.snapSizeY)],
-						{ size: 2, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false }
+						{
+							size: 2,
+							snapSizeX: gt.snapSizeX,
+							snapSizeY: gt.snapSizeY,
+							withLabel: false
+						}
 					);
 					point.setAttribute({ snapToGrid: true });
 					if (typeof grouped_points !== 'undefined' && grouped_points.length) {
@@ -122,9 +148,12 @@
 								paired_point.on('drag', gt.graphObjectTypes.quadratic.groupedPointDrag);
 							}
 							paired_point.grouped_points.push(point);
-							if (!paired_point.eventHandlers.drag ||
-								paired_point.eventHandlers.drag.every((dragHandler) =>
-									dragHandler.handler !== gt.graphObjectTypes.quadratic.groupedPointDrag)
+							if (
+								!paired_point.eventHandlers.drag ||
+								paired_point.eventHandlers.drag.every(
+									(dragHandler) =>
+										dragHandler.handler !== gt.graphObjectTypes.quadratic.groupedPointDrag
+								)
 							)
 								paired_point.on('drag', gt.graphObjectTypes.quadratic.groupedPointDrag);
 						});
@@ -169,8 +198,10 @@
 				this.phase2 = (coords) => {
 					// Don't allow the second point to be created on the same
 					// vertical line as the first point or off the board.
-					if (this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						!gt.boardHasPoint(coords[1], coords[2]))
+					if (
+						this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
+						!gt.boardHasPoint(coords[1], coords[2])
+					)
 						return;
 
 					gt.board.off('up');
@@ -199,15 +230,19 @@
 				this.phase3 = (coords) => {
 					// Don't allow the third point to be created on the same vertical line as the
 					// first point, on the same vertical line as the second point, or off the board.
-					if (this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
+					if (
+						this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
 						this.point2.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						!gt.boardHasPoint(coords[1], coords[2]))
+						!gt.boardHasPoint(coords[1], coords[2])
+					)
 						return;
 
 					gt.board.off('up');
 
-					const point3 = gt.graphObjectTypes.quadratic.createPoint(coords[1], coords[2],
-						[this.point1, this.point2]);
+					const point3 = gt.graphObjectTypes.quadratic.createPoint(coords[1], coords[2], [
+						this.point1,
+						this.point2
+					]);
 					gt.selectedObj = new gt.graphObjectTypes.quadratic(this.point1, this.point2, point3, gt.drawSolid);
 					gt.selectedObj.focusPoint = point3;
 					gt.graphedObjs.push(gt.selectedObj);
@@ -245,14 +280,17 @@
 				} else if (e instanceof JXG.Coords) {
 					coords = e;
 					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
-				} else
-					return false;
+				} else return false;
 
 				if (!this.hlObjs.hl_point) {
 					this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
-						size: 2, color: gt.color.underConstruction, snapToGrid: true,
-						snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY,
-						highlight: false, withLabel: false
+						size: 2,
+						color: gt.color.underConstruction,
+						snapToGrid: true,
+						snapSizeX: gt.snapSizeX,
+						snapSizeY: gt.snapSizeY,
+						highlight: false,
+						withLabel: false
 					});
 					this.hlObjs.hl_point.rendNode.focus();
 				}
@@ -263,7 +301,7 @@
 					const groupedPoints = [];
 					if (this.point1) groupedPoints.push(this.point1);
 					if (this.point2) groupedPoints.push(this.point2);
-					gt.graphObjectTypes.quadratic.adjustDragPosition(e, this.hlObjs.hl_point, groupedPoints)
+					gt.graphObjectTypes.quadratic.adjustDragPosition(e, this.hlObjs.hl_point, groupedPoints);
 				}
 
 				if (this.point2 && !this.hlObjs.hl_quadratic) {
@@ -274,10 +312,16 @@
 					}
 
 					this.hlObjs.hl_quadratic = gt.graphObjectTypes.quadratic.createQuadratic(
-						this.point1, this.point2, this.hlObjs.hl_point, gt.drawSolid);
+						this.point1,
+						this.point2,
+						this.hlObjs.hl_point,
+						gt.drawSolid
+					);
 				} else if (this.point1 && !this.point2 && !this.hlObjs.hl_line) {
 					this.hlObjs.hl_line = gt.board.create('line', [this.point1, this.hlObjs.hl_point], {
-						fixed: true, strokeColor: gt.color.underConstruction, highlight: false,
+						fixed: true,
+						strokeColor: gt.color.underConstruction,
+						highlight: false,
 						dash: gt.drawSolid ? 0 : 2
 					});
 				}

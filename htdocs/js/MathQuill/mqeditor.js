@@ -18,11 +18,11 @@
 		const answerLabel = mq_input.id.replace(/^MaThQuIlL_/, '');
 		const input = document.getElementById(answerLabel);
 		const inputType = input?.type;
-		if (typeof(inputType) !== 'string'
-			|| (
-				(inputType.toLowerCase() !== 'text' || !input.classList.contains('codeshard'))
-				&& (inputType.toLowerCase() !== 'textarea' || !input.classList.contains('latexentryfield'))
-			))
+		if (
+			typeof inputType !== 'string' ||
+			((inputType.toLowerCase() !== 'text' || !input.classList.contains('codeshard')) &&
+				(inputType.toLowerCase() !== 'textarea' || !input.classList.contains('latexentryfield')))
+		)
 			return;
 
 		const answerQuill = document.createElement('span');
@@ -47,8 +47,8 @@
 			sumStartsWithNEquals: true,
 			supSubsRequireOperand: true,
 			autoCommands: ['pi', 'sqrt', 'root', 'vert', 'inf', 'union', 'abs', 'deg', 'AA', 'angstrom', 'ln', 'log']
-				.concat(['sin', 'cos', 'tan', 'sec', 'csc', 'cot'].reduce((a, t) =>
-					a.concat([t, `arc${t}`]), [])).join(' '),
+				.concat(['sin', 'cos', 'tan', 'sec', 'csc', 'cot'].reduce((a, t) => a.concat([t, `arc${t}`]), []))
+				.join(' '),
 			rootsAreExponents: true,
 			logsChangeBase: true,
 			maxDepth: 10
@@ -63,12 +63,12 @@
 			// Disable the toolbar when a text block is entered.
 			textBlockEnter: () => {
 				if (answerQuill.toolbar)
-					answerQuill.toolbar.querySelectorAll('button').forEach((button) => button.disabled = true);
+					answerQuill.toolbar.querySelectorAll('button').forEach((button) => (button.disabled = true));
 			},
 			// Re-enable the toolbar when a text block is exited.
 			textBlockExit: () => {
 				if (answerQuill.toolbar)
-					answerQuill.toolbar.querySelectorAll('button').forEach((button) => button.disabled = false);
+					answerQuill.toolbar.querySelectorAll('button').forEach((button) => (button.disabled = false));
 			}
 		};
 
@@ -168,8 +168,15 @@
 			contents.classList.add('card');
 
 			const cardHeader = document.createElement('div');
-			cardHeader.classList.add('card-header', 'd-flex', 'justify-content-between', 'align-items-center',
-				'px-2', 'py-1', 'text-bg-secondary');
+			cardHeader.classList.add(
+				'card-header',
+				'd-flex',
+				'justify-content-between',
+				'align-items-center',
+				'px-2',
+				'py-1',
+				'text-bg-secondary'
+			);
 
 			const title = document.createElement('span');
 			title.textContent = 'Equation Editor';
@@ -208,11 +215,19 @@
 					input.focus();
 				}
 				setSelection();
-			}
+			};
 
 			const cardFooter = document.createElement('div');
-			cardFooter.classList.add('card-footer', 'd-flex', 'pt-0', 'pb-2', 'px-2', 'gap-1',
-				'bg-white', 'border-top-0');
+			cardFooter.classList.add(
+				'card-footer',
+				'd-flex',
+				'pt-0',
+				'pb-2',
+				'px-2',
+				'gap-1',
+				'bg-white',
+				'border-top-0'
+			);
 
 			const insertButton = document.createElement('button');
 			insertButton.type = 'button';
@@ -326,14 +341,18 @@
 
 				MQ.StaticMath(icon, { mouseEvents: false });
 
-				answerQuill.toolbar.tooltips.push(new bootstrap.Tooltip(button, {
-					placement: 'left', trigger: 'hover', delay: { show: 500, hide: 0 }
-				}));
+				answerQuill.toolbar.tooltips.push(
+					new bootstrap.Tooltip(button, {
+						placement: 'left',
+						trigger: 'hover',
+						delay: { show: 500, hide: 0 }
+					})
+				);
 
 				button.addEventListener('click', () => {
 					answerQuill.mathField.cmd(button.dataset.latex);
 					answerQuill.textarea.focus();
-				})
+				});
 			}
 
 			answerQuill.toolbar.addEventListener('keydown', (e) => {
@@ -383,15 +402,15 @@
 
 					if (window.scrollY + elRect.top + elRect.height / 2 < toolbarHeight / 2) {
 						answerQuill.toolbar.style.top = `-${window.scrollY + parentRect.top}px`;
-						answerQuill.toolbar.style.bottom = toolbarHeight > pageHeight ?
-							`${window.scrollY + parentRect.bottom - pageHeight}px`
-							: null;
+						answerQuill.toolbar.style.bottom =
+							toolbarHeight > pageHeight ? `${window.scrollY + parentRect.bottom - pageHeight}px` : null;
 					} else if (window.scrollY + elRect.top + elRect.height / 2 + toolbarHeight / 2 > pageHeight) {
 						answerQuill.toolbar.style.top = null;
 						answerQuill.toolbar.style.bottom = `${window.scrollY + parentRect.bottom - pageHeight}px`;
 					} else {
-						answerQuill.toolbar.style.top =
-							`${elRect.top + elRect.height / 2 - toolbarHeight / 2 - parentRect.top}px`;
+						answerQuill.toolbar.style.top = `${
+							elRect.top + elRect.height / 2 - toolbarHeight / 2 - parentRect.top
+						}px`;
 						answerQuill.toolbar.style.bottom = null;
 					}
 				} else {
@@ -403,18 +422,21 @@
 						const elRect = answerQuill.getBoundingClientRect();
 						const top = window.scrollY + elRect.bottom - elRect.height / 2 - toolbarHeight / 2;
 						const bottom = top + toolbarHeight;
-						answerQuill.toolbar.style.top =
-							`${top < 0 ? 0 : bottom > pageHeight ? pageHeight - toolbarHeight : top}px`;
+						answerQuill.toolbar.style.top = `${
+							top < 0 ? 0 : bottom > pageHeight ? pageHeight - toolbarHeight : top
+						}px`;
 						answerQuill.toolbar.style.height = null;
 					}
 				}
-			}
+			};
 
 			window.addEventListener('resize', answerQuill.toolbar.setPosition);
 			answerQuill.toolbar.setPosition();
 
 			answerQuill.after(answerQuill.toolbar);
-			setTimeout(() => { if (answerQuill.toolbar) answerQuill.toolbar.style.opacity = 1; }, 0);
+			setTimeout(() => {
+				if (answerQuill.toolbar) answerQuill.toolbar.style.opacity = 1;
+			}, 0);
 		});
 
 		// Add a context menu to toggle whether the toolbar is enabled or not.
@@ -442,22 +464,30 @@
 			li.append(action);
 			container.append(menuEl);
 
-			const menu =
-				new bootstrap.Dropdown(hiddenLink, { reference: answerQuill, offset: [answerQuill.offsetWidth, 0] });
+			const menu = new bootstrap.Dropdown(hiddenLink, {
+				reference: answerQuill,
+				offset: [answerQuill.offsetWidth, 0]
+			});
 			menu.show();
 
 			hiddenLink.addEventListener('hidden.bs.dropdown', () => {
-				menu.dispose(); menuEl.remove(); container.remove();
+				menu.dispose();
+				menuEl.remove();
+				container.remove();
 			});
 
-			action.addEventListener('click', (e) => {
-				e.preventDefault();
-				toolbarEnabled = !toolbarEnabled;
-				localStorage.setItem('MQEditorToolbarEnabled', toolbarEnabled)
-				if (!toolbarEnabled && answerQuill.toolbar) toolbarRemove();
-				menu.hide();
-				answerQuill.textarea.focus();
-			}, { once: true });
+			action.addEventListener(
+				'click',
+				(e) => {
+					e.preventDefault();
+					toolbarEnabled = !toolbarEnabled;
+					localStorage.setItem('MQEditorToolbarEnabled', toolbarEnabled);
+					if (!toolbarEnabled && answerQuill.toolbar) toolbarRemove();
+					menu.hide();
+					answerQuill.textarea.focus();
+				},
+				{ once: true }
+			);
 		});
 
 		answerQuill.textarea.addEventListener('focusout', (e) => {
@@ -491,9 +521,9 @@
 				// For gateway quizzes, always the preview button
 				document.querySelector('input[name=previewAnswers]')?.click();
 				// For ww3
-				const previewButtonId =
-					answerQuill.textarea.closest('[name=problemMainForm]')?.id
-						.replace('problemMainForm', 'previewAnswers');
+				const previewButtonId = answerQuill.textarea
+					.closest('[name=problemMainForm]')
+					?.id.replace('problemMainForm', 'previewAnswers');
 				if (previewButtonId) document.getElementById(previewButtonId)?.click();
 			}
 		};
