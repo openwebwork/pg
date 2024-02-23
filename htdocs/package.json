@@ -13,7 +13,7 @@
         "prettier-check": "prettier --ignore-path=../.gitignore --check \"**/*.{js,css,scss,html}\" \"../**/*.dist.yml\""
     },
     "dependencies": {
-        "jsxgraph": "^1.6.2",
+        "jsxgraph": "^1.7.0",
         "jszip": "^3.10.1",
         "jszip-utils": "^0.1.0",
         "mathquill": "github:openwebwork/mathquill#WeBWorK-2.18",
