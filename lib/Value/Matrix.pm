@@ -482,13 +482,10 @@ sub I {
 	Value::Error("You must provide a dimension for the Identity matrix") unless defined $d;
 	Value::Error("Dimension must be a positive integer")                 unless $d =~ m/^[1-9]\d*$/;
 	my @M    = ();
-	my @Z    = split('', 0 x $d);
 	my $REAL = $context->Package('Real');
 
-	foreach my $i (0 .. $d - 1) {
-		my @row = @Z;
-		$row[$i] = 1;
-		push(@M, $self->make($context, map { $REAL->new($_) } @row));
+	for my $i (0 .. $d - 1) {
+		push(@M, $self->make($context, map { $REAL->new(($_ == $i) ? 1 : 0) } 0 .. $d - 1));
 	}
 	return $self->make($context, @M);
 }
@@ -510,17 +507,16 @@ sub E {
 		"If only one row is specified for an Elementary matrix, then a number to scale by must also be specified")
 		if (@ij == 1 && !defined $k);
 	for (@ij) {
-		Value::Error("Row numbers must be integers between 1 and $d")
+		Value::Error("Row indices must be integers between 1 and $d")
 			unless ($_ =~ m/^[1-9]\d*$/ && $_ >= 1 && $_ <= $d);
 	}
 	@ij = map { $_ - 1 } (@ij);
 
 	my @M    = ();
-	my @Z    = split('', 0 x $d);
 	my $REAL = $context->Package('Real');
 
-	foreach my $i (0 .. $d - 1) {
-		my @row = @Z;
+	for my $i (0 .. $d - 1) {
+		my @row = (0) x $d;
 		$row[$i] = 1;
 		if (@ij == 1) {
 			$row[$i] = $k if ($i == $ij[0]);
@@ -536,8 +532,8 @@ sub E {
 
 #
 #  Get a permutation matrix of the requested size
-#  E.g. P(3,[1,2,3])  corresponds to cycle (123) applied to rows of I_3
-#  And  P(6,[1,4],[2,4,6]) corresponds to cycle product (14)(246) applied to rows if I_6
+#  E.g. P(3,[1,2,3])  corresponds to cycle (123) applied to rows of I_3i,
+#  and  P(6,[1,4],[2,4,6]) corresponds to cycle product (14)(246) applied to rows of I_6
 #
 sub P {
 	my ($self, $d, @cycles) = @_;
@@ -555,19 +551,17 @@ sub P {
 		Value::Error("A permutation cycle should not repeat an index") unless (@$c == keys %cycle_hash);
 	}
 	my @M    = ();
-	my @Z    = split('', 0 x $d);
 	my $REAL = $context->Package('Real');
 
-	foreach my $i (0 .. $d - 1) {
-		my @row = @Z;
-		$row[$i] = 1;
-		push(@M, $self->make($context, map { $REAL->new($_) } @row));
+	# Make an identity matrix
+	for my $i (0 .. $d - 1) {
+		push(@M, $self->make($context, map { $REAL->new(($_ == $i) ? 1 : 0) } 0 .. $d - 1));
 	}
 
+	# Then apply the permutation cycles to it
 	for my $c (@cycles) {
-		my $n = @$c;
 		my $swap;
-		for my $i (0 .. $n - 1, 0) {
+		for my $i (0 .. $#$c, 0) {
 			($swap, $M[ $c->[$i] - 1 ]) = ($M[ $c->[$i] - 1 ], $swap);
 		}
 	}
@@ -587,12 +581,10 @@ sub Zero {
 	Value::Error("You must provide dimensions for the Zero matrix") unless defined $m          && defined $n;
 	Value::Error("Dimension must be a positive integer")            unless $m =~ m/^[1-9]\d*$/ && $n =~ m/^[1-9]\d*$/;
 	my @M    = ();
-	my @Z    = split('', 0 x $n);
 	my $REAL = $context->Package('Real');
 
-	foreach my $i (0 .. $m - 1) {
-		my @row = @Z;
-		push(@M, $self->make($context, map { $REAL->new($_) } @row));
+	for my $i (0 .. $m - 1) {
+		push(@M, $self->make($context, map { $REAL->new(0) } 0 .. $n - 1));
 	}
 	return $self->make($context, @M);
 }
