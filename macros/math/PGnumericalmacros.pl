@@ -25,7 +25,7 @@ sub _PGnumericalmacros_init { }
 
 =head2 Interpolation methods
 
-=head3 Plotting a list of points (piecewise linear interpolation)
+=head3 plot_list
 
 Usage:
 
@@ -82,7 +82,7 @@ sub plot_list {
 	};
 }
 
-=head3 Horner polynomial/ Newton polynomial
+=head3 horner
 
 Usage:
 
@@ -97,7 +97,7 @@ C<(x0,q0), (x1,q1), (x2, q2)>, ... using Horner's method.
 
 The array refs for C<x> and C<q> can be any length but must be the same length.
 
-=head4 Example
+Example
 
     $h = horner([0,1,2],[1,-1,2]);
 
@@ -122,7 +122,7 @@ sub horner {
 	};
 }
 
-=head3 Hermite polynomials
+=head3 hermite
 
 Usage:
 
@@ -136,7 +136,7 @@ with the specified derivatives: (x0,y0,yp0) ...
 The polynomial will be of high degree and may wobble unexpectedly.  Use the Hermite splines
 described below and in Hermite.pm for  most graphing purposes.
 
-=head4 Example
+Example
 
     $h = hermite([0,1],[0,0],[1,-1]);
 
@@ -176,7 +176,7 @@ sub hermite {
 	return horner(\@zvals, \@output);
 }
 
-=head3 Hermite splines
+=head3 hermite_spline
 
 Usage
 
@@ -239,7 +239,7 @@ sub hermite_spline {
 	};
 }
 
-=head3 Cubic spline approximation
+=head3 cubic_spline
 
 Usage:
 
@@ -333,9 +333,7 @@ sub create_cubic_spline {
 }
 
 sub javaScript_cubic_spline {
-	my $x_ref   = shift;
-	my $y_ref   = shift;
-	my %options = @_;
+	my ($x_ref, $y_ref, %options) = @_;
 	assign_option_aliases(
 		\%options,
 
@@ -344,7 +342,7 @@ sub javaScript_cubic_spline {
 		\%options,
 		name   => 'func',
 		llimit => $x_ref->[0],
-		rlimit => $x_ref->[$#$x_ref],
+		rlimit => $x_ref->[-1],
 	);
 
 	my ($t_ref, $a_ref, $b_ref, $c_ref, $d_ref) = create_cubic_spline($x_ref, $y_ref);
@@ -392,12 +390,12 @@ This problem requires a browser capable of processing javaScript
 </NOSCRIPT>
 END_OF_JAVA_TEXT
 
-	$output_str;
+	return $output_str;
 }
 
 =head2 Numerical Integration methods
 
-=head3 Left Hand Riemann Sum
+=head3 lefthandsum (Left Hand Riemann Sum)
 
 Usage:
 
@@ -423,7 +421,7 @@ sub lefthandsum {
 	return $sum * $delta;
 }
 
-=head3 Right Hand Riemann Sum
+=head3 righthandsum (Right Hand Riemann Sum)
 
 Usage:
 
@@ -449,7 +447,7 @@ sub righthandsum {
 	return $sum * $delta;
 }
 
-=head3 Midpoint rule
+=head3 midpoint
 
 Usage:
 
@@ -475,7 +473,7 @@ sub midpoint {
 	return $sum * $delta;
 }
 
-=head3 Simpson's rule
+=head3 simpson
 
 Usage:
 
@@ -506,7 +504,7 @@ sub simpson {
 	return $sum * $delta / 3;
 }
 
-=head3 trapezoid rule
+=head3 trapezoid
 
 Usage:
 
@@ -533,7 +531,7 @@ sub trapezoid {
 	return $sum * $delta;
 }
 
-=head3  Romberg method of integration
+=head3 romberg
 
 Usage:
 
@@ -557,7 +555,7 @@ sub romberg_iter {
 		/ (4**($k - 1) - 1);
 }
 
-=head3 Inverse Romberg
+=head3 inv_romberg (Inverse Romberg)
 
 Usage:
 
@@ -567,7 +565,7 @@ Finds b such that the integral of the function from a to b is equal to value.
 Assumes that the function is continuous and doesn't take on the zero value.
 Uses Newton's method of approximating roots of equations, and Romberg to evaluate definite integrals.
 
-=head4 Example
+Example
 
 Find the value of b such that the integral of e^(-x^2/2)/sqrt(2*pi) from 0 to b is 0.25.
 
@@ -602,7 +600,7 @@ sub inv_romberg {
 
 =head2 Differential Equation Methods
 
-=head3 4th-order Runge-Kutta
+=head3 rungeKutta4
 
 Finds integral curve of a vector field using the 4th order Runge Kutta method by
 providing the function C<rungeKutta4>
@@ -624,8 +622,7 @@ Returns:  array ref of points [t,y]
 =cut
 
 sub rungeKutta4 {
-	my $rf_fun  = shift;
-	my %options = @_;
+	my ($rf_fun, %options) = @_;
 	set_default_options(
 		\%options,
 		'initial_t'       => 1,
