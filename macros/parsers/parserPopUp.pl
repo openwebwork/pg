@@ -26,9 +26,9 @@ with PGML.
 
 To create a PopUp, DropDown, or DropDownTF  object, use
 
-    $popup     = PopUp([choices,...],correct,options);
-    $dropdown  = DropDown([choices,...],correct,options);
-    $truefalse = DropDownTF(correct,options);
+    $popup     = PopUp([ choices, ... ], correct, options);
+    $dropdown  = DropDown([ choices, ... ], correct, options);
+    $truefalse = DropDownTF(correct, options);
 
 where "choices" are the items in the drop-down list, "correct" is the
 the correct answer for the group (or its index, with 0 being the
@@ -69,19 +69,19 @@ enclosing those that should be randomized within a second set of
 brackets.  For example
 
     $dropdown = DropDown(
-	                  [
-	                    "First Item",
-	                    ["Random 1","Random 2","Random 3"],
-	                    "Last Item"
-	                  ],
-	                  "Random 3"
-	                );
+        [
+            "First Item",
+            [ "Random 1", "Random 2", "Random 3" ],
+            "Last Item"
+        ],
+        "Random 3"
+    );
 
 will make a list of options that has the first item always on top,
 the next three ordered randomly, and the last item always on the
 bottom.  In this example
 
-    $dropdown = DropDown([["Random 1","Random 2","Random 3"]],2);
+    $dropdown = DropDown([ [ "Random 1", "Random 2", "Random 3" ] ], 2);
 
 all the entries are randomized, and the correct answer is "Random 3"
 (the one with index 2 in the flattened list).  You can have as many
