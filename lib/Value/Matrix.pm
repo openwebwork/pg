@@ -473,12 +473,14 @@ sub transpose {
 
 #
 #  Get an identity matrix of the requested size
+#  Value::Matrix->I(n)
+#  $A->I    # n is the number of rows of $A
 #
 sub I {
 	my $self    = shift;
 	my $d       = shift;
 	my $context = shift || $self->context;
-	$d = ($self->dimensions)[0] if !defined $d && ref($self) && $self->isSquare;
+	$d = ($self->dimensions)[0] if !defined $d && ref($self);
 	Value::Error("You must provide a dimension for the Identity matrix") unless defined $d;
 	Value::Error("Dimension must be a positive integer")                 unless $d =~ m/^[1-9]\d*$/;
 	my @M    = ();
@@ -492,13 +494,20 @@ sub I {
 
 #
 #  Get an elementary matrix of the requested size and type
-#  E(n,[i,j])   nxn, swap rows i and j
-#  E(n,[i,j],k) nxn, replace row i with row i added to k times row j
-#  E(n,[i],k)   nxn, scale row i by k
+#  Value::Matrix->E(n,[i,j])   nxn, swap rows i and j
+#  Value::Matrix->E(n,[i,j],k) nxn, replace row i with row i added to k times row j
+#  Value::Matrix->E(n,[i],k)   nxn, scale row i by k
+#  $A->E([i,j])      # n is the number of rows of $A
+#  $A->E([i,j],k)    # n is the number of rows of $A
+#  $A->E([i],k)      # n is the number of rows of $A
 #
 sub E {
 	my ($self, $d, $rows, $k, $context) = @_;
-	$context = $self->context unless $context;
+	if (ref $d eq 'ARRAY') {
+		($rows, $k, $context) = ($d, $rows, $k);
+		$d = ($self->dimensions)[0] if ref($self);
+	}
+	$context = $self->context                                             unless $context;
 	Value::Error("You must provide a dimension for an Elementary matrix") unless defined $d;
 	Value::Error("Dimension must be a positive integer")                  unless $d =~ m/^[1-9]\d*$/;
 	my @ij = @{$rows};
@@ -534,9 +543,15 @@ sub E {
 #  Get a permutation matrix of the requested size
 #  E.g. P(3,[1,2,3])  corresponds to cycle (123) applied to rows of I_3i,
 #  and  P(6,[1,4],[2,4,6]) corresponds to cycle product (14)(246) applied to rows of I_6
+#  Value::Matrix->P(n,(cycles))
+#  $A->P((cycles))     # n is the number of rows of $A
 #
 sub P {
 	my ($self, $d, @cycles) = @_;
+	if (ref $d eq 'ARRAY') {
+		unshift(@cycles, $d);
+		$d = ($self->dimensions)[0] if ref($self);
+	}
 	my $context = $self->context;
 	$d = ($self->dimensions)[0] if !defined $d && ref($self) && $self->isSquare;
 	Value::Error("You must provide a dimension for a Permutation matrix") unless defined $d;
@@ -571,6 +586,9 @@ sub P {
 
 #
 #  Get an all zero matrix of the requested size
+#  Value::Matrix->Zero(m,n)
+#  Value::Matrix->Zero(n)
+#  $A->Zero    # n is the number of rows of $A
 #
 sub Zero {
 	my ($self, $m, $n, $context) = @_;
