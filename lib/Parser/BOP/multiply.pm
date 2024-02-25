@@ -68,6 +68,21 @@ sub _reduce {
 	$self->swapOps
 		if (($self->{rop}->class eq 'Number' && $self->{lop}->class ne 'Number' && $reduce->{'x*n'})
 			|| ($self->{lop}->class eq 'Function' && $self->{rop}->class ne 'Function' && $reduce->{'fn*x'}));
+
+	if ($reduce->{'m*(n*x)'}
+		&& defined $self->{lop}
+		&& defined $self->{rop}{lop}
+		&& defined $self->{rop}{bop}
+		&& $self->{lop}->class eq 'Number'
+		&& $self->{rop}{lop}->class eq 'Number'
+		&& $self->{rop}{bop} eq '*')
+	{
+		my $m = $self->{lop};
+		$self->{lop} = $self->{rop}->copy;
+		$self->{lop}->swapOps;
+		$self->{lop}{lop} = $m;
+		$self->{rop} = $self->{rop}{rop};
+	}
 	return $self;
 }
 
@@ -78,14 +93,15 @@ sub makeNeg {
 	return $self;
 }
 
-$Parser::reduce->{'1*x'}    = 1;
-$Parser::reduce->{'x*1'}    = 1;
-$Parser::reduce->{'0*x'}    = 1;
-$Parser::reduce->{'x*0'}    = 1;
-$Parser::reduce->{'(-x)*y'} = 1;
-$Parser::reduce->{'x*(-y)'} = 1;
-$Parser::reduce->{'x*n'}    = 1;
-$Parser::reduce->{'fn*x'}   = 1;
+$Parser::reduce->{'1*x'}     = 1;
+$Parser::reduce->{'x*1'}     = 1;
+$Parser::reduce->{'0*x'}     = 1;
+$Parser::reduce->{'x*0'}     = 1;
+$Parser::reduce->{'(-x)*y'}  = 1;
+$Parser::reduce->{'x*(-y)'}  = 1;
+$Parser::reduce->{'x*n'}     = 1;
+$Parser::reduce->{'fn*x'}    = 1;
+$Parser::reduce->{'m*(n*x)'} = 1;
 
 sub string {
 	my ($self, $precedence, $showparens, $position, $outerRight) = @_;
