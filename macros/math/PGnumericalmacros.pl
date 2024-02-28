@@ -395,7 +395,9 @@ END_OF_JAVA_TEXT
 
 =head2 Numerical Integration methods
 
-=head3 lefthandsum (Left Hand Riemann Sum)
+=head3 lefthandsum
+
+Left Hand Riemann Sum
 
 Usage:
 
@@ -421,7 +423,9 @@ sub lefthandsum {
 	return $sum * $delta;
 }
 
-=head3 righthandsum (Right Hand Riemann Sum)
+=head3 righthandsum
+
+Right Hand Riemann Sum
 
 Usage:
 
@@ -555,7 +559,9 @@ sub romberg_iter {
 		/ (4**($k - 1) - 1);
 }
 
-=head3 inv_romberg (Inverse Romberg)
+=head3 inv_romberg
+
+Inverse Romberg
 
 Usage:
 
