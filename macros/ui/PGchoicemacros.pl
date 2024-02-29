@@ -793,7 +793,9 @@ This is a wrapper for random_subset($K, 0 .. $N - 1);
 
 sub NchooseK {
 	my ($n, $k) = @_;
-	return random_subset($k, 0 .. $n - 1);
+	# force list context
+	my @return = random_subset($k, 0 .. $n - 1);
+	return @return;
 }
 
 =item [DEPRECATED] shuffle()
@@ -808,7 +810,9 @@ Returns the integers from 0 to $i-1 in random order.
 
 sub shuffle {
 	my ($i) = @_;
-	return random_subset($i, 0 .. $i - 1);
+	# force list context
+	my @return = random_subset($i, 0 .. $i - 1);
+	return @return;
 }
 
 =item [DEPRECATED] match_questions_list()
