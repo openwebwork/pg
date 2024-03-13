@@ -33,7 +33,7 @@ BEGIN {
 	be_strict;
 }
 
-my $displayMode;
+my $displayMode = '';
 
 my (
 	$PAR,               $BR,       $BRBR,    $LQ,                  $RQ,
@@ -1658,7 +1658,7 @@ sub processDivSpanOptions {
 		%{$option_ref},
 	);
 
-	my $LangVal = "";
+	my $LangVal = '';
 	if ($options{allowLang} && defined($options{lang})) {
 		# The standard for how the lang tag should be set is explained in
 		# https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang
@@ -1677,7 +1677,7 @@ sub processDivSpanOptions {
 		}
 	}
 
-	my $DirVal = "";
+	my $DirVal = '';
 	if ($options{allowDir} && defined($options{dir})) {
 		# the ONLY allowed values are: ltr rtl auto
 		if (($options{dir} eq "ltr")
@@ -1692,7 +1692,7 @@ sub processDivSpanOptions {
 		}
 	}
 
-	my $ClassVal = "";
+	my $ClassVal = '';
 	if ($options{allowClass} && defined($options{class})) {
 		# Class names which are permitted here must start with a letter [A-Za-z]
 		# and the rest of the class name can be characters in [A-Za-z0-9\-\_].
@@ -1729,7 +1729,7 @@ sub processDivSpanOptions {
 		}
 	}
 
-	my $StyleVal = "";
+	my $StyleVal = '';
 	if ($options{allowStyle} && defined($options{style})) {
 		# The value is validated in a very minimal sense only - use with great care
 
@@ -1756,11 +1756,11 @@ sub processDivSpanOptions {
 	}
 
 	# Construct the desired HTML attributes
-	my $html_attribs = "";
-	$html_attribs .= "lang=\"$LangVal\" "   if ($LangVal ne "");
-	$html_attribs .= "dir=\"$DirVal\" "     if ($DirVal ne "");
-	$html_attribs .= "class=\"$ClassVal\" " if ($ClassVal ne "");
-	$html_attribs .= "style=\"$StyleVal\" " if ($StyleVal ne "");
+	my $html_attribs = '';
+	$html_attribs .= "lang=\"$LangVal\" "   if ($LangVal ne '');
+	$html_attribs .= "dir=\"$DirVal\" "     if ($DirVal ne '');
+	$html_attribs .= "class=\"$ClassVal\" " if ($ClassVal ne '');
+	$html_attribs .= "style=\"$StyleVal\" " if ($StyleVal ne '');
 	return ($html_attribs);
 }
 
@@ -1773,7 +1773,7 @@ sub openDivSpan {
 		return ();
 	}
 	my $option_ref = {};
-	my $html_attribs;
+	my $html_attribs = '';
 	if (ref($_[0]) eq 'HASH') {
 		$option_ref   = shift;
 		$html_attribs = processDivSpanOptions($option_ref);
@@ -2093,6 +2093,7 @@ sub old_safe_ev {
 
 sub FEQ {    # Format EQuations
 	my $in = shift;
+	return '' if ( ! defined($in) ); # No need to do all the string replacements in this case
 	# formatting numbers -- the ?{} and !{} constructions
 	$in =~ s/\?\s*\{([.\-\$\w\d]+):?([%.\da-z]*)\}/${ \( &sspf($1, $2) )}/g;
 	$in =~ s/\!\s*\{([.\-\$\w\d]+):?([%.\da-z]*)\}/${ \( &spf($1, $2) )}/g;
@@ -2181,7 +2182,7 @@ sub general_math_ev3 {
 }
 
 sub EV2 {
-	my $string = join(" ", @_);
+	my $string = join(' ', @_);
 	# evaluate code inside of \{  \}  (no nesting allowed)
 	$string = ev_substring($string, "\\{", "\\}", \&old_safe_ev);
 	$string = ev_substring($string, "\\<", "\\>", \&old_safe_ev);
@@ -2196,7 +2197,7 @@ sub EV2 {
 }
 
 sub EV3 {
-	my $string = join(" ", @_);
+	my $string = join(' ', @_);
 	# evaluate code inside of \{  \}  (no nesting allowed)
 	$string = ev_substring($string, "\\\\{", "\\\\}", \&safe_ev);   # handles \{ \} in single quoted strings of PG files
 																	# interpolate variables
@@ -2218,7 +2219,7 @@ sub EV3 {
 
 sub EV4 {
 	if ($displayMode eq "HTML_dpng") {
-		my $string = join(" ", @_);
+		my $string = join(' ', @_);
 		my ($evaluated_string, $PG_eval_errors, $PG_full_errors) =
 			PG_restricted_eval("<<END_OF_EVALUATION_STRING\n$string\nEND_OF_EVALUATION_STRING\n");
 		if ($PG_eval_errors) {
@@ -2293,7 +2294,7 @@ sub EV3P {
 		fixDollars       => 1,
 		%{$option_ref},
 	);
-	my $string = join(" ", @_);
+	my $string = join(' ', @_);
 	$string = ev_substring($string, "\\\\{", "\\\\}", \&safe_ev) if $options{processCommands};
 	if ($options{processVariables}) {
 		my $eval_string = $string;
@@ -2532,7 +2533,7 @@ sub nicestring {
 # kludge to clean up path names
 ## allow underscore character in set and section names and also allows line breaks at /
 sub protect_underbar {
-	my $in = shift;
+	my $in = shift // '';
 	if ($displayMode eq 'TeX') {
 		$in =~ s|_|\\\_|g;
 		$in =~ s|/|\\\-/|g;    # allows an optional hyphenation of the path (in tex)
@@ -2576,7 +2577,7 @@ sub htmlLink {
 	my $url           = shift;
 	my $text          = shift;
 	my $options       = shift;
-	my $sanitized_url = $url;
+	my $sanitized_url = $url // '';
 	$sanitized_url =~ s/&/&amp;/g;
 	$options = ""                                             unless defined($options);
 	return "$BBOLD [ the link to '$text'  is broken ] $EBOLD" unless defined($url) and $url;
