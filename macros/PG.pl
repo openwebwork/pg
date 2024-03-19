@@ -1196,7 +1196,7 @@ sub ENDDOCUMENT {
 						sub {
 							($showResults ? Mojo::DOM->new_tag('span', $options{resultTitle}) : '')
 								. ($rh_envir->{showMessages} && $ansHash->{ans_message}
-									? Mojo::DOM->new_tag('span', $ansHash->{ans_message})
+									? ' ' . Mojo::DOM->new_tag('span', $ansHash->{ans_message})
 									: '');
 						}
 						)->to_string
@@ -1207,8 +1207,12 @@ sub ENDDOCUMENT {
 						type  => 'button',
 						class => "ww-feedback-btn btn btn-sm $options{btnClass} $options{btnAddClass}"
 						. ($rh_envir->{showMessages} && $ansHash->{ans_message} ? ' with-message' : ''),
-						'aria-label' => $options{resultTitle},
-						data         => {
+						'aria-label' => (
+							$rh_envir->{showMessages}
+							&& $ansHash->{ans_message} ? maketext('[_1] with message', $options{resultTitle})
+							: $options{resultTitle}
+						),
+						data => {
 							bs_title               => $options{resultTitle},
 							bs_toggle              => 'popover',
 							bs_trigger             => 'click',
