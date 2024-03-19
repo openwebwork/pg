@@ -817,12 +817,12 @@ The options that can be modified are as follows.
 =item *
 
 C<resultTitle>: This is the title that is displayed in the feedback popover for
-the answers in the response group. By default this is "Preview", "Correct",
-"Incorrect", or "n% correct", depending on the status of the answer and the type
-of submission. Those strings are translated via C<maketext>. Usually this should
-not be changed, but in some cases the default status titles are not appropriate
-for certain types of answers. For example, the L<PGessaymacros.pl> macros
-changes this to "Ungraded" for essay answers.
+the answers in the response group. By default this is "Answer Preview",
+"Correct", "Incorrect", or "n% correct", depending on the status of the answer
+and the type of submission. Those strings are translated via C<maketext>.
+Usually this should not be changed, but in some cases the default status titles
+are not appropriate for certain types of answers. For example, the
+L<PGessaymacros.pl> macros changes this to "Ungraded" for essay answers.
 
 =item *
 
@@ -1034,7 +1034,7 @@ sub ENDDOCUMENT {
 				my $answerScore = $ansHash->{score} // 0;
 
 				my %options = (
-					resultTitle      => maketext('Preview'),
+					resultTitle      => maketext('Answer Preview'),
 					resultClass      => '',
 					btnClass         => 'btn-info',
 					btnAddClass      => 'ms-1',
