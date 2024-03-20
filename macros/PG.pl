@@ -1186,53 +1186,37 @@ sub ENDDOCUMENT {
 
 				# Create the screen reader only span holding the aria description, create the feedback button and
 				# popover, and insert the button at the requested location.
-				my $feedback = (
-					# Add a visually hidden span to provide feedback to screen reader users immediately.
-					$showResults || ($rh_envir->{showMessages} && $ansHash->{ans_message})
-					? Mojo::DOM->new_tag(
-						'span',
-						class => 'visually-hidden',
-						id    => "ww-feedback-$answerLabel",
-						sub {
-							($showResults ? Mojo::DOM->new_tag('span', $options{resultTitle}) : '')
-								. ($rh_envir->{showMessages} && $ansHash->{ans_message}
-									? ' ' . Mojo::DOM->new_tag('span', $ansHash->{ans_message})
-									: '');
-						}
-						)->to_string
-					: ''
-					)
-					. Mojo::DOM->new_tag(
-						'button',
-						type  => 'button',
-						class => "ww-feedback-btn btn btn-sm $options{btnClass} $options{btnAddClass}"
+				my $feedback = Mojo::DOM->new_tag(
+					'button',
+					type  => 'button',
+					class => "ww-feedback-btn btn btn-sm $options{btnClass} $options{btnAddClass}"
 						. ($rh_envir->{showMessages} && $ansHash->{ans_message} ? ' with-message' : ''),
-						'aria-label' => (
-							$rh_envir->{showMessages}
-							&& $ansHash->{ans_message} ? maketext('[_1] with message', $options{resultTitle})
-							: $options{resultTitle}
-						),
-						data => {
-							bs_title               => $options{resultTitle},
-							bs_toggle              => 'popover',
-							bs_trigger             => 'click',
-							bs_placement           => 'bottom',
-							bs_html                => 'true',
-							bs_custom_class        => join(' ', 'ww-feedback-popover', $options{resultClass} || ()),
-							bs_fallback_placements => '[]',
-							bs_content             => Mojo::DOM->new_tag(
-								'div',
-								id => "$answerLabel-feedback",
-								sub {
-									Mojo::DOM->new_tag(
-										'div',
-										class => 'card',
-										sub {
-											(
-												$rh_envir->{showMessages} && $ansHash->{ans_message}
-												? feedbackLine('', $ansHash->{ans_message} =~ s/\n/<br>/gr,
-													'feedback-message')
-												: ''
+					'aria-label' => (
+						$rh_envir->{showMessages} && $ansHash->{ans_message}
+						? maketext('[_1] with message', $options{resultTitle})
+						: $options{resultTitle}
+					),
+					data => {
+						bs_title               => $options{resultTitle},
+						bs_toggle              => 'popover',
+						bs_trigger             => 'click',
+						bs_placement           => 'bottom',
+						bs_html                => 'true',
+						bs_custom_class        => join(' ', 'ww-feedback-popover', $options{resultClass} || ()),
+						bs_fallback_placements => '[]',
+						bs_content             => Mojo::DOM->new_tag(
+							'div',
+							id => "$answerLabel-feedback",
+							sub {
+								Mojo::DOM->new_tag(
+									'div',
+									class => 'card',
+									sub {
+										(
+											$rh_envir->{showMessages} && $ansHash->{ans_message}
+											? feedbackLine('', $ansHash->{ans_message} =~ s/\n/<br>/gr,
+												'feedback-message')
+											: ''
 											)
 											. ($rh_envir->{showAttemptAnswers} && $options{showEntered}
 												? feedbackLine(maketext('You Entered'), $ansHash->{student_ans})
@@ -1277,12 +1261,12 @@ sub ENDDOCUMENT {
 												}
 												: ''
 											);
-										}
-									);
-								}
+									}
+								);
+							}
 						)->to_string,
-						},
-						sub { Mojo::DOM->new_tag('i', class => $options{resultClass}) }
+					},
+					sub { Mojo::DOM->new_tag('i', class => $options{resultClass}) }
 				)->to_string;
 
 				if ($options{insertElement} && $options{insertElement}->can($options{insertMethod})) {
