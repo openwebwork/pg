@@ -68,21 +68,11 @@ sub _reduce {
 	$self->swapOps
 		if (($self->{rop}->class eq 'Number' && $self->{lop}->class ne 'Number' && $reduce->{'x*n'})
 			|| ($self->{lop}->class eq 'Function' && $self->{rop}->class ne 'Function' && $reduce->{'fn*x'}));
-
-	if ($reduce->{'m*(n*x)'}
-		&& defined $self->{lop}
-		&& defined $self->{rop}{lop}
-		&& defined $self->{rop}{bop}
-		&& $self->{lop}->class eq 'Number'
-		&& $self->{rop}{lop}->class eq 'Number'
-		&& $self->{rop}{bop} eq '*')
-	{
-		my $m = $self->{lop};
-		$self->{lop} = $self->{rop}->copy;
-		$self->{lop}->swapOps;
-		$self->{lop}{lop} = $m;
-		$self->{rop} = $self->{rop}{rop};
-	}
+	$self = $self->associateOps('left')
+		if ($reduce->{'m*(n*x)'}
+			&& $self->{lop}->class eq 'Number'
+			&& $self->{rop}->isa('Parser::BOP::multiply')
+			&& $self->{rop}{lop}->class eq 'Number');
 	return $self;
 }
 
