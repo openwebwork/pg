@@ -342,13 +342,7 @@
 
 				MQ.StaticMath(icon, { mouseEvents: false });
 
-				answerQuill.toolbar.tooltips.push(
-					new bootstrap.Tooltip(button, {
-						placement: 'left',
-						trigger: 'hover',
-						delay: { show: 500, hide: 0 }
-					})
-				);
+				answerQuill.toolbar.tooltips.push(new bootstrap.Tooltip(button, { placement: 'left' }));
 
 				button.addEventListener('click', () => {
 					answerQuill.mathField.cmd(button.dataset.latex);
