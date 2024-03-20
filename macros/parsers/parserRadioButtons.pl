@@ -52,7 +52,7 @@ of the choice as it is displayed following the radio button.
 
 The values set as described above are the answers that will be
 displayed in the past answers table.  See the C<values> option below
-for more information.  Problem authors are encourages to set these
+for more information.  Problem authors are encouraged to set these
 values either as described above, or via the C<values> option.  This
 is useful for instructors viewing past answers.
 
@@ -228,7 +228,7 @@ and then
 
     ANS($radio->cmp);
 
-to get the answer checker for the radion buttons.
+to get the answer checker for the radio buttons.
 
 You can use the RadioButtons object in MultiAnswer objects.  This is
 the reason for the RadioButton's C<ans_rule()> method (since that is
