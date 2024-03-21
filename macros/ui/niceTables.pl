@@ -369,6 +369,23 @@ Make a bottom rule.  Thickness is either C<n> pixels or a width like C<'0.04em'>
 Override table's overall vertical alignment for this row.  Can be C<'top'>, C<'middle'>,
 or C<'bottom'>.
 
+=item C<rows =E<gt> 2D array reference>
+
+If a row contains only one cell with no content or attributes other than C<'rows'>,
+and if C<'rows'> is an array reference where each element is itself an array
+reference that is appropriately formatted to be a niceTables row, then this row
+will be expanded to those rows. This allows a sequence of rows to be computed
+algorithmically for example C<[{rows => [ map {[ $_, $_**2 ]} (1..4)]}]> will
+expand to C<[1, 1], [2, 4], [3, 9], [4, 16]>.
+
+This can also be achieved if the cell is an array reference with (possibly empty)
+whitespace content followed by the rows attribute, for example:
+C<[['', 'rows', [ map {[ $_, $_**2 ]} (1..4)]]]>. This form is used by PGML. So
+for instance when using PGML, C<[. .]*{rows => $rows}>.
+
+This expansion is not recursive; any C<'rows'> attribute in the inner rows will
+not be expanded.
+
 =back
 
 =head2 Options for COLUMNS
@@ -1113,7 +1130,20 @@ sub Row {
 
 # Takes the user's nested array and returns a cleaned up version with initializations
 sub TableArray {
-	my $userArray        = shift;
+	my $userArray = shift;
+	for my $i (reverse(0 .. $#$userArray)) {
+		if (@{ $userArray->[$i] } == 1) {
+			if (ref($userArray->[$i][0]) eq 'HASH' && defined($userArray->[$i][0]{rows})) {
+				splice(@{$userArray}, $i, 1, @{ $userArray->[$i][0]{rows} });
+			} elsif (ref($userArray->[$i][0]) eq 'ARRAY'
+				&& @{ $userArray->[$i][0] } == 3
+				&& $userArray->[$i][0][0] =~ /^\s*$/
+				&& $userArray->[$i][0][1] eq 'rows')
+			{
+				splice(@{$userArray}, $i, 1, @{ $userArray->[$i][0][2] });
+			}
+		}
+	}
 	my %supportedOptions = (
 		data      => '',
 		halign    => '',
