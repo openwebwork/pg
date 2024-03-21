@@ -47,7 +47,7 @@ Command for a typical table:
     );
 
 The cell entries above like C<a> may be simple cell content,
-a hash reference with C<data =E<gt> cellContent> and options,
+a hash reference with C<< data => cellContent >> and options,
 or an array reference where the 0th entry is the the cell content
 and it is followed by option key-value pairs.
 
@@ -66,19 +66,19 @@ C<caption>, C<rowheaders>, C<header>, C<colspan>, or C<headerrow>.
 
 =over
 
-=item C<center =E<gt> 0 or 1>
+=item C<< center => 0 or 1 >>
 
 center the table (default 1)
 
-=item C<caption =E<gt> string>
+=item C<< caption => string >>
 
 caption for the table
 
-=item C<horizontalrules =E<gt> 0 or 1>
+=item C<< horizontalrules => 0 or 1 >>
 
 make rules above and below every row (default 0)
 
-=item C<texalignment =E<gt> string>
+=item C<< texalignment => string >>
 
 an alignment string like is used in a LaTeX tabular environment: for example C<'r|ccp{1in}'>
 
@@ -99,8 +99,8 @@ C<|> for a vertical rule (n adjacent pipes make one rule that is n times as thic
 C<!{\vrule width 3pt}> for a vertical rule of the indicated width
 (must be an absolute width; C<3pt> is just an example)
 
-C<E<gt>{commands}> Execute C<commands> at each cell in the column.
-For example, C<'cE<gt>{\color{blue}}c'> will make the second column have blue text.
+C<< >{commands} >> Execute C<commands> at each cell in the column.
+For example, C<< 'c>{\color{blue}}c' >> will make the second column have blue text.
 The following LaTeX commands may be used:
 
 =over
@@ -123,11 +123,11 @@ C<\ttfamily> for monospace
 
 Other LaTeX commands apply only to PDF output.
 
-=item C<align =E<gt> string>
+=item C<< align => string >>
 
 convenient short version of C<texalignment>
 
-=item C<Xratio =E<gt> number>
+=item C<< Xratio => number >>
 
 When C<X> is part of overall alignment,
 C<Xratio> must be some number between 0 and 1, inclusive of 1.
@@ -135,26 +135,26 @@ The table as a whole will be C<Xratio> wide, relative to the overall
 horizontal space. And C<X> columns expand to fill the available space.
 The default is 0.97.
 
-=item C<encase =E<gt> [ , ]>
+=item C<< encase => [ , ] >>
 
 Encases all table entries in the two entries. For example, use C<[$BM,$EM]>
 to wrap all cells in math delimiters. See also C<noencase> for individual cells.
 
-=item C<rowheaders =E<gt> 0 or 1>
+=item C<< rowheaders => 0 or 1 >>
 
 Make the first element of every row a row header. Default is 0.
 
-=item C<headerrules =E<gt> 0 or 1>
+=item C<< headerrules => 0 or 1 >>
 
 Make a horizontal rule under a row of column headers and a vertical
 rule to the right of a column of row headers. Default is 1.
 
-=item C<valign =E<gt> 'top'>
+=item C<< valign => 'top' >>
 
 Can be C<'top'>, C<'middle'>, or C<'bottom'>. Applies to all rows.
 See below to override for an individual row.
 
-=item C<padding =E<gt> [ , ]>
+=item C<< padding => [ , ] >>
 
 An array of two non-negative numbers used to define cell-padding. The first is
 for top-down padding, the second for left-right padding. In HTML, each padding
@@ -171,21 +171,21 @@ padding at the same time.
 =head3 HTML output
 
 Each css property setting should be a hash reference.
-For example,  C<{'font-family' =E<gt> 'fantasy', color =E<gt> 'red'}>.
+For example,  C<< {'font-family' => 'fantasy', color => 'red'} >>.
 If a key has a dash character, it needs to be in quotes. Alternatively,
-you may uses a javascript flavor of CSS key like C<{fontFamily =E<gt> 'fantasy'}>
+you may uses a javascript flavor of CSS key like C<< {fontFamily => 'fantasy'} >>
 
 =over
 
-=item C<tablecss =E<gt> css string>
+=item C<< tablecss => css string >>
 
 css styling commands for the table element
 
-=item C<captioncss =E<gt> css string>
+=item C<< captioncss => css string >>
 
 css styling commands for the caption element
 
-=item C<columnscss => array ref
+=item C<< columnscss => array ref >>
 
 an array reference to css strings for columns
 
@@ -203,15 +203,15 @@ Note: only four css properties apply to a col element:
 
 =back
 
-=item C<datacss =E<gt> css string>
+=item C<< datacss => css string >>
 
 css styling commands for non-header cells
 
-=item C<headercss =E<gt> css string>
+=item C<< headercss => css string >>
 
 css styling commands for header cells
 
-=item C<allcellcss =E<gt> css string>
+=item C<< allcellcss => css string >>
 
 css styling commands for all cells
 
@@ -221,7 +221,7 @@ css styling commands for all cells
 
 =over
 
-=item C<booktabs =E<gt> 0 or 1>
+=item C<< booktabs => 0 or 1 >>
 
 use the booktabs package for horizontal rules (default 1)
 
@@ -243,14 +243,14 @@ Alternatively, using a hash reference with a data key:
 
 =over
 
-=item C<halign =E<gt> string>
+=item C<< halign => string >>
 
 Similar to the components for C<texalignment> above.
 However, only C<l>, C<c>, C<r>, C<p{}>, and vertical rule specifications should be used.
 With vertical rule specifiers, any left vertical rule will only be observed for cells
 is in the first column. Otherwise, use a right vertical rule on the cell to the left.
 
-=item C<header =E<gt> type>,
+=item C<< header => type >>,
 
 Declares the scope of the HTML C<th> element. Case-insensitive:
 
@@ -267,41 +267,41 @@ Declares the scope of the HTML C<th> element. Case-insensitive:
 
 =back
 
-=item C<color =E<gt> string>
+=item C<< color => string >>
 
 color name or 6-character hex color code for text color
 
-=item C<bgcolor =E<gt> string>
+=item C<< bgcolor => string >>
 
 color name or 6-character hex color code for background color
 
-=item C<b=E<gt>1>
+=item C<< b=>1 >>
 
 Set the cell to bold font.
 
-=item C<i=E<gt>1>
+=item C<< i=>1 >>
 
 Set the cell to italics font.
 
-=item C<m=E<gt>1>
+=item C<< m=>1 >>
 
 Set the cell to monospace font.
 
-=item C<noencase =E<gt> 0 or 1>
+=item C<< noencase => 0 or 1 >>
 
 If you are using encase (see above) use this to opt out.
 
-=item C<colspan =E<gt> positive integer>
+=item C<< colspan => positive integer >>
 
 Makes the cell span more than one column. When using this, you
 often set C<halign> as well.
 
-=item C<top =E<gt> positive integer or string>
+=item C<< top => positive integer or string >>
 
 Make a top rule for one cell if the cell is in the top row. Thickness is either C<n>
 pixels or a width like C<'0.04em'>. Has no effect on cells outside of top row.
 
-=item C<bottom =E<gt> positive integer or string>
+=item C<< bottom => positive integer or string >>
 
 Make a bottom rule for one cell. Thickness is either C<n> pixels or a width like C<'0.04em'>.
 
@@ -313,7 +313,7 @@ This option is only for HTML output.
 
 =over
 
-=item C<cellcss =E<gt> string>
+=item C<< cellcss => string >>
 
 css styling commands for this cell
 
@@ -325,12 +325,12 @@ The following apply only to PDF output
 
 =over
 
-=item C<texpre =E<gt> tex code> and C<texpost =E<gt> tex code>
+=item C<< texpre => tex code >> and C<< texpost => tex code >>
 
 For more fussy cell-by-cell alteration of the tex version of
 the table, code to place before and after the cell content.
 
-=item C<texencase =E<gt> array ref>
+=item C<< texencase => array ref >>
 
 Shortcut for entering C<[texpre,texpost]> at once.
 
@@ -343,33 +343,33 @@ When there is a clash, the last non-falsy declaration in the row will be used.
 
 =over
 
-=item C<rowcolor =E<gt> string>
+=item C<< rowcolor => string >>
 
 Sets the row's background color.  Must be a color name, 6-character hex color code.
 
-=item C<rowcss =E<gt> string>
+=item C<< rowcss => string >>
 
 css styling commands for the row
 
-=item C<headerrow =E<gt> 0 or 1>
+=item C<< headerrow => 0 or 1 >>
 
 Makes an entire row use header cells (with column scope).
 
-=item C<rowtop =E<gt> positive integer or string>
+=item C<< rowtop => positive integer or string >>
 
 When used on the first row, creates a top rule. Has no effect on other rows.
 Thickness is either C<n> pixels or a width like C<'0.04em'>.
 
-=item C<rowbottom =E<gt> positive integer string>
+=item C<< rowbottom => positive integer string >>
 
 Make a bottom rule.  Thickness is either C<n> pixels or a width like C<'0.04em'>.
 
-=item C<valign =E<gt> string>
+=item C<< valign => string >>
 
 Override table's overall vertical alignment for this row.  Can be C<'top'>, C<'middle'>,
 or C<'bottom'>.
 
-=item C<rows =E<gt> 2D array reference>
+=item C<< rows => 2D array reference >>
 
 If a row contains only one cell with no content or attributes other than C<'rows'>,
 and if C<'rows'> is an array reference where each element is itself an array
@@ -399,9 +399,9 @@ These features were supported in an earlier version and still work, but are depr
 =over
 
 =item * Each css setting can be a raw CSS string, including all its colons and a semicolons.
-For example, C<tablecss =E<gt> 'font-family: fantasy; text-decoration: underline;'>.
+For example, C<< tablecss => 'font-family: fantasy; text-decoration: underline;' >>.
 
-=item * A cell can have C<tex =E<gt> commands>.
+=item * A cell can have C<< tex => commands >>.
 This executes commands at start of a cell with scope the entire cell.
 The following LaTeX commands may be used and respected in HTML as well as LaTeX:
 
