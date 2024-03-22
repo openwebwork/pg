@@ -112,7 +112,7 @@ window.graphTool = (containerId, options) => {
 			straightLast: false,
 			fixed: true
 		},
-		grid: { gridX: gt.snapSizeX, gridY: gt.snapSizeY },
+		grid: { majorStep: [gt.snapSizeX, gt.snapSizeY] },
 		keyboard: {
 			enabled: true,
 			dx: gt.snapSizeX,

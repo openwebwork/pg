@@ -1105,7 +1105,7 @@ sub constructJSXGraphOptions {
 				x => { ticks => { ticksDistance => $self->{ticksDistanceX}, minorTicks => $self->{minorTicksX} } },
 				y => { ticks => { ticksDistance => $self->{ticksDistanceY}, minorTicks => $self->{minorTicksY} } }
 			},
-			grid => { gridX => $self->{gridX}, gridY => $self->{gridY} }
+			grid => { majorStep => [ $self->{gridX}, $self->{gridY} ] }
 		)
 	});
 
