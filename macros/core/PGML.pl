@@ -52,8 +52,8 @@ my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?:#.*?(?:\n\s*)+)?(?!=>)(?=.)|\bq[qr]?(
 my $emphasis  = '\*+|_+';
 my $chars     = '\\\\.|[{}[\]()\'"]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
-my $open      = '\[(?:[!<%@$#.]|::?:?|``?`?|\|+ ?)';
-my $close     = '(?:[!>%@$#.]|::?:?|``?`?| ?\|+)\]';
+my $open      = '\[(?:[!<%@$#.^]|::?:?|``?`?|\|+ ?)';
+my $close     = '(?:[!>%@$#.^]|::?:?|``?`?| ?\|+)\]';
 my $noop      = '\[\]';
 
 my $splitPattern =
@@ -442,7 +442,7 @@ sub Rule {
 	my $self  = shift;
 	my $token = shift;
 	if ($self->{atLineStart}) {
-### check for line end or braces
+		# check for line end or braces
 		$self->Item("rule", $token, { options => [ "width", "height", "size" ] });
 		$self->{ignoreNL} = 1;
 	} else {
@@ -618,6 +618,14 @@ my $balanceAll = qr/[\{\[\'\"]/;
 			halign  header color   bgcolor   b        i      m         noencase colspan   top    bottom
 			cellcss texpre texpost texencase rowcolor rowcss headerrow rowtop   rowbottom valign rows
 		) ]
+	},
+	"[^" => {
+		type        => 'tag',
+		parseAll    => 1,
+		allowPar    => 1,
+		isContainer => 1,
+		terminator  => qr/\^\]/,
+		options     => [qw(tag attributes tex_begin tex_end)]
 	},
 	"[:" => {
 		type               => 'math',
@@ -1282,6 +1290,7 @@ sub string {
 			/forced/   && do { $string = $self->Forced($item);                    last };
 			/comment/  && do { $string = $self->Comment($item);                   last };
 			/table/    && do { $string = $self->Table($item);                     last };
+			/tag/      && do { $string = $self->Tag($item);                       last };
 			PGML::Warning "Warning: unknown block type '$item->{type}' in " . ref($self) . "::format\n";
 		}
 		push(@strings, $string) unless (!defined $string || $string eq '');
@@ -1336,6 +1345,11 @@ sub Table {
 	}
 	push(@$table, $row) if @$row;
 	return ($item->{hasStar} ? main::LayoutTable($table, @options) : main::DataTable($table, @options));
+}
+
+sub Tag {
+	my ($self, $item) = @_;
+	return $self->string($item);
 }
 
 sub Math {
@@ -1645,6 +1659,11 @@ sub Math {
 	return main::general_math_ev3($self->SUPER::Math(@_));
 }
 
+sub Tag {
+	my ($self, $item) = @_;
+	return main::tag($item->{tag} // 'div', %{ $item->{attributes} // {} }, $self->string($item));
+}
+
 ######################################################################
 ######################################################################
 
@@ -1787,6 +1806,11 @@ sub Verbatim {
 sub Math {
 	my $self = shift;
 	return main::general_math_ev3($self->SUPER::Math(@_));
+}
+
+sub Tag {
+	my ($self, $item) = @_;
+	return '{' . ($item->{tex_begin} // '') . $self->string($item) . ($item->{tex_end} // '') . '}';
 }
 
 ######################################################################
