@@ -13,13 +13,15 @@
 # Artistic License for more details.
 ################################################################################
 
-BEGIN {
-	strict->import;
-}
+=head1 DESCRIPTION
 
-sub _Tikz_init { }
+This is the code that takes a C<Plots::Plot> and creates the tikz code for generation.
 
-package PGplot::Tikz;
+See L<plots.pl> for more details.
+
+=cut
+
+package Plots::Tikz;
 
 sub new {
 	my ($class, $pgplot) = @_;
