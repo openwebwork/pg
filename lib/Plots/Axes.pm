@@ -13,11 +13,7 @@
 # Artistic License for more details.
 ################################################################################
 
-=head1 NAME
-
-PGplot/Axes.pl - Object used with PGplot to store data about a plot's title and axes.
-
-=head1 DESCRIPTION
+=head1 AXES OBJECT
 
 This is a hash to store information about the axes (ticks, range, grid, etc)
 with some helper methods. The hash is further split into three smaller hashes:
@@ -40,7 +36,7 @@ Hash of data for options for the general axis.
 
 =head1 USAGE
 
-The axes object should be accessed through a L<PGplot|PGplot.pl> object using C<$plot-E<gt>axes>.
+The axes object should be accessed through a PGplot object using C<< $plot->axes >>.
 The axes object is used to configure and retrieve information about the axes,
 as in the following examples.
 
@@ -84,7 +80,7 @@ a reference to a hash of requested keys, such as:
     $grid = $plot->axes->get('xmajor', 'xminor', 'xticks', 'ymajor', 'yminor', 'yticks');
 
 It is also possible to get the bounds as an array in the order xmin, ymin, xmax, ymax
-using the C<$plot-E<gt>axes-E<gt>bounds> method.
+using the C<< $plot->axes->bounds >> method.
 
 =head1 AXIS CONFIGURATION OPTIONS
 
@@ -116,7 +112,7 @@ Default is 0.
 
 This is the number of major tick marks to include on the axis. This number is used
 to compute the C<tick_delta> as the difference between the C<max> and C<min> values
-and the number of ticks. Default: 5. 
+and the number of ticks. Default: 5.
 
 =item label
 
@@ -192,13 +188,7 @@ be visible after the fill, otherwise the fill will cover the axis. Default: 0
 
 =cut
 
-BEGIN {
-	strict->import;
-}
-
-sub _Axes_init { }
-
-package PGplot::Axes;
+package Plots::Axes;
 
 sub new {
 	my $class = shift;
@@ -224,9 +214,9 @@ sub new {
 sub axis_defaults {
 	my ($self, $axis) = @_;
 	return (
-		visible    => 1,
+		visible    =>  1,
 		min        => -5,
-		max        => 5,
+		max        =>  5,
 		label      => $axis eq 'y' ? '\(y\)'  : '\(x\)',
 		location   => $axis eq 'y' ? 'center' : 'middle',
 		position   => 0,

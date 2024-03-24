@@ -13,13 +13,15 @@
 # Artistic License for more details.
 ################################################################################
 
-BEGIN {
-	strict->import;
-}
+=head1 DESCRIPTION
 
-sub _GD_init { }
+This is the code that takes a C<Plots::Plot> and creates the GD code for generation.
 
-package PGplot::GD;
+See L<plots.pl> for more details.
+
+=cut
+
+package Plots::GD;
 
 sub new {
 	my ($class, $pgplot) = @_;

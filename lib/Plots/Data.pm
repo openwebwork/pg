@@ -13,17 +13,13 @@
 # Artistic License for more details.
 ################################################################################
 
-=head1 NAME
+=head1 DATA OBJECT
 
-Data.pl - Base data class for PGplot elements (functions, labels, etc).
-
-=head1 DESCRIPTION
-
-This is a data class to hold data about the different types of elements
-that can be added to a PGplot graph. This is a hash with some helper methods.
-Data objects are created and modified using the L<PGplot|PGplot.pl> methods,
-and do not need to generally be modified in a PG problem.  Each PG add method
-returns the related data object which can be used if needed.
+This object holds data about the different types of elements that can be added
+to a PGplot graph. This is a hash with some helper methods. Data objects are created
+and modified using the PGplot methods, and do not need to generally be
+modified in a PG problem.  Each PG add method returns the related data object which
+can be used if needed.
 
 Each data object contains the following:
 
@@ -59,16 +55,16 @@ The main methods for adding data and accessing the data are:
 
 =over 5
 
-=item C<$data-E<gt>name>
+=item C<< $data->name >>
 
-Sets, C<$data-E<gt>name($string)>, or gets C<$data-E<gt>name> the name of the data object.
+Sets, C<< $data->name($string) >>, or gets C<< $data->name >> the name of the data object.
 
-=item C<$data-E<gt>add>
+=item C<< $data->add >>
 
-Adds a single data point, C<$data-E<gt>add($x, $y)>, or adds multiple data points,
-C<$data-E<gt>add([$x1, $y1], [$x2, $y2], ..., [$xn, $yn])>.
+Adds a single data point, C<< $data->add($x, $y) >>, or adds multiple data points,
+C<< $data->add([$x1, $y1], [$x2, $y2], ..., [$xn, $yn]) >>.
 
-=item C<$data-E<gt>set_function>
+=item C<< $data->set_function >>
 
 Configures a function to generate data points. C<sub_x> and C<sub_y> are are perl subroutines.
 
@@ -83,24 +79,24 @@ The number of steps used to generate the data is a style and needs to be set sep
 
     $data->style(steps => 50);
 
-=item C<$data-E<gt>gen_data>
+=item C<< $data->gen_data >>
 
 Generate the data points from a function. This can only be done when there is no data, so
 once the data has been generated this will do nothing (to avoid generating data again).
 
-=item C<$data-E<gt>size>
+=item C<< $data->size >>
 
 Returns the current number of points being stored.
 
-=item C<$data-E<gt>x> and C<$data-E<gt>y>
+=item C<< $data->x >> and C<< $data->y >>
 
 Without any inputs, these return either the x array or y array of data points being stored.
-A single input can be used to return only the n-th data point, C<$data-E<gt>x($n)>.
+A single input can be used to return only the n-th data point, C<< $data->x($n) >>.
 
-=item C<$data-E<gt>style>
+=item C<< $data->style >>
 
-Sets or gets style information. Use C<$data-E<gt>style($name)> to get the style value of a single
-style name. C<$data-E<gt>style> will returns a reference to the full style hash. Last, input a hash
+Sets or gets style information. Use C<< $data->style($name) >> to get the style value of a single
+style name. C<< $data->style >> will returns a reference to the full style hash. Last, input a hash
 to add / change the styles.
 
     $data->style(color => 'blue', width => 3);
@@ -109,13 +105,7 @@ to add / change the styles.
 
 =cut
 
-BEGIN {
-	strict->import;
-}
-
-sub _Data_init { }
-
-package PGplot::Data;
+package Plots::Data;
 
 sub new {
 	my $class = shift;
@@ -178,7 +168,7 @@ sub set_function {
 		sub_x => sub { return $_[0]; },
 		sub_y => sub { return $_[0]; },
 		min   => -5,
-		max   => 5,
+		max   =>  5,
 		@_
 	};
 	$self->style(steps => $self->{function}{steps}) if $self->{funciton}{steps};
