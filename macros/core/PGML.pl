@@ -52,8 +52,8 @@ my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?:#.*?(?:\n\s*)+)?(?!=>)(?=.)|\bq[qr]?(
 my $emphasis  = '\*+|_+';
 my $chars     = '\\\\.|[{}[\]()\'"]';
 my $ansrule   = '\[(?:_+|[ox^])\]\*?';
-my $open      = '\[(?:[!<%@$#.^]|::?:?|``?`?|\|+ ?)';
-my $close     = '(?:[!>%@$#.^]|::?:?|``?`?| ?\|+)\]';
+my $open      = '\[(?:[!<%@$#.]|::?:?|``?`?|\|+ ?)';
+my $close     = '(?:[!>%@$#.]|::?:?|``?`?| ?\|+)\]';
 my $noop      = '\[\]';
 
 my $splitPattern =
@@ -619,14 +619,6 @@ my $balanceAll = qr/[\{\[\'\"]/;
 			cellcss texpre texpost texencase rowcolor rowcss headerrow rowtop   rowbottom valign rows
 		) ]
 	},
-	"[^" => {
-		type        => 'tag',
-		parseAll    => 1,
-		allowPar    => 1,
-		isContainer => 1,
-		terminator  => qr/\^\]/,
-		options     => [qw(tag attributes tex_begin tex_end)]
-	},
 	"[:" => {
 		type               => 'math',
 		parseComments      => 1,
@@ -698,13 +690,12 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		options            => [ "source", "width", "height", "image_options" ]
 	},
 	"[<" => {
-		type               => 'link',
-		parseComments      => 1,
-		parseSubstitutions => 1,
-		terminator         => qr/>\]/,
-		terminateMethod    => 'terminateGetString',
-		cancelNL           => 1,
-		options            => [ "text", "title" ]
+		type        => 'tag',
+		parseAll    => 1,
+		allowPar    => 1,
+		isContainer => 1,
+		terminator  => qr/>\]/,
+		options     => [qw(html tex ptx)]
 	},
 	"[%"  => { type => 'comment', parseComments => 1, terminator => qr/%\]/, allowPar => 1 },
 	"[\@" => {
@@ -1661,7 +1652,14 @@ sub Math {
 
 sub Tag {
 	my ($self, $item) = @_;
-	return main::tag($item->{tag} // 'div', %{ $item->{attributes} // {} }, $self->string($item));
+	my %whitelist  = (a => 1, div => 1, span => 1);
+	my @attributes = ref($item->{html}) eq 'ARRAY' ? @{ $item->{html} }           : $item->{html};
+	my $tag        = @attributes % 2               ? (shift @attributes // 'div') : 'div';
+	unless ($whitelist{$tag}) {
+		PGML::Warning qq{The tag "$tag" is not allowed};
+		return $self->string($item);
+	}
+	return main::tag($tag, @attributes, $self->string($item));
 }
 
 ######################################################################
@@ -1810,7 +1808,13 @@ sub Math {
 
 sub Tag {
 	my ($self, $item) = @_;
-	return '{' . ($item->{tex_begin} // '') . $self->string($item) . ($item->{tex_end} // '') . '}';
+	my ($tex_begin, $tex_end);
+	if (ref($item->{tex}) eq 'ARRAY') {
+		($tex_begin, $tex_end) = @{ $item->{tex} };
+	} elsif ($item->{tex}) {
+		($tex_begin, $tex_end) = ("\\begin{$item->{tex}}", "\\end{$item->{tex}}");
+	}
+	return '{' . ($tex_begin // '') . $self->string($item) . ($tex_end // '') . '}';
 }
 
 ######################################################################
@@ -1958,6 +1962,15 @@ sub Verbatim {
 sub Math {
 	my $self = shift;
 	return main::general_math_ev3($self->SUPER::Math(@_));
+}
+
+sub Tag {
+	my ($self, $item) = @_;
+	my @args = ref($item->{ptx}) eq 'ARRAY' ? @{ $item->{ptx} } : $item->{ptx};
+	if (my $tag = shift @args) {
+		return NiceTables::tag($self->string($item), $tag, @args);
+	}
+	return $self->string($item);
 }
 
 ######################################################################
