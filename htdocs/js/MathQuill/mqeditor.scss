@@ -112,7 +112,9 @@ input[type='text'].codeshard.mq-edit {
 	/*rtl:ignore*/
 	right: 10px;
 	z-index: 1001;
+	overflow-x: hidden;
 	overflow-y: auto;
+	scrollbar-width: thin;
 	opacity: 1;
 	transition: opacity 500ms ease;
 

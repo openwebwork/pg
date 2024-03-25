@@ -44,6 +44,8 @@
 				?.querySelector('.popover-header')
 				?.addEventListener('click', () => feedbackPopover.hide());
 
+			if (feedbackPopover.tip) feedbackPopover.tip.dataset.iframeHeight = '1';
+
 			const revealCorrectBtn = feedbackPopover.tip?.querySelector('.reveal-correct-btn');
 			if (revealCorrectBtn && feedbackPopover.correctRevealed) {
 				revealCorrectBtn.nextElementSibling?.classList.remove('d-none');
