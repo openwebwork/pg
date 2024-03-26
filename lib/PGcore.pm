@@ -782,8 +782,7 @@ sub get_debug_messages {
 
 sub warning_message {
 	my ($self, @str) = @_;
-	# Mark the start of each message.
-	push @{ $self->{WARNING_messages} }, '------', @str;
+	push @{ $self->{WARNING_messages} }, @str;
 }
 
 sub get_warning_messages {
