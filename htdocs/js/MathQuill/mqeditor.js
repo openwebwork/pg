@@ -332,22 +332,17 @@
 				button.classList.add('symbol-button', 'btn', 'btn-dark');
 				button.dataset.latex = buttonData.latex;
 				button.dataset.bsToggle = 'tooltip';
-				button.dataset.bsTitle = buttonData.tooltip;
+				button.title = buttonData.tooltip;
 				const icon = document.createElement('span');
 				icon.id = `icon-${buttonData.id}-${answerQuill.id}`;
 				icon.textContent = buttonData.icon;
+				icon.setAttribute('aria-hidden', 'true');
 				button.append(icon);
 				answerQuill.toolbar.append(button);
 
 				MQ.StaticMath(icon, { mouseEvents: false });
 
-				answerQuill.toolbar.tooltips.push(
-					new bootstrap.Tooltip(button, {
-						placement: 'left',
-						trigger: 'hover',
-						delay: { show: 500, hide: 0 }
-					})
-				);
+				answerQuill.toolbar.tooltips.push(new bootstrap.Tooltip(button, { placement: 'left' }));
 
 				button.addEventListener('click', () => {
 					answerQuill.mathField.cmd(button.dataset.latex);
