@@ -442,7 +442,7 @@ sub Rule {
 	my $self  = shift;
 	my $token = shift;
 	if ($self->{atLineStart}) {
-### check for line end or braces
+		# check for line end or braces
 		$self->Item("rule", $token, { options => [ "width", "height", "size" ] });
 		$self->{ignoreNL} = 1;
 	} else {
@@ -690,13 +690,12 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		options            => [ "source", "width", "height", "image_options" ]
 	},
 	"[<" => {
-		type               => 'link',
-		parseComments      => 1,
-		parseSubstitutions => 1,
-		terminator         => qr/>\]/,
-		terminateMethod    => 'terminateGetString',
-		cancelNL           => 1,
-		options            => [ "text", "title" ]
+		type        => 'tag',
+		parseAll    => 1,
+		allowPar    => 1,
+		isContainer => 1,
+		terminator  => qr/>\]/,
+		options     => [qw(html tex ptx)]
 	},
 	"[%"  => { type => 'comment', parseComments => 1, terminator => qr/%\]/, allowPar => 1 },
 	"[\@" => {
@@ -1282,6 +1281,7 @@ sub string {
 			/forced/   && do { $string = $self->Forced($item);                    last };
 			/comment/  && do { $string = $self->Comment($item);                   last };
 			/table/    && do { $string = $self->Table($item);                     last };
+			/tag/      && do { $string = $self->Tag($item);                       last };
 			PGML::Warning "Warning: unknown block type '$item->{type}' in " . ref($self) . "::format\n";
 		}
 		push(@strings, $string) unless (!defined $string || $string eq '');
@@ -1336,6 +1336,11 @@ sub Table {
 	}
 	push(@$table, $row) if @$row;
 	return ($item->{hasStar} ? main::LayoutTable($table, @options) : main::DataTable($table, @options));
+}
+
+sub Tag {
+	my ($self, $item) = @_;
+	return $self->string($item);
 }
 
 sub Math {
@@ -1645,6 +1650,18 @@ sub Math {
 	return main::general_math_ev3($self->SUPER::Math(@_));
 }
 
+sub Tag {
+	my ($self, $item) = @_;
+	my %whitelist  = (a => 1, div => 1, span => 1);
+	my @attributes = ref($item->{html}) eq 'ARRAY' ? @{ $item->{html} }           : $item->{html};
+	my $tag        = @attributes % 2               ? (shift @attributes // 'div') : 'div';
+	unless ($whitelist{$tag}) {
+		PGML::Warning qq{The tag "$tag" is not allowed};
+		return $self->string($item);
+	}
+	return main::tag($tag, @attributes, $self->string($item));
+}
+
 ######################################################################
 ######################################################################
 
@@ -1787,6 +1804,17 @@ sub Verbatim {
 sub Math {
 	my $self = shift;
 	return main::general_math_ev3($self->SUPER::Math(@_));
+}
+
+sub Tag {
+	my ($self, $item) = @_;
+	my ($tex_begin, $tex_end);
+	if (ref($item->{tex}) eq 'ARRAY') {
+		($tex_begin, $tex_end) = @{ $item->{tex} };
+	} elsif ($item->{tex}) {
+		($tex_begin, $tex_end) = ("\\begin{$item->{tex}}", "\\end{$item->{tex}}");
+	}
+	return '{' . ($tex_begin // '') . $self->string($item) . ($tex_end // '') . '}';
 }
 
 ######################################################################
@@ -1934,6 +1962,15 @@ sub Verbatim {
 sub Math {
 	my $self = shift;
 	return main::general_math_ev3($self->SUPER::Math(@_));
+}
+
+sub Tag {
+	my ($self, $item) = @_;
+	my @args = ref($item->{ptx}) eq 'ARRAY' ? @{ $item->{ptx} } : $item->{ptx};
+	if (my $tag = shift @args) {
+		return NiceTables::tag($self->string($item), $tag, @args);
+	}
+	return $self->string($item);
 }
 
 ######################################################################
