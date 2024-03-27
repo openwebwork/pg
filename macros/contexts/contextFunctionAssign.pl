@@ -10,6 +10,8 @@ error message to be more specific for a function.
 
 =cut
 
+sub _contextFunctionAssign_init { }
+
 loadMacros("parserAssignment.pl");
 
 sub parser::Assignment::Formula::cmp_equal {

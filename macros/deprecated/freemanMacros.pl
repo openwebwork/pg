@@ -1,3 +1,5 @@
+sub _freemanMacros_init { }
+
 sub textbook_ref {
 	my ($text, $sec, $ex) = @_;
 	return "";

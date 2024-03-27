@@ -78,6 +78,8 @@ verb conjugation, not 'they' verb conjugation.
 
 =cut
 
+sub _randomPerson_init { }
+
 loadMacros('PGbasicmacros.pl', 'PGauxiliaryFunctions.pl');
 
 @namespronouns = (

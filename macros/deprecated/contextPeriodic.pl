@@ -21,5 +21,7 @@ Real and Complex MathObject classes.
 
 =cut
 
+sub _contextPeriodic_init { }
+
 1;
 

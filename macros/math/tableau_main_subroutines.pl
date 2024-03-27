@@ -1,4 +1,4 @@
-# subroutines included into the main:: package.
+sub _tableau_main_subroutines_init { }
 
 package main;
 

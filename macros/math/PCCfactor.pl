@@ -45,6 +45,8 @@ where C<$var[2]> and C<$var[3]> are the individual letters form the given C<$var
 
 =cut
 
+sub _PCCfactor_init { }
+
 loadMacros("MathObjects.pl", "PGgraphmacros.pl");
 
 sub factoringMethods {

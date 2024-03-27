@@ -1,3 +1,5 @@
+sub _PGnauBinpacking_init { }
+
 sub PGnextfit {
 	my ($binsize, @input) = @_;
 	my (@list, $val);

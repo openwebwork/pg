@@ -1,3 +1,5 @@
+sub _PGnauGraphCatalog_init { }
+
 # All simple graphs with fewer than 8 vertices
 
 push @graph1, "0;";

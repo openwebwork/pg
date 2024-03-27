@@ -1,3 +1,5 @@
+sub _SI_property_tables_init { }
+
 # SI_property_tables.pl
 # Rename this file (with .pl extension) and place it in your course macros directory,
 

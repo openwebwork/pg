@@ -1,3 +1,4 @@
+sub _PGpolynomialmacros_init { }
 
 =head1 NAME
 

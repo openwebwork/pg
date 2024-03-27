@@ -115,7 +115,7 @@ entered.
 #  Create the contexts and add the constructor functions
 #
 
-sub _contextPermutation_init {
+sub _contextPermutationUBC_init {
 	my $context = $main::context{Permutation} = Parser::Context->getCopy("Numeric");
 	$context->{name} = "Permutation";
 	Parser::Number::NoDecimals($context);

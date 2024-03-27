@@ -6,6 +6,8 @@ is being written.
 
 =cut
 
+sub _PGinfo_init { }
+
 loadMacros("MathObjects.pl");
 
 =head1 FUNCTIONS

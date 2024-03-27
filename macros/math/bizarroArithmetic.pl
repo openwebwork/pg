@@ -77,6 +77,8 @@ will be rejected, as will
 
 =cut
 
+sub _bizarroArithmetic_init { }
+
 ###########################
 #
 #  functions used in defining bizarro arithmetic

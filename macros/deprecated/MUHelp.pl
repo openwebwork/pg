@@ -1,3 +1,5 @@
+sub _MUHelp_init { }
+
 sub BBRED {
 	MODES(TeX => '{\\color{red} ', HTML => '<span style="color:red; font-weight:bold">');
 }

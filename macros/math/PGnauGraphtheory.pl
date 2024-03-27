@@ -1,3 +1,5 @@
+sub _PGnauGraphtheory_init { }
+
 loadMacros("PGnauGraphics.pl",);
 
 ##################################################### Nandor

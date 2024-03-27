@@ -1,3 +1,5 @@
+sub _PGunion_init { }
+
 #
 #  Load most of the interesting code developed at Union.
 #

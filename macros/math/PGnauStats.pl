@@ -1,3 +1,5 @@
+sub _PGnauStats_init { }
+
 loadMacros("PGnauGraphics.pl",);
 
 ################################

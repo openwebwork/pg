@@ -1,3 +1,4 @@
+sub _PGasu_init { }
 
 =head1 NAME
 

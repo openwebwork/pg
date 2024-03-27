@@ -3,6 +3,8 @@
 # this is equivalent to use strict, but can be used within the Safe compartment.
 BEGIN { strict->import; }
 
+sub _Dartmouthmacros_init { }
+
 ## Some local macros
 
 sub trs_mod {
