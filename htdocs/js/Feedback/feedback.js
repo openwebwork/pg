@@ -18,6 +18,12 @@
 			});
 		}
 
+		const escapeClose = (e) => {
+			if (e.key === 'Escape') feedbackPopover.hide();
+		};
+
+		feedbackBtn.addEventListener('keydown', escapeClose);
+
 		feedbackBtn.addEventListener('shown.bs.popover', () => {
 			// Execute javascript in the answer preview.
 			feedbackPopover.tip?.querySelectorAll('script').forEach((origScript) => {
@@ -27,6 +33,8 @@
 				origScript.parentNode.replaceChild(newScript, origScript);
 				setTimeout(() => feedbackPopover.update());
 			});
+
+			feedbackPopover.tip?.addEventListener('keydown', escapeClose);
 
 			const moveToFront = () => {
 				if (feedbackPopover.tip) feedbackPopover.tip.style.zIndex = 18;
