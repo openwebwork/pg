@@ -2429,7 +2429,9 @@ sub knowlLink {
 	MODES(
 		TeX  => "{\\bf \\underline{$display_text}}",
 		HTML => qq!<a href="#" class="knowl" $properties>$display_text</a>!,
-		PTX  => '<url ' . ($options{url} ? 'href="' . $options{url} . '"' : '') . ' >' . $display_text . '</url>',
+		PTX  => ($options{type} eq 'help')
+		? ''
+		: '<url ' . ($options{url} ? 'href="' . $options{url} . '"' : '') . ' >' . $display_text . '</url>',
 	);
 }
 
