@@ -616,7 +616,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		allowStar   => 1,
 		options     => [ qw(
 			halign  header color   bgcolor   b        i      m         noencase colspan   top    bottom
-			cellcss texpre texpost texencase rowcolor rowcss headerrow rowtop   rowbottom valign
+			cellcss texpre texpost texencase rowcolor rowcss headerrow rowtop   rowbottom valign rows
 		) ]
 	},
 	"[:" => {
