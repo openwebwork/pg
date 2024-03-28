@@ -303,6 +303,32 @@ sub swapOps {
 }
 
 #
+#  Change an association "(a bop b) bop c" to "a bop (b bop c)" or vice versa
+#  argument $dir should be 'left' or 'right'
+#  'left'  for "a bop (b bop c)" to become "(a bop b) bop c"
+#  'right' for "(a bop b) bop c" to become "a bop (b bop c)"
+#  Assumes the calling entity verified it is appropriate to associate
+#
+sub associateOps {
+	my $self = shift;
+	my $dir  = shift;
+	if ($dir eq 'left') {
+		return $self->Item('BOP')->new(
+			$self->{equation}, $self->{bop},
+			$self->Item('BOP')->new($self->{equation}, $self->{bop}, $self->{lop}, $self->{rop}{lop})->reduce,
+			$self->{rop}{rop}
+		)->reduce;
+	} else {
+		return $self->Item('BOP')->new(
+			$self->{equation},
+			$self->{lop}{bop},
+			$self->{lop}{lop},
+			$self->Item('BOP')->new($self->{equation}, $self->{bop}, $self->{lop}{rop}, $self->{rop})
+		)->reduce;
+	}
+}
+
+#
 #  Get the variables from the two operands
 #
 sub getVariables {
