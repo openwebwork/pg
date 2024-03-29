@@ -1652,7 +1652,7 @@ sub Math {
 
 sub Tag {
 	my ($self, $item) = @_;
-	my %whitelist  = (a => 1, div => 1, span => 1);
+	my %whitelist  = (div => 1, span => 1);
 	my @attributes = ref($item->{html}) eq 'ARRAY' ? @{ $item->{html} }           : $item->{html};
 	my $tag        = @attributes % 2               ? (shift @attributes // 'div') : 'div';
 	unless ($whitelist{$tag}) {
