@@ -692,7 +692,6 @@ my $balanceAll = qr/[\{\[\'\"]/;
 	"[<" => {
 		type        => 'tag',
 		parseAll    => 1,
-		allowPar    => 1,
 		isContainer => 1,
 		terminator  => qr/>\]/,
 		options     => [qw(html tex ptx)]
