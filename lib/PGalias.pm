@@ -230,8 +230,8 @@ sub alias_for_tex {
 		$resource_object->path($file_path);
 	}
 
-	if ($ext eq 'gif' ? 1 : 0) {
-		# Convert gif files to png files.
+	if ($ext eq 'gif' || $ext eq 'svg') {
+		# Convert gif and svg files to png files.
 		$self->convert_file_to_png_for_tex($resource_object, $ext eq 'html' ? 'html' : 'images');
 	} else {
 		# Path and URI are the same in this case.
@@ -376,7 +376,7 @@ The link name is the file unique id alias.
 
 Usage: C<< $pgAlias->convert_file_to_png_for_tex($resource_object, $target_directory) >>
 
-Converts a "gif" file to a "png" file. The "png" file is saved in
+Converts a "gif" or "svg" file to a "png" file. The "png" file is saved in
 C<$target_directory> and the file name is the unique id alias for the
 C<PGresource> referenced by C<$resource_object>.
 
