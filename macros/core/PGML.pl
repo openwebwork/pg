@@ -1658,6 +1658,15 @@ sub Tag {
 		PGML::Warning qq{The tag "$tag" is not allowed};
 		return $self->string($item);
 	}
+	if ($tag eq 'span') {
+		for my $subblock (@{ $item->{stack} }) {
+			if ($subblock->{type} =~ /^(indent|align|par|list|bullet|answer|heading|rule|code|pre|verbatim|table|tag)$/)
+			{
+				PGML::Warning qq{A "span" tag may not contain a $subblock->{type}};
+				return $self->string($item);
+			}
+		}
+	}
 	return main::tag($tag, @attributes, $self->string($item));
 }
 
