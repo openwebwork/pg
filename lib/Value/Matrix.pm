@@ -473,22 +473,136 @@ sub transpose {
 
 #
 #  Get an identity matrix of the requested size
+#  Value::Matrix->I(n)
+#  $A->I    # n is the number of rows of $A
 #
 sub I {
 	my $self    = shift;
 	my $d       = shift;
 	my $context = shift || $self->context;
-	$d = ($self->dimensions)[0] if !defined $d && ref($self) && $self->isSquare;
+	$d = ($self->dimensions)[0] if !defined $d && ref($self);
 	Value::Error("You must provide a dimension for the Identity matrix") unless defined $d;
 	Value::Error("Dimension must be a positive integer")                 unless $d =~ m/^[1-9]\d*$/;
 	my @M    = ();
-	my @Z    = split('', 0 x $d);
 	my $REAL = $context->Package('Real');
 
-	foreach my $i (0 .. $d - 1) {
-		my @row = @Z;
+	for my $i (0 .. $d - 1) {
+		push(@M, $self->make($context, map { $REAL->new(($_ == $i) ? 1 : 0) } 0 .. $d - 1));
+	}
+	return $self->make($context, @M);
+}
+
+#
+#  Get an elementary matrix of the requested size and type
+#  Value::Matrix->E(n,[i,j])   nxn, swap rows i and j
+#  Value::Matrix->E(n,[i,j],k) nxn, replace row i with row i added to k times row j
+#  Value::Matrix->E(n,[i],k)   nxn, scale row i by k
+#  $A->E([i,j])      # n is the number of rows of $A
+#  $A->E([i,j],k)    # n is the number of rows of $A
+#  $A->E([i],k)      # n is the number of rows of $A
+#
+sub E {
+	my ($self, $d, $rows, $k, $context) = @_;
+	if (ref $d eq 'ARRAY') {
+		($rows, $k, $context) = ($d, $rows, $k);
+		$d = ($self->dimensions)[0] if ref($self);
+	}
+	$context = $self->context                                             unless $context;
+	Value::Error("You must provide a dimension for an Elementary matrix") unless defined $d;
+	Value::Error("Dimension must be a positive integer")                  unless $d =~ m/^[1-9]\d*$/;
+	my @ij = @{$rows};
+	Value::Error("Either one or two rows must be specified for an Elementary matrix") unless (@ij == 1 || @ij == 2);
+	Value::Error(
+		"If only one row is specified for an Elementary matrix, then a number to scale by must also be specified")
+		if (@ij == 1 && !defined $k);
+	for (@ij) {
+		Value::Error("Row indices must be integers between 1 and $d")
+			unless ($_ =~ m/^[1-9]\d*$/ && $_ >= 1 && $_ <= $d);
+	}
+	@ij = map { $_ - 1 } (@ij);
+
+	my @M    = ();
+	my $REAL = $context->Package('Real');
+
+	for my $i (0 .. $d - 1) {
+		my @row = (0) x $d;
 		$row[$i] = 1;
+		if (@ij == 1) {
+			$row[$i] = $k if ($i == $ij[0]);
+		} elsif (defined $k) {
+			$row[ $ij[1] ] = $k if ($i == $ij[0]);
+		} else {
+			($row[ $ij[0] ], $row[ $ij[1] ]) = ($row[ $ij[1] ], $row[ $ij[0] ]) if ($i == $ij[0] || $i == $ij[1]);
+		}
 		push(@M, $self->make($context, map { $REAL->new($_) } @row));
+	}
+	return $self->make($context, @M);
+}
+
+#
+#  Get a permutation matrix of the requested size
+#  E.g. P(3,[1,2,3])  corresponds to cycle (123) applied to rows of I_3i,
+#  and  P(6,[1,4],[2,4,6]) corresponds to cycle product (14)(246) applied to rows of I_6
+#  Value::Matrix->P(n,(cycles))
+#  $A->P((cycles))     # n is the number of rows of $A
+#
+sub P {
+	my ($self, $d, @cycles) = @_;
+	if (ref $d eq 'ARRAY') {
+		unshift(@cycles, $d);
+		$d = ($self->dimensions)[0] if ref($self);
+	}
+	my $context = $self->context;
+	$d = ($self->dimensions)[0] if !defined $d && ref($self) && $self->isSquare;
+	Value::Error("You must provide a dimension for a Permutation matrix") unless defined $d;
+	Value::Error("Dimension must be a positive integer")                  unless $d =~ m/^[1-9]\d*$/;
+	for my $c (@cycles) {
+		Value::Error("Permutation cycles should be array references") unless (ref($c) eq 'ARRAY');
+		for (@$c) {
+			Value::Error("Permutation cycle indices must be integers between 1 and $d")
+				unless ($_ =~ m/^[1-9]\d*$/ && $_ >= 1 && $_ <= $d);
+		}
+		my %cycle_hash = map { $_ => '' } (@$c);
+		Value::Error("A permutation cycle should not repeat an index") unless (@$c == keys %cycle_hash);
+	}
+	my @M    = ();
+	my $REAL = $context->Package('Real');
+
+	# Make an identity matrix
+	for my $i (0 .. $d - 1) {
+		push(@M, $self->make($context, map { $REAL->new(($_ == $i) ? 1 : 0) } 0 .. $d - 1));
+	}
+
+	# Then apply the permutation cycles to it
+	for my $c (@cycles) {
+		my $swap;
+		for my $i (0 .. $#$c, 0) {
+			($swap, $M[ $c->[$i] - 1 ]) = ($M[ $c->[$i] - 1 ], $swap);
+		}
+	}
+
+	return $self->make($context, @M);
+}
+
+#
+#  Get an all zero matrix of the requested size
+#  Value::Matrix->Zero(m,n)
+#  Value::Matrix->Zero(n)
+#  $A->Zero    # n is the number of rows of $A
+#
+sub Zero {
+	my ($self, $m, $n, $context) = @_;
+	$context = $self->context unless $context;
+	$n       = $m                     if !defined $n && defined $m;
+	$m       = ($self->dimensions)[0] if !defined $m && ref($self);
+	$n       = ($self->dimensions)[1] if !defined $n && ref($self);
+	Value::Error("You must provide dimensions for the Zero matrix") unless defined $m          && defined $n;
+	Value::Error("Dimension must be a positive integer")            unless $m =~ m/^[1-9]\d*$/ && $n =~ m/^[1-9]\d*$/;
+	my @M    = ();
+	my $REAL = $context->Package('Real');
+
+	for my $i (0 .. $m - 1) {
+		push(@M, $self->make($context, map { $REAL->new(0) } 0 .. $n - 1));
 	}
 	return $self->make($context, @M);
 }
