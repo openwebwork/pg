@@ -301,7 +301,7 @@ sub isUpperTriangular {
 	return 1 if scalar(@d) == 1;
 	return 0 if scalar(@d) > 2;
 	for my $i (2 .. $d[0]) {
-		for my $j (1 .. min($i - 1, $d[1])) {
+		for my $j (1 .. ($i - 1 < $d[1] ? $i - 1 : $d[1])) {
 			return 0 unless $self->element($i, $j) == 0;
 		}
 	}
