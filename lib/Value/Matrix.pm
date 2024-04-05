@@ -291,6 +291,119 @@ sub isZero {
 	return 1;
 }
 
+#
+#  See if the matrix is triangular, diagonal, symmetric, orthogonal
+#
+
+sub isUpperTriangular {
+	my $self = shift;
+	my @d    = $self->dimensions;
+	return 1 if scalar(@d) == 1;
+	return 0 if scalar(@d) > 2;
+	for my $i (2 .. $d[0]) {
+		for my $j (1 .. ($i - 1 < $d[1] ? $i - 1 : $d[1])) {
+			return 0 unless $self->element($i, $j) == 0;
+		}
+	}
+	return 1;
+}
+
+sub isLowerTriangular {
+	my $self = shift;
+	my @d    = $self->dimensions;
+	if (scalar(@d) == 1) {
+		for ((@{ $self->{data} })[ 1 .. $#{ $self->{data} } ]) {
+			return 0 unless $_ == 0;
+		}
+	}
+	return 0 if scalar(@d) > 2;
+	for my $i (1 .. $d[0] - 1) {
+		for my $j ($i + 1 .. $d[1]) {
+			return 0 unless $self->element($i, $j) == 0;
+		}
+	}
+	return 1;
+}
+
+sub isDiagonal {
+	my $self = shift;
+	return $self->isSquare && $self->isUpperTriangular && $self->isLowerTriangular;
+}
+
+sub isSymmetric {
+	my $self = shift;
+	return 0 unless $self->isSquare;
+	my $d = ($self->dimensions)[0];
+	return 1 if $d == 1;
+	for my $i (1 .. $d - 1) {
+		for my $j ($i + 1 .. $d) {
+			return 0 unless $self->element($i, $j) == $self->element($j, $i);
+		}
+	}
+	return 1;
+}
+
+sub isOrthogonal {
+	my $self = shift;
+	return 0 unless $self->isSquare;
+	my @d = $self->dimensions;
+	if (scalar(@d) == 1) {
+		return 0 unless ($self->{data}->[0] == 1 || $self->{data}->[0] == -1);
+	}
+	my $M = $self * $self->transpose;
+	return $M->isOne;
+}
+
+#
+#  See if the matrix is in (reduced) row echelon form
+#
+
+sub isREF {
+	my $self = shift;
+	my @d    = $self->dimensions;
+	return 1 if scalar(@d) == 1;
+	return 0 if scalar(@d) > 2;
+	my $k = 0;
+	for my $i (1 .. $d[0]) {
+		for my $j (1 .. $d[1]) {
+			if ($j <= $k) {
+				return 0 unless $self->element($i, $j) == 0;
+			} elsif ($self->element($i, $j) != 0) {
+				$k = $j;
+				last;
+			} elsif ($j == $d[1]) {
+				$k = $d[1] + 1;
+			}
+		}
+	}
+	return 1;
+}
+
+sub isRREF {
+	my $self = shift;
+	my @d    = $self->dimensions;
+	return 1 if scalar(@d) == 1;
+	return 0 if scalar(@d) > 2;
+	my $k = 0;
+	for my $i (1 .. $d[0]) {
+		for my $j (1 .. $d[1]) {
+			if ($j <= $k) {
+				return 0 unless $self->element($i, $j) == 0;
+			} elsif ($self->element($i, $j) != 0) {
+				return 0 unless $self->element($i, $j) == 1;
+				for my $m (1 .. $i - 1) {
+					return 0 unless $self->element($m, $j) == 0;
+				}
+				$k = $j;
+				last;
+			} elsif ($j == $d[1]) {
+				$k = $d[1] + 1;
+			}
+		}
+	}
+	return 1;
+}
+
 sub _isNumber {
 	my $n = shift;
 	return Value::isNumber($n) || Value::classMatch($n, 'Fraction');
