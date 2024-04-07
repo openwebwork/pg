@@ -301,14 +301,13 @@ sub NAMED_ANS_RULE {
 		$rh_sticky_answers->{$name} = \@answers;                # Store the rest.
 	}
 
-	$answer_value =~ s/\s+/ /g;                                 # Remove excessive whitespace from student answer.
 	$name = RECORD_ANS_NAME($name, $answer_value);
 	my $previous_name = "previous_$name";
 	$name          = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$name"          : $name;
 	$previous_name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$previous_name" : $previous_name;
 
-	my $tcol = $col / 2 > 3 ? $col / 2 : 3;                     # get max
-	$tcol = $tcol < 40 ? $tcol : 40;                            # get min
+	my $tcol = $col / 2 > 3 ? $col / 2 : 3;    # get max
+	$tcol = $tcol < 40 ? $tcol : 40;           # get min
 
 	return MODES(
 		TeX => "{\\answerRule[$name]{$tcol}}",
