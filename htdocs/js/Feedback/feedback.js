@@ -41,7 +41,7 @@
 
 			// Make a click on the popover header close the popover.
 			feedbackPopover.tip
-				?.querySelector('.popover-header')
+				?.querySelector('.popover-header .btn-close')
 				?.addEventListener('click', () => feedbackPopover.hide());
 
 			if (feedbackPopover.tip) feedbackPopover.tip.dataset.iframeHeight = '1';

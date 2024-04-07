@@ -230,6 +230,12 @@
 		cursor: pointer;
 		--bs-popover-header-bg: var(--bs-info);
 		--bs-popover-header-color: white;
+
+		.btn-close {
+			--bs-btn-close-opacity: 0.75;
+			--bs-btn-close-hover-opacity: 1;
+			--bs-btn-close-focus-shadow: 0 0 0 0.15rem #00000080;
+		}
 	}
 
 	&.correct {
