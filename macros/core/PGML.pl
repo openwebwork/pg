@@ -1822,7 +1822,7 @@ sub Tag {
 	} elsif ($item->{tex}) {
 		($tex_begin, $tex_end) = ("\\begin{$item->{tex}}", "\\end{$item->{tex}}");
 	}
-	return '{' . ($tex_begin // '') . $self->string($item) . ($tex_end // '') . '}';
+	return ($tex_begin // '') . $self->string($item) . ($tex_end // '');
 }
 
 ######################################################################
