@@ -2397,42 +2397,78 @@ sub htmlLink {
 	);
 }
 
-# Suggested usage:  knowlLink(text, [url => ..., value => ..., type => ...])
+=head2 knowlLink
+
+Inserts a knowl link into the problem.  Usually you should not call this method
+directly.  Instead use C<helpLink> below.
+
+Usage: C<knowlLink($displayText, %options)>
+
+C<$display_text> is the text that will be shown for the link.
+
+The following options may be included in C<%options>.  Note that one of C<url>
+or C<value> is required.
+
+=over
+
+=item url
+
+A URL whose contents will be shown in a modal dialog when the knowl link is
+clicked.  These contents will be fetched by JavaScript and injected into the
+knowl modal dialog.
+
+=item value
+
+The direct contents that will be shown in a modal dialog when the knowl link is
+clicked.
+
+=item title
+
+A string that will be used for the title of the modal dialog that opens when the
+knowl link is clicked. If this is not provided, then C<$display_text> will be
+used for the title.
+
+=item type
+
+A string that will be set as the data-type attribute of the knowl link. This is
+only used by PreTeXt.
+
+=back
+
+Example usage:
+
+    knowlLink('Click Me', title => 'Fascinating Contents', value => 'Here are my facinating contents.');
+    knowlLink('Help Me', title => 'Help Contents', url => 'https://my.domain.edu/helpfile-contents');
+
+=cut
+
 sub knowlLink {
-	my $display_text = shift;
+	my ($display_text, %options) = @_;
 
-	# Check that there are an even number of inputs
 	WARN_MESSAGE(
-		'usage:  knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."]);'
-			. qq!after the display_text the information requires key/value pairs.
-		Received @_ !, scalar(@_) % 2
-	) if scalar(@_) % 2;
+		'usage:  knowlLink($display_text, [url => $url, value => $contents, title => $title, type => "help"]);',
+		'One of "url => $url" or "value => $contents" is required.')
+		unless $options{value} || $options{url};
 
-	my %options = @_;
-
-	my $properties = '';
-	if ($options{value}) {
-		$properties =
-			'data-knowl-contents="'
-			. encode_pg_and_html($options{value})
-			. ($options{base64} ? '" data-base64="1"' : '"');
-	} elsif ($options{url}) {
-		$properties = qq!data-knowl-url="$options{url}"!;
+	if ($displayMode eq 'TeX') {
+		return "{\\bf\\underline{$display_text}}";
+	} elsif ($displayMode eq 'PTX') {
+		return ($options{type} && $options{type} eq 'help')
+			? ''
+			: '<url ' . ($options{url} ? qq{href="$options{url}"} : '') . " >$display_text</url>";
 	} else {
-		WARN_MESSAGE(
-			'usage:  knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."]);'
-		);
+		my %properties;
+		if ($options{value}) {
+			$properties{data_knowl_contents} =
+				$options{base64} ? $main::PG->decode_base64($options{value}) : $options{value};
+		} elsif ($options{url}) {
+			$properties{data_knowl_url} = $options{url};
+		}
+
+		$properties{data_knowl_title} = $options{title} if $options{title};
+		$properties{data_type}        = $options{type}  if $options{type};
+		return tag('button', type => 'button', class => 'knowl', %properties, $display_text);
 	}
-
-	$properties .= qq! data-type="$options{type}"! if $options{type};
-
-	MODES(
-		TeX  => "{\\bf \\underline{$display_text}}",
-		HTML => qq!<a href="#" class="knowl" $properties>$display_text</a>!,
-		PTX  => ($options{type} eq 'help')
-		? ''
-		: '<url ' . ($options{url} ? 'href="' . $options{url} . '"' : '') . ' >' . $display_text . '</url>',
-	);
 }
 
 sub iframe {
@@ -2444,7 +2480,9 @@ sub iframe {
 	);
 }
 
-=head2 helpLink($type, $display_text, $helpurl)
+=head2 helpLink
+
+Usage: C<helpLink($type, $display_text, $helpurl)>
 
 Creates links for students to help documentation on formatting answers and
 allows for custom help links.
