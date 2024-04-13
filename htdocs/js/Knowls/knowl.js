@@ -25,7 +25,13 @@
 			knowl.knowlModal.setAttribute('aria-hidden', 'true');
 
 			const knowlDialog = document.createElement('div');
-			knowlDialog.classList.add('modal-dialog', 'modal-dialog-centered', 'modal-dialog-scrollable');
+			knowlDialog.classList.add(
+				'knowl-dialog',
+				'modal-dialog',
+				'modal-dialog-centered',
+				'modal-dialog-scrollable'
+			);
+			knowlDialog.dataset.iframeHeight = '1';
 			knowl.knowlModal.append(knowlDialog);
 
 			const knowlContent = document.createElement('div');
@@ -60,11 +66,17 @@
 				knowlContent.append(knowlFooter);
 			}
 
-			// Insert the knowl modal into the end of the closest div ancestor.
-			// If no such element is found, there is not much else that can be done, so just bail.
-			const insertElt = knowl.closest('div');
-			if (insertElt) insertElt.append(knowl.knowlModal);
-			else return;
+			knowl.knowlModal.addEventListener('shown.bs.modal', () => {
+				const heightAdjust = Math.min(
+					600,
+					knowlBody.scrollHeight +
+						knowlHeader.offsetHeight +
+						(knowlContent.querySelector('.modal-footer')?.offsetHeight || 0)
+				);
+				if (knowlDialog.offsetHeight < heightAdjust) knowlDialog.style.height = `${heightAdjust}px`;
+			});
+
+			document.body.append(knowl.knowlModal);
 
 			knowl.dataset.bsTarget = `#${knowl.knowlModal.id}`;
 
