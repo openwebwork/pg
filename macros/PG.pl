@@ -1197,7 +1197,21 @@ sub ENDDOCUMENT {
 						: $options{resultTitle}
 					),
 					data => {
-						bs_title               => $options{resultTitle},
+						bs_title => Mojo::DOM->new_tag(
+							'div',
+							class           => 'd-flex align-items-center justify-content-between',
+							'data-bs-theme' => 'dark',
+							sub {
+								Mojo::DOM->new_tag('span', style => 'width:20.4px')
+									. Mojo::DOM->new_tag('span', class => 'mx-3', $options{resultTitle})
+									. Mojo::DOM->new_tag(
+										'button',
+										type         => 'button',
+										class        => 'btn-close',
+										'aria-label' => maketext('Close')
+									);
+							}
+						)->to_string,
 						bs_toggle              => 'popover',
 						bs_trigger             => 'click',
 						bs_placement           => 'bottom',
