@@ -968,7 +968,7 @@ sub SOLUTION {
 				tag(
 					'summary',
 					class => 'accordion-button collapsed text-primary fw-bold py-2',
-					tag('div', class => 'accordion-header user-select-none', SOLUTION_HEADING())
+					tag('span', class => 'accordion-header user-select-none', SOLUTION_HEADING())
 					)
 					. tag(
 						'div',
@@ -1010,7 +1010,7 @@ sub HINT {
 				tag(
 					'summary',
 					class => 'accordion-button collapsed text-primary fw-bold py-2',
-					tag('div', class => 'accordion-header user-select-none', HINT_HEADING())
+					tag('span', class => 'accordion-header user-select-none', HINT_HEADING())
 					)
 					. tag(
 						'div',
