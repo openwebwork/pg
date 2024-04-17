@@ -1149,10 +1149,9 @@ sub ENDDOCUMENT {
 				for (@{ $options{feedbackElements} }) {
 					$_->attr(class => join(' ', $options{resultClass}, $_->attr->{class} || ()))
 						if $options{resultClass};
-					$_->attr('aria-describedby' => "ww-feedback-$answerLabel");
 				}
 
-				sub previewAnswer {
+				my $previewAnswer = sub {
 					my ($preview, $wrapPreviewInTex, $fallback) = @_;
 
 					return $fallback unless defined $preview && $preview =~ /\S/;
@@ -1165,9 +1164,9 @@ sub ENDDOCUMENT {
 						return Mojo::DOM->new_tag('script', type => 'math/tex; mode=display', sub {$preview})
 							->to_string;
 					}
-				}
+				};
 
-				sub feedbackLine {
+				my $feedbackLine = sub {
 					my ($title, $line, $class) = @_;
 					$class //= '';
 					return '' unless defined $line && $line =~ /\S/;
@@ -1180,9 +1179,9 @@ sub ENDDOCUMENT {
 							)
 						: ''
 					) . Mojo::DOM->new_tag('div', class => "card-body text-center $class", sub {$line});
-				}
+				};
 
-				my $answerPreview = previewAnswer($ansHash->{preview_latex_string}, $options{wrapPreviewInTex});
+				my $answerPreview = $previewAnswer->($ansHash->{preview_latex_string}, $options{wrapPreviewInTex});
 
 				# Create the screen reader only span holding the aria description, create the feedback button and
 				# popover, and insert the button at the requested location.
@@ -1228,16 +1227,18 @@ sub ENDDOCUMENT {
 									sub {
 										(
 											$rh_envir->{showMessages} && $ansHash->{ans_message}
-											? feedbackLine('', $ansHash->{ans_message} =~ s/\n/<br>/gr,
-												'feedback-message')
+											? $feedbackLine->(
+												'', $ansHash->{ans_message} =~ s/\n/<br>/gr,
+												'feedback-message'
+												)
 											: ''
 											)
 											. ($rh_envir->{showAttemptAnswers} && $options{showEntered}
-												? feedbackLine(maketext('You Entered'), $ansHash->{student_ans})
+												? $feedbackLine->(maketext('You Entered'), $ansHash->{student_ans})
 												: '')
 											. (
 												$rh_envir->{showAttemptPreviews} && $options{showPreview}
-												? feedbackLine(
+												? $feedbackLine->(
 													maketext('Preview of Your Answer'),
 													(
 														(defined $answerPreview && $answerPreview =~ /\S/)
@@ -1251,12 +1252,12 @@ sub ENDDOCUMENT {
 											. (
 												$rh_envir->{showCorrectAnswers} && $options{showCorrect}
 												? do {
-													my $correctAnswer = previewAnswer(
+													my $correctAnswer = $previewAnswer->(
 														$ansHash->{correct_ans_latex_string},
 														$options{wrapPreviewInTex},
 														$ansHash->{correct_ans}
 													);
-													feedbackLine(
+													$feedbackLine->(
 														maketext('Correct Answer'),
 														$rh_envir->{showCorrectAnswers} > 1
 														? $correctAnswer

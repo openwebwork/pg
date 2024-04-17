@@ -36,9 +36,6 @@
 		if (input.classList.contains('incorrect')) answerQuill.classList.add('incorrect');
 		if (input.classList.contains('partially-correct')) answerQuill.classList.add('partially-correct');
 
-		const ariaDescribedBy = input.getAttribute('aria-describedby');
-		if (ariaDescribedBy) answerQuill.setAttribute('aria-describedby', ariaDescribedBy);
-
 		// Default options.
 		const cfgOptions = {
 			spaceBehavesLikeTab: true,
