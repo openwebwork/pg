@@ -2539,6 +2539,7 @@ window.graphTool = (containerId, options) => {
 		if (!gt.helpEnabled) gt.messageBox.classList.add('gt-disabled-help');
 		gt.messageBox.setAttribute('role', 'region');
 		gt.messageBox.setAttribute('aria-live', 'polite');
+		gt.messageBox.dataset.iframeHeight = '1';
 		gt.graphContainer.append(gt.messageBox);
 		gt.messageBox.addEventListener('keydown', (e) => {
 			if (e.key === 'Escape') gt.confirm.dispose?.(e);
