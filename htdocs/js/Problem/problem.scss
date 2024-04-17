@@ -73,19 +73,19 @@
 	span[id^='mq-answer'],
 	.graphtool-container {
 		&.correct:not(:focus):not(.mq-focused) {
-			border-color: rgba(81, 153, 81, 1); /* green */
+			border-color: rgba(81, 153, 81, 0.8); /* green */
 			outline: 0;
 			box-shadow:
 				inset 0 0 2px 1px rgba(0, 0, 0, 0.25),
-				0 0 8px 2px rgba(81, 153, 81, 1);
+				0 0 0 0.2rem rgba(81, 153, 81, 0.5);
 		}
 
 		&.incorrect:not(:focus):not(.mq-focused) {
-			border-color: rgba(191, 84, 84, 1); /* red */
+			border-color: rgba(191, 84, 84, 0.8); /* red */
 			outline: 0;
 			box-shadow:
 				inset 0 0 2px 1px rgba(0, 0, 0, 0.25),
-				0 0 8px 2px rgba(191, 84, 84, 1);
+				0 0 0 0.2rem rgba(191, 84, 84, 0.5);
 		}
 
 		&.partially-correct:not(:focus):not(.mq-focused) {
@@ -93,7 +93,7 @@
 			outline: 0;
 			box-shadow:
 				inset 0 0 2px 1px rgba(0, 0, 0, 0.25),
-				0 0 8px 2px rgba(255, 193, 7, 1);
+				0 0 0 0.2rem rgba(255, 193, 7, 0.8);
 		}
 	}
 
@@ -116,14 +116,15 @@
 
 	input[type='text'],
 	input[type='radio'],
+	input[type='checkbox'],
 	textarea,
 	select {
 		&:focus {
-			border-color: rgba(82, 168, 236, 0.8);
+			border-color: rgba(112, 154, 192, 0.8);
 			outline: 0;
 			box-shadow:
-				inset 0 1px 1px rgba(0, 0, 0, 0.075),
-				0 0 8px 2px rgba(82, 168, 236, 0.6);
+				inset 0 1px 1px rgba(0, 0, 0, 0.25),
+				0 0 0 0.2rem rgba(136, 187, 221, 0.8);
 		}
 	}
 

@@ -134,7 +134,7 @@ sub NAMED_ESSAY_BOX {
 			)
 			. tag(
 				'div',
-				class                        => 'latexentry-button-container d-flex gap-1 mt-1',
+				class                        => 'latexentry-button-container d-flex gap-2 mt-2',
 				id                           => "$name-latexentry-button-container",
 				data_feedback_insert_element => $name,
 				tag(
