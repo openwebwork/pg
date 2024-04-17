@@ -1,0 +1,43 @@
+.knowl {
+	color: #00a;
+	background-color: #eef;
+	border: 1px solid #88f;
+	border-radius: 3px;
+	cursor: pointer;
+
+	&:hover {
+		color: #006;
+		background-color: #ccf;
+		border-color: #33f;
+	}
+
+	&:focus-visible {
+		border-color: #33f;
+		box-shadow: 0px 0px 0px 0.2rem #5555ff88;
+		outline: 0;
+	}
+}
+
+li > .knowl {
+	margin: 0.2rem 0;
+}
+
+.knowl-error {
+	color: darkred;
+}
+
+.knowl-footer {
+	font-size: x-small;
+	background: #eef;
+	color: #555;
+}
+
+// MathJax sets the z-index to 200 which is far below a modal dialog at 1055. So raise that above the modal dialog.
+// This is really a bug in MathJax. MathJax should handle this differently.
+.CtxtMenu_MenuFrame {
+	z-index: 1060 !important;
+
+	.CtxtMenu_Menu {
+		z-index: 1060;
+	}
+}

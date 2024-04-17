@@ -15,89 +15,78 @@
 	};
 
 	const initializeKnowl = (knowl) => {
-		if (getComputedStyle(knowl)?.display === '') {
-			setTimeout(() => initializeKnowl(knowl), 100);
-			return;
-		}
+		knowl.dataset.bsToggle = 'modal';
+		if (!knowl.knowlModal) {
+			knowl.knowlModal = document.createElement('div');
+			knowl.knowlModal.id = `knowl-uid-${knowlUID++}`;
+			knowl.knowlModal.classList.add('modal', 'fade');
+			knowl.knowlModal.tabIndex = -1;
+			knowl.knowlModal.setAttribute('aria-labelledby', `${knowl.knowlModal.id}-title`);
+			knowl.knowlModal.setAttribute('aria-hidden', 'true');
 
-		knowl.dataset.bsToggle = 'collapse';
-		if (!knowl.knowlContainer) {
-			knowl.knowlContainer = document.createElement('div');
-			knowl.knowlContainer.id = `knowl-uid-${knowlUID++}`;
-			knowl.knowlContainer.classList.add('collapse');
-
-			const knowlOutput = document.createElement('div');
-			knowlOutput.classList.add('knowl-output');
+			const knowlDialog = document.createElement('div');
+			knowlDialog.classList.add(
+				'knowl-dialog',
+				'modal-dialog',
+				'modal-dialog-centered',
+				'modal-dialog-scrollable'
+			);
+			knowlDialog.dataset.iframeHeight = '1';
+			knowl.knowlModal.append(knowlDialog);
 
 			const knowlContent = document.createElement('div');
-			knowlContent.classList.add('knowl-content');
-			knowlOutput.append(knowlContent);
+			knowlContent.classList.add('modal-content');
+			knowlDialog.append(knowlContent);
+
+			const knowlHeader = document.createElement('div');
+			knowlHeader.classList.add('modal-header');
+
+			const knowlTitle = document.createElement('h1');
+			knowlTitle.classList.add('modal-title', 'fs-5');
+			knowlTitle.id = `${knowl.knowlModal.id}-title`;
+			knowlTitle.textContent = knowl.dataset.knowlTitle || knowl.textContent;
+
+			const closeButton = document.createElement('button');
+			closeButton.type = 'button';
+			closeButton.classList.add('btn-close');
+			closeButton.dataset.bsDismiss = 'modal';
+			closeButton.setAttribute('aria-label', 'Close');
+
+			knowlHeader.append(knowlTitle, closeButton);
+
+			const knowlBody = document.createElement('div');
+			knowlBody.classList.add('modal-body');
+
+			knowlContent.append(knowlHeader, knowlBody);
 
 			if (knowl.dataset.knowlUrl) {
 				const knowlFooter = document.createElement('div');
-				knowlFooter.classList.add('knowl-footer');
+				knowlFooter.classList.add('modal-footer', 'knowl-footer', 'justify-content-center', 'p-1');
 				knowlFooter.textContent = knowl.dataset.knowlUrl;
-				knowlOutput.append(knowlFooter);
+				knowlContent.append(knowlFooter);
 			}
 
-			knowl.knowlContainer.appendChild(knowlOutput);
+			knowl.knowlModal.addEventListener('shown.bs.modal', () => {
+				const heightAdjust = Math.min(
+					600,
+					knowlBody.scrollHeight +
+						knowlHeader.offsetHeight +
+						(knowlContent.querySelector('.modal-footer')?.offsetHeight || 0)
+				);
+				if (knowlDialog.offsetHeight < heightAdjust) knowlDialog.style.height = `${heightAdjust}px`;
+			});
 
-			knowl.knowlContainer.addEventListener('show.bs.collapse', () => knowl.classList.add('active'));
-			knowl.knowlContainer.addEventListener('hide.bs.collapse', () => knowl.classList.remove('active'));
+			document.body.append(knowl.knowlModal);
 
-			// If the knowl is inside a table row, then insert a new row into the table after that one to contain
-			// the knowl content.  If the knowl is inside a list element, then insert the content after the list
-			// element.  Otherwise insert the content either before the first sibling that follows it that is
-			// display block, or append it to the first ancestor that is display block.
-			let insertElt = knowl.closest('tr');
-			if (insertElt) {
-				const row = document.createElement('tr');
-				const td = document.createElement('td');
-				td.colSpan = insertElt.childElementCount;
-				td.appendChild(knowl.knowlContainer);
-				row.appendChild(td);
-				insertElt.after(row);
-			} else {
-				insertElt = knowl.closest('li');
-				if (insertElt) {
-					const newDiv = document.createElement('div');
-					newDiv.append(knowl.knowlContainer);
-					insertElt.append(newDiv);
-				} else {
-					let append = false;
-					insertElt = knowl;
-					do {
-						const lastElt = insertElt;
-						insertElt = lastElt.nextElementSibling;
-						if (!insertElt) {
-							insertElt = lastElt.parentNode;
-							append = true;
-						}
-					} while (getComputedStyle(insertElt)?.getPropertyValue('display') !== 'block');
-
-					if (append) insertElt.append(knowl.knowlContainer);
-					else insertElt.before(knowl.knowlContainer);
-				}
-			}
-
-			knowl.dataset.bsTarget = `#${knowl.knowlContainer.id}`;
+			knowl.dataset.bsTarget = `#${knowl.knowlModal.id}`;
 
 			if (knowl.dataset.knowlContents) {
 				// Inline html
-				if (knowl.dataset.base64 == '1') {
-					if (window.Base64) setInnerHTML(knowlContent, Base64.decode(knowl.dataset.knowlContents));
-					else {
-						setInnerHTML(knowlContent, 'ERROR: Base64 decoding not available');
-						knowlContent.classList.add('knowl-error');
-					}
-				} else {
-					setInnerHTML(knowlContent, knowl.dataset.knowlContents);
-				}
+				setInnerHTML(knowlBody, knowl.dataset.knowlContents);
+
 				// If we are using MathJax, then render math content.
 				if (window.MathJax) {
-					MathJax.startup.promise = MathJax.startup.promise.then(() =>
-						MathJax.typesetPromise([knowlContent])
-					);
+					MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise([knowlBody]));
 				}
 			} else if (knowl.dataset.knowlUrl) {
 				// Retrieve url content.
@@ -105,21 +94,25 @@
 					.then((response) => (response.ok ? response.text() : response))
 					.then((data) => {
 						if (typeof data == 'object') {
-							knowlContent.textContent = `ERROR: ${data.status} ${data.statusText}`;
-							knowlContent.classList.add('knowl-error');
+							knowlBody.textContent = `ERROR: ${data.status} ${data.statusText}`;
+							knowlBody.classList.add('knowl-error');
 						} else {
-							setInnerHTML(knowlContent, data);
+							setInnerHTML(knowlBody, data);
 						}
 						// If we are using MathJax, then render math content.
 						if (window.MathJax) {
 							MathJax.startup.promise = MathJax.startup.promise.then(() =>
-								MathJax.typesetPromise([knowlContent])
+								MathJax.typesetPromise([knowlBody])
 							);
 						}
+					})
+					.catch((err) => {
+						knowlBody.textContent = `ERROR: ${err}`;
+						knowlBody.classList.add('knowl-error');
 					});
 			} else {
-				knowlContent.textContent = 'ERROR: knowl content not provided.';
-				knowlContent.classList.add('knowl-error');
+				knowlBody.textContent = 'ERROR: knowl content not provided.';
+				knowlBody.classList.add('knowl-error');
 			}
 		}
 	};
