@@ -487,7 +487,8 @@ the value of this option.
 
 =item showAttemptAnswers (boolean, default: 1)
 
-Determines if the student's evaluated (i.e. "Entered") answers will be shown in feedback.
+Determines if the student's evaluated (i.e. "Entered") answers will be shown in
+feedback.
 
 =item showAttemptPreviews (boolean, default: 1)
 
@@ -519,6 +520,13 @@ Determines if correct answers will be shown. If 0, then correct answers are not
 shown. If set to 1, then correct answers are shown but hidden, and a "Reveal"
 button is shown at first. If that button is clicked, then the answer is shown.
 If set to 2, then correct answers are shown immediately.
+
+There is one special case that needs extra explanation.  If this is true
+(greater than zero), C<forceShowAttemptResults> is true, C<forceScaffoldsOpen>
+is true, and C<showAttemptAnswers>, C<showAttemptPreviews>, and C<showMessages>
+are all false, then correct answers will be shown with no other content in the
+feedback popover except a close button, and the popover will open automatically
+on page load.
 
 =item answerPrefix (string, default: '')
 

@@ -1027,6 +1027,14 @@ sub ENDDOCUMENT {
 
 			my @answerNames = keys %{ $PG->{PG_ANSWERS_HASH} };
 
+			my $showCorrectOnly =
+				$rh_envir->{showCorrectAnswers}
+				&& $rh_envir->{forceScaffoldsOpen}
+				&& $rh_envir->{forceShowAttemptResults}
+				&& !$rh_envir->{showAttemptAnswers}
+				&& !$rh_envir->{showAttemptPreviews}
+				&& !$rh_envir->{showMessages};
+
 			for my $answerLabel (@answerNames) {
 				my $response_obj = $PG->{PG_ANSWERS_HASH}{$answerLabel}->response_obj;
 				my $ansHash      = $PG->{PG_ANSWERS_HASH}{$answerLabel}{ans_eval}{rh_ans};
@@ -1072,11 +1080,12 @@ sub ENDDOCUMENT {
 					push(@{ $options{feedbackElements} }, @$elements);
 				}
 
-				my $showResults = ($rh_envir->{showAttemptResults} && $PG->{flags}{showPartialCorrectAnswers})
-					|| $rh_envir->{forceShowAttemptResults};
-
-				if ($showResults) {
-					if ($answerScore >= 1) {
+				if (($rh_envir->{showAttemptResults} && $PG->{flags}{showPartialCorrectAnswers})
+					|| $rh_envir->{forceShowAttemptResults})
+				{
+					if ($showCorrectOnly) {
+						$options{resultClass} = 'correct-only';
+					} elsif ($answerScore >= 1) {
 						$options{resultTitle} = maketext('Correct');
 						$options{resultClass} = 'correct';
 						$options{btnClass}    = 'btn-success';
@@ -1111,6 +1120,8 @@ sub ENDDOCUMENT {
 						|| $ansHash->{ans_message}
 						|| $rh_envir->{showCorrectAnswers});
 
+				next if $showCorrectOnly && !$options{showCorrect};
+
 				# Find an element to insert the button in or around if one has not been provided.
 				unless ($options{insertElement}) {
 					# Use the last feedback element by default.
@@ -1144,8 +1155,7 @@ sub ENDDOCUMENT {
 						if $options{insertElement} && $options{insertElement}->attr->{'data-feedback-insert-method'};
 				}
 
-				# Add the correct/incorrect/partially-correct class and
-				# aria-described by attribute to the feedback elements.
+				# Add the correct/incorrect/partially-correct class to the feedback elements.
 				for (@{ $options{feedbackElements} }) {
 					$_->attr(class => join(' ', $options{resultClass}, $_->attr->{class} || ()))
 						if $options{resultClass};
@@ -1183,8 +1193,7 @@ sub ENDDOCUMENT {
 
 				my $answerPreview = $previewAnswer->($ansHash->{preview_latex_string}, $options{wrapPreviewInTex});
 
-				# Create the screen reader only span holding the aria description, create the feedback button and
-				# popover, and insert the button at the requested location.
+				# Create the feedback button and popover, and insert the button at the requested location.
 				my $feedback = Mojo::DOM->new_tag(
 					'button',
 					type  => 'button',
@@ -1196,28 +1205,30 @@ sub ENDDOCUMENT {
 						: $options{resultTitle}
 					),
 					data => {
-						bs_title => Mojo::DOM->new_tag(
-							'div',
-							class           => 'd-flex align-items-center justify-content-between',
-							'data-bs-theme' => 'dark',
-							sub {
-								Mojo::DOM->new_tag('span', style => 'width:20.4px')
-									. Mojo::DOM->new_tag('span', class => 'mx-3', $options{resultTitle})
-									. Mojo::DOM->new_tag(
-										'button',
-										type         => 'button',
-										class        => 'btn-close',
-										'aria-label' => maketext('Close')
-									);
-							}
-						)->to_string,
+						$showCorrectOnly ? (show_correct_only => 1) : (
+							bs_title => Mojo::DOM->new_tag(
+								'div',
+								class           => 'd-flex align-items-center justify-content-between',
+								'data-bs-theme' => 'dark',
+								sub {
+									Mojo::DOM->new_tag('span', style => 'width:20.4px')
+										. Mojo::DOM->new_tag('span', class => 'mx-3', $options{resultTitle})
+										. Mojo::DOM->new_tag(
+											'button',
+											type         => 'button',
+											class        => 'btn-close',
+											'aria-label' => maketext('Close')
+										);
+								}
+							)->to_string
+						),
 						answer_label           => $answerLabel,
 						bs_toggle              => 'popover',
 						bs_trigger             => 'click',
-						bs_placement           => 'bottom',
+						bs_placement           => $showCorrectOnly ? 'right' : 'bottom',
 						bs_html                => 'true',
 						bs_custom_class        => join(' ', 'ww-feedback-popover', $options{resultClass} || ()),
-						bs_fallback_placements => '[]',
+						bs_fallback_placements => $showCorrectOnly ? '["left","top","bottom"]' : '[]',
 						bs_content             => Mojo::DOM->new_tag(
 							'div',
 							id => "$answerLabel-feedback",
@@ -1258,10 +1269,27 @@ sub ENDDOCUMENT {
 														$options{wrapPreviewInTex},
 														$ansHash->{correct_ans}
 													);
-													$feedbackLine->(
+													$showCorrectOnly
+													? $feedbackLine->(
+														'',
+														Mojo::DOM->new_tag(
+															'div',
+															class =>
+															'd-flex justify-content-between align-items-center gap-1',
+															sub {
+																$correctAnswer
+																. Mojo::DOM->new_tag(
+																	'button',
+																	type         => 'button',
+																	class        => 'btn-close',
+																	'aria-label' => maketext('Close')
+																);
+															}
+														)
+													)
+													: $feedbackLine->(
 														maketext('Correct Answer'),
-														$rh_envir->{showCorrectAnswers} > 1
-														? $correctAnswer
+														$rh_envir->{showCorrectAnswers} > 1 ? $correctAnswer
 														: Mojo::DOM->new_tag(
 															'button',
 															type  => 'button',
