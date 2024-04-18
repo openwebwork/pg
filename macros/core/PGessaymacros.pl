@@ -61,6 +61,7 @@ sub essay_cmp {
 			$options->{manuallyGraded} = 1;
 
 			if ($envir{needs_grading}
+				|| !defined $ansHash->{ans_label}
 				|| !defined $inputs_ref->{"previous_$ansHash->{ans_label}"}
 				|| $inputs_ref->{ $ansHash->{ans_label} } ne $inputs_ref->{"previous_$ansHash->{ans_label}"})
 			{

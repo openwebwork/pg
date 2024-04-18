@@ -224,7 +224,6 @@
 	--bs-popover-max-width: 600px;
 	--bs-popover-zindex: 17;
 	position: absolute;
-	min-width: 200px;
 
 	.popover-header {
 		text-align: center;
@@ -260,11 +259,29 @@
 		}
 	}
 
+	&:not(.correct-only) {
+		min-width: 200px;
+
+		.popover-body {
+			.card {
+				border-top-left-radius: 0;
+				border-top-right-radius: 0;
+				--bs-card-spacer-y: 0.5rem;
+			}
+		}
+	}
+
+	&.correct-only {
+		.popover-body {
+			.card {
+				--bs-card-spacer-x: 0.25rem;
+				--bs-card-spacer-y: 0.25rem;
+			}
+		}
+	}
+
 	.popover-body {
 		.card {
-			border-top-left-radius: 0;
-			border-top-right-radius: 0;
-			--bs-card-spacer-y: 0.5rem;
 			--bs-card-cap-bg: #ddd;
 
 			.card-header {
