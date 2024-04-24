@@ -16,19 +16,19 @@
         "jsxgraph": "^1.7.0",
         "jszip": "^3.10.1",
         "jszip-utils": "^0.1.0",
-        "mathquill": "github:openwebwork/mathquill#WeBWorK-2.18",
-        "plotly.js-dist-min": "^2.27.0",
-        "sortablejs": "^1.15.0"
+        "mathquill": "github:openwebwork/mathquill#WeBWorK-2.19",
+        "plotly.js-dist-min": "^2.32.0",
+        "sortablejs": "^1.15.2"
     },
     "devDependencies": {
-        "autoprefixer": "^10.4.16",
-        "chokidar": "^3.5.3",
-        "cssnano": "^6.0.1",
-        "postcss": "^8.4.31",
-        "prettier": "^3.1.1",
+        "autoprefixer": "^10.4.19",
+        "chokidar": "^3.6.0",
+        "cssnano": "^6.1.2",
+        "postcss": "^8.4.38",
+        "prettier": "^3.2.5",
         "rtlcss": "^4.1.1",
-        "sass": "^1.69.5",
-        "terser": "^5.24.0",
+        "sass": "^1.75.0",
+        "terser": "^5.30.4",
         "yargs": "^17.7.2"
     },
     "browserslist": [
