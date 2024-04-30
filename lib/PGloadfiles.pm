@@ -84,7 +84,6 @@ sub new {
 	my $self = {
 		envir         => $envir,
 		macroFileList => {},       # records macros used in compilation
-		pgFileName    => '',       # current pg file being processed
 		macrosPath    => '',
 		pwd           => '',       # current directory -- defined in initialize
 	};

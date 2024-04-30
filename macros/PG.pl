@@ -1486,11 +1486,13 @@ sub ENDDOCUMENT {
 }
 
 sub alias {
-	$PG->{PG_alias}->make_alias(@_);
+	my $aux_file_id = shift;
+	return $PG->{PG_alias}->make_alias($aux_file_id);
 }
 
 sub get_resource {
-	$PG->{PG_alias}->get_resource(@_);
+	my $aux_file_id = shift;
+	return $PG->{PG_alias}->get_resource($aux_file_id);
 }
 
 sub maketext {
@@ -1502,20 +1504,16 @@ sub insertGraph {
 }
 
 sub findMacroFile {
-	$PG->{PG_alias}->findMacroFile(@_);
-}
-
-sub findAppletCodebase {
-	my $appletName = shift;
-	my $url        = eval { $PG->{PG_alias}->findAppletCodebase($appletName) };
-	# warn is already trapped under the old system
-	$PG->warning_message("While using findAppletCodebase  to search for applet$appletName:  $@") if $@;
-	$url;
+	$PG->{PG_loadMacros}->findMacroFile(@_);
 }
 
 sub loadMacros {
 	$PG->{PG_loadMacros}->loadMacros(@_);
 }
+
+# This is a stub for deprecated problems that call this method.  Some of the GeoGebra
+# problems that do so actually work even though this method does nothing.
+sub findAppletCodebase { return ''; }
 
 ## Problem Grader Subroutines
 
