@@ -1,4 +1,128 @@
-## contextBoolean.pl
+
+=head1 NAME
+
+contextBoolean.pl - Implements a MathObject class for Boolean expressions
+
+=head1 DESCRIPTION
+
+Load this file:
+
+    loadMacros('contextBoolean.pl');
+
+and then select the context:
+
+    Context('Boolean');
+
+=head2 CONSTANTS
+
+This constant recognizes two constants by default, C<T> and C<F>. The following are all equivalent:
+
+    $T = Compute('1');
+    $T = Boolean('T');
+    $T = Context()->T;
+    $T = context::Boolean->T;
+
+=head2 VARIABLES
+
+By default, this context has two variables, C<p> and C<q>. More variables can be added through the usual
+means of modifying context:
+
+    Context->variables->add( r => 'Boolean' );
+
+=head2 OPERATORS
+
+Changing the LaTeX representations of the boolean operators is handled through the operators C<or>, C<and>,
+C<xor>, and C<not>. Note the extra space following the LaTeX command.
+
+    Context->operators->set( not => { TeX => '\neg ' } );
+
+
+=head3 Aliases and Alternatives
+
+Modifications to the operators should be applied to the string versions of each operator: 'or', 'xor', 'and',
+and 'not'; rather than to any of the following aliases or alternatives.
+
+=over
+
+=item OR
+
+The 'or' operator is indicated by C<or>, C<+>, C<\\/>, C<wedge>, or unicode C<x{2228}>.
+
+=item AND
+
+The 'and' operator is indicated by C<and>, C<*>, whitespace (as with implicit multiplication), C</\\>, C<vee>,
+or unicode C<x{2227}>.
+
+=item XOR
+
+The 'xor' operator is indicated by C<xor>, C<\>\<>, C<oplus>, or unicodes C<x{22BB}>, C<x{2295}>.
+
+=item NOT
+
+The 'not' operator is indicated by C<not>, C<->, C<!>, C<~>, or unicodes C<x{00AC}>, C<x{223C}>.
+
+A right-associative version of the 'not' operator is also available by using C<'> or C<`> following the expression
+to be negated.
+
+=back
+
+=head2 OPERATOR PRECEDENCE
+
+=over
+
+=item S<C<< setPrecedence >>>
+
+This context supports two paradigms for operation precedence: C<equal> (default) and C<oxan>.
+
+The default setting, C<equal>, gives all boolean operations the same priority, meaning that parenthesis
+are the only manner by which an expression will evaluate operations to the right before those to the left.
+
+    $a = Compute("T or T and F"); # $a == F
+
+The C<oxan> setting priortizes C<or> < C<xor> < C<and> < C<not>.
+
+    Context()->setPrecedence('oxan');
+    $b = Compute("T or T and F"); # $b == T
+
+=back
+
+=head2 REDUCTION
+
+The context also handles C<reduceConstants> with the following reduction rules:
+
+=over
+
+=item C<'x||1'>
+
+    $f = Formula('p or T')->reduce; # $f == T
+
+=item C<'x||0'>
+
+    $f = Formula('p or F')->reduce; # $f == Formula('p')
+
+=item C<'x&&1'>
+
+    $f = Formula('p and T')->reduce; # $f == Formula('p')
+
+=item C<'x&&0'>
+
+    $f = Formula('p and F')->reduce; # $f == F
+
+=item C<'!!x'>
+
+    $f = Formula('not not p')->reduce; # $f == Formula('p');
+
+=back
+
+=head2 COMPARISON
+
+Boolean Formula objects are considered equal whenever the two expressions generate the same truth table.
+
+    $f = Formula('not (p or q)');
+    $g = Formula('(not p) and (not q)');
+    # $f == $g is true
+
+=cut
 
 sub _contextBoolean_init { context::Boolean::Init() }
 
@@ -15,15 +139,12 @@ sub Init {
 	$context->{value}{Real}         = 'context::Boolean::Boolean';
 	$context->{precedence}{Boolean} = $context->{precedence}{Real};
 
-	## Disable unnecessary context stuff
+	# Disable unnecessary context stuff
 	$context->functions->disable('All');
 	$context->strings->clear();
 	$context->lists->clear();
 
-	## Define our logic operators
-	#   (for now...)
-	#   all binary operators have the same precedence and process left-to-right
-	#   any parens to the right must be preserved with consecutive binary ops
+	# Define our logic operators
 	$context->operators->are(
 		'or' => {
 			class         => 'context::Boolean::BOP::or',
@@ -34,7 +155,7 @@ sub Init {
 			string        => ' or ',
 			TeX           => '\vee ',
 			perl          => '||',
-			alternatives  => ["\x{2228}"],
+			#			alternatives  => ["\x{2228}"],
 		},
 		'and' => {
 			class         => 'context::Boolean::BOP::and',
@@ -45,7 +166,7 @@ sub Init {
 			string        => ' and ',
 			TeX           => '\wedge ',
 			perl          => '&&',
-			alternatives  => ["\x{2227}"],
+			#			alternatives  => ["\x{2227}"],
 		},
 		'xor' => {
 			class         => 'context::Boolean::BOP::xor',
@@ -56,7 +177,7 @@ sub Init {
 			string        => ' xor ',
 			perl          => '!=',
 			TeX           => '\oplus ',
-			alternatives  => [ "\x{22BB}", "\x{2295}" ],
+			#			alternatives  => [ "\x{22BB}", "\x{2295}" ],
 		},
 		'not' => {
 			class         => 'context::Boolean::UOP::not',
@@ -66,44 +187,57 @@ sub Init {
 			string        => 'not ',
 			TeX           => '\mathord{\sim}',
 			perl          => '!',
-			alternatives  => ["\x{00AC}"],
+			#			alternatives  => ["\x{00AC}"],
+		},
+		'`' => {
+			class         => 'context::Boolean::UOP::not',
+			precedence    => 3,
+			associativity => 'right',
+			type          => 'unary',
+			string        => '`',
+			TeX           => '^\prime',
+			perl          => '!',
 		},
 		' ' => {
-			class         => 3,
-			precedence    => 1,
+			class         => 1,
+			precedence    => 3,
 			associativity => 'left',
 			type          => 'bin',
 			string        => 'and',
 			hidden        => 1
 		},
-		'*'   => { alias => 'and' },
-		'/\\' => { alias => 'and' },
-		'+'   => { alias => 'or' },
-		'\\/' => { alias => 'or' },
-		'-'   => { alias => 'not' },
-		'!'   => { alias => 'not' },
-		'~'   => { alias => 'not', alternatives => ["\x{223C}"] },
-		'><'  => { alias => 'xor' },
+		'*'     => { alias => 'and' },
+		'/\\'   => { alias => 'and' },
+		'wedge' => { alias => 'and', alternatives => ["\x{2227}"] },
+		'+'     => { alias => 'or' },
+		'\\/'   => { alias => 'or' },
+		'vee'   => { alias => 'or',  alternatives => ["\x{2228}"] },
+		'-'     => { alias => 'not', alternatives => ["\x{00AC}"] },
+		'!'     => { alias => 'not' },
+		'~'     => { alias => 'not', alternatives => ["\x{223C}"] },
+		'\''    => { alias => '`' },
+		'><'    => { alias => 'xor' },
+		'oplus' => { alias => 'xor', alternatives => [ "\x{22BB}", "\x{2295}" ] },
 	);
 
-	## redefine, but disable some usual context tokens for 'clearer' error messages
+	# redefine, but disable, some usual context tokens for 'clearer' error messages
 	$context->operators->redefine([ ',', 'fn' ], from => 'Numeric');
 	$context->lists->redefine('List', from => 'Numeric');
 	$context->operators->redefine([ '/', '^', '**' ], from => 'Numeric');
 	$context->operators->undefine('/', '^', '**');
 	delete $context->operators->get('/')->{space};
 
-	## Set default variables 'p' and 'q'
+	# Set default variables 'p' and 'q'
 	$Parser::Context::Variables::type{Boolean} = $Parser::Context::Variables::type{Real};
 	$context->variables->are(
 		p => 'Boolean',
 		q => 'Boolean',
 	);
 
-	## Set up new reduction rules:
+	# Set up new reduction rules:
 	$context->reductions->set('x||1' => 1, 'x||0' => 1, 'x&&1' => 1, 'x&&0' => 1, '!!x' => 1);
 
-	## Define constants for 'True' and 'False'
+	# Define constants for 'True' and 'False'
 	$context->constants->{namePattern} = qr/(?:\w|[\x{22A4}\x{22A5}])+/;
 	$context->constants->are(
 		T => {
@@ -126,14 +260,14 @@ sub Init {
 		'False' => { alias => 'F' },
 	);
 
-	## add our methods to this context
+	# add our methods to this context
 	bless $context, 'context::Boolean::Context';
 
-	## allow authors to create Boolean values
+	# allow authors to create Boolean values
 	main::PG_restricted_eval('sub Boolean { Value->Package("Boolean()")->new(@_) }');
 }
 
-## top-level access to context-specific T and T
+# top-level access to context-specific T and F
 sub T {
 	my $context = main::Context();
 	Value::Error("Context must be a Boolean context") unless $context->can('T');
@@ -146,7 +280,7 @@ sub F {
 	return $context->F;
 }
 
-## Subclass the Parser::Context to override copy() and add T and F functions
+# Subclass the Parser::Context to override copy() and add T and F functions
 package context::Boolean::Context;
 our @ISA = ('Parser::Context');
 
@@ -160,11 +294,11 @@ sub copy {
 	return $self;
 }
 
-## Access to the constant T and F values
+# Access to the constant T and F values
 sub F { shift->constants->get('F')->{value} }
 sub T { shift->constants->get('T')->{value} }
 
-## Easy setting of precedence to different types
+# Easy setting of precedence to different types
 sub setPrecedence {
 	my ($self, $order) = @_;
 	if ($order eq 'equal') {
@@ -186,7 +320,7 @@ sub setPrecedence {
 	}
 }
 
-## Subclass Parser::Number to return the constant T or F
+# Subclass Parser::Number to return the constant T or F
 package context::Boolean::Number;
 our @ISA = ('Parser::Number');
 
@@ -200,11 +334,11 @@ sub perl {
 	return $self->context->constants->get(('F', 'T')[ $self->{value} ])->{perl};
 }
 
-## Subclass Value::Formula for boolean formulas
+# Subclass Value::Formula for boolean formulas
 package context::Boolean::Formula;
 our @ISA = ('Value::Formula');
 
-## use every combination of T/F across all variables
+# use every combination of T/F across all variables
 sub createRandomPoints {
 	my $self      = shift;
 	my $context   = $self->{context};
@@ -230,6 +364,29 @@ sub createRandomPoints {
 	return \@points;
 }
 
+sub createPointValues {
+	my $self    = shift;
+	my $context = $self->context;
+	my $points  = shift || $self->{test_points} || $self->createRandomPoints;
+	my @vars    = $context->variables->variables;
+	my @params  = $context->variables->parameters;
+
+	my $f = $self->{f};
+	$f = $self->{f} = $self->perlFunction(undef, [ @vars, @params ]) unless $f;
+
+	my (@values, $v);
+	foreach my $p (@$points) {
+		$v = eval { &$f(@$p) };
+		Value::Error("Can't evaluate formula on test point (%s)", join(',', @{$p})) unless (defined $v);
+		push @values, $v;
+	}
+
+	$self->{test_points} = $points;
+	$self->{test_values} = \@values;
+
+	return \@values;
+}
+
 package context::Boolean::BOP;
 our @ISA = qw(Parser::BOP);
 
@@ -248,6 +405,20 @@ sub perl {
 	my $rPerl  = $self->{rop}->perl(2) . '->value';
 	my $result = "$lPerl $bop $rPerl";
 	return "($result ? context::Boolean->T : context::Boolean->F)";
+}
+
+# remove once UOP::string passses 'same' as second argument
+sub string {
+	my ($self, $precedence, $showparens, $position, $outerRight) = @_;
+	$showparens = "same" if !($position // '') && !($showparens // '');
+	return $self->SUPER::string($precedence, $showparens, $position, $outerRight);
+}
+
+# remove once UOP::TeX passses 'same' as second argument
+sub TeX {
+	my ($self, $precedence, $showparens, $position, $outerRight) = @_;
+	$showparens = "same" if !($position // '') && !($showparens // '');
+	return $self->SUPER::TeX($precedence, $showparens, $position, $outerRight);
 }
 
 package context::Boolean::BOP::or;
@@ -314,9 +485,10 @@ sub _check {
 }
 
 sub _reduce {
-	my $self   = shift;
-	my $reduce = $self->context->{reduction};
-	my $op     = $self->{op};
+	my $self    = shift;
+	my $context = $self->context;
+	my $reduce  = $context->{reduction};
+	my $op      = $self->{op};
 
 	if ($op->isNeg && $reduce->{'!!x'}) {
 		delete $op->{op}{noParens};
@@ -324,7 +496,7 @@ sub _reduce {
 	}
 
 	if ($op->{isConstant} && $context->flag('reduceConstants')) {
-		return $self->Item('Value')->new($self->{equation}, [ 1 - $op->value ]);
+		return $self->Item('Value')->new($self->{equation}, [ 1 - $op->eval ]);
 	}
 	return $self;
 }
@@ -372,7 +544,7 @@ sub compare {
 	return $l->value <=> $r->value;
 }
 
-## use the context settings
+# use the context settings
 sub string {
 	my $self  = shift;
 	my $const = $self->context->constants;
@@ -381,7 +553,7 @@ sub string {
 	return ($F, $T)[ $self->value ];
 }
 
-## use the context settings
+# use the context settings
 sub TeX {
 	my $self  = shift;
 	my $const = $self->context->constants;
