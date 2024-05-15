@@ -1211,6 +1211,7 @@ sub ENDDOCUMENT {
 									);
 							}
 						)->to_string,
+						answer_label           => $answerLabel,
 						bs_toggle              => 'popover',
 						bs_trigger             => 'click',
 						bs_placement           => 'bottom',

@@ -36,6 +36,9 @@
 		if (input.classList.contains('incorrect')) answerQuill.classList.add('incorrect');
 		if (input.classList.contains('partially-correct')) answerQuill.classList.add('partially-correct');
 
+		// Find the feedback button for this input if there is one on the page.
+		const feedbackBtn = document.querySelector(`button[data-answer-label="${answerLabel}"`);
+
 		// Default options.
 		const cfgOptions = {
 			spaceBehavesLikeTab: true,
@@ -261,6 +264,9 @@
 					answerQuill.input.value = '';
 					answerQuill.latexInput.value = '';
 				}
+
+				// If the feedback popover is open, then update its position.
+				if (feedbackBtn) bootstrap.Popover.getInstance(feedbackBtn)?.update();
 			};
 
 			input.after(answerQuill);
