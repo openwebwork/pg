@@ -1,5 +1,8 @@
-conf/pg_config.yml
+*~
+*.swp
 *.bak
+
+conf/pg_config.yml
 cover_db/
 
 htdocs/node_modules

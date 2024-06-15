@@ -19,11 +19,9 @@ macros.
 
 =cut
 
-BEGIN {
-	be_strict();    # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-}
-
 package AnswerIO;
+
+use strict;
 
 # Code for saving Answers to a file
 # function, not a method

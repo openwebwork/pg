@@ -94,7 +94,7 @@
 				// Find the preview button container, and wrap it in the inner container.
 				const buttonContainer = container.nextElementSibling;
 				if (buttonContainer && buttonContainer.classList.contains('latexentry-button-container')) {
-					buttonContainer.classList.add('d-flex', 'justify-content-end', 'gap-1');
+					buttonContainer.classList.add('d-flex', 'justify-content-end', 'gap-2');
 					buttonContainer.append(this.button);
 					innerContainer.append(buttonContainer);
 				} else {
@@ -171,7 +171,7 @@
 				inputGroup.append(this.inputTextBox);
 
 				const footer = document.createElement('div');
-				footer.classList.add('d-flex', 'justify-content-end', 'gap-1', 'mt-2');
+				footer.classList.add('d-flex', 'justify-content-end', 'gap-2', 'mt-2');
 
 				const insertButton = document.createElement('button');
 				insertButton.type = 'button';
@@ -219,7 +219,7 @@
 			// Only do this while the popover is visible.
 			const inputRegenPreview = () => this.regenPreview();
 			this.button.addEventListener('shown.bs.popover', () => {
-				this.inputTextBox.addEventListener('keyup', inputRegenPreview)
+				this.inputTextBox.addEventListener('keyup', inputRegenPreview);
 
 				if (!this.options.decoratedTextBoxAsInput) {
 					this.inputTextBox.focus();
@@ -238,7 +238,7 @@
 			});
 			this.button.addEventListener('hide.bs.popover', () => {
 				this.popover.tip.dispatchEvent(new Event('focusout'));
-				this.inputTextBox.removeEventListener('keyup', inputRegenPreview)
+				this.inputTextBox.removeEventListener('keyup', inputRegenPreview);
 			});
 
 			const closeOther = () => {
@@ -278,7 +278,7 @@
 
 		// Regenerate the preview in the math viewer whenever the input value changes.
 		regenPreview() {
-			let text = this.inputTextBox.value.replace(/\*\*/g, '^');
+			let text = this.inputTextBox.value;
 
 			if (this.renderingMode === 'LATEX') this.mviewer.textContent = `\\(${text}\\)`;
 			else this.mviewer.textContent = `\`${text}\``;

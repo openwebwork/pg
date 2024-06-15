@@ -5,7 +5,7 @@
 ## for the hash, but that might change
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -123,11 +123,6 @@ The answer hash class is guaranteed to contain the following instance variables:
 =head3 AnswerHash Methods:
 
 =cut
-
-BEGIN {
-   #	main::be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-
-}
 
 package AnswerHash;
 use Exporter;

@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -24,6 +24,7 @@ use WeBWorK::PG::Environment;
 use WeBWorK::PG::Translator;
 use WeBWorK::PG::RestrictedClosureClass;
 use WeBWorK::PG::Constants;
+use WeBWorK::PG::Localize;
 
 use constant DISPLAY_MODES => {
 	# display name   # mode name
@@ -139,7 +140,7 @@ sub new_helper ($invocant, %options) {
 		}
 	}
 
-	$translator->translate();
+	$translator->translate;
 
 	# IMPORTANT: The translator environment should not be trusted after the problem code runs.
 
@@ -172,14 +173,24 @@ sub new_helper ($invocant, %options) {
 		);
 	}
 
-	# HTML_dpng uses an ImageGenerator. We have to render the queued equations.
+	# HTML_dpng uses an ImageGenerator. We have to render the queued equations.  This must be done before the post
+	# processing, since the image tags output by the image generator initially include markers which are invalid html.
+	# Mojo::DOM will change these markers into attributes with values and this will fail.
 	if ($image_generator) {
-		my $sourceFile = "$options{templateDirectory}$options{sourceFilePath}";
 		$image_generator->render(
 			refresh   => $options{refreshMath2img} // 0,
 			body_text => $translator->r_text,
 		);
 	}
+
+	$translator->post_process_content if ref($translator->{rh_pgcore}) eq 'PGcore';
+	$translator->stringify_answers;
+
+	# Add the result summary set in post processing into the result.
+	$result->{summary} = $translator->{rh_pgcore}{result_summary}
+		if ref($translator->{rh_pgcore}) eq 'PGcore'
+		&& $translator->{rh_pgcore}{result_summary}
+		&& (!defined $result->{summary} || $result->{summary} !~ /\S/);
 
 	return bless {
 		translator       => $translator,
@@ -244,6 +255,15 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		isInstructor       => $options->{isInstructor}       // 0,
 		PERSISTENCE_HASH   => $options->{PERSISTENCE_HASH}   // {},
 
+		# Attempt Results
+		showFeedback            => $options->{showFeedback}            // 0,
+		showAttemptAnswers      => $options->{showAttemptAnswers}      // 1,
+		showAttemptPreviews     => $options->{showAttemptPreviews}     // 1,
+		forceShowAttemptResults => $options->{forceShowAttemptResults} // 0,
+		showAttemptResults      => $options->{showAttemptResults}      // 0,
+		showMessages            => $options->{showMessages}            // 1,
+		showCorrectAnswers      => $options->{showCorrectAnswers}      // 0,
+
 		# The next has marks what data was updated and needs to be saved
 		# by the front end.
 		PERSISTENCE_HASH_UPDATED => {},
@@ -260,8 +280,8 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		mathViewLocale => $options->{mathViewLocale} // $pg_envir->{options}{mathViewLocale},
 
 		# Internationalization
-		language            => $options->{language}            // 'en',
-		language_subroutine => $options->{language_subroutine} // sub (@args) { return $args[0]; },
+		language            => $options->{language} // 'en',
+		language_subroutine => WeBWorK::PG::Localize::getLoc($options->{language} // 'en'),
 
 		# Directories and URLs
 		pgMacrosDir       => "$pg_envir->{directories}{root}/macros",
@@ -458,6 +478,55 @@ This may contain the following keys (example values are shown)
     numZeroLevelTolDefault: 1E-12
     useBaseTenLog: 0
     defaultDisplayMatrixStyle: '[s]' # left delimiter, middle line delimiters, right delimiter
+
+=item showFeedback (boolean, default: 0)
+
+Determines if feedback will be shown for answers in the problem. Note that
+feedback will be shown if forceShowAttemptResults is true regardless of
+the value of this option.
+
+=item showAttemptAnswers (boolean, default: 1)
+
+Determines if the student's evaluated (i.e. "Entered") answers will be shown in
+feedback.
+
+=item showAttemptPreviews (boolean, default: 1)
+
+Determines if the student's answer previews will be shown in feedback.
+
+=item showAttemptResults (boolean, default: 0)
+
+Determines if attempt results will be revealed in feedback.  In other words,
+if the student's answers are correct, incorrect, or partially correct.  This
+honors the value of the PG C<showPartialCorrectAnswers> flag.  If that flag is
+false, then attempt results will still not be shown.
+
+If this is true, then a summary of results will also be generated.  The
+summary will be returned in the C<summary> key of the C<result> hash.
+
+=item forceShowAttemptResults (boolean, default: 0)
+
+If this is true then feedback will be shown with attempt results.  This ignores
+the PG C<showPartialCorrectAnswers> flag and shows attempt results in any case.
+The summary will also be generated if this is true.
+
+=item showMessages (boolean, default: 1)
+
+Determines if any messages generated in answer evaluation will be shown.
+
+=item showCorrectAnswers (numeric, default: 0)
+
+Determines if correct answers will be shown. If 0, then correct answers are not
+shown. If set to 1, then correct answers are shown but hidden, and a "Reveal"
+button is shown at first. If that button is clicked, then the answer is shown.
+If set to 2, then correct answers are shown immediately.
+
+There is one special case that needs extra explanation.  If this is true
+(greater than zero), C<forceShowAttemptResults> is true, C<forceScaffoldsOpen>
+is true, and C<showAttemptAnswers>, C<showAttemptPreviews>, and C<showMessages>
+are all false, then correct answers will be shown with no other content in the
+feedback popover except a close button, and the popover will open automatically
+on page load.
 
 =item answerPrefix (string, default: '')
 

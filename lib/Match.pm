@@ -179,11 +179,9 @@ ra_correct_ans variable.
 
 =cut
 
-BEGIN {
-	be_strict();
-}
-
 package Match;
+
+use strict;
 
 @Match::ISA = qw( ChoiceList );
 

@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -272,7 +272,7 @@ sub type { return 'List' }
 
 sub ANS_NAME {
 	my $self = shift;
-	$self->{answer_name} = main::NEW_ANS_NAME() unless defined $self->{answer_name};
+	main::RECORD_IMPLICIT_ANS_NAME($self->{answer_name} = main::NEW_ANS_NAME()) unless defined $self->{answer_name};
 	return $self->{answer_name};
 }
 
@@ -322,7 +322,12 @@ sub cmp_defaults {
 		ordered           => $self->{OrderedSubsets},
 		implicitList      => 0,
 		requireParenMatch => 0,
-		entry_type        => 'subset'
+		entry_type        => 'subset',
+		feedback_options  => sub {
+			my ($ansHash, $options) = @_;
+			$options->{btnAddClass} = '';
+			$options->{showEntered} = 0;    # Suppress output of the feedback entered answer.
+		}
 	);
 }
 

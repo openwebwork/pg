@@ -796,4 +796,48 @@ sub Were {
 	return shift->verb('Were', 'Was');
 }
 
+=head3 C<theyre> or C<Theyre>
+
+Returns the correct contraction for the pronoun with to be, with captilization.  For example
+
+    $p->theyre;
+
+or
+
+    $p->Theyre;
+
+=cut
+
+sub theyre {
+	my $self = shift;
+	return $self->they . "'" . $self->verb('re', 's');
+}
+
+sub Theyre {
+	my $self = shift;
+	return $self->They . "'" . $self->verb('re', 's');
+}
+
+=head3 C<theyve> or C<Theyve>
+
+Returns the correct contraction for the pronoun with to have, with captilization.  For example
+
+    $p->theyve;
+
+or
+
+    $p->Theyve;
+
+=cut
+
+sub theyve {
+	my $self = shift;
+	return $self->they . "'" . $self->verb('ve', 's');
+}
+
+sub Theyve {
+	my $self = shift;
+	return $self->They . "'" . $self->verb('ve', 's');
+}
+
 1;

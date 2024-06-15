@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -160,7 +160,8 @@ sub HTML {
 	$out .= qq{ data-label-format="$self->{bucketLabelFormat}"} if $self->{bucketLabelFormat};
 	$out .= '>';
 
-	$out .= '<div class="dd-buttons">';
+	$out .= '<div class="dd-buttons"';
+	$out .= qq{ data-feedback-insert-element="$self->{answerName}" data-feedback-insert-method="append_content">};
 	$out .= qq{<button type="button" class="btn btn-secondary dd-reset-buckets">$self->{resetButtonText}</button>};
 	$out .= qq{<button type="button" class="btn btn-secondary dd-add-bucket">$self->{addButtonText}</button>}
 		if ($self->{allowNewBuckets});

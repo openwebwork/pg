@@ -43,11 +43,9 @@ This module defines a circle which can be inserted as a stamp in a graph (WWPlot
 
 =cut
 
-BEGIN {
-	be_strict();    # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-}
-
 package Circle;
+
+use strict;
 
 #use WWPlot;
 #Because of the way problem modules are loaded 'use' is disabled.

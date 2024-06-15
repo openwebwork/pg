@@ -7,9 +7,15 @@
 		Point: {
 			preInit(gt, x, y) {
 				return gt.board.create('point', [x, y], {
-					size: 2, snapToGrid: true, snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false,
-					strokeColor: gt.color.curve, fixed: gt.isStatic,
-					highlightStrokeColor: gt.color.underConstruction, highlightFillColor: gt.color.pointHighlight
+					size: 2,
+					snapToGrid: true,
+					snapSizeX: gt.snapSizeX,
+					snapSizeY: gt.snapSizeY,
+					withLabel: false,
+					strokeColor: gt.color.curve,
+					fixed: gt.isStatic,
+					highlightStrokeColor: gt.color.underConstruction,
+					highlightFillColor: gt.color.pointHighlight
 				});
 			},
 
@@ -22,24 +28,35 @@
 				this.focusPoint = this.baseObj;
 
 				if (!gt.isStatic) {
-					this.on('down', () => gt.board.containerObj.style.cursor = 'none');
-					this.on('up', () => gt.board.containerObj.style.cursor = 'auto');
-					this.on('drag', (e) => { gt.adjustDragPosition(e, this.baseObj); gt.updateText(); });
+					this.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
+					this.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+					this.on('drag', (e) => {
+						gt.adjustDragPosition(e, this.baseObj);
+						gt.updateText();
+					});
 				}
 			},
 
 			blur(gt) {
 				this.focused = false;
-				this.baseObj.setAttribute(
-					{ fixed: true, highlight: false, strokeColor: gt.color.curve, strokeWidth: 2 });
+				this.baseObj.setAttribute({
+					fixed: true,
+					highlight: false,
+					strokeColor: gt.color.curve,
+					strokeWidth: 2
+				});
 				gt.updateHelp();
 				return false;
 			},
 
 			focus(gt) {
 				this.focused = true;
-				this.baseObj.setAttribute(
-					{ fixed: false, highlight: true, strokeColor: gt.color.focusCurve, strokeWidth: 3 });
+				this.baseObj.setAttribute({
+					fixed: false,
+					highlight: true,
+					strokeColor: gt.color.focusCurve,
+					strokeWidth: 3
+				});
 
 				this.focusPoint.rendNode.focus();
 				gt.updateHelp();
@@ -49,8 +66,10 @@
 			setSolid() {},
 
 			stringify(gt) {
-				return `(${
-					gt.snapRound(this.baseObj.X(), gt.snapSizeX)},${gt.snapRound(this.baseObj.Y(), gt.snapSizeY)})`;
+				return `(${gt.snapRound(this.baseObj.X(), gt.snapSizeX)},${gt.snapRound(
+					this.baseObj.Y(),
+					gt.snapSizeY
+				)})`;
 			},
 
 			updateTextCoords(gt, coords) {
@@ -113,13 +132,17 @@
 				} else if (e instanceof JXG.Coords) {
 					coords = e;
 					this.hlObjs.hl_point?.setPosition(JXG.COORDS_BY_USER, [coords.usrCoords[1], coords.usrCoords[2]]);
-				} else
-					return false;
+				} else return false;
 
 				if (!this.hlObjs.hl_point) {
 					this.hlObjs.hl_point = gt.board.create('point', [coords.usrCoords[1], coords.usrCoords[2]], {
-						size: 2, color: gt.color.underConstruction, snapToGrid: true, highlight: false,
-						snapSizeX: gt.snapSizeX, snapSizeY: gt.snapSizeY, withLabel: false
+						size: 2,
+						color: gt.color.underConstruction,
+						snapToGrid: true,
+						highlight: false,
+						snapSizeX: gt.snapSizeX,
+						snapSizeY: gt.snapSizeY,
+						withLabel: false
 					});
 					this.hlObjs.hl_point.rendNode.focus();
 				}

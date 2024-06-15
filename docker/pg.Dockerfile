@@ -20,6 +20,8 @@ RUN apt-get update \
 		libhtml-parser-perl \
 		libjson-perl \
 		libjson-xs-perl \
+		liblocale-maketext-lexicon-perl \
+		libmojolicious-perl \
 		libtest2-suite-perl \
 		libtie-ixhash-perl \
 		libuuid-tiny-perl \

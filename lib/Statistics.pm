@@ -1,7 +1,7 @@
 
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -57,7 +57,6 @@ sub make_csv_alias {
 
 	# Define the file name, clean it up and convert to a url.
 	my $filePath = "data/$studentLogin-$problemSeed-set" . $setName . "prob$prob.html";
-	$filePath = $self->{PG}->convertPath($filePath);
 	$filePath = $self->{PG}->surePathToTmpFile($filePath);
 	my $url = $self->{PG}->{PG_alias}->make_alias($filePath);
 

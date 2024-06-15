@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -52,7 +52,7 @@ of the choice as it is displayed following the radio button.
 
 The values set as described above are the answers that will be
 displayed in the past answers table.  See the C<values> option below
-for more information.  Problem authors are encourages to set these
+for more information.  Problem authors are encouraged to set these
 values either as described above, or via the C<values> option.  This
 is useful for instructors viewing past answers.
 
@@ -228,7 +228,7 @@ and then
 
     ANS($radio->cmp);
 
-to get the answer checker for the radion buttons.
+to get the answer checker for the radio buttons.
 
 You can use the RadioButtons object in MultiAnswer objects.  This is
 the reason for the RadioButton's C<ans_rule()> method (since that is
@@ -614,7 +614,7 @@ sub BUTTONS {
 	my $size    = shift;
 	my @choices = @{ $self->{orderedChoices} };
 	my @radio   = ();
-	$name = main::NEW_ANS_NAME() unless $name;
+	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 	my $label = main::generate_aria_label($name);
 
 	foreach my $i (0 .. $#choices) {
@@ -658,21 +658,25 @@ sub BUTTONS {
 			);
 		}
 	}
-	#
-	#  Taken from PGbasicmacros.pl
-	#  It is wrong to have \item in the radio buttons and to add itemize here,
-	#    but that is the way PGbasicmacros.pl does it.
-	#
+
+	# Taken from PGbasicmacros.pl
+	# It is wrong to have \item in the radio buttons and to add itemize here,
+	# but that is the way PGbasicmacros.pl does it.
 	if ($main::displayMode eq 'TeX') {
 		$radio[0] = "\n\\begin{itemize}\n" . $radio[0];
-		$radio[$#radio_buttons] .= "\n\\end{itemize}\n";
-	}
-	if ($main::displayMode eq 'PTX') {
+		$radio[-1] .= "\n\\end{itemize}\n";
+	} elsif ($main::displayMode eq 'PTX') {
 		$radio[0] = qq(<ul name="$name">) . "\n" . $radio[0];
-		$radio[$#radio_buttons] .= '</ul>';
+		$radio[-1] .= '</ul>';
 		#turn any math delimiters
 		@radio = map { $_ =~ s/\\\(/<m>/g;   $_ } (@radio);
 		@radio = map { $_ =~ s/\\\)/<\/m>/g; $_ } (@radio);
+	} else {
+		$radio[0] =
+			qq{<div class="radio-buttons-container" }
+			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
+			. qq{data-feedback-btn-add-class="ms-3">$radio[0]};
+		$radio[-1] .= "</div>";
 	}
 	(wantarray) ? @radio : join(($main::displayMode eq 'PTX') ? '' : $self->{separator}, @radio);
 }

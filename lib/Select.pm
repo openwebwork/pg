@@ -186,11 +186,9 @@ as a regular select list problem as described above.
 
 =cut
 
-BEGIN {
-	be_strict();
-}
-#'
 package Select;
+
+use strict;
 
 @Select::ISA = qw( Exporter ChoiceList );
 

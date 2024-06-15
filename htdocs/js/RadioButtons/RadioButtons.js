@@ -1,6 +1,6 @@
 // ################################################################################
 // # WeBWorK Online Homework Delivery System
-// # Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+// # Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 // #
 // # This program is free software; you can redistribute it and/or modify it under
 // # the terms of either: (a) the GNU General Public License as published by the
@@ -15,20 +15,28 @@
 'use strict';
 
 (() => {
+	const radioGroups = {};
+
 	// Setup uncheckable radios.
 	const setupUncheckableRadio = (radio) => {
 		if (!radio.dataset.uncheckableRadioButton) return;
 		delete radio.dataset.uncheckableRadioButton;
 
+		if (!radioGroups[radio.name]) radioGroups[radio.name] = [radio];
+		else radioGroups[radio.name].push(radio);
+
 		if (radio.checked) radio.dataset.currentlyChecked = '1';
 
 		radio.addEventListener('click', (e) => {
+			for (const groupRadio of radioGroups[radio.name]) {
+				if (groupRadio === radio) continue;
+				delete groupRadio.dataset.currentlyChecked;
+			}
 			if (radio.dataset.shift && !e.shiftKey) {
 				radio.dataset.currentlyChecked = '1';
 				return;
 			}
-			const currentlyChecked = radio.dataset.currentlyChecked;
-			if (currentlyChecked) {
+			if (radio.dataset.currentlyChecked) {
 				delete radio.dataset.currentlyChecked;
 				radio.checked = false;
 			} else {

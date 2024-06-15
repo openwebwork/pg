@@ -22,16 +22,10 @@ such as decompose_LR().
 
 =cut
 
-our $OPTION_ENTRY = $MatrixReal1::OPTION_ENTRY;
-use strict;
-# BEGIN {
-# 	be_strict(); # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-#
-# }
-use MatrixReal1;
-
 package Matrix;
-@Matrix::ISA = qw(MatrixReal1);
+use parent MatrixReal1;
+
+use strict;
 
 use Carp;
 

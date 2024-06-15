@@ -23,11 +23,13 @@ is(
 	qq{<div class="PGML">\n}
 		. qq{Enter a value for <script type="math/tex">\\pi</script>.\n}
 		. qq{<div style="margin-top:1em"></div>\n}
-		. qq{<input type=text class="codeshard" size=5 name="AnSwEr0001" id="AnSwEr0001" aria-label="answer 1 " }
-		. qq{dir="auto" autocomplete="off" autocapitalize="off" spellcheck="false" value="3.14159">}
-		. qq{<input type=hidden name="previous_AnSwEr0001" value="3.14159">\n}
-		. qq{</div>\n}
-		. qq{<input type=hidden name="MaThQuIlL_AnSwEr0001" id="MaThQuIlL_AnSwEr0001" value="" >},
+		. qq{<div class="text-nowrap d-inline">}
+		. qq{<input aria-label="answer 1 " autocapitalize="off" autocomplete="off" class="codeshard" }
+		. qq{dir="auto" id="AnSwEr0001" name="AnSwEr0001" size="5" spellcheck="false" type="text" value="3.14159">}
+		. qq{<input id="MaThQuIlL_AnSwEr0001" name="MaThQuIlL_AnSwEr0001" type="hidden" value="">}
+		. qq{</div>}
+		. qq{<input name="previous_AnSwEr0001" type="hidden" value="3.14159">\n}
+		. qq{</div>\n},
 	'body_text has correct content'
 );
 
@@ -102,9 +104,10 @@ is(
 			{ file => 'js/MathQuill/mqeditor.css',                 external => undef }
 		],
 		extra_js_files => [
-			{ file => 'js/InputColor/color.js',                   external => 0, attributes => { defer => undef } },
+			{ file => 'js/Feedback/feedback.js',                  external => 0, attributes => { defer => undef } },
 			{ file => 'js/Base64/Base64.js',                      external => 0, attributes => { defer => undef } },
 			{ file => 'js/Knowls/knowl.js',                       external => 0, attributes => { defer => undef } },
+			{ file => 'js/Problem/details-accordion.js',          external => 0, attributes => { defer => undef } },
 			{ file => 'js/ImageView/imageview.js',                external => 0, attributes => { defer => undef } },
 			{ file => 'js/Essay/essay.js',                        external => 0, attributes => { defer => undef } },
 			{ file => 'node_modules/mathquill/dist/mathquill.js', external => 0, attributes => { defer => undef } },

@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -93,7 +93,15 @@ original can be obtained from the C<original_formula> property.
 # ^uses Formula
 # ^uses Value::contextSet
 sub Compute {
-	my $string  = shift;
+	my $string = shift;
+	if ($string =~ m/^\s*-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]\d+)\s*$/
+		&& Value::matchNumber($string)
+		&& ($string ^ $string) eq '0')
+	{
+		warn "Compute() called with ambiguous value: $string\n"
+			. "-- use Real() for scientific notation or Formula() for Euler's number e\n";
+		$string = uc($string);
+	}
 	my $formula = Formula($string);
 	$formula = $formula->{tree}->Compute if $formula->{tree}{canCompute};
 	my $context = $formula->context;

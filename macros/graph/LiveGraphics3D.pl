@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -19,193 +19,166 @@ LiveGraphics3D.pl - provides the ability to have an interactive 3D plot.
 
 =head1 DESCRIPTION
 
+Macros for handling interactive 3D graphics.
 
-Macros for handling interactive 3D graphics via the LiveGraphics3D
-Java applet.  The applet needs to be in the course html directory.
-(If it is in the system html area, you will need to change the
-default below or supply the jar option explicitly).
+This parses LiveGraphics3D data into L<Plotly|https://plotly.com/javascript>
+traces. See L<https://www-users.cse.umn.edu/~rogness/lg3d/mma_syntax.html> for
+information about the Mathematica syntax of the LiveGraphics3D format. Note that
+not all of the syntax is supported by this macro. Instead of creating this data
+directly, it is recommended to use one of the other LiveGraphics PG macros that
+generate this data. See L<LiveGraphicsCylindricalPlot3D.pl>,
+L<LiveGraphicsParametricCurve3D.pl>, L<LiveGraphicsParametricSurface3D.pl>,
+L<LiveGraphicsRectangularPlot3D.pl>, L<LiveGraphicsVectorField2D.pl>, and
+L<LiveGraphicsVectorField3D.pl>.
 
-The LiveGraphics3D applet displays a mathematica Graphics3D object
-that is stored in a .m file (or a compressed one).  Use Mathematica
-to create one.  (In the future, I plan to write a perl class that
-will create these for you on the fly. -- DPVC)
+=head1 METHODS
 
-The main routines are
+The following methods are provided.
+
+=head2 LiveGraphics3D
+
+Usage: C<LiveGraphics3D(options)>
+
+The following options can be given.
 
 =over
 
-=item * C<Live3Dfile>
+=item * C<< file => name >>
 
-load a data file
+Name of the C<.m> file to load.
 
-=item * C<Live3Ddata>
+=item * C<< archive => name >>
 
-load raw Graphics3D data
+Name of a C<.zip> file to load.  If this is set, then the C<file> option must
+also be given, and must be set to the name of the file in the zip archive that
+contains the data.
 
-=item * C<LiveGraphics3D(options)>
+=item * C<< input => 3Ddata >>
 
-Options are from:
+String containing Graphics3D data to be displayed by the applet.
 
-    file => name           name of .m file to load
+=item * C<< size => [w, h] >>
 
-    archive => name        name of a .zip file to load
+Width and height of applet.
 
-    input => 3Ddata        string containing Graphics3D data to
-                           be displayed by the applet
+=item * C<< max_ticks => n >>
 
-    size => [w,h]          width and height of applet
+Maximum number of ticks to show on the C<x>, C<y>, and C<z> axes.  This can be
+given as a single positive integer, or can be a reference to an array of three
+positive integers.
 
-    vars => [vars]         hash of variables to pass as independent
-                           variables to the applet, togther with
-                           their initial values
-                             e.g., vars => [a=>1,b=>1]
+=item * C<< vars => [vars] >>
 
-    depend => [list]       list of dependent variables to pass to
-                           the applet with their replacement strings
-                           (see LiveGraphics3D documentation)
+Hash of variables to pass as independent variables to the applet, together with
+their initial values, e.g., C<< vars => [ a => 1, b => 1 ] >>.
 
-    background=>"#RRGGBB"  the background color to use (default is white)
+=item * C<< background => "#RRGGBB" >>
 
-    scale => n             scaling factor for applet (default is 1.)
+The background color to use (default is white).
 
-    image => file          a file containing an image to use in TeX mode
-                           or when Java is disabled
+=item * C<< image => file >>
 
-    tex_size => ratio      a scaling factor for the TeX image (as a portion
-                           of the line width).
-                           1000 is 100%, 500 is 50%, etc.
+A file containing an image to use in TeX mode.
 
-    tex_center => 0 or 1   center the image in TeX mode or not
+=item * C<< tex_size => ratio >>
 
-    Live3D => [params]     hash of additional parameters to pass to
-                           the Live3D applet.
-                           e.g. Live3D => [VISIBLE_FACES => "FRONT"]
+A scaling factor for the TeX image (as a portion of the line width).  1000 is
+100%, 500 is 50%, etc.
+
+=item * C<< tex_center => 0 or 1 >>
+
+Whether to center the image in TeX mode.
 
 =back
+
+=head2 Live3Dfile
+
+Usage: C<< Live3Dfile($file, options) >>
+
+Load a data file.  This just calls C<LiveGraphics3D> with the C<file> option set
+to C<$file>.  All other options supported by C<LiveGraphics3D> can also be
+given.
+
+=head2 Live3Ddata
+
+Usage: C<< Live3Ddata($input, options) >>
+
+Load raw Graphics3D data.  This just calls C<LiveGraphics3D> with the C<input>
+option set to C<$input>.  All other options supported by C<LiveGraphics3D> can
+also be given.
 
 =cut
 
 sub _LiveGraphics3D_init {
-	ADD_JS_FILE('node_modules/x3dom/x3dom.js');
-	ADD_JS_FILE('node_modules/jszip/dist/jszip.min.js');
-	ADD_JS_FILE('node_modules/jszip-utils/dist/jszip-utils.min.js');
-	ADD_JS_FILE('js/LiveGraphics/liveGraphics.js');
-	ADD_CSS_FILE('node_modules/x3dom/x3dom.css');
+	ADD_JS_FILE('node_modules/plotly.js-dist-min/plotly.min.js',    0, { defer => undef });
+	ADD_JS_FILE('node_modules/jszip/dist/jszip.min.js',             0, { defer => undef });
+	ADD_JS_FILE('node_modules/jszip-utils/dist/jszip-utils.min.js', 0, { defer => undef });
+	ADD_JS_FILE('js/LiveGraphics/liveGraphics.js',                  0, { defer => undef });
+	return;
 }
 
 sub LiveGraphics3D {
 	my %options = (
 		size       => [ 250, 250 ],
-		background => "#FFFFFF",
-		scale      => 1.,
+		background => '#FFFFFF',
 		tex_size   => 500,
 		tex_center => 0,
+		max_ticks  => 6,
 		@_
 	);
-	my $out = "";
-	my $p;
-	my %pval;
-	my $ratio = $options{tex_size} * (.001);
 
 	if ($main::displayMode eq "TeX") {
-		#
-		#  In TeX mode, include the image, if there is one, or
-		#   else give the user a message about using it on line
-		#
+		# In TeX mode, include the image, if there is one, or
+		# else give the user a message about using it on line.
 		if ($options{image}) {
-			$out = "\\includegraphics[width=$ratio\\linewidth]{$options{image}}";
+			my $ratio = $options{tex_size} * 0.001;
+			my $out   = "\\includegraphics[width=$ratio\\linewidth]{$options{image}}";
 			$out = "\\centerline{$out}" if $options{tex_center};
 			$out .= "\n";
+			return $out;
 		} else {
-			$out = "\\vbox{
-         \\hbox{[ This image is created by}
-         \\hbox{\\quad an interactive applet;}
-         \\hbox{you must view it on line ]}
-      }";
+			return "[ This image is created by an interactive applet. You must view it on line. ]\n";
 		}
-		# In html mode check to see if we use javascript or not
 	} else {
 		my ($w, $h) = @{ $options{size} };
-		$out .= $bHTML if ($main::displayMode eq "Latex2HTML");
-		#
-		#  Put the js in a table
-		#
-		$out .= qq{\n<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="0">\n<TR>};
-		$out .= qq{<TD WIDTH="$w" HEIGHT="$h" ALIGN="CENTER">};
 
-		$archive_input = $options{archive} // '';
-		$file_input    = $options{file}    // '';
-		$direct_input  = $options{input}   // '';
+		# Include independent variables.
+		my %vars;
+		%vars = @{ $options{vars} } if $options{vars};
 
-		$direct_input =~ s/\n//g;
-
-		#
-		#  include any independent variables
-		#
-		$ind_vars = '{}';
-
-		if ($options{vars}) {
-			$ind_vars = "{";
-			%vars     = @{ $options{vars} };
-
-			foreach $var (keys %vars) {
-				$ind_vars .= "\"$var\":\"" . $vars{$var} . "\",";
-			}
-
-			$ind_vars .= "}";
-		}
-
-		$out .= <<EOS;
-    <script>
-    var thisTD = jQuery('script:last').parent();
-    var options = { width : $w,
-		    height : $h,
-		    file : '$file_input',
-		    input : '$direct_input',
-		    archive : '$archive_input',
-		    vars : $ind_vars,
-    };
-
-    if (typeof LiveGraphics3D !== 'undefined') {
-        var graph = new LiveGraphics3D(thisTD[0],options);
-    }
-
-    </script>
-EOS
-
-		$out .= "</TD></TD>\n</TABLE>\n";
-		$out .= $eHTML if ($main::displayMode eq "Latex2HTML");
-		# otherwise use the applet
+		return tag(
+			'div',
+			class        => 'live-graphics-3d-container',
+			style        => "width:${w}px;height:${h}px;border:1px solid black;",
+			data_options => JSON->new->encode({
+				width    => $w - 2,
+				height   => $h - 2,
+				maxTicks => $options{max_ticks},
+				file     => $options{file} // '',
+				input    => ($options{input} // '') =~ s/\n//gr,
+				archive  => $options{archive} // '',
+				vars     => \%vars
+			})
+		);
 	}
-
-	return $out;
 }
 
-#
-#  Syntactic sugar to make it easier to pass files and data to
-#  LiveGraphics3D.
-#
+# Syntactic sugar to make it easier to pass files and data to LiveGraphics3D.
 sub Live3Dfile {
-	my $file = shift;
-	LiveGraphics3D(file => $file, @_);
+	my ($file, %options) = @_;
+	return LiveGraphics3D(file => $file, %options);
 }
 
-#
-#  Syntactic sugar to make it easier to pass raw Graohics3D data
-#  to LiveGraphics3D.
-#
+# Syntactic sugar to make it easier to pass raw Graohics3D data to LiveGraphics3D.
 sub Live3Ddata {
-	my $data = shift;
-	LiveGraphics3D(input => $data, @_);
+	my ($data, %options) = @_;
+	return LiveGraphics3D(input => $data, %options);
 }
 
-#
-#  A message you can use for a caption under a graph
-#
-$LIVEMESSAGE = MODES(
-	TeX        => '',
-	Latex2HTML => $BCENTER . "Drag the surface to rotate it" . $ECENTER,
-	HTML       => $BCENTER . "Drag the surface to rotate it" . $ECENTER
+# A message you can use for a caption under a graph.
+$main::LIVEMESSAGE = MODES(
+	TeX  => '',
+	HTML => $BCENTER . "Drag the surface to rotate it" . $ECENTER
 );
 
 1;

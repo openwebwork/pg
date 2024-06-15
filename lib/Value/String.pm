@@ -128,6 +128,20 @@ sub quoteHTML {
 }
 
 #
+#  Quote XML special characters
+#
+sub quoteXML {
+	shift;
+	my $s = shift;
+	return unless defined $s;
+	return $s if eval('$main::displayMode') eq 'TeX';
+	$s =~ s/&/\&amp;/g;
+	$s =~ s/</\&lt;/g;
+	$s =~ s/>/\&gt;/g;
+	return $s;
+}
+
+#
 #  Render the value verbatim
 #
 sub TeX {

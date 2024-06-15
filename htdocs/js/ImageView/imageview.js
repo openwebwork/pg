@@ -3,7 +3,7 @@
 /* global bootstrap */
 
 (() => {
-	const imageViewDialog = function() {
+	const imageViewDialog = function () {
 		const img = this.cloneNode(true);
 		const imgType = img.tagName.toLowerCase();
 		img.classList.remove('image-view-elt');
@@ -28,7 +28,7 @@
 
 		const modal = document.createElement('div');
 		modal.classList.add('modal', 'image-view-dialog');
-		modal.ariaLabel = 'image view dialog';
+		modal.setAttribute('aria-label', 'image view dialog');
 		modal.tabIndex = -1;
 
 		const dialog = document.createElement('div');
@@ -42,11 +42,10 @@
 
 		const zoomInButton = document.createElement('button');
 		zoomInButton.type = 'button';
-		zoomInButton.classList.add('btn', 'zoom-in');
-		zoomInButton.ariaLabel = 'zoom in';
+		zoomInButton.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'zoom-in');
+		zoomInButton.setAttribute('aria-label', 'zoom in');
 
 		const zoomInSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-		zoomInSVG.classList.add('bi', 'bi-zoom-in');
 		zoomInSVG.setAttribute('width', 16);
 		zoomInSVG.setAttribute('height', 16);
 		zoomInSVG.setAttribute('fill', 'currentColor');
@@ -54,26 +53,31 @@
 		zoomInSVG.setAttribute('aria-hidden', true);
 		const zoomInPath1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		zoomInPath1.setAttribute('fill-rule', 'evenodd');
-		zoomInPath1.setAttribute('d',
-			'M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z');
+		zoomInPath1.setAttribute(
+			'd',
+			'M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z'
+		);
 		const zoomInPath2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-		zoomInPath2.setAttribute('d',
+		zoomInPath2.setAttribute(
+			'd',
 			'M10.344 11.742c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 ' +
-			'1.007 0 0 0-.115-.1 6.538 6.538 0 0 1-1.398 1.4z');
+				'1.007 0 0 0-.115-.1 6.538 6.538 0 0 1-1.398 1.4z'
+		);
 		const zoomInPath3 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		zoomInPath3.setAttribute('fill-rule', 'evenodd');
-		zoomInPath3.setAttribute('d',
+		zoomInPath3.setAttribute(
+			'd',
 			'M6.5 3a.5.5 0 0 1 .5.5V6h2.5a.5.5 0 0 1 0 1H7v2.5a.5.5 0 0 1-1 0V7H3.5a.5.5 0 0 1 ' +
-			'0-1H6V3.5a.5.5 0 0 1 .5-.5z');
+				'0-1H6V3.5a.5.5 0 0 1 .5-.5z'
+		);
 		zoomInSVG.append(zoomInPath1, zoomInPath2, zoomInPath3);
 
 		const zoomOutButton = document.createElement('button');
 		zoomOutButton.type = 'button';
-		zoomOutButton.classList.add('btn', 'zoom-in');
-		zoomOutButton.ariaLabel = 'zoom in';
+		zoomOutButton.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'zoom-in');
+		zoomOutButton.setAttribute('aria-label', 'zoom in');
 
 		const zoomOutSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-		zoomOutSVG.classList.add('bi', 'bi-zoom-out');
 		zoomOutSVG.setAttribute('width', 16);
 		zoomOutSVG.setAttribute('height', 16);
 		zoomOutSVG.setAttribute('fill', 'currentColor');
@@ -81,16 +85,19 @@
 		zoomOutSVG.setAttribute('aria-hidden', true);
 		const zoomOutPath1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		zoomOutPath1.setAttribute('fill-rule', 'evenodd');
-		zoomOutPath1.setAttribute('d',
-			'M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z');
+		zoomOutPath1.setAttribute(
+			'd',
+			'M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z'
+		);
 		const zoomOutPath2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-		zoomOutPath2.setAttribute('d',
+		zoomOutPath2.setAttribute(
+			'd',
 			'M10.344 11.742c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 ' +
-			'0 0 0-.115-.1 6.538 6.538 0 0 1-1.398 1.4z');
+				'0 0 0-.115-.1 6.538 6.538 0 0 1-1.398 1.4z'
+		);
 		const zoomOutPath3 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 		zoomOutPath3.setAttribute('fill-rule', 'evenodd');
-		zoomOutPath3.setAttribute('d',
-			'M3 6.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5z');
+		zoomOutPath3.setAttribute('d', 'M3 6.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5z');
 		zoomOutSVG.append(zoomOutPath1, zoomOutPath2, zoomOutPath3);
 
 		const dragHandle = document.createElement('span');
@@ -101,7 +108,7 @@
 		closeButton.type = 'button';
 		closeButton.classList.add('btn-close');
 		closeButton.dataset.bsDismiss = 'modal';
-		closeButton.ariaLabel = 'close';
+		closeButton.setAttribute('aria-label', 'close');
 
 		const body = document.createElement('div');
 		body.classList.add('modal-body');
@@ -126,8 +133,8 @@
 				const svg = body.querySelector('svg');
 				const viewBoxDims = svg.viewBox.baseVal;
 				// This assumes the units of the view box dimensions are points.
-				naturalWidth = viewBoxDims.width * 4 / 3;
-				naturalHeight = viewBoxDims.height * 4 / 3;
+				naturalWidth = (viewBoxDims.width * 4) / 3;
+				naturalHeight = (viewBoxDims.height * 4) / 3;
 			}
 
 			const headerHeight = header.offsetHeight;
@@ -137,8 +144,8 @@
 			let maxHeight = window.innerHeight - headerHeight - 18;
 
 			// Dialog maximum width and height
-			dialog.style.maxWidth = (maxWidth + 18) + 'px';
-			dialog.style.maxHeight = (maxHeight + headerHeight + 18) + 'px';
+			dialog.style.maxWidth = maxWidth + 18 + 'px';
+			dialog.style.maxHeight = maxHeight + headerHeight + 18 + 'px';
 
 			// Initial image width and height
 			let width = naturalWidth;
@@ -169,17 +176,17 @@
 				// Determine the width and height after applying the zoom factor.
 				if (factor * width > maxWidth || factor * height > maxHeight) {
 					width = maxWidth;
-					height = width * naturalHeight / naturalWidth;
+					height = (width * naturalHeight) / naturalWidth;
 					if (height > maxHeight) {
 						height = maxHeight;
-						width = height * naturalWidth / naturalHeight;
+						width = (height * naturalWidth) / naturalHeight;
 					}
 				} else if (factor * width < 100 || factor * height < 100) {
 					width = 100;
-					height = width * naturalHeight / naturalWidth;
+					height = (width * naturalHeight) / naturalWidth;
 					if (height < 100) {
 						height = 100;
-						width = height * naturalWidth / naturalHeight;
+						width = (height * naturalWidth) / naturalHeight;
 					}
 				} else {
 					width = factor * width;
@@ -189,8 +196,8 @@
 				// Resize the modal
 				body.style.width = width + 'px';
 				body.style.height = height + 'px';
-				dialog.style.width = (width + 18) + 'px';
-				dialog.style.height = (height + headerHeight + 18) + 'px';
+				dialog.style.width = width + 18 + 'px';
+				dialog.style.height = height + headerHeight + 18 + 'px';
 
 				// Re-position the modal.
 				if (initial) {
@@ -199,8 +206,6 @@
 				} else {
 					repositionModal(left - (width - initialWidth) / 2, top - (height - initialHeight) / 2);
 				}
-
-				dialog.focus();
 			};
 
 			// Make the dialog draggable
@@ -218,22 +223,29 @@
 
 				dragHandle.addEventListener('pointermove', imageViewDrag);
 				dragHandle.setPointerCapture(e.pointerId);
-				dragHandle.addEventListener('lostpointercapture', (e) => {
-					e.preventDefault();
-					dragHandle.removeEventListener('pointermove', imageViewDrag);
-				}, { once: true });
-
+				dragHandle.addEventListener(
+					'lostpointercapture',
+					(e) => {
+						e.preventDefault();
+						dragHandle.removeEventListener('pointermove', imageViewDrag);
+					},
+					{ once: true }
+				);
 			});
 
 			// Set up the zoom in and zoom out click handlers.
-			zoomInButton.addEventListener('click', () => { zoomInButton.blur(); zoom(1.25); });
-			zoomOutButton.addEventListener('click', () => { zoomOutButton.blur(); zoom(0.8); });
+			zoomInButton.addEventListener('click', () => {
+				zoom(1.25);
+			});
+			zoomOutButton.addEventListener('click', () => {
+				zoom(0.8);
+			});
 
 			onWinResize = () => {
 				maxWidth = window.innerWidth - 18;
 				maxHeight = window.innerHeight - headerHeight - 18;
-				dialog.style.maxWidth = (maxWidth + 18) + 'px';
-				dialog.style.maxHeight = (maxHeight + headerHeight + 18) + 'px';
+				dialog.style.maxWidth = maxWidth + 18 + 'px';
+				dialog.style.maxHeight = maxHeight + headerHeight + 18 + 'px';
 
 				// Update the dialog position and size
 				zoom(1);
@@ -252,6 +264,14 @@
 					height = naturalHeight;
 					zoom(1);
 				}
+
+				const moveUnit = e.ctrlKey ? 50 : e.shiftKey ? 1 : 10;
+				if (e.shiftKey && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key))
+					e.preventDefault();
+				if (e.key === 'ArrowLeft') repositionModal(dialog.offsetLeft - moveUnit, dialog.offsetTop);
+				if (e.key === 'ArrowRight') repositionModal(dialog.offsetLeft + moveUnit, dialog.offsetTop);
+				if (e.key === 'ArrowUp') repositionModal(dialog.offsetLeft, dialog.offsetTop - moveUnit);
+				if (e.key === 'ArrowDown') repositionModal(dialog.offsetLeft, dialog.offsetTop + moveUnit);
 			});
 
 			// The mouse wheel zooms in and out also.
@@ -278,7 +298,7 @@
 		bsModal.show();
 	};
 
-	const keyHandler = function(e) {
+	const keyHandler = function (e) {
 		if (e.key === ' ' || e.key === 'Enter') {
 			e.preventDefault();
 			imageViewDialog.call(this);

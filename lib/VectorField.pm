@@ -48,7 +48,7 @@ the x and y components of the vector field at (x,y).  Both subroutines must be f
 =item	$vf = new VectorField ( x_rule_ref, y_rule_ref, graph_ref );
 
 This variant inserts the vector field object into the graph object referred to by graph_ref.  The domain
-of the vector field object is set to the domain of the graph. The graph_ref must come last. 
+of the vector field object is set to the domain of the graph. The graph_ref must come last.
 
 =back
 
@@ -141,11 +141,9 @@ set the current position to (x,y)
 
 =cut
 
-BEGIN {
-	be_strict();    # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-}
-
 package VectorField;
+
+use strict;
 
 #use "WWPlot.pm";
 #Because of the way problem modules are loaded 'use' is disabled.

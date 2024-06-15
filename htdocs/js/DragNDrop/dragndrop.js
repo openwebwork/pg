@@ -112,7 +112,8 @@
 			const bucketLabel = document.createElement('div');
 			bucketLabel.classList.add('dd-bucket-label');
 			bucketLabel.innerHTML =
-				label || (this.bucketPool.labelFormat ? `${this.bucketPool.labelFormat.replace(/%s/, this.id + 1)}` : '');
+				label ||
+				(this.bucketPool.labelFormat ? `${this.bucketPool.labelFormat.replace(/%s/, this.id + 1)}` : '');
 
 			this.ddList = document.createElement('div');
 			this.ddList.classList.add('dd-list');

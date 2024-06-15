@@ -23,6 +23,8 @@ sub _check {
 			$self->{equation}->Error([ "Coordinates of Vectors must be Numbers, not %s", $type ]);
 		}
 	}
+	$self->{equation}->Error("Coordinates of a Vector must be constant")
+		if ($self->context->flag("requireConstantVectors") && !($self->{isConstant}));
 }
 
 sub ijk {

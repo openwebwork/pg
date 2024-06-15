@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -76,6 +76,11 @@ sub _contextForm_init {
 	$context->{cmpDefaults}{Formula}{checker} = sub {
 		my ($correct, $student, $ans) = @_;
 		return 0 if $ans->{isPreview} || $correct != $student;
+		my $origContext = Context();
+		my $newContext  = $origContext;
+		Context($newContext);
+		$correct = Formula("$correct");
+		$student = Formula("$ans->{student_formula}");
 		$student = $ans->{student_formula};
 		my $setSqrt = Context()->flag("setSqrt");
 		my $setRoot = Context()->flag("setRoot");
@@ -98,6 +103,7 @@ sub _contextForm_init {
 			bizarroMul => 0,
 			bizarroDiv => 0
 		);
+		Context($origContext);
 		Value::Error(Context()->flag('wrongFormMessage')) unless $OK;
 		return $OK;
 	};

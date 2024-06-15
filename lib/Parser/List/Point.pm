@@ -20,6 +20,8 @@ sub _check {
 			$self->{equation}->Error([ "Coordinates of Points must be Numbers, not %s", $type ]);
 		}
 	}
+	$self->{equation}->Error("Coordinates of a Point must be constant")
+		if ($self->context->flag("requireConstantPoints") && !($self->{isConstant}));
 }
 
 #########################################################################

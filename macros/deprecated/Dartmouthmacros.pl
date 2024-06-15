@@ -1,9 +1,7 @@
 #!/usr/bin/perl
 
 # this is equivalent to use strict, but can be used within the Safe compartment.
-BEGIN {
-	be_strict;
-}
+BEGIN { strict->import; }
 
 ## Some local macros
 

@@ -70,9 +70,7 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 
 our @accumulatedDataSets = ();    # The list of data sets to be used in the graphs.
 
-BEGIN {
-	be_strict();
-}
+BEGIN { strict->import; }
 
 sub _PGstatisticGraphMacros_init {
 	clear_stat_graph_data();

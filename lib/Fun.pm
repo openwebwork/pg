@@ -47,7 +47,7 @@
 =head1 DESCRIPTION
 
 This module defines a parametric or non-parametric function object.  The function object is designed to
-be inserted into a graph object defined by WWPlot.  
+be inserted into a graph object defined by WWPlot.
 
 The following functions are provided:
 
@@ -55,30 +55,30 @@ The following functions are provided:
 
 =head2	new  (non-parametric version)
 
-=over 4	
+=over 4
 
 =item	$fn = new Fun( rule_reference);
 
 rule_reference is a reference to a subroutine which accepts a numerical value and returns a numerical value.
-The Fun object will draw the graph associated with this subroutine.  
+The Fun object will draw the graph associated with this subroutine.
 For example: $rule = sub { my $x= shift; $x**2};  will produce a plot of the x squared.
 The new method returns a reference to the function object.
 
 =item	$fn = new Fun( rule_reference , graph_reference);
 
-The function is also placed into the printing queue of the graph object pointed to by graph_reference and the 
+The function is also placed into the printing queue of the graph object pointed to by graph_reference and the
 domain of the function object is set to the domain of the graph.
 
 =back
 
-=head2 	new  (parametric version)	
+=head2 	new  (parametric version)
 
-=over 4	
+=over 4
 
 =item	$fn = new Fun ( x_rule_ref, y_rule_ref );
 
 A parametric function object is created where the subroutines refered to by x_rule_ref and y_rule_ref define
-the x and y outputs in terms of the input t.  
+the x and y outputs in terms of the input t.
 
 =item	$fn = new Fun ( x_rule_ref, y_rule_ref, graph_ref );
 
@@ -89,10 +89,10 @@ of the function object is not adjusted.  The domain's default value is (-1, 1).
 
 =head2 Properites
 
-	All of the properties are set using the construction $new_value = $fn->property($new_value) 
+	All of the properties are set using the construction $new_value = $fn->property($new_value)
 	and read using $current_value = $fn->property()
 
-=over 4	
+=over 4
 
 =item tstart, tstop, steps
 
@@ -101,7 +101,7 @@ used in graphing the function.
 
 =item color
 
-The color used to draw the function is specified by a word such as 'orange' or 'yellow'. 
+The color used to draw the function is specified by a word such as 'orange' or 'yellow'.
 C<$fn->color('blue')> sets the drawing color to blue.  The RGB values for the color are defined in the graph
 object in which the function is drawn.  If the color, e.g. 'mauve', is not defined by the graph object
 then the function is drawn using the color 'default_color' which is always defined (and usually black).
@@ -125,22 +125,22 @@ The width in pixels of the pen used to draw the graph. The pen is square.
 
 =over 4
 
-=item rule 
+=item rule
 
-This defines a non-parametric function. 
+This defines a non-parametric function.
 
-	$fn->rule(sub {my $x =shift; $x**2;} ) 
-	
+	$fn->rule(sub {my $x =shift; $x**2;} )
+
 	is equivalent to
-	
+
 	$fn->x_rule(sub {my $x = shift; $x;});
 	$fn->y_rule(sub {my $x = shift; $x**2;);
-	
+
 	$fn->rule() returns the reference to the y_rule.
 
 =item domain
 
-$array_ref = $fn->domain(-1,1) sets tstart to -1 and tstop to 1 and 
+$array_ref = $fn->domain(-1,1) sets tstart to -1 and tstop to 1 and
 returns a reference to an array containing this pair of numbers.
 
 
@@ -154,13 +154,13 @@ The graph object must
 respond to the methods below.  The draw call is mainly for internal use by the graph object. Most users will not
 call it directly.
 
-=over 4	
+=over 4
 
-=item   $graph_ref->{colors} 
+=item   $graph_ref->{colors}
 
 a hash containing the defined colors
 
-=item $graph_ref ->im       
+=item $graph_ref ->im
 
 a GD image object
 
@@ -177,17 +177,15 @@ draw line to the point (x,y) using the pattern set by SetBrushed (see GD documen
 
 set the current position to (x,y)
 
-=back    
+=back
 
 =back
 
 =cut
 
-BEGIN {
-	be_strict();    # an alias for use strict.  This means that all global variable must contain main:: as a prefix.
-}
-
 package Fun;
+
+use strict;
 
 #use "WWPlot.pm";
 #Because of the way problem modules are loaded 'use' is disabled.

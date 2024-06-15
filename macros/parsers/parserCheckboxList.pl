@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -461,6 +461,9 @@ sub cmp_defaults {
 		$self->SUPER::cmp_defaults(%options),
 		entry_type        => 'choice',
 		list_type         => 'selection',
+		showHints         => 0,
+		showLengthHints   => 0,
+		partialCredit     => 0,
 		requireParenMatch => 0,
 		implicitList      => 0,
 		correct_choices   => $self->data
@@ -470,7 +473,7 @@ sub cmp_defaults {
 # Adjust student preview and answer strings to be the actual choice strings rather than the value strings.
 sub cmp_preprocess {
 	my ($self, $ans) = @_;
-	if (defined $ans->{student_value} && @{ $ans->{student_value}->data }) {
+	if (defined $ans->{student_value} && (grep { defined && /\S/ } @{ $ans->{student_value}->data })) {
 		$ans->{original_student_ans} = join(', ', map { $self->labelText($_) } @{ $ans->{student_value}->data });
 		$ans->{preview_latex_string} = $self->quoteTeX($ans->{original_student_ans});
 		$ans->{student_ans}          = $self->quoteHTML($ans->{original_student_ans});
@@ -542,7 +545,7 @@ sub CHECKS {
 	my ($self, $extend, $name, $size, %options) = @_;
 
 	my @checks;
-	$name = main::NEW_ANS_NAME() unless $name;
+	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 	my $label = main::generate_aria_label($name);
 
 	for my $i (0 .. $#{ $self->{orderedChoices} }) {
@@ -599,7 +602,10 @@ sub CHECKS {
 		@checks = map { $_ =~ s/\\\(/<m>/gr } @checks;
 		@checks = map { $_ =~ s/\\\)/<\/m>/gr } @checks;
 	} else {
-		$checks[0] = qq(<div class="checkboxes-container">\n$checks[0]);
+		$checks[0] =
+			qq{<div class="checkboxes-container" }
+			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
+			. qq{data-feedback-btn-add-class="ms-3">\n$checks[0]};
 		$checks[-1] .= "</div>";
 	}
 
