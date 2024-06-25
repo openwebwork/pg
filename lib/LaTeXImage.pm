@@ -41,7 +41,7 @@ sub new {
 		texPackages    => [],
 		addToPreamble  => '',
 		ext            => 'svg',
-		svgMethod      => 'pdf2svg',
+		svgMethod      => 'dvisvgm',
 		convertOptions => { input => {}, output => {} },
 		imageName      => ''
 	};
