@@ -155,7 +155,8 @@ sub UseVerticalSuchThat {
 				type          => "bin",
 				string        => " | ",
 				TeX           => ' \mid ',
-				class         => "InequalitySetBuilder::BOP::suchthat"
+				class         => "InequalitySetBuilder::BOP::suchthat",
+				alternatives  => ["\x{2223}"]
 			},
 			"_suchthat" => { alias => "|", hidden => 1 },
 		);
