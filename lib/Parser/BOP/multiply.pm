@@ -68,6 +68,11 @@ sub _reduce {
 	$self->swapOps
 		if (($self->{rop}->class eq 'Number' && $self->{lop}->class ne 'Number' && $reduce->{'x*n'})
 			|| ($self->{lop}->class eq 'Function' && $self->{rop}->class ne 'Function' && $reduce->{'fn*x'}));
+	$self = $self->associateOps('left')
+		if ($reduce->{'m*(n*x)'}
+			&& $self->{lop}->class eq 'Number'
+			&& $self->{rop}->isa('Parser::BOP::multiply')
+			&& $self->{rop}{lop}->class eq 'Number');
 	return $self;
 }
 
@@ -78,14 +83,15 @@ sub makeNeg {
 	return $self;
 }
 
-$Parser::reduce->{'1*x'}    = 1;
-$Parser::reduce->{'x*1'}    = 1;
-$Parser::reduce->{'0*x'}    = 1;
-$Parser::reduce->{'x*0'}    = 1;
-$Parser::reduce->{'(-x)*y'} = 1;
-$Parser::reduce->{'x*(-y)'} = 1;
-$Parser::reduce->{'x*n'}    = 1;
-$Parser::reduce->{'fn*x'}   = 1;
+$Parser::reduce->{'1*x'}     = 1;
+$Parser::reduce->{'x*1'}     = 1;
+$Parser::reduce->{'0*x'}     = 1;
+$Parser::reduce->{'x*0'}     = 1;
+$Parser::reduce->{'(-x)*y'}  = 1;
+$Parser::reduce->{'x*(-y)'}  = 1;
+$Parser::reduce->{'x*n'}     = 1;
+$Parser::reduce->{'fn*x'}    = 1;
+$Parser::reduce->{'m*(n*x)'} = 1;
 
 sub string {
 	my ($self, $precedence, $showparens, $position, $outerRight) = @_;
