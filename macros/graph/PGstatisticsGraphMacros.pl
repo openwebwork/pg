@@ -224,8 +224,7 @@ sub add_boxplot {
 
 	# No go through and add the labels.
 	while ($currentPlot > 0) {
-		my $label = new Label($xmin, $currentPlot - 0.5, $currentPlot, 'black', 'left');
-		$label->font(GD::gdGiantFont);
+		my $label = new Label($xmin, $currentPlot - 0.5, $currentPlot, 'black', 'left', 'giant');
 		$graphRef->lb($label);
 		$currentPlot--;
 	}
@@ -331,8 +330,7 @@ sub add_histogram {
 	# Go through and add the labels on the left part of the graph
 	# No go through and add the labels.
 	while ($currentPlot > 0) {
-		my $label = new Label($xmin, $currentPlot - 0.5, $currentPlot, 'black', 'left');
-		$label->font(GD::gdGiantFont);
+		my $label = new Label($xmin, $currentPlot - 0.5, $currentPlot, 'black', 'left', 'giant');
 		$graphRef->lb($label);
 		$currentPlot--;
 	}
