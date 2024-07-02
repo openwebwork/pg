@@ -342,7 +342,7 @@ sub perl {
 package context::Boolean::Formula;
 our @ISA = ('Value::Formula');
 
-sub cmp_defaults { return (shift->SUPER::cmp_defaults(@_), mathQuillOpts => '{spaceBehavesLikeTab: false}') }
+sub cmp_defaults { return (shift->SUPER::cmp_defaults(@_), mathQuillOpts => { spaceBehavesLikeTab => \0 }) }
 
 # use every combination of T/F across all variables
 sub createRandomPoints {
