@@ -306,14 +306,18 @@ sub setPrecedence {
 			or  => { precedence => 3 },
 			xor => { precedence => 3 },
 			and => { precedence => 3 },
+			' ' => { precedence => 3 },
 			not => { precedence => 3 },
+			'`' => { precedence => 3 },
 		);
 	} elsif ($order eq 'oxan') {
 		$self->operators->set(
 			or  => { precedence => 1 },
 			xor => { precedence => 2 },
 			and => { precedence => 3 },
+			' ' => { precedence => 3 },
 			not => { precedence => 6 },
+			'`' => { precedence => 6 },
 		);
 	} else {
 		Value::Error("Unknown precedence class '%s'", $order);
@@ -337,6 +341,8 @@ sub perl {
 # Subclass Value::Formula for boolean formulas
 package context::Boolean::Formula;
 our @ISA = ('Value::Formula');
+
+sub cmp_defaults { return (shift->SUPER::cmp_defaults(@_), mathQuillOpts => '{spaceBehavesLikeTab: false}') }
 
 # use every combination of T/F across all variables
 sub createRandomPoints {
@@ -548,8 +554,8 @@ sub compare {
 sub string {
 	my $self  = shift;
 	my $const = $self->context->constants;
-	my $T     = $const->get('T')->{string} || 'T';
-	my $F     = $const->get('F')->{string} || 'F';
+	my $T     = $const->get('T')->{string} // 'T';
+	my $F     = $const->get('F')->{string} // 'F';
 	return ($F, $T)[ $self->value ];
 }
 
@@ -557,8 +563,8 @@ sub string {
 sub TeX {
 	my $self  = shift;
 	my $const = $self->context->constants;
-	my $T     = $const->get('T')->{TeX} || '\top';
-	my $F     = $const->get('F')->{TeX} || '\bot';
+	my $T     = $const->get('T')->{TeX} // '\top';
+	my $F     = $const->get('F')->{TeX} // '\bot';
 	return ($F, $T)[ $self->value ];
 }
 
