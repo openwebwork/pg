@@ -533,7 +533,7 @@
 			answerQuill.mathField.latex(answerQuill.latexInput.value);
 			answerQuill.mathField.moveToLeftEnd();
 			answerQuill.mathField.blur();
-		}, 0);
+		}, 100);
 	};
 
 	// Set up MathQuill inputs that are already in the page.
