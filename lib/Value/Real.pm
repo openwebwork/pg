@@ -147,22 +147,23 @@ sub compare {
 			my $digits      = (1 > int($tolerance) ? 1 : int($tolerance + 0.5)) - 1;
 			my $extraDigits = int($self->getFlag('tolExtraDigits'));
 			my $tdigits     = (0 < $extraDigits ? $extraDigits + $digits : $digits);
-			my $exp         = substr(sprintf("%E", $b), -3) - 15;    # Adjust $a by an amount in the round-off error
-			$a += ($a <=> 0) * "1E$exp";                             #   range so that it rounds better in sprintf
-			$b += ($b <=> 0) * "1E$exp";                             # Same for $b
-			my $bd = sprintf("%.${tdigits}E", $b);                   # Round $b to the number of tdigits
-			$bd =~ s/^.*\.(.*?)0*E.*$/$1/;                           # Get the decimal part without trailing zeros
-			my $bn = CORE::length($bd);                              # Number of those decimal digits
-			$bn = $digits if ($bn < $digits);                        #  (with a minimum of $digits);
-			my $aE = sprintf("%.${bn}E", $a);                        # Round $a to $bn digits
-			my $bE = sprintf("%.${bn}E", $b);                        # Round $b to $bn digits
-			return 0 if $aE eq $bE;                                  # Return equal if they are
+			# Adjust $a by an amount in the round-off error range so that it rounds better in sprintf
+			my $exp = substr(sprintf("%E", $b), -3) + substr(sprintf("%E", $zeroLevel), -3);
+			$a += ($a <=> 0) * "1E$exp";
+			$b += ($b <=> 0) * "1E$exp";              # Same for $b
+			my $bd = sprintf("%.${tdigits}E", $b);    # Round $b to the number of tdigits
+			$bd =~ s/^.*\.(.*?)0*E.*$/$1/;            # Get the decimal part without trailing zeros
+			my $bn = CORE::length($bd);               # Number of those decimal digits
+			$bn = $digits if ($bn < $digits);         #  (with a minimum of $digits);
+			my $aE = sprintf("%.${bn}E", $a);         # Round $a to $bn digits
+			my $bE = sprintf("%.${bn}E", $b);         # Round $b to $bn digits
+			return 0 if $aE eq $bE;                   # Return equal if they are
 
-			if ($self->getFlag('tolTruncation')) {                   # If truncation is allowed
-				$aE = sprintf("%.15E", $a);                          #   Get $a to full resolution
+			if ($self->getFlag('tolTruncation')) {    # If truncation is allowed
+				$aE = sprintf("%.15E", $a);           #   Get $a to full resolution
 				$aE =~ s/\.(\d{$bn}).*E/.$1E/;
-				$aE =~ s/\.E/E/;                                     #   Truncate it to the required number of digits
-				return 0 if $aE eq $bE;                              #   Return equal if they are
+				$aE =~ s/\.E/E/;                      #   Truncate it to the required number of digits
+				return 0 if $aE eq $bE;               #   Return equal if they are
 			}    #
 			return $a <=> $b;    # Otherwise compare numbers as perl reals
 		}
