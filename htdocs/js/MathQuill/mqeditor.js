@@ -529,9 +529,11 @@
 		};
 		answerQuill.addEventListener('keydown', answerQuill.keydownHandler);
 
-		answerQuill.mathField.latex(answerQuill.latexInput.value);
-		answerQuill.mathField.moveToLeftEnd();
-		answerQuill.mathField.blur();
+		setTimeout(() => {
+			answerQuill.mathField.latex(answerQuill.latexInput.value);
+			answerQuill.mathField.moveToLeftEnd();
+			answerQuill.mathField.blur();
+		}, 100);
 	};
 
 	// Set up MathQuill inputs that are already in the page.
