@@ -214,8 +214,8 @@ sub draw {
 			print $fh $self->footer;
 			close $fh;
 			system "cd $working_dir && "
-				. WeBWorK::PG::IO::externalCommand('pdflatex')
-				. " --interaction=nonstopmode image.tex > pdflatex.stdout 2> /dev/null";
+				. WeBWorK::PG::IO::externalCommand('latex2pdf')
+				. " --interaction=nonstopmode image.tex > latex.stdout 2> /dev/null";
 			chmod(0777, "$working_dir/image.pdf");
 		} else {
 			warn "Can't open $working_dir/image.tex for writing.";
@@ -251,7 +251,7 @@ sub draw {
 			}
 		} else {
 			warn "The pdf file was not created.";
-			if (open(my $err_fh, "<", "$working_dir/pdflatex.stdout")) {
+			if (open(my $err_fh, "<", "$working_dir/latex.stdout")) {
 				while (my $error = <$err_fh>) {
 					warn $error;
 				}
