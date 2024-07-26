@@ -1586,6 +1586,7 @@ sub getPTXthickness {
 
 sub getWidthPercent {
 	my $width = shift;
+	return $width             if (substr($width, -1) eq '%');
 	return $width * 100 . '%' if ($width =~ /^0*(0(\.\d*)?|1(\.0*)?)$/);
 	my $x    = 0;
 	my $unit = 'cm';
