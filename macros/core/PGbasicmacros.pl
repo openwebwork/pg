@@ -1968,11 +1968,26 @@ sub general_math_ev3 {
 		$out = "`$in`"                                   if $mode eq "inline";
 		$out = '<DIV ALIGN="CENTER">`' . $in . '`</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "PTX") {
-		#protect XML control characters
+		# protect XML control characters
 		$in =~ s/\&(?!([\w#]+;))/\\amp /g;
 		$in =~ s/</\\lt /g;
-		$out = '<m>' . "$in" . '</m>'   if $mode eq "inline";
-		$out = '<me>' . "$in" . '</me>' if $mode eq "display";
+		# attempt to parse align|alignat|gather into complete md/mrow structure, otherwise use me
+		if ($mode eq 'inline') {
+			$out = "<m>$in</m>";
+		} elsif ($mode eq 'display' && $in =~ /^\s*\\begin\{(align|alignat|gather)}((?!\\end\{\1}).)*\\end\{\1}\s*$/s) {
+			my $alignment = $1;
+			my $lines =
+				($in =~ s/^\s*\\begin\{$alignment}\s*(((?!\\end\{$alignment}).)*)\s*\\end\{$alignment}\s*$/$1/sr);
+			$lines =~ s/^\{\d+\}// if ($alignment eq 'alignat');
+			my @lines = split(/\\\\\n?/, $lines);
+			@lines = map { $_ =~ s/^\s+|\s+$//r } @lines;
+			my @rows = map {"<mrow>$_</mrow>"} @lines;
+			my $rows = join("\n", @rows);
+			$alignment = ($alignment eq 'align') ? '' : " alignment=\"$alignment\"";
+			$out       = "<md${alignment}>\n$rows\n</md>";
+		} elsif ($mode eq 'display') {
+			$out = "<me>$in</me>";
+		}
 	} elsif ($displayMode eq "HTML_LaTeXMathML") {
 		$in = HTML::Entities::encode_entities($in);
 		$in = '{' . $in . '}';
