@@ -180,6 +180,13 @@ interpreted as an index into the choice array or not.  If set to 1,
 then the number is treated as the literal correct answer, not an index
 to it.  Default: 0
 
+=item C<S<< showInStatic => 0 or 1 >>>
+
+In static output, such as PDF or PTX, this controls whether or not
+the list of answer options is displayed.  (The text preceding the list
+of answer options might make printing the answer option list
+unnecessary in a static output format.)  Default: 1
+
 =back
 
 The following options are deprecated, but are available for backward
@@ -294,6 +301,7 @@ sub new {
 		last             => undef,
 		order            => undef,
 		noindex          => 0,
+		showInStatic     => 1,
 		@_,
 		checkedI => -1,
 	);
@@ -663,14 +671,22 @@ sub BUTTONS {
 	# It is wrong to have \item in the radio buttons and to add itemize here,
 	# but that is the way PGbasicmacros.pl does it.
 	if ($main::displayMode eq 'TeX') {
-		$radio[0] = "\n\\begin{itemize}\n" . $radio[0];
-		$radio[-1] .= "\n\\end{itemize}\n";
+		if ($self->{showInStatic}) {
+			$radio[0] = "\n\\begin{itemize}\n" . $radio[0];
+			$radio[-1] .= "\n\\end{itemize}\n";
+		} else {
+			@radio = ();
+		}
 	} elsif ($main::displayMode eq 'PTX') {
-		$radio[0] = qq(<ul name="$name">) . "\n" . $radio[0];
-		$radio[-1] .= '</ul>';
-		#turn any math delimiters
-		@radio = map { $_ =~ s/\\\(/<m>/g;   $_ } (@radio);
-		@radio = map { $_ =~ s/\\\)/<\/m>/g; $_ } (@radio);
+		if ($self->{showInStatic}) {
+			$radio[0] = qq(<ul name="$name">) . "\n" . $radio[0];
+			$radio[-1] .= '</ul>';
+			#turn any math delimiters
+			@radio = map { $_ =~ s/\\\(/<m>/g;   $_ } (@radio);
+			@radio = map { $_ =~ s/\\\)/<\/m>/g; $_ } (@radio);
+		} else {
+			@radio = ();
+		}
 	} else {
 		$radio[0] =
 			qq{<div class="radio-buttons-container" }
