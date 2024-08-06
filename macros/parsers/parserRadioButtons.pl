@@ -301,10 +301,12 @@ sub new {
 		last             => undef,
 		order            => undef,
 		noindex          => 0,
+		localLabels      => 0,
 		showInStatic     => 1,
 		@_,
 		checkedI => -1,
 	);
+	$options{originalLabels} = $options{labels};
 	Value::Error("A RadioButton's first argument should be a list of button values")
 		unless ref($choices) eq 'ARRAY';
 	Value::Error("A RadioButton's second argument should be the correct button choice")
@@ -373,6 +375,7 @@ sub addLabels {
 		if (ref($choices->[$i]) eq "HASH") {
 			my $key = (keys %{ $choices->[$i] })[0];
 			$labels->[$i] = $key;
+			$self->{localLabels} = 1;
 			if (ref($choices->[$i]{$key}) eq 'ARRAY') {
 				$values[$i] = $choices->[$i]{$key}[1];
 				$choices->[$i] = $choices->[$i]{$key}[0];
@@ -442,8 +445,9 @@ sub flattenChoices {
 sub labelFormat {
 	my $self  = shift;
 	my $label = shift;
-	return ""   unless $label || $self->{forceLabelFormat};
-	$label = "" unless defined $label;
+	return '' unless $label || $self->{forceLabelFormat};
+	return '' if $main::displayMode eq 'PTX';
+	$label = '' unless defined $label;
 	sprintf($self->{labelFormat}, $self->protect($label));
 }
 
@@ -679,9 +683,26 @@ sub BUTTONS {
 		}
 	} elsif ($main::displayMode eq 'PTX') {
 		if ($self->{showInStatic}) {
-			$radio[0] = qq(<ul name="$name">) . "\n" . $radio[0];
-			$radio[-1] .= '</ul>';
-			#turn any math delimiters
+			# Do we want an ol, ul, or dl?
+			my $list_type      = 'ul';
+			my $subtype        = '';
+			my $originalLabels = $self->{originalLabels};
+			if ($originalLabels =~ m/^(123|abc)$/i) {
+				my $marker = '';
+				$marker    = '1' if $originalLabels eq '123';
+				$marker    = 'a' if $originalLabels eq 'abc';
+				$marker    = 'A' if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
+				$list_type = 'ol';
+				$subtype   = qq( marker="$marker");
+			} elsif ($self->{localLabels} || ref $originalLabels eq 'ARRAY') {
+				$list_type = 'dl';
+				$subtype   = ' width = "narrow"';
+				my %radio_to_labels = map { $radio[$_] => $self->{labels}[$_] } (0 .. $#{ $self->{orderedChoices} });
+				@radio = map { $_ =~ s/^(<li.*?>)/$1<title>$radio_to_labels{$_}<\/title>/gr } @radio;
+			}
+			$radio[0] = qq(<$list_type$subtype name="$name" form="buttons">) . "\n" . $radio[0];
+			$radio[-1] .= "</$list_type>";
+			# Change math delimiters
 			@radio = map { $_ =~ s/\\\(/<m>/g;   $_ } (@radio);
 			@radio = map { $_ =~ s/\\\)/<\/m>/g; $_ } (@radio);
 		} else {

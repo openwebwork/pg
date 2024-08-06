@@ -591,11 +591,11 @@ sub CHECKS {
 			my $originalLabels = $self->{originalLabels};
 			if ($originalLabels =~ m/^(123|abc|roman)$/i) {
 				my $marker = '';
-				$marker = "1" if $originalLabels eq '123';
-				$marker = "a" if $originalLabels eq 'abc';
-				$marker = "A" if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
-				$marker = "i" if $originalLabels eq 'roman';
-				$marker = "I" if uc($originalLabels) eq 'ROMAN' && $originalLabels ne 'roman';
+				$marker = '1' if $originalLabels eq '123';
+				$marker = 'a' if $originalLabels eq 'abc';
+				$marker = 'A' if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
+				$marker = 'i' if $originalLabels eq 'roman';
+				$marker = 'I' if uc($originalLabels) eq 'ROMAN' && $originalLabels ne 'roman';
 
 				$list_type = 'ol';
 				$subtype   = qq( marker="$marker");
@@ -603,9 +603,9 @@ sub CHECKS {
 				$list_type = 'dl';
 				$subtype   = ' width = "narrow"';
 				my %checks_to_labels = map { $checks[$_] => $self->{labels}[$_] } (0 .. $#{ $self->{orderedChoices} });
-				map { $_ =~ s/^(<li.*?>)/$1<title>$checks_to_labels{$_}<\/title>/gr } @checks;
+				@checks = map { $_ =~ s/^(<li.*?>)/$1<title>$checks_to_labels{$_}<\/title>/gr } @checks;
 			}
-			$checks[0] = qq{<$list_type$subtype name="$name">\n$checks[0]};
+			$checks[0] = qq{<$list_type$subtype name="$name" form="checkboxes">\n$checks[0]};
 			$checks[-1] .= "</$list_type>";
 
 			# Change math delimiters
