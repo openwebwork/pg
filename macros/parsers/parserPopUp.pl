@@ -428,9 +428,10 @@ sub MENU {
 	} elsif ($main::displayMode eq 'PTX') {
 		if ($self->{showInStatic}) {
 			$menu = main::tag(
-				'fillin',
+				'ul',
 				name => $name,
-				join('', map { main::tag('choice', $self->quoteXML($_)) } (@list))
+				form => 'popup',
+				join('', map { main::tag('li', $self->quoteXML($_)) } (@list))
 			);
 		} else {
 			$menu = qq(<fillin name="$name"/>);
