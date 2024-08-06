@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -144,13 +144,13 @@ sub AnswerHints {
 					cmp_options    => [],
 					@options,
 				);
-				next if $options{checkTypes}      && $correct->type ne $student->type;
 				next if !$options{processPreview} && $ans->{isPreview};
 				$wrongList = [$wrongList] unless ref($wrongList) eq 'ARRAY';
 
 				foreach my $wrong (@{$wrongList}) {
 					if (ref($wrong) eq 'CODE') {
-						if (($ans->{score} < 1 || $options{checkCorrect})
+						if ((!$options{checkTypes} || $correct->type eq $student->type)
+							&& ($ans->{score} < 1 || $options{checkCorrect})
 							&& ($ans->{ans_message} eq "" || $options{replaceMessage}))
 						{
 							# Make the call to run the function inside an eval to trap errors
@@ -166,16 +166,12 @@ sub AnswerHints {
 							}
 						}
 					} else {
-						$wrong = Value::makeValue($wrong);
-						if (
-							(
-								$ans->{score} < 1
-								|| $options{checkCorrect}
-								|| AnswerHints::Compare($correct, $wrong, $ans)
-							)
-							&& ($ans->{ans_message} eq "" || $options{replaceMessage})
-							&& AnswerHints::Compare($wrong, $student, $ans, @{ $options{cmp_options} })
-							)
+						unless (Value::isValue($wrong)) {
+							$wrong = main::Formula($wrong);
+							$wrong = $wrong->{tree}->Compute if $wrong->{tree}{canCompute};
+						}
+						if (($ans->{ans_message} eq "" || $options{replaceMessage})
+							&& AnswerHints::Compare($wrong, $student, $ans, @{ $options{cmp_options} }))
 						{
 							$ans->{ans_message} = $ans->{error_message} = $message;
 							$ans->{score}       = $options{score} if defined $options{score};
@@ -197,19 +193,19 @@ package AnswerHints;
 #  and returns true if the two values match and false otherwise.
 #
 sub Compare {
-	my $self  = shift;
-	my $other = shift;
-	my $ans   = shift;
-	$ans                = bless { %{$ans}, @_ }, ref($ans);    # make a copy
+	my ($self, $other, $ans, @options) = @_;
+	return 0 unless $self->typeMatch($other);                        # make sure these can be compared
+	$ans                = bless { %{$ans}, @options }, ref($ans);    # make a copy
 	$ans->{typeError}   = 0;
 	$ans->{ans_message} = $ans->{error_message} = "";
 	$ans->{score}       = 0;
-	if (sprintf("%p", $self) ne sprintf("%p", $ans->{correct_value})) {
+
+	if ($self->address != $ans->{correct_value}->address) {
 		$ans->{correct_ans}     = $self->string;
 		$ans->{correct_value}   = $self;
 		$ans->{correct_formula} = Value->Package("Formula")->new($self);
 	}
-	if (sprintf("%p", $other) ne sprintf("%p", $ans->{student_value})) {
+	if ($other->address != $ans->{student_value}->address) {
 		$ans->{student_ans}     = $other->string;
 		$ans->{student_value}   = $other;
 		$ans->{student_formula} = Value->Package("Formula")->new($other);

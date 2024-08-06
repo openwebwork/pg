@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -155,7 +155,8 @@ sub UseVerticalSuchThat {
 				type          => "bin",
 				string        => " | ",
 				TeX           => ' \mid ',
-				class         => "InequalitySetBuilder::BOP::suchthat"
+				class         => "InequalitySetBuilder::BOP::suchthat",
+				alternatives  => ["\x{2223}"]
 			},
 			"_suchthat" => { alias => "|", hidden => 1 },
 		);

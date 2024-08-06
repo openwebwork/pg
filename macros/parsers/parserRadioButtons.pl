@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -52,7 +52,7 @@ of the choice as it is displayed following the radio button.
 
 The values set as described above are the answers that will be
 displayed in the past answers table.  See the C<values> option below
-for more information.  Problem authors are encourages to set these
+for more information.  Problem authors are encouraged to set these
 values either as described above, or via the C<values> option.  This
 is useful for instructors viewing past answers.
 
@@ -180,6 +180,13 @@ interpreted as an index into the choice array or not.  If set to 1,
 then the number is treated as the literal correct answer, not an index
 to it.  Default: 0
 
+=item C<S<< showInStatic => 0 or 1 >>>
+
+In static output, such as PDF or PTX, this controls whether or not
+the list of answer options is displayed.  (The text preceding the list
+of answer options might make printing the answer option list
+unnecessary in a static output format.)  Default: 1
+
 =back
 
 The following options are deprecated, but are available for backward
@@ -228,7 +235,7 @@ and then
 
     ANS($radio->cmp);
 
-to get the answer checker for the radion buttons.
+to get the answer checker for the radio buttons.
 
 You can use the RadioButtons object in MultiAnswer objects.  This is
 the reason for the RadioButton's C<ans_rule()> method (since that is
@@ -294,9 +301,12 @@ sub new {
 		last             => undef,
 		order            => undef,
 		noindex          => 0,
+		localLabels      => 0,
+		showInStatic     => 1,
 		@_,
 		checkedI => -1,
 	);
+	$options{originalLabels} = $options{labels};
 	Value::Error("A RadioButton's first argument should be a list of button values")
 		unless ref($choices) eq 'ARRAY';
 	Value::Error("A RadioButton's second argument should be the correct button choice")
@@ -365,6 +375,7 @@ sub addLabels {
 		if (ref($choices->[$i]) eq "HASH") {
 			my $key = (keys %{ $choices->[$i] })[0];
 			$labels->[$i] = $key;
+			$self->{localLabels} = 1;
 			if (ref($choices->[$i]{$key}) eq 'ARRAY') {
 				$values[$i] = $choices->[$i]{$key}[1];
 				$choices->[$i] = $choices->[$i]{$key}[0];
@@ -434,8 +445,9 @@ sub flattenChoices {
 sub labelFormat {
 	my $self  = shift;
 	my $label = shift;
-	return ""   unless $label || $self->{forceLabelFormat};
-	$label = "" unless defined $label;
+	return '' unless $label || $self->{forceLabelFormat};
+	return '' if $main::displayMode eq 'PTX';
+	$label = '' unless defined $label;
 	sprintf($self->{labelFormat}, $self->protect($label));
 }
 
@@ -614,7 +626,7 @@ sub BUTTONS {
 	my $size    = shift;
 	my @choices = @{ $self->{orderedChoices} };
 	my @radio   = ();
-	$name = main::NEW_ANS_NAME() unless $name;
+	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 	my $label = main::generate_aria_label($name);
 
 	foreach my $i (0 .. $#choices) {
@@ -658,21 +670,50 @@ sub BUTTONS {
 			);
 		}
 	}
-	#
-	#  Taken from PGbasicmacros.pl
-	#  It is wrong to have \item in the radio buttons and to add itemize here,
-	#    but that is the way PGbasicmacros.pl does it.
-	#
+
+	# Taken from PGbasicmacros.pl
+	# It is wrong to have \item in the radio buttons and to add itemize here,
+	# but that is the way PGbasicmacros.pl does it.
 	if ($main::displayMode eq 'TeX') {
-		$radio[0] = "\n\\begin{itemize}\n" . $radio[0];
-		$radio[$#radio_buttons] .= "\n\\end{itemize}\n";
-	}
-	if ($main::displayMode eq 'PTX') {
-		$radio[0] = qq(<ul name="$name">) . "\n" . $radio[0];
-		$radio[$#radio_buttons] .= '</ul>';
-		#turn any math delimiters
-		@radio = map { $_ =~ s/\\\(/<m>/g;   $_ } (@radio);
-		@radio = map { $_ =~ s/\\\)/<\/m>/g; $_ } (@radio);
+		if ($self->{showInStatic}) {
+			$radio[0] = "\n\\begin{itemize}\n" . $radio[0];
+			$radio[-1] .= "\n\\end{itemize}\n";
+		} else {
+			@radio = ();
+		}
+	} elsif ($main::displayMode eq 'PTX') {
+		if ($self->{showInStatic}) {
+			# Do we want an ol, ul, or dl?
+			my $list_type      = 'ul';
+			my $subtype        = '';
+			my $originalLabels = $self->{originalLabels};
+			if ($originalLabels =~ m/^(123|abc)$/i) {
+				my $marker = '';
+				$marker    = '1' if $originalLabels eq '123';
+				$marker    = 'a' if $originalLabels eq 'abc';
+				$marker    = 'A' if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
+				$list_type = 'ol';
+				$subtype   = qq( marker="$marker");
+			} elsif ($self->{localLabels} || ref $originalLabels eq 'ARRAY') {
+				$list_type = 'dl';
+				$subtype   = ' width = "narrow"';
+				my %radio_to_labels = map { $radio[$_] => $self->{labels}[$_] } (0 .. $#{ $self->{orderedChoices} });
+				@radio = map { $_ =~ s/^(<li.*?>)/$1<title>$radio_to_labels{$_}<\/title>/gr } @radio;
+			}
+			$radio[0] = qq(<$list_type$subtype name="$name" form="buttons">) . "\n" . $radio[0];
+			$radio[-1] .= "</$list_type>";
+			# Change math delimiters
+			@radio = map { $_ =~ s/\\\(/<m>/g;   $_ } (@radio);
+			@radio = map { $_ =~ s/\\\)/<\/m>/g; $_ } (@radio);
+		} else {
+			@radio = ();
+		}
+	} else {
+		$radio[0] =
+			qq{<div class="radio-buttons-container" }
+			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
+			. qq{data-feedback-btn-add-class="ms-3">$radio[0]};
+		$radio[-1] .= "</div>";
 	}
 	(wantarray) ? @radio : join(($main::displayMode eq 'PTX') ? '' : $self->{separator}, @radio);
 }

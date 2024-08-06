@@ -47,7 +47,7 @@ Command for a typical table:
     );
 
 The cell entries above like C<a> may be simple cell content,
-a hash reference with C<data =E<gt> cellContent> and options,
+a hash reference with C<< data => cellContent >> and options,
 or an array reference where the 0th entry is the the cell content
 and it is followed by option key-value pairs.
 
@@ -66,19 +66,19 @@ C<caption>, C<rowheaders>, C<header>, C<colspan>, or C<headerrow>.
 
 =over
 
-=item C<center =E<gt> 0 or 1>
+=item C<< center => 0 or 1 >>
 
 center the table (default 1)
 
-=item C<caption =E<gt> string>
+=item C<< caption => string >>
 
 caption for the table
 
-=item C<horizontalrules =E<gt> 0 or 1>
+=item C<< horizontalrules => 0 or 1 >>
 
 make rules above and below every row (default 0)
 
-=item C<texalignment =E<gt> string>
+=item C<< texalignment => string >>
 
 an alignment string like is used in a LaTeX tabular environment: for example C<'r|ccp{1in}'>
 
@@ -88,8 +88,9 @@ C<c> for center-aligned column
 
 C<r> for right-aligned column
 
-C<p{width}> for a column with left-aligned paragraphs of fixed width.
-The width needs to be absolute to work in all output formats.
+C<p{width}> for a column with left-aligned paragraphs of the given width.
+The width can be an absolute width or (unlike in LaTeX) a positive decimal number at most 1.
+If it is a decimal, it will be interpreted as a portion of the available width.
 
 C<X> for a column that expands to fill (see C<Xratio> below),
 and will have left-aligned paragraphs 
@@ -99,8 +100,8 @@ C<|> for a vertical rule (n adjacent pipes make one rule that is n times as thic
 C<!{\vrule width 3pt}> for a vertical rule of the indicated width
 (must be an absolute width; C<3pt> is just an example)
 
-C<E<gt>{commands}> Execute C<commands> at each cell in the column.
-For example, C<'cE<gt>{\color{blue}}c'> will make the second column have blue text.
+C<< >{commands} >> Execute C<commands> at each cell in the column.
+For example, C<< 'c>{\color{blue}}c' >> will make the second column have blue text.
 The following LaTeX commands may be used:
 
 =over
@@ -123,11 +124,11 @@ C<\ttfamily> for monospace
 
 Other LaTeX commands apply only to PDF output.
 
-=item C<align =E<gt> string>
+=item C<< align => string >>
 
 convenient short version of C<texalignment>
 
-=item C<Xratio =E<gt> number>
+=item C<< Xratio => number >>
 
 When C<X> is part of overall alignment,
 C<Xratio> must be some number between 0 and 1, inclusive of 1.
@@ -135,26 +136,26 @@ The table as a whole will be C<Xratio> wide, relative to the overall
 horizontal space. And C<X> columns expand to fill the available space.
 The default is 0.97.
 
-=item C<encase =E<gt> [ , ]>
+=item C<< encase => [ , ] >>
 
 Encases all table entries in the two entries. For example, use C<[$BM,$EM]>
 to wrap all cells in math delimiters. See also C<noencase> for individual cells.
 
-=item C<rowheaders =E<gt> 0 or 1>
+=item C<< rowheaders => 0 or 1 >>
 
 Make the first element of every row a row header. Default is 0.
 
-=item C<headerrules =E<gt> 0 or 1>
+=item C<< headerrules => 0 or 1 >>
 
 Make a horizontal rule under a row of column headers and a vertical
 rule to the right of a column of row headers. Default is 1.
 
-=item C<valign =E<gt> 'top'>
+=item C<< valign => 'top' >>
 
 Can be C<'top'>, C<'middle'>, or C<'bottom'>. Applies to all rows.
 See below to override for an individual row.
 
-=item C<padding =E<gt> [ , ]>
+=item C<< padding => [ , ] >>
 
 An array of two non-negative numbers used to define cell-padding. The first is
 for top-down padding, the second for left-right padding. In HTML, each padding
@@ -171,21 +172,21 @@ padding at the same time.
 =head3 HTML output
 
 Each css property setting should be a hash reference.
-For example,  C<{'font-family' =E<gt> 'fantasy', color =E<gt> 'red'}>.
+For example,  C<< {'font-family' => 'fantasy', color => 'red'} >>.
 If a key has a dash character, it needs to be in quotes. Alternatively,
-you may uses a javascript flavor of CSS key like C<{fontFamily =E<gt> 'fantasy'}>
+you may uses a javascript flavor of CSS key like C<< {fontFamily => 'fantasy'} >>
 
 =over
 
-=item C<tablecss =E<gt> css string>
+=item C<< tablecss => css string >>
 
 css styling commands for the table element
 
-=item C<captioncss =E<gt> css string>
+=item C<< captioncss => css string >>
 
 css styling commands for the caption element
 
-=item C<columnscss => array ref
+=item C<< columnscss => array ref >>
 
 an array reference to css strings for columns
 
@@ -203,15 +204,15 @@ Note: only four css properties apply to a col element:
 
 =back
 
-=item C<datacss =E<gt> css string>
+=item C<< datacss => css string >>
 
 css styling commands for non-header cells
 
-=item C<headercss =E<gt> css string>
+=item C<< headercss => css string >>
 
 css styling commands for header cells
 
-=item C<allcellcss =E<gt> css string>
+=item C<< allcellcss => css string >>
 
 css styling commands for all cells
 
@@ -221,7 +222,7 @@ css styling commands for all cells
 
 =over
 
-=item C<booktabs =E<gt> 0 or 1>
+=item C<< booktabs => 0 or 1 >>
 
 use the booktabs package for horizontal rules (default 1)
 
@@ -243,14 +244,14 @@ Alternatively, using a hash reference with a data key:
 
 =over
 
-=item C<halign =E<gt> string>
+=item C<< halign => string >>
 
 Similar to the components for C<texalignment> above.
 However, only C<l>, C<c>, C<r>, C<p{}>, and vertical rule specifications should be used.
 With vertical rule specifiers, any left vertical rule will only be observed for cells
 is in the first column. Otherwise, use a right vertical rule on the cell to the left.
 
-=item C<header =E<gt> type>,
+=item C<< header => type >>,
 
 Declares the scope of the HTML C<th> element. Case-insensitive:
 
@@ -267,41 +268,41 @@ Declares the scope of the HTML C<th> element. Case-insensitive:
 
 =back
 
-=item C<color =E<gt> string>
+=item C<< color => string >>
 
 color name or 6-character hex color code for text color
 
-=item C<bgcolor =E<gt> string>
+=item C<< bgcolor => string >>
 
 color name or 6-character hex color code for background color
 
-=item C<b=E<gt>1>
+=item C<< b=>1 >>
 
 Set the cell to bold font.
 
-=item C<i=E<gt>1>
+=item C<< i=>1 >>
 
 Set the cell to italics font.
 
-=item C<m=E<gt>1>
+=item C<< m=>1 >>
 
 Set the cell to monospace font.
 
-=item C<noencase =E<gt> 0 or 1>
+=item C<< noencase => 0 or 1 >>
 
 If you are using encase (see above) use this to opt out.
 
-=item C<colspan =E<gt> positive integer>
+=item C<< colspan => positive integer >>
 
 Makes the cell span more than one column. When using this, you
 often set C<halign> as well.
 
-=item C<top =E<gt> positive integer or string>
+=item C<< top => positive integer or string >>
 
 Make a top rule for one cell if the cell is in the top row. Thickness is either C<n>
 pixels or a width like C<'0.04em'>. Has no effect on cells outside of top row.
 
-=item C<bottom =E<gt> positive integer or string>
+=item C<< bottom => positive integer or string >>
 
 Make a bottom rule for one cell. Thickness is either C<n> pixels or a width like C<'0.04em'>.
 
@@ -313,7 +314,7 @@ This option is only for HTML output.
 
 =over
 
-=item C<cellcss =E<gt> string>
+=item C<< cellcss => string >>
 
 css styling commands for this cell
 
@@ -325,12 +326,12 @@ The following apply only to PDF output
 
 =over
 
-=item C<texpre =E<gt> tex code> and C<texpost =E<gt> tex code>
+=item C<< texpre => tex code >> and C<< texpost => tex code >>
 
 For more fussy cell-by-cell alteration of the tex version of
 the table, code to place before and after the cell content.
 
-=item C<texencase =E<gt> array ref>
+=item C<< texencase => array ref >>
 
 Shortcut for entering C<[texpre,texpost]> at once.
 
@@ -343,31 +344,48 @@ When there is a clash, the last non-falsy declaration in the row will be used.
 
 =over
 
-=item C<rowcolor =E<gt> string>
+=item C<< rowcolor => string >>
 
 Sets the row's background color.  Must be a color name, 6-character hex color code.
 
-=item C<rowcss =E<gt> string>
+=item C<< rowcss => string >>
 
 css styling commands for the row
 
-=item C<headerrow =E<gt> 0 or 1>
+=item C<< headerrow => 0 or 1 >>
 
 Makes an entire row use header cells (with column scope).
 
-=item C<rowtop =E<gt> positive integer or string>
+=item C<< rowtop => positive integer or string >>
 
 When used on the first row, creates a top rule. Has no effect on other rows.
 Thickness is either C<n> pixels or a width like C<'0.04em'>.
 
-=item C<rowbottom =E<gt> positive integer string>
+=item C<< rowbottom => positive integer string >>
 
 Make a bottom rule.  Thickness is either C<n> pixels or a width like C<'0.04em'>.
 
-=item C<valign =E<gt> string>
+=item C<< valign => string >>
 
 Override table's overall vertical alignment for this row.  Can be C<'top'>, C<'middle'>,
 or C<'bottom'>.
+
+=item C<< rows => 2D array reference >>
+
+If a row contains only one cell with no content or attributes other than C<'rows'>,
+and if C<'rows'> is an array reference where each element is itself an array
+reference that is appropriately formatted to be a niceTables row, then this row
+will be expanded to those rows. This allows a sequence of rows to be computed
+algorithmically for example C<[{rows => [ map {[ $_, $_**2 ]} (1..4)]}]> will
+expand to C<[1, 1], [2, 4], [3, 9], [4, 16]>.
+
+This can also be achieved if the cell is an array reference with (possibly empty)
+whitespace content followed by the rows attribute, for example:
+C<[['', 'rows', [ map {[ $_, $_**2 ]} (1..4)]]]>. This form is used by PGML. So
+for instance when using PGML, C<[. .]*{rows => $rows}>.
+
+This expansion is not recursive; any C<'rows'> attribute in the inner rows will
+not be expanded.
 
 =back
 
@@ -382,9 +400,9 @@ These features were supported in an earlier version and still work, but are depr
 =over
 
 =item * Each css setting can be a raw CSS string, including all its colons and a semicolons.
-For example, C<tablecss =E<gt> 'font-family: fantasy; text-decoration: underline;'>.
+For example, C<< tablecss => 'font-family: fantasy; text-decoration: underline;' >>.
 
-=item * A cell can have C<tex =E<gt> commands>.
+=item * A cell can have C<< tex => commands >>.
 This executes commands at start of a cell with scope the entire cell.
 The following LaTeX commands may be used and respected in HTML as well as LaTeX:
 
@@ -519,7 +537,8 @@ sub TableEnvironment {
 	if ($main::displayMode eq 'TeX') {
 		my $tabulartype  = $hasX ? 'tabularx'                        : 'tabular';
 		my $tabularwidth = $hasX ? "$tableOpts->{Xratio}\\linewidth" : '';
-		$rows = latexEnvironment($rows, $tabulartype, [ $tabularwidth, '[t]', $tableOpts->{texalignment} ], ' ');
+		my $texalignment = $tableOpts->{texalignment} =~ s/p\{0*(0(\.\d*)?|1(\.0*)?)\}/p\{$1\\linewidth\}/gr;
+		$rows = latexEnvironment($rows, $tabulartype, [ $tabularwidth, '[t]', $texalignment ], ' ');
 		$rows = prefix($rows, '\centering%') if $tableOpts->{center};
 		$rows = prefix($rows, '\renewcommand{\arraystretch}{' . ($tableOpts->{padding}[0] + 1) . '}', '');
 		$rows = prefix($rows, '\setlength{\tabcolsep}{' . ($tableOpts->{padding}[1] * 10) . 'pt}',    '');
@@ -549,7 +568,6 @@ sub TableEnvironment {
 			$ptxmargins = "${leftmargin}% ${rightmargin}%";
 			$ptxwidth .= '%';
 		} elsif (!$tableOpts->{center}) {
-			$ptxwidth   = '100%';
 			$ptxmargins = '0% 0%';
 		}
 		if ($tableOpts->{LaYoUt}) {
@@ -557,8 +575,8 @@ sub TableEnvironment {
 				$rows,
 				'sbsgroup',
 				{
-					width   => $ptxwidth,
 					margins => $ptxmargins,
+					widths  => $cols
 				}
 			);
 		} elsif (!$tableOpts->{LaYoUt}) {
@@ -567,13 +585,12 @@ sub TableEnvironment {
 				$rows,
 				'tabular',
 				{
-					valign     => ($tableOpts->{valign} ne 'middle') ? $tableOpts->{valign} : '',
-					bottom     => $tableOpts->{horizontalrules}      ? 'minor'              : '',
-					rowheaders => $tableOpts->{rowheaders}           ? 'yes'                : '',
-					margins    => $ptxmargins,
-					width      => $ptxwidth,
-					left       => $ptxleft,
-					top        => $ptxtop,
+					valign        => ($tableOpts->{valign} ne 'middle') ? $tableOpts->{valign} : '',
+					bottom        => $tableOpts->{horizontalrules}      ? 'minor'              : '',
+					'row-headers' => $tableOpts->{rowheaders}           ? 'yes'                : '',
+					width         => $ptxwidth,
+					left          => $ptxleft,
+					top           => $ptxtop,
 				}
 			);
 		}
@@ -657,30 +674,34 @@ sub Cols {
 		}
 
 		if ($main::displayMode eq 'PTX') {
-			my $ptxhalign = '';
-			$ptxhalign = 'center' if ($align->{halign} eq 'c');
-			$ptxhalign = 'right'  if ($align->{halign} eq 'r');
-			my $ptxright = '';
-			$ptxright = getPTXthickness($align->{right});
-			my $ptxtop = '';
-			$ptxtop = getPTXthickness($top);
-			my $ptxwidth = '';
-			$ptxwidth = getWidthPercent($align->{width}) if $align->{width};
-			$ptxwidth = ($tableOpts->{Xratio} / $#$alignment * 100) . '%'
-				if ($align->{halign} eq 'X');
-			$ptxwidth = getWidthPercent($width) if $width;
-			push(
-				@cols,
-				tag(
-					'', 'col',
-					{
-						halign => $ptxhalign,
-						right  => $ptxright,
-						top    => $ptxtop,
-						width  => $ptxwidth
-					}
-				)
-			);
+			if ($tableOpts->{LaYoUt}) {
+				push @cols, ($align->{width} ? getWidthPercent($align->{width}) : '%');
+			} else {
+				my $ptxhalign = '';
+				$ptxhalign = 'center' if ($align->{halign} eq 'c');
+				$ptxhalign = 'right'  if ($align->{halign} eq 'r');
+				my $ptxright = '';
+				$ptxright = getPTXthickness($align->{right});
+				my $ptxtop = '';
+				$ptxtop = getPTXthickness($top);
+				my $ptxwidth = '';
+				$ptxwidth = getWidthPercent($align->{width}) if $align->{width};
+				$ptxwidth = ($tableOpts->{Xratio} / $#$alignment * 100) . '%'
+					if ($align->{halign} eq 'X');
+				$ptxwidth = getWidthPercent($width) if $width;
+				push(
+					@cols,
+					tag(
+						'', 'col',
+						{
+							halign => $ptxhalign,
+							right  => $ptxright,
+							top    => $ptxtop,
+							width  => $ptxwidth
+						}
+					)
+				);
+			}
 		} else {
 			my $htmlright = '';
 			$htmlright .= css('border-right', 'solid 2px')
@@ -688,6 +709,12 @@ sub Cols {
 			$htmlright .= css('border-right', getRuleCSS($align->{right}));
 			my $htmltop = '';
 			$htmltop .= css('border-top', getRuleCSS($top));
+			my $htmlwidth = '';
+			if ($align->{width}) {
+				$htmlwidth = css('width', $align->{width});
+				$htmlwidth = css('width', getWidthPercent($align->{width}))
+					if ($align->{width} =~ /^0*(0(\.\d*)?|1(\.0*)?)$/);
+			}
 
 			# $i starts at 1, but columncss indexing starts at 0
 			my $htmlcolcss = css($columnscss->[ $i - 1 ]);
@@ -695,9 +722,37 @@ sub Cols {
 				$htmlcolcss .= css('background-color', ($1 ? '#' : '') . $2);
 			}
 
-			push(@cols, tag('', 'col', { style => "${htmlright}${htmltop}${htmlcolcss}" }));
+			push(@cols, tag('', 'col', { style => "${htmlright}${htmltop}${htmlcolcss}${htmlwidth}" }));
 		}
 
+	}
+
+	if ($main::displayMode eq 'PTX' && $tableOpts->{LaYoUt}) {
+		my @decimalcols = map { substr $_, 0, -1 } @cols;
+		my $total       = 0;
+		my $count       = 0;
+		for (@decimalcols) {
+			if ($_ eq '') {
+				$count++;
+			} else {
+				$total += $_;
+			}
+		}
+		# determine if somewhere in the alignment there are X columns
+		my $hasX = 0;
+		for my $align (@$alignment) {
+			if ($align->{halign} eq 'X') {
+				$hasX = 1;
+				last;
+			}
+		}
+		my $width = ($hasX ? $tableOpts->{Xratio} * 100 : 100);
+		my $fill  = ($count != 0) ? int(($width - $total) / $count * 10**4) / 10**4 : 0;
+		for (@decimalcols) {
+			$_ = $fill if ($_ eq '');
+		}
+		@cols = map { $_ . '%' } @decimalcols;
+		return join(' ', @cols);
 	}
 
 	return join("\n", @cols);
@@ -788,52 +843,11 @@ sub Rows {
 				if (!$ptxleft && $rowArray->[0]{halign} && $alignment->[0]{left});
 
 			if ($tableOpts->{LaYoUt}) {
-				my $ptxwidthsum = 0;
-				my $ptxautocols = $#alignment;
-				for my $j (1 .. $#alignment) {
-					if ($rowArray->[ $j - 1 ]{width}) {
-						$ptxwidthsum +=
-							substr getWidthPercent($tableArray->[ $j - 1 ]{width}),
-							0, -1;
-						$ptxautocols -= 1;
-					} elsif ($alignment->[$j]{width}) {
-						$ptxwidthsum += substr getWidthPercent($alignment->[$j]{width}), 0, -1;
-						$ptxautocols -= 1;
-					}
-				}
-
-				# determine if somewhere in the overall alignment, there are X columns
-				my $hasX = 0;
-				for my $align (@$alignment) {
-					if ($align->{halign} eq 'X') {
-						$hasX = 1;
-						last;
-					}
-				}
-				my $leftoverspace =
-					(($hasX) ? $tableOpts->{Xratio} * 100 : 100) - $ptxwidthsum;
-				my $divvyuptherest = 0;
-				$divvyuptherest = int($leftoverspace / $ptxautocols * 10000) / 10000
-					unless ($ptxautocols == 0);
-				my @ptxwidths;
-				for my $j (1 .. $#alignment) {
-					if ($rowOpts->[ $j - 1 ]{width}) {
-						push(@ptxwidths, getWidthPercent($rowOpts->[ $j - 1 ]{width}));
-					} elsif ($alignment->[$j]{width}) {
-						push(@ptxwidths, getWidthPercent($alignment->[$j]{width}));
-					} else {
-						push(@ptxwidths, $divvyuptherest . '%');
-					}
-				}
-
-				my $ptxwidths = join(" ", @ptxwidths);
 				$row = tag(
 					$row,
 					'sidebyside',
 					{
-						valign  => ($valign) ? $valign : $tableOpts->{valign},
-						margins => '0% 0%',
-						widths  => $ptxwidths,
+						valign => ($valign) ? $valign : $tableOpts->{valign},
 					}
 				);
 			} else {
@@ -937,6 +951,7 @@ sub Row {
 				|| ($tableOpts->{rowheaders} && $tableOpts->{headerrules} && $i == 0))
 			{
 				my $columntype = $cellOpts->{halign};
+				$columntype = $columntype =~ s/p\{0*(0(\.\d*)?|1(\.0*)?)\}/p\{$1\\linewidth\}/gr;
 				$columntype = $cellAlign->{halign} // 'l' unless $columntype;
 				$columntype = 'p{' . $tableOpts->{Xratio} / ($#$rowArray + 1) . "\\linewidth}"
 					if ($columntype eq 'X');
@@ -1021,8 +1036,11 @@ sub Row {
 				if ($cellAlign->{halign} eq 'c');
 			$css .= css('text-align', 'right')
 				if ($cellAlign->{halign} eq 'r');
-			$css .= css('width', $cellAlign->{width})
-				if ($cellAlign->{width});
+			if ($cellAlign->{width} =~ /^0*(0(\.\d*)?|1(\.0*)?)$/) {
+				$css .= css('width', getWidthPercent($1));
+			} elsif ($cellAlign->{width}) {
+				$css .= css('width', $cellAlign->{width});
+			}
 			$css .= css('font-weight', 'bold')
 				if ($cellAlign->{tex} =~ /\\bfseries/);
 			$css .= css('font-style', 'italic')
@@ -1058,8 +1076,11 @@ sub Row {
 				if ($cellOpts->{halign} =~ /^c/);
 			$css .= css('text-align', 'right') if ($cellOpts->{halign} =~ /^r/);
 			$css .= css('text-align', 'left')  if ($cellOpts->{halign} =~ /^p/);
-			$css .= css('width',      $1)
-				if ($cellOpts->{halign} =~ /^p\{([^}]*?)}/);
+			if ($cellOpts->{halign} =~ /^p\{0*(0(\.\d*)?|1(\.0*)?)}/) {
+				$css .= css('width', getWidthPercent($1));
+			} elsif ($cellOpts->{halign} =~ /^p\{([^}]*?)}/) {
+				$css .= css('width', $1);
+			}
 			$css .= css('font-weight', 'bold')
 				if ($cellOpts->{tex} =~ /\\bfseries/);
 			$css .= css('font-style', 'italic')
@@ -1113,7 +1134,20 @@ sub Row {
 
 # Takes the user's nested array and returns a cleaned up version with initializations
 sub TableArray {
-	my $userArray        = shift;
+	my $userArray = shift;
+	for my $i (reverse(0 .. $#$userArray)) {
+		if (@{ $userArray->[$i] } == 1) {
+			if (ref($userArray->[$i][0]) eq 'HASH' && defined($userArray->[$i][0]{rows})) {
+				splice(@{$userArray}, $i, 1, @{ $userArray->[$i][0]{rows} });
+			} elsif (ref($userArray->[$i][0]) eq 'ARRAY'
+				&& @{ $userArray->[$i][0] } == 3
+				&& $userArray->[$i][0][0] =~ /^\s*$/
+				&& $userArray->[$i][0][1] eq 'rows')
+			{
+				splice(@{$userArray}, $i, 1, @{ $userArray->[$i][0][2] });
+			}
+		}
+	}
 	my %supportedOptions = (
 		data      => '',
 		halign    => '',
@@ -1282,10 +1316,10 @@ sub ParseAlignment {
 	$alignment =~ s/\R//g;
 
 	# first we parse things like *{20}{...} to expand them
-	my $pattern = qr/\*\{(\d+)\}\{(.*?)\}/;
+	my $pattern = qr/\*\{(\d+)\}(\{((?:(?>[^\{\}]+)|(?2))*)\})/;
 	while ($alignment =~ /$pattern/) {
 		my @captured    = ($alignment =~ /$pattern/);
-		my $replaceWith = $captured[1] x $captured[0];
+		my $replaceWith = $captured[2] x $captured[0];
 		$alignment =~ s/$pattern/$replaceWith/;
 	}
 
@@ -1365,7 +1399,7 @@ sub ParseAlignment {
 
 			# could parse these further for color identification, etc
 		} else {
-			main::WARN_MESSAGE("Token $token in texalignment could not be parsed");
+			main::WARN_MESSAGE("Token $token in texalignment could not be parsed") unless ($token =~ /^\s*$/);
 		}
 	}
 
@@ -1551,29 +1585,39 @@ sub getPTXthickness {
 }
 
 sub getWidthPercent {
-	my $absWidth = shift;
-	my $x        = 0;
-	my $unit     = 'cm';
-	if ($absWidth =~ /^(\.\d+|\d+\.?\d*)\s*(\w+)/) {
+	my $width = shift;
+	return $width             if (substr($width, -1) eq '%');
+	return $width * 100 . '%' if ($width =~ /^0*(0(\.\d*)?|1(\.0*)?)$/);
+	my $x    = 0;
+	my $unit = 'cm';
+	if ($width =~ /^(\.\d+|\d+\.?\d*)\s*(\w+)$/) {
 		$x    = $1;
 		$unit = $2;
 	}
-	my %convert_to_cm = (
-		'pt' => 1 / 864 * 249 / 250 * 12 * 2.54,
-		'mm' => 1 / 10,
-		'cm' => 1,
-		'in' => 2.54,
-		'ex' => 0.15132,
-		'em' => 0.35146,
-		'mu' => 0.35146 / 8,
-		'sp' => 1 / 864 * 249 / 250 * 12 * 2.54 / 65536,
-		'bp' => 2.54 / 72,
-		'dd' => 1 / 864 * 249 / 250 * 12 * 2.54 * 1238 / 1157,
-		'pc' => 1 / 864 * 249 / 250 * 12 * 2.54 * 12,
-		'cc' => 1 / 864 * 249 / 250 * 12 * 2.54 * 1238 / 1157 * 12,
-		'px' => 2.54 / 72,
+	my %convert_to_pt = (
+		# units with related absolute defintions
+		# the following are as TeX defines them
+		pt => 1,
+		pc => 12,
+		in => 72.27,
+		mm => 72.27 / 25.4,
+		cm => 72.27 / 2.54,
+		sp => 1 / 65536,
+		dd => 1238 / 1157,
+		cc => 12 * 1238 / 1157,
+		bp => 72.27 / 72,
+		# CSS defines 1 px to be 1/96 of an inch
+		# note that px is not a legal unit in TeX
+		px => 72 / 96,
+		# units relative to font
+		# the following are based on TeX default font
+		# (10pt Computer Modern)
+		em => 10.00002,
+		ex => 4.30554,
 	);
-	return (int($x * $convert_to_cm{$unit} / (6.25 * 2.54) * 10000) / 100) . '%';
+	# This is only used for PTX output, and a PTX document's default width is 340pt.
+	# We offer a percent with up to six significant digits
+	return (int($x * $convert_to_pt{$unit} / 340 * 10**6) / 10**4) . '%';
 }
 
 sub hrule {

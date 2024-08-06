@@ -1,7 +1,7 @@
 
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -38,9 +38,7 @@ MathObjects Matrix types are preferable.
 
 =cut
 
-BEGIN {
-	be_strict();
-}
+BEGIN { strict->import; }
 
 sub _PGmatrixmacros_init {
 }

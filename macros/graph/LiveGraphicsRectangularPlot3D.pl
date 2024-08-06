@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -19,98 +19,211 @@ LiveGraphicsRectangularPlot3D.pl - provide an interactive 3D rectangular plot.
 
 =head1 DESCRIPTION
 
-C<LiveGraphicsRectangularPlot3D.pl> provides two macros for creating an
-interactive plot of a function of two variables C<z = f(x,y)> in
-Rectangular (Cartesian) coordinates via the C<LiveGraphics3D> Javascript applet.
-The routine C<RectangularDomainPlot3D()> takes a MathObject Formula of
-two variables defined over a rectangular domain and some plot options
-as input and returns a string of plot data that can be displayed
-using the C<Live3Ddata()> routine of the C<LiveGraphics3D.pl> macro.
-The routine C<AnnularDomainPlot3D> works similarly for a function
-C<z = f(x,y)> over an annular domain specified in polar by
-C<S<< rmin < r < rmax >>> and C<S<< tmin < theta < tmax >>>.
+This macro provides two methods for creating an interactive plot of a function
+of two variables C<z = f(x, y)> in rectangular (Cartesian) coordinates via the
+C<LiveGraphics3D> JavaScript applet.  The routine
+L</RectangularPlot3DRectangularDomain> takes a C<MathObject> Formula of two
+variables defined over a rectangular domain and some plot options as input and
+returns a string of plot data that can be displayed using the C<Live3Ddata>
+routine of the L<LiveGraphics3D.pl> macro.  The routine
+L</RectangularPlot3DAnnularDomain> works similarly for a function C<z = f(x, y)>
+over an annular domain specified in polar coordinates by C<< rmin < r < rmax >>
+and C<< tmin < theta < tmax >> (polar coordinates are converted to rectangular
+for evaluation of the function).
 
-=head1 USAGE
+=head1 METHODS
+
+=head2 RectangularPlot3DRectangularDomain
+
+Usage: C<RectangularPlot3DRectangularDomain(%options)>
+
+The available options are as follows.
 
 =over
 
-=item C<RectangularPlot3DRectangularDomain(options)>
+=item C<< function => $f >>
 
-Options are:
+C<$f> is a MathObject Formula. For example, in the setup section define
 
-    function => $f,        $f is a MathObjects Formula
-                           For example, in the setup section define
+    Context()->variables->are(x => 'Real', y => 'Real');
+    $a = random(1, 3);
+    $f = Formula("$a * x^2 - 2 * y");    # Use double quotes!
 
-                           Context("Numeric");
-                           Context()->variables->add(s=>"Real",t=>"Real");
-                           $a = random(1,3,1);
-                           $f = Formula("$a*s^2-2*t"); # use double quotes!
+before calling C<RectangularPlot3DRectangularDomain>.
 
-                           before calling RectangularPlot3DRectangularDomain()
+=item C<< xvar => 'x' >>
 
-    xvar => "s",           independent variable name, default "x"
-    yvar => "t",           independent variable name, default "y"
+First independent variable name, default 'x'. This must correspond to the first
+variable used in the C<function>.
 
-    xmin => -3,            domain for xvar
-    xmax =>  3,
+=item C<< yvar => 'y' >>
 
-    ymin => -3,            domain for yvar
-    ymax =>  3,
+Second independent variable name, default 'y'. This must correspond to the
+second variable used in the C<function>.
 
-    xsamples => 20,        deltax = (xmax - xmin) / xsamples
-    ysamples => 20,        deltay = (ymax - ymin) / ysamples
+=item C<< xmin => -3 >>
 
-    axesframed => 1,       1 displays framed axes, 0 hides framed axes
+Lower bound for the domain of the first independent variable.
 
-    xaxislabel => "S",     Capital letters may be easier to read
-    yaxislabel => "T",
-    zaxislabel => "Z",
+=item C<< xmax => 3 >>
 
-    outputtype => 1,       return string of only polygons (or mesh)
-                  2,       return string of only plotoptions
-                  3,       return string of polygons (or mesh) and plotoptions
-                  4,       return complete plot
+Upper bound for the domain of the first independent variable.
 
-=item C<RectangularPlot3DAnnularDomain(options)>
+=item C<< ymin => -3 >>
 
-Options are:
+Lower bound for the domain of the second independent variable.
 
+=item C<< ymax => 3 >>
 
-    function => $f,        $f is a MathObjects Formula
-                           For example, in the setup section define
+Upper bound for the domain of the second independent variable.
 
-                           Context("Numeric");
-                           Context()->variables->add(y=>"Real",r=>"Real",t=>"Real");
-                           $a = random(1,3,1);
-                           $f = Formula("$a*e^(- x^2 - y^2)"); # use double quotes!
+=item C<< xsamples => 20 >>
 
-                           before calling RectangularPlot3DAnnularDomain()
+The number of sample values for the first independent variable in the interval
+from C<xmin> to C<xmax> to use.
 
-    xvar => "x",           independent variable name, default "x"
-    yvar => "y",           independent variable name, default "y"
+=item C<< ysamples => 20 >>
 
-    rvar => "r",           independent variable name, default "r"
-    tvar => "t",           independent variable name, default "t" (for theta)
+The number of sample values for the second independent variable in the interval
+from C<ymin> to C<ymax> to use.
 
-    rmin => -3,            domain for rvar
-    rmax =>  3,
+=item C<< axesframed => 1 >>
 
-    tmin => -3,            domain for tvar
-    tmax =>  3,
+If set to 1 then the framed axes are displayed.  If set to 0, the the framed
+axes are not shown. This is 1 by default.
 
-    rsamples => 20,        deltar = (rmax - rmin) / rsamples
-    tsamples => 20,        deltat = (tmax - tmin) / tsamples
+=item C<< xaxislabel => 'x' >>
 
-   axesframed => 1,       1 displays framed axes, 0 hides framed axes
+Label for the axis corresponding to the first independent variable.
 
-    xaxislabel => "X",     Capital letters may be easier to read
-    yaxislabel => "Y",
-    zaxislabel => "Z",
+=item C<< yaxislabel => 'y' >>
 
-    outputtype => 1,       return string of only polygons (or mesh)
-                  2,       return string of only plotoptions
-                  3,       return string of polygons (or mesh) and plotoptions
-                  4,       return complete plot
+Label for the axis corresponding to the second independent variable.
+
+=item C<< zaxislabel => 'z' >>
+
+Label for the axis corresponding to the dependent variable.
+
+=item C<< outputtype => 1 >>
+
+This determines what is contained in the string that the method returns. The
+values of 1 through 4 are accepted, and have the following meaning.
+
+=over
+
+=item 1.
+
+Return a string of only polygons (or edge mesh).
+
+=item 2.
+
+Return a string of only plot options.
+
+=item 3.
+
+Return a string of polygons (or edge mesh) and plot options.
+
+=item 4.
+
+Return the complete plot to be passed directly to the C<Live3DData> method.
+
+=back
+
+=back
+
+=head2 RectangularPlot3DAnnularDomain
+
+Usage: C<RectangularPlot3DAnnularDomain(%options)>
+
+The available options are as follows.
+
+=over
+
+=item C<< function => $f >>
+
+C<$f> is a MathObject Formula. For example, in the setup section define
+
+    Context()->variables->are(x => 'Real', y => 'Real');
+    $a = random(1, 3);
+    $f = Formula("$a * e^(-x^2 - y^2)");    # Use double quotes!
+
+before calling C<RectangularPlot3DRectangularDomain>.
+
+=item C<< xvar => 'x' >>
+
+First independent variable name, default 'x'. This must correspond to the first
+variable used in the C<function>.
+
+=item C<< yvar => 'y' >>
+
+Second independent variable name, default 'y'. This must correspond to the
+second variable used in the C<function>.
+
+=item C<< rmin => -3 >>
+
+Lower bound for the domain of radial coordinate.
+
+=item C<< rmax => 3 >>
+
+Upper bound for the domain of radial coordinate.
+
+=item C<< tmin => -3 >>
+
+Lower bound for the domain of angular coordinate.
+
+=item C<< tmax => 3 >>
+
+Upper bound for the domain of angular coordinate.
+
+=item C<< rsamples => 20 >>
+
+The number of radial values in the interval from C<rmin> to C<rmax> to use.
+
+=item C<< tsamples => 20 >>
+
+The number of angular values in the interval from C<tmin> to C<tmax> to use.
+
+=item C<< axesframed => 1 >>
+
+If set to 1 then the frames axes are displayed.  If set to 0, the the framed
+axes are not shown. This is 1 by default.
+
+=item C<< xaxislabel => 'x' >>
+
+Label for the axis corresponding to the first independent variable.
+
+=item C<< yaxislabel => 'y' >>
+
+Label for the axis corresponding to the second independent variable.
+
+=item C<< zaxislabel => 'z' >>
+
+Label for the axis corresponding to the dependent variable.
+
+=item C<< outputtype => 1 >>
+
+This determines what is contained in the string that the method returns. The
+values of 1 through 4 are accepted, and have the following meaning.
+
+=over
+
+=item 1.
+
+Return a string of only polygons (or edge mesh).
+
+=item 2.
+
+Return a string of only plot options.
+
+=item 3.
+
+Return a string of polygons (or edge mesh) and plot options.
+
+=item 4.
+
+Return the complete plot to be passed directly to the C<Live3DData> method.
+
+=back
 
 =back
 
@@ -118,24 +231,15 @@ Options are:
 
 sub _LiveGraphicsRectangularPlot3D_init { };    # don't reload this file
 
-loadMacros("MathObjects.pl", "LiveGraphics3D.pl");
+loadMacros('MathObjects.pl', 'LiveGraphics3D.pl');
 
-$beginplot = "Graphics3D[";
-$endplot   = "]";
-
-###########################################
-###########################################
-#  Begin RectangularPlot3DRectangularDomain
+$main::beginplot = 'Graphics3D[';
+$main::endplot   = ']';
 
 sub RectangularPlot3DRectangularDomain {
-
-###########################################
-	#
-	#  Set default options
-	#
-
+	# Set default options
 	my %options = (
-		function   => Formula("1"),
+		function   => Formula('1'),
 		xvar       => 'x',
 		yvar       => 'y',
 		xmin       => -3,
@@ -145,144 +249,76 @@ sub RectangularPlot3DRectangularDomain {
 		xsamples   => 20,
 		ysamples   => 20,
 		axesframed => 1,
-		xaxislabel => "X",
-		yaxislabel => "Y",
-		zaxislabel => "Z",
+		xaxislabel => 'x',
+		yaxislabel => 'y',
+		zaxislabel => 'z',
 		outputtype => 4,
 		@_
 	);
 
-############################################
-	#
-	#  Reset to Context("Numeric") just to be
-	#  sure that everything will work properly.
-	#
+	$options{function}->perlFunction('fsubroutine', [ $options{xvar}, $options{yvar} ]);
 
-	#Context("Numeric");
-	#Context()->variables->are($options{xvar}=>"Real",$options{yvar}=>"Real");
-
-	my $fsubroutine;
-	$options{function}->perlFunction('fsubroutine', [ "$options{xvar}", "$options{yvar}" ]);
-
-######################################################
-	#
-	#  Generate a plotdata array, which has two indices
-	#
-
-	my $xsamples1 = $options{xsamples} - 1;
-	my $ysamples1 = $options{ysamples} - 1;
+	# Generate a plotdata array, which has two indices.
 
 	my $dx = ($options{xmax} - $options{xmin}) / $options{xsamples};
 	my $dy = ($options{ymax} - $options{ymin}) / $options{ysamples};
 
-	my $x;
-	my $y;
+	my (@x, @y, @z);
 
-	my $z;
-
-	foreach my $i (0 .. $options{xsamples}) {
+	for my $i (0 .. $options{xsamples}) {
 		$x[$i] = $options{xmin} + $i * $dx;
-		foreach my $j (0 .. $options{ysamples}) {
-			$y[$j] = $options{ymin} + $j * $dy;
-			# Use sprintf to round to three decimal places
-			$z[$i][$j] = sprintf("%.3f", fsubroutine($x[$i], $y[$j])->value);
-			$y[$j] = sprintf("%.3f", $y[$j]);
+		for my $j (0 .. $options{ysamples}) {
+			$y[$j]     = $options{ymin} + $j * $dy;
+			$z[$i][$j] = sprintf('%.3f', fsubroutine($x[$i], $y[$j])->value);
+			$y[$j]     = sprintf('%.3f', $y[$j]);
 		}
-		$x[$i] = sprintf("%.3f", $x[$i]);
+		$x[$i] = sprintf('%.3f', $x[$i]);
 	}
 
-###########################################################################
-	#
-	#  Generate a plotstring from the plotdata.
-	#
-	#  The plotstring is a list of polygons
-	#  LiveGraphics3D reads as input.
-	#
-	#  For more information on the format of the plotstring, see
-	#  http://www.math.umn.edu/~rogness/lg3d/page_NoMathematica.html
-	#  http://www.vis.uni-stuttgart.de/~kraus/LiveGraphics3D/documentation.html
-	#
-###########################################
-	#
-	#  Generate the polygons in the plotstring
-	#
+	# Generate a plotstring from the plotdata. This is a list of polygons LiveGraphics3D reads as input.
+	# For more information on the format of the plotstring, see
+	# http://www.math.umn.edu/~rogness/lg3d/page_NoMathematica.html.
 
-	my $plotstructure = "{";
-
-	foreach my $i (0 .. $xsamples1) {
-		foreach my $j (0 .. $ysamples1) {
-
-			$plotstructure =
-				$plotstructure
-				. "Polygon[{"
-				. "{$x[$i],$y[$j],$z[$i][$j]},"
-				. "{$x[$i+1],$y[$j],$z[$i+1][$j]},"
-				. "{$x[$i+1],$y[$j+1],$z[$i+1][$j+1]},"
-				. "{$x[$i],$y[$j+1],$z[$i][$j+1]}" . "}]";
-
-			if (($i < $xsamples1) || ($j < $ysamples1)) {
-				$plotstructure = $plotstructure . ",";
-			}
-
+	# Generate the polygons in the plotstring.
+	my @polygons;
+	for my $i (0 .. $options{xsamples} - 1) {
+		for my $j (0 .. $options{ysamples} - 1) {
+			push(@polygons,
+				'Polygon[{'
+					. "{$x[$i],$y[$j],$z[$i][$j]},"
+					. "{$x[$i+1],$y[$j],$z[$i+1][$j]},"
+					. "{$x[$i+1],$y[$j+1],$z[$i+1][$j+1]},"
+					. "{$x[$i],$y[$j+1],$z[$i][$j+1]}"
+					. '}]');
 		}
 	}
+	my $plotstructure = '{' . join(',', @polygons) . '}';
 
-	$plotstructure = $plotstructure . "}";
-
-##############################################
-	#
-	#  Add plot options to the plotoptions string
-	#
-
-	my $plotoptions = "";
-
-	if (($options{outputtype} > 1) || ($options{axesframed} == 1)) {
-		$plotoptions =
-			$plotoptions
-			. "Axes->True,AxesLabel->"
-			. "{$options{xaxislabel},$options{yaxislabel},$options{zaxislabel}}";
-	}
-
-####################################################
-	#
-	#  Return only the plotstring    (if outputtype=>1),
-	#  or only plotoptions           (if outputtype=>2),
-	#  or plotstring, plotoptions    (if outputtype=>2),
-	#  or the entire plot (default)  (if outputtype=>4)
+	my $plotoptions =
+		$options{outputtype} > 1 && $options{axesframed} == 1
+		? "Axes->True,AxesLabel->{$options{xaxislabel},$options{yaxislabel},$options{zaxislabel}}"
+		: '';
 
 	if ($options{outputtype} == 1) {
 		return $plotstructure;
 	} elsif ($options{outputtype} == 2) {
 		return $plotoptions;
 	} elsif ($options{outputtype} == 3) {
-		return "{" . $plotstructure . "," . $plotoptions . "}";
+		return "{$plotstructure,$plotoptions}";
 	} elsif ($options{outputtype} == 4) {
-		return $beginplot . $plotstructure . "," . $plotoptions . $endplot;
+		return "${main::beginplot}${plotstructure},${plotoptions}${main::endplot}";
 	} else {
-		return "Invalid outputtype (outputtype should be a number 1 through 4).";
+		return 'Invalid outputtype (outputtype should be a number 1 through 4).';
 	}
 
-}    #  End RectangularPlot3DRectangularDomain
-##############################################
-##############################################
-
-#############################################
-#############################################
-#  Begin RectangularPlot3DAnnularDomain
+}
 
 sub RectangularPlot3DAnnularDomain {
-
-#############################################
-	#
-	#  Set default options
-	#
-
+	# Set default options.
 	my %options = (
-		function   => Formula("1"),
-		xvar       => "x",
-		yvar       => "y",
-		rvar       => "r",
-		tvar       => "t",
+		function   => Formula('1'),
+		xvar       => 'x',
+		yvar       => 'y',
 		rmin       => 0.001,
 		rmax       => 3,
 		tmin       => 0,
@@ -290,134 +326,71 @@ sub RectangularPlot3DAnnularDomain {
 		rsamples   => 20,
 		tsamples   => 20,
 		axesframed => 1,
-		xaxislabel => "X",
-		yaxislabel => "Y",
-		zaxislabel => "Z",
+		xaxislabel => 'x',
+		yaxislabel => 'y',
+		zaxislabel => 'z',
 		outputtype => 4,
 		@_
 	);
 
-############################################
-	#
-	#  Reset to Context("Numeric") just to be
-	#  sure that everything will work properly.
-	#
+	$options{function}->perlFunction('fsubroutine', [ $options{xvar}, $options{yvar} ]);
 
-	#Context("Numeric");
-	#Context()->variables->are(
-	#$options{xvar}=>"Real",
-	#$options{yvar}=>"Real",
-	#$options{rvar}=>"Real",
-	#$options{tvar}=>"Real"
-	#);
+	# Generate a plotdata array which has two indices.
 
-	my $fsubroutine;
-	$options{function}->perlFunction('fsubroutine', [ "$options{xvar}", "$options{yvar}" ]);
-
-######################################################
-	#
-	#  Generate a plotdata array, which has two indices
-	#
-
-	my $rsamples1 = $options{rsamples} - 1;
-	my $tsamples1 = $options{tsamples} - 1;
+	my ($rsamples1, $tsamples1) = ($options{rsamples} - 1, $options{tsamples} - 1);
 
 	my $dr = ($options{rmax} - $options{rmin}) / $options{rsamples};
 	my $dt = ($options{tmax} - $options{tmin}) / $options{tsamples};
 
-	my $t;
-	my $r;
+	my (@x, @y, @z);
 
-	my $x;
-	my $y;
-
-	my $z;
-
-	foreach my $i (0 .. $options{tsamples}) {
-		$t[$i] = $options{tmin} + $i * $dt;
-		foreach my $j (0 .. $options{rsamples}) {
-			$r[$j]     = $options{rmin} + $j * $dr;
-			$x[$i][$j] = $r[$j] * cos($t[$i]);
-			$y[$i][$j] = $r[$j] * sin($t[$i]);
-			$z[$i][$j] = sprintf("%.3f", fsubroutine($x[$i][$j], $y[$i][$j])->value);
-			$x[$i][$j] = sprintf("%.3f", $x[$i][$j]);
-			$y[$i][$j] = sprintf("%.3f", $y[$i][$j]);
+	for my $i (0 .. $options{tsamples}) {
+		my $t = $options{tmin} + $i * $dt;
+		for my $j (0 .. $options{rsamples}) {
+			my $r = $options{rmin} + $j * $dr;
+			$x[$i][$j] = $r * cos($t);
+			$y[$i][$j] = $r * sin($t);
+			$z[$i][$j] = sprintf('%.3f', fsubroutine($x[$i][$j], $y[$i][$j])->value);
+			$x[$i][$j] = sprintf('%.3f', $x[$i][$j]);
+			$y[$i][$j] = sprintf('%.3f', $y[$i][$j]);
 		}
 	}
 
-###########################################################################
-	#
-	#  Generate a plotstring from the plotdata.
-	#
-	#  The plotstring is a list of polygons that
-	#  LiveGraphics3D reads as input.
-	#
-	#  For more information on the format of the plotstring, see
-	#  http://www.math.umn.edu/~rogness/lg3d/page_NoMathematica.html
-	#  http://www.vis.uni-stuttgart.de/~kraus/LiveGraphics3D/documentation.html
-	#
-###########################################
-	#
-	#  Generate the polygons in the plotstring
-	#
+	# Generate a plotstring from the plotdata.  This is a list of polygons that LiveGraphics3D reads as input.
+	# For more information on the format of the plotstring, see
+	# http://www.math.umn.edu/~rogness/lg3d/page_NoMathematica.html.
 
-	my $plotstructure = "{";
-
-	foreach my $i (0 .. $tsamples1) {
-		foreach my $j (0 .. $rsamples1) {
-
-			$plotstructure =
-				$plotstructure
-				. "Polygon[{"
-				. "{$x[$i][$j],$y[$i][$j],$z[$i][$j]},"
-				. "{$x[$i+1][$j],$y[$i+1][$j],$z[$i+1][$j]},"
-				. "{$x[$i+1][$j+1],$y[$i+1][$j+1],$z[$i+1][$j+1]},"
-				. "{$x[$i][$j+1],$y[$i][$j+1],$z[$i][$j+1]}" . "}]";
-
-			if (($i < $tsamples1) || ($j < $rsamples1)) {
-				$plotstructure = $plotstructure . ",";
-			}
-
+	# Generate the polygons in the plotstring.
+	my @polygons;
+	for my $i (0 .. $tsamples1) {
+		for my $j (0 .. $rsamples1) {
+			push(@polygons,
+				'Polygon[{'
+					. "{$x[$i][$j],$y[$i][$j],$z[$i][$j]},"
+					. "{$x[$i+1][$j],$y[$i+1][$j],$z[$i+1][$j]},"
+					. "{$x[$i+1][$j+1],$y[$i+1][$j+1],$z[$i+1][$j+1]},"
+					. "{$x[$i][$j+1],$y[$i][$j+1],$z[$i][$j+1]}"
+					. '}]');
 		}
 	}
+	my $plotstructure = '{' . join(',', @polygons) . '}';
 
-	$plotstructure = $plotstructure . "}";
-
-##############################################
-	#
-	#  Add plot options to the plotoptions string
-	#
-
-	my $plotoptions = "";
-
-	if (($options{outputtype} > 1) || ($options{axesframed} == 1)) {
-		$plotoptions =
-			$plotoptions
-			. "Axes->True,AxesLabel->"
-			. "{$options{xaxislabel},$options{yaxislabel},$options{zaxislabel}}";
-	}
-
-####################################################
-	#
-	#  Return only the plotstring    (if outputtype=>1),
-	#  or only plotoptions           (if outputtype=>2),
-	#  or plotstring, plotoptions    (if outputtype=>2),
-	#  or the entire plot (default)  (if outputtype=>4)
+	my $plotoptions =
+		$options{outputtype} > 1 || $options{axesframed} == 1
+		? "Axes->True,AxesLabel->{$options{xaxislabel},$options{yaxislabel},$options{zaxislabel}}"
+		: '';
 
 	if ($options{outputtype} == 1) {
 		return $plotstructure;
 	} elsif ($options{outputtype} == 2) {
 		return $plotoptions;
 	} elsif ($options{outputtype} == 3) {
-		return "{" . $plotstructure . "," . $plotoptions . "}";
+		return "{$plotstructure,$plotoptions}";
 	} elsif ($options{outputtype} == 4) {
-		return $beginplot . $plotstructure . "," . $plotoptions . $endplot;
+		return "${main::beginplot}${plotstructure},${plotoptions}${main::endplot}";
 	} else {
-		return "Invalid outputtype (outputtype should be a number 1 through 4).";
+		return 'Invalid outputtype (outputtype should be a number 1 through 4).';
 	}
-
-}    #  End RectangularPlot3DAnnularDomain
-#####################################################
-#####################################################
+}
 
 1;

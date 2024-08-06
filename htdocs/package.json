@@ -8,26 +8,28 @@
     },
     "scripts": {
         "generate-assets": "node generate-assets",
-        "prepare": "npm run generate-assets"
+        "prepare": "npm run generate-assets",
+        "prettier-format": "prettier --ignore-path=../.gitignore --write \"**/*.{js,css,scss,html}\" \"../**/*.dist.yml\"",
+        "prettier-check": "prettier --ignore-path=../.gitignore --check \"**/*.{js,css,scss,html}\" \"../**/*.dist.yml\""
     },
     "dependencies": {
-        "jsxgraph": "^1.5.0",
+        "jsxgraph": "^1.9.2",
         "jszip": "^3.10.1",
         "jszip-utils": "^0.1.0",
-        "mathquill": "github:openwebwork/mathquill#WeBWorK-2.18",
-        "plotly.js-dist-min": "^2.18.2",
-        "sortablejs": "^1.15.0",
-        "x3dom": "^1.8.1"
+        "mathquill": "github:openwebwork/mathquill#WeBWorK-2.19",
+        "plotly.js-dist-min": "^2.32.0",
+        "sortablejs": "^1.15.2"
     },
     "devDependencies": {
-        "autoprefixer": "^10.4.13",
-        "chokidar": "^3.5.3",
-        "cssnano": "^6.0.0",
-        "postcss": "^8.4.31",
-        "rtlcss": "^4.0.0",
-        "sass": "^1.57.1",
-        "terser": "^5.16.1",
-        "yargs": "^17.6.2"
+        "autoprefixer": "^10.4.19",
+        "chokidar": "^3.6.0",
+        "cssnano": "^6.1.2",
+        "postcss": "^8.4.38",
+        "prettier": "^3.2.5",
+        "rtlcss": "^4.1.1",
+        "sass": "^1.75.0",
+        "terser": "^5.30.4",
+        "yargs": "^17.7.2"
     },
     "browserslist": [
         "last 10 Chrome versions",

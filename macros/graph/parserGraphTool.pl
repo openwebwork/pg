@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -401,6 +401,8 @@ The default value is the value of the graph tool object C<texSize> option which 
 
 =cut
 
+BEGIN { strict->import }
+
 sub _parserGraphTool_init {
 	ADD_CSS_FILE('node_modules/jsxgraph/distrib/jsxgraph.css');
 	ADD_CSS_FILE('js/GraphTool/graphtool.css');
@@ -418,7 +420,7 @@ loadMacros('MathObjects.pl', 'PGtikz.pl');
 
 sub GraphTool { parser::GraphTool->new(@_) }
 
-$graphToolObjectCmps = \%parser::GraphTool::graphObjectCmps;
+$main::graphToolObjectCmps = \%parser::GraphTool::graphObjectCmps;
 
 package parser::GraphTool;
 our @ISA = qw(Value::List);
@@ -1067,7 +1069,7 @@ parser::GraphTool->addTools(
 
 sub ANS_NAME {
 	my $self = shift;
-	$self->{name} = main::NEW_ANS_NAME() unless defined($self->{name});
+	main::RECORD_IMPLICIT_ANS_NAME($self->{name} = main::NEW_ANS_NAME()) unless defined $self->{name};
 	return $self->{name};
 }
 
@@ -1103,7 +1105,7 @@ sub constructJSXGraphOptions {
 				x => { ticks => { ticksDistance => $self->{ticksDistanceX}, minorTicks => $self->{minorTicksX} } },
 				y => { ticks => { ticksDistance => $self->{ticksDistanceY}, minorTicks => $self->{minorTicksY} } }
 			},
-			grid => { gridX => $self->{gridX}, gridY => $self->{gridY} }
+			grid => { majorStep => [ $self->{gridX}, $self->{gridY} ] }
 		)
 	});
 
@@ -1128,14 +1130,19 @@ sub ans_rule {
 		return '';
 	} else {
 		$self->constructJSXGraphOptions;
-		return main::tag('input', type => 'hidden', name => $ans_name, id => $ans_name, value => $answer_value)
-			. main::tag(
-				'input',
-				type  => 'hidden',
-				name  => "previous_$ans_name",
-				id    => "previous_$ans_name",
-				value => $answer_value
-			) . <<END_SCRIPT;
+		return main::tag(
+			'div',
+			data_feedback_insert_element => $ans_name,
+			class                        => 'graphtool-outer-container',
+			main::tag('input', type => 'hidden', name => $ans_name, id => $ans_name, value => $answer_value)
+				. main::tag(
+					'input',
+					type  => 'hidden',
+					name  => "previous_$ans_name",
+					id    => "previous_$ans_name",
+					value => $answer_value
+				)
+				. <<END_SCRIPT);
 <div id='${ans_name}_graphbox' class='graphtool-container'></div>
 <script>
 (() => {
@@ -1202,7 +1209,19 @@ sub cmp_preprocess {
 # displayed in the "Correct Answer" box of the results table.
 sub cmp {
 	my ($self, %options) = @_;
-	my $cmp = $self->SUPER::cmp(non_tex_preview => 1, %{ $self->{cmpOptions} }, %options);
+	my $cmp = $self->SUPER::cmp(
+		feedback_options => sub {
+			my ($ansHash, $options, $problemContents) = @_;
+			$options->{wrapPreviewInTex} = 0;
+			$options->{showEntered}      = 0;
+			$options->{feedbackElements} = $problemContents->find('[id="' . $self->ANS_NAME . '_graphbox"]');
+			$options->{insertElement} =
+				$problemContents->at('[data-feedback-insert-element="' . $self->ANS_NAME . '"]');
+			$options->{insertMethod} = 'append_content';
+		},
+		%{ $self->{cmpOptions} },
+		%options
+	);
 
 	unless (ref($cmp->{rh_ans}{list_checker}) eq 'CODE' || ref($cmp->{rh_ans}{checker}) eq 'CODE') {
 		$cmp->{rh_ans}{list_checker} = sub {

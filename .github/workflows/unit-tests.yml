@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout PG code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Ubuntu dependencies
         run: |
@@ -28,6 +28,8 @@ jobs:
             libhtml-parser-perl \
             libjson-perl \
             libjson-xs-perl \
+            liblocale-maketext-lexicon-perl \
+            libmojolicious-perl \
             libtest2-suite-perl \
             libtie-ixhash-perl \
             libuuid-tiny-perl \

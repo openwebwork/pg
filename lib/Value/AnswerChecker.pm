@@ -182,6 +182,7 @@ sub cmp_parse {
 			$self->cmp_diagnostics($ans);
 		}
 	} else {
+		$ans->{student_ans} = protectHTML($ans->{student_ans});
 		$self->cmp_collect($ans);
 		$self->cmp_error($ans);
 	}
@@ -446,9 +447,8 @@ sub ans_matrix {
 	my $named_extension = pgRef('NAMED_ANS_ARRAY_EXTENSION');
 	my $named_ans_rule  = pgRef('NAMED_ANS_RULE');
 	my $HTML            = "";
-	my $ename           = $name;
-	$name             = pgCall('NEW_ANS_NAME') if ($name eq '');
-	$ename            = "${answerPrefix}_${name}";
+	pgCall('RECORD_IMPLICIT_ANS_NAME', $name = pgCall('NEW_ANS_NAME')) unless $name;
+	my $ename = "${answerPrefix}_${name}";
 	$self->{ans_name} = $ename;
 	$self->{ans_rows} = $rows;
 	$self->{ans_cols} = $cols;
@@ -490,7 +490,14 @@ sub ans_matrix {
 		}
 		push(@array, [@row]);
 	}
-	$self->format_matrix([@array], open => $open, close => $close, sep => $sep, top_labels => $toplabels);
+	$self->format_matrix(
+		[@array],
+		open          => $open,
+		close         => $close,
+		sep           => $sep,
+		top_labels    => $toplabels,
+		ans_last_name => ANS_NAME($ename, $rows - 1, $cols - 1)
+	);
 }
 
 sub ANS_NAME {
@@ -599,7 +606,13 @@ sub format_matrix_HTML {
 			. $close
 			. '</span>';
 	}
-	return '<span class="ans_array" style="display:inline-block;vertical-align:.5ex">' . $HTML . '</span>';
+	return '<span class="ans_array" style="display:inline-block;vertical-align:.5ex"'
+		. ($options{ans_last_name}
+			? qq{ data-feedback-insert-element="$options{ans_last_name}" data-feedback-insert-method="append_content"}
+			: '')
+		. '>'
+		. $HTML
+		. '</span>';
 }
 
 sub EVALUATE {

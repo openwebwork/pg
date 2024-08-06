@@ -15,12 +15,6 @@ use Parser;
 
 %main::envir = %{ WeBWorK::PG::defineProblemEnvironment(WeBWorK::PG::Environment->new) };
 
-sub be_strict {
-	require ww_strict;
-	strict::import();
-	return;
-}
-
 sub PG_restricted_eval {
 	my @input = @_;
 	return WeBWorK::PG::Translator::PG_restricted_eval(@input);

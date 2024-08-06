@@ -24,6 +24,8 @@ sub _check {
 		$self->{equation}->Error("Entries in a Matrix must be Numbers or Lists of Numbers")
 			unless ($x->type =~ m/Number|Matrix/);
 	}
+	$self->{equation}->Error("Entries of a Matrix must be constant")
+		if ($self->context->flag("requireConstantMatrices") && !($self->{isConstant}));
 }
 
 #

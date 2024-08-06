@@ -1,6 +1,6 @@
 // ################################################################################
 // # WeBWorK Online Homework Delivery System
-// # Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+// # Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 // #
 // # This program is free software; you can redistribute it and/or modify it under
 // # the terms of either: (a) the GNU General Public License as published by the
@@ -39,12 +39,14 @@
 			// If MathQuill is enabled, then this will be the MathQuill input.
 			const answerInputs = [document.getElementById(`mq-answer-${answerRule}`) ?? input];
 
-			// If this is a radio answer, then save the other radio inputs so they can be also be disabled/enabled
-			// appropriately depending on which radio input in the radio multianswer group is selected.
-			if (input.type && input.type.toLowerCase() == 'radio') {
+			// If this is a radio or checkbox answer, then save the other radio or checkbox inputs so they can be also
+			// be disabled/enabled appropriately depending on which radio input in the radio multianswer group is
+			// selected.
+			const type = input.type?.toLowerCase();
+			if (type && (type === 'radio' || type === 'checkbox')) {
 				answerInputs.push(
-					...Array.from(document.querySelectorAll(`input[type="radio"][name="${answerRule}"]`)).filter(
-						(radio) => radio.id !== answerRule
+					...Array.from(document.querySelectorAll(`input[type="${type}"][name="${answerRule}"]`)).filter(
+						(input) => input.id !== answerRule
 					)
 				);
 			}

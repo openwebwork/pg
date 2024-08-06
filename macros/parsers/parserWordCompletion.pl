@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -13,215 +13,193 @@
 # Artistic License for more details.
 ################################################################################
 
-=head1 NAME
+loadMacros('MathObjects.pl');
 
-parserWordCompletion.pl
+sub _parserWordCompletion_init {
+	parser::WordCompletion::Init();
+	return;
+}
 
-=head1 DESCRIPTION
-
-Provides free response, fill in the blank questions with interactive help.
-As a student types their answer into the answer blank, jQuery's
-autocomplete feature generates a drop-down list of allowable answers
-that match what has already been typed.  When the student presses
-the "Check Answers" or "Submit Answers" button, jQuery generates a
-warning message if the student answer is not one of the allowable
-answers.  Choices in the drop-down list and the correct answer are
-specified by the problem author.  WordCompletion objects are compatible
-with Value objects, and in particular, can be used with MultiAnswer
-objects.
-
-To create a WordCompletion object, use
-
-    $w = WordCompletion([choices,...],correct);
-
-where "choices" are the strings for the allowable answers in the
-drop-down list and "correct" is the correct answer from the list.
-
-To insert the WordCompletion into the problem text, use
-
-    BEGIN_TEXT
-    \{ $w->ans_rule(40) \}
-    END_TEXT
-
-You can explicitly list all of the choices using
-
-    \{ $w->choices_text \}
-
-for a comma separated list of the choices (inline, text style) and
-
-    \{ $w->choices_list \}
-
-for an unordered list (display style).  Use
-
-    ANS( $wb->cmp );
-
-to get the answer checker for the WordCompletion object.  Note: the way
-to construct and use WordCompletion objects is exactly the same as
-PopUp objects (see parserPopUp.pl), and you can use C<menu> instead of
-C<ans_rule>.
-
-You can use the WordCompletion object in MultiAnswer objects.  This is
-the reason for the WordCompletion's ans_rule method (since that is what
-MultiAnswer calls to get answer rules).
-
-=head1 AUTHOR
-
-Paul Pearson (Hope College Mathematics Department)
-
-(Davide Cervone wrote parserPopUp.pl, which served as a template
-for parserWordCompletion.pl.)
-
-=cut
-
-loadMacros("MathObjects.pl");
-
-sub _parserWordCompletion_init { parser::WordCompletion::Init(); }
+sub WordCompletion { parser::WordCompletion->new(@_) }
 
 package parser::WordCompletion;
 our @ISA = qw(Value::String);
 
 my $context;
 
-#
-#  Setup the context and the PopUp() command
-#
+# Setup the context and the PopUp() command
 sub Init {
-	#
-	# make a context in which arbitrary strings can be entered
-	#
-	$context = Parser::Context->getCopy("Numeric");
-	$context->{name} = "WordCompletion";
-	$context->parens->clear();
-	$context->variables->clear();
-	$context->constants->clear();
-	$context->operators->clear();
-	$context->functions->clear();
-	$context->strings->clear();
+	# Make a context in which arbitrary strings can be entered.
+	$context = Parser::Context->getCopy('Numeric');
+	$context->{name} = 'WordCompletion';
+	$context->parens->clear;
+	$context->variables->clear;
+	$context->constants->clear;
+	$context->operators->clear;
+	$context->functions->clear;
+	$context->strings->clear;
 	$context->{pattern}{number}         = "^\$";
 	$context->variables->{patterns}     = {};
-	$context->strings->{patterns}{".*"} = [ -20, 'str' ];
-	$context->{parser}{String}          = "parser::WordCompletion::String";
+	$context->strings->{patterns}{'.*'} = [ -20, 'str' ];
+	$context->{parser}{String}          = 'parser::WordCompletion::String';
 	$context->update;
-	main::PG_restricted_eval('sub WordCompletion {parser::WordCompletion->new(@_)}');
+	return;
 }
 
-#
-#  Create a new WordCompletion object
-#
+# Create a new WordCompletion object
 sub new {
-	my $self  = shift;
-	my $class = ref($self) || $self;
-	shift if Value::isContext($_[0]);    # remove context, if given (it is not used)
-	my $choices = shift;
-	my $value   = shift;
-	Value::Error("A WordCompletion's first argument should be a list of menu items")
+	my ($invocant, @options) = @_;
+	shift @options if Value::isContext($options[0]);    # Remove context, if given (it is not used).
+	my $choices = shift @options;
+	my $value   = shift @options;
+
+	Value::Error(q{A WordCompletion's first argument should be a list of menu items})
 		unless ref($choices) eq 'ARRAY';
-	Value::Error("A WordCompletion's second argument should be the correct menu choice")
-		unless defined($value) && $value ne "";
-	my %choice;
-	map { $choice{$_} = 1 } @$choices;
-	Value::Error("The correct choice must be one of the WordCompletion menu items")
-		unless $choice{$value};
-	#warn join ', ' , @$choices;
-	$self = bless { data => [$value], context => $context, choices => $choices }, $class;
-	return $self;
+	Value::Error(q{A WordCompletion's second argument should be the correct menu choice})
+		unless defined $value && $value ne '';
+	Value::Error('The correct choice must be one of the WordCompletion menu items')
+		unless grep { $_ eq $value } @$choices;
+
+	my $this_context = $context->copy;
+	$this_context->flags->set(validChoices => $choices);
+
+	return bless { data => [$value], context => $this_context, choices => $choices }, ref($invocant) || $invocant;
 }
 
-sub cmp_defaults { (shift->SUPER::cmp_defaults(@_), mathQuillOpts => 'disabled') }
+sub cmp_defaults { return (shift->SUPER::cmp_defaults(@_), mathQuillOpts => 'disabled') }
 
 sub menu {
-	my $self = shift;
-	my $size = shift || 20;
-	my $name = shift;
+	my ($self, $name, $size) = @_;
+	$size ||= 20;
 
-	my $list        = $self->{choices};
-	my $list_string = join ',', map {qq/"$_"/} @{$list};
-	my $invalid_input_msg =
-		qq(" is not a valid answer.\\n\\nPlease choose a valid answer from the list of allowable matching answers that appears when you type your answer into the answer blank.  Type slowly and pause between keystrokes to ensure that the drop-down list appears.\\n\\nNote: this special feature is enabled for this WeBWorK problem, but it is not available in all WeBWorK problems.");
+	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 
-	# generate new answer blank name used both by jQuery and creating the ans_rule
-	#
-	$name = main::NEW_ANS_NAME() unless $name;
+	my $answer_value = $main::inputs_ref->{$name} // '';
+	$answer_value = [ split("\0", $answer_value) ] if $answer_value =~ /\0/;
+	if (ref($answer_value) eq 'ARRAY') {
+		my @answers = @$answer_value;
+		$answer_value = shift(@answers) // '';
+		$main::rh_sticky_answers->{$name} = \@answers;
+	}
+	$answer_value =~ s/\s+/ /g;
 
-	# insert jQuery
-	#
-	main::POST_HEADER_TEXT(main::MODES(
-		TeX  => "",
-		HTML => qq(
-    <!-- jQuery script to enable autocompletion drop-down menu -->
-    <script>
-    \$(function() {
-        var allowed = [ $list_string ]; // create a JavaScript array of allowed choices.
-        \$( "#$name" ).autocomplete({ source: allowed }); // apply jQuery autocomplete to the answer blank using the allowed choices.
+	$name = main::RECORD_ANS_NAME($name, $answer_value);
 
-        var itemFound = false; // boolean to record whether the student answer is among the allowed choices
-        var student = \$( "#$name" ).val(); // get the student answer from the answer blank using jQuery.
-        for (i = 0, len = allowed.length; i < len; i++) { // Loop through the allowed choices and see if the student answer agrees with any of them
-            if (allowed[i].toLowerCase() === student.toLowerCase()) {
-                itemFound = true; // If the student answer agrees with an allowed answer, set this boolean to true.
-            }
-        }
-        if (itemFound == false && student.length > 0) { // Warn the student when their answer is not allowed.
-            alert( '"' + student + '"' + $invalid_input_msg); // JavaScript alert that tells the student which answer was not allowed.
-        }
-    });
-    </script>
-    )
-	));
+	my $tcol = $size / 2 > 3 ? $size / 2 : 3;
+	$tcol = $tcol < 40 ? $tcol : 40;
 
-	# create the answer rule
-	#
-	main::NAMED_ANS_RULE($name, $size);
-
-}    # end menu
+	return main::MODES(
+		TeX  => "{\\answerRule[$name]{$tcol}}",
+		HTML => main::tag(
+			'span',
+			class => 'text-nowrap',
+			main::tag(
+				'input',
+				type           => 'text',
+				class          => 'codeshard',
+				size           => $size,
+				name           => $name,
+				id             => $name,
+				list           => "$name-list",
+				aria_label     => $options{aria_label} // main::generate_aria_label($name),
+				dir            => 'auto',
+				autocomplete   => 'off',
+				autocapitalize => 'off',
+				spellcheck     => 'false',
+				value          => $answer_value
+				)
+				. main::tag(
+					'datalist',
+					id               => "$name-list",
+					class            => 'word-completion-data',
+					data_answer_name => $name,
+					join('', map { main::tag('option', value => $_) } @{ $self->{choices} })
+				)
+			)
+			. main::tag('input', type => 'hidden', name => $previous_name, value => $answer_value),
+		PTX => qq!<fillin name="$name" characters="$size" />!
+	);
+}
 
 sub choices_text {
-	my $self   = shift;
-	my $list   = $self->{choices};
-	my $output = join ', ', map {qq/$_/} @{$list};
-	return $output;
+	my $self = shift;
+	return join ', ', @{ $self->{choices} };
 }
 
 sub choices_list {
-	my $self   = shift;
-	my $list   = $self->{choices};
-	my $output = '';
+	my $self = shift;
+	return main::MODES(
+		TeX  => "\\begin{itemize}\n" . join("\n", map {"\\item $_"} @{ $self->{choices} }) . "\\end{itemize}\n",
+		HTML => main::tag('ul', join('', map { main::tag('li', $_) } @{ $self->{choices} }))
+	);
+}
 
-	if ($main::displayMode eq "TeX") {
-		$output = join "\n", map {qq/\\item $_/} @{$list};
-		return "\\begin{itemize}\n" . $output . "\\end{itemize}\n";
-	} else {    # HTML mode
-		$output = join " ", map {qq/<li>$_<\/li>/} @{$list};
-		return "<ul> " . $output . " </ul>";
-	}
-	return $output;
+sub ans_rule                 { return shift->menu('', @_) }
+sub named_ans_rule           { return shift->menu(@_) }
+sub named_ans_rule_extension { return shift->menu(@_) }
 
-}    # end choices_list
-
-##################################################
-#
-#  Answer rule is the menu list (for compatibility with parserMultiAnswer)
-# Use alternates given below with older parserMultiAnswer.pl versions
-
-sub ans_rule                 { shift->menu(0, '', @_) }    # sub ans_rule {shift->menu(@_)}
-sub named_ans_rule           { shift->menu(0, @_) }        # sub named_ans_rule {shift->menu(@_)}
-sub named_ans_rule_extension { shift->menu(1, @_) }        # sub named_ans_rule_extension {shift->menu(@_)}
-
-##################################################
-#
-#  Replacement for Parser::String that takes the
-#  complete parse string as its value.  (To make ->cmp work.)
-#
+# Replacement for Parser::String that takes the complete parse string as its value and gives an error if the answer
+# given is not one of the allowed answers.
 package parser::WordCompletion::String;
 our @ISA = ('Parser::String');
 
 sub new {
-	my $self = shift;
-	my ($equation, $value, $ref) = @_;
-	$value = $equation->{string};
-	$self->SUPER::new($equation, $value, $ref);
+	my ($self, $equation, $value, $ref) = @_;
+
+	Value::Error('Your answer is not a valid answer. Please choose from the list of allowable '
+			. 'answers that appears when you type into the answer blank.')
+		unless grep { $_ eq $value } @{ $self->context->flags->get('validChoices') };
+
+	return $self->SUPER::new($equation, $equation->{string}, $ref);
 }
 
-##################################################
-
 1;
+
+__END__
+
+=head1 NAME
+
+parserWordCompletion.pl
+
+=head1 DESCRIPTION
+
+Provides free response, fill in the blank questions.  As a student types in the
+answer blank, a drop-down list of allowable answers appears that matches what
+has already been typed is shown.  A warning message is shown if an answer is
+submitted that is not among the allowed choices.  Choices in the drop-down list
+and the correct answer are specified by the problem author.  WordCompletion
+objects are compatible with Value objects, and in particular, can be used with
+MultiAnswer objects.
+
+To create a WordCompletion object, use
+
+    $w = WordCompletion(['choice 1', 'choice 2', ...], correct);
+
+where C<'choice 1', 'choice 2', ...> are the allowed answers that will be shown
+in the drop-down list and C<correct> is the correct answer from the list.
+
+To insert the WordCompletion answer rule into a problem use
+
+    BEGIN_PGML
+	[_]{$w}{40}
+    END_PGML
+
+or
+
+    BEGIN_TEXT
+    \{ $w->ans_rule(40) \}
+    END_TEXT
+
+    ANS($wb->cmp);
+
+You can explicitly list all of the choices using
+
+    $w->choices_text
+
+for a comma separated list of the choices (inline, text style) and
+
+    $w->choices_list
+
+for an unordered list (display style).
+
+=cut

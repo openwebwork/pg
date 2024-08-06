@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -170,6 +170,12 @@ Determines whether a numeric value for the correct answer is interpreted as an
 index into the choice array or not.  If set to 1, then the number is treated as
 the literal correct answer, not an index to it.  Default: 0
 
+=item C<S<< showInStatic => 0 or 1 >>>
+In static output, such as PDF or PTX, this controls whether or not
+the list of answer options is displayed.  (The text preceding the list
+of answer options might make printing the answer option list
+unnecessary in a static output format.)  Default: 1
+
 =back
 
 To insert the checkboxes into the problem text use
@@ -244,6 +250,7 @@ sub new {
 		noindex          => 0,
 		checkedI         => [],
 		localLabels      => 0,
+		showInStatic     => 1,
 		@inputs
 	);
 	$options{originalLabels} = $options{labels};
@@ -461,6 +468,9 @@ sub cmp_defaults {
 		$self->SUPER::cmp_defaults(%options),
 		entry_type        => 'choice',
 		list_type         => 'selection',
+		showHints         => 0,
+		showLengthHints   => 0,
+		partialCredit     => 0,
 		requireParenMatch => 0,
 		implicitList      => 0,
 		correct_choices   => $self->data
@@ -470,7 +480,7 @@ sub cmp_defaults {
 # Adjust student preview and answer strings to be the actual choice strings rather than the value strings.
 sub cmp_preprocess {
 	my ($self, $ans) = @_;
-	if (defined $ans->{student_value} && @{ $ans->{student_value}->data }) {
+	if (defined $ans->{student_value} && (grep { defined && /\S/ } @{ $ans->{student_value}->data })) {
 		$ans->{original_student_ans} = join(', ', map { $self->labelText($_) } @{ $ans->{student_value}->data });
 		$ans->{preview_latex_string} = $self->quoteTeX($ans->{original_student_ans});
 		$ans->{student_ans}          = $self->quoteHTML($ans->{original_student_ans});
@@ -542,7 +552,7 @@ sub CHECKS {
 	my ($self, $extend, $name, $size, %options) = @_;
 
 	my @checks;
-	$name = main::NEW_ANS_NAME() unless $name;
+	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 	my $label = main::generate_aria_label($name);
 
 	for my $i (0 .. $#{ $self->{orderedChoices} }) {
@@ -567,39 +577,48 @@ sub CHECKS {
 	}
 
 	if ($main::displayMode eq 'TeX') {
-		$checks[0] = "\n\\begin{itemize}\n" . $checks[0];
-		$checks[-1] .= "\n\\end{itemize}\n";
-	} elsif ($main::displayMode eq 'PTX') {
-
-		# Do we want an ol, ul, or dl?
-		my $list_type      = 'ul';
-		my $subtype        = '';
-		my $originalLabels = $self->{originalLabels};
-		if ($originalLabels =~ m/^(123|abc|roman)$/i) {
-			my $marker = '';
-			$marker = "1" if $originalLabels eq '123';
-			$marker = "a" if $originalLabels eq 'abc';
-			$marker = "A" if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
-			$marker = "i" if $originalLabels eq 'roman';
-			$marker = "I" if uc($originalLabels) eq 'ROMAN' && $originalLabels ne 'roman';
-
-			$list_type  = 'ol';
-			$subtype    = qq( marker="$marker");
-			$close_list = 'ol';
-		} elsif ($self->{localLabels} || ref $originalLabels eq 'ARRAY') {
-			$list_type = 'dl';
-			$subtype   = ' width = "narrow"';
-			my %checks_to_labels = map { $checks[$_] => $self->{labels}[$_] } (0 .. $#{ $self->{orderedChoices} });
-			map { $_ =~ s/^(<li.*?>)/$1<title>$checks_to_labels{$_}<\/title>/gr } @checks;
+		if ($self->{showInStatic}) {
+			$checks[0] = "\n\\begin{itemize}\n" . $checks[0];
+			$checks[-1] .= "\n\\end{itemize}\n";
+		} else {
+			@checks = ();
 		}
-		$checks[0] = qq{<$list_type$subtype name="$name">\n$checks[0]};
-		$checks[-1] .= "</$list_type>";
+	} elsif ($main::displayMode eq 'PTX') {
+		if ($self->{showInStatic}) {
+			# Do we want an ol, ul, or dl?
+			my $list_type      = 'ul';
+			my $subtype        = '';
+			my $originalLabels = $self->{originalLabels};
+			if ($originalLabels =~ m/^(123|abc|roman)$/i) {
+				my $marker = '';
+				$marker = '1' if $originalLabels eq '123';
+				$marker = 'a' if $originalLabels eq 'abc';
+				$marker = 'A' if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
+				$marker = 'i' if $originalLabels eq 'roman';
+				$marker = 'I' if uc($originalLabels) eq 'ROMAN' && $originalLabels ne 'roman';
 
-		# Change math delimiters
-		@checks = map { $_ =~ s/\\\(/<m>/gr } @checks;
-		@checks = map { $_ =~ s/\\\)/<\/m>/gr } @checks;
+				$list_type = 'ol';
+				$subtype   = qq( marker="$marker");
+			} elsif ($self->{localLabels} || ref $originalLabels eq 'ARRAY') {
+				$list_type = 'dl';
+				$subtype   = ' width = "narrow"';
+				my %checks_to_labels = map { $checks[$_] => $self->{labels}[$_] } (0 .. $#{ $self->{orderedChoices} });
+				@checks = map { $_ =~ s/^(<li.*?>)/$1<title>$checks_to_labels{$_}<\/title>/gr } @checks;
+			}
+			$checks[0] = qq{<$list_type$subtype name="$name" form="checkboxes">\n$checks[0]};
+			$checks[-1] .= "</$list_type>";
+
+			# Change math delimiters
+			@checks = map { $_ =~ s/\\\(/<m>/gr } @checks;
+			@checks = map { $_ =~ s/\\\)/<\/m>/gr } @checks;
+		} else {
+			@checks = ();
+		}
 	} else {
-		$checks[0] = qq(<div class="checkboxes-container">\n$checks[0]);
+		$checks[0] =
+			qq{<div class="checkboxes-container" }
+			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
+			. qq{data-feedback-btn-add-class="ms-3">\n$checks[0]};
 		$checks[-1] .= "</div>";
 	}
 

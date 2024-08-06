@@ -1,6 +1,6 @@
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -29,9 +29,7 @@ This includes constants and basic functions for PG.
 
 # this is equivalent to use strict, but can be used within the Safe compartment
 
-BEGIN {
-	be_strict;
-}
+BEGIN { strict->import; }
 
 my $displayMode;
 
@@ -187,206 +185,189 @@ EndOfFile
 
 =head2  Answer blank macros:
 
-These produce answer blanks of various sizes or pop up lists or radio answer buttons.
-The names for the answer blanks are
-generated implicitly.
+These produce answer blanks of various sizes or pop up lists or radio answer
+buttons. The names for the answer blanks are generated and implicitly
+associated with answer evaluators via the C<ANS> method.
 
-    ans_rule( width )
-    tex_ans_rule( width )
-    ans_radio_buttons(value1 => label1, value2, label2 => value3, label3 => ...)
-    pop_up_list(@list)   # list consists of (value => label,  PR => "Product rule", ...)
-    pop_up_list([@list]) # list consists of values
+    ans_rule(width)
+    ans_radio_buttons(value1 => name1, value2, name2 => value3, name3 => ...)
+    pop_up_list(@list)      # list consists of (value => label, PR => "Product rule", ...)
+    pop_up_list([@list])    # list consists of values
 
 In the last case, one can use C<pop_up_list(['?', 'yes', 'no'])> to produce a
 pop-up list containing the three strings listed, and then use str_cmp to check
 the answer.
 
-To indicate the checked position of radio buttons put a '%' in front of the value: C<ans_radio_buttons(1, 'Yes', '%2', 'No')>
-will have 'No' checked.  C<tex_ans_rule> works inside math equations in C<HTML_tth> mode.  It does not work in C<Latex2HTML> mode since this mode produces gif pictures.
+To indicate the checked position of radio buttons put a '%' in front of the
+value: C<ans_radio_buttons(1, 'Yes', '%2', 'No')> will have 'No' checked.
 
-The following method is defined in F<PG.pl> for entering the answer evaluators corresponding
-to answer rules with automatically generated names.  The answer evaluators are matched with the
-answer rules in the order in which they appear on the page.
+The following method is defined in F<PG.pl> for entering the answer evaluators
+corresponding to answer rules with automatically generated names. The answer
+evaluators are matched with the answer rules in the order in which they appear
+on the page.
 
     ANS(ans_evaluator1, ans_evaluator2, ...);
 
-These are more primitive macros which produce answer blanks for specialized cases when complete
-control over the matching of answers blanks and answer evaluators is desired.
-The names of the answer blanks must be generated manually, and it is best if they do NOT begin
-with the default answer prefix (currently AnSwEr).
-
-    labeled_ans_rule(name, width)  # an alias for NAMED_ANS_RULE where width defaults to 20 if omitted.
+These are more primitive macros which produce answer blanks for specialized
+cases when complete control over the matching of answers blanks and answer
+evaluators is desired.  The names of the answer blanks must be generated
+manually, and it is best if they do NOT begin with the default answer prefix
+(currently AnSwEr).
 
     NAMED_ANS_RULE(name, width)
-    NAMED_ANS_BOX(name, rows, cols)
-    NAMED_ANS_RADIO(name, value, label)
-    NAMED_ANS_RADIO_EXTENSION(name, value, label)
-    NAMED_ANS_RADIO_BUTTONS(name, value1, label1, value2, label2, ...)
-    check_box('-name' => answer5, '-value' => 'statement3', '-label' => 'I loved this course!')
-    NAMED_POP_UP_LIST($name, @list) # list consists of (value => tag,  PR => "Product rule", ...)
-    NAMED_POP_UP_LIST($name, [@list]) # list consists of a list of values (and each tag will be set to the corresponding value)
+    labeled_ans_rule(name, width)    # alias for NAMED_ANS_RULE
+	NAMED_ANS_BOX(name, rows, cols)
+    NAMED_ANS_RADIO(name, value, name)
+    NAMED_ANS_RADIO_EXTENSION(name, value, name)
+    NAMED_ANS_RADIO_BUTTONS(name, value1, name1, value2, name2, ...)
+    NAMED_POP_UP_LIST($name, @list)     # list consists of (value => tag, PR => "Product rule", ...)
+    NAMED_POP_UP_LIST($name, [@list])   # list consists of a list of values
+                                        # (and each tag will be set to the corresponding value)
 
-(Name is the name of the variable, value is the value given to the variable when this option is selected,
-and label is the text printed next to the button or check box.    Check box variables can have multiple values.)
+(Name is the name of the input, value is the value given to the input when
+this option is selected, and label is the text printed next to the button or
+check box. Check box variables can have multiple values.)
 
-NAMED_ANS_RADIO_BUTTONS creates a sequence of NAMED_ANS_RADIO and NAMED_ANS_RADIO_EXTENSION  items which
-are  output either as an array or, in scalar context, as the array glued together with spaces.  It is
-usually easier to use this than to manually construct the radio buttons by hand.  However, sometimes
- extra flexibility is desiredin which case:
+NAMED_ANS_RADIO_BUTTONS creates a sequence of NAMED_ANS_RADIO and
+NAMED_ANS_RADIO_EXTENSION items which are output either as an array or, in
+scalar context, as the array glued together with spaces. It is usually easier
+to use this than to manually construct the radio buttons by hand. However,
+sometimes extra flexibility is desiredin which case:
 
-When entering radio buttons using the "NAMED" format, you should use NAMED_ANS_RADIO button for the first button
-and then use NAMED_ANS_RADIO_EXTENSION for the remaining buttons.  NAMED_ANS_RADIO requires a matching answer evalutor,
-while NAMED_ANS_RADIO_EXTENSION does not. The name used for NAMED_ANS_RADIO_EXTENSION should match the name
-used for NAMED_ANS_RADIO (and the associated answer evaluator).
+When entering radio buttons using the "NAMED" format, you should use
+NAMED_ANS_RADIO button for the first button and then use
+NAMED_ANS_RADIO_EXTENSION for the remaining buttons. NAMED_ANS_RADIO requires a
+matching answer evalutor, while NAMED_ANS_RADIO_EXTENSION does not. The name
+used for NAMED_ANS_RADIO_EXTENSION should match the name used for
+NAMED_ANS_RADIO (and the associated answer evaluator).
 
-The following method is defined in  F<PG.pl> for entering the answer evaluators corresponding
-to answer rules with automatically generated names.  The answer evaluators are matched with the
-answer rules in the order in which they appear on the page.
+The following method is defined for entering the answer evaluators corresponding
+to answer rules. The answer evaluators are matched with the answer rules in the
+order in which they appear on the page.
 
     NAMED_ANS(name1 => ans_evaluator1, name2 => ans_evaluator2, ...);
 
-These auxiliary macros are defined in PG.pl
+Auxiliary macros defined in PG.pl:
 
-    NEW_ANS_NAME(        );   # produces a new anonymous answer blank name  by appending a number to the prefix (AnSwEr)
-                              # and registers this name as an implicitly labeled answer
-                              # Its use is paired with each answer evaluator being entered using ANS()
+=over
 
-    ANS_NUM_TO_NAME(number);  # prepends the prefix (AnSwEr) to the number, but does nothing else.
+=item NEW_ANS_NAME()
 
-    RECORD_ANS_NAME( name );  # records the order in which the answer blank  is rendered
-                              # This is called by all of the constructs above, but must
-                              # be called explicitly if an input blank is constructed explictly
-                              # using HTML code.
+Produces a new anonymous answer blank name by appending a number to the prefix
+(AnSwEr).
 
-These are legacy macros:
+=item ANS_NUM_TO_NAME(number)
 
-    ANS_RULE( number, width );                       # equivalent to NAMED_ANS_RULE( NEW_ANS_NAME(  ), width)
-    ANS_BOX( question_number, height, width );       # equivalent to NAMED_ANS_BOX( NEW_ANS_NAME(  ), height, width)
-    ANS_RADIO( question_number, value, tag );        # equivalent to NAMED_ANS_RADIO( NEW_ANS_NAME( ), value, tag)
-    ANS_RADIO_OPTION( question_number, value, tag ); # equivalent to NAMED_ANS_RADIO_EXTENSION( ANS_NUM_TO_NAME(number), value, tag)
+Prepends the prefix (AnSwEr) to the number, but does nothing else.
+
+=item RECORD_ANS_NAME(name)
+
+Records the order in which the answer blank is rendered. All answer rules must
+be recorded by this method. All named answer rule methods in this macro do this.
+Most answer rules created elsewhere call a named answer rule method in this
+macro to handle this.
+
+=item RECORD_IMPLICIT_ANS_NAME(name)
+
+Records answer names which are to be implicitly associated with an answer This
+is called by the internal answer rule methods, but must be called for all answer
+rules constructed elsewhere as well. After this is called C<RECORD_ANS_NAME>
+must be called as well. Usually the appropriate named answer rule method should
+be called which will do this.
+
+=back
+
+Deprecated macro (still used by many problems):
+
+    ANS_RULE(number, width);    # equivalent to ans_rule(width) -- number is ignored
 
 =cut
 
-sub labeled_ans_rule {    # syntactic sugar for NAMED_ANS_RULE
-	my ($name, $col) = @_;
-	$col = 20 unless not_null($col);
-	NAMED_ANS_RULE($name, $col);
+# Alias for NAMED_ANS_RULE
+sub labeled_ans_rule {
+	my ($name, $col, %options) = @_;
+	return NAMED_ANS_RULE($name, $col, %options);
 }
 
 sub NAMED_ANS_RULE {
-	my $name    = shift;
-	my $col     = shift;
-	my %options = @_;
-	$col = 20 unless not_null($col);
-	my $answer_value = '';
-	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
+	my ($name, $col, %options) = @_;
+	$col ||= 20;
+	my $answer_value = $inputs_ref->{$name} // '';
+	$answer_value = [ split("\0", $answer_value) ] if $answer_value =~ /\0/;
 
-	#FIXME -- code factoring needed
-	if ($answer_value =~ /\0/) {
-		my @answers = split("\0", $answer_value);
-		$answer_value = shift(@answers);                  # use up the first answer
-		$rh_sticky_answers->{$name} = \@answers;
-		# store the rest -- beacuse this stores to a main:: variable
-		# it must be evaluated at run time
-		$answer_value = '' unless defined($answer_value);
-	} elsif (ref($answer_value) eq 'ARRAY') {
-		my @answers = @{$answer_value};
-		$answer_value = shift(@answers);                  # use up the first answer
-		$rh_sticky_answers->{$name} = \@answers;
-		# store the rest -- because this stores to a main:: variable
-		# it must be evaluated at run time
-		$answer_value = '' unless defined($answer_value);
+	if (ref($answer_value) eq 'ARRAY') {
+		my @answers = @$answer_value;
+		$answer_value = shift(@answers) // '';                  # Use up the first answer.
+		$rh_sticky_answers->{$name} = \@answers;                # Store the rest.
 	}
 
-	$answer_value =~ s/\s+/ /g;    ## remove excessive whitespace from student answer
-	$name         = RECORD_ANS_NAME($name, $answer_value);
-	$answer_value = encode_pg_and_html($answer_value);
+	$name = RECORD_ANS_NAME($name, $answer_value);
 	my $previous_name = "previous_$name";
 	$name          = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$name"          : $name;
 	$previous_name = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%$previous_name" : $previous_name;
 
-	my $label;
-	if (defined($options{aria_label})) {
-		$label = $options{aria_label};
-	} else {
-		$label = generate_aria_label($name);
-	}
+	my $tcol = $col / 2 > 3 ? $col / 2 : 3;    # get max
+	$tcol = $tcol < 40 ? $tcol : 40;           # get min
 
-	my $tcol = $col / 2 > 3 ? $col / 2 : 3;    ## get max
-	$tcol = $tcol < 40 ? $tcol : 40;           ## get min
-
-	MODES(
-		TeX        => "\\relax{\\answerRule[$name]{$tcol}}",
-		Latex2HTML => qq!\\begin{rawhtml}<input type=text size=$col name="$name" value="">\\end{rawhtml}!,
-
-		# Note: codeshard is used in the css to identify input elements that come from pg
-		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" !
-			. qq!dir="auto" autocomplete="off" autocapitalize="off" spellcheck="false" !
-			. qq!value="$answer_value">!
-			. qq!<input type=hidden name="$previous_name" value="$answer_value">!,
+	return MODES(
+		TeX => "{\\answerRule[$name]{$tcol}}",
+		# Note: codeshard is used in the css to identify input elements that come from pg.
+		HTML => tag(
+			'div',
+			class => 'text-nowrap d-inline',
+			tag(
+				'input',
+				type           => 'text',
+				class          => 'codeshard',
+				size           => $col,
+				name           => $name,
+				id             => $name,
+				aria_label     => $options{aria_label} // generate_aria_label($name),
+				dir            => 'auto',
+				autocomplete   => 'off',
+				autocapitalize => 'off',
+				spellcheck     => 'false',
+				value          => $answer_value
+			)
+			)
+			. tag('input', type => 'hidden', name => $previous_name, value => $answer_value),
 		PTX => qq!<fillin name="$name" characters="$col" />!
 	);
 }
 
 sub NAMED_HIDDEN_ANS_RULE {
-	# this is used to hold information being passed into and out of applets
-	# -- preserves state -- identical to NAMED_ANS_RULE except input type "hidden"
 	my ($name, $col) = @_;
-	$col = 20 unless not_null($col);
-	my $answer_value = '';
-	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
-	if ($answer_value =~ /\0/) {
-		my @answers = split("\0", $answer_value);
-		$answer_value = shift(@answers);                  # use up the first answer
-		$rh_sticky_answers->{$name} = \@answers;
-		# store the rest -- beacuse this stores to a main:: variable
-		# it must be evaluated at run time
-		$answer_value = '' unless defined($answer_value);
-	} elsif (ref($answer_value) eq 'ARRAY') {
-		my @answers = @{$answer_value};
-		$answer_value = shift(@answers);                  # use up the first answer
-		$rh_sticky_answers->{$name} = \@answers;
-		# store the rest -- beacuse this stores to a main:: variable
-		# it must be evaluated at run time
-		$answer_value = '' unless defined($answer_value);
+	$col ||= 20;
+	my $answer_value = $inputs_ref->{$name} // '';
+	$answer_value = [ split("\0", $answer_value) ] if $answer_value =~ /\0/;
+
+	if (ref($answer_value) eq 'ARRAY') {
+		my @answers = @$answer_value;
+		$answer_value = shift(@answers) // '';                  # Use up the first answer.
+		$rh_sticky_answers->{$name} = \@answers;                # Store the rest.
 	}
 
-	$answer_value =~ s/\s+/ /g;    ## remove excessive whitespace from student answer
+	$answer_value =~ s/\s+/ /g;                                 # Remove excessive whitespace from student answer.
 
-	$name         = RECORD_ANS_NAME($name, $answer_value);
-	$answer_value = encode_pg_and_html($answer_value);
+	$name = RECORD_ANS_NAME($name, $answer_value);
 
-	my $tcol = $col / 2 > 3 ? $col / 2 : 3;    ## get max
-	$tcol = $tcol < 40 ? $tcol : 40;           ## get min
+	my $tcol = $col / 2 > 3 ? $col / 2 : 3;                     # get max
+	$tcol = $tcol < 40 ? $tcol : 40;                            # get min
 
-	MODES(
-		TeX        => "\\relax{\\answerRule[$name]{$tcol}}",
-		Latex2HTML => qq!\\begin{rawhtml}<input type=text name="$name" value="">\\end{rawhtml}!,
-		HTML       => qq!<input type=hidden name="$name" id="$name" value="$answer_value">!
-			. qq!<input type=hidden name="previous_$name" id="previous_$name" value="$answer_value">!,
+	return MODES(
+		TeX  => "{\\answerRule[$name]{$tcol}}",
+		HTML => tag('input', type => 'hidden', name => $name, id => $name, value => $answer_value)
+			. tag('input', type => 'hidden', name => "previous_$name", id => "previous_$name", value => $answer_value),
 		PTX => '',
 	);
 }
 
-sub NAMED_ANS_RULE_OPTION {    # deprecated
-	&NAMED_ANS_RULE_EXTENSION;
-}
-
 sub NAMED_ANS_RULE_EXTENSION {
-	my $name    = shift;       # this is the name of the response item
-	my $col     = shift;
-	my %options = @_;
+	my ($name, $col, %options) = @_;
 
-	my $label;
-	if (defined($options{aria_label})) {
-		$label = $options{aria_label};
-	} else {
-		$label = generate_aria_label($name);
-	}
 	# $answer_group_name is the name of the parent answer group
 	# the group name is usually the same as the answer blank name
 	# when there is only one answer blank.
-
 	my $answer_group_name = $options{answer_group_name} // '';
 	unless ($answer_group_name) {
 		WARN_MESSAGE(
@@ -395,78 +376,76 @@ sub NAMED_ANS_RULE_EXTENSION {
 			usually the same as the answer blank name. Answer blank name: $name"
 		);
 	}
-	# warn "from named answer rule extension in PGbasic answer_group_name: |$answer_group_name|";
-	my $answer_value = '';
-	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
-	if (defined($rh_sticky_answers->{$name})) {
-		$answer_value = shift(@{ $rh_sticky_answers->{$name} });
-		$answer_value = '' unless defined($answer_value);
+
+	my $answer_value = $inputs_ref->{$name} // '';
+	if (defined $rh_sticky_answers->{$name}) {
+		$answer_value = shift(@{ $rh_sticky_answers->{$name} }) // '';
 	}
 
-	$answer_value =~ s/\s+/ /g;    ## remove excessive whitespace from student answer
-								   # warn "from NAMED_ANSWER_RULE_EXTENSION in PGbasic:
-		#    answer_group_name: |$answer_group_name| name: |$name| answer value: |$answer_value|";
-	INSERT_RESPONSE($answer_group_name, $name, $answer_value)
-		;    #FIXME hack -- this needs more work to decide how to make it work
-	$answer_value = encode_pg_and_html($answer_value);
+	$answer_value =~ s/\s+/ /g;    # remove excessive whitespace from student answer
 
-	my $tcol = $col / 2 > 3 ? $col / 2 : 3;    ## get max
-	$tcol = $tcol < 40 ? $tcol : 40;           ## get min
-	MODES(
-		TeX        => "\\relax{\\answerRule[$name]{$tcol}}",
-		Latex2HTML =>
-			qq!\\begin{rawhtml}\n<input type=text size=$col name="$name" id="$name" value="">\n\\end{rawhtml}\n!,
-		HTML => qq!<input type=text class="codeshard" size=$col name="$name" id="$name" aria-label="$label" !
-			. qq!dir="auto" autocomplete="off" autocapitalize="off" spellcheck="false" !
-			. qq!value="$answer_value">!
-			. qq!<input type=hidden  name="previous_$name" id="previous_$name" value="$answer_value">!,
+	INSERT_RESPONSE($answer_group_name, $name, $answer_value);
+
+	my $tcol = $col / 2 > 3 ? $col / 2 : 3;    # get max
+	$tcol = $tcol < 40 ? $tcol : 40;           # get min
+
+	return MODES(
+		TeX  => "{\\answerRule[$name]{$tcol}}",
+		HTML => tag(
+			'input',
+			type           => 'text',
+			class          => 'codeshard',
+			size           => $col,
+			name           => $name,
+			id             => $name,
+			aria_label     => $options{aria_label} // generate_aria_label($name),
+			dir            => 'auto',
+			autocomplete   => 'off',
+			autocapitalize => 'off',
+			spellcheck     => 'false',
+			value          => $answer_value
+			)
+			. tag('input', type => 'hidden', name => "previous_$name", id => "previous_$name", value => $answer_value),
 		PTX => qq!<fillin name="$name" characters="$col" />!,
 	);
 }
 
-sub ANS_RULE {    #deprecated
+# Deprecated
+sub ANS_RULE {
 	my ($number, $col) = @_;
-	my $name = NEW_ANS_NAME($number);
-	NAMED_ANS_RULE($name, $col);
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
+	return NAMED_ANS_RULE($name, $col);
 }
 
 sub NAMED_ANS_BOX {
-	my $name    = shift;
-	my $row     = shift;
-	my $col     = shift;
-	my %options = @_;
-
-	$row = 10 unless defined($row);
-	$col = 80 unless defined($col);
+	my ($name, $row, $col, %options) = @_;
+	$row //= 10;
+	$col //= 80;
 
 	my $height       = .07 * $row;
-	my $answer_value = '';
-	$answer_value = $inputs_ref->{$name} if defined($inputs_ref->{$name});
-	$name         = RECORD_ANS_NAME($name, $answer_value);
-	my $label;
-	if (defined($options{aria_label})) {
-		$label = $options{aria_label};
-	} else {
-		$label = generate_aria_label($name);
-	}
-	# try to escape HTML entities to deal with xss stuff
-	$answer_value = encode_pg_and_html($answer_value);
-	my $out = MODES(
-		TeX        => qq!\\vskip $height in \\hrulefill\\quad !,
-		Latex2HTML => qq!\\begin{rawhtml}<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col"
-				>$answer_value</TEXTAREA>\\end{rawhtml}!,
-		HTML => qq!<TEXTAREA NAME="$name" id="$name" ROWS="$row" COLS="$col" aria-label="$label">!
-			. qq!$answer_value</TEXTAREA>!
-			. qq!<INPUT TYPE=HIDDEN NAME="previous_$name" VALUE="$answer_value">!,
+	my $answer_value = $inputs_ref->{$name} // '';
+	$name = RECORD_ANS_NAME($name, $answer_value);
+	my $label = $options{aria_label} // generate_aria_label($name);
+
+	return MODES(
+		TeX  => qq!\\vskip $height in \\hrulefill\\quad !,
+		HTML => tag(
+			'div',
+			class => 'text-nowrap d-inline',
+			tag(
+				'textarea',
+				name       => $name,
+				id         => $name,
+				rows       => $row,
+				cols       => $col,
+				aria_label => $label,
+				encode_pg_and_html($answer_value)
+			)
+			)
+			. tag('input', type => 'hidden', name => "previous_$name", value => $answer_value),
 		PTX => '<var name="' . "$name" . '" height="' . "$row" . '" width="' . "$col" . '" />',
 	);
-	$out;
-}
-
-sub ANS_BOX {    #deprecated
-	my ($number, $row, $col) = @_;
-	my $name = NEW_ANS_NAME();
-	NAMED_ANS_BOX($name, $row, $col);
 }
 
 sub NAMED_ANS_RADIO {
@@ -483,9 +462,7 @@ sub NAMED_ANS_RADIO {
 	INSERT_RESPONSE($options{answer_group_name}, $name, { $value => $checked }) if $extend;
 
 	return MODES(
-		TeX        => qq!\\item{$tag}\n!,
-		Latex2HTML =>
-			qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
+		TeX  => qq!\\item{$tag}\n!,
 		HTML => tag(
 			'label',
 			tag(
@@ -502,11 +479,6 @@ sub NAMED_ANS_RADIO {
 		),
 		PTX => '<li>' . "$tag" . '</li>' . "\n",
 	);
-
-}
-
-sub NAMED_ANS_RADIO_OPTION {    #deprecated
-	&NAMED_ANS_RADIO_EXTENSION;
 }
 
 sub NAMED_ANS_RADIO_EXTENSION {
@@ -522,9 +494,7 @@ sub NAMED_ANS_RADIO_EXTENSION {
 	EXTEND_RESPONSE($options{answer_group_name} // $name, $name, $value, $checked);
 
 	return MODES(
-		TeX        => qq!\\item{$tag}\n!,
-		Latex2HTML =>
-			qq!\\begin{rawhtml}\n<INPUT TYPE=RADIO NAME="$name" id="$name" VALUE="$value" $checked>\\end{rawhtml}$tag!,
+		TeX  => qq!\\item{$tag}\n!,
 		HTML => tag(
 			'label',
 			tag(
@@ -541,63 +511,27 @@ sub NAMED_ANS_RADIO_EXTENSION {
 		),
 		PTX => '<li>' . "$tag" . '</li>' . "\n",
 	);
-
 }
 
 sub NAMED_ANS_RADIO_BUTTONS {
-	my $name  = shift;
-	my $value = shift;
-	my $tag   = shift;
+	my ($name, $value, $tag, @buttons) = @_;
 
-	my @out = ();
+	my @out;
 	push(@out, NAMED_ANS_RADIO($name, $value, $tag));
-	my @buttons = @_;
-	my $label   = generate_aria_label($name);
-	my $count   = 2;
+	my $label = generate_aria_label($name);
+	my $count = 2;
 	while (@buttons) {
 		$value = shift @buttons;
 		$tag   = shift @buttons;
-		push(@out, NAMED_ANS_RADIO_OPTION($name, $value, $tag, aria_label => $label . "option $count "));
+		push(@out, NAMED_ANS_RADIO_EXTENSION($name, $value, $tag, aria_label => $label . "option $count "));
 		$count++;
 	}
-	(wantarray) ? @out : join(" ", @out);
-}
-
-sub ANS_RADIO {
-	my $number = shift;
-	my $value  = shift;
-	my $tag    = shift;
-	my $name   = NEW_ANS_NAME();
-	NAMED_ANS_RADIO($name, $value, $tag);
-}
-
-sub ANS_RADIO_OPTION {
-	my $number = shift;
-	my $value  = shift;
-	my $tag    = shift;
-	my $name   = ANS_NUM_TO_NAME($number);
-	NAMED_ANS_RADIO_OPTION($name, $value, $tag);
-}
-
-sub ANS_RADIO_BUTTONS {
-	my $number = shift;
-	my $value  = shift;
-	my $tag    = shift;
-
-	my @out = ();
-	push(@out, ANS_RADIO($number, $value, $tag));
-	my @buttons = @_;
-	while (@buttons) {
-		$value = shift @buttons;
-		$tag   = shift @buttons;
-		push(@out, ANS_RADIO_OPTION($number, $value, $tag));
-	}
-	(wantarray) ? @out : join(" ", @out);
+	return wantarray ? @out : join(" ", @out);
 }
 
 ##############################################
 #   generate_aria_label( $name )
-#   takes the name of an ANS_RULE or ANS_BOX and generates an appropriate
+#   takes the name of an ANS_RULE and generates an appropriate
 #   aria label for screen readers
 ##############################################
 
@@ -606,7 +540,7 @@ sub generate_aria_label {
 	my $label = '';
 
 	# if we dont have an AnSwEr type name then we do the best we can
-	if ($name !~ /AnSwEr/) {
+	if ($name !~ /AnSwEr\d+/) {
 		return maketext('answer') . ' ' . $name;
 	}
 
@@ -682,10 +616,7 @@ sub NAMED_ANS_CHECKBOX {
 	INSERT_RESPONSE($options{answer_group_name}, $name, { $value => $checked }) if $extend;
 
 	return MODES(
-		TeX        => qq!\\item{$tag}\n!,
-		Latex2HTML => qq!\\begin{rawhtml}\n!
-			. qq!<input type=checkbox name="$name" id="$name" VALUE="$value" $checked>!
-			. qq!\\end{rawhtml}$tag!,
+		TeX  => qq!\\item{$tag}\n!,
 		HTML => tag(
 			'label',
 			tag(
@@ -702,7 +633,6 @@ sub NAMED_ANS_CHECKBOX {
 		),
 		PTX => "<li>$tag</li>\n",
 	);
-
 }
 
 sub NAMED_ANS_CHECKBOX_OPTION {
@@ -718,10 +648,7 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 	EXTEND_RESPONSE($options{answer_group_name} // $name, $name, $value, $checked);
 
 	return MODES(
-		TeX        => qq!\\item{$tag}\n!,
-		Latex2HTML => qq!\\begin{rawhtml}\n!
-			. qq!<input type=checkbox name="$name" id="${name}_$value" value="$value" $checked>!
-			. qq!\\end{rawhtml}$tag!,
+		TeX  => qq!\\item{$tag}\n!,
 		HTML => tag(
 			'label',
 			tag(
@@ -741,15 +668,12 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 }
 
 sub NAMED_ANS_CHECKBOX_BUTTONS {
-	my $name  = shift;
-	my $value = shift;
-	my $tag   = shift;
+	my ($name, $value, $tag, @buttons) = @_;
 
-	my @out = ();
+	my @out;
 	push(@out, NAMED_ANS_CHECKBOX($name, $value, $tag));
-	my $label   = generate_aria_label($name);
-	my $count   = 2;
-	my @buttons = @_;
+	my $label = generate_aria_label($name);
+	my $count = 2;
 	while (@buttons) {
 		$value = shift @buttons;
 		$tag   = shift @buttons;
@@ -757,62 +681,19 @@ sub NAMED_ANS_CHECKBOX_BUTTONS {
 		$count++;
 	}
 
-	(wantarray) ? @out : join(" ", @out);
-}
-
-sub ANS_CHECKBOX {
-	my $number = shift;
-	my $value  = shift;
-	my $tag    = shift;
-	my $name   = NEW_ANS_NAME();
-
-	NAMED_ANS_CHECKBOX($name, $value, $tag);
-}
-
-sub ANS_CHECKBOX_OPTION {
-	my $number = shift;
-	my $value  = shift;
-	my $tag    = shift;
-	my $name   = ANS_NUM_TO_NAME($number);
-
-	NAMED_ANS_CHECKBOX_OPTION($name, $value, $tag);
-}
-
-sub ANS_CHECKBOX_BUTTONS {
-	my $number = shift;
-	my $value  = shift;
-	my $tag    = shift;
-
-	my @out = ();
-	push(@out, ANS_CHECKBOX($number, $value, $tag));
-
-	my @buttons = @_;
-	while (@buttons) {
-		$value = shift @buttons;
-		$tag   = shift @buttons;
-		push(@out, ANS_CHECKBOX_OPTION($number, $value, $tag));
-	}
-
-	(wantarray) ? @out : join(" ", @out);
+	return wantarray ? @out : join(" ", @out);
 }
 
 sub ans_rule {
-	my $len = shift;              # gives the optional length of the answer blank
-	$len = 20 unless $len;
-	my $name = NEW_ANS_NAME();    # increment is done internally
-	NAMED_ANS_RULE($name, $len);
-}
-
-sub ans_rule_extension {
-	my $len = shift;
-	$len = 20 unless $len;
-	# warn "ans_rule_extension may be misnumbering the answers";
-	my $name = NEW_ANS_NAME($$r_ans_rule_count);    # don't update the answer name
-	NAMED_ANS_RULE($name, $len);
+	my $len  = shift;
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
+	return NAMED_ANS_RULE($name, $len || 20);
 }
 
 sub ans_radio_buttons {
-	my $name          = NEW_ANS_NAME();
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
 	my @radio_buttons = NAMED_ANS_RADIO_BUTTONS($name, @_);
 
 	if ($displayMode eq 'TeX') {
@@ -821,14 +702,20 @@ sub ans_radio_buttons {
 	} elsif ($displayMode eq 'PTX') {
 		$radio_buttons[0] = '<var form="buttons">' . "\n" . $radio_buttons[0];
 		$radio_buttons[$#radio_buttons] .= '</var>';
+	} else {
+		$radio_buttons[0] =
+			qq{<div class="radio-buttons-container" }
+			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
+			. qq{data-feedback-btn-add-class="ms-3">$radio_buttons[0]};
+		$radio_buttons[-1] .= "</div>";
 	}
 
-	(wantarray) ? @radio_buttons : join(" ", @radio_buttons);
+	return wantarray ? @radio_buttons : join(" ", @radio_buttons);
 }
 
-#added 6/14/2000 by David Etlinger
 sub ans_checkbox {
-	my $name       = NEW_ANS_NAME();
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
 	my @checkboxes = NAMED_ANS_CHECKBOX_BUTTONS($name, @_);
 
 	if ($displayMode eq 'TeX') {
@@ -837,92 +724,22 @@ sub ans_checkbox {
 	} elsif ($displayMode eq 'PTX') {
 		$checkboxes[0] = '<var form="checkboxes">' . "\n" . $checkboxes[0];
 		$checkboxes[$#checkboxes] .= '</var>';
+	} else {
+		$checkboxes[0] =
+			qq{<div class="checkboxes-container" }
+			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
+			. qq{data-feedback-btn-add-class="ms-3">$checkboxes[0]};
+		$checkboxes[-1] .= '</div>';
 	}
 
-	(wantarray) ? @checkboxes : join(" ", @checkboxes);
-}
-
-## define a version of ans_rule which will work inside TeX math mode or display math mode -- at least for tth mode.
-## This is great for displayed fractions.
-## This will not work with latex2HTML mode since it creates gif equations.
-
-sub tex_ans_rule {
-	my $len = shift;
-	$len = 20 unless $len;
-	my $name        = NEW_ANS_NAME();
-	my $answer_rule = NAMED_ANS_RULE($name, $len);    # we don't want to create three answer rules in different modes.
-	my $out         = MODES(
-		'TeX'        => $answer_rule,
-		'Latex2HTML' => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML_tth'   => '\\begin{rawhtml} ' . $answer_rule . '\\end{rawhtml}',
-		'HTML_dpng'  => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML'       => $answer_rule,
-		'PTX'        => 'Answer boxes cannot be placed inside typeset equations',
-	);
-
-	$out;
-}
-
-sub tex_ans_rule_extension {
-	my $len = shift;
-	$len = 20 unless $len;
-	# warn "tex_ans_rule_extension may be missnumbering the answer";
-	my $name        = NEW_ANS_NAME($$r_ans_rule_count);
-	my $answer_rule = NAMED_ANS_RULE($name, $len);      # we don't want to create three answer rules in different modes.
-	my $out         = MODES(
-		'TeX'        => $answer_rule,
-		'Latex2HTML' => '\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML_tth'   => '\\begin{rawhtml} ' . $answer_rule . '\\end{rawhtml}',
-		'HTML_dpng'  => '\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML'       => $answer_rule,
-		'PTX'        => 'Answer boxes cannot be placed inside typeset equations',
-	);
-
-	$out;
-}
-# still needs some cleanup.
-sub NAMED_TEX_ANS_RULE {
-	my $name = shift;
-	my $len  = shift;
-	$len = 20 unless $len;
-	my $answer_rule = NAMED_ANS_RULE($name, $len);    # we don't want to create three answer rules in different modes.
-	my $out         = MODES(
-		'TeX'        => $answer_rule,
-		'Latex2HTML' => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML_tth'   => '\\begin{rawhtml} ' . $answer_rule . '\\end{rawhtml}',
-		'HTML_dpng'  => '\\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML'       => $answer_rule,
-		'PTX'        => 'Answer boxes cannot be placed inside typeset equations',
-	);
-
-	$out;
-}
-
-sub NAMED_TEX_ANS_RULE_EXTENSION {
-	my $name = shift;
-	my $len  = shift;
-	$len = 20 unless $len;
-	my $answer_rule =
-		NAMED_ANS_RULE_EXTENSION($name, $len);    # we don't want to create three answer rules in different modes.
-	my $out = MODES(
-		'TeX'        => $answer_rule,
-		'Latex2HTML' => '\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML_tth'   => '\\begin{rawhtml} ' . $answer_rule . '\\end{rawhtml}',
-		'HTML_dpng'  => '\fbox{Answer boxes cannot be placed inside typeset equations}',
-		'HTML'       => $answer_rule,
-		'PTX'        => 'Answer boxes cannot be placed inside typeset equations',
-	);
-
-	$out;
+	return wantarray ? @checkboxes : join(" ", @checkboxes);
 }
 
 sub ans_box {
-	my $row = shift;
-	my $col = shift;
-	$row = 5  unless $row;
-	$col = 80 unless $col;
+	my ($row, $col) = @_;
 	my $name = NEW_ANS_NAME();
-	NAMED_ANS_BOX($name, $row, $col);
+	RECORD_IMPLICIT_ANS_NAME($name);
+	return NAMED_ANS_BOX($name, $row || 5, $col || 80);
 }
 
 # this is legacy code; use ans_checkbox instead
@@ -932,60 +749,48 @@ sub checkbox {
 }
 
 sub NAMED_POP_UP_LIST {
-	my $name = shift;
-	my @list = @_;
-	if (ref($list[0]) eq 'ARRAY') {
-		my @list1 = @{ $list[0] };
-		@list = map { $_ => $_ } @list1;
-	}
-	my $moodle_prefix = ($envir{use_opaque_prefix}) ? "%%IDPREFIX%%" : '';
+	my ($name, @list) = @_;
 
-	my $answer_value = '';
-	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
-	my $out = "";
+	my %options = ref($list[0]) eq 'ARRAY' ? (map { $_ => $_ } @{ $list[0] }) : @list;
+
+	my $moodle_prefix = $envir{use_opaque_prefix} ? '%%IDPREFIX%%' : '';
+
+	my $answer_value = $inputs_ref->{$name} // '';
+	$name = RECORD_ANS_NAME($name, $answer_value);
+
 	if ($displayMode eq 'HTML_MathJax'
 		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
-		|| $displayMode eq 'HTML_tth'
-		|| $displayMode eq 'HTML_jsMath'
-		|| $displayMode eq 'HTML_asciimath'
-		|| $displayMode eq 'HTML_LaTeXMathML'
-		|| $displayMode eq 'HTML_img')
+		|| $displayMode eq 'HTML_tth')
 	{
-		$out = qq!<SELECT class="pg-select" NAME="$moodle_prefix$name" id="$moodle_prefix$name" SIZE=1>\n!;
-		my $i;
-		foreach ($i = 0; $i < @list; $i = $i + 2) {
-			my $select_flag = ($list[$i] eq $answer_value) ? "SELECTED" : "";
-			$out .= qq!<OPTION $select_flag VALUE="$list[$i]">$list[$i+1]</OPTION>\n!;
-		}
-		$out .= " </SELECT>\n";
-	} elsif ($displayMode eq "Latex2HTML") {
-		$out = qq! \\begin{rawhtml}<SELECT NAME = "$name" id="$name" SIZE=1> \\end{rawhtml} \n !;
-		my $i;
-		foreach ($i = 0; $i < @list; $i = $i + 2) {
-			my $select_flag = ($list[$i] eq $answer_value) ? "SELECTED" : "";
-			$out .=
-				qq!\\begin{rawhtml}<OPTION $select_flag VALUE ="$list[$i]" > $list[$i+1]  </OPTION>\\end{rawhtml}\n!;
-		}
-		$out .= " \\begin{rawhtml}</SELECT>\\end{rawhtml}\n";
+		return tag(
+			'div',
+			class => 'text-nowrap d-inline',
+			tag(
+				'select',
+				class => 'pg-select',
+				name  => "$moodle_prefix$name",
+				id    => "$moodle_prefix$name",
+				size  => 1,
+				join(
+					'',
+					map { tag('option', value => $_, $_ eq $answer_value ? (selected => undef) : (), $options{$_}) }
+						keys %options
+				)
+			)
+		);
 	} elsif ($displayMode eq "TeX") {
-		$out .= "\\fbox{?}";
+		return "\\fbox{?}";
 	} elsif ($displayMode eq "PTX") {
-		$out = '<var form="popup">' . "\n";
-		my $i;
-		foreach ($i = 0; $i < @list; $i = $i + 2) {
-			$out .= '<li>' . $list[ $i + 1 ] . '</li>' . "\n";
-		}
-		$out .= '</var>';
+		return '<var form="popup">' . "\n" . join('', map {"<li>$options{$_}</li>\n"} keys %options) . '</var>';
 	}
-	$name = RECORD_ANS_NAME($name, $answer_value);    # record answer name
-	$out;
 }
 
 sub pop_up_list {
 	my @list = @_;
-	my $name = NEW_ANS_NAME();                        # get new answer name
-	NAMED_POP_UP_LIST($name, @list);
+	my $name = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($name);
+	return NAMED_POP_UP_LIST($name, @list);
 }
 
 =head2  answer_matrix
@@ -1007,55 +812,42 @@ sub pop_up_list {
 =cut
 
 sub answer_matrix {
-	my $m       = shift;
-	my $n       = shift;
-	my $width   = shift;
-	my @options = @_;
-	my @array   = ();
+	my ($m, $n, $width, @options) = @_;
+	my @array;
 	for (my $i = 0; $i < $m; $i += 1) {
-		my @row_array = ();
+		my @row_array;
 
 		for (my $i = 0; $i < $n; $i += 1) {
 			push @row_array, ans_rule($width);
 		}
-		my $r_row_array = \@row_array;
-		push @array, $r_row_array;
+		push @array, \@row_array;
 	}
 	# display_matrix hasn't been loaded into the cache safe compartment
 	# so we need to refer to the subroutine in this way to make
 	# sure that main is defined correctly.
 	my $ra_local_display_matrix = PG_restricted_eval(q!\&main::display_matrix!);
-	&$ra_local_display_matrix(\@array, @options);
+	return &$ra_local_display_matrix(\@array, @options);
 }
 
 sub NAMED_ANS_ARRAY_EXTENSION {
-	my $name    = shift;
-	my $col     = shift;
-	my %options = @_;
-	$col = 20 unless $col;
-	my $answer_value = '';
+	my ($name, $col, %options) = @_;
+	$col ||= 20;
 
-	$answer_value = ${$inputs_ref}{$name} if defined(${$inputs_ref}{$name});
-	if ($answer_value =~ /\0/) {
-		my @answers = split("\0", $answer_value);
-		$answer_value = shift(@answers);
-		$answer_value = '' unless defined($answer_value);
-	} elsif (ref($answer_value) eq 'ARRAY') {
-		my @answers = @{$answer_value};
+	my $answer_value = $inputs_ref->{$name} // '';
+	$answer_value = [ split("\0", $answer_value) ] if $answer_value =~ /\0/;
+
+	if (ref($answer_value) eq 'ARRAY') {
+		my @answers = @$answer_value;
 		$answer_value = shift(@answers);
 		$answer_value = '' unless defined($answer_value);
 	}
 
-	my $label;
-	if (defined($options{aria_label})) {
-		$label = $options{aria_label};
-	} else {
-		$label = generate_aria_label($name);
-	}
+	my $label = $options{aria_label} // generate_aria_label($name);
 
-	#	warn "ans_label $options{ans_label} $name $answer_value";
-	my $answer_group_name;    # the name of the answer evaluator controlling this collection of responses.
-							  # catch deprecated use of ans_label to pass answer_group_name
+	# the name of the answer evaluator controlling this collection of responses.
+	my $answer_group_name;
+
+	# catch deprecated use of ans_label to pass answer_group_name
 	if (defined($options{ans_label})) {
 		WARN_MESSAGE(
 			"Error in NAMED_ANS_ARRAY_EXTENSION: the answer group name should be passed in ",
@@ -1068,76 +860,60 @@ sub NAMED_ANS_ARRAY_EXTENSION {
 	if (defined($options{answer_group_name})) {
 		$answer_group_name = $options{answer_group_name};
 	}
+
 	if ($answer_group_name) {
 		INSERT_RESPONSE($options{answer_group_name}, $name, $answer_value);
 	} else {
 		WARN_MESSAGE("Error: answer_group_name must be defined for $name");
 	}
-	$answer_value = encode_pg_and_html($answer_value);
 
-	my $tcol = $col / 2 > 3 ? $col / 2 : 3;    ## get max
-	$tcol = $tcol < 40 ? $tcol : 40;           ## get min
+	my $tcol = $col / 2 > 3 ? $col / 2 : 3;    # get max
+	$tcol = $tcol < 40 ? $tcol : 40;           # get min
 
-	MODES(
-		TeX        => "\\relax{\\answerRule[$name]{$tcol}}",
-		Latex2HTML =>
-			qq!\\begin{rawhtml}\n<input type=text size=$col name="$name" id="$name" value="">\n\\end{rawhtml}\n!,
-		HTML => qq!<input type=text size=$col name="$name" id="$name" class="codeshard" aria-label="$label" !
-			. qq!autocomplete="off" autocapitalize="off" spellcheck="false" value="$answer_value">!,
+	return MODES(
+		TeX  => "{\\answerRule[$name]{$tcol}}",
+		HTML => tag(
+			'input',
+			type           => 'text',
+			size           => $col,
+			name           => $name,
+			id             => $name,
+			class          => 'codeshard',
+			aria_label     => $label,
+			autocomplete   => 'off',
+			autocapitalize => 'off',
+			spellcheck     => 'false',
+			value          => $answer_value
+		),
 		PTX => qq!<fillin name="$name" characters="$col" />!,
 	);
 }
 
 sub ans_array {
-	my $m   = shift;
-	my $n   = shift;
-	my $col = shift;
-	$col = 20 unless $col;
-	my $ans_label     = NEW_ANS_NAME();
-	my $num           = ans_rule_count();
-	my @options       = @_;
-	my @array         = ();
-	my $answer_value  = "";
-	my @response_list = ();
-	my $name;
+	my ($m, $n, $col, @options) = @_;
+	$col ||= 20;
+
+	my $ans_label = NEW_ANS_NAME();
+	RECORD_IMPLICIT_ANS_NAME($ans_label);
+
 	$main::vecnum = -1;
 	CLEAR_RESPONSES($ans_label);
 
+	my @array;
 	for (my $i = 0; $i < $n; $i += 1) {
-		$name = NEW_ANS_ARRAY_NAME_EXTENSION($num, 0, $i);
+		my $name = NEW_ANS_ARRAY_NAME_EXTENSION(0, $i);
 		$array[0][$i] = NAMED_ANS_ARRAY_EXTENSION($name, $col, ans_label => $ans_label);
 	}
 
 	for (my $j = 1; $j < $m; $j += 1) {
 		for (my $i = 0; $i < $n; $i += 1) {
-			$name = NEW_ANS_ARRAY_NAME_EXTENSION($num, $j, $i);
+			my $name = NEW_ANS_ARRAY_NAME_EXTENSION($j, $i);
 			$array[$j][$i] = NAMED_ANS_ARRAY_EXTENSION($name, $col, ans_label => $ans_label);
 		}
 	}
 	my $ra_local_display_matrix = PG_restricted_eval(q!\&main::display_matrix!);
-	&$ra_local_display_matrix(\@array, @options);
-}
 
-sub ans_array_extension {
-	my $m   = shift;
-	my $n   = shift;
-	my $col = shift;
-	$col = 20 unless $col;
-	my $num           = ans_rule_count();    #hack -- ans_rule_count is updated after being used
-	my @options       = @_;
-	my @response_list = ();
-	my $name;
-	my @array     = ();
-	my $ans_label = $main::PG->new_label($num);
-
-	for (my $j = 0; $j < $m; $j += 1) {
-		for (my $i = 0; $i < $n; $i += 1) {
-			$name = NEW_ANS_ARRAY_NAME_EXTENSION($num, $j, $i);
-			$array[$j][$i] = NAMED_ANS_ARRAY_EXTENSION($name, $col, answer_group_name => $ans_label, @options);
-		}
-	}
-	my $ra_local_display_matrix = PG_restricted_eval(q!\&main::display_matrix!);
-	&$ra_local_display_matrix(\@array, @options);
+	return $ra_local_display_matrix->(\@array, @options);
 }
 
 # end answer blank macros
@@ -1182,8 +958,24 @@ sub SOLUTION {
 	return "" if $solution_body eq "";
 
 	if ($displayMode =~ /HTML/) {
-		TEXT('<div class="knowl-container">',
-			knowlLink(SOLUTION_HEADING(), value => $solution_body, type => 'solution'), '</div>');
+		TEXT(tag(
+			'div',
+			class => 'solution accordion my-3',
+			tag(
+				'details',
+				class => 'accordion-item',
+				tag(
+					'summary',
+					class => 'accordion-button collapsed text-primary fw-bold py-2',
+					tag('span', class => 'accordion-header user-select-none', SOLUTION_HEADING())
+					)
+					. tag(
+						'div',
+						class => 'accordion-collapse collapse',
+						tag('div', class => 'accordion-body', $solution_body)
+					)
+			)
+		));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN SOLUTION\n"
@@ -1208,7 +1000,24 @@ sub HINT {
 	my $hint_body = hint(@_);
 	return unless $hint_body;
 	if ($displayMode =~ /HTML/) {
-		TEXT('<div class="knowl-container">', knowlLink(HINT_HEADING(), value => $hint_body, type => 'hint'), '</div>');
+		TEXT(tag(
+			'div',
+			class => 'hint accordion my-3',
+			tag(
+				'details',
+				class => 'accordion-item',
+				tag(
+					'summary',
+					class => 'accordion-button collapsed text-primary fw-bold py-2',
+					tag('span', class => 'accordion-header user-select-none', HINT_HEADING())
+					)
+					. tag(
+						'div',
+						class => 'accordion-collapse collapse',
+						tag('div', class => 'accordion-body', $hint_body)
+					)
+			)
+		));
 	} elsif ($displayMode =~ /TeX/) {
 		TEXT(
 			"\n%%% BEGIN HINT\n"
@@ -1442,7 +1251,7 @@ sub PAR {
 	MODES(
 		TeX        => '\\vskip\\baselineskip ',
 		Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}',
-		HTML       => '<P>',
+		HTML       => '<div style="margin-top:1em"></div>',
 		PTX        => "\n\n"
 	);
 }
@@ -1505,19 +1314,17 @@ sub END_ONE_COLUMN {    # deprecated
 
 sub SOLUTION_HEADING {
 	MODES(
-		TeX        => '{\\bf ' . maketext('Solution: ') . ' }',
-		Latex2HTML => '\\par {\\bf ' . maketext('Solution:') . ' }',
-		HTML       => '<B>' . maketext('Solution:') . '</B> ',
-		PTX        => ''
+		TeX  => '{\\bf ' . maketext('Solution:') . ' }',
+		HTML => maketext('Solution'),
+		PTX  => ''
 	);
 }
 
 sub HINT_HEADING {
 	MODES(
-		TeX        => "{\\bf " . maketext('Hint: ') . "}",
-		Latex2HTML => "\\par {\\bf " . maketext('Hint:') . " }",
-		HTML       => "<B>" . maketext('Hint:') . "</B> ",
-		PTX        => ''
+		TeX  => '{\\bf ' . maketext('Hint:') . ' }',
+		HTML => maketext('Hint'),
+		PTX  => ''
 	);
 }
 sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_', PTX => '_'); };    # underscore, e.g. file${US}name
@@ -2070,25 +1877,26 @@ sub safe_ev {
 	($out, $PG_eval_errors, $PG_full_error_report);
 }
 
+sub safe_evp {
+	my @result = &safe_ev;
+	$result[0] = '${__blank__}' . $result[0] . '${__blank__}';
+	return @result;
+}
+
 sub old_safe_ev {
 	my $in = shift;
-	my ($out, $PG_eval_errors, $PG_full_error_report) = PG_restricted_eval("$in;");
-	# the addition of the ; seems to provide better error reporting
+	my ($out, $PG_eval_errors, $PG_full_error_report) = PG_restricted_eval($in);
 	if ($PG_eval_errors) {
 		my @errorLines = split("\n", $PG_eval_errors);
-#$out = "<PRE>$PAR % ERROR in $0:old_safe_ev, PGbasicmacros.pl: $PAR % There is an error occuring inside evaluation brackets \\{ ...code... \\} $BR % somewhere in an EV2 or EV3 or BEGIN_TEXT block. $BR % Code evaluated:$BR $in $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR % $BR % $BR </PRE> ";
-		warn " ERROR in old_safe_ev, PGbasicmacros.pl: <PRE>
-		## There is an error occuring inside evaluation brackets \\{ ...code... \\}
-		## somewhere in an EV2 or EV3 or BEGIN_TEXT block.
-		## Code evaluated:
-		## $in
-		##" . join("\n     ", @errorLines) . "
-		##</PRE>$BR
-		";
-		$out = "$PAR $BBOLD  $in $EBOLD $PAR";
+		warn "There is an error occuring inside evaluation brackets \\{ ...code... \\}\n"
+			. "somewhere in an EV2, EV3, or BEGIN_TEXT block.\n"
+			. "Code evaluated:\n$in\n"
+			. "Errors:\n"
+			. join("\n", @errorLines) . "\n";
+		$out = "$BBOLD$in$EBOLD";
 	}
 
-	($out, $PG_eval_errors, $PG_full_error_report);
+	return ($out, $PG_eval_errors, $PG_full_error_report);
 }
 
 sub FEQ {    # Format EQuations
@@ -2160,11 +1968,26 @@ sub general_math_ev3 {
 		$out = "`$in`"                                   if $mode eq "inline";
 		$out = '<DIV ALIGN="CENTER">`' . $in . '`</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "PTX") {
-		#protect XML control characters
+		# protect XML control characters
 		$in =~ s/\&(?!([\w#]+;))/\\amp /g;
 		$in =~ s/</\\lt /g;
-		$out = '<m>' . "$in" . '</m>'   if $mode eq "inline";
-		$out = '<me>' . "$in" . '</me>' if $mode eq "display";
+		# attempt to parse align|alignat|gather into complete md/mrow structure, otherwise use me
+		if ($mode eq 'inline') {
+			$out = "<m>$in</m>";
+		} elsif ($mode eq 'display' && $in =~ /^\s*\\begin\{(align|alignat|gather)}((?!\\end\{\1}).)*\\end\{\1}\s*$/s) {
+			my $alignment = $1;
+			my $lines =
+				($in =~ s/^\s*\\begin\{$alignment}\s*(((?!\\end\{$alignment}).)*)\s*\\end\{$alignment}\s*$/$1/sr);
+			$lines =~ s/^\{\d+\}// if ($alignment eq 'alignat');
+			my @lines = split(/\\\\\n?/, $lines);
+			@lines = map { $_ =~ s/^\s+|\s+$//r } @lines;
+			my @rows = map {"<mrow>$_</mrow>"} @lines;
+			my $rows = join("\n", @rows);
+			$alignment = ($alignment eq 'align') ? '' : " alignment=\"$alignment\"";
+			$out       = "<md${alignment}>\n$rows\n</md>";
+		} elsif ($mode eq 'display') {
+			$out = "<me>$in</me>";
+		}
 	} elsif ($displayMode eq "HTML_LaTeXMathML") {
 		$in = HTML::Entities::encode_entities($in);
 		$in = '{' . $in . '}';
@@ -2294,12 +2117,13 @@ sub EV3P {
 		%{$option_ref},
 	);
 	my $string = join(" ", @_);
-	$string = ev_substring($string, "\\\\{", "\\\\}", \&safe_ev) if $options{processCommands};
+	$string = ev_substring($string, "\\\\{", "\\\\}", $options{processVariables} ? \&safe_evp : \&safe_ev)
+		if $options{processCommands};
 	if ($options{processVariables}) {
 		my $eval_string = $string;
 		$eval_string =~ s/\$(?![a-z\{])/\${DOLLAR}/gi if $options{fixDollars};
-		my ($evaluated_string, $PG_eval_errors, $PG_full_errors) =
-			PG_restricted_eval("<<END_OF_EVALUATION_STRING\n$eval_string\nEND_OF_EVALUATION_STRING\n");
+		my ($evaluated_string, $PG_eval_errors, $PG_full_errors) = PG_restricted_eval(
+			q{my $__blank__ = '';} . "<<END_OF_EVALUATION_STRING\n$eval_string\nEND_OF_EVALUATION_STRING\n");
 		if ($PG_eval_errors) {
 			my $error = (split("\n", $PG_eval_errors))[0];
 			$error  =~ s/at \(eval.*//gs;
@@ -2587,55 +2411,92 @@ sub htmlLink {
 	);
 }
 
-# Suggested usage:  knowlLink(text, [url => ..., value => ..., type => ...])
+=head2 knowlLink
+
+Inserts a knowl link into the problem.  Usually you should not call this method
+directly.  Instead use C<helpLink> below.
+
+Usage: C<knowlLink($displayText, %options)>
+
+C<$display_text> is the text that will be shown for the link.
+
+The following options may be included in C<%options>.  Note that one of C<url>
+or C<value> is required.
+
+=over
+
+=item url
+
+A URL whose contents will be shown in a modal dialog when the knowl link is
+clicked.  These contents will be fetched by JavaScript and injected into the
+knowl modal dialog.
+
+=item value
+
+The direct contents that will be shown in a modal dialog when the knowl link is
+clicked.
+
+=item title
+
+A string that will be used for the title of the modal dialog that opens when the
+knowl link is clicked. If this is not provided, then C<$display_text> will be
+used for the title.
+
+=item type
+
+A string that will be set as the data-type attribute of the knowl link. This is
+only used by PreTeXt.
+
+=back
+
+Example usage:
+
+    knowlLink('Click Me', title => 'Fascinating Contents', value => 'Here are my facinating contents.');
+    knowlLink('Help Me', title => 'Help Contents', url => 'https://my.domain.edu/helpfile-contents');
+
+=cut
+
 sub knowlLink {
-	my $display_text = shift;
+	my ($display_text, %options) = @_;
 
-	# Check that there are an even number of inputs
 	WARN_MESSAGE(
-		'usage:  knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."]);'
-			. qq!after the display_text the information requires key/value pairs.
-		Received @_ !, scalar(@_) % 2
-	) if scalar(@_) % 2;
+		'usage:  knowlLink($display_text, [url => $url, value => $contents, title => $title, type => "help"]);',
+		'One of "url => $url" or "value => $contents" is required.')
+		unless $options{value} || $options{url};
 
-	my %options = @_;
-
-	my $properties = '';
-	if ($options{value}) {
-		$properties =
-			'data-knowl-contents="'
-			. encode_pg_and_html($options{value})
-			. ($options{base64} ? '" data-base64="1"' : '"');
-	} elsif ($options{url}) {
-		$properties = qq!data-knowl-url="$options{url}"!;
+	if ($displayMode eq 'TeX') {
+		return "{\\bf\\underline{$display_text}}";
+	} elsif ($displayMode eq 'PTX') {
+		return ($options{type} && $options{type} eq 'help')
+			? ''
+			: '<url ' . ($options{url} ? qq{href="$options{url}"} : '') . " >$display_text</url>";
 	} else {
-		WARN_MESSAGE(
-			'usage:  knowlLink($display_text, [url => $url, value => $helpMessage, type => "help/hint/solution/..."]);'
-		);
+		my %properties;
+		if ($options{value}) {
+			$properties{data_knowl_contents} =
+				$options{base64} ? $main::PG->decode_base64($options{value}) : $options{value};
+		} elsif ($options{url}) {
+			$properties{data_knowl_url} = $options{url};
+		}
+
+		$properties{data_knowl_title} = $options{title} if $options{title};
+		$properties{data_type}        = $options{type}  if $options{type};
+		return tag('button', type => 'button', class => 'knowl', %properties, $display_text);
 	}
-
-	$properties .= qq! data-type="$options{type}"! if $options{type};
-
-	MODES(
-		TeX  => "{\\bf \\underline{$display_text}}",
-		HTML => qq!<a href="#" class="knowl" $properties>$display_text</a>!,
-		PTX  => '<url ' . ($options{url} ? 'href="' . $options{url} . '"' : '') . ' >' . $display_text . '</url>',
-	);
 }
 
 sub iframe {
-	my $url               = shift;
-	my %options           = @_;                                                         # keys: height, width, id, name
-	my $formatted_options = join(" ", map {qq!$_ = "$options{$_}"!} (keys %options));
-	return "$BBOLD\[ broken link:  $url \] $EBOLD" unless defined($url);
+	my ($url, %attributes) = @_;
 	MODES(
 		TeX  => "\\framebox{" . protect_underbar($url) . "}\n",
-		HTML => qq!\n <iframe src="$url" $formatted_options>Your browser does not support iframes.</iframe>\n!,
+		HTML => tag('iframe', src => $url, %attributes),
 		PTX  => '<url href="' . $url . '" />',
 	);
 }
 
-=head2 helpLink($type, $display_text, $helpurl)
+=head2 helpLink
+
+Usage: C<helpLink($type, $display_text, $helpurl)>
 
 Creates links for students to help documentation on formatting answers and
 allows for custom help links.
@@ -2940,7 +2801,7 @@ sub row {
 
 Usage:
 
-    image($image, width => 200, height => 200, tex_size => 800, alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
+    image($image, width => 200, height => 200, tex_size => 800, valign => 'middle', alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
 
 where C<$image> can be a local file path, URL, WWPlot object, PGlateximage object,
 PGtikz object, or parser::GraphTool object.
@@ -2956,6 +2817,9 @@ For example 800 leads to 0.8\linewidth. If over 1000, then 1000 will be used.
 If missing, this defaults to C<int(width/0.6)> so the image is proportional to its
 HTML version with a 600 pixel wide reading area. If C<width> is missing and C<height>
 is declared, we presume this is a wide image and then C<tex_size> defaults to 800.
+
+C<valign> can be 'top', 'middle', or 'bottom'.  This aligns the image relative to
+the surrounding line of text.
 
     image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => ['alt text 1','alt text 2'], extra_html_tags => 'style="border:solid black 1pt"');
     image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => 'common alt text', extra_html_tags => 'style="border:solid black 1pt"');
@@ -2976,6 +2840,7 @@ sub image {
 		width    => '',
 		height   => '',
 		tex_size => '',
+		valign   => 'middle',
 		# default value for alt is undef, since an empty string is the explicit indicator of a decorative image
 		alt             => undef,
 		extra_html_tags => '',
@@ -3004,6 +2869,9 @@ sub image {
 	my $width_ratio = $tex_size * (.001);
 	my @image_list  = ();
 	my @alt_list    = ();
+	my $valign      = 'middle';
+	$valign = 'top'    if ($out_options{valign} eq 'top');
+	$valign = 'bottom' if ($out_options{valign} eq 'bottom');
 
 	# if width and/or height are explicit, create string for attribute to be used in HTML, LaTeX2HTML
 	my $width_attrib  = ($width)  ? qq{ width="$width"}   : '';
@@ -3043,10 +2911,18 @@ sub image {
 		if ($displayMode eq 'TeX') {
 			my $imagePath = $imageURL;    # in TeX mode, alias gives us a path, not a URL
 
-			# We're going to create PDF files with our TeX (using pdflatex), so
+			# We're going to create PDF files with our TeX (using LaTeX), so
 			# alias should have given us the path to a PNG image.
 			if ($imagePath) {
-				$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				if ($valign eq 'top') {
+					$out = '\settoheight{\strutheight}{\strut}'
+						. "\\raisebox{-\\height + \\strutheight}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+				} elsif ($valign eq 'bottom') {
+					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				} else {
+					$out = '\settoheight{\strutheight}{\strut}'
+						. "\\raisebox{-0.5\\height + 0.5\\strutheight}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+				}
 			} else {
 				$out = "";
 			}
@@ -3067,7 +2943,7 @@ sub image {
 			my $altattrib = '';
 			if (defined $alt_list[0]) { $altattrib = 'alt="' . encode_pg_and_html(shift @alt_list) . '"' }
 			$out =
-				qq!<IMG SRC="$imageURL" class="image-view-elt" tabindex="0" role="button"$width_attrib$height_attrib $out_options{extra_html_tags} $altattrib>!;
+				qq!<IMG SRC="$imageURL" class="image-view-elt $valign" tabindex="0" role="button"$width_attrib$height_attrib $out_options{extra_html_tags} $altattrib>!;
 		} elsif ($displayMode eq 'PTX') {
 			my $ptxwidth = ($width ? int($width / 6) : 80);
 			if (defined $alt) {

@@ -126,12 +126,9 @@ format and (as with Match.pm), if necessary, can be appended in order at the end
 
 =cut
 
-BEGIN {
-	be_strict();
-}
-#use strict;
-
 package ChoiceList;
+
+use strict;
 
 @ChoiceList::ISA = qw( Exporter );
 
@@ -294,7 +291,7 @@ sub complement {
 
 =head3  	qa
        Usage:    $ml->qa( qw( question1 answer1 question2 answer2   ) );
-       
+
 =cut
 
 sub qa {
@@ -340,11 +337,11 @@ sub ra_correct_ans {
 =head3 cmp
 
 	Usage    ANS($ml -> cmp);
-	
+
 provides a MathObject like comparison method
 returns a string of comparison methods for checking the list object
 
-=cut 
+=cut
 
 sub cmp {
 	my $self    = shift;

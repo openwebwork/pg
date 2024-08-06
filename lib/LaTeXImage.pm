@@ -1,7 +1,7 @@
 #!/bin/perl
 ################################################################################
 # WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of either: (a) the GNU General Public License as published by the
@@ -16,57 +16,56 @@
 
 # This is a Perl module which simplifies and automates the process of generating
 # simple images using LaTeX, and converting them into a web-useable format.  Its
-# typical usage is via the macro PGtikz.pl and is documented there.
+# typical usage is via the PGlateximage.pl or PGtikz.pl macros and is documented
+# there.
+
+package LaTeXImage;
 
 use strict;
 use warnings;
-use Carp;
-use WeBWorK::PG::IO;
-use WeBWorK::PG::ImageGenerator;
 
-package LaTeXImage;
+use File::Copy qw(move);
+
+require WeBWorK::PG::IO;
+require WeBWorK::PG::ImageGenerator;
 
 # The constructor (it takes no parameters)
 sub new {
 	my $class = shift;
 	my $data  = {
-		tex         => '',
-		environment => '',
-		# if tikzOptions is nonempty, then environment
-		# will effectively be ['tikzpicture', tikzOptions]
+		tex => '',
+		# If tikzOptions is nonempty, then environment will effectively be [ 'tikzpicture', tikzOptions ].
+		environment    => '',
 		tikzOptions    => '',
 		tikzLibraries  => '',
 		texPackages    => [],
 		addToPreamble  => '',
 		ext            => 'svg',
-		svgMethod      => 'pdf2svg',
+		svgMethod      => 'dvisvgm',
 		convertOptions => { input => {}, output => {} },
 		imageName      => ''
 	};
-	my $self = sub {
-		my $field = shift;
-		if (@_) {
+	return bless sub {
+		my ($field, $value) = @_;
+		if (defined $value) {
 			# The ext field is protected to ensure that unsafe commands can not
 			# be passed to the command line in the system call it is used in.
 			if ($field eq 'ext') {
-				my $ext = shift;
-				$data->{ext} = $ext
-					if ($ext && ($ext =~ /^(png|gif|svg|pdf|tgz)$/));
+				$data->{ext} = $value if $value && ($value =~ /^(png|gif|svg|pdf|tgz)$/);
 			} else {
-				$data->{$field} = shift;
+				$data->{$field} = $value;
 			}
 		}
 		return $data->{$field};
-	};
-	return bless $self, $class;
+	}, $class;
 }
 
 # Accessors
 
-# Set LaTeX image code as a single string parameter.  Works best single quoted.
+# Set LaTeX image code as a single string parameter.
 sub tex {
-	my $self = shift;
-	return &$self('tex', @_);
+	my ($self, $tex) = @_;
+	return &$self('tex', $tex);
 }
 
 # Set an environment to surround the tex(). This can be a string naming the environment.
@@ -74,24 +73,24 @@ sub tex {
 # the environment. If there is a second element, it should be a string with options for
 # the environment. This could be extended to support environments with multiple option
 # fields that may use parentheses for delimiters.
-# If tikzOptions is nonempty, the input is ignored and output is ['tikzpicture',tikzOptions].
+# If tikzOptions is nonempty, the input is ignored and output is [ 'tikzpicture', tikzOptions ].
 sub environment {
-	my $self = shift;
-	return [ 'tikzpicture', $self->tikzOptions ] if ($self->tikzOptions ne '');
-	return [ &$self('environment', @_), '' ] if (ref(&$self('environment', @_)) ne 'ARRAY');
-	return &$self('environment', @_);
+	my ($self, $environment) = @_;
+	return [ 'tikzpicture', $self->tikzOptions ] if $self->tikzOptions ne '';
+	return [ &$self('environment', $environment), '' ] if ref(&$self('environment', $environment)) ne 'ARRAY';
+	return &$self('environment', $environment);
 }
 
 # Set TikZ picture options as a single string parameter.
 sub tikzOptions {
-	my $self = shift;
-	return &$self('tikzOptions', @_);
+	my ($self, $tikzOptions) = @_;
+	return &$self('tikzOptions', $tikzOptions);
 }
 
 # Set additional TikZ libraries to load as a single string parameter.
 sub tikzLibraries {
-	my $self = shift;
-	return &$self('tikzLibraries', @_);
+	my ($self, $tikzLibraries) = @_;
+	return &$self('tikzLibraries', $tikzLibraries);
 }
 
 # Set additional TeX packages to load.  This accepts an array parameter.  Note
@@ -99,15 +98,15 @@ sub tikzLibraries {
 # or two elements (the first element the package name, and the optional second
 # element the package options).
 sub texPackages {
-	my $self = shift;
-	return &$self('texPackages', $_[0]) if ref($_[0]) eq "ARRAY";
+	my ($self, $texPackages) = @_;
+	return &$self('texPackages', $texPackages) if ref($texPackages) eq 'ARRAY';
 	return &$self('texPackages');
 }
 
 # Additional TeX commands to add to the TeX preamble
 sub addToPreamble {
-	my $self = shift;
-	return &$self('addToPreamble', @_);
+	my ($self, $additionalPreamble) = @_;
+	return &$self('addToPreamble', $additionalPreamble);
 }
 
 # Set the image type.  The valid types are 'png', 'gif', 'svg', 'pdf', and 'tgz'.
@@ -115,31 +114,31 @@ sub addToPreamble {
 # The 'tgz' option should be set when 'PTX' is the display mode.
 # It creates a .tgz file containing .tex, .pdf, .png, and .svg versions of the image
 sub ext {
-	my $self = shift;
-	return &$self('ext', @_);
+	my ($self, $ext) = @_;
+	return &$self('ext', $ext);
 }
 
 # Set the method to use to generate svg images.  The valid methods are 'pdf2svg' and 'dvisvgm'.
 sub svgMethod {
-	my $self = shift;
-	return &$self('svgMethod', @_);
+	my ($self, $svgMethod) = @_;
+	return &$self('svgMethod', $svgMethod);
 }
 
 # Set the options to be used by ImageMagick convert.
 sub convertOptions {
-	my $self = shift;
-	return &$self('convertOptions', @_);
+	my ($self, $convertOptions) = @_;
+	return &$self('convertOptions', $convertOptions);
 }
 
 # Set the file name.
 sub imageName {
-	my $self = shift;
-	return &$self('imageName', @_);
+	my ($self, $imageName) = @_;
+	return &$self('imageName', $imageName);
 }
 
 sub header {
-	my $self   = shift;
-	my @output = ();
+	my $self = shift;
+	my @output;
 	push(@output, "\\documentclass{standalone}\n");
 	my @xcolorOpts = grep { ref $_ eq "ARRAY" && $_->[0] eq "xcolor" && defined $_->[1] } @{ $self->texPackages };
 	my $xcolorOpts = @xcolorOpts ? $xcolorOpts[0][1] : 'svgnames';
@@ -165,15 +164,15 @@ sub header {
 			if (defined $self->environment->[1] && $self->environment->[1] ne "");
 		push(@output, "\n");
 	}
-	@output;
+	return @output;
 }
 
 sub footer {
-	my $self   = shift;
-	my @output = ();
+	my $self = shift;
+	my @output;
 	push(@output, "\\end{", $self->environment->[0] . "}\n") if $self->environment->[0];
 	push(@output, "\\end{document}\n");
-	@output;
+	return @output;
 }
 
 # Generate the image file and return the stored location of the image.
@@ -181,45 +180,47 @@ sub draw {
 	my $self = shift;
 
 	my $working_dir = WeBWorK::PG::ImageGenerator::makeTempDirectory(WeBWorK::PG::IO::pg_tmp_dir(), "latex");
-	my $data;
 
 	my $ext       = $self->ext;
 	my $svgMethod = $self->svgMethod;
-
-	my $fh;
 
 	# Create either one or two tex files with one small difference:
 	# set pgfsysdriver to pgfsys-dvisvgm.def for a tex file that dvisvgm will use
 	# Then make only the dvi, only the pdf, or both in case we are making tgz with svg via dvisvgm
 	if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod eq 'dvisvgm') {
-		open($fh, ">", "$working_dir/image-dvisvgm.tex")
-			or warn "Can't open $working_dir/image-dvisvgm.tex for writing.";
-		my @header = $self->header;
-		splice @header, 1, 0, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n";
-		chmod(0777, "$working_dir/image-dvisvgm.tex");
-		print $fh @header;
-		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
-		print $fh $self->footer;
-		close $fh;
-		system "cd $working_dir && "
-			. WeBWorK::PG::IO::externalCommand('latex')
-			. " --interaction=nonstopmode image-dvisvgm.tex > latex.stdout 2> /dev/null && "
-			. WeBWorK::PG::IO::externalCommand('mv')
-			. " image-dvisvgm.dvi image.dvi";
-		chmod(0777, "$working_dir/image.dvi");
+		if (open(my $fh, ">", "$working_dir/image-dvisvgm.tex")) {
+			my @header = $self->header;
+			splice @header, 1, 0, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n";
+			chmod(0777, "$working_dir/image-dvisvgm.tex");
+			print $fh @header;
+			print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
+			print $fh $self->footer;
+			close $fh;
+			system "cd $working_dir && "
+				. WeBWorK::PG::IO::externalCommand('latex')
+				. " --interaction=nonstopmode image-dvisvgm.tex > latex.stdout 2> /dev/null";
+			move("$working_dir/image-dvisvgm.dvi", "$working_dir/image.dvi");
+			chmod(0777, "$working_dir/image.dvi");
+		} else {
+			warn "Can't open $working_dir/image-dvisvgm.tex for writing.";
+			return '';
+		}
 	}
 	if ($ext ne 'svg' || ($ext eq 'svg' && $svgMethod ne 'dvisvgm')) {
-		open($fh, ">", "$working_dir/image.tex")
-			or warn "Can't open $working_dir/image.tex for writing.";
-		chmod(0777, "$working_dir/image.tex");
-		print $fh $self->header;
-		print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
-		print $fh $self->footer;
-		close $fh;
-		system "cd $working_dir && "
-			. WeBWorK::PG::IO::externalCommand('pdflatex')
-			. " --interaction=nonstopmode image.tex > pdflatex.stdout 2> /dev/null";
-		chmod(0777, "$working_dir/image.pdf");
+		if (open(my $fh, ">", "$working_dir/image.tex")) {
+			chmod(0777, "$working_dir/image.tex");
+			print $fh $self->header;
+			print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
+			print $fh $self->footer;
+			close $fh;
+			system "cd $working_dir && "
+				. WeBWorK::PG::IO::externalCommand('latex2pdf')
+				. " --interaction=nonstopmode image.tex > latex.stdout 2> /dev/null";
+			chmod(0777, "$working_dir/image.pdf");
+		} else {
+			warn "Can't open $working_dir/image.tex for writing.";
+			return '';
+		}
 	}
 
 	# Make derivatives of the dvi
@@ -250,7 +251,7 @@ sub draw {
 			}
 		} else {
 			warn "The pdf file was not created.";
-			if (open(my $err_fh, "<", "$working_dir/pdflatex.stdout")) {
+			if (open(my $err_fh, "<", "$working_dir/latex.stdout")) {
 				while (my $error = <$err_fh>) {
 					warn $error;
 				}
@@ -267,6 +268,8 @@ sub draw {
 		warn "Failed to generate tgz file." unless -r "$working_dir/image.tgz";
 	}
 
+	my $data;
+
 	# Read the generated image file into memory
 	if (-r "$working_dir/image.$ext") {
 		open(my $in_fh, "<", "$working_dir/image.$ext")
@@ -279,16 +282,13 @@ sub draw {
 	}
 
 	# Delete the files used to generate the image.
-	if (-e $working_dir) {
-		system WeBWorK::PG::IO::externalCommand('rm') . " -rf $working_dir";
-	}
+	WeBWorK::PG::IO::remove_tree($working_dir) if -e $working_dir;
 
 	return $data;
 }
 
 sub use_svgMethod {
-	my $self        = shift;
-	my $working_dir = shift;
+	my ($self, $working_dir) = @_;
 	if ($self->svgMethod eq 'dvisvgm') {
 		system WeBWorK::PG::IO::externalCommand('dvisvgm')
 			. " $working_dir/image.dvi --no-fonts --output=$working_dir/image.svg > /dev/null 2>&1";
@@ -297,18 +297,20 @@ sub use_svgMethod {
 			. " $working_dir/image.pdf $working_dir/image.svg > /dev/null 2>&1";
 	}
 	warn "Failed to generate svg file." unless -r "$working_dir/image.svg";
+
+	return;
 }
 
 sub use_convert {
-	my $self        = shift;
-	my $working_dir = shift;
-	my $ext         = shift;
+	my ($self, $working_dir, $ext) = @_;
 	system WeBWorK::PG::IO::externalCommand('convert')
 		. join('', map { " -$_ " . $self->convertOptions->{input}->{$_} } (keys %{ $self->convertOptions->{input} }))
 		. " $working_dir/image.pdf"
 		. join('', map { " -$_ " . $self->convertOptions->{output}->{$_} } (keys %{ $self->convertOptions->{output} }))
 		. " $working_dir/image.$ext > /dev/null 2>&1";
 	warn "Failed to generate $ext file." unless -r "$working_dir/image.$ext";
+
+	return;
 }
 
 1;

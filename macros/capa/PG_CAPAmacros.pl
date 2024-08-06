@@ -1,7 +1,5 @@
 
-BEGIN {
-	be_strict();
-}
+BEGIN { strict->import; }
 
 sub CAPA_ans {
 	my $ans              = shift;
