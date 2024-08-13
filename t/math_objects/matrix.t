@@ -70,11 +70,11 @@ subtest 'Triangular Matrices' => sub {
 subtest 'Transpose' => sub {
 	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
 	my $B = Matrix([ [ 1, 5, 9 ], [ 2, 6, 10 ], [ 3, 7, 11 ], [ 4, 8, 12 ] ]);
-	is $A->transpose->value, $B->value, 'Test the tranpose of a matrix.';
+	is $A->transpose->TeX, $B->TeX, 'Test the tranpose of a matrix.';
 
 	my $row       = Matrix([ 1, 2, 3, 4 ]);
 	my $row_trans = Matrix([ [1], [2], [3], [4] ]);
-	is $row->transpose->value, $row_trans->value, 'Transpose of a Matrix with one row.';
+	is $row->transpose->TeX, $row_trans->TeX, 'Transpose of a Matrix with one row.';
 
 	my $C = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
 	like dies {
@@ -97,18 +97,18 @@ subtest 'Set an individual element' => sub {
 	my $A1 = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7,  8 ], [ 9, 10, 11, 12 ] ]);
 	my $A2 = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, -5, 8 ], [ 9, 10, 11, 12 ] ]);
 	$A1->setElement([ 2, 3 ], -5);
-	is $A1->value, $A2->value, 'Setting an individual element.';
+	is $A1->TeX, $A2->TeX, 'Setting an individual element.';
 
 	my $B1 = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
 	$B1->setElement([ 1, 2, 2 ], 10);
 	my $B2 = Matrix([ [ [ 1, 2 ], [ 3, 10 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
-	is $B1->value, $B2->value, 'Setting an element in a 2x2x2 matrix.';
+	is $B1->TeX, $B2->TeX, 'Setting an element in a 2x2x2 matrix.';
 };
 
 subtest 'Extract a row' => sub {
 	my $A1  = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
 	my $row = Matrix([ 5, 6, 7, 8 ]);
-	is $A1->row(2)->value, $row->value, 'Extract a column from a matrix.';
+	is $A1->row(2)->TeX, $row->TeX, 'Extract a row from a matrix.';
 
 	like dies {
 		$A1->row(-1);
@@ -118,7 +118,7 @@ subtest 'Extract a row' => sub {
 subtest 'Extract a column' => sub {
 	my $A1  = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
 	my $col = Matrix([ [2], [6], [10] ]);
-	is $A1->column(2)->value, $col->value, 'Extract a column from a matrix.';
+	is $A1->column(2)->TeX, $col->TeX, 'Extract a column from a matrix.';
 
 	like dies {
 		$A1->column(-1);
@@ -128,20 +128,18 @@ subtest 'Extract a column' => sub {
 subtest 'Identity matrix' => sub {
 	my $I = Value::Matrix->I(3);
 	my $B = Matrix([ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ] ]);
-
 	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
 
-	is $I->value,    $B->value, 'Create a 3 x 3 identity matrix.';
-	is $A->I->value, $B->value, 'Create a 3 x 3 identity matrix by using an existing matrix.';
+	is $I->TeX,    $B->TeX, 'Create a 3 x 3 identity matrix.';
+	is $A->I->TeX, $B->TeX, 'Create a 3 x 3 identity matrix by using an existing matrix.';
 };
 
 subtest 'Permutation matrices' => sub {
 	my $P1 = Value::Matrix->P(3, [ 1, 2, 3 ]);
-	is $P1->value, Matrix([ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ])->value,
-		'Create permuation matrix on cycle (123)';
+	is $P1->TeX, Matrix([ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ])->TeX, 'Create permuation matrix on cycle (123)';
 
 	my $P2 = Value::Matrix->P(6, [ 1, 3 ], [ 2, 4, 6 ]);
-	is $P2->value,
+	is $P2->TeX,
 		Matrix([
 			[ 0, 0, 1, 0, 0, 0 ],
 			[ 0, 0, 0, 0, 0, 1 ],
@@ -149,22 +147,23 @@ subtest 'Permutation matrices' => sub {
 			[ 0, 1, 0, 0, 0, 0 ],
 			[ 0, 0, 0, 0, 1, 0 ],
 			[ 0, 0, 0, 1, 0, 0 ]
-		])->value, 'Create a permutation matrix on cycle product (13)(246)';
+		])->TeX, 'Create a permutation matrix on cycle product (13)(246)';
 
 	my $A  = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ] ]);
 	my $P3 = $A->P([ 1, 4 ]);
-	is $P3->value, Matrix([ [ 0, 0, 0, 1 ], [ 0, 1, 0, 0 ], [ 0, 0, 1, 0 ], [ 1, 0, 0, 0 ] ])->value,
+	is $P3->TeX,
+		Matrix([ [ 0, 0, 0, 1 ], [ 0, 1, 0, 0 ], [ 0, 0, 1, 0 ], [ 1, 0, 0, 0 ] ])->TeX,
 		'Create a permutation matrix based on an existing matrix.';
 };
 
 subtest 'Zero matrix' => sub {
 	my $Z1 = Matrix([ [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ] ]);
 	my $Z2 = Matrix([ [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ] ]);
-	is Value::Matrix->Zero(3, 4)->value, $Z1->value, 'Create a 3 by 4 zero matrix.';
-	is Value::Matrix->Zero(4)->value,    $Z2->value, 'Create a 4 by 4 zero matrix.';
+	is Value::Matrix->Zero(3, 4)->TeX, $Z1->TeX, 'Create a 3 by 4 zero matrix.';
+	is Value::Matrix->Zero(4)->TeX,    $Z2->TeX, 'Create a 4 by 4 zero matrix.';
 
 	my $A1 = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
-	is $A1->Zero->value, $Z1->value, 'Create a zero matrix with same size as the given one.';
+	is $A1->Zero->TeX, $Z1->TeX, 'Create a zero matrix with same size as the given one.';
 
 	like dies {
 		Value::Matrix->Zero(4, 0);
@@ -173,16 +172,15 @@ subtest 'Zero matrix' => sub {
 
 subtest 'Elementary Matrices' => sub {
 	my $E1 = Value::Matrix->E(3, [ 1, 3 ]);
-	is $E1->value, Matrix([ [ 0, 0, 1 ], [ 0, 1, 0 ], [ 1, 0, 0 ] ])->value, 'Elementary Matrix with a row swap';
+	is $E1->TeX, Matrix([ [ 0, 0, 1 ], [ 0, 1, 0 ], [ 1, 0, 0 ] ])->TeX, 'Elementary Matrix with a row swap';
 
 	my $E2 = Value::Matrix->E(4, [2], 3);
-	is $E2->value, Matrix([ [ 1, 0, 0, 0 ], [ 0, 4, 0, 0 ], [ 0, 0, 1, 0 ], [ 0, 0, 0, 1 ] ])->value,
+	is $E2->TeX, Matrix([ [ 1, 0, 0, 0 ], [ 0, 3, 0, 0 ], [ 0, 0, 1, 0 ], [ 0, 0, 0, 1 ] ])->TeX,
 		'Elementary Matrix with row multiple.';
 
 	my $E3 = Value::Matrix->E(4, [ 3, 2 ], -3);
-	is $E3->value, Matrix([ [ 1, 0, 0, 0 ], [ 0, 1, 0, 0 ], [ 0, -3, 1, 0 ], [ 0, 0, 0, 1 ] ])->value,
+	is $E3->TeX, Matrix([ [ 1, 0, 0, 0 ], [ 0, 1, 0, 0 ], [ 0, -3, 1, 0 ], [ 0, 0, 0, 1 ] ])->TeX,
 		'Elementary Matrix with row multiple and add.';
-
 };
 
 subtest 'Submatrix' => sub {
@@ -194,36 +192,50 @@ subtest 'Submatrix' => sub {
 	my $s3   = $A->subMatrix([ 3, 1, 2 ], [ 1, 4, 2 ]);
 	my $sub3 = Matrix([ [ 9, 12, 10 ], [ 1, 4, 2 ], [ 5, 8, 6 ] ]);
 
-	is $s1->value, $sub1->value, 'Finding a submatrix giving the rows/cols in ordered form.';
-	is $s2->value, $sub2->value, 'Finding a submatrix given the row/col to remove.';
-	is $s3->value, $sub3->value, 'Finding a submatrix with rearranging rows/cols.';
+	is $s1->TeX, $sub1->TeX, 'Finding a submatrix giving the rows/cols in ordered form.';
+	is $s2->TeX, $sub2->TeX, 'Finding a submatrix given the row/col to remove.';
+	is $s3->TeX, $sub3->TeX, 'Finding a submatrix with rearranging rows/cols.';
+
+	my $B = Matrix([ 2, 4, 6, 8 ]);
+
+	is $B->subMatrix([3])->TeX, Matrix([6])->TeX, 'Finding a submatrix of a 1D matrix by passing in arrayref';
+	is $B->subMatrix(3)->TeX, Matrix([ 2, 4, 8 ])->TeX,
+		'Finding a submatrix of a 1D matrix by passing in an integer';
+
+	my $B3     = Matrix([ [ [ 1, 2, 3 ], [ 4, 5, 6 ] ], [ [ 7, 8, 9 ], [ 10, 11, 12 ] ] ]);
+	my $B3sub1 = Matrix([ [ [ 1, 3 ], [ 4, 6 ] ], [ [ 7, 9 ], [ 10, 12 ] ] ]);
+	my $B3sub2 = Matrix([ [ [ 7, 8 ] ] ]);
+	is $B3->subMatrix([ 1, 2 ], [ 1, 2 ], [ 1, 3 ])->TeX, $B3sub1->TeX,
+		'Finding a submatrix of a 3D matrix by specifying indices.';
+	is $B3->subMatrix(1, 2, 3)->TeX, $B3sub2->TeX,
+		'Finding a submatrix of a 3D matrix by specifying integers (indices to eliminate).';
 
 	like dies {
 		$A->subMatrix(-1, 2);
-	}, qr/The input -?\d+ is not a valid row/, 'check that error is thrown for an invalid row.';
+	}, qr/The input -?\d+ is not a valid index/, 'check that error is thrown for an invalid row.';
 	like dies {
 		$A->subMatrix(10, 2);
-	}, qr/The input -?\d+ is not a valid row/, 'check that error is thrown for an invalid row.';
+	}, qr/The input -?\d+ is not a valid index/, 'check that error is thrown for an invalid row.';
 	like dies {
 		$A->subMatrix(2, -3);
-	}, qr/The input -?\d+ is not a valid column/, 'check that error is thrown for an invalid column.';
+	}, qr/The input -?\d+ is not a valid index/, 'check that error is thrown for an invalid column.';
 	like dies {
 		$A->subMatrix(2, 10);
-	}, qr/The input -?\d+ is not a valid column/, 'check that error is thrown for an invalid column.';
+	}, qr/The input -?\d+ is not a valid index/, 'check that error is thrown for an invalid column.';
 
 	like dies {
 		$A->subMatrix(1.1, 2);
-	}, qr/The input -?[\.\d]+ is not a valid row/, 'check that error is thrown for an non integer row.';
+	}, qr/The input -?[\.\d]+ is not a valid index/, 'check that error is thrown for an non integer row.';
 	like dies {
 		$A->subMatrix(1, 2.5);
-	}, qr/The input -?[\.\d]+ is not a valid column/, 'check that error is thrown for an non integer column.';
+	}, qr/The input -?[\.\d]+ is not a valid index/, 'check that error is thrown for an non integer column.';
 
 	like dies {
 		$A->subMatrix([ 1, 1.1, 2 ], [ 2, 3 ]);
-	}, qr/The input -?[\.\d]+ is not a valid row/, 'check that error is thrown for an non integer row.';
+	}, qr/The input -?[\.\d]+ is not a valid index/, 'check that error is thrown for an non integer row.';
 	like dies {
 		$A->subMatrix([ 1, 2 ], [ 2.5, 3 ]);
-	}, qr/The input -?[\.\d]+ is not a valid column/, 'check that error is thrown for an non integer column.';
+	}, qr/The input -?[\.\d]+ is not a valid index/, 'check that error is thrown for an non integer column.';
 
 	like dies {
 		$A->subMatrix([ 1, 2, 3 ], 2);
@@ -232,23 +244,25 @@ subtest 'Submatrix' => sub {
 
 subtest 'Remove Row/Col' => sub {
 	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ] ]);
-	is $A->removeRow(2)->value, Matrix([ [ 1, 2, 3, 4 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ] ])->value,
+	is $A->removeRow(2)->TeX, Matrix([ [ 1, 2, 3, 4 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ] ])->TeX,
 		'remove a row from a matrix.';
 
 	like dies {
 		$A->removeRow(5);
-	}, qr/The input (.*) is not a valid row/, 'Testing for a row that doesn\'t exist.';
+	}, qr/The input (.*) is not a valid row/, 'Testing for a row that doesn\' t exist . ';
 
 	like dies {
 		Matrix([ [ [ 1, 2 ], [ 3, 10 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ])->removeRow(2);
-	}, qr/The method removeRow is only valid for 2D matrices\./, 'Try to remove a row of a 3D matrix.';
+	}, qr/The method removeRow is only valid for 2D matrices\./, '
+        Try to remove a row of a 3 D matrix . ';
 
-	is $A->removeColumn(3)->value, Matrix([ [ 1, 2, 4 ], [ 5, 6, 8 ], [ 9, 10, 12 ], [ 13, 14, 16 ] ])->value,
-		'Remove a column from a matrix.';
+	is $A->removeColumn(3)->TeX, Matrix([ [ 1, 2, 4 ], [ 5, 6, 8 ], [ 9, 10, 12 ], [ 13, 14, 16 ] ])->TeX,
+		' Remove a column from a matrix . ';
 
 	like dies {
 		$A->removeColumn(7);
-	}, qr/The input (.*) is not a valid column/, 'Testing for a column that doesn\'t exist.';
+	}, qr/The input (.*) is not a valid column/, ' Testing
+        for a column that doesn \'t exist.';
 
 	like dies {
 		Matrix([ [ [ 1, 2 ], [ 3, 10 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ])->removeColumn(2);

@@ -6,7 +6,9 @@
 
 =head1 Value::Matrix class
 
-References:
+This is the Math Object code for a Matrix.
+
+=head2 References:
 
 =over
 
@@ -18,11 +20,7 @@ References:
 
 =back
 
-For allowing Matrices in Fractions, see L<http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2978>
-
-    Context()->parens->set("[" => {formMatrix => 1});
-
-=head2 Files interacting with Matrices:
+=head2 Matrix-Related libraries and macros:
 
 =over
 
@@ -46,7 +44,7 @@ For allowing Matrices in Fractions, see L<http://webwork.maa.org/moodle/mod/foru
 
 =item L<tableau.pl>
 
-=item quickMatrixEntry.pl
+=item L<quickMatrixEntry.pl>
 
 =item L<LinearProgramming.pl>
 
@@ -55,11 +53,17 @@ For allowing Matrices in Fractions, see L<http://webwork.maa.org/moodle/mod/foru
 =head2 Contexts
 
 =over
-=item C<Matrix> -- allows students to enter [[3,4],[3,6]]
-				 -- formMatrix =>1 also allows this?
-=item C<Complex-Matrix> -- allows complex entries
+
+=item C<Matrix>
+
+Allows students to enter C<[[3,4],[3,6]]>
+
+=item C<Complex-Matrix>
+
+Allows complex entries
 
 =back
+
 
 =head2 Creation of Matrices
 
@@ -69,16 +73,16 @@ Examples:
 
     $M1 = Matrix([1,2],[3,4]);
     $M2 = Matrix([5,6],[7,8]);
-    $v = Vector(9,10);
-    $w = ColumnVector(9,10); # differs in how it is printed
 
 Commands added in Value::matrix
 
 Conversion:
+
     $matrix->value produces [[3,4,5],[1,3,4]] recursive array references of numbers (not MathObjects)
     $matrix->wwMatrix   produces CPAN MatrixReal1 matrix, used for computation subroutines
 
 Information
+
     $matrix->dimension:  ARRAY
 
 Access values
@@ -88,7 +92,8 @@ Access values
     element : Real or Complex value
 
 Update values
-    setElement.
+
+    setElement
 
 See C<change_matrix_entry()> in MatrixReduce and L<http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2970>
 
@@ -127,6 +132,20 @@ The commands below are Value::Matrix B<methods> unless otherwise noted.
     solve_GSM
     solve_SSM
     solve_RM
+
+=head2 Fractions in Matrices
+
+One can use fractions in Matrices by including C<Context("Fraction")>.  For example
+
+    Context("Fraction");
+    $A = Matrix([
+      [Fraction(1,1), Fraction(1,2), Fraction(1,3)],
+      [Fraction(1,2), Fraction(1,3), Fraction(1,4)],
+      [Fraction(1,3), Fraction(1,4), Fraction(1,5)]]);
+
+and operations will be done using rational arithmetic.   Also helpful is the method
+C<apply_fraction_to_matrix_entries> in the L<MatrixReduce.pl> macro.   Some additional information can be
+found in L<https://webwork.maa.org/moodle/mod/forum/discuss.php?d=2978>.
 
 =head2 methods
 
@@ -548,9 +567,7 @@ sub mult {
 	}
 
 	#  Make points and vectors into columns if they are on the right.
-
-	if   (!$flag && Value::classMatch($r, 'Point', 'Vector')) { $r = ($self->promote($r))->transpose }
-	else                                                      { $r = $self->promote($r) }
+	$r = !$flag && Value::classMatch($r, 'Point', 'Vector') ? ($self->promote($r))->transpose : $self->promote($r);
 
 	if ($flag) { my $tmp = $l; $l = $r; $r = $tmp }
 	my @dl = $l->dimensions;
@@ -558,10 +575,9 @@ sub mult {
 	if (scalar(@dl) == 1) { @dl = (1, @dl); $l = $self->make($l) }
 	if (scalar(@dr) == 1) { @dr = (@dr, 1); $r = $self->make($r)->transpose }
 	Value::Error("Can only multiply 2-dimensional matrices") if scalar(@dl) > 2 || scalar(@dr) > 2;
-	Value::Error("Matrices of dimensions %dx%d and %dx%d can't be multiplied", @dl, @dr)
-		unless ($dl[1] == $dr[0]);
+	Value::Error("Matrices of dimensions %dx%d and %dx%d can't be multiplied", @dl, @dr) unless ($dl[1] == $dr[0]);
 
-	#  Perform atrix multiplication.
+	#  Perform matrix multiplication.
 
 	my @l = $l->value;
 	my @r = $r->value;
@@ -635,7 +651,7 @@ sub conj { shift->twiddle(@_) }
 sub twiddle {
 	my $self   = promote(@_);
 	my @coords = ();
-	foreach my $x (@{ $self->data }) { push(@coords, ($x->can("conj") ? $x->conj : $x)) }
+	for my $x (@{ $self->data }) { push(@coords, ($x->can("conj") ? $x->conj : $x)); }
 	return $self->make(@coords);
 }
 
@@ -655,6 +671,7 @@ sub transpose {
 	my @d    = $self->dimensions;
 	if (scalar(@d) == 1) { @d = (1, @d); $self = $self->make($self) }
 	Value::Error("Can't transpose %d-dimensional matrices", scalar(@d)) unless scalar(@d) == 2;
+
 	my @M = ();
 	my $M = $self->data;
 	for my $j (0 .. $d[1] - 1) {
@@ -683,8 +700,10 @@ sub I {
 	my $d       = shift;
 	my $context = shift || $self->context;
 	$d = ($self->dimensions)[0] if !defined $d && ref($self);
+
 	Value::Error("You must provide a dimension for the Identity matrix") unless defined $d;
 	Value::Error("Dimension must be a positive integer")                 unless $d =~ m/^[1-9]\d*$/;
+
 	my @M    = ();
 	my $REAL = $context->Package('Real');
 
@@ -772,14 +791,16 @@ sub E {
 		($rows, $k, $context) = ($d, $rows, $k);
 		$d = ($self->dimensions)[0] if ref($self);
 	}
-	$context = $self->context                                             unless $context;
-	Value::Error("You must provide a dimension for an Elementary matrix") unless defined $d;
-	Value::Error("Dimension must be a positive integer")                  unless $d =~ m/^[1-9]\d*$/;
+	$context = $self->context unless $context;
 	my @ij = @{$rows};
+
+	Value::Error("You must provide a dimension for an Elementary matrix")             unless defined $d;
+	Value::Error("Dimension must be a positive integer")                              unless $d =~ m/^[1-9]\d*$/;
 	Value::Error("Either one or two rows must be specified for an Elementary matrix") unless (@ij == 1 || @ij == 2);
 	Value::Error(
 		"If only one row is specified for an Elementary matrix, then a number to scale by must also be specified")
 		if (@ij == 1 && !defined $k);
+
 	for (@ij) {
 		Value::Error("Row indices must be integers between 1 and $d")
 			unless ($_ =~ m/^[1-9]\d*$/ && $_ >= 1 && $_ <= $d);
@@ -845,6 +866,7 @@ sub P {
 	}
 	my $context = $self->context;
 	$d = ($self->dimensions)[0] if !defined $d && ref($self) && $self->isSquare;
+
 	Value::Error("You must provide a dimension for a Permutation matrix") unless defined $d;
 	Value::Error("Dimension must be a positive integer")                  unless $d =~ m/^[1-9]\d*$/;
 	for my $c (@cycles) {
@@ -895,6 +917,7 @@ sub Zero {
 	$n       = $m                     if !defined $n && defined $m;
 	$m       = ($self->dimensions)[0] if !defined $m && ref($self);
 	$n       = ($self->dimensions)[1] if !defined $n && ref($self);
+
 	Value::Error("You must provide dimensions for the Zero matrix") unless defined $m          && defined $n;
 	Value::Error("Dimension must be a positive integer")            unless $m =~ m/^[1-9]\d*$/ && $n =~ m/^[1-9]\d*$/;
 	my @M    = ();
@@ -933,7 +956,7 @@ Extract a given column from the matrix.
 
 Usage:
 
-    my $A1 = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
+    $A1 = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
     $A1->column(2);  # returns the column Matrix [[2],[6],[10]]
 
 =cut
@@ -962,13 +985,13 @@ Extract an element from the given row/col.
 
 Usage:
 
-    my $A    = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
+    $A    = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
     $A->element(2,3); # returns 7
 
-    my $B = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
+    $B = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
     $B->element(1,2,1); # returns 3;
 
-    my $row = Matrix([4,3,2,1]);
+    $row = Matrix([4,3,2,1]);
     $row->element(2); # returns 3;
 =cut
 
@@ -988,30 +1011,61 @@ Note: this mutates the matrix itself.
 
 Usage:
 
-    my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
+    $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
     $A->setElement([2,3],-5);
-
 
 =cut
 
 sub setElement {
 	my ($self, $ind, $value) = @_;
 
+	Value::Error("The index $ind->[0] does not exist in the matrix") unless defined $self->{data}[ $ind->[0] - 1 ];
+
 	# Drill down into the matrix
-	my $el = $self->{data}[ $ind->[0] - 1 ];
-	for my $i (1 .. scalar(@$ind) - 1) { $el = $el->{data}[ $ind->[$i] - 1 ]; }
+	my $el = \($self->{data}[ $ind->[0] - 1 ]);
+	for my $i (1 .. scalar(@$ind) - 1) {
+		Value::Error("The index $ind->[$i] does not exist in the matrix") unless defined $$el->{data}[ $ind->[$i] - 1 ];
+		$el = \($$el->{data}[ $ind->[$i] - 1 ]);
+	}
 
 	# update the value of $el
-	$el = Value::makeValue($value);
+	$$el = Value::makeValue($value);
+}
+
+# The subroutine extractElements is used in the subMatrix routine.  This called recursively to handle
+# any dimension of a Matrix. initially $indices needs to be [] and $elements an arrayref of the
+# elements to be extracted.
+#
+# Through subsequent passes through the subroutine, the indices in the $elements arguments are passed to the $indices.
+
+sub extractElements {
+	my ($self, $indices, $elements) = @_;
+
+	# These need to be copies of the array arguments.
+	my @ind_copy      = @$indices;
+	my @elements_copy = @$elements;
+
+	my $ind = shift @elements_copy;
+	push(@ind_copy, [ 1 .. scalar(@$ind) ]);
+
+	my @M;
+	for my $i (@$ind) {
+		push(@M,
+			ref $self->element($i) eq 'Value::Matrix'
+			? $self->element($i)->extractElements(\@ind_copy, \@elements_copy)
+			: $self->element($i));
+	}
+
+	return $self->make($self->context, @M);
 }
 
 =head3 C<subMatrix>
 
 
-Return a submatrix of the matrix.  If the rows and columns are array refs, the given rows and
-columns of the matrix are returns as a Matrix object.
+Return a submatrix of the matrix.  If the indices are array refs, the given rows and
+columns (or more) of the matrix are returns as a Matrix object.
 
-If the input are integers, then the submatrix with that row and column removed.
+If the input are integers, then the submatrix with those indices removed.
 
 Usage:
 
@@ -1022,37 +1076,51 @@ Usage:
     $A->subMatrix(2,3);  # returns Matrix([ [ 1, 2, 4 ], [ 9, 10, 12 ] ]);
 
     $A->subMatrix([3,1,2],[1,4,2]);  # returns Matrix([9,12,10],[1,4,2],[5,8,6]);
+
+This subroutine can be used on non 2D matrices.  For example,
+
+    $B = Matrix([2, 4, 6, 8]);
+    $B->subMatrix([1, 3]);   # returns Matrix([2, 6]);
+    $B->subMatrix(2);        # returns Matrix([2, 6, 8]);
+
+And for 3D matrices:
+
+    $C = Matrix([ [ [ 1, 2, 3 ], [ 4, 5, 6 ] ], [ [ 7, 8, 9 ], [ 10, 11, 12 ] ] ]);
+    $C->subMatrix([1, 2], [1, 2], [1, 3]);    # returns Matrix([ [ [ 1, 3 ], [ 4, 6 ] ], [ [ 7, 9 ], [ 10, 12 ] ] ]);
+
+    $C->subMatrix(1,2,3); # returns Matrix([ [ [ 7, 8 ] ] ]);
+
 =cut
 
 sub subMatrix {
-	my ($self, $r, $c) = @_;
-	my $context = $self->context;
-	my ($rows, $cols);
-	my ($nrow, $ncol) = $self->dimensions;
+	my ($self, @ind) = @_;
+	my @dim = $self->dimensions;
+	my @indices;    # Indices to keep for submatrix.
 
-	# check if the inputs are integers.
-	if (ref $r eq '' && ref $c eq '') {
-		Value::Error("The input $r is not a valid row.")    unless $r >= 1 && $r <= $nrow && int($r) == $r;
-		Value::Error("The input $c is not a valid column.") unless $c >= 1 && $c <= $ncol && int($c) == $c;
-		$rows = [ grep { $_ != $r } (1 .. $nrow) ];
-		$cols = [ grep { $_ != $c } (1 .. $ncol) ];
-	} elsif (ref $r eq 'ARRAY' && ref $c eq 'ARRAY') {
-		$rows = $r;
-		$cols = $c;
-		for my $i (@$rows) {
-			Value::Error("The input $i is not a valid row.") unless int($i) == $i && $i >= 1 && $i <= $nrow;
+	# check that the input is appropriate for the size of the matrix.
+	Value::Error("The indices must be array refs the same size as the dimension of the matrix.") unless $#dim == $#ind;
+
+	# check that inputs are either all integers or all array refs
+	my @index_types = keys %{ { map { ref $_, 1 } @ind } };
+
+	Value::Error('The inputs must both be integers or array refs.')
+		unless scalar(@index_types) == 1 && ($index_types[0] eq '' || $index_types[0] eq 'ARRAY');
+
+	for my $i (0 .. $#ind) {
+		if ($index_types[0] eq '') {    # input is a scalar (integer)
+			Value::Error("The input $ind[$i] is not a valid index")
+				unless $ind[$i] >= 1 && $ind[$i] <= $dim[$i] && int($ind[$i]) == $ind[$i];
+			push(@indices, [ grep { $_ != $ind[$i] } (1 .. $dim[$i]) ]);
+
+		} elsif ($index_types[0] eq 'ARRAY') {    # input are array refs
+			for my $j (@{ $ind[$i] }) {
+				Value::Error("The input $j is not a valid index") unless int($j) == $j && $j >= 1 && $j <= $dim[$i];
+			}
+			push(@indices, $ind[$i]);
 		}
-		for my $i (@$cols) {
-			Value::Error("The input $i is not a valid column.") unless int($i) == $i && $i >= 1 && $i <= $ncol;
-		}
-	} else {
-		Value::Error('The inputs must both be integers or array refs.');
 	}
-	my @M = ();
-	for my $r (@$rows) {
-		push(@M, $self->make($context, map { $self->element($r, $_) } @$cols));
-	}
-	return $self->make($context, @M);
+
+	return $self->extractElements([], \@indices);
 }
 
 =head3 C<removeRow>
@@ -1072,13 +1140,13 @@ sub removeRow {
 	my ($self, $row) = @_;
 	my $context = $self->context;
 	my @d       = $self->dimensions;
-	Value::Error("The method removeRow is only valid for 2D matrices.") unless scalar(@d) eq 2;
+	Value::Error("The method removeRow is only valid for 2D matrices.") unless scalar(@d) == 2;
 	my ($nrow, $ncol) = @d;
 	Value::Error("The input $row is not a valid row.")
 		unless ref($row) eq '' && $row >= 1 && $row <= $nrow && int($row) == $row;
 
 	my @M = ();
-	for my $r (1 .. $nrow) { push(@M, $self->make($context, $r)) unless $r eq $row; }
+	for my $r (1 .. $nrow) { push(@M, $self->row($r)) unless $r eq $row; }
 	return $self->make($context, @M);
 }
 
@@ -1112,9 +1180,6 @@ sub removeColumn {
 	}
 	return $self->make($context, @M);
 }
-
-# @@@ removeRow, removeColumn @@@
-# @@@ Minor @@@
 
 #  Convert MathObject Matrix to old-style Matrix
 sub wwMatrix {
@@ -1373,4 +1438,3 @@ sub TeX {
 }
 
 1;
-
