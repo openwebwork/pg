@@ -23,6 +23,11 @@ See L<plots.pl> for more details.
 
 package Plots::GD;
 
+use GD;
+
+use strict;
+use warnings;
+
 sub new {
 	my ($class, $pgplot) = @_;
 	my $self = {

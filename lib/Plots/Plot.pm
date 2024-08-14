@@ -23,10 +23,13 @@ See L<plots.pl> for more details.
 
 package Plots::Plot;
 
+use strict;
+use warnings;
+
 use Plots::Axes;
 use Plots::Data;
-use Plots::GD;
 use Plots::Tikz;
+use Plots::GD;
 
 sub new {
 	my ($class, $pg, @opts) = @_;
