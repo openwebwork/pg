@@ -107,6 +107,9 @@ to add / change the styles.
 
 package Plots::Data;
 
+use strict;
+use warnings;
+
 sub new {
 	my $class = shift;
 	my $self  = {

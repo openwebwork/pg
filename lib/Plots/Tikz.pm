@@ -23,6 +23,9 @@ See L<plots.pl> for more details.
 
 package Plots::Tikz;
 
+use strict;
+use warnings;
+
 sub new {
 	my ($class, $pgplot) = @_;
 	my $image = new LaTeXImage;
