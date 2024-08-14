@@ -190,6 +190,9 @@ be visible after the fill, otherwise the fill will cover the axis. Default: 0
 
 package Plots::Axes;
 
+use strict;
+use warnings;
+
 sub new {
 	my $class = shift;
 	my $self  = {
