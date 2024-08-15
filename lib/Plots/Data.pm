@@ -111,18 +111,8 @@ use strict;
 use warnings;
 
 sub new {
-	my $class = shift;
-	my $self  = {
-		name     => '',
-		x        => [],
-		y        => [],
-		function => {},
-		styles   => {},
-		@_
-	};
-
-	bless $self, $class;
-	return $self;
+	my ($class, %options) = @_;
+	return bless { name => '', x => [], y => [], function => {}, styles => {}, %options }, $class;
 }
 
 sub name {
@@ -166,13 +156,13 @@ sub style {
 }
 
 sub set_function {
-	my $self = shift;
+	my ($self, %options) = @_;
 	$self->{function} = {
 		sub_x => sub { return $_[0]; },
 		sub_y => sub { return $_[0]; },
 		min   => -5,
 		max   =>  5,
-		@_
+		%options
 	};
 	$self->style(steps => $self->{function}{steps}) if $self->{funciton}{steps};
 	return;
@@ -211,11 +201,11 @@ sub _add {
 }
 
 sub add {
-	my $self = shift;
-	if (ref($_[0]) eq 'ARRAY') {
-		for (@_) { $self->_add(@$_); }
+	my ($self, @points) = @_;
+	if (ref($points[0]) eq 'ARRAY') {
+		for (@points) { $self->_add(@$_); }
 	} else {
-		$self->_add(@_);
+		$self->_add(@points);
 	}
 	return;
 }

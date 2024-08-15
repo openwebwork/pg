@@ -32,10 +32,10 @@ use Plots::Tikz;
 use Plots::GD;
 
 sub new {
-	my ($class, $pg, @opts) = @_;
+	my ($class, $pg, %options) = @_;
 	my $size = $main::envir{onTheFlyImageSize} || 500;
 
-	my $self = {
+	my $self = bless {
 		pg        => $pg,
 		imageName => {},
 		type      => 'Tikz',
@@ -44,10 +44,9 @@ sub new {
 		axes      => Plots::Axes->new,
 		colors    => {},
 		data      => [],
-		@opts
-	};
+		%options
+	}, $class;
 
-	bless $self, $class;
 	$self->color_init;
 	return $self;
 }
@@ -57,18 +56,12 @@ sub colors {
 	return defined($color) ? $self->{colors}{$color} : $self->{colors};
 }
 
-sub _add_color {
-	my ($self, $color, $r, $g, $b) = @_;
-	$self->{'colors'}{$color} = [ $r, $g, $b ];
-	return;
-}
-
 sub add_color {
-	my $self = shift;
-	if (ref($_[0]) eq 'ARRAY') {
-		for (@_) { $self->_add_color(@$_); }
+	my ($self, @colors) = @_;
+	if (ref($colors[0]) eq 'ARRAY') {
+		for (@colors) { $self->{colors}{ $_->[0] } = [ @$_[ 1 .. 3 ] ]; }
 	} else {
-		$self->_add_color(@_);
+		$self->{colors}{ $colors[0] } = [ @colors[ 1 .. 3 ] ];
 	}
 	return;
 }
@@ -98,7 +91,10 @@ sub size {
 sub data {
 	my ($self, @names) = @_;
 	return wantarray ? @{ $self->{data} } : $self->{data} unless @names;
-	my @data = grep { my $name = $_->name; grep(/^$name$/, @names) } @{ $self->{data} };
+	my @data = grep {
+		my $name = $_->name;
+		grep {/^$name$/} @names
+	} @{ $self->{data} };
 	return wantarray ? @data : \@data;
 }
 
@@ -161,7 +157,7 @@ sub image_type {
 # Tikz needs to use pdf for hardcopy generation.
 sub ext {
 	my $self = shift;
-	return 'pdf' if ($self->{type} eq 'Tikz' && $main::displayMode eq 'TeX');
+	return 'pdf' if ($self->{type} eq 'Tikz' && eval('$main::displayMode') eq 'TeX');
 	return $self->{ext};
 }
 
@@ -169,7 +165,7 @@ sub ext {
 # Set $plot->{tikzDebug} to 1 to just generate the tikzCode, and not create a graph.
 sub tikz_code {
 	my $self = shift;
-	return ($self->{tikzCode} && $main::displayMode =~ /HTML/) ? '<pre>' . $self->{tikzCode} . '</pre>' : '';
+	return ($self->{tikzCode} && eval('$main::displayMode') =~ /HTML/) ? '<pre>' . $self->{tikzCode} . '</pre>' : '';
 }
 
 # Add functions to the graph.
@@ -298,11 +294,11 @@ sub _add_dataset {
 }
 
 sub add_dataset {
-	my $self = shift;
-	if (ref($_[0]) eq 'ARRAY' && ref($_[0]->[0]) eq 'ARRAY') {
-		return [ map { $self->_add_dataset(@$_); } @_ ];
+	my ($self, @data) = @_;
+	if (ref($data[0]) eq 'ARRAY' && ref($data[0][0]) eq 'ARRAY') {
+		return [ map { $self->_add_dataset(@$_); } @data ];
 	}
-	return $self->_add_dataset(@_);
+	return $self->_add_dataset(@data);
 }
 
 sub _add_label {
@@ -324,8 +320,8 @@ sub _add_label {
 }
 
 sub add_label {
-	my $self = shift;
-	return ref($_[0]) eq 'ARRAY' ? [ map { $self->_add_label(@$_); } @_ ] : $self->_add_label(@_);
+	my ($self, @labels) = @_;
+	return ref($labels[0]) eq 'ARRAY' ? [ map { $self->_add_label(@$_); } @labels ] : $self->_add_label(@labels);
 }
 
 # Fill regions only work with GD and are ignored in TikZ images.
@@ -339,8 +335,11 @@ sub _add_fill_region {
 }
 
 sub add_fill_region {
-	my $self = shift;
-	return ref($_[0]) eq 'ARRAY' ? [ map { $self->_add_fill_region(@$_); } @_ ] : $self->_add_fill_region(@_);
+	my ($self, @regions) = @_;
+	return
+		ref($regions[0]) eq 'ARRAY'
+		? [ map { $self->_add_fill_region(@$_); } @regions ]
+		: $self->_add_fill_region(@regions);
 }
 
 sub _add_stamp {
@@ -358,8 +357,8 @@ sub _add_stamp {
 }
 
 sub add_stamp {
-	my $self = shift;
-	return ref($_[0]) eq 'ARRAY' ? [ map { $self->_add_stamp(@$_); } @_ ] : $self->_add_stamp(@_);
+	my ($self, @stamps) = @_;
+	return ref($stamps[0]) eq 'ARRAY' ? [ map { $self->_add_stamp(@$_); } @stamps ] : $self->_add_stamp(@stamps);
 }
 
 # Output the image based on a configurable type:

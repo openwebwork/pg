@@ -28,23 +28,16 @@ use warnings;
 
 sub new {
 	my ($class, $pgplot) = @_;
-	my $image = new LaTeXImage;
+	my $image = LaTeXImage->new;
 	$image->environment('tikzpicture');
-	$image->svgMethod($main::envir{latexImageSVGMethod}           // 'pdf2svg');
+	$image->svgMethod($main::envir{latexImageSVGMethod}           // 'dvisvgm');
 	$image->convertOptions($main::envir{latexImageConvertOptions} // { input => {}, output => {} });
 	$image->ext($pgplot->ext);
-	$image->tikzLibraries('arrows.meta');
+	$image->tikzLibraries('arrows.meta,plotmarks');
 	$image->texPackages(['pgfplots']);
 	$image->addToPreamble('\pgfplotsset{compat=1.18}\usepgfplotslibrary{fillbetween}');
 
-	my $self = {
-		image  => $image,
-		pgplot => $pgplot,
-		colors => {},
-	};
-	bless $self, $class;
-
-	return $self;
+	return bless { image => $image, pgplot => $pgplot, colors => {} }, $class;
 }
 
 sub pgplot {

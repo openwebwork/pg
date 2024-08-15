@@ -30,16 +30,13 @@ use warnings;
 
 sub new {
 	my ($class, $pgplot) = @_;
-	my $self = {
+	return bless {
 		image    => '',
 		pgplot   => $pgplot,
 		position => [ 0, 0 ],
 		colors   => {},
-	};
-	bless $self, $class;
-
-	$self->{image} = new GD::Image($pgplot->size);
-	return $self;
+		image    => GD::Image->new($pgplot->size)
+	}, $class;
 }
 
 sub pgplot {
@@ -199,7 +196,7 @@ sub draw_label {
 
 sub draw_arrow_head {
 	my ($self, $x1, $y1, $x2, $y2, $color, $w) = @_;
-	return unless scalar(@_) > 4;
+	return unless @_ > 4;
 	$color = $self->color($color || 'default_color');
 	$w     = 1 unless $w;
 	($x1, $y1) = ($self->im_x($x1), $self->im_y($y1));
@@ -214,7 +211,7 @@ sub draw_arrow_head {
 	my $py   = $ux;
 	my $hbx  = $x2 - 7 * $w * $ux;
 	my $hby  = $y2 - 7 * $w * $uy;
-	my $head = new GD::Polygon;
+	my $head = GD::Polygon->new;
 	$head->addPt($x2,                 $y2);
 	$head->addPt($hbx + 3 * $w * $px, $hby + 3 * $w * $py);
 	$head->addPt($hbx - 3 * $w * $px, $hby - 3 * $w * $py);
