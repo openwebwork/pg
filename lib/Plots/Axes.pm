@@ -195,7 +195,7 @@ use warnings;
 
 sub new {
 	my $class = shift;
-	my $self  = {
+	my $self  = bless {
 		xaxis  => {},
 		yaxis  => {},
 		styles => {
@@ -206,9 +206,8 @@ sub new {
 			show_grid  => 1,
 		},
 		@_
-	};
+	}, $class;
 
-	bless $self, $class;
 	$self->xaxis($self->axis_defaults('x'));
 	$self->yaxis($self->axis_defaults('y'));
 	return $self;
@@ -249,13 +248,13 @@ sub axis {
 }
 
 sub xaxis {
-	my $self = shift;
-	return $self->axis('xaxis', @_);
+	my ($self, @items) = @_;
+	return $self->axis('xaxis', @items);
 }
 
 sub yaxis {
-	my $self = shift;
-	return $self->axis('yaxis', @_);
+	my ($self, @items) = @_;
+	return $self->axis('yaxis', @items);
 }
 
 sub set {
