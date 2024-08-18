@@ -14,7 +14,9 @@
 		// Render MathJax previews.
 		if (window.MathJax) {
 			feedbackBtn.addEventListener('show.bs.popover', () => {
-				MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise(['.popover-body']));
+				MathJax.startup.promise = MathJax.startup.promise.then(() =>
+					MathJax.typesetPromise(['.popover-body']).then(() => feedbackPopover.update())
+				);
 			});
 		}
 
@@ -70,7 +72,6 @@
 		if (feedbackBtn.dataset.showCorrectOnly) {
 			setTimeout(() => {
 				feedbackBtn.click();
-				setTimeout(() => feedbackPopover.update(), 100);
 			}, 0);
 		}
 	};
