@@ -148,6 +148,7 @@ sub Init {
 			TeX           => '\le ',
 			class         => 'Inequalities::BOP::inequality',
 			eval          => 'evalLessThanOrEqualTo',
+			alternatives  => ["\x{2264}"],
 			combine       => 1
 		},
 		'=<' => {
@@ -170,6 +171,7 @@ sub Init {
 			TeX           => '\ge ',
 			class         => 'Inequalities::BOP::inequality',
 			eval          => 'evalGreaterThanOrEqualTo',
+			alternatives  => ["\x{2265}"],
 			combine       => 1
 		},
 		'=>' => {
@@ -200,7 +202,8 @@ sub Init {
 			string        => ' != ',
 			TeX           => '\ne ',
 			class         => 'Inequalities::BOP::inequality',
-			eval          => 'evalNotEqualTo'
+			eval          => 'evalNotEqualTo',
+			alternatives  => ["\x{2260}"]
 		},
 
 		'and' => {
