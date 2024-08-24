@@ -751,7 +751,8 @@ sub checkbox {
 sub NAMED_POP_UP_LIST {
 	my ($name, @list) = @_;
 
-	my %options = ref($list[0]) eq 'ARRAY' ? (map { $_ => $_ } @{ $list[0] }) : @list;
+	my %options      = ref($list[0]) eq 'ARRAY' ? (map { $_ => $_ } @{ $list[0] }) : @list;
+	my @ordered_keys = ref($list[0]) eq 'ARRAY' ? @{ $list[0] } : @list[ grep { !($_ % 2) } 0 .. $#list ];
 
 	my $moodle_prefix = $envir{use_opaque_prefix} ? '%%IDPREFIX%%' : '';
 
@@ -775,7 +776,7 @@ sub NAMED_POP_UP_LIST {
 				join(
 					'',
 					map { tag('option', value => $_, $_ eq $answer_value ? (selected => undef) : (), $options{$_}) }
-						keys %options
+						@ordered_keys
 				)
 			)
 		);
