@@ -728,7 +728,7 @@ sub addUnit {
 			}
 		);
 		$constants->add(map { $_ => { alias => $name } } @$aliases) if $aliases;
-		$self->addUnitAliases($name) unless %options{noaliases};
+		$self->addUnitAliases($name) unless $options{noaliases};
 	} else {
 		$self->addUnitAliases($unit);
 	}
