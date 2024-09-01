@@ -123,7 +123,7 @@ Finally,
     Compute("1 apple") == Compute("2 oranges"); # returns 1
 
 will make an apple equivalent to two oranges by making both C<apples>
-and C<oranges> be examples of the fundamentaul unit C<fruit>.
+and C<oranges> be examples of the fundamental unit C<fruit>.
 
 You can remove individual units from the context using the
 C<removeUnits()> method of the context.  For example
@@ -135,7 +135,7 @@ units.  To remove a unit without removing its aliases, use C<removeUnitsNotAlias
 instead.
 
 Note that the units are stored in the context as constants, so to list
-all the units, together with other contants, use
+all the units, together with other constants, use
 
     Context()->constants->names;
 
@@ -342,7 +342,7 @@ object relative to the base units using the C<quantity> method:
 
     $q = Compute("3 ft")->quantity;    # returns .9144
 
-Using C<$m->quantity> is equivalent to calling C<$m->toBaseUnits->number>.
+Using C<< $m->quantity >> is equivalent to calling C<< $m->toBaseUnits->number >>.
 
 Finally, you can get the factor by which the given units must be
 multiplied to obtain the quantity in the fundamental base uses using
@@ -409,7 +409,7 @@ to increase the credit to 75%, or
 to give no partial credit.
 
 Similarly, if the correct answer is given with units of C<m>, then
-when C<sameUnits => 1> is set, an answer using C<cm> instead will be
+when C<< sameUnits => 1 >> is set, an answer using C<cm> instead will be
 given only partical credit.
 
 In the case where the units include products of units, like C<m s>,
@@ -423,7 +423,7 @@ right order.
 If the correct answer is C<m/s^2>, a student usually can enter C<m
 s^-2> and their answer will be counted as correct.  Similarly, if the
 correct answer is given as C<m s^-2>, then C<m/s^2> is also marked as
-correct.  When C<exactUnits => 1> is set, however, in addition to
+correct.  When C<< exactUnits => 1 >> is set, however, in addition to
 using the units in the same order, the student's answer must use the
 same form (either fraction or negative power) for units in the
 denominator, and will only get the C<particalCredit> value for using
