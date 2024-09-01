@@ -774,6 +774,11 @@ sub make {
 	return &{ $self->super("make") }($self, $context, $x, @_);
 }
 
+#
+#  Since this is called directly, pass it up to the parent
+#
+sub cmp_defaults { (shift)->SUPER::cmp_defaults(@_) }
+
 ##################################################
 
 package context::Fraction::Value::Real_Parens;
