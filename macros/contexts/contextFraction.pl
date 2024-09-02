@@ -604,7 +604,7 @@ sub _check {
 	if ($self->extensionClassMatch($self->{lop}, 'MINUS')) {
 		my $copy = bless {%$self}, $self->{def}{class};
 		$copy->{lop} = $copy->{lop}{op};
-		$self->mutate($self->Item("UOP")->new($self->{equation}, "u-", $copy));
+		$self->mutate($context, $self->Item("UOP")->new($self->{equation}, "u-", $copy));
 	} else {
 		bless $self, $self->{def}{class};
 	}
@@ -758,7 +758,7 @@ sub new {
 	my $x       = shift;
 	$x = $context->Package("Formula")->new($context, $x)->eval if !ref($x) && $x =~ m!/!;
 	$x = $x->eval                                              if @_ == 0  && Value::classMatch($x, 'Fraction');
-	return &{ $self->super("new") }($self, $context, $x, @_);
+	return $self->mutate($context)->new($context, $x, @_);
 }
 
 #
@@ -771,7 +771,7 @@ sub make {
 	my $x       = shift;
 	$x = $context->Package("Formula")->new($context, $x)->eval if !ref($x) && $x =~ m!/!;
 	$x = $x->eval                                              if @_ == 0  && Value::classMatch($x, 'Fraction');
-	return &{ $self->super("make") }($self, $context, $x, @_);
+	return $self->mutate($context)->make($context, $x, @_);
 }
 
 #

@@ -364,6 +364,11 @@ sub makeSubclass {
 #
 #  would get the string output from the original class.
 #
+#  If you are defining a new() or make() method (where the $self could be
+#  the class name rather than a class instance), you will need to pass the
+#  context to mutate(), super(), or superClass().  See the example for
+#  new() below.
+#
 #  The superClass() method gets you the name of the original class, in
 #  case you need to access any class variables from that.
 #
@@ -373,8 +378,8 @@ package context::Extensions::Super;
 #  Get a method from the original class from the extended context
 #
 sub super {
-	my ($self, $method) = @_;
-	return $self->superClass->can($method);
+	my ($self, $method, $context) = @_;
+	return $self->superClass($context)->can($method);
 }
 
 #
@@ -384,7 +389,7 @@ sub superClass {
 	my $self  = shift;
 	my $class = ref($self) || $self;
 	my $name  = $self->extensionContext;
-	my $data  = $self->context->{$name};
+	my $data  = (shift || $self->context)->{$name};
 	my $op    = $self->{bop} || $self->{uop};
 	return $op ? $data->{$op} : $data->{ substr($class, length($name) + 2) };
 }
@@ -394,15 +399,15 @@ sub superClass {
 #  if there is one, or the object's super class if not.
 #
 sub mutate {
-	my ($self, $other) = @_;
+	my ($self, $context, $other) = @_;
 	if ($other) {
 		delete $self->{$_} for (keys %$self);
 		$self->{$_} = $other->{$_} for (keys %$other);
 		bless $self, ref($other);
 	} elsif (ref($self) eq '') {
-		$self = $self->superClass;
+		$self = $self->superClass($context);
 	} else {
-		bless $self, $self->superClass;
+		bless $self, $self->superClass($context);
 	}
 	return $self;
 }
@@ -411,8 +416,9 @@ sub mutate {
 #  Use the super-class new() method
 #
 sub new {
-	my $self = shift;
-	return &{ $self->super("new") }($self, @_);
+	my $self    = shift;
+	my $context = Value::isContext($_[0]) ? $_[0] : $self->context;
+	return &{ $self->super("new", $context) }($self, @_);
 }
 
 #
@@ -431,7 +437,6 @@ sub class {
 #  one that returns the extension context's name.
 #
 sub extensionContext {
-	warn Value::traceback(1);
 	die "The context must subclass context::Extensions::Super and supply an extensionContext() method";
 }
 
