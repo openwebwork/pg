@@ -122,7 +122,7 @@ sub insertAll {
 	} elsif (defined($main::rh_sticky_answers->{$appletStateName})) {
 		$answer_value = shift(@{ $main::rh_sticky_answers->{$appletStateName} });
 	}
-	$answer_value =~ tr/\\$@`//d;    # Make sure student answers can not be interpolated by e.g. EV3
+	$answer_value =~ tr/\\$@`//d;    # Make sure student answers cannot be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;      # Remove excessive whitespace from student answer
 
 	# Regularize the applet's state which could be in either XML format or in XML format encoded by base64.

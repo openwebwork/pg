@@ -255,7 +255,7 @@ EOF
 # 	    warn "type of sticky answers is ", ref( $main::rh_sticky_answers->{$appletStateName} );
 # 		$answer_value = shift( @{ $main::rh_sticky_answers->{$appletStateName} });
 # 	}
-# 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers can not be interpolated by e.g. EV3
+# 	$answer_value =~ tr/\\$@`//d;   #`## make sure student answers cannot be interpolated by e.g. EV3
 # 	$answer_value =~ s/\s+/ /g;     ## remove excessive whitespace from student answer
 #
 # 	##########################

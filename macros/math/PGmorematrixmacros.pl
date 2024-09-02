@@ -447,7 +447,7 @@ sub compare_basis {
 This is a check_syntax type method (in fact I borrowed some of that method's code) for vector input.
 The student needs to enter vectors like:        [1,0,0],[1,2,3],[0,9/sqrt(10),1/sqrt(10)]
 Each entry can contain functions and operations and the usual math constants (pi and e).
-The vectors, however can not be added or multiplied or scalar multiplied by the student.
+The vectors, however cannot be added or multiplied or scalar multiplied by the student.
 Most errors are handled well. Any error in an entry is caught by the PG_answer_eval like it is in num_cmp or fun_cmp.
 Right now the method basically ignores every thing outside the vectors. Also, an unmatched open parenthesis is caught,
 but a unmatched close parenthesis ends the vector, and since everything outside is ignored, no error is sent (other than the

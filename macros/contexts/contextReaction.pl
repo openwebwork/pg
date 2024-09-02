@@ -75,7 +75,7 @@ them as variables:
 
 Then you can make formulas that include Heat as a term.  These
 "constants" are not allowed to have coefficients or sub- or
-superscripts, and can not be combined with compounds except by
+superscripts, and cannot be combined with compounds except by
 addition.  If you want a term that can be combined in those ways, use
 $context::Reaction::ELEMENT instead, as in
 

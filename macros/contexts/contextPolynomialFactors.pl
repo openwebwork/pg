@@ -32,7 +32,7 @@ degree can be included in each factor polynomial:
 
     Context("PolynomialFactors")->flags->set(singlePowers=>1);
 
-If you set the "singleFactors" flag, then factors can not be repeated.
+If you set the "singleFactors" flag, then factors cannot be repeated.
 For example,
 
     Context("PolynomialFactors")->flags->set(singleFactors=>1);

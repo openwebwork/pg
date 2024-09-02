@@ -272,7 +272,7 @@ our @ISA = qw(Parser::BOP::power);    # inherit from standard power (TeX method 
 sub _check {
 	my $self = shift;
 	my ($lop, $rop) = ($self->{lop}, $self->{rop});
-	$self->Error("The base can not have decimal places in scientific notation")
+	$self->Error("The base cannot have decimal places in scientific notation")
 		if $lop->{value} == 10 && $lop->{value_string} =~ m/\./;
 	$self->Error("You must use a power of 10 in scientific notation")
 		unless $lop->{value_string} eq "10";

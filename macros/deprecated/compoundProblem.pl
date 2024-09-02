@@ -6,7 +6,7 @@ sub _compoundProblem_init { };    # don't reload this file
 #  that show only a single part at any one time.  The students can
 #  work on one part at a time, and then when they get it right (or
 #  under other circumstances deterimed by the professor), they can
-#  move on to the next part.  Students can not return to earlier parts
+#  move on to the next part.  Students cannot return to earlier parts
 #  once they have been completed.  The score for problem as a whole is
 #  made up from the scores on the individual parts, and the relative
 #  weighting of the various parts can be specified by the problem
