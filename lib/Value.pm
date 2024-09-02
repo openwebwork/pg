@@ -308,10 +308,9 @@ sub matchNumber   { my $n = shift; $n =~ m/^$$Value::context->{pattern}{signedNu
 sub matchInfinite { my $n = shift; $n =~ m/^$$Value::context->{pattern}{infinite}$/i }
 sub isReal        { classMatch(shift, 'Real') }
 sub isComplex     { classMatch(shift, 'Complex') }
-# sub isContext {class(shift) eq 'Context'} # MEG
-sub isContext { my $symbol = shift || ""; class($symbol) eq 'Context' }
-sub isFormula { classMatch(shift, 'Formula') }
-sub isParser  { my $v = shift; isBlessed($v) && $v->isa('Parser::Item') }
+sub isContext     { class(shift // '') eq 'Context' }
+sub isFormula     { classMatch(shift, 'Formula') }
+sub isParser      { my $v = shift; isBlessed($v) && $v->isa('Parser::Item') }
 
 sub isValue {
 	my $v = shift // '';
