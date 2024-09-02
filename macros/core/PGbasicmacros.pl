@@ -1558,7 +1558,7 @@ sub processDivSpanOptions {
 			# Did not seem safe
 			$StyleVal = "";
 			WARN_MESSAGE(
-				"processDivSpanOptions received some characters in the STYLE string which are are not permitted by PG. As a result the entire STYLE string was dropped"
+				"processDivSpanOptions received some characters in the STYLE string which are not permitted by PG. As a result the entire STYLE string was dropped"
 			);
 		}
 	}

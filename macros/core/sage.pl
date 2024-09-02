@@ -21,7 +21,7 @@ sage.pl -- connect to a sage server.
 
 =head1 DESCRIPTION
 
-This macro contains subroutines to interact with with a sage server.
+This macro contains subroutines to interact with a sage server.
 
 =cut
 

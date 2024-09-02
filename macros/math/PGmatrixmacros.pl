@@ -182,7 +182,7 @@ sub display_matrix {
 	# column labels for linear programming
 	$out .= dm_special_tops(%opts, 'alignList' => $alignList) if ($opts{'top_labels'});
 	$out .= dm_mat_left($numRows, %opts);
-	my $cnt = 1;    # we count rows in in case an element is boxed
+	my $cnt = 1;    # we count rows in case an element is boxed
 					# vertical lines put in with first row
 	$j = shift @myRows;
 	my $tag = $opts{side_labels}->[ $cnt - 1 ];

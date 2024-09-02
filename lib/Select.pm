@@ -48,7 +48,7 @@ receive a sub-set of those questions by using choose.
 						# output the questions in a formatted string.
 						# If you want to change the way questions are
 						# printed, write your own print method and set
-						# this equal to a reference to to that method
+						# this equal to a reference to that method
 						# (i.e. $sl->rf_print_q = ~~&printing_routine_q)
 
 	rf_print_a			# reference to any subroutine which should
@@ -56,7 +56,7 @@ receive a sub-set of those questions by using choose.
 						# output the answers in a formatted string.
 						# If you want to change the way answers are
 						# printed, write your own print method and set
-						# this equal to a reference to to that method
+						# this equal to a reference to that method
 						# (i.e. $sl->rf_print_a = ~~&printing_routine_a)
 
 =head3 Methods

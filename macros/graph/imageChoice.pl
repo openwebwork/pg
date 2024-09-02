@@ -9,7 +9,7 @@ sub _imageChoice_init { };    # don't reload this file
 #  Usage:  $ml = new_image_match_list(options);
 #
 #  where options are those that can be supplied to image_print_a below.
-#  The answers should be an image name or reference to to a plot object
+#  The answers should be an image name or reference to a plot object
 #  (or a reference to a pair of either of these), and they are passed
 #  to the Image function for processing.  See unionUtils.pl for more
 #  information on how these are handled.

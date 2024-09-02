@@ -77,7 +77,7 @@ format and (as with Match.pm), if necessary, can be appended in order at the end
 							# output the questions in a formatted string.
 							# If you want to change the way questions are
 							# printed, write your own print method and set
-							# this equal to a reference to to that method
+							# this equal to a reference to that method
 							# (i.e. $sl->rf_print_q = ~~&printing_routine_q)
 
 	rf_print_a				# reference to any subroutine which should
@@ -85,7 +85,7 @@ format and (as with Match.pm), if necessary, can be appended in order at the end
 							# output the answers in a formatted string.
 							# If you want to change the way answers are
 							# printed, write your own print method and set
-							# this equal to a reference to to that method
+							# this equal to a reference to that method
 							# (i.e. $sl->rf_print_a = ~~&printing_routine_a)
 
 	ra_pop_up_list		    # Field used in sub classes that use pop_up_list_print_q

@@ -86,7 +86,7 @@ C<vmin> to C<vmax> to use.
 
 =item C<< axesframed => 1 >>
 
-If set to 1 then the framed axes are displayed.  If set to 0, the the framed
+If set to 1 then the framed axes are displayed.  If set to 0, the framed
 axes are not shown. This is 1 by default.
 
 =item C<< xaxislabel => 'x' >>
@@ -116,7 +116,7 @@ The thickness of the edges if C<edges> is 1.
 
 =item C<< mesh => 0 >>
 
-If set to 1, then the the edge mesh is shown and the polygons for the surface
+If set to 1, then the edge mesh is shown and the polygons for the surface
 are not filled.  If set to 0, then the polygons for the surface are filled.  The
 edge mesh can also be shown in this case by setting C<edges> to 1. This is 0 by
 default.

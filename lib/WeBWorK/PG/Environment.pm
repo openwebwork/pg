@@ -35,7 +35,7 @@ $ENV{PG_ROOT}/conf/pg_config.yml, and make changes in the copy.  The default
 values will be overriden with the changed values in the copy.  Note that invalid
 values added to the copy will cause a warning to be issued.
 
-If the the WeBWorK::CourseEnvironment module is found, then the configuration
+If the WeBWorK::CourseEnvironment module is found, then the configuration
 options are overridden with the values from a webwork2 course environment
 instance.  This is provided to maintain compatibility with webwork2, and should
 be removed at the end of life for webwork2.
@@ -98,7 +98,7 @@ sub new ($invocant, $courseName = '___') {
 
 	# Note that placeholders used in $pg_envir->{URLs}{html}, $pg_envir->{directories}{OPL}, and
 	# $pg_envir->{directories}{Contrib} are set on the first iteration, and those carry over to anywhere those
-	# placeholders are are used in other settings on the second iteration.
+	# placeholders are used in other settings on the second iteration.
 	for (1 .. 2) {
 		$pg_envir = replacePlaceholders(
 			$pg_envir,

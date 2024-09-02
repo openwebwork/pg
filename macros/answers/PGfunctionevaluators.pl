@@ -141,8 +141,8 @@ abstol is accepted as a synonym for tol.
 
 A relative tolerance. Relative tolerances are given in percentages. A relative
 tolerance of 1 indicates that when the student's function are evaluated, the
-result of evaluation at each point must be within within 1% of the correct
-answer to qualify as correct. In other words, a student answer is correct when
+result of evaluation at each point must be within 1% of the correct answer to
+qualify as correct. In other words, a student answer is correct when
 
 	abs(studentAnswer - correctAnswer) <= abs(.01*relTol*correctAnswer)
 

@@ -89,7 +89,7 @@ from C<ymin> to C<ymax> to use.
 
 =item C<< axesframed => 1 >>
 
-If set to 1 then the framed axes are displayed.  If set to 0, the the framed
+If set to 1 then the framed axes are displayed.  If set to 0, the framed
 axes are not shown. This is 1 by default.
 
 =item C<< xaxislabel => 'x' >>
@@ -185,7 +185,7 @@ The number of angular values in the interval from C<tmin> to C<tmax> to use.
 
 =item C<< axesframed => 1 >>
 
-If set to 1 then the frames axes are displayed.  If set to 0, the the framed
+If set to 1 then the frames axes are displayed.  If set to 0, the framed
 axes are not shown. This is 1 by default.
 
 =item C<< xaxislabel => 'x' >>
