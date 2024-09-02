@@ -1755,7 +1755,7 @@ sub addToTeXPreamble {
 
 		# in TeX mode we are typically creating an entire homework set
 		# and typesetting that so w only want the TeXPreamble to
-		# appear once -- towards the beginning.
+		# appear once -- toward the beginning.
 		# This is potentially fragile -- if one starts
 		# typesetting problems separately this will fail.
 		# The reason for the multicols commands is baroque
