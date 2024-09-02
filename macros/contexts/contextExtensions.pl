@@ -432,12 +432,19 @@ sub class {
 }
 
 #
-#  This method must be supplied by subclassing
+#  This method assumes the extension is in a class named
+#  "context::<name>" where <name> is replaced by the name of the
+#  context.  E.g., context::Quaternions in our example.
+#
+#  That assumption can be changed by subclassing
 #  context::Extensions::Super package and overriding this method with
-#  one that returns the extension context's name.
+#  one that returns the extension context's name.  It is more efficient
+#  to do that, anyway, but you can get away without it.
 #
 sub extensionContext {
-	die "The context must subclass context::Extensions::Super and supply an extensionContext() method";
+	my $self = shift;
+	my $class = join('::', (split(/::/, ref($self) || $self))[0, 1]);
+	return $class;
 }
 
 #################################################################################################
