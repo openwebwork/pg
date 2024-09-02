@@ -442,8 +442,8 @@ sub class {
 #  to do that, anyway, but you can get away without it.
 #
 sub extensionContext {
-	my $self = shift;
-	my $class = join('::', (split(/::/, ref($self) || $self))[0, 1]);
+	my $self  = shift;
+	my $class = join('::', (split(/::/, ref($self) || $self))[ 0, 1 ]);
 	return $class;
 }
 
