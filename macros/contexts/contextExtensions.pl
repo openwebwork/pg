@@ -322,7 +322,9 @@ sub makeSubclass {
 #  create a subclass of this class and define its extensionContext()
 #  method to return your base context name, and then include that
 #  subclass in your @ISA arrays for your new classes that override the
-#  original context's classes.
+#  original context's classes.  (This is not strictly necessary, but
+#  it is more efficient to do this than to have the Super class
+#  have to figure it out every time a Super method is used.)
 #
 #  For our quaternions example, you would use
 #
