@@ -188,7 +188,7 @@ L<https://webwork.maa.org/wiki/Custom_Answer_Checkers>, and
 L<https://webwork.maa.org/wiki/Custom_Answer_Checkers_for_Lists> for details on
 how to use these.
 
-Note that if using a standard C<checker> the the correct and student answers
+Note that if using a standard C<checker> the correct and student answers
 will be the MathObject List of indices corresponding to the only bucket if
 C<NumBuckets> is 1, and will be the MathObject List of indices corresponding to
 the second bucket if C<NumBuckets> is 2.  The checker should return a number

@@ -48,7 +48,7 @@ Command for a typical table:
 
 The cell entries above like C<a> may be simple cell content,
 a hash reference with C<< data => cellContent >> and options,
-or an array reference where the 0th entry is the the cell content
+or an array reference where the 0th entry is the cell content
 and it is followed by option key-value pairs.
 
 As much as possible, options apply to all output formats.

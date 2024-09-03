@@ -65,7 +65,7 @@ second hint.
       }
     }
 
-You can add more buttons in a similar way.  You can not have separate
+You can add more buttons in a similar way.  You cannot have separate
 buttons for separate hints that are NOT cascaded, however.  (That may
 be possible in future versions.)
 

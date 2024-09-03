@@ -48,7 +48,7 @@ sub new {
 	return bless sub {
 		my ($field, $value) = @_;
 		if (defined $value) {
-			# The ext field is protected to ensure that unsafe commands can not
+			# The ext field is protected to ensure that unsafe commands cannot
 			# be passed to the command line in the system call it is used in.
 			if ($field eq 'ext') {
 				$data->{ext} = $value if $value && ($value =~ /^(png|gif|svg|pdf|tgz)$/);

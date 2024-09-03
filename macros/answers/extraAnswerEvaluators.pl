@@ -367,7 +367,7 @@ sub interval_cmp {
 	$options{studentsMustReduceUnions} = $opts{studentsMustReduceUnions};
 	if (defined($opts{ordered}) and $opts{ordered}) {
 		$options{ordered} = 1;
-		# Force this option if the the union must be ordered
+		# Force this option if the union must be ordered
 		$options{studentsMustReduceUnions} = 1;
 	}
 	if (defined($opts{'sloppy'}) && $opts{'sloppy'} eq 'yes') {

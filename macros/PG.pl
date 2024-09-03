@@ -763,7 +763,7 @@ feedback button and other aspects of feedback.
 
 There are several options that can be modified, and a few different ways to make
 these modifications. Unfortunately, this is perhaps a little bit complicated to
-understand, and that really can not be helped. The reason for this is the
+understand, and that really cannot be helped. The reason for this is the
 extremely loose connection between answer rules, answer labels, and answer
 evaluators in PG.
 

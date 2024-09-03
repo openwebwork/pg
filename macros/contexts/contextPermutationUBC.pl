@@ -612,7 +612,7 @@ sub _check {
 		$rtype = $rtype->{name};
 		$ltype = (($ltype =~ m/^[aeiou]/i) ? "An " : "A ") . $ltype;
 		$rtype = (($rtype =~ m/^[aeiou]/i) ? "an " : "a ") . $rtype;
-		$self->{equation}->Error([ "%s can not be multiplied by %s", $ltype, $rtype ]);
+		$self->{equation}->Error([ "%s cannot be multiplied by %s", $ltype, $rtype ]);
 	}
 	$self->{type} = $type;
 }

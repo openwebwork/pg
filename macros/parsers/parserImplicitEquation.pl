@@ -223,7 +223,7 @@ sub new {
 	$F = $context->Package("Formula")->new($context, $F) unless Value::isFormula($F);
 	Value::Error("Your equation must be real-valued")    unless $F->isRealNumber;
 	Value::Error("Your equation should not be constant") if $F->isConstant;
-	Value::Error("Your equation can not contain adaptive parameters")
+	Value::Error("Your equation cannot contain adaptive parameters")
 		if ($F->usesOneOf($context->variables->parameters));
 	$F = bless $F, $class;
 	my %options = (@_);    # user can supply limits, tolerance, etc.

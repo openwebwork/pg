@@ -328,7 +328,7 @@ sub str_cmp {
 
 =head1 "mode"_str_cmp functions
 
-The functions of the the form "mode"_str_cmp() use different functions to
+The functions of the form "mode"_str_cmp() use different functions to
 specify which filters to apply. They take no options except the correct string.
 There are also versions which accept a list of strings.
 

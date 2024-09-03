@@ -55,7 +55,7 @@ The left-hand side of an assignment must be a single variable, so
 
     $f = Formula("3y = 2x");
 
-will produce an error.  The right-hand side can not include the
+will produce an error.  The right-hand side cannot include the
 variable being assigned on the left, so
 
     $f = Formula("x = 2x+1");
@@ -441,12 +441,12 @@ sub _check {
 
 sub eval {
 	my $self = shift;
-	$self->Error("Dummy function '%s' can not be evaluated", $self->{name});
+	$self->Error("Dummy function '%s' cannot be evaluated", $self->{name});
 }
 
 sub call {
 	my $self = shift;
-	$self->Error("Dummy function '%s' can not be called", $self->{name});
+	$self->Error("Dummy function '%s' cannot be called", $self->{name});
 }
 
 1;

@@ -103,7 +103,7 @@ from C<zmin> to C<zmax> to use.
 
 =item C<< axesframed => 1 >>
 
-If set to 1 then the framed axes are displayed.  If set to 0, the the framed
+If set to 1 then the framed axes are displayed.  If set to 0, the framed
 axes are not shown. This is 1 by default.
 
 =item C<< xaxislabel => 'x' >>
