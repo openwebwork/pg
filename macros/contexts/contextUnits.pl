@@ -1613,44 +1613,6 @@ our @ISA = ('context::Extensions::Super');
 
 sub extensionContext {'context::Units'}
 
-package context::LUnits::OldSuper;
-#
-#  Get a method from the original class from the extended context
-#
-sub super {
-	my ($self, $method) = @_;
-	return $self->superClass->can($method);
-}
-
-#
-#  Get the super class name from the context::Units hash in the context
-#
-sub superClass {
-	my $self  = shift;
-	my $class = ref($self) || $self;
-	my $data  = $self->context->{"context::Units"};
-	my $op    = $self->{bop} || $self->{uop};
-	return $op ? $data->{$op} : $data->{ substr($class, 16) };
-}
-
-#
-#  Use the super-class new() method
-#
-sub new {
-	my $self = shift;
-	return &{ $self->super("new") }($self, @_);
-}
-
-#
-#  Get the object's class from its class name
-#
-sub class {
-	my $self  = shift;
-	my @class = split(/::/, ref($self) || $self);
-	my $name  = $class[-2];
-	return $name eq 'Value' || $name eq 'Parser' ? $class[-1] : $name;
-}
-
 #################################################################################################
 #################################################################################################
 
@@ -1784,7 +1746,7 @@ sub adjustFormulaUnits {
 sub makeMult {
 	my $self = shift;
 	my $mult = $self->Item("BOP")->new($self->{equation}, '*', $self->{lop}, $self->{rop});
-	$self->mutate($mult);
+	$self->mutate($self->context, $mult);
 }
 
 #
@@ -2027,7 +1989,7 @@ sub new {
 	my $context = (Value::isContext($_[0]) ? shift : $self->context);
 	my $x       = $_[0];
 	return $x->number if @_ == 1 && Value::isValue($x) && $x->type eq $context::Units::NUNIT;
-	return &{ $self->super("new") }($self, $context, @_);
+	return $self->mutate($context)->new($context, @_);
 }
 
 #################################################################################################
