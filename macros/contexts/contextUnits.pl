@@ -49,7 +49,7 @@ The categories of units are the following:
     pressure         (fundamental units "kg/(m s^2)")
     electricity      (fundamental units "amp", "amp/s", "(kg m)/(amp s^-3)", "(amp s^-3)/(kg m)",
                                         "(amp^2 s^4)/(kg m^2)", "(kg m^2)/(amp^2 s^3)", and "(amp^2 s^3)/(kg m^2)")
-    magnatism        (fundamental units "kg/(amp s^2)" and "(kg m)/(amp s^2)")
+    magnetism        (fundamental units "kg/(amp s^2)" and "(kg m)/(amp s^2)")
     luminosity       (fundamental units "cd/(rad^2)" and "cd/(rad m)^2")
     atomics          (amu, me, barn, a0, dalton)
     radiation        (fundamental units "(m^2)/(s^2)" and "s^-1")
@@ -152,6 +152,7 @@ The C<Units> and C<LimitedUnits> contexts are based on the C<Numeric>
 and C<LimitedNumeric> contexts.  You can add units to other contexts
 using the C<context::Units::extends()> function.  For example,
 
+    loadMacros("contextUnits.pl", "contextFraction.pl");
     Context(context::Units::extending("Fraction")->withUnitsFor("length"));
 
 would allow you to use fractions with units.
@@ -159,6 +160,7 @@ would allow you to use fractions with units.
 In addition to the name of the context to extend, you can pass options
 to C<context::Units::extending()>, as in
 
+    loadMacros("contextUnits.pl", "contextFraction.pl");
     $context = Context(context::Units::extending("LimitedFraction", limited => 1));
     $context->addUnitsFor("length");
 
@@ -179,6 +181,7 @@ The available options and their defaults are
     sameUnits => 0               Require student units to match correct ones
                                    not scaled versions
     partialCredit => .5          Partial credit if answer is right but units
+                                   are not correct
     factorUnits => 1             Factor the units out of sums and differences of
                                    formulas with the same units
 
@@ -204,7 +207,7 @@ MathObject.  So you can use
 
     $n = Compute("3 m/s");
 
-to get a numer-with-units object for 3 meters per second.  You can also use
+to get a number-with-units object for 3 meters per second.  You can also use
 the word C<per> in place of C</>, as in
 
     $n = Compute("3 meters per second");
@@ -523,6 +526,7 @@ sub extending {
 	my $per       = { %{ $operators->get('/') } };
 	delete $per->{space};
 	$per->{precedence} -= .1;
+	$operators->add(per => $per);
 	my $precedence = $operators->get('^')->{precedence};
 
 	#
@@ -535,18 +539,19 @@ sub extending {
 	return context::Extensions::extend(
 		$context,
 		opClasses => {
-			'+'  => 'BOP::add',
-			'-'  => 'BOP::subtract',
-			'*'  => 'BOP::multiply',
-			' '  => 'BOP::multiply',
-			'/'  => 'BOP::divide',
-			'//' => 'BOP::divide',
-			'**' => 'BOP::power',
-			'^'  => 'BOP::power',
-			'* ' => 'BOP::multiply',
-			' *' => 'BOP::multiply',
-			'/ ' => 'BOP::divide',
-			' /' => 'BOP::divide',
+			'+'   => 'BOP::add',
+			'-'   => 'BOP::subtract',
+			'*'   => 'BOP::multiply',
+			' '   => 'BOP::multiply',
+			'/'   => 'BOP::divide',
+			'//'  => 'BOP::divide',
+			'**'  => 'BOP::power',
+			'^'   => 'BOP::power',
+			'* '  => 'BOP::multiply',
+			' *'  => 'BOP::multiply',
+			'/ '  => 'BOP::divide',
+			' /'  => 'BOP::divide',
+			'per' => 'BOP::divide',
 		},
 		ops => {
 			per     => $per,
@@ -668,7 +673,7 @@ our %categories = (
 		{ kg  => 1,  m => 2,  amp => -2, s => -3 },
 		{ kg  => -1, m => -2, amp => 2,  s => 3 },
 	],
-	magnatism   => [ { kg => 1, amp => -1, s => -2 }, { kg => 1, m => 2, amp => -1, s => -2 }, ],
+	magnetism   => [ { kg => 1, amp => -1, s => -2 }, { kg => 1, m => 2, amp => -1, s => -2 }, ],
 	luminosity  => [ { cd => 1, rad => -2 }, { cd => 1, rad => -2, m => -2 }, ],
 	atomics     => [ 'amu', 'me', 'barn', 'a0', 'dalton' ],
 	radiation   => [ { m => 2, s => -2 }, { s => -1 } ],
@@ -688,7 +693,7 @@ sub addUnits {
 		if (ref($_[0]) eq 'HASH') {
 			$self->addUnit('' => shift);
 		} else {
-			$self->addUnit(shift => ref($_[0]) eq 'HASH' ? shift : undef);
+			$self->addUnit((shift) => ref($_[0]) eq 'HASH' ? shift : undef);
 		}
 	}
 	return $self;
@@ -900,7 +905,7 @@ sub new {
 	#      Parse it as a formula and give an error if it is not constant (all Units are constants)
 	#      Otherwise use the parsed value as the potential unit
 	#    Return the unit, if it is one
-	#    Return the unit from a numer-with-unit
+	#    Return the unit from a number-with-unit
 	#    Otherwise error that we can't get a unit
 	#
 	if (!defined($unit)) {
@@ -1012,7 +1017,7 @@ sub perUnit {
 #
 #  Raise the Unit to a power
 sub raiseUnit {
-	my ($self, $n) = @_;
+	my ($self, $n, $ignorePower) = @_;
 	my $copy = $self->copy;
 	#
 	#  If the unit is not compound, record the negative unit so it can
@@ -1022,7 +1027,8 @@ sub raiseUnit {
 		my @nunits = keys %{ $copy->{nunits} };
 		my @dunits = keys %{ $copy->{dunits} };
 		$copy->{negativePowers}{ $nunits[0] } = 1
-			if @nunits == 1
+			if !$ignorePower
+			&& @nunits == 1
 			&& @dunits == 0
 			&& $copy->{nunits}{ $nunits[0] } == 1
 			&& $self->getFlag('keepNegativePowers');
@@ -1139,7 +1145,8 @@ sub div {
 	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
 	my ($ltype, $rtype) = ($l->type, $r->type);
 	return $l->perUnit($r) if $ltype eq 'Unit' && $rtype eq 'Unit';
-	$self->Error("A Unit can't be divided by %s", Value::showClass($r)) if $ltype eq 'Unit';
+	return $self->Package($context::Units::NUNIT)->new($l->copy, $r->raiseUnit(-1, 1)) if $ltype eq 'Number';
+	$self->Error("A Unit can't be divided by %s", Value::showClass($r))                if $ltype eq 'Unit';
 	$self->Error("Can't divide %s by a Unit", Value::showClass($l));
 }
 
@@ -1226,7 +1233,7 @@ sub uString {
 #  Creates the string version using the given order and power settings
 #
 sub stringFor {
-	my ($self, $key1, $key2, $order, $noNegativePowers) = @_;
+	my ($self, $key1, $key2, $order, $noNegativePowers, $allowEmptyNumerator) = @_;
 	my ($nunits, $dunits) = ({ %{ $self->{$key1} } }, { %{ $self->{$key2} } });
 	$order = [ main::lex_sort(keys %$nunits, keys %$dunits) ] unless $order;
 	my ($ns, $ds) = ([], []);
@@ -1237,7 +1244,8 @@ sub stringFor {
 		$nunits->{$u} = $dunits->{$u} = 0;    # don't include them again
 	}
 	my ($num, $den) = (join(' ', @$ns), join(' ', @$ds));
-	return $self->with(useNegativePowers => 1)->string if !$num && $den;
+	return $self->with(useNegativePowers => 1)->stringFor($key1, $key2, $order)
+		if !$num && $den && !$allowEmptyNumerator;
 	return ($den && @$ns > 1 ? "($num)" : $num) . ($den ? '/' . (@$ds > 1 ? "($den)" : $den) : '');
 }
 
@@ -1383,7 +1391,10 @@ sub uString { (shift)->unit->uString(shift) }
 #
 sub string {
 	my ($self, $equation, $open, $close, $precedence) = @_;
-	my $string = $self->number->string . ' ' . $self->unit->string;
+	my $unit   = $self->unit;
+	my $u      = $unit->stringFor('nunits', 'dunits', $unit->{order}, 0, 1);
+	my $string = $self->number->string;
+	$string .= substr($u, 0, 1) eq '/' ? $u : " $u";
 	$string = '(' . $string . ')' if defined($precedence) && $precedence > 1;
 	return $string;
 }
@@ -1393,7 +1404,14 @@ sub string {
 #
 sub TeX {
 	my ($self, $equation, $open, $close, $precedence) = @_;
-	my $tex = $self->number->TeX . '\,' . $self->unit->TeX;
+	my $tex  = $self->number->TeX;
+	my $unit = $self->unit;
+	my $u    = $unit->stringFor('nunits', 'dunits', $unit->{order}, 1, 1);
+	if (substr($u, 0, 1) eq '/') {
+		$tex = "\\frac{$tex}{" . $unit->raiseUnit(-1, 1)->with(negativePowers => {})->TeX . '}';
+	} else {
+		$tex .= '\\,' . $unit->TeX;
+	}
 	$tex = '(' . $tex . ')' if defined($precedence) && $precedence > 1;
 	return $tex;
 }
@@ -1515,7 +1533,7 @@ sub div {
 	my ($lUnitN, $rUnitN) = ($l->classMatch('NumberWithUnit'), $r->classMatch('NumberWithUnit'));
 	return $self->new($l->number->copy,        $l->unit->perUnit($r))       if $lUnitN && $rUnit;
 	return $self->new($l->number / $r->number, $l->unit->perUnit($r->unit)) if $lUnitN && $rUnitN;
-	return $self->new($l / $r->number,         $r->unit->raiseUnit(-1))     if $l->type eq 'Number';
+	return $self->new($l / $r->number,         $r->unit->raiseUnit(-1, 1))  if $l->type eq 'Number';
 	return $self->new($l->number / $r,         $l->unit->copy)              if $r->type eq 'Number';
 	$self->Error("A Unit can't be divided by %s", Value::showClass($r)) if $lUnit;
 	$self->Error("Can't divide %s by a Unit", Value::showClass($l));
@@ -1698,7 +1716,9 @@ sub checkMultDiv {
 	$self->{type} = $context::Units::NUMBER_WITH_UNIT;
 	return if $ltype eq $context::Units::NUNIT && $rtype eq 'Unit' && $self->adjustFormulaUnits($mult);
 	$self->Error("You can only use '%s' with Units", $self->{bop})
-		if $self->{bop} eq 'per' && !$self->bothUnitOperands($ltype, $rtype);
+		unless $self->{bop} ne 'per'
+		|| $self->bothUnitOperands($ltype, $rtype)
+		|| ($ltype eq 'Number' && $rtype eq 'Unit');
 	return $self->mutate->_check unless $self->hasUnitOperand($ltype, $rtype);
 	$self->Error("Can't $op1 two Numbers with Units in this context")
 		if $self->context->flag('limitedOperators') && $ltype eq $context::Units::NUNIT && $ltype eq $rtype;
