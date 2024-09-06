@@ -722,7 +722,7 @@ sub addUnit {
 	$unit = $UNITS{$name} unless $unit;
 	Value->Error("Can't add unknown unit '%s'", $name) unless $unit;
 	my $aliases = $unit->{aliases};
-	$units = {%$unit}, delete $units->{aliases} if $aliases;
+	$unit = {%$unit}, delete $unit->{aliases} if $aliases;
 	$constants->{namePattern} = qr/.+/;
 	if ($name) {
 		$constants->add(
