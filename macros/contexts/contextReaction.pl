@@ -40,7 +40,7 @@ for a student to supply just a state.
 
 Complexes can be formed using square brakets, as in
 
-        [CoCl_4(NH_3)_2]^−
+        [CoCl_4(NH_3)_2]^-
 
 These can be used in reactions as with any other compound.
 
