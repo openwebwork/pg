@@ -1222,7 +1222,7 @@ sub ENDDOCUMENT {
 								}
 							)->to_string
 						),
-						answer_label           => $answerLabel,
+						answer_labels          => JSON->new->encode($response_obj->{response_order}),
 						bs_toggle              => 'popover',
 						bs_trigger             => 'click',
 						bs_placement           => $showCorrectOnly ? 'right' : 'bottom',

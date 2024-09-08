@@ -37,7 +37,9 @@
 		if (input.classList.contains('partially-correct')) answerQuill.classList.add('partially-correct');
 
 		// Find the feedback button for this input if there is one on the page.
-		const feedbackBtn = document.querySelector(`button[data-answer-label="${answerLabel}"`);
+		const feedbackBtn = Array.from(document.querySelectorAll(`button[data-answer-labels]`)).find((btn) =>
+			JSON.parse(btn.dataset.answerLabels).includes(answerLabel)
+		);
 
 		// Default options.
 		const cfgOptions = {
