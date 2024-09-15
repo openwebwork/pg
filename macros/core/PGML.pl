@@ -2030,9 +2030,9 @@ package main;
 
 sub _PGML_init {
 	PG_restricted_eval('sub PGML {PGML::Format2(@_)}');
-	loadMacros("MathObjects.pl", "niceTables.pl");
+	loadMacros('PGbasicmacros.pl', 'MathObjects.pl', 'niceTables.pl');
 	my $context = Context();    # prevent Typeset context from becoming active
-	loadMacros("contextTypeset.pl");
+	loadMacros('contextTypeset.pl');
 	Context($context);
 }
 
