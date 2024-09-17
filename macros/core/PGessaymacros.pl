@@ -150,23 +150,6 @@ sub NAMED_ESSAY_BOX {
 	);
 }
 
-sub essay_help {
-	return MODES(
-		TeX  => '',
-		HTML => tag(
-			'p',
-			maketext(
-				'This is an essay answer text box. You can type your answer in here and, after you hit submit, '
-					. 'it will be saved so that your instructor can grade it at a later date. If your instructor '
-					. 'makes any comments on your answer those comments will appear on this page after the question '
-					. 'has been graded. You can use LaTeX to make your math equations look pretty. '
-					. 'LaTeX expressions should be enclosed using the parenthesis notation and not dollar signs.'
-			)
-		),
-		PTX => '',
-	);
-}
-
 sub essay_box {
 	my ($row, $col) = @_;
 	$row ||= 8;
@@ -195,7 +178,7 @@ sub explanation_box {
 			($options{message} // 'Explain.')
 			. $PAR
 			. essay_box($options{row} // $options{height} // 8, $options{col} // $options{width} // 75)
-			. (($options{help} // 1) ? essay_help() : '');
+			. (($options{help} // 1) ? $BR . helpLink('essay') : '');
 	}
 }
 
