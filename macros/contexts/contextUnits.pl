@@ -658,7 +658,7 @@ our %categories = (
 	volume            => { m => 3 },
 	velocity          => { m => 1, s => -1 },
 	mass              => [ { kg => 1 }, '-astronomy' ],
-	temperature       => [ { degC => 1 }, { defF => 1 }, { K => 1 } ],
+	temperature       => [ { degC => 1 }, { degF => 1 }, { K => 1 } ],
 	frequency         => { rad => 1, s => -1 },
 	force             => { m => 1, kg => 1, s => -2 },
 	energy            => { m => 2, kg => 1, s => -2 },
