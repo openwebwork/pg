@@ -2280,13 +2280,15 @@ sub PTX_cleanup {
                     # form(from the webpage) inside another (the defining form for the problem
 A wide variety of google widgets, youtube videos, and other online resources can be imbedded using this macro. In HTML mode it creates an iframe, in TeX mode it prints the url.
 
-    helpLink($type)     allows site specific help. specified in global.conf or course.conf
+    helpLink($type)
+                   Allows site specific help.
                    The parameter localHelpURL  must be defined in the environment
-                   and is set by default to webwork2/htdocs/helpFiles
+                   and is set by default to pg/htdocs/helpFiles
                    Standard helpFile types
                         'angle'
                         'decimal'
                         'equation'
+                        'essay'
                         'exponent'
                         'formula'
                         'fraction'
@@ -2549,6 +2551,7 @@ sub helpLink {
 		'angle'     => [ 'Entering-Angles.html',       'help (angles)' ],
 		'decimal'   => [ 'Entering-Decimals.html',     'help (decimals)' ],
 		'equation'  => [ 'Entering-Equations.html',    'help (equations)' ],
+		'essay'     => [ 'Entering-Essays.html',       'help (essays)' ],
 		'exponent'  => [ 'Entering-Exponents.html',    'help (exponents)' ],
 		'formula'   => [ 'Entering-Formulas.html',     'help (formulas)' ],
 		'fraction'  => [ 'Entering-Fractions.html',    'help (fractions)' ],
