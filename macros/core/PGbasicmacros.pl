@@ -2193,7 +2193,10 @@ sub PTX_cleanup {
 	if ($displayMode eq 'PTX') {
 		#encase entire string in <p>
 		#except not for certain "sub" structures that are also passed through EV3
-		$string = "<p>" . $string . "</p>" unless (($string =~ /^<fillin[^>]*\/>$/) or ($string =~ /^<var.*<\/var>$/s));
+		$string = "<p>" . $string . "</p>"
+			unless (($string =~ /^<fillin[^>]*\/>$/)
+				|| ($string =~ /^<var.*<\/var>$/s)
+				|| ($string =~ /^<ul[^>]*form=[^>]*>/s));
 
 		#inside a li, the only permissible children are title, p, image, video, and tabular
 		#insert opening and closing p, to be removed later if they enclose a title, image, video or tabular
