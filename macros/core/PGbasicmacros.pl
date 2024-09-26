@@ -705,6 +705,7 @@ sub ans_radio_buttons {
 	} else {
 		$radio_buttons[0] =
 			qq{<div class="radio-buttons-container" }
+			. qq{style="max-width: calc(100% - 1rem - 25px); width: fit-content;" }
 			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
 			. qq{data-feedback-btn-add-class="ms-3">$radio_buttons[0]};
 		$radio_buttons[-1] .= "</div>";
@@ -727,6 +728,7 @@ sub ans_checkbox {
 	} else {
 		$checkboxes[0] =
 			qq{<div class="checkboxes-container" }
+			. qq{style="max-width: calc(100% - 1rem - 25px); width: fit-content;" }
 			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
 			. qq{data-feedback-btn-add-class="ms-3">$checkboxes[0]};
 		$checkboxes[-1] .= '</div>';
