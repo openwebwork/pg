@@ -180,6 +180,11 @@
 	}
 
 	.radio-buttons-container,
+	.checkboxes-container {
+		max-width: calc(100% - 1rem - 25px);
+	}
+
+	.radio-buttons-container,
 	.checkboxes-container,
 	.applet-container,
 	.graphtool-outer-container,
