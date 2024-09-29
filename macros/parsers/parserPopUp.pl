@@ -137,6 +137,15 @@ of answer options might make printing the answer option list
 unnecessary in a static output format.)  Default: 1, except 0 for
 DropDownTF.
 
+=item C<S<< inlineSize => number >>>
+
+In PDF output, this controls break point between printing the list of
+options as an inline list [A/B/C] or multiline bullet list. If the total
+number of characters (of all items combined) is greater than or equal to
+this setting, or an item contains a '[', '/', or ']' character, then the
+list of options is printed as a bullet list, otherwise an inline list is
+used. Default: 25
+
 =back
 
 To insert the drop-down into the problem text when using PGML:
@@ -231,6 +240,7 @@ sub new {
 		choices      => $choices,
 		placeholder  => $options{placeholder}  // '',
 		showInStatic => $options{showInStatic} // 1,
+		inlineSize   => $options{inlineSize}   // 25,
 		values       => $options{values}       // [],
 		noindex      => $options{noindex}      // 0
 	}, $class;
@@ -437,15 +447,13 @@ sub MENU {
 			$menu = qq(<fillin name="$name"/>);
 		}
 	} elsif ($main::displayMode eq "TeX" && $self->{showInStatic}) {
-		# if the total number of characters is not more than
-		# 30 and not containing / or ] then we print out
+		# Unless the total number of characters is greater than or equal to the
+		# inlineSize setting (default 25), or contains [, ], or / then we print out
 		# the select as a string: [A/B/C]
-		if (length(join('', @list)) < 25
-			&& !grep(/(\/|\[|\])/, @list))
-		{
+		unless (length(join('', @list)) >= $self->{inlineSize} || grep(/(\/|\[|\])/, @list)) {
 			$menu = '[' . join('/', map { $self->quoteTeX($_) } @list) . ']';
 		} else {
-			#otherwise we print a bulleted list
+			# Otherwise we print a bulleted list.
 			$menu = '\par\vtop{\def\bitem{\hbox\bgroup\indent\strut\textbullet\ \ignorespaces}\let\eitem=\egroup';
 			$menu = "\n" . $menu . "\n";
 			foreach my $option (@list) {
