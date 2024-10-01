@@ -496,7 +496,7 @@ sub ans_matrix {
 		close         => $close,
 		sep           => $sep,
 		top_labels    => $toplabels,
-		ans_last_name => ANS_NAME($ename, $rows - 1, $cols - 1)
+		ans_last_name => $rows == 1 && $cols == 1 ? $name : ANS_NAME($ename, $rows - 1, $cols - 1)
 	);
 }
 
