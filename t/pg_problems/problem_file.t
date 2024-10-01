@@ -97,21 +97,25 @@ is(
 		KEPT_EXTRA_ANSWERS        => [ 'MaThQuIlL_AnSwEr0001', 'AnSwEr0001' ],
 		PROBLEM_GRADER_TO_USE     => meta { reftype => 'CODE'; },
 		extra_css_files           => [
-			{ file => 'js/Problem/problem.css',                    external => undef },
-			{ file => 'js/Knowls/knowl.css',                       external => undef },
-			{ file => 'js/ImageView/imageview.css',                external => undef },
-			{ file => 'node_modules/mathquill/dist/mathquill.css', external => undef },
-			{ file => 'js/MathQuill/mqeditor.css',                 external => undef }
+			{ file => 'js/Problem/problem.css',                                 external => undef },
+			{ file => 'js/Knowls/knowl.css',                                    external => undef },
+			{ file => 'js/ImageView/imageview.css',                             external => undef },
+			{ file => 'node_modules/@openwebwork/mathquill/dist/mathquill.css', external => undef },
+			{ file => 'js/MathQuill/mqeditor.css',                              external => undef }
 		],
 		extra_js_files => [
-			{ file => 'js/Feedback/feedback.js',                  external => 0, attributes => { defer => undef } },
-			{ file => 'js/Base64/Base64.js',                      external => 0, attributes => { defer => undef } },
-			{ file => 'js/Knowls/knowl.js',                       external => 0, attributes => { defer => undef } },
-			{ file => 'js/Problem/details-accordion.js',          external => 0, attributes => { defer => undef } },
-			{ file => 'js/ImageView/imageview.js',                external => 0, attributes => { defer => undef } },
-			{ file => 'js/Essay/essay.js',                        external => 0, attributes => { defer => undef } },
-			{ file => 'node_modules/mathquill/dist/mathquill.js', external => 0, attributes => { defer => undef } },
-			{ file => 'js/MathQuill/mqeditor.js',                 external => 0, attributes => { defer => undef } }
+			{ file => 'js/Feedback/feedback.js',         external => 0, attributes => { defer => undef } },
+			{ file => 'js/Base64/Base64.js',             external => 0, attributes => { defer => undef } },
+			{ file => 'js/Knowls/knowl.js',              external => 0, attributes => { defer => undef } },
+			{ file => 'js/Problem/details-accordion.js', external => 0, attributes => { defer => undef } },
+			{ file => 'js/ImageView/imageview.js',       external => 0, attributes => { defer => undef } },
+			{ file => 'js/Essay/essay.js',               external => 0, attributes => { defer => undef } },
+			{
+				file       => 'node_modules/@openwebwork/mathquill/dist/mathquill.js',
+				external   => 0,
+				attributes => { defer => undef }
+			},
+			{ file => 'js/MathQuill/mqeditor.js', external => 0, attributes => { defer => undef } }
 		],
 	},
 	'flags are correctly set'

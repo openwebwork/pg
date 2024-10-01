@@ -356,7 +356,7 @@ sub load_css() {
 	ADD_CSS_FILE('js/ImageView/imageview.css');
 
 	if ($envir{useMathQuill}) {
-		ADD_CSS_FILE('node_modules/mathquill/dist/mathquill.css');
+		ADD_CSS_FILE('node_modules/@openwebwork/mathquill/dist/mathquill.css');
 		ADD_CSS_FILE('js/MathQuill/mqeditor.css');
 	} elsif ($envir{useMathView}) {
 		ADD_CSS_FILE('js/MathView/mathview.css');
@@ -404,8 +404,8 @@ sub load_js() {
 	ADD_JS_FILE('js/Essay/essay.js',               0, { defer => undef });
 
 	if ($envir{useMathQuill}) {
-		ADD_JS_FILE('node_modules/mathquill/dist/mathquill.js', 0, { defer => undef });
-		ADD_JS_FILE('js/MathQuill/mqeditor.js',                 0, { defer => undef });
+		ADD_JS_FILE('node_modules/@openwebwork/mathquill/dist/mathquill.js', 0, { defer => undef });
+		ADD_JS_FILE('js/MathQuill/mqeditor.js',                              0, { defer => undef });
 	} elsif ($envir{useMathView}) {
 		ADD_JS_FILE("js/MathView/$envir{mathViewLocale}", 0, { defer => undef });
 		ADD_JS_FILE('js/MathView/mathview.js',            0, { defer => undef });
