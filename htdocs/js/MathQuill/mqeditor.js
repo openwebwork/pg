@@ -37,7 +37,7 @@
 		if (input.classList.contains('partially-correct')) answerQuill.classList.add('partially-correct');
 
 		// Find the feedback button for this input if there is one on the page.
-		const feedbackBtn = Array.from(document.querySelectorAll(`button[data-answer-labels]`)).find((btn) =>
+		answerQuill.feedbackBtn = Array.from(document.querySelectorAll(`button[data-answer-labels]`)).find((btn) =>
 			JSON.parse(btn.dataset.answerLabels).includes(answerLabel)
 		);
 
@@ -269,8 +269,11 @@
 					answerQuill.latexInput.value = '';
 				}
 
-				// If the feedback popover is open, then update its position.
-				if (feedbackBtn) bootstrap.Popover.getInstance(feedbackBtn)?.update();
+				// If any feedback popovers are open, then update their positions.
+				for (const quill of Object.keys(window.answerQuills)) {
+					if (window.answerQuills[quill].feedbackBtn)
+						bootstrap.Popover.getInstance(window.answerQuills[quill].feedbackBtn)?.update();
+				}
 			};
 
 			input.after(answerQuill);
