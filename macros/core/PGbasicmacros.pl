@@ -1580,8 +1580,8 @@ sub openDivSpan {
 		WARN_MESSAGE("openDivSpan called with an invalid first argument. The entire call was discarded.");
 		return ();
 	}
-	my $option_ref = {};
-	my $html_attribs;
+	my $option_ref   = {};
+	my $html_attribs = '';
 	if (ref($_[0]) eq 'HASH') {
 		$option_ref   = shift;
 		$html_attribs = processDivSpanOptions($option_ref);
