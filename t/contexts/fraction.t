@@ -16,8 +16,8 @@ use lib "$ENV{PG_ROOT}/lib";
 loadMacros('PGstandard.pl', 'MathObjects.pl', 'contextFraction.pl');
 
 use Value;
-require Parser::Legacy;
-import Parser::Legacy;
+use Parser;
+use Parser::Legacy;
 
 Context('Fraction');
 
