@@ -617,6 +617,7 @@ sub CHECKS {
 	} else {
 		$checks[0] =
 			qq{<div class="checkboxes-container" }
+			. qq{style="max-width: calc(100% - 1rem - 25px); width: fit-content;" }
 			. qq{data-feedback-insert-element="$name" data-feedback-insert-method="append_content" }
 			. qq{data-feedback-btn-add-class="ms-3">\n$checks[0]};
 		$checks[-1] .= "</div>";
