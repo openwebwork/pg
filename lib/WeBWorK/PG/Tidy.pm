@@ -42,13 +42,20 @@ use warnings;
 use Perl::Tidy;
 use Mojo::File qw(curfile);
 
-our @EXPORT = qw(pgtidy);
+our @EXPORT_OK = qw(pgtidy);
 
 my $perltidy_pg_rc = curfile->dirname->dirname->dirname->dirname . '/bin/perltidy-pg.rc';
+
+my $contentAfterEnd;
 
 # Apply the same preprocessing as the PG Translator, except for the removal of everything after ENDDOCUMENT.
 my $prefilter = sub {
 	my $evalString = shift // '';
+
+	# Remove text after ENDDOCUMENT, but save it to add back later.  Note that unlike the translator,
+	# this is done first so that its contents are not modified by the substitutions below.
+	$contentAfterEnd = $evalString =~ /ENDDOCUMENT(?:\h*\([^)]*\))?(?:\h*;)?(.*)/ms ? $1 : undef;
+	$evalString =~ s/ENDDOCUMENT.*/ENDDOCUMENT();/s;
 
 	$evalString =~ s/\n\h*END_TEXT[\h;]*\n/\nEND_TEXT\n/g;
 	$evalString =~ s/\n\h*END_PGML[\h;]*\n/\nEND_PGML\n/g;
@@ -88,10 +95,16 @@ my $postfilter = sub {
 	$evalString =~ s/(.*)->tex\(<<END_LATEX_IMAGE\);/$1->BEGIN_LATEX_IMAGE/g;
 
 	# Care is needed to reverse the preprocessing here.
-	# First in all occurences of an odd number of backslashes the first backslash is replaced with two tildes.
-	$evalString =~ s/(?<!\\) \\ ((?:\\{2})*) (?!\\)/~~$1/gx;
+	# First in all occurences of an odd number of backslashes the last backslash is replaced with two tildes.
+	$evalString =~ s/(?<!\\) \\ ((?:\\{2})*) (?!\\)/$1~~/gx;
 	# Then all pairs of backslashes are replaced with a single backslash.
 	$evalString =~ s/\\\\/\\/g;
+
+	# Add back any content that was after ENDDOCUMENT.
+	if ($contentAfterEnd) {
+		chomp($evalString);
+		$evalString .= $contentAfterEnd;
+	}
 
 	return $evalString;
 };
