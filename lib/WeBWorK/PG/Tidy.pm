@@ -95,8 +95,8 @@ my $postfilter = sub {
 	$evalString =~ s/(.*)->tex\(<<END_LATEX_IMAGE\);/$1->BEGIN_LATEX_IMAGE/g;
 
 	# Care is needed to reverse the preprocessing here.
-	# First in all occurences of an odd number of backslashes the first backslash is replaced with two tildes.
-	$evalString =~ s/(?<!\\) \\ ((?:\\{2})*) (?!\\)/~~$1/gx;
+	# First in all occurences of an odd number of backslashes the last backslash is replaced with two tildes.
+	$evalString =~ s/(?<!\\) \\ ((?:\\{2})*) (?!\\)/$1~~/gx;
 	# Then all pairs of backslashes are replaced with a single backslash.
 	$evalString =~ s/\\\\/\\/g;
 
