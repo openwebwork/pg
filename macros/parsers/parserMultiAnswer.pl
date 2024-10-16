@@ -13,7 +13,7 @@
 # Artistic License for more details.
 ################################################################################
 
-loadMacros("MathObjects.pl");
+loadMacros('MathObjects.pl', 'PGbasicmacros.pl');
 
 sub _parserMultiAnswer_init {
 	main::PG_restricted_eval('sub MultiAnswer {parser::MultiAnswer->new(@_)}');
@@ -175,7 +175,12 @@ sub single_check {
 	my $i        = 0;
 	my $nonblank = 0;
 	if ($self->perform_check($ans)) {
-		push(@errors, '<TR><TD STYLE="text-align:left" COLSPAN="2">' . $self->{ans}[0]{ans_message} . '</TD></TR>');
+		push(
+			@errors,
+			main::tag(
+				'tr', main::tag('td', style => 'text-align:left', colspan => '2', $self->{ans}[0]{ans_message})
+			)
+		);
 		$self->{ans}[0]{ans_message} = "";
 	}
 	foreach my $result (@{ $self->{ans} }) {
@@ -185,26 +190,34 @@ sub single_check {
 		push(@text,    check_string($result->{preview_text_string}, '__'));
 		push(@student, check_string($result->{student_ans},         '__'));
 		if ($result->{ans_message}) {
-			push(@errors,
-				'<TR VALIGN="TOP"><TD STYLE="text-align:right; border:0px" NOWRAP>'
-					. "<I>In answer $i</I>:&nbsp;</TD>"
-					. '<TD STYLE="text-align:left; border:0px">'
-					. $result->{ans_message}
-					. '</TD></TR>');
+			push(
+				@errors,
+				main::tag(
+					'tr',
+					main::tag(
+						'td',
+						style => 'text-align:right;white-space:nowrap;vertical-align:top',
+						main::tag('i', "In answer $i") . ':&nbsp;'
+						)
+						. main::tag('td', style => 'text-align:left', $result->{ans_message})
+				)
+			);
 		}
 		$score += $result->{score};
 	}
 	$ans->score($score / $self->length);
 	$ans->{ans_message} = $ans->{error_message} = "";
 	if (scalar(@errors)) {
-		$ans->{ans_message} = $ans->{error_message} =
-			'<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout">'
-			. join('<TR><TD HEIGHT="4"></TD></TR>', @errors)
-			. '</TABLE>';
+		$ans->{ans_message} = $ans->{error_message} = main::tag(
+			'table',
+			class => 'ArrayLayout',
+			style => 'width:100%',
+			join(main::tag('tr', style => 'height: 4px', main::tag('td')), @errors)
+		);
 	}
 	if (@{ $self->{single_ans_messages} }) {
 		$ans->{ans_message} = $ans->{error_message} =
-			'<DIV>' . join('</DIV><DIV>', @{ $self->{single_ans_messages} }) . '</DIV>' . $ans->{ans_message};
+			join('', map { main::tag('div', $_) } @{ $self->{single_ans_messages} });
 	}
 	if ($nonblank) {
 		$ans->{preview_latex_string} =
