@@ -201,8 +201,8 @@ my $FUNCTION_REFERENCE = "Fun";
 
 my %fields = (
 	tstart => -1,           # (tstart,$tstop) constitutes the domain
-	tstop  => 1,
-	steps  => 50,
+	tstop  =>  1,
+	steps  =>  50,
 	color  => 'blue',
 	x_rule => \&identity,
 	y_rule => \&identity,

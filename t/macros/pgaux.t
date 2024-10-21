@@ -21,18 +21,18 @@ is(step(0),  0, "step: step(0)=0");
 
 # test floor function
 
-is(floor(0.5),  0,  "floor: positive non-integer");
+is(floor(0.5),   0, "floor: positive non-integer");
 is(floor(-0.5), -1, "floor: negative non-integer");
-is(floor(1),    1,  "floor: positive integer");
-is(floor(0),    0,  "floor: floor(0)=0");
+is(floor(1),     1, "floor: positive integer");
+is(floor(0),     0, "floor: floor(0)=0");
 is(floor(-1),   -1, "floor: negative integer");
 
 # test ceiling function
 
-is(ceil(0.5),  1,  "ceil: positive non-integer");
-is(ceil(-0.5), 0,  "ceil: negative non-integer");
-is(ceil(1),    1,  "ceil: positive integer");
-is(ceil(0),    0,  "ceil: floor(0)=0");
+is(ceil(0.5),   1, "ceil: positive non-integer");
+is(ceil(-0.5),  0, "ceil: negative non-integer");
+is(ceil(1),     1, "ceil: positive integer");
+is(ceil(0),     0, "ceil: floor(0)=0");
 is(ceil(-1),   -1, "ceil: negative integer");
 
 # max/min functions
@@ -44,18 +44,18 @@ is(min(0.1, -2.3, 1.345, 2.71712, -1000.1), -1000.1, "min: set of decimals");
 
 # round function
 
-is(round(0.95),  1,  "round: fractional part > 0.5");
-is(round(0.45),  0,  "round: fractional part < 0.5");
-is(round(0.5),   1,  "round: fractional part = 0.5");
+is(round(0.95),   1, "round: fractional part > 0.5");
+is(round(0.45),   0, "round: fractional part < 0.5");
+is(round(0.5),    1, "round: fractional part = 0.5");
 is(round(-0.95), -1, "round: fractional part > 0.5 and negative");
-is(round(-0.45), 0,  "round: fractional part < 0.5 and negative");
+is(round(-0.45),  0, "round: fractional part < 0.5 and negative");
 is(round(-0.5),  -1, "round: fractional part = 0.5 and negative");
 
 # Round function which takes a second number, the number of digits to round to
 
-is(Round(1.793,  2), 1.79,  "Round to 2 digits: test 1");
-is(Round(1.797,  2), 1.80,  "Round to 2 digits: test 2");
-is(Round(1.795,  2), 1.80,  "Round to 2 digits: test 3");
+is(Round(1.793,  2),  1.79, "Round to 2 digits: test 1");
+is(Round(1.797,  2),  1.80, "Round to 2 digits: test 2");
+is(Round(1.795,  2),  1.80, "Round to 2 digits: test 3");
 is(Round(-1.793, 2), -1.79, "Round to 2 digits: test 1");
 is(Round(-1.797, 2), -1.80, "Round to 2 digits: test 2");
 is(Round(-1.795, 2), -1.80, "Round to 2 digits: test 3");

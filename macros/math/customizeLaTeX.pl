@@ -36,7 +36,7 @@ sub implies {
 sub vectorstyle {
 	my $v = shift;
 	return "\\vec{$v}"
-		#return "$v";
+	#return "$v";
 }
 
 sub polynomials_of_degree_up_to_degree_over_ring_in_variable {
@@ -121,10 +121,10 @@ sub quaternions {
 
 	return "Q_8"
 
-		# Alternatives
+	# Alternatives
 
-		# return "H_8"
-		# return "Q"
+	# return "H_8"
+	# return "Q"
 }
 
 1;

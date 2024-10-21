@@ -22,7 +22,7 @@ use experimental 'signatures';
 use feature 'say';
 
 use File::Basename qw(dirname basename);
-use File::Find qw(find);
+use File::Find     qw(find);
 use Pandoc;
 
 our @EXPORT_OK = qw(parseSampleProblem generateMetadata);

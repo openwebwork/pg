@@ -18,7 +18,7 @@ use Mojo::Template;
 use File::Basename qw(fileparse basename);
 use Getopt::Long;
 use File::Copy qw(copy);
-use YAML::XS qw(DumpFile);
+use YAML::XS   qw(DumpFile);
 use Pod::Simple::Search;
 
 use SampleProblemParser qw(parseSampleProblem generateMetadata);

@@ -69,7 +69,7 @@ use Carp;
 use Mojo::DOM;
 
 use WWSafe;
-use PGUtil qw(pretty_print);
+use PGUtil          qw(pretty_print);
 use WeBWorK::PG::IO qw(fileFromPath);
 
 BEGIN {

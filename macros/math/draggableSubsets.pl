@@ -359,8 +359,7 @@ sub cmp_preprocess {
 		$ans->{preview_latex_string} = join(
 			',',
 			map {
-				"\\{\\text{"
-					. join(',', map { $self->{shuffledSet}[$_] } grep { $_ >= 0 } @{ $_->{data} }) . "}\\}"
+				"\\{\\text{" . join(',', map { $self->{shuffledSet}[$_] } grep { $_ >= 0 } @{ $_->{data} }) . "}\\}"
 			} @{ $ans->{student_value}{data} }
 		);
 	}

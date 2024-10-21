@@ -431,9 +431,9 @@ if (DEBUGGING) {
 
 	my $reg = Statistics::Regression->new(3, "sample regression", [ "const", "someX", "someY" ]);
 	$reg->include(2.0,  [ 1.0, 3.0,  -1.0 ]);
-	$reg->include(1.0,  [ 1.0, 5.0,  2.0 ]);
-	$reg->include(20.0, [ 1.0, 31.0, 0.0 ]);
-	$reg->include(15.0, [ 1.0, 11.0, 2.0 ]);
+	$reg->include(1.0,  [ 1.0, 5.0,   2.0 ]);
+	$reg->include(20.0, [ 1.0, 31.0,  0.0 ]);
+	$reg->include(15.0, [ 1.0, 11.0,  2.0 ]);
 
 	#  $reg->print();   or: my $coefs= $reg->theta(); print @coefs; print $reg->rsq;
 	# my $coefs= $reg->theta(); print $coeff[0];
