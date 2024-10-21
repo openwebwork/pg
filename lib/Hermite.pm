@@ -233,7 +233,7 @@ sub internal_critical_points {
 }
 
 sub internal_inflection_points {
-	my ($x0, $l, $lp,, $x1, $r, $rp, $rh_roots, $rf_function) = @_;
+	my ($x0, $l, $lp, $x1, $r, $rp, $rh_roots, $rf_function) = @_;
 	#data for one segment of the hermite spline
 
 	# coefficients for the approximating polynomial

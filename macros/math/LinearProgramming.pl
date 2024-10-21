@@ -156,7 +156,7 @@ sub lp_pivot_element {
 			} else {    # Test to see if this is an improvement
 				if ($fracmode
 					? ($m[$prow][$ncols]->scalar()) / ($m[$prow][$pcol]->scalar()) >
-					($m[$j][$ncols]->scalar() / $m[$j][$pcol]->scalar())
+						($m[$j][$ncols]->scalar() / $m[$j][$pcol]->scalar())
 					: ($m[$prow][$ncols] / $m[$prow][$pcol] > $m[$j][$ncols] / $m[$j][$pcol]))
 				{
 					$prow = $j;
