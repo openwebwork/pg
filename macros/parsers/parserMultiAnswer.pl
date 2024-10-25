@@ -178,7 +178,7 @@ sub single_check {
 		push(
 			@errors,
 			main::tag(
-				'tr', main::tag('td', style => 'text-align:left', colspan => '2', $self->{ans}[0]{ans_message})
+				'tr', main::tag('td', style => 'text-align:center', colspan => '2', $self->{ans}[0]{ans_message})
 			)
 		);
 		$self->{ans}[0]{ans_message} = "";
@@ -211,7 +211,7 @@ sub single_check {
 		$ans->{ans_message} = $ans->{error_message} = main::tag(
 			'table',
 			class => 'ArrayLayout',
-			style => 'width:100%',
+			style => 'margin-left:auto;margin-right:auto;',
 			join(main::tag('tr', style => 'height: 4px', main::tag('td')), @errors)
 		);
 	}

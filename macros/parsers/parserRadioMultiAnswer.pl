@@ -486,7 +486,7 @@ sub answer_evaluator {
 				main::tag(
 					'tr',
 					style => 'vertical-align:top',
-					main::tag('td', style => 'text-align:left', $result->{ans_message})
+					main::tag('td', style => 'text-align:center', $result->{ans_message})
 				)
 			);
 		}
@@ -498,7 +498,7 @@ sub answer_evaluator {
 	if (@errors) {
 		$ans->{ans_message} = $ans->{error_message} = main::tag(
 			'table',
-			style => 'border-collapse:collapse; width: 100%;',
+			style => 'border-collapse:collapse; margin-left: auto; margin-right: auto;',
 			class => 'ArrayLayout',
 			join(main::tag('tr', main::tag('td', style => 'height:4px')), @errors)
 		);
