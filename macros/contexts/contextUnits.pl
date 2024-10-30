@@ -373,7 +373,7 @@ as the perl functions have been overloaded to handle numbers with
 units when the units are angular units.
 
 The other exception is C<abs()>, which can be applied to numbers with
-units, and returns a number with units hacing the same units, but the
+units, and returns a number with units having the same units, but the
 quantity is the absolute value of the original quantity.
 
 
