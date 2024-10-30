@@ -509,7 +509,7 @@ sub extensionContext {
 #    sub _check {
 #      my $self = shift;
 #      unless $self->{lop}->class eq 'Quaternion' || $self->{rop}->class eq 'Quaternion';
-#      #  other typechecking here
+#      #  other type checking here
 #      $self->setExtensionType("QUATERNION");  # Use the type in the $QUATERNION variable above
 #    }
 #
