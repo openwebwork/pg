@@ -282,7 +282,7 @@ just as with other MathObject, or you can use the C<Unit()> constructor.
     $u = Unit("m/s^2");
 
 This allows you to ask a student to say what units should be used for
-a particular setting, without the need for a quntity.
+a particular setting, without the need for a quantity.
 
 
 =head2 Working with numbers with units
