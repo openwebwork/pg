@@ -419,7 +419,7 @@ In the case where the units include products of units, like C<m s>,
 the C<sameUnits> option requires both be present, but they can be in
 either order.  So a student can enter C<s m> and still get full
 credit.  If you want to require the order to be the same as in the
-correct anser, then use the C<exactUnits> option.  Again, partial
+correct answer, then use the C<exactUnits> option.  Again, partial
 credit is given for answers that have the right units but not in the
 right order.
 
