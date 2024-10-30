@@ -389,7 +389,7 @@ in the same way that you use any other MathObject.  For example
 Here, the student can answer any equivalent units, such as C<ft/s^2>
 or even C<mi/h^2>, and get full credit.  If you wish to require the
 units to being the same as the correct answer, you can use the
-C<sameUnits> option on the answer checker (ot set the C<sameUnits>
+C<sameUnits> option on the answer checker (to set the C<sameUnits>
 flag in the units context):
 
     $u = Compute("m/s^2");
