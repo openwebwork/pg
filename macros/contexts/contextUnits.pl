@@ -1333,8 +1333,8 @@ our @ISA = ('Value');
 #
 #  Create a new Number-with-Unit object, either by giving the number
 #  and units separately.  The number can be any MathObject that is of
-#  type Number (including a Formula returing a number), or a string to
-#  be parsed to copmute the number.  The unit can be a Unit object or
+#  type Number (including a Formula returning a number), or a string to
+#  be parsed to compute the number.  The unit can be a Unit object or
 #  a string that can be parsed to a Unit.
 #
 sub new {
