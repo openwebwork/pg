@@ -282,7 +282,7 @@ just as with other MathObject, or you can use the C<Unit()> constructor.
     $u = Unit("m/s^2");
 
 This allows you to ask a student to say what units should be used for
-a particular setting, without the need for a quntity.
+a particular setting, without the need for a quantity.
 
 
 =head2 Working with numbers with units
@@ -326,7 +326,7 @@ C<toBaseUnits()> methods.  For example:
     $a = Compute("32 ft/s^2")->toBaseUnits;  # returns "9.7536 m/s^2"
 
 For a given number with units, you may wish to obtain the numeric
-portion or the units portion separatly.  This can be done using the
+portion or the units portion separately.  This can be done using the
 C<number> and C<unit> methods:
 
     $n = Compute("5 m");
@@ -370,10 +370,10 @@ will return 0.5, and so will
     $sin_a = sin($a);
 
 as the perl functions have been overloaded to handle numbers with
-units when the units are anglular units.
+units when the units are angular units.
 
 The other exception is C<abs()>, which can be applied to numbers with
-units, and returns a number with units hacing the same units, but the
+units, and returns a number with units having the same units, but the
 quantity is the absolute value of the original quantity.
 
 
@@ -389,7 +389,7 @@ in the same way that you use any other MathObject.  For example
 Here, the student can answer any equivalent units, such as C<ft/s^2>
 or even C<mi/h^2>, and get full credit.  If you wish to require the
 units to being the same as the correct answer, you can use the
-C<sameUnits> option on the answer checker (ot set the C<sameUnits>
+C<sameUnits> option on the answer checker (to set the C<sameUnits>
 flag in the units context):
 
     $u = Compute("m/s^2");
@@ -400,7 +400,7 @@ flag in the units context):
 If the student entered C<ft/sec^2>, they would get partial credit, and
 a message indicating that their units are correct but are not the same
 as the expected units.  The amount of partial credit is determined by
-the C<partialCredit> answer-checkeroption (or context flag), whose
+the C<partialCredit> answer-checker option (or context flag), whose
 default value is .5 for half credit.  So you can use
 
     $u->cmp(sameUnits => 1, partialCredit => .75)
@@ -413,13 +413,13 @@ to give no partial credit.
 
 Similarly, if the correct answer is given with units of C<m>, then
 when C<< sameUnits => 1 >> is set, an answer using C<cm> instead will be
-given only partical credit.
+given only partial credit.
 
 In the case where the units include products of units, like C<m s>,
 the C<sameUnits> option requires both be present, but they can be in
 either order.  So a student can enter C<s m> and still get full
 credit.  If you want to require the order to be the same as in the
-correct anser, then use the C<exactUnits> option.  Again, partial
+correct answer, then use the C<exactUnits> option.  Again, partial
 credit is given for answers that have the right units but not in the
 right order.
 
@@ -836,7 +836,7 @@ sub addUnitCategory {
 sub withUnitsFor { (shift)->addUnitsFor(@_) }
 
 #
-#  Remove the named units and thier aliases
+#  Remove the named units and their aliases
 #
 sub removeUnits {
 	my $self      = shift;
@@ -887,7 +887,7 @@ our @ISA = ('Value');
 #  Create a new Unit object, either by parsing a string version of
 #  the units, or by giving the name of a known unit, or as name => unit_def,
 #  where unit_def is an object like the known units.  You can also use this
-#  to objectin the Unit from a Number-with-Unit, or to make a copy of an
+#  object in the Unit from a Number-with-Unit, or to make a copy of an
 #  existing Unit.
 #
 sub new {
@@ -960,7 +960,7 @@ sub new {
 }
 
 #
-#  Copy a Unit by duplicating the internal hashs and arrays.
+#  Copy a Unit by duplicating the internal hashes and arrays.
 #
 sub copy {
 	my $self = shift;
@@ -1068,7 +1068,7 @@ sub addUnitPower {
 }
 
 #
-#  Check if there is cancelation between the $key1 and $key2 lists,
+#  Check if there is cancellation between the $key1 and $key2 lists,
 #  and move any negative powers from the $key1 list to the $key2 list
 #
 sub checkUnits {
@@ -1079,7 +1079,7 @@ sub checkUnits {
 }
 
 #
-#  Handle cancelation of powers in the $units and $other lists.
+#  Handle cancellation of powers in the $units and $other lists.
 #
 sub checkUnitPower {
 	my ($self, $units, $other, $u) = @_;
@@ -1091,7 +1091,7 @@ sub checkUnitPower {
 		return;
 	} elsif ($units->{$u} < 0) {
 		#
-		#  If the power is negative, add it intto the
+		#  If the power is negative, add it into the
 		#  $other list.
 		#
 		$other->{$u} = ($other->{$u} // 0) - $units->{$u};
@@ -1333,8 +1333,8 @@ our @ISA = ('Value');
 #
 #  Create a new Number-with-Unit object, either by giving the number
 #  and units separately.  The number can be any MathObject that is of
-#  type Number (including a Formula returing a number), or a string to
-#  be parsed to copmute the number.  The unit can be a Unit object or
+#  type Number (including a Formula returning a number), or a string to
+#  be parsed to compute the number.  The unit can be a Unit object or
 #  a string that can be parsed to a Unit.
 #
 sub new {
@@ -1524,7 +1524,7 @@ sub mult {
 
 #
 #  Divide a Number with Units by another Number with Units, or a Unit, or a Number,
-#  or divide a Number, Unit, or Number with Units byt a Number with Units
+#  or divide a Number, Unit, or Number with Units by a Number with Units
 #
 sub div {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
@@ -1595,7 +1595,7 @@ sub sin {
 
 #
 #  Convert a Number with Units to one using the base units (in
-#  alphabetial order)
+#  alphabetical order)
 #
 sub toBaseUnits {
 	my $self = shift;
@@ -1809,7 +1809,7 @@ sub factorUnits {
 }
 
 #
-#  For string output, add parenthese if the precedence is the same
+#  For string output, add parentheses if the precedence is the same
 #
 sub string {
 	my $self = shift;
