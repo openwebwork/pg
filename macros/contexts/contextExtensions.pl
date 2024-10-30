@@ -333,7 +333,7 @@ sub makeSubclass {
 #
 #    sub extensionContext { 'context::Quaternions' }
 #
-#  and then use 'context::Quaternsions::Super' in the @ISA of your new
+#  and then use 'context::Quaternions::Super' in the @ISA of your new
 #  classes for operators, functions, or Value or Parser objects.
 #  E.g.,
 #
