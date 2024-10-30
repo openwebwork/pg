@@ -463,7 +463,7 @@ sub extensionContext {
 #  about the object's type, its length (for things like lists and
 #  vectors), and entry types (again for objects like lists and
 #  vectors).  We can add data to this hash to store additional
-#  information that we need in order to be more granualr about the
+#  information that we need in order to be more granular about the
 #  type or class of a Parser object.
 #
 #  To use this, create a subclass of context::Extensions::Data that
