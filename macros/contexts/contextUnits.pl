@@ -400,7 +400,7 @@ flag in the units context):
 If the student entered C<ft/sec^2>, they would get partial credit, and
 a message indicating that their units are correct but are not the same
 as the expected units.  The amount of partial credit is determined by
-the C<partialCredit> answer-checkeroption (or context flag), whose
+the C<partialCredit> answer-checker option (or context flag), whose
 default value is .5 for half credit.  So you can use
 
     $u->cmp(sameUnits => 1, partialCredit => .75)
