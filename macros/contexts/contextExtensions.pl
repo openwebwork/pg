@@ -103,7 +103,7 @@ sub create {
 #         opClasses => { '+' => 'BOP::add' }
 #
 #      would attach the class context::Quaternions::BOP::add to the
-#      plus sign in our Qaternion setting.  If the space operator (' ')
+#      plus sign in our Quaternion setting.  If the space operator (' ')
 #      in your list, and if the original context has it point to an
 #      operator that is NOT in your list, then that references operator
 #      is redirected automatically to 'BOP::Space' in your base context
