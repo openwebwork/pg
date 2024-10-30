@@ -54,9 +54,9 @@ sub _contextExtensions_init { }
 #
 #  This package provides create() and extend() functions that can be
 #  used to get a copy of an existing context and extend it by
-#  overridding the existing classes with your own, while maintining
+#  overriding the existing classes with your own, while maintaining
 #  information about those original classes so that you can fall back
-#  on them for any sitautions that don't involve your new
+#  on them for any situations that don't involve your new
 #  functionality.  These functions are designed so that multiple
 #  extensions can be added without interfering with one another.
 #
