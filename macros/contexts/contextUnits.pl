@@ -887,7 +887,7 @@ our @ISA = ('Value');
 #  Create a new Unit object, either by parsing a string version of
 #  the units, or by giving the name of a known unit, or as name => unit_def,
 #  where unit_def is an object like the known units.  You can also use this
-#  to objectin the Unit from a Number-with-Unit, or to make a copy of an
+#  object in the Unit from a Number-with-Unit, or to make a copy of an
 #  existing Unit.
 #
 sub new {
