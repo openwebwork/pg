@@ -1068,7 +1068,7 @@ sub addUnitPower {
 }
 
 #
-#  Check if there is cancelation between the $key1 and $key2 lists,
+#  Check if there is cancellation between the $key1 and $key2 lists,
 #  and move any negative powers from the $key1 list to the $key2 list
 #
 sub checkUnits {
