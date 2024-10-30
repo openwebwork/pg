@@ -413,7 +413,7 @@ to give no partial credit.
 
 Similarly, if the correct answer is given with units of C<m>, then
 when C<< sameUnits => 1 >> is set, an answer using C<cm> instead will be
-given only partical credit.
+given only partial credit.
 
 In the case where the units include products of units, like C<m s>,
 the C<sameUnits> option requires both be present, but they can be in
