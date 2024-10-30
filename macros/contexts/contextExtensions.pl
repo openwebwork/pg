@@ -182,7 +182,7 @@ sub create {
 #
 #  The various operators, functions, and value and Parser objects that
 #  you define should use the context::Extensions::Super package below
-#  in order to access the original classes for those objects.  Idealy,
+#  in order to access the original classes for those objects.  Ideally,
 #  your new objects will mutate (i.e., re-bless) themselves to their
 #  original classes if they don't involve your new MathObjects.
 #
