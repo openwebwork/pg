@@ -960,7 +960,7 @@ sub new {
 }
 
 #
-#  Copy a Unit by duplicating the internal hashs and arrays.
+#  Copy a Unit by duplicating the internal hashes and arrays.
 #
 sub copy {
 	my $self = shift;
