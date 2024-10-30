@@ -1091,7 +1091,7 @@ sub checkUnitPower {
 		return;
 	} elsif ($units->{$u} < 0) {
 		#
-		#  If the power is negative, add it intto the
+		#  If the power is negative, add it into the
 		#  $other list.
 		#
 		$other->{$u} = ($other->{$u} // 0) - $units->{$u};
