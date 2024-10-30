@@ -1524,7 +1524,7 @@ sub mult {
 
 #
 #  Divide a Number with Units by another Number with Units, or a Unit, or a Number,
-#  or divide a Number, Unit, or Number with Units byt a Number with Units
+#  or divide a Number, Unit, or Number with Units by a Number with Units
 #
 sub div {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
