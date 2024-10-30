@@ -137,7 +137,7 @@ sub create {
 #      to point to your own versions of these (e.g., in our example,
 #      these would be context::Quaternions::Value::Real and
 #      context::Quaternions::Value::Formula.  Note that if you list
-#      the parenthesized version (used by the coreesponding constructor
+#      the parenthesized version (used by the corresponding constructor
 #      functions), then the parentheses are replaced by "_Parens" in the
 #      class name.  For example,
 #
