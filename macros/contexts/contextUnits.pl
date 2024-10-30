@@ -1079,7 +1079,7 @@ sub checkUnits {
 }
 
 #
-#  Handle cancelation of powers in the $units and $other lists.
+#  Handle cancellation of powers in the $units and $other lists.
 #
 sub checkUnitPower {
 	my ($self, $units, $other, $u) = @_;
