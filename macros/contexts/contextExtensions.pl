@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-contextExtensoins.pl - Implements a framework for creating contexts that
+contextExtensions.pl - Implements a framework for creating contexts that
                        extend other contexts.
 
 =head1 DESCRIPTION
