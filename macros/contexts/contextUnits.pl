@@ -836,7 +836,7 @@ sub addUnitCategory {
 sub withUnitsFor { (shift)->addUnitsFor(@_) }
 
 #
-#  Remove the named units and thier aliases
+#  Remove the named units and their aliases
 #
 sub removeUnits {
 	my $self      = shift;
