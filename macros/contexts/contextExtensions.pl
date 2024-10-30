@@ -552,7 +552,7 @@ sub extensionDataMatch {
 }
 
 #
-#  The extnsion context can subclass that is produce a better name
+#  The extension context can subclass that is produce a better name
 #
 sub extensionID { (shift)->extensionContext }
 
