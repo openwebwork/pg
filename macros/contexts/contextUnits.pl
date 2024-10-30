@@ -330,15 +330,15 @@ portion or the units portion separatly.  This can be done using the
 C<number> and C<unit> methods:
 
     $n = Compute("5 m");
-    $r = $m->number;         # returns 5 as a Real MathObject
-    $u = $m->unit;           # returns "m" as a Unit MathObject
+    $r = $n->number;         # returns 5 as a Real MathObject
+    $u = $n->unit;           # returns "m" as a Unit MathObject
 
 You can also use the C<Real()> and C<Unit()> constructors to do the
 same thing:
 
     $n = Compute("5 m");
-    $r = Real($m);           # returns 5 as a Real MathObject
-    $u = Unit($m);           # returns "m" as a Unit MathObject
+    $r = Real($n);           # returns 5 as a Real MathObject
+    $u = Unit($n);           # returns "m" as a Unit MathObject
 
 You can get the numeric portion of the number-with-units
 object relative to the base units using the C<quantity> method:
