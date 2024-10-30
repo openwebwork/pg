@@ -1809,7 +1809,7 @@ sub factorUnits {
 }
 
 #
-#  For string output, add parenthese if the precedence is the same
+#  For string output, add parentheses if the precedence is the same
 #
 sub string {
 	my $self = shift;
