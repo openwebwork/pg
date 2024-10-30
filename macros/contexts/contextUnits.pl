@@ -326,7 +326,7 @@ C<toBaseUnits()> methods.  For example:
     $a = Compute("32 ft/s^2")->toBaseUnits;  # returns "9.7536 m/s^2"
 
 For a given number with units, you may wish to obtain the numeric
-portion or the units portion separatly.  This can be done using the
+portion or the units portion separately.  This can be done using the
 C<number> and C<unit> methods:
 
     $n = Compute("5 m");
