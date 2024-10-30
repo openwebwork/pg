@@ -1595,7 +1595,7 @@ sub sin {
 
 #
 #  Convert a Number with Units to one using the base units (in
-#  alphabetial order)
+#  alphabetical order)
 #
 sub toBaseUnits {
 	my $self = shift;
