@@ -7,7 +7,7 @@
 	window.answerQuills = {};
 
 	// initialize MathQuill
-	const MQ = MathQuill.getInterface(2);
+	const MQ = MathQuill.getInterface();
 
 	let toolbarEnabled = (localStorage.getItem('MQEditorToolbarEnabled') ?? 'true') === 'true';
 
@@ -43,7 +43,7 @@
 
 		// Default options.
 		const cfgOptions = {
-			spaceBehavesLikeTab: true,
+			enableSpaceNavigation: true,
 			leftRightIntoCmdGoes: 'up',
 			restrictMismatchedBrackets: true,
 			sumStartsWithNEquals: true,
@@ -62,7 +62,8 @@
 		if (answerQuill.latexInput.dataset.mqOpts)
 			Object.assign(cfgOptions, JSON.parse(answerQuill.latexInput.dataset.mqOpts));
 
-		// This is after the option merge to prevent handlers from being overridden.
+		// The handlers and blurWithCursor options are set after
+		// the option merge to prevent them from being overridden.
 		cfgOptions.handlers = {
 			// Disable the toolbar when a text block is entered.
 			textBlockEnter: () => {
@@ -75,6 +76,11 @@
 					answerQuill.toolbar.querySelectorAll('button').forEach((button) => (button.disabled = false));
 			}
 		};
+
+		cfgOptions.blurWithCursor = (e) =>
+			toolbarEnabled &&
+			answerQuill.toolbar &&
+			(e.relatedTarget?.closest('.quill-toolbar') || e.relatedTarget?.classList.contains('symbol-button'));
 
 		const latexEntryMode = input.classList.contains('latexentryfield');
 
@@ -301,9 +307,11 @@
 				delete answerQuill.toolbar;
 				toolbar.style.opacity = 0;
 				window.removeEventListener('resize', toolbar.setPosition);
+				window.removeEventListener('focus', toolbar.removeOnWindowRefocus);
 				toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
 				toolbar.addEventListener('transitionend', () => toolbar.remove(), { once: true });
 				toolbar.addEventListener('transitioncancel', () => toolbar.remove(), { once: true });
+				if (toolbarEnabled && document.activeElement !== answerQuill.textarea) answerQuill.mathField.blur();
 			}
 		};
 
@@ -319,16 +327,30 @@
 
 			answerQuill.toolbar.addEventListener('focusout', (e) => {
 				if (
+					!document.hasFocus() ||
 					(e.relatedTarget &&
 						(e.relatedTarget.closest('.quill-toolbar') ||
 							e.relatedTarget.classList.contains('symbol-button') ||
-							e.relatedTarget.parentElement?.parentElement === answerQuill)) ||
+							e.relatedTarget === answerQuill.textarea)) ||
 					(answerQuill.clearButton && e.relatedTarget === answerQuill.clearButton)
 				)
 					return;
 
 				toolbarRemove();
 			});
+
+			// If the window is refocused after a blur, and the focus is not on the toolbar
+			// or the MathQuill input, then remove the toolbar.
+			answerQuill.toolbar.removeOnWindowRefocus = () => {
+				if (
+					document.activeElement &&
+					!document.activeElement.closest('.quill-toolbar') &&
+					!document.activeElement.classList.contains('symbol-button') &&
+					document.activeElement !== answerQuill.textarea
+				)
+					toolbarRemove();
+			};
+			window.addEventListener('focus', answerQuill.toolbar.removeOnWindowRefocus);
 
 			answerQuill.toolbar.tooltips = [];
 
@@ -357,8 +379,29 @@
 				});
 			}
 
+			const getNextFocusableElement = (currentElement) => {
+				const focusableElements = document.querySelectorAll(
+					'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+				);
+
+				let currentIndex = Array.from(focusableElements).indexOf(currentElement);
+				if (currentIndex === -1) return;
+
+				let nextIndex = currentIndex + 1;
+
+				while (nextIndex < focusableElements.length) {
+					if (!focusableElements[nextIndex].disabled && focusableElements[nextIndex].offsetParent !== null)
+						return focusableElements[nextIndex];
+					++nextIndex;
+				}
+			};
+
 			answerQuill.toolbar.addEventListener('keydown', (e) => {
-				if (e.key === 'Escape') toolbarRemove();
+				if (e.key === 'Escape') {
+					const nextFocusable = getNextFocusableElement(answerQuill.toolbar.lastElementChild);
+					toolbarRemove();
+					nextFocusable?.focus();
+				}
 			});
 
 			answerQuill.toolbar.setPosition = () => {
@@ -494,10 +537,11 @@
 
 		answerQuill.textarea.addEventListener('focusout', (e) => {
 			if (
-				e.relatedTarget &&
-				(e.relatedTarget.closest('.quill-toolbar') ||
-					e.relatedTarget.classList.contains('symbol-button') ||
-					(answerQuill.clearButton && e.relatedTarget === answerQuill.clearButton))
+				!document.hasFocus() ||
+				(e.relatedTarget &&
+					(e.relatedTarget.closest('.quill-toolbar') ||
+						e.relatedTarget.classList.contains('symbol-button') ||
+						(answerQuill.clearButton && e.relatedTarget === answerQuill.clearButton)))
 			)
 				return;
 
