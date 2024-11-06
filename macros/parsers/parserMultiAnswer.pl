@@ -71,6 +71,7 @@ sub new {
 		format              => undef,
 		context             => $context,
 		single_ans_messages => [],
+		partialCredit       => $main::showPartialCorrectAnswers,
 	}, $class;
 }
 
@@ -100,7 +101,23 @@ sub cmp {
 			delete $options{$id};
 		}
 	}
-	die "You must supply a checker subroutine" unless ref($self->{checker}) eq 'CODE';
+
+	unless (ref($self->{checker}) eq 'CODE') {
+		$self->{checker} = sub {
+			my ($correct, $student, $self, $ans) = @_;
+			my @scores;
+
+			for (0 .. $self->length - 1) {
+				push(@scores, $correct->[$_] == $student->[$_] ? 1 : 0);
+			}
+			return \@scores if $self->{partialCredit};
+			for (@scores) {
+				return 0 unless $_;
+			}
+			return 1;
+		}
+	}
+
 	if ($self->{allowBlankAnswers}) {
 		foreach my $cmp (@{ $self->{cmp} }) {
 			$cmp->install_pre_filter('erase');
@@ -477,9 +494,9 @@ converted into C<MathObjects>).
 
 C<MultiAnswer> objects have the following attributes:
 
-=head2 checker (required)
+=head2 checker
 
-A coderef to be called to check student answers. This is the only required attribute.
+A coderef to be called to check student answers.
 
 The C<checker> routine receives four parameters: a reference to the array of correct answers,
 a reference to the array of student answers, a reference to the C<MultiAnswer> object itself,
@@ -492,6 +509,16 @@ reference to an array of scores (one for each answer).
 		return [ (1) x scalar(@$correct) ];                # return an array of scores
 	}
 	$multianswer_obj = $multianswer_obj->with(checker=>~~&always_right);
+
+If a C<checker> is not provided, a default checker is used. The default checker checks if each
+answer is equal to its correct answer (using the overloaded C<==> operator). If C<< partialCredit => 1 >>,
+the checker returns an array of 0s and 1s listing which answers are correct giving partial credit.
+If C<< partialCredit => 0 >>, the checker only returns 1 if all answers are correct, otherwise returns 0.
+
+=head2 partialCredit
+
+This is used with the default checker to determine if the default checker should reward partial
+credit, based on the number of correct answers, or not. Default: C<$showPartialCorrectAnswers>.
 
 =head2 singleResult
 
