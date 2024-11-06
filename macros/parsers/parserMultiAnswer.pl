@@ -62,6 +62,7 @@ sub new {
 		part                => 0,
 		singleResult        => 0,
 		namedRules          => 0,
+		cmpOpts             => undef,
 		checkTypes          => 1,
 		allowBlankAnswers   => 0,
 		tex_separator       => $separator . '\,',
@@ -89,8 +90,10 @@ sub setCmpFlags {
 #  the individual answer checkers.
 #
 sub cmp {
-	my $self    = shift;
-	my %options = @_;
+	my ($self, %options) = @_;
+
+	%options = (%options, %{ $self->{cmpOpts} }) if ref($self->{cmpOpts}) eq 'HASH';
+
 	foreach my $id ('checker', 'separator') {
 		if (defined($options{$id})) {
 			$self->{$id} = $options{$id};
@@ -500,6 +503,12 @@ or one for each answer rule (C<< singleResult => 0 >>). Default: 0.
 Indicates whether to use named rules or default rule names. Use named rules (C<< namedRules => 1 >>)
 if you need to intersperse other rules with the ones for the C<MultiAnswer>. In this case, you must
 use C<NAMED_ANS> instead of C<ANS>. Default: 0.
+
+=head2 cmpOpts
+
+This is a hash of options that will be passed to the cmp method. For example,
+C<< cmpOpts => { weight => 0.5 } >>. This option is provided to make it more convenient to pass
+options to cmp when utilizing PGML. Default: undef (no options are sent).
 
 =head2 checkTypes
 
