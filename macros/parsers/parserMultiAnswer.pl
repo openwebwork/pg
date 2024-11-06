@@ -103,6 +103,7 @@ sub cmp {
 	}
 
 	unless (ref($self->{checker}) eq 'CODE') {
+		die "Your checker must be a subroutine." if defined($self->{checker});
 		$self->{checker} = sub {
 			my ($correct, $student, $self, $ans) = @_;
 			my @scores;
