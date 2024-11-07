@@ -890,7 +890,8 @@ sub type {"Set"}
 sub string {
 	my $self     = shift;
 	my $equation = shift;
-	my $x        = $self->{varName} || ($self->context->variables->names)[0];
+	my $context  = $self->context;
+	my $x        = $self->{varName} || ($context->variables->names)[0];
 	$x = $context->{variables}{$x}{string} if defined $context->{variables}{$x}{string};
 	my @coords = ();
 	foreach my $a (@{ $self->data }) {
@@ -908,7 +909,8 @@ sub string {
 sub TeX {
 	my $self     = shift;
 	my $equation = shift;
-	my $x        = $self->{varName} || ($self->context->variables->names)[0];
+	my $context  = $self->context;
+	my $x        = $self->{varName} || ($context->variables->names)[0];
 	$x = $context->{variables}{$x}{TeX} if defined $context->{variables}{$x}{TeX};
 	$x =~ s/^([^_]+)_?(\d+)$/$1_{$2}/;
 	my @coords = ();
