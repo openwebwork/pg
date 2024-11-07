@@ -279,6 +279,26 @@
 				if (feedbackBtn) bootstrap.Popover.getInstance(feedbackBtn)?.update();
 			};
 
+			// Trigger a button press when the enter key is pressed in an answer box.
+			cfgOptions.handlers.enter = () => {
+				// Ensure that the toolbar and any open tooltips are removed.
+				answerQuill.toolbar?.tooltips.forEach((tooltip) => tooltip.dispose());
+				answerQuill.toolbar?.remove();
+				delete answerQuill.toolbar;
+
+				// For ww2 homework, depends on $pg{options}{enterKey}
+				const enterKeySubmit = document.getElementById('enter_key_submit');
+				if (enterKeySubmit) enterKeySubmit.click();
+				else document.getElementById('previewAnswers_id')?.click();
+				// For gateway quizzes, always the preview button
+				document.querySelector('input[name=previewAnswers]')?.click();
+				// For ww3
+				const previewButtonId = answerQuill.textarea
+					.closest('[name=problemMainForm]')
+					?.id.replace('problemMainForm', 'previewAnswers');
+				if (previewButtonId) document.getElementById(previewButtonId)?.click();
+			};
+
 			input.after(answerQuill);
 		}
 
@@ -369,7 +389,7 @@
 				button.append(icon);
 				answerQuill.toolbar.append(button);
 
-				MQ.StaticMath(icon, { mouseEvents: false });
+				MQ.StaticMath(icon, { mouseEvents: false, tabbable: false });
 
 				answerQuill.toolbar.tooltips.push(new bootstrap.Tooltip(button, { placement: 'left' }));
 
@@ -380,25 +400,30 @@
 			}
 
 			const getNextFocusableElement = (currentElement) => {
-				const focusableElements = document.querySelectorAll(
-					'a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])'
+				const focusableElements = Array.from(
+					document.querySelectorAll(
+						'a[href]:not([tabindex="-1"]),' +
+							'button:not([tabindex="-1"]),' +
+							'input:not([tabindex="-1"]),' +
+							'textarea:not([tabindex="-1"]),' +
+							'select:not([tabindex="-1"]),' +
+							'details:not([tabindex="-1"]),' +
+							'[tabindex]:not([tabindex="-1"])'
+					)
 				);
 
-				let currentIndex = Array.from(focusableElements).indexOf(currentElement);
+				let currentIndex = focusableElements.indexOf(currentElement);
 				if (currentIndex === -1) return;
 
-				let nextIndex = currentIndex + 1;
-
-				while (nextIndex < focusableElements.length) {
-					if (!focusableElements[nextIndex].disabled && focusableElements[nextIndex].offsetParent !== null)
-						return focusableElements[nextIndex];
-					++nextIndex;
+				for (const focusableElement of focusableElements.slice(currentIndex + 1)) {
+					if (!focusableElement.disabled && focusableElement.offsetParent !== null) return focusableElement;
 				}
 			};
 
 			answerQuill.toolbar.addEventListener('keydown', (e) => {
 				if (e.key === 'Escape') {
 					const nextFocusable = getNextFocusableElement(answerQuill.toolbar.lastElementChild);
+					console.log(nextFocusable);
 					toolbarRemove();
 					nextFocusable?.focus();
 				}
@@ -551,29 +576,6 @@
 		window.answerQuills[answerLabel] = answerQuill;
 
 		if (latexEntryMode) return;
-
-		// Trigger a button press when the enter key is pressed in an answer box.
-		answerQuill.keydownHandler = (e) => {
-			if (e.key == 'Enter') {
-				// Ensure that the toolbar and any open tooltips are removed.
-				answerQuill.toolbar?.tooltips.forEach((tooltip) => tooltip.dispose());
-				answerQuill.toolbar?.remove();
-				delete answerQuill.toolbar;
-
-				// For ww2 homework, depends on $pg{options}{enterKey}
-				const enterKeySubmit = document.getElementById('enter_key_submit');
-				if (enterKeySubmit) enterKeySubmit.click();
-				else document.getElementById('previewAnswers_id')?.click();
-				// For gateway quizzes, always the preview button
-				document.querySelector('input[name=previewAnswers]')?.click();
-				// For ww3
-				const previewButtonId = answerQuill.textarea
-					.closest('[name=problemMainForm]')
-					?.id.replace('problemMainForm', 'previewAnswers');
-				if (previewButtonId) document.getElementById(previewButtonId)?.click();
-			}
-		};
-		answerQuill.addEventListener('keydown', answerQuill.keydownHandler);
 
 		setTimeout(() => {
 			answerQuill.mathField.latex(answerQuill.latexInput.value);
