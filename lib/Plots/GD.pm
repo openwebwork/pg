@@ -69,7 +69,7 @@ sub im_x {
 	return unless defined($x);
 	my $pgplot = $self->pgplot;
 	my ($xmin, $xmax) = ($pgplot->axes->xaxis('min'), $pgplot->axes->xaxis('max'));
-	return int(($x - $xmin) * ($pgplot->size)[0] / ($xmax - $xmin));
+	return int(($x - $xmin) * $pgplot->{width} / ($xmax - $xmin));
 }
 
 sub im_y {
@@ -77,7 +77,7 @@ sub im_y {
 	return unless defined($y);
 	my $pgplot = $self->pgplot;
 	my ($ymin, $ymax) = ($pgplot->axes->yaxis('min'), $pgplot->axes->yaxis('max'));
-	return int(($ymax - $y) * ($pgplot->size)[1] / ($ymax - $ymin));
+	return int(($ymax - $y) * $pgplot->{height} / ($ymax - $ymin));
 }
 
 sub moveTo {
@@ -235,7 +235,8 @@ sub draw {
 	my $pgplot = $self->pgplot;
 	my $axes   = $pgplot->axes;
 	my $grid   = $axes->grid;
-	my $size   = $pgplot->size;
+	my $width  = $pgplot->{width};
+	my $height = $pgplot->{height};
 
 	# Initialize image
 	$self->im->interlaced('true');
@@ -379,7 +380,7 @@ sub draw {
 	}
 
 	# Put a black frame around the picture
-	$self->im->rectangle(0, 0, $size->[0] - 1, $size->[1] - 1, $self->color('black'));
+	$self->im->rectangle(0, 0, $width - 1, $height - 1, $self->color('black'));
 
 	return $pgplot->ext eq 'gif' ? $self->im->gif : $self->im->png;
 }

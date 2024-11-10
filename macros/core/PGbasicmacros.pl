@@ -2909,9 +2909,19 @@ sub image {
 			);
 			next;
 		}
+		if (ref $image_item eq 'Plots::Plot') {
+			# Update image size as needed.
+			$image_item->{size}->[0] = $width  if $out_options{width};
+			$image_item->{size}->[1] = $height if $out_options{height};
+
+			if ($image_item->ext eq 'html') {
+				push(@output_list, $image_item->draw);
+				next;
+			}
+		}
 		$image_item = insertGraph($image_item)
 			if (ref $image_item eq 'WWPlot'
-				|| ref $image_item eq 'PGplot'
+				|| ref $image_item eq 'Plots::Plot'
 				|| ref $image_item eq 'PGlateximage'
 				|| ref $image_item eq 'PGtikz');
 		my $imageURL = alias($image_item) // '';

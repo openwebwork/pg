@@ -19,14 +19,17 @@ plots.pl - A macro to create dynamic graphs to include in PG problems.
 
 =head1 DESCRIPTION
 
-This macro creates a Plot object that is used to add data of different
+This macro creates a Plots object that is used to add data of different
 elements of a 2D plot, then draw the plot. The plots can be drawn using different
-formats. Currently the legacy GD graphics format and TikZ (using pgfplots)
-are available.
+formats. Currently C<TikZ> (using PGFplots), C<JSX> (using jsxgraph), C<Plotly>
+(using Plotly.js), and the legacy C<GD> graphics format are available.
+
+Note, not all graph settings apply to all formats. The settings are designed
+based off of TikZ and PGFplots, and are adapted to other formats when possible.
 
 =head1 USAGE
 
-First create a PGplot object:
+First create a Plots object:
 
     loadMacros('plots.pl');
     $plot = Plot();
@@ -60,7 +63,7 @@ Insert the graph into the problem.
 =head1 PLOT ELEMENTS
 
 A plot consists of multiple L<Data|/"DATA OBJECT"> objects, which define datasets, functions,
-and labels to add to the graph. Data objects should be created though the PGplot object,
+and labels to add to the graph. Data objects should be created though the Plots object,
 but can be access directly if needed
 
 =head2 DATASETS

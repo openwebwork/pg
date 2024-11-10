@@ -36,7 +36,7 @@ Hash of data for options for the general axis.
 
 =head1 USAGE
 
-The axes object should be accessed through a PGplot object using C<< $plot->axes >>.
+The axes object should be accessed through a Plots object using C<< $plot->axes >>.
 The axes object is used to configure and retrieve information about the axes,
 as in the following examples.
 

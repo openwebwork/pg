@@ -15,11 +15,10 @@
 
 =head1 DATA OBJECT
 
-This object holds data about the different types of elements that can be added
-to a PGplot graph. This is a hash with some helper methods. Data objects are created
-and modified using the PGplot methods, and do not need to generally be
-modified in a PG problem.  Each PG add method returns the related data object which
-can be used if needed.
+This object holds data about the different types of elements that can be added to a
+Plots graph. This is a hash with some helper methods. Data objects are created and
+modified using the Plots methods, and do not need to generally be modified in a PG
+problem.  Each PG add method returns the related data object which can be used if needed.
 
 Each data object contains the following:
 

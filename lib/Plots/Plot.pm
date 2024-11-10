@@ -29,6 +29,8 @@ use warnings;
 use Plots::Axes;
 use Plots::Data;
 use Plots::Tikz;
+use Plots::Plotly;
+use Plots::JSX;
 use Plots::GD;
 
 sub new {
@@ -39,8 +41,10 @@ sub new {
 		pg        => $pg,
 		imageName => {},
 		type      => 'Tikz',
-		ext       => 'svg',
-		size      => [ $size, $size ],
+		ext       => $pg->{displayMode} eq 'TeX' ? 'pdf' : 'svg',
+		width     => $size,
+		height    => $size,
+		tex_size  => 500,
 		axes      => Plots::Axes->new,
 		colors    => {},
 		data      => [],
@@ -49,6 +53,24 @@ sub new {
 
 	$self->color_init;
 	return $self;
+}
+
+# Only insert js file if it isn't already inserted.
+sub insert_js {
+	my ($self, $file) = @_;
+	for my $obj (@{ $self->{pg}{flags}{extra_js_files} }) {
+		return if $obj->{file} eq $file;
+	}
+	push(@{ $self->{pg}{flags}{extra_js_files} }, { file => $file, external => 0, attributes => { defer => undef } });
+}
+
+# Only insert css file if it isn't already inserted.
+sub insert_css {
+	my ($self, $file) = @_;
+	for my $obj (@{ $self->{pg}{flags}{extra_css_files} }) {
+		return if $obj->{file} eq $file;
+	}
+	push(@{ $self->{pg}{flags}{extra_css_files} }, { file => $file, external => 0 });
 }
 
 sub colors {
@@ -85,7 +107,7 @@ sub color_init {
 
 sub size {
 	my $self = shift;
-	return wantarray ? @{ $self->{size} } : $self->{size};
+	return wantarray ? ($self->{width}, $self->{height}) : [ $self->{width}, $self->{height} ];
 }
 
 sub data {
@@ -131,14 +153,20 @@ sub image_type {
 	# Check type and extension are valid. The first element of @validExt is used as default.
 	my @validExt;
 	$type = lc($type);
-	if ($type eq 'tikz') {
+	if ($type eq 'jsx') {
+		$self->{type} = 'JSX';
+		@validExt = ('html');
+	} elsif ($type eq 'plotly') {
+		$self->{type} = 'Plotly';
+		@validExt = ('html');
+	} elsif ($type eq 'tikz') {
 		$self->{type} = 'Tikz';
 		@validExt = ('svg', 'png', 'pdf');
 	} elsif ($type eq 'gd') {
 		$self->{type} = 'GD';
 		@validExt = ('png', 'gif');
 	} else {
-		warn "PGplot: Invalid image type $type.";
+		warn "Plots: Invalid image type $type.";
 		return;
 	}
 
@@ -146,26 +174,29 @@ sub image_type {
 		if (grep(/^$ext$/, @validExt)) {
 			$self->{ext} = $ext;
 		} else {
-			warn "PGplot: Invalid image extension $ext.";
+			warn "Plots: Invalid image extension $ext.";
 		}
 	} else {
 		$self->{ext} = $validExt[0];
 	}
+
+	# Hardcopy: Tikz needs to use the 'pdf' extension and fallback to Tikz output if ext is 'html'.
+	if ($self->{pg}{displayMode} eq 'TeX' && ($self->{ext} eq 'html' || $self->{type} eq 'Tikz')) {
+		$self->{type} = 'Tikz';
+		$self->{ext}  = 'pdf';
+	}
 	return;
 }
 
-# Tikz needs to use pdf for hardcopy generation.
 sub ext {
-	my $self = shift;
-	return 'pdf' if ($self->{type} eq 'Tikz' && eval('$main::displayMode') eq 'TeX');
-	return $self->{ext};
+	return (shift)->{ext};
 }
 
 # Return a copy of the tikz code (available after the image has been drawn).
 # Set $plot->{tikzDebug} to 1 to just generate the tikzCode, and not create a graph.
 sub tikz_code {
 	my $self = shift;
-	return ($self->{tikzCode} && eval('$main::displayMode') =~ /HTML/) ? '<pre>' . $self->{tikzCode} . '</pre>' : '';
+	return $self->{tikzCode} && $self->{pg}{displayMode} =~ /HTML/ ? '<pre>' . $self->{tikzCode} . '</pre>' : '';
 }
 
 # Add functions to the graph.
@@ -367,10 +398,14 @@ sub draw {
 	my $type = $self->{type};
 
 	my $image;
-	if ($type eq 'GD') {
-		$image = Plots::GD->new($self);
-	} elsif ($type eq 'Tikz') {
+	if ($type eq 'Tikz') {
 		$image = Plots::Tikz->new($self);
+	} elsif ($type eq 'JSX') {
+		$image = Plots::JSX->new($self);
+	} elsif ($type eq 'Plotly') {
+		$image = Plots::Plotly->new($self);
+	} elsif ($type eq 'GD') {
+		$image = Plots::GD->new($self);
 	} else {
 		warn "Undefined image type: $type";
 		return;
