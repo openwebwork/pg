@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -19,37 +5,41 @@ plots.pl - A macro to create dynamic graphs to include in PG problems.
 
 =head1 DESCRIPTION
 
-This macro creates a Plot object that is used to add data of different
+This macro creates a Plots object that is used to add data of different
 elements of a 2D plot, then draw the plot. The plots can be drawn using different
-formats. Currently the legacy GD graphics format and TikZ (using pgfplots)
-are available.
+formats. Currently C<TikZ> (using PGFplots), C<JSXGraph>, and the legacy C<GD>
+graphics format are available. Default is to use C<JSXGraph> for HTML output and
+C<TikZ> for hardcopy.
+
+Note, due to differences in features between C<JSXGraph> and C<TikZ>, not all
+options work with both.
 
 =head1 USAGE
 
-First create a PGplot object:
+First create a Plots object:
 
     loadMacros('plots.pl');
     $plot = Plot();
 
-Configure the L<Axes|/"AXES OBJECT">:
+Configure the L<Axes Object|Plots::Axes>:
 
     $plot->axes->xaxis(
-        min   => 0,
-        max   => 10,
-        ticks => [0, 2, 4, 6, 8, 10],
-        label => '\(t\)',
+        min        => 0,
+        max        => 10,
+        tick_delta => 2,
+        label      => '\(t\)',
     );
     $plot->axes->yaxis(
-        min   => 0,
-        max   => 500,
-        ticks => [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500],
-        label => '\(h(t)\)'
+        min        => 0,
+        max        => 500,
+        tick_delta => 50,
+        label      => '\(h(t)\)'
     );
     $plot->axes->style(title => 'Height of an object as a function of time.');
 
 Add a function and other objects to the plot.
 
-    $plot->add_function('-16t^2 + 80t + 384', 't', 0, 8, color => blue, width => 3);
+    $plot->add_function('-16t^2 + 80t + 384', 't', 0, 8, color => 'blue', width => 3);
 
 Insert the graph into the problem.
 
@@ -59,8 +49,8 @@ Insert the graph into the problem.
 
 =head1 PLOT ELEMENTS
 
-A plot consists of multiple L<Data|/"DATA OBJECT"> objects, which define datasets, functions,
-and labels to add to the graph. Data objects should be created though the PGplot object,
+A plot consists of multiple L<Data objects|Plots::Data>, which define datasets, functions,
+and labels to add to the graph. Data objects should be created though the Plots object,
 but can be access directly if needed
 
 =head2 DATASETS
@@ -70,7 +60,7 @@ to plot the data. Datasets are added to a plot via C<< $plot->add_dataset >>, an
 can be added individually, or multiple at once as shown:
 
     # Add a single dataset
-    $plot->add_dataset([$x1, $y1], [$x2, $y2], ..., [$xn, $yn], @options)>
+    $plot->add_dataset([$x1, $y1], [$x2, $y2], ..., [$xn, $yn], @options);
     # Add multiple datasets with single call
     $plot->add_dataset(
         [[$x11, $y11], [$x12, $y12], ..., [$x1n, $y1n], @options1],
@@ -117,23 +107,6 @@ parametric functions (an array of two functions) to the graph.
     # Add a parametric circle of radius 5 to the plot.
     $plot->add_function(['5cos(t)', '5sin(t)'], 't', 0, 2*pi);
 
-Functions can be defined using strings (which are turned into MathObjects),
-MathObjects, or perl subroutines:
-
-    # Add a function from a predefined MathObject.
-    $f = Compute("$a x^2 + $b x + $c");
-    $plot->add_function($f, 'x', -5, 5, width => 3);
-    # Define a function using a perl subroutine.
-    # The variable is undefined since it is not used.
-    $plot->add_function(
-        [ sub { return $_[0]**2; }, sub { return $_[0]; } ],
-        undef,
-        -5,
-        5,
-        color => 'green',
-        width => 2
-    );
-
 Functions can also be added using function strings. Function strings are of the form:
 
     "$function for $variable in <$min,$max> using option1:value1 and option2:value2"
@@ -162,6 +135,26 @@ for creating piecewise functions.
         '8-2x for x in [2.5,5}'
     );
 
+Functions can be defined using strings (which are turned into MathObjects),
+MathObjects, or perl subroutines:
+
+    # Add a function from a predefined MathObject.
+    $f = Compute("$a x^2 + $b x + $c");
+    $plot->add_function($f, 'x', -5, 5, width => 3);
+    # Define a function using a perl subroutine.
+    # The variable is undefined since it is not used.
+    $plot->add_function(
+        [ sub { return $_[0]**2; }, sub { return $_[0]; } ],
+        undef,
+        -5,
+        5,
+        color => 'green',
+        width => 2
+    );
+
+It is prefered to use strings or MathObjects instead of perl subroutiens when
+using the default C<JSXGraph> output.
+
 =head2 DATASET OPTIONS
 
 The following are the options that can be used to configure how datasets and functions are plotted.
@@ -187,9 +180,9 @@ Default: 'solid'
 =item marks
 
 Configures the symbol used for plotting the points in the dataset. Marks
-can be one of 'none', 'open_circle', 'closed_circle', 'plus', 'times',
-'dash', 'bar', 'asterisk', 'star', 'oplus', 'otimes', or 'diamond'.
-Default: 'none'
+can be one of 'none', 'circle' (or 'closed_circle'), 'open_circle', 'square',
+'open_square', 'plus', 'times', 'bar', 'dash', 'triangle', 'open_triangle',
+'diamond', or 'open_diamond'. Default: 'none'
 
 =item mark_size
 
@@ -209,7 +202,9 @@ Place a mark at the end (right end) of the plot. This can be one of
 
 =item name
 
-The name assigned to the dataset to reference it for filling (see below).
+The name assigned to the curve to reference it for filling (see below).
+Each curve used to fill between curves or the xaxis must have a unique name.
+Default: undefined
 
 =item fill
 
@@ -229,6 +224,16 @@ The following creates a filled rectangle:
         fill_opacity => 0.1,
     );
 
+The following fills the area under the curve y = 4 - x^2 over its whole domain.
+
+    $plot->add_function('4 - x^2', 'x', -2, 2,
+        color        => 'blue',
+        name         => 'A',
+        fill         => 'xaxis',
+        fill_color   => 'red',
+        fill_opacity => 0.2
+    );
+
 The following fills the area between the two curves y = 4 - x^2 and y = x^2 - 4,
 and only fills in the area between x=-2 and x=2:
 
@@ -240,9 +245,10 @@ and only fills in the area between x=-2 and x=2:
         color        => 'blue',
         name         => 'B',
         fill         => 'A',
-        fill_opacity => 0.2,
-        fill_range   => '-2,2',
+        fill_min     => -2,
+        fill_max     => 2,
         fill_color   => 'green',
+        fill_opacity => 0.2,
     );
 
 =item fill_color
@@ -253,20 +259,44 @@ The color used when filling the region. Default: 'default_color'
 
 A number between 0 and 1 giving the opacity of the fill. Default: 0.5
 
-=item fill_range
+=item fill_min, fill_max
 
-This is a string that contains two number separated by a comma, C<"$min,$max">. This gives
-the domain of the fill when filling between two curves or the x-axis. Useful to only fill
-a piece of the curve. Default: ''
+The minmum and maxium x-value to fill between. If either of these are
+not defined, then the fill will use the full domain of the function.
+Default: undefined
 
 =item steps
 
 This defines the number of points to generate for a dataset from a function.
-Default: 20.
+Default: 30.
+
+=item tikz_smooth
+
+Either 0 or 1 to add the TikZ option "smooth" to the plot, which will smooth
+out the plot making it look good with fewer steps. By default this is turned
+on for functions but off for other datasets. This alters the look of the plot
+and can mess with fills. For functions you will need to explicitly turn it
+off in cases it has undesirable side effects.
+
+=item continue_left
+
+If set to 1, the graph of a non-parametric function using JSXGraph will keep going
+to the left beyond the minimum bound. This allows zooming out or panning the graph
+to the left. Default: 0
+
+=item continue_right
+
+If set to 1, the graph of a non-parametric function using JSXGraph will keep going
+to the right beyond the maximum bound. This allows zooming out or panning the graph
+to the right. Default: 0
 
 =item tikzOpts
 
 Additional pgfplots C<\addplot> options to be added to the tikz output.
+
+=item JSXGraphOpts
+
+A hash reference of options to pass to be added to the JSXGraph output.
 
 =back
 
@@ -397,9 +427,8 @@ the tikz code of a graph that is failing to build use:
 
     $plot->{tikzDebug} = 1;
     $image = insertGraph($plot);
-    $tikzCode = $plot->tikz_code;
     BEGIN_PGML
-    [$tikzCode]*
+    [@ $plot->tikz_code @]*
     END_PGML
 
 =cut
