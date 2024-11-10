@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 DESCRIPTION
 
@@ -27,22 +13,22 @@ use strict;
 use warnings;
 
 sub new {
-	my ($class, $pgplot) = @_;
+	my ($class, $plots) = @_;
 	my $image = LaTeXImage->new;
 	$image->environment('tikzpicture');
 	$image->svgMethod($main::envir{latexImageSVGMethod}           // 'dvisvgm');
 	$image->convertOptions($main::envir{latexImageConvertOptions} // { input => {}, output => {} });
-	$image->ext($pgplot->ext);
+	$image->ext($plots->ext);
 	$image->tikzLibraries('arrows.meta,plotmarks');
 	$image->texPackages(['pgfplots']);
 	$image->addToPreamble('\pgfplotsset{compat=1.18}\usepgfplotslibrary{fillbetween}');
 
-	return bless { image => $image, pgplot => $pgplot, colors => {} }, $class;
+	return bless { image => $image, plots => $plots, colors => {} }, $class;
 }
 
-sub pgplot {
+sub plots {
 	my $self = shift;
-	return $self->{pgplot};
+	return $self->{plots};
 }
 
 sub im {
@@ -53,18 +39,37 @@ sub im {
 sub get_color {
 	my ($self, $color) = @_;
 	return '' if $self->{colors}{$color};
-	my ($r, $g, $b) = @{ $self->pgplot->colors($color) };
+	my ($r, $g, $b) = @{ $self->plots->colors($color) };
 	$self->{colors}{$color} = 1;
 	return "\\definecolor{$color}{RGB}{$r,$g,$b}\n";
 }
 
+sub get_mark {
+	my ($self, $mark) = @_;
+	return {
+		circle        => '*',
+		closed_circle => '*',
+		open_circle   => 'o',
+		square        => 'square*',
+		open_square   => 'square',
+		plus          => '+',
+		times         => 'x',
+		bar           => '|',
+		dash          => '-',
+		triangle      => 'triangle*',
+		open_triangle => 'triangle',
+		diamond       => 'diamond*',
+		open_diamond  => 'diamond',
+	}->{$mark};
+}
+
 sub configure_axes {
-	my $self   = shift;
-	my $pgplot = $self->pgplot;
-	my $axes   = $pgplot->axes;
-	my $grid   = $axes->grid;
+	my $self  = shift;
+	my $plots = $self->plots;
+	my $axes  = $plots->axes;
+	my $grid  = $axes->grid;
 	my ($xmin, $ymin, $xmax, $ymax) = $axes->bounds;
-	my ($axes_height, $axes_width) = $pgplot->size;
+	my ($axes_width, $axes_height) = $plots->size;
 	my $show_grid   = $axes->style('show_grid');
 	my $xmajor      = $show_grid && $grid->{xmajor} ? 'true'          : 'false';
 	my $xminor_num  = $show_grid && $grid->{xmajor} ? $grid->{xminor} : 0;
@@ -80,13 +85,17 @@ sub configure_axes {
 	my $grid_style  = $axes->style('grid_style');
 	my $xlabel      = $axes->xaxis('label');
 	my $axis_x_line = $axes->xaxis('location');
+	my $axis_x_pos  = $axes->xaxis('position');
 	my $ylabel      = $axes->yaxis('label');
 	my $axis_y_line = $axes->yaxis('location');
+	my $axis_y_pos  = $axes->yaxis('position');
 	my $title       = $axes->style('title');
 	my $axis_on_top = $axes->style('axis_on_top') ? "axis on top,\n\t\t\t" : '';
 	my $hide_x_axis = '';
 	my $hide_y_axis = '';
 	my $xaxis_plot  = ($xmin <= 0 && $xmax >= 0) ? "\\path[name path=xaxis] ($xmin, 0) -- ($xmax,0);\n" : '';
+	$axis_x_pos = $axis_x_pos ? ",\n\t\t\taxis x line shift=" . (-$axis_x_pos) : '';
+	$axis_y_pos = $axis_y_pos ? ",\n\t\t\taxis y line shift=" . (-$axis_y_pos) : '';
 
 	unless ($axes->xaxis('visible')) {
 		$xlabel = '';
@@ -107,8 +116,8 @@ sub configure_axes {
 		[
 			height=$axes_height,
 			width=$axes_width,
-			${axis_on_top}axis x line=$axis_x_line,
-			axis y line=$axis_y_line,
+			${axis_on_top}axis x line=$axis_x_line$axis_x_pos,
+			axis y line=$axis_y_line$axis_y_pos,
 			xlabel={$xlabel},
 			ylabel={$ylabel},
 			title={$title},
@@ -149,6 +158,7 @@ sub get_plot_opts {
 	my $fill_color   = $data->style('fill_color')   || 'default_color';
 	my $fill_opacity = $data->style('fill_opacity') || 0.5;
 	my $tikzOpts     = $data->style('tikzOpts')     || '';
+	my $smooth       = $data->style('tikz_smooth') ? 'smooth, ' : '';
 
 	if ($start =~ /circle/) {
 		$start = '{Circle[sep=-1.196825pt -1.595769' . ($start eq 'open_circle' ? ', open' : '') . ']}';
@@ -165,21 +175,8 @@ sub get_plot_opts {
 		$end = '';
 	}
 	my $end_markers = ($start || $end) ? ", $start-$end" : '';
-	$marks = {
-		closed_circle => '*',
-		open_circle   => 'o',
-		plus          => '+',
-		times         => 'x',
-		bar           => '|',
-		dash          => '-',
-		asterisk      => 'asterisk',
-		star          => 'star',
-		oplus         => 'oplus',
-		otimes        => 'otimes',
-		diamond       => 'diamond',
-		none          => '',
-	}->{$marks};
-	$marks = $marks ? $mark_size ? ", mark=$marks, mark size=${mark_size}px" : ", mark=$marks" : '';
+	$marks     = $self->get_mark($marks);
+	$marks     = $marks ? $mark_size ? ", mark=$marks, mark size=${mark_size}px" : ", mark=$marks" : '';
 	$linestyle = $linestyle eq 'none' ? ', only marks' : ', ' . ($linestyle =~ s/_/ /gr);
 	if ($fill eq 'self') {
 		$fill = ", fill=$fill_color, fill opacity=$fill_opacity";
@@ -189,12 +186,12 @@ sub get_plot_opts {
 	$name     = ", name path=$name" if $name;
 	$tikzOpts = ", $tikzOpts"       if $tikzOpts;
 
-	return "color=$color, line width=${width}pt$marks$linestyle$end_markers$fill$name$tikzOpts";
+	return "${smooth}color=$color, line width=${width}pt$marks$linestyle$end_markers$fill$name$tikzOpts";
 }
 
 sub draw {
-	my $self   = shift;
-	my $pgplot = $self->pgplot;
+	my $self  = shift;
+	my $plots = $self->plots;
 
 	# Reset colors just in case.
 	$self->{colors} = {};
@@ -203,7 +200,7 @@ sub draw {
 	my $tikzCode = $self->configure_axes;
 
 	# Plot Data
-	for my $data ($pgplot->data('function', 'dataset')) {
+	for my $data ($plots->data('function', 'dataset')) {
 		$data->gen_data;
 		my $n          = $data->size;
 		my $color      = $data->style('color')      || 'default_color';
@@ -215,34 +212,21 @@ sub draw {
 		$tikzCode .= $self->get_color($color) . "\\addplot[$tikzOpts] coordinates {$tikzData};\n";
 
 		unless ($fill eq 'none' || $fill eq 'self') {
-			my $opacity    = $data->style('fill_opacity') || 0.5;
-			my $fill_range = $data->style('fill_range')   || '';
 			my $name       = $data->style('name')         || '';
+			my $opacity    = $data->style('fill_opacity') || 0.5;
+			my $fill_min   = $data->style('fill_min');
+			my $fill_max   = $data->style('fill_max');
+			my $fill_range = defined $fill_min && defined $fill_max ? ", soft clip={domain=$fill_min:$fill_max}" : '';
 			$opacity *= 100;
-			if ($fill_range) {
-				my ($min_fill, $max_fill) = split(',', $fill_range);
-				$fill_range = ", soft clip={domain=$min_fill:$max_fill}";
-			}
 			$tikzCode .= "\\addplot[$fill_color!$opacity] fill between[of=$name and $fill$fill_range];\n";
 		}
 	}
 
 	# Stamps
-	for my $stamp ($pgplot->data('stamp')) {
-		my $mark = {
-			closed_circle => '*',
-			open_circle   => 'o',
-			plus          => '+',
-			times         => 'x',
-			bar           => '|',
-			dash          => '-',
-			asterisk      => 'asterisk',
-			star          => 'star',
-			oplus         => 'oplus',
-			otimes        => 'otimes',
-			diamond       => 'diamond',
-			none          => '',
-		}->{ $stamp->style('symbol') };
+	for my $stamp ($plots->data('stamp')) {
+		my $mark = $self->get_mark($stamp->style('symbol'));
+		next unless $mark;
+
 		my $color = $stamp->style('color') || 'default_color';
 		my $x     = $stamp->x(0);
 		my $y     = $stamp->y(0);
@@ -252,7 +236,7 @@ sub draw {
 	}
 
 	# Labels
-	for my $label ($pgplot->data('label')) {
+	for my $label ($plots->data('label')) {
 		my $str         = $label->style('label');
 		my $x           = $label->x(0);
 		my $y           = $label->y(0);
@@ -279,9 +263,9 @@ sub draw {
 	}
 	$tikzCode .= '\end{axis}' . "\n";
 
-	$pgplot->{tikzCode} = $tikzCode;
+	$plots->{tikzCode} = $tikzCode;
 	$self->im->tex($tikzCode);
-	return $pgplot->{tikzDebug} ? '' : $self->im->draw;
+	return $plots->{tikzDebug} ? '' : $self->im->draw;
 }
 
 1;

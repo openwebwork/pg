@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 DESCRIPTION
 
@@ -29,19 +15,19 @@ use strict;
 use warnings;
 
 sub new {
-	my ($class, $pgplot) = @_;
+	my ($class, $plots) = @_;
 	return bless {
 		image    => '',
-		pgplot   => $pgplot,
+		plots    => $plots,
 		position => [ 0, 0 ],
 		colors   => {},
-		image    => GD::Image->new($pgplot->size)
+		image    => GD::Image->new($plots->size)
 	}, $class;
 }
 
-sub pgplot {
+sub plots {
 	my $self = shift;
-	return $self->{pgplot};
+	return $self->{plots};
 }
 
 sub im {
@@ -58,7 +44,7 @@ sub position {
 
 sub color {
 	my ($self, $color) = @_;
-	$self->{colors}{$color} = $self->im->colorAllocate(@{ $self->pgplot->colors($color) })
+	$self->{colors}{$color} = $self->im->colorAllocate(@{ $self->plots->colors($color) })
 		unless $self->{colors}{$color};
 	return $self->{colors}{$color};
 }
@@ -67,17 +53,17 @@ sub color {
 sub im_x {
 	my ($self, $x) = @_;
 	return unless defined($x);
-	my $pgplot = $self->pgplot;
-	my ($xmin, $xmax) = ($pgplot->axes->xaxis('min'), $pgplot->axes->xaxis('max'));
-	return int(($x - $xmin) * ($pgplot->size)[0] / ($xmax - $xmin));
+	my $plots = $self->plots;
+	my ($xmin, $xmax) = ($plots->axes->xaxis('min'), $plots->axes->xaxis('max'));
+	return int(($x - $xmin) * $plots->{width} / ($xmax - $xmin));
 }
 
 sub im_y {
 	my ($self, $y) = @_;
 	return unless defined($y);
-	my $pgplot = $self->pgplot;
-	my ($ymin, $ymax) = ($pgplot->axes->yaxis('min'), $pgplot->axes->yaxis('max'));
-	return int(($ymax - $y) * ($pgplot->size)[1] / ($ymax - $ymin));
+	my $plots = $self->plots;
+	my ($ymin, $ymax) = ($plots->axes->yaxis('min'), $plots->axes->yaxis('max'));
+	return int(($ymax - $y) * $plots->{height} / ($ymax - $ymin));
 }
 
 sub moveTo {
@@ -119,9 +105,9 @@ sub lineTo {
 # Draw functions / lines / arrows
 sub draw_data {
 	my ($self, $pass) = @_;
-	my $pgplot = $self->pgplot;
+	my $plots = $self->plots;
 	$pass = 0 unless $pass;
-	for my $data ($pgplot->data('function', 'dataset')) {
+	for my $data ($plots->data('function', 'dataset')) {
 		$data->gen_data;
 		my $n     = $data->size - 1;
 		my $x     = $data->x;
@@ -136,7 +122,7 @@ sub draw_data {
 		if ($pass == 2) {
 			my $r     = int(3 + $width);
 			my $start = $data->style('start_mark') || 'none';
-			if ($start eq 'closed_circle') {
+			if ($start eq 'circle' || $start eq 'closed_circle') {
 				$self->draw_circle_stamp($data->x(0), $data->y(0), $r, $color, 1);
 			} elsif ($start eq 'open_circle') {
 				$self->draw_circle_stamp($data->x(0), $data->y(0), $r, $color);
@@ -145,7 +131,7 @@ sub draw_data {
 			}
 
 			my $end = $data->style('end_mark') || 'none';
-			if ($end eq 'closed_circle') {
+			if ($end eq 'circle' || $end eq 'closed_circle') {
 				$self->draw_circle_stamp($data->x($n), $data->y($n), $r, $color, 1);
 			} elsif ($end eq 'open_circle') {
 				$self->draw_circle_stamp($data->x($n), $data->y($n), $r, $color);
@@ -232,10 +218,11 @@ sub draw_circle_stamp {
 
 sub draw {
 	my $self   = shift;
-	my $pgplot = $self->pgplot;
-	my $axes   = $pgplot->axes;
+	my $plots  = $self->plots;
+	my $axes   = $plots->axes;
 	my $grid   = $axes->grid;
-	my $size   = $pgplot->size;
+	my $width  = $plots->{width};
+	my $height = $plots->{height};
 
 	# Initialize image
 	$self->im->interlaced('true');
@@ -245,7 +232,7 @@ sub draw {
 	$self->draw_data(1);
 
 	# Fill regions
-	for my $region ($pgplot->data('fill_region')) {
+	for my $region ($plots->data('fill_region')) {
 		$self->im->fill($self->im_x($region->x(0)), $self->im_y($region->y(0)), $self->color($region->style('color')));
 	}
 
@@ -362,16 +349,16 @@ sub draw {
 	$self->draw_data(2);
 
 	# Print Labels
-	for my $label ($pgplot->data('label')) {
+	for my $label ($plots->data('label')) {
 		$self->draw_label($label->style('label'), $label->x(0), $label->y(0), %{ $label->style });
 	}
 
 	# Draw stamps
-	for my $stamp ($pgplot->data('stamp')) {
+	for my $stamp ($plots->data('stamp')) {
 		my $symbol = $stamp->style('symbol');
 		my $color  = $stamp->style('color');
 		my $r      = $stamp->style('radius') || 4;
-		if ($symbol eq 'closed_circle') {
+		if ($symbol eq 'circle' || $symbol eq 'closed_circle') {
 			$self->draw_circle_stamp($stamp->x(0), $stamp->y(0), $r, $color, 1);
 		} elsif ($symbol eq 'open_circle') {
 			$self->draw_circle_stamp($stamp->x(0), $stamp->y(0), $r, $color);
@@ -379,9 +366,9 @@ sub draw {
 	}
 
 	# Put a black frame around the picture
-	$self->im->rectangle(0, 0, $size->[0] - 1, $size->[1] - 1, $self->color('black'));
+	$self->im->rectangle(0, 0, $width - 1, $height - 1, $self->color('black'));
 
-	return $pgplot->ext eq 'gif' ? $self->im->gif : $self->im->png;
+	return $plots->ext eq 'gif' ? $self->im->gif : $self->im->png;
 }
 
 1;

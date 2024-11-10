@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 DESCRIPTION
 
@@ -29,26 +15,47 @@ use warnings;
 use Plots::Axes;
 use Plots::Data;
 use Plots::Tikz;
+use Plots::JSXGraph;
 use Plots::GD;
 
 sub new {
 	my ($class, $pg, %options) = @_;
-	my $size = $main::envir{onTheFlyImageSize} || 500;
+	my $size = $main::envir{onTheFlyImageSize} || 350;
 
 	my $self = bless {
-		pg        => $pg,
-		imageName => {},
-		type      => 'Tikz',
-		ext       => 'svg',
-		size      => [ $size, $size ],
-		axes      => Plots::Axes->new,
-		colors    => {},
-		data      => [],
+		pg              => $pg,
+		imageName       => {},
+		width           => $size,
+		height          => $size,
+		tex_size        => 600,
+		ariaDescription => 'Generated graph',
+		axes            => Plots::Axes->new,
+		colors          => {},
+		data            => [],
 		%options
 	}, $class;
 
 	$self->color_init;
+	$self->image_type('JSXGraph');
 	return $self;
+}
+
+# Only insert js file if it isn't already inserted.
+sub insert_js {
+	my ($self, $file) = @_;
+	for my $obj (@{ $self->{pg}{flags}{extra_js_files} }) {
+		return if $obj->{file} eq $file;
+	}
+	push(@{ $self->{pg}{flags}{extra_js_files} }, { file => $file, external => 0, attributes => { defer => undef } });
+}
+
+# Only insert css file if it isn't already inserted.
+sub insert_css {
+	my ($self, $file) = @_;
+	for my $obj (@{ $self->{pg}{flags}{extra_css_files} }) {
+		return if $obj->{file} eq $file;
+	}
+	push(@{ $self->{pg}{flags}{extra_css_files} }, { file => $file, external => 0 });
 }
 
 sub colors {
@@ -85,7 +92,7 @@ sub color_init {
 
 sub size {
 	my $self = shift;
-	return wantarray ? @{ $self->{size} } : $self->{size};
+	return wantarray ? ($self->{width}, $self->{height}) : [ $self->{width}, $self->{height} ];
 }
 
 sub data {
@@ -131,14 +138,17 @@ sub image_type {
 	# Check type and extension are valid. The first element of @validExt is used as default.
 	my @validExt;
 	$type = lc($type);
-	if ($type eq 'tikz') {
+	if ($type eq 'jsxgraph') {
+		$self->{type} = 'JSXGraph';
+		@validExt = ('html');
+	} elsif ($type eq 'tikz') {
 		$self->{type} = 'Tikz';
 		@validExt = ('svg', 'png', 'pdf');
 	} elsif ($type eq 'gd') {
 		$self->{type} = 'GD';
 		@validExt = ('png', 'gif');
 	} else {
-		warn "PGplot: Invalid image type $type.";
+		warn "Plots: Invalid image type $type.";
 		return;
 	}
 
@@ -146,73 +156,51 @@ sub image_type {
 		if (grep(/^$ext$/, @validExt)) {
 			$self->{ext} = $ext;
 		} else {
-			warn "PGplot: Invalid image extension $ext.";
+			warn "Plots: Invalid image extension $ext.";
 		}
 	} else {
 		$self->{ext} = $validExt[0];
 	}
+
+	# Hardcopy: Tikz needs to use the 'pdf' extension and fallback to Tikz output if ext is 'html'.
+	if ($self->{pg}{displayMode} eq 'TeX' && ($self->{ext} eq 'html' || $self->{type} eq 'Tikz')) {
+		$self->{type} = 'Tikz';
+		$self->{ext}  = 'pdf';
+	}
 	return;
 }
 
-# Tikz needs to use pdf for hardcopy generation.
 sub ext {
-	my $self = shift;
-	return 'pdf' if ($self->{type} eq 'Tikz' && eval('$main::displayMode') eq 'TeX');
-	return $self->{ext};
+	return (shift)->{ext};
 }
 
 # Return a copy of the tikz code (available after the image has been drawn).
 # Set $plot->{tikzDebug} to 1 to just generate the tikzCode, and not create a graph.
 sub tikz_code {
 	my $self = shift;
-	return ($self->{tikzCode} && eval('$main::displayMode') =~ /HTML/) ? '<pre>' . $self->{tikzCode} . '</pre>' : '';
+	return $self->{tikzCode} && $self->{pg}{displayMode} =~ /HTML/ ? '<pre>' . $self->{tikzCode} . '</pre>' : '';
 }
 
 # Add functions to the graph.
-sub value_to_sub {
-	my ($self, $formula, $var) = @_;
-	return sub { return $_[0]; }
-		if $formula eq $var;
-	unless (Value::isFormula($formula)) {
-		my $localContext = Parser::Context->current(\%main::context)->copy;
-		$localContext->variables->add($var => 'Real') unless $localContext->variables->get($var);
-		$formula = Value->Package('Formula()')->new($localContext, $formula);
-	}
-
-	my $sub = $formula->perlFunction(undef, [$var]);
-	return sub {
-		my $x = shift;
-		my $y = Parser::Eval($sub, $x);
-		return defined $y ? $y->value : undef;
-	};
-}
-
 sub _add_function {
 	my ($self, $Fx, $Fy, $var, $min, $max, @rest) = @_;
 	$var = 't'  unless $var;
 	$Fx  = $var unless defined($Fx);
-	my %options = (
-		x_string => ref($Fx) eq 'CODE' ? 'perl' : Value::isFormula($Fx) ? $Fx->string : $Fx,
-		y_string => ref($Fy) eq 'CODE' ? 'perl' : Value::isFormula($Fy) ? $Fy->string : $Fy,
-		variable => $var,
-		@rest
-	);
-	$Fx = $self->value_to_sub($Fx, $var) unless ref($Fx) eq 'CODE';
-	$Fy = $self->value_to_sub($Fy, $var) unless ref($Fy) eq 'CODE';
 
 	my $data = Plots::Data->new(name => 'function');
-	$data->style(
-		color  => 'default_color',
-		width  => 1,
-		dashed => 0,
-		%options
-	);
 	$data->set_function(
-		sub_x => $Fx,
-		sub_y => $Fy,
-		min   => $min,
-		max   => $max,
+		Fx          => $Fx,
+		Fy          => $Fy,
+		var         => $var,
+		min         => $min,
+		max         => $max,
+		color       => 'default_color',
+		width       => 2,
+		dashed      => 0,
+		tikz_smooth => 1,
+		@rest
 	);
+
 	$self->add_data($data);
 	return $data;
 }
@@ -232,11 +220,11 @@ sub parse_function_string {
 
 	my ($rule, $var, $start, $min, $max, $end, $options) = ($1, $2, $3, $4, $5, $6, $8);
 	if    ($start eq '(') { $start = 'open_circle'; }
-	elsif ($start eq '[') { $start = 'closed_circle'; }
+	elsif ($start eq '[') { $start = 'circle'; }
 	elsif ($start eq '{') { $start = 'arrow'; }
 	else                  { $start = 'none'; }
 	if    ($end eq ')') { $end = 'open_circle'; }
-	elsif ($end eq ']') { $end = 'closed_circle'; }
+	elsif ($end eq ']') { $end = 'circle'; }
 	elsif ($end eq '}') { $end = 'arrow'; }
 	else                { $end = 'none'; }
 
@@ -285,7 +273,7 @@ sub _add_dataset {
 	}
 	$data->style(
 		color => 'default_color',
-		width => 1,
+		width => 2,
 		@points
 	);
 
@@ -349,7 +337,7 @@ sub _add_stamp {
 	$data->style(
 		color  => 'default_color',
 		size   => 4,
-		symbol => 'closed_circle',
+		symbol => 'circle',
 		@options
 	);
 	$self->add_data($data);
@@ -367,10 +355,12 @@ sub draw {
 	my $type = $self->{type};
 
 	my $image;
-	if ($type eq 'GD') {
-		$image = Plots::GD->new($self);
-	} elsif ($type eq 'Tikz') {
+	if ($type eq 'Tikz') {
 		$image = Plots::Tikz->new($self);
+	} elsif ($type eq 'JSXGraph') {
+		$image = Plots::JSXGraph->new($self);
+	} elsif ($type eq 'GD') {
+		$image = Plots::GD->new($self);
 	} else {
 		warn "Undefined image type: $type";
 		return;

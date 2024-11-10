@@ -49,7 +49,7 @@ sub _PGbasicmacros_init {
 
 	# This is initializes the remaining variables in the runtime main:: compartment.
 
-	main::PG_restricted_eval( <<'EndOfFile');
+	main::PG_restricted_eval(<<'EndOfFile');
 	$displayMode            = $displayMode;
 
 	$main::PAR              = PAR();
@@ -2838,9 +2838,26 @@ sub image {
 			);
 			next;
 		}
+		if (ref $image_item eq 'Plots::Plot') {
+			# Update image attributes as needed.
+			$image_item->{width}           = $width          if $out_options{width};
+			$image_item->{height}          = $height         if $out_options{height};
+			$image_item->{tex_size}        = $tex_size       if $out_options{tex_size};
+			$image_item->{ariaDescription} = shift @alt_list if $out_options{alt};
+
+			if ($image_item->ext eq 'html') {
+				push(@output_list, $image_item->draw);
+				next;
+			}
+
+			# Use Plots default size and not the 200 default size of image.
+			$width_attrib  = qq{ width="$image_item->{width}"}   if $width_attrib;
+			$height_attrib = qq{ height="$image_item->{height}"} if $height_attrib;
+			$width_ratio   = 0.001 * $image_item->{tex_size};
+		}
 		$image_item = insertGraph($image_item)
 			if (ref $image_item eq 'WWPlot'
-				|| ref $image_item eq 'PGplot'
+				|| ref $image_item eq 'Plots::Plot'
 				|| ref $image_item eq 'PGlateximage'
 				|| ref $image_item eq 'PGtikz');
 		my $imageURL = alias($image_item) // '';

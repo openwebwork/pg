@@ -1,22 +1,9 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 AXES OBJECT
 
 This is a hash to store information about the axes (ticks, range, grid, etc)
 with some helper methods. The hash is further split into three smaller hashes:
+xaxis, yaxis, and styles.
 
 =over 5
 
@@ -36,24 +23,24 @@ Hash of data for options for the general axis.
 
 =head1 USAGE
 
-The axes object should be accessed through a PGplot object using C<< $plot->axes >>.
+The axes object should be accessed through a Plots object using C<< $plot->axes >>.
 The axes object is used to configure and retrieve information about the axes,
 as in the following examples.
 
 Each axis can be configured individually, such as:
 
-    $plot->axes->xaxis(min => -10, max => 10, ticks => [-12, -8, -4, 0, 4, 8, 12]);
-    $plot->axes->yaxis(min => 0, max => 100, ticks => [20, 40, 60, 80, 100]);
+    $plot->axes->xaxis(min => -10, max => 10,  tick_delta => 4);
+    $plot->axes->yaxis(min => 0,   max => 100, tick_delta => 20);
 
 This can also be combined using the set method, such as:
 
     $plot->axes->set(
-        xmin   => -10,
-        xmax   => 10,
-        xticks => [-12, -8, -4, 0, 4, 8, 12],
-        ymin   => 0,
-        ymax   => 100,
-        yticks => [20, 40, 60, 80, 100]
+        xmin        => -10,
+        xmax        => 10,
+        xtick_delta => 4,
+        ymin        => 0,
+        ymax        => 100,
+        ytick_delta => 20
     );
 
 In addition to the configuration each axis, there is a set of styles that apply to both axes.
@@ -99,7 +86,9 @@ The maximum value the axis shows. Default is 5.
 =item ticks
 
 An array which lists the major tick marks. If this array is empty, the ticks are
-generated using either C<tick_delta> or C<tick_num>. Default is C<[]>.
+generated using either C<tick_delta> or C<tick_num>. Note, JSXGraph doesn't support
+this option, be sure to set C<tick_delta> or C<tick_num> if using JSXGraph.
+Default is C<[]>.
 
 =item tick_delta
 
@@ -141,18 +130,27 @@ for each axis are:
 
 This places the axis at the appropriate edge of the graph. If 'center' or 'middle'
 are used, the axes appear on the inside of the graph at the appropriate position.
-Setting the location to 'box' creates a box or framed pot. Default 'middle' or 'center'.
+Setting the location to 'box' creates a box or framed pot. Note, 'box' is not supported
+by JSXgraph, so when using JSXgraph, 'box' is equivalent to 'bottom' or 'left'.
+Default 'middle' or 'center'.
 
 =item position
 
 The position in terms of the appropriate variable to draw the axis if the location is
 set to 'middle' or 'center'. Default is 0.
 
+=item JSXGraphOpts
+
+A hash reference of options to be passed to the JSXGraph axis objects.
+
 =back
 
 =head1 STYLES
 
 The following styles configure aspects about the axes:
+Currently only TikZ supports the grid color, style, alpha,
+and axes on top styles. JSXGraph only supports the title
+and show_grid styles.
 
 =over 5
 
@@ -183,6 +181,10 @@ The alpha value to use to draw the grid lines in Tikz. This is a number from
 Configures if the axis should be drawn on top of the graph (1) or below the graph (0).
 Useful when filling a region that covers an axis, if the axis are on top they will still
 be visible after the fill, otherwise the fill will cover the axis. Default: 0
+
+=item JSXGraphOpts
+
+A hash reference of options to be passed to the JSXGraph board object.
 
 =back
 
@@ -306,7 +308,10 @@ sub gen_ticks {
 	my $min   = $axis->{min};
 	my $max   = $axis->{max};
 	my $delta = $axis->{tick_delta};
-	$delta = ($max - $min) / $axis->{tick_num} unless $delta;
+	unless ($delta) {
+		$delta = ($max - $min) / $axis->{tick_num};
+		$axis->{tick_delta} = $delta;
+	}
 
 	my @ticks = $min <= 0 && $max >= 0 ? (0) : ();
 	my $point = $delta;
