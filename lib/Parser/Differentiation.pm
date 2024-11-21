@@ -39,7 +39,11 @@ sub Parser::D {
 		return (0 * $self)->reduce('0*x' => 1) unless defined $self->{variables}{$x};
 		$f = $f->D($x);
 	}
-	return $self->new($f);
+	my $deriv = $self->new($f);
+	$deriv->{string} = $deriv->{tree}->string;
+	$deriv->tokenize;
+	$deriv->parse;
+	return $deriv;
 }
 
 #
