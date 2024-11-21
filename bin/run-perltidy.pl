@@ -62,9 +62,8 @@ use Mojo::File qw(curfile);
 
 my $pg_root = curfile->dirname->dirname;
 
-die "Version 20220613 or newer of perltidy is required for this script.\n"
-	. "The installed version is $Perl::Tidy::VERSION.\n"
-	unless $Perl::Tidy::VERSION >= 20220613;
+die "Version 20240903 of perltidy is required for this script.\nThe installed version is $Perl::Tidy::VERSION.\n"
+	unless $Perl::Tidy::VERSION == 20240903;
 die "The .perltidyrc file in the pg root directory is not readable.\n"
 	unless -r "$pg_root/.perltidyrc";
 
