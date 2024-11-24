@@ -309,6 +309,9 @@
 			{ id: 'sqrt', latex: '\\sqrt', tooltip: 'square root (sqrt)', icon: '\\sqrt{\\text{ }}' },
 			{ id: 'nthroot', latex: '\\root', tooltip: 'nth root (root)', icon: '\\sqrt[\\text{ }]{\\text{ }}' },
 			{ id: 'exponent', latex: '^', tooltip: 'exponent (^)', icon: '\\text{ }^\\text{ }' },
+			...(cfgOptions.logsChangeBase
+				? []
+				: [{ id: 'subscript', latex: '_', tooltip: 'subscript (_)', icon: '\\text{  }_\\text{  }' }]),
 			{ id: 'infty', latex: '\\infty', tooltip: 'infinity (inf)', icon: '\\infty' },
 			{ id: 'pi', latex: '\\pi', tooltip: 'pi (pi)', icon: '\\pi' },
 			{ id: 'vert', latex: '\\vert', tooltip: 'such that (vert)', icon: '|' },
