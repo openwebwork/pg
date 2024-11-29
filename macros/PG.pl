@@ -1198,9 +1198,9 @@ sub ENDDOCUMENT {
 					'button',
 					type  => 'button',
 					class => "ww-feedback-btn btn btn-sm $options{btnClass} $options{btnAddClass}"
-						. ($rh_envir->{showMessages} && $ansHash->{ans_message} ? ' with-message' : ''),
+						. ($rh_envir->{showMessages} && $ansHash->{ans_message} =~ /\S/ ? ' with-message' : ''),
 					'aria-label' => (
-						$rh_envir->{showMessages} && $ansHash->{ans_message}
+						$rh_envir->{showMessages} && $ansHash->{ans_message} =~ /\S/
 						? maketext('[_1] with message', $options{resultTitle})
 						: $options{resultTitle}
 					),
@@ -1238,7 +1238,7 @@ sub ENDDOCUMENT {
 									class => 'card',
 									sub {
 										(
-											$rh_envir->{showMessages} && $ansHash->{ans_message}
+											$rh_envir->{showMessages} && $ansHash->{ans_message} =~ /\S/
 											? $feedbackLine->(
 												'', $ansHash->{ans_message} =~ s/\n/<br>/gr,
 												'feedback-message'
