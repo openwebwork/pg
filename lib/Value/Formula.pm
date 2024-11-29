@@ -599,9 +599,18 @@ sub isConstant {
 #  Check if the Formula includes one of the named variables
 #
 sub usesOneOf {
-	my $self = shift;
-	foreach my $x (@_) { return 1 if $self->{variables}{$x} }
+	my ($self, @vars) = @_;
+	for my $x (@vars) { return 1 if $self->{variables}{$x} }
 	return 0;
+}
+
+#
+#  Check if the Formula includes all of the named variables
+#
+sub usesAllOf {
+	my ($self, @vars) = @_;
+	for my $x (@vars) { return 0 unless $self->{variables}{$x} }
+	return 1;
 }
 
 ###########################################################################
