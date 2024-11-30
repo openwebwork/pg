@@ -1,11 +1,11 @@
 
 =head1 NAME
 
-contextReaction.pl - Implements a MathObject class for checmical reactions.
+contextReaction.pl - Implements a MathObject class for chemical reactions.
 
 =head1 DESCRIPTION
 
-This file implements a Context in which checmical reactions can be
+This file implements a Context in which chemical reactions can be
 specified and compared.  Reactions can be composed of sums of integer
 multiples of elements, molecules, ions, compounds, and complexes
 separated by a right arrow (indicated by C<< --> >>).  Helpful error
@@ -38,7 +38,7 @@ make reactions like the following:
 Note that a state can be given by itself, e.g., C<(l)>, so you can ask
 for a student to supply just a state.
 
-Complexes can be formed using square brakets, as in
+Complexes can be formed using square brackets, as in
 
         [CoCl_4(NH_3)_2]^-
 
@@ -72,14 +72,14 @@ C<Formula("2O")> and C<Formula("O_2")> are not equivalent.
 All the elements of the periodic table are available within the
 Reaction Context, as are the states C<(aq)>, C<(s)>, C<(l)>, C<(g)>,
 and C<(ppt)>.  By default, students are required to include states if
-the corect answer includes them, but the flag C<studentsMustUseStates>
+the correct answer includes them, but the flag C<studentsMustUseStates>
 controls this behavior.  Setting this flag to C<0> will make the use
 of states optional in student answers.  That is, if the correct answer
 includes states, the student answer need not include them; but if the
 student I<does> include them, they must be correct.  For example, if
 you set
 
-    Context()->flags-set(studentsMustUseStates => 0);
+    Context()->flags->set(studentsMustUseStates => 0);
 
 then with the correct answer of C<Formula("Cl(g)")>, a student answer
 of either C<Cl> or C<Cl(g)> will be marked correct, but an answer of
@@ -374,7 +374,7 @@ sub cmp_postprocess {
 
 #
 #  Since the context only allows things that are comparable, we
-#  don't really have to check anything.  (But if somone added
+#  don't really have to check anything.  (But if someone added
 #  strings or constants, we would.)
 #
 sub typeMatch {
@@ -455,7 +455,7 @@ package context::Reaction::BOP;
 our @ISA = ('Parser::BOP');
 
 #
-#  Binary operators produce chemcicals (unless overridden, as in arrow)
+#  Binary operators produce chemicals (unless overridden, as in arrow)
 #
 sub isChemical {1}
 
@@ -807,7 +807,7 @@ sub equivalent {
 #  Get a hash of element (or compound, etc.) names used in the list
 #  mapping to the count of each and a hash of the states used and
 #  their counts.  States are only recorded if students don't need
-#  to include them (othewise the hash names will include the states).
+#  to include them (otherwise the hash names will include the states).
 #
 sub organizeList() {
 	my $self     = shift;
