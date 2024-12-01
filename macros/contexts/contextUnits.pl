@@ -728,6 +728,7 @@ sub addUnit {
 		$constants->add(
 			$name => {
 				value      => context::Units::Unit->new($name => $unit),
+				TeX        => "\\text{$name}",
 				isUnit     => 1,
 				isConstant => 1
 			}
@@ -1815,6 +1816,14 @@ sub string {
 	my $self = shift;
 	$_[1] = 'same' if $self->{def}{isUnit} && @_;
 	return &{ $self->super("string") }($self, @_);
+}
+
+#
+#  Call the super TeX method (so fractions are properly handled, for example)
+#
+sub TeX {
+	my $self = shift;
+	return &{ $self->super("TeX") }($self, @_);
 }
 
 #############################################################
