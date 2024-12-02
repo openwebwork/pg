@@ -320,7 +320,7 @@ sub isValue {
 sub isNumber {
 	my $n = shift;
 	return $n->{tree}->isNumber if isFormula($n);
-	return classMatch($n, 'Real', 'Complex') || matchNumber($n);
+	return (isValue($n) && ($n->type eq 'Number' || classMatch($n, 'Real', 'Complex'))) || matchNumber($n);
 }
 
 sub isRealNumber {
