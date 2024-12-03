@@ -202,9 +202,10 @@ sub quoteTeX {
 	my $s      = shift;
 	my $isText = ($s =~ m/[a-z]/i);
 	$s =~ s/\\/\\backslash /g;
-	$s =~ s/([\#\$%^_&{} ])/\\$1/g;
+	$s =~ s/([\#\$%^_&{}])/\\$1/g;
 	$s =~ s/([~\'])/{\\tt\\char\`\\$1}/g;
 	$s =~ s/,/{,}/g;
+	$s =~ s/ /\\,/g;
 	$s = "{\\rm $s}" if $isText;
 	return $s;
 }
@@ -242,7 +243,7 @@ sub new {
 	$context->{_currency}    = new Currency::Context::currency($context, %data);
 	my $symbol        = $context->{currency}{symbol};
 	my $associativity = $context->{currency}{associativity};
-	my $string        = ($symbol =~ m/[a-z]/i ? " $symbol " : $symbol);
+	my $string        = Currency::Context::currency->symbolString($symbol, $associativity);
 	$context->{_currency}{symbol} = $symbol;
 	$context->operators->remove($symbol) if $context->operators->get($symbol);
 	$context->operators->add(
@@ -250,7 +251,7 @@ sub new {
 			precedence    => 10,
 			associativity => $associativity,
 			type          => "unary",
-			string        => $symbol,
+			string        => $string,
 			TeX           => Currency::quoteTeX($symbol),
 			class         => 'Currency::UOP::currency'
 		},
@@ -333,7 +334,7 @@ sub addSymbol {
 	my $operators = $self->{context}->operators;
 	my $def       = $operators->get($self->{symbol});
 	foreach my $symbol (@_) {
-		my ($string, $associativity) = ($symbol =~ m/[a-z]/i ? (" $symbol ", "right") : ($symbol, "left"));
+		my ($string, $associativity) = ($symbol =~ m/[a-z]/i ? (" $symbol", "right") : ($symbol, "left"));
 		push @{ $self->{extraSymbols} }, $symbol;
 		$operators->add(
 			$symbol => {
@@ -370,10 +371,11 @@ sub update {
 	if ($self->{symbol} && $self->{symbol} ne $data->{symbol}) {
 		$operators->redefine($data->{symbol}, from => $context, using => $self->{symbol});
 		$operators->remove($self->{symbol});
+		$self->{symbol} = $data->{symbol};
 		foreach $symbol (@{ $self->{extraSymbols} }) { $operators->remove($symbol) if $operators->get($symbol) }
 		$self->{extraSymbols} = [];
 	}
-	my $string = ($data->{symbol} =~ m/[^a-z]/i ? $data->{symbol} : " $data->{symbol} ");
+	my $string = $self->symbolString($data->{symbol}, $data->{associativity});
 	$context->operators->set(
 		$data->{symbol} => {
 			associativity => $data->{associativity},
@@ -382,6 +384,12 @@ sub update {
 		}
 	);
 	$context->update;
+}
+
+sub symbolString {
+	my ($self, $symbol, $associativity) = @_;
+	return $symbol unless $symbol =~ m/[a-z]/i;
+	return $associativity eq 'left' ? "$symbol " : " $symbol";
 }
 
 ######################################################################
@@ -527,12 +535,15 @@ sub format {
 		if $self->context->flag('legacyTeXStrings')
 		&& $type eq 'string'
 		&& $main::displayMode eq 'TeX';
-	$comma = "{$comma}" if $type eq 'TeX';
+	$comma = Currency::quoteTeX($comma) if $type eq 'TeX';
 	my $s = ($self->value >= 0 ? "" : "-");
 	my $c = main::prfmt(CORE::abs($self->value), "%.2f");
 	$c =~ s/\.00// if $self->getFlag('trimTrailingZeros');
 	$c =~ s/\./$decimal/;
-	while ($c =~ s/(\d)(\d\d\d(?:\D|$))/$1$comma$2/) { }
+
+	if ($comma) {
+		while ($c =~ s/(\d)(\d\d\d(?:\D|$))/$1$comma$2/) { }
+	}
 	$c = ($currency->{associativity} eq "right" ? $s . $c . $symbol : $s . $symbol . $c);
 	$c =~ s/^\s+|\s+$//g;
 	return $c;
