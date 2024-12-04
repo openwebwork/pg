@@ -179,25 +179,30 @@
 						}
 					);
 					point.setAttribute({ snapToGrid: true });
-					if (typeof grouped_points !== 'undefined' && grouped_points.length) {
-						point.grouped_points = [];
-						grouped_points.forEach((paired_point) => {
-							point.grouped_points.push(paired_point);
-							if (!paired_point.grouped_points) {
-								paired_point.grouped_points = [];
-								paired_point.on('drag', gt.graphObjectTypes.cubic.groupedPointDrag);
-							}
-							paired_point.grouped_points.push(point);
-							if (
-								!paired_point.eventHandlers.drag ||
-								paired_point.eventHandlers.drag.every(
-									(dragHandler) => dragHandler.handler !== gt.graphObjectTypes.cubic.groupedPointDrag
+
+					if (!gt.isStatic) {
+						if (typeof grouped_points !== 'undefined' && grouped_points.length) {
+							point.grouped_points = [];
+							grouped_points.forEach((paired_point) => {
+								point.grouped_points.push(paired_point);
+								if (!paired_point.grouped_points) {
+									paired_point.grouped_points = [];
+									paired_point.on('drag', gt.graphObjectTypes.cubic.groupedPointDrag);
+								}
+								paired_point.grouped_points.push(point);
+								if (
+									!paired_point.eventHandlers.drag ||
+									paired_point.eventHandlers.drag.every(
+										(dragHandler) =>
+											dragHandler.handler !== gt.graphObjectTypes.cubic.groupedPointDrag
+									)
 								)
-							)
-								paired_point.on('drag', gt.graphObjectTypes.cubic.groupedPointDrag);
-						});
-						point.on('drag', gt.graphObjectTypes.cubic.groupedPointDrag, point);
+									paired_point.on('drag', gt.graphObjectTypes.cubic.groupedPointDrag);
+							});
+							point.on('drag', gt.graphObjectTypes.cubic.groupedPointDrag, point);
+						}
 					}
+
 					return point;
 				}
 			}
