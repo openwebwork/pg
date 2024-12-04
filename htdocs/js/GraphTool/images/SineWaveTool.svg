@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" id="SVGRoot" version="1.1" viewBox="0 0 32 32" height="32px" width="32px">
+    <g id="layer1">
+        <path style="opacity:1;fill:none;stroke:#000000;stroke-width:1.51728106;stroke-dasharray:none" d="M 3.7745 16.1808 C 4.9579 12.4657 6.1413 8.7892 7.3247 6.4729 C 8.508 4.1565 9.6914 3.2485 10.8748 4.0752 c 1.1834 0.8267 2.3668 3.3709 3.5502 6.7181 c 1.1834 3.3473 2.3668 7.4279 3.5501 10.7751 c 1.1834 3.3472 2.3668 5.8914 3.5502 6.7181 c 1.1834 0.8267 2.3668 -0.0813 3.5502 -2.3977 c 1.1834 -2.3163 2.3668 -5.9928 3.5501 -9.708" id="sine-wave" />
+        <circle id="point1" cx="3.5" cy="16" style="display:inline;fill:blue;stroke-width:0.79351956" r="2.5" />
+		<circle id="point2" cx="28.5" cy="16" style="display:inline;fill:blue;stroke-width:0.79351956" r="2.5" />
+        <circle id="point3" cx="10.2" cy="3.5" style="display:inline;fill:blue;stroke-width:0.79351956" r="2.5" />
+    </g>
+</svg>

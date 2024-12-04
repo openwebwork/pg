@@ -455,6 +455,14 @@ window.graphTool = (containerId, options) => {
 		else return `${sign * int}\\frac{${h1}}{${k1}}`;
 	};
 
+	gt.addScaleSymbol = (x, scaleSymbol) => {
+		if (typeof scaleSymbol === undefined || scaleSymbol === '') return x;
+		if (x == 0) return '0';
+		if (x == 1) return scaleSymbol;
+		if (x == -1) return `-${scaleSymbol}`;
+		return `${x}${scaleSymbol}`;
+	};
+
 	gt.setTextCoords = options.showCoordinateHints
 		? options.numberLine
 			? (x) => {
@@ -473,21 +481,29 @@ window.graphTool = (containerId, options) => {
 					}
 				}
 			: (x, y) => {
-					const xText =
+					const scaleX = cfgOptions.defaultAxes.x.ticks.scale || 1;
+					let xText = gt.addScaleSymbol(
 						options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction'
 							? gt.toLatexFrac(
-									gt.snapRound(x, gt.snapSizeX, 10 ** 13),
+									gt.snapRound(x / scaleX, gt.snapSizeX / scaleX, 10 ** 13),
 									options.coordinateHintsTypeX === 'mixed'
 								)
-							: gt.snapRound(x, gt.snapSizeX);
-					const yText =
+							: gt.snapRound(x / scaleX, gt.snapSizeX / scaleX),
+						cfgOptions.defaultAxes?.x?.ticks?.scaleSymbol
+					);
+
+					const scaleY = cfgOptions.defaultAxes.y.ticks.scale || 1;
+					let yText = gt.addScaleSymbol(
 						options.coordinateHintsTypeY === 'mixed' || options.coordinateHintsTypeY === 'fraction'
 							? gt.toLatexFrac(
-									gt.snapRound(y, gt.snapSizeY, 10 ** 13),
+									gt.snapRound(y / scaleY, gt.snapSizeY / scaleY, 10 ** 13),
 									options.coordinateHintsTypeY === 'mixed',
 									gt.snapSizeY
 								)
-							: gt.snapRound(y, gt.snapSizeY);
+							: gt.snapRound(y / scaleY, gt.snapSizeY / scaleY),
+						cfgOptions.defaultAxes?.y?.ticks?.scaleSymbol
+					);
+
 					gt.current_pos_text.setText(() => `\\(\\left(${xText}, ${yText}\\right)\\)`);
 				}
 		: () => {};
@@ -695,21 +711,23 @@ window.graphTool = (containerId, options) => {
 			...gt.definingPointAttributes
 		});
 		point.setAttribute({ snapToGrid: true });
-		point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-		point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
-		if (typeof paired_point !== 'undefined') {
-			point.paired_point = paired_point;
-			paired_point.paired_point = point;
-			paired_point.on(
-				'drag',
-				restrict
-					? (e) => gt.pairedPointDragRestricted(e, paired_point)
-					: (e) => gt.pairedPointDrag(e, paired_point)
-			);
-			point.on(
-				'drag',
-				restrict ? (e) => gt.pairedPointDragRestricted(e, point) : (e) => gt.pairedPointDrag(e, point)
-			);
+		if (!gt.isStatic) {
+			point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
+			point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+			if (typeof paired_point !== 'undefined') {
+				point.paired_point = paired_point;
+				paired_point.paired_point = point;
+				paired_point.on(
+					'drag',
+					restrict
+						? (e) => gt.pairedPointDragRestricted(e, paired_point)
+						: (e) => gt.pairedPointDrag(e, paired_point)
+				);
+				point.on(
+					'drag',
+					restrict ? (e) => gt.pairedPointDragRestricted(e, point) : (e) => gt.pairedPointDrag(e, point)
+				);
+			}
 		}
 		return point;
 	};

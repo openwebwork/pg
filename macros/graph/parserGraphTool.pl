@@ -53,11 +53,11 @@ For PGML you can just do
 
 =head1 GRAPH OBJECTS
 
-There are eight types of graph objects that the students can graph.  Points, lines, circles,
-parabolas, quadratics, cubics, intervals, and fills (or shading of a region).  The syntax for each
-of these objects to pass to the GraphTool constructor is summarized as follows.  Each object must
-be enclosed in braces.  The first element in the braces must be the name of the object.  The
-following elements in the braces depend on the type of element.
+There are nine types of graph objects that the students can graph. Points, lines, circles,
+parabolas, quadratics, cubics, intervals, sine waves, and fills (or shading of a region). The
+syntax for each of these objects to pass to the GraphTool constructor is summarized as follows.
+Each object must be enclosed in braces. The first element in the braces must be the name of the
+object. The following elements in the braces depend on the type of element.
 
 For points the name "point" must be followed by the coordinates. For example:
 
@@ -109,6 +109,15 @@ For intervals the name "interval" must be followed by a single interval.  Some e
 Note that for an infinite interval endpoint in a correct answer you may use "inf", or anything
 that is interpreted into a MathObject infinity.  However, for static graph objects it must be
 "infinity".  The JavaScript will always return "infinity" for student answers.
+
+For sine waves the name "sineWave" must be followed by the word "solid" or "dashed" to indicate
+if the sine wave is expected to be drawn solid or dashed. That is followed by a point whose
+x-coordinate gives the phase shift (or x-translation) and y-coordinate gives the y-translation.
+The last two elements are the period and amplitude. For Example:
+
+	"{sineWave,solid,(2,-4),3,5}"
+
+represents the function C<f(x) = 5 sin((2 pi / 3)(x - (-4))) + 2>.
 
 The student answers that are returned by the JavaScript will be a list of the list objects
 discussed above and will be parsed by WeBWorK and passed to the checker as such.  The default
@@ -199,6 +208,21 @@ respectively.
 These are the number of minor (unlabeled) ticks between major ticks on the x and y axes,
 respectively.
 
+=item scaleX, scaleY (Default: C<< scaleX => 1, scaleY => 1 >>)
+
+These are the scale of the ticks on the x and y axes. That is the distance between two
+successive ticks on the axis (including both major and minor ticks).
+
+=item scaleSymbolX, scaleSymbolY (Default: C<< scaleSymbolX => '', scaleSymbolY => '' >>)
+
+These are the scale symbols for the ticks on the x and y axes. The tick labels on the axis will
+be shown as multiples of this symbol.
+
+This can be used in combination with the C<scaleX> option to show tick labels at multiples of
+pi, for instance. This can be accomplished using the settings C<< scaleX => pi->value >> and
+C<< scaleSymbolX => "~~x{03C0}" >>. Note that value of C<scaleSymbolX> shown is the unicode pi
+symbol, and that C<~~> is the PG escape character (normally a backslash in Perl).
+
 =item xAxisLabel, yAxisLabel (Default: C<< xAxisLabel => 'x', yAxisLabel => 'y' >>)
 
 Labels that will be added to the ends of the horizontal (x) and vertical (y) axes.  Note that the
@@ -271,9 +295,10 @@ If this is undefined then the coordinateHintsType option is used for the y-coord
 
 This is an array of tools that will be made available for students to use in the graph tool.
 The order the tools are listed here will also be the order the tools are presented in the graph
-tool button box.  All of the tools that may be included are listed in the default options above,
-except for the "PointTool", the three point "QuadraticTool", and the four point "CubicTool".
-Note that the case of the tool names must match what is shown.
+tool button box.  In addition to the tools listed in the default options above, there is a
+"PointTool", three point "QuadraticTool", four point "CubicTool", "IntervalTool",
+"IncludeExcludePointTool", and "SineWaveTool".  Note that the case of the tool names must match
+what is shown.
 
 =item staticObjects (Default: C<< staticObjects => [] >>)
 
@@ -412,6 +437,7 @@ sub _parserGraphTool_init {
 	ADD_JS_FILE('js/GraphTool/quadratictool.js',                 0, { defer => undef });
 	ADD_JS_FILE('js/GraphTool/cubictool.js',                     0, { defer => undef });
 	ADD_JS_FILE('js/GraphTool/intervaltools.js',                 0, { defer => undef });
+	ADD_JS_FILE('js/GraphTool/sinewavetool.js',                  0, { defer => undef });
 
 	return;
 }
@@ -468,6 +494,10 @@ sub new {
 		ticksDistanceY       => 2,
 		minorTicksX          => 1,
 		minorTicksY          => 1,
+		scaleX               => 1,
+		scaleY               => 1,
+		scaleSymbolX         => '',
+		scaleSymbolY         => '',
 		xAxisLabel           => 'x',
 		yAxisLabel           => 'y',
 		ariaDescription      => '',
@@ -1052,6 +1082,70 @@ parser::GraphTool->addGraphObjects(
 			);
 		}
 	},
+	sineWave => {
+		js   => 'graphTool.sineWaveTool.SineWave',
+		tikz => {
+			code => sub {
+				my $gt = shift;
+
+				my ($phase, $yshift) = @{ $_->{data}[2]{data} };
+				my $period    = $_->{data}[3];
+				my $amplitude = $_->{data}[4];
+
+				my $sinFormula = main::Formula("$amplitude sin(2 * pi / $period (x - $phase)) + $yshift");
+
+				my $height     = $gt->{bBox}[1] - $gt->{bBox}[3];
+				my $lowerBound = $gt->{bBox}[3] - $height;
+				my $upperBound = $gt->{bBox}[1] + $height;
+				my $step       = ($gt->{bBox}[2] - $gt->{bBox}[0]) / 200;
+				my $x          = $gt->{bBox}[0];
+
+				my $coords;
+				do {
+					my $y = $sinFormula->eval(x => $x)->value;
+					$coords .= "($x,$y) " if $y >= $lowerBound && $y <= $upperBound;
+					$x += $step;
+				} while $x < $gt->{bBox}[2];
+
+				my $sin = "plot[smooth] coordinates { $coords }";
+
+				return (
+					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $sin;\n",
+					[
+						$sin . "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
+						sub { return $_[1] - $sinFormula->eval(x => $_[0])->value; }
+					]
+				);
+			}
+		},
+		cmp => sub {
+			my $sineWave = shift;
+
+			my $solid_dashed = $sineWave->{data}[1];
+			my ($phase, $yshift) = $sineWave->{data}[2]->value;
+			my $period    = $sineWave->{data}[3]->value;
+			my $amplitude = $sineWave->{data}[4]->value;
+
+			my $sinFormula = main::Formula("$amplitude sin(2 * pi / abs($period) (x - $phase)) + $yshift");
+
+			return (
+				sub {
+					my $point = shift;
+					return $sinFormula->eval(x => $point->{data}[0])->value <=> $point->{data}[1];
+				},
+				sub {
+					my ($other, $fuzzy) = @_;
+					return 0 unless $other->{data}[0] eq 'sineWave';
+					my ($phase, $yshift) = $other->{data}[2]->value;
+					my $period    = $other->{data}[3]->value;
+					my $amplitude = $other->{data}[4]->value;
+					my $otherSinFormula =
+						main::Formula("$amplitude sin(2 * pi / abs($period) (x - $phase)) + $yshift");
+					return ($fuzzy || $other->{data}[1] eq $solid_dashed) && $sinFormula == $otherSinFormula;
+				}
+			);
+		}
+	}
 );
 
 parser::GraphTool->addTools(
@@ -1063,6 +1157,8 @@ parser::GraphTool->addTools(
 	CubicTool => 'graphTool.cubicTool.CubicTool',
 	# An interval tool.
 	IntervalTool => 'graphTool.intervalTool.IntervalTool',
+	# A sine wave tool.
+	SineWaveTool => 'graphTool.sineWaveTool.SineWaveTool',
 	# Include/Exclude point tool.
 	IncludeExcludePointTool => 'graphTool.includeExcludePointTool.IncludeExcludePointTool',
 );
@@ -1091,6 +1187,8 @@ sub constructJSXGraphOptions {
 						drawZero      => 1,
 						ticksDistance => $self->{ticksDistanceX},
 						minorTicks    => $self->{minorTicksX},
+						scale         => $self->{scaleX},
+						scaleSymbol   => $self->{scaleSymbolX},
 						strokeWidth   => 2,
 						strokeOpacity => 0.5,
 						minorHeight   => 10,
@@ -1102,8 +1200,22 @@ sub constructJSXGraphOptions {
 			)
 		: (
 			defaultAxes => {
-				x => { ticks => { ticksDistance => $self->{ticksDistanceX}, minorTicks => $self->{minorTicksX} } },
-				y => { ticks => { ticksDistance => $self->{ticksDistanceY}, minorTicks => $self->{minorTicksY} } }
+				x => {
+					ticks => {
+						ticksDistance => $self->{ticksDistanceX},
+						minorTicks    => $self->{minorTicksX},
+						scale         => $self->{scaleX},
+						scaleSymbol   => $self->{scaleSymbolX}
+					}
+				},
+				y => {
+					ticks => {
+						ticksDistance => $self->{ticksDistanceY},
+						minorTicks    => $self->{minorTicksY},
+						scale         => $self->{scaleY},
+						scaleSymbol   => $self->{scaleSymbolY}
+					}
+				}
 			},
 			grid => { majorStep => [ $self->{gridX}, $self->{gridY} ] }
 		)
