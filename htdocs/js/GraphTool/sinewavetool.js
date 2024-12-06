@@ -75,6 +75,13 @@
 				return new gt.graphObjectTypes.sineWave(shiftPoint, periodPoint, amplitudePoint, /solid/.test(string));
 			},
 
+			helpText(_gt) {
+				if (this.focusPoint == this.definingPts[1])
+					return 'Note that the selected point can only be moved left and right.';
+				else if (this.focusPoint == this.definingPts[2])
+					return 'Note that the selected point can only be moved up and down.';
+			},
+
 			helperMethods: {
 				createSineWave(gt, point, period, amplitude, solid, color) {
 					return gt.board.create(
