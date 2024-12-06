@@ -97,7 +97,11 @@ window.graphTool = (containerId, options) => {
 		defaultAxes: {},
 		axis: {
 			ticks: {
-				label: { highlight: false },
+				label: {
+					highlight: false,
+					display: 'html',
+					useMathJax: true
+				},
 				insertTicks: false,
 				ticksDistance: 2,
 				minorTicks: 1,
@@ -140,6 +144,81 @@ window.graphTool = (containerId, options) => {
 			gt.board.defaultAxes.y.point1.setPosition(JXG.COORDS_BY_USER, [0, bbox[3]]);
 			gt.board.defaultAxes.y.point2.setPosition(JXG.COORDS_BY_USER, [0, bbox[1]]);
 		}
+
+		// Override the generateLabelText method for the axes ticks so
+		// that 0 is formatted the same as the other tick labels.
+		const generateLabelText = function (tick, zero, value) {
+			if (!JXG.exists(value)) {
+				const distance = this.getDistanceFromZero(zero, tick);
+				if (Math.abs(distance) < JXG.Math.eps) return this.formatLabelText(0);
+				value = distance / this.visProp.scale;
+			}
+			return this.formatLabelText(value);
+		};
+
+		// Override the formatLabelText method for the axes ticks so that fractions can be either mixed numbers or
+		// improper fractions depending on our coorinateHintsType settings instead of using the JXG toFraction setting
+		// that only allows mixed numbers.  This also honors the useMathJax setting even if the fraction setting is not
+		// used, and furthermore includes the scale symbol in the MathJax portion of the text. This looks better and
+		// allows the usage of '\\pi' instead of the unicode symbol for pi. Another change is that numbers with
+		// magnitude greater than 10^-5 are not displayed in scientific notation.
+		const formatLabelText = function (value, addTeXDelims) {
+			let labelText;
+
+			if (JXG.isNumber(value)) {
+				const showFraction =
+					this === gt.board.defaultAxes.x.defaultTicks
+						? options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction'
+						: options.coordinateHintsTypeY === 'mixed' || options.coordinateHintsTypeY === 'fraction';
+				if (showFraction) {
+					labelText = gt.toFraction(
+						value,
+						this.visProp.label.usemathjax,
+						this === gt.board.defaultAxes.x.defaultTicks
+							? options.coordinateHintsTypeX === 'mixed'
+							: options.coordinateHintsTypeY === 'mixed'
+					);
+				} else {
+					if (this.useLocale()) {
+						labelText = this.formatNumberLocale(value, this.visProp.digits);
+					} else {
+						if (Math.abs(value) > 1e-5) labelText = (Math.round(value * 1e5) / 1e5).toString();
+						else {
+							labelText = (Math.round(value * 1e11) / 1e11).toString();
+
+							if (labelText.length > this.visProp.maxlabellength || labelText.indexOf('e') !== -1)
+								labelText = value.toExponential(this.visProp.digits).toString();
+						}
+					}
+				}
+
+				if (this.visProp.beautifulscientificticklabels)
+					labelText = this.beautifyScientificNotationLabel(labelText);
+
+				if (labelText.indexOf('.') > -1 && labelText.indexOf('e') === -1) {
+					// Trim trailing zeros.
+					labelText = labelText.replace(/0+$/, '');
+					// Remove the decimal if it is now at the end.
+					labelText = labelText.replace(/\.$/, '');
+				}
+			} else {
+				labelText = value.toString();
+			}
+
+			if (this.visProp.scalesymbol.length > 0) {
+				if (labelText === '1') labelText = this.visProp.scalesymbol;
+				else if (labelText === '-1') labelText = `-${this.visProp.scalesymbol}`;
+				else if (labelText !== '0') labelText = labelText + this.visProp.scalesymbol;
+			}
+
+			if (this.visProp.useunicodeminus) labelText = labelText.replace(/-/g, '\u2212');
+			return addTeXDelims ?? this.visProp.label.usemathjax ? `\\(${labelText}\\)` : labelText;
+		};
+
+		gt.board.defaultAxes.x.defaultTicks.generateLabelText = generateLabelText;
+		gt.board.defaultAxes.x.defaultTicks.formatLabelText = formatLabelText;
+		gt.board.defaultAxes.y.defaultTicks.generateLabelText = generateLabelText;
+		gt.board.defaultAxes.y.defaultTicks.formatLabelText = formatLabelText;
 
 		// Add labels to the x and y axes.
 		if (options.xAxisLabel) {
@@ -345,7 +424,7 @@ window.graphTool = (containerId, options) => {
 				}
 
 				// Check to see if the pointer is on an object, in which case focus that.  This focuses the first object
-				// found searching in the order that the objecs were graphed.
+				// found searching in the order that the objects were graphed.
 				for (const obj of gt.graphedObjs) {
 					if (obj.baseObj.hasPoint(...coords)) {
 						for (const point of obj.definingPts) {
@@ -429,38 +508,36 @@ window.graphTool = (containerId, options) => {
 	};
 
 	// Some utility functions.
-	gt.snapRound = (x, snap, precision = 10 ** 5) => Math.round(Math.round(x / snap) * snap * precision) / precision;
+	gt.snapRound = (x, snap, precision = 1 / JXG.Math.eps) =>
+		Math.round(Math.round(x / snap) * snap * precision) / precision;
 
-	// Convert a decimal number into a fraction or mixed number with denominator at most 10 ** 8.
-	gt.toLatexFrac = (x, mixed = false, _snapSize = gt.snapSizeX) => {
-		const sign = x ? Math.abs(x) / x : 1,
-			int = mixed ? Math.trunc(sign * x) : 0;
-		let a = 0,
-			step = sign * x - int,
-			h0 = 1,
-			h1 = a,
-			k0 = 0,
-			k1 = 1;
+	// Convert a decimal number into a fraction or mixed number.  This is basically the JXG.toFraction method except
+	// that the "mixed" parameter is added, and it returns an improper fraction if mixed is false.
+	gt.toFraction = (x, useTeX, mixed, order) => {
+		const arr = JXG.Math.decToFraction(x, order);
 
-		while (Math.abs(step - a) >= JXG.Math.eps) {
-			step = 1 / (step - a);
-			a = Math.trunc(step);
-			const [newh, newk] = [a * h1 + h0, a * k1 + k0];
-			if (newk > 10 ** 8) break;
-			[h0, h1, k0, k1] = [h1, newh, k1, newk];
+		if (arr[1] === 0 && arr[2] === 0) {
+			return '0';
+		} else {
+			let str = '';
+			// Sign
+			if (arr[0] < 0) str += '-';
+			if (arr[2] === 0) {
+				// Integer
+				str += arr[1];
+			} else if (!(arr[2] === 1 && arr[3] === 1)) {
+				// Proper fraction
+				if (mixed) {
+					if (arr[1] !== 0) str += arr[1] + ' ';
+					if (useTeX === true) str += `\\frac{${arr[2]}}{${arr[3]}}`;
+					else str += `${arr[2]}/${arr[3]}`;
+				} else {
+					if (useTeX === true) str += `\\frac{${arr[3] * arr[1] + arr[2]}}{${arr[3]}}`;
+					else str += `${arr[3] * arr[1] + arr[2]}/${arr[3]}`;
+				}
+			}
+			return str;
 		}
-
-		if (k1 === 1) return mixed ? `${sign * int}` : `${sign * h1}`;
-		else if (int === 0) return `${sign === -1 ? '-' : ''}\\frac{${h1}}{${k1}}`;
-		else return `${sign * int}\\frac{${h1}}{${k1}}`;
-	};
-
-	gt.addScaleSymbol = (x, scaleSymbol) => {
-		if (typeof scaleSymbol === undefined || scaleSymbol === '') return x;
-		if (x == 0) return '0';
-		if (x == 1) return scaleSymbol;
-		if (x == -1) return `-${scaleSymbol}`;
-		return `${x}${scaleSymbol}`;
 	};
 
 	gt.setTextCoords = options.showCoordinateHints
@@ -471,40 +548,30 @@ window.graphTool = (containerId, options) => {
 					if (xSnap <= bbox[0]) gt.current_pos_text.setText(() => '\\(-\\infty\\)');
 					else if (xSnap >= bbox[2]) gt.current_pos_text.setText(() => '\\(\\infty\\)');
 					else {
-						if (options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction') {
-							const text = gt.toLatexFrac(
-								gt.snapRound(x, gt.snapSizeX, 10 ** 13),
-								options.coordinateHintsTypeX === 'mixed'
-							);
-							gt.current_pos_text.setText(() => `\\(${text}\\)`);
-						} else gt.current_pos_text.setText(() => `\\(${xSnap}\\)`);
+						const scaleX = cfgOptions.defaultAxes.x.ticks.scale || 1;
+						gt.current_pos_text.setText(
+							() =>
+								`\\(${gt.board.defaultAxes.x.defaultTicks.formatLabelText(
+									gt.snapRound(x / scaleX, gt.snapSizeX / scaleX),
+									false
+								)}\\)`
+						);
 					}
 				}
 			: (x, y) => {
 					const scaleX = cfgOptions.defaultAxes.x.ticks.scale || 1;
-					let xText = gt.addScaleSymbol(
-						options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction'
-							? gt.toLatexFrac(
-									gt.snapRound(x / scaleX, gt.snapSizeX / scaleX, 10 ** 13),
-									options.coordinateHintsTypeX === 'mixed'
-								)
-							: gt.snapRound(x / scaleX, gt.snapSizeX / scaleX),
-						cfgOptions.defaultAxes?.x?.ticks?.scaleSymbol
-					);
-
 					const scaleY = cfgOptions.defaultAxes.y.ticks.scale || 1;
-					let yText = gt.addScaleSymbol(
-						options.coordinateHintsTypeY === 'mixed' || options.coordinateHintsTypeY === 'fraction'
-							? gt.toLatexFrac(
-									gt.snapRound(y / scaleY, gt.snapSizeY / scaleY, 10 ** 13),
-									options.coordinateHintsTypeY === 'mixed',
-									gt.snapSizeY
-								)
-							: gt.snapRound(y / scaleY, gt.snapSizeY / scaleY),
-						cfgOptions.defaultAxes?.y?.ticks?.scaleSymbol
-					);
 
-					gt.current_pos_text.setText(() => `\\(\\left(${xText}, ${yText}\\right)\\)`);
+					gt.current_pos_text.setText(
+						() =>
+							`\\(\\left(${gt.board.defaultAxes.x.defaultTicks.formatLabelText(
+								gt.snapRound(x / scaleX, gt.snapSizeX / scaleX),
+								false
+							)}, ${gt.board.defaultAxes.y.defaultTicks.formatLabelText(
+								gt.snapRound(y / scaleY, gt.snapSizeY / scaleY),
+								false
+							)}\\right)\\)`
+					);
 				}
 		: () => {};
 
