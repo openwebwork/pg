@@ -220,8 +220,7 @@ be shown as multiples of this symbol.
 
 This can be used in combination with the C<scaleX> option to show tick labels at multiples of
 pi, for instance. This can be accomplished using the settings C<< scaleX => pi->value >> and
-C<< scaleSymbolX => "~~x{03C0}" >>. Note that value of C<scaleSymbolX> shown is the unicode pi
-symbol, and that C<~~> is the PG escape character (normally a backslash in Perl).
+C<< scaleSymbolX => '\pi' >>.
 
 =item xAxisLabel, yAxisLabel (Default: C<< xAxisLabel => 'x', yAxisLabel => 'y' >>)
 
@@ -267,28 +266,30 @@ for the 1 dimensional mode when numberLine is 1.
 
 =item coordinateHintsType (Default: C<< coordinateHintsType => 'decimal' >>)
 
-This changes the way coordinate hints are shown.  By default the coordinates are displayed as
-decimal numbers accurate to five decimal places.  If this is set to 'fraction', then those
-decimals will be converted and displayed as fractions.  If this is set to 'mixed', then those
-decimals will be converted and displayed as mixed numbers.  For example, if the snapSizeX is set
-to 1/3, then what would be displayed as 4.66667 with the default 'decimal' setting, would be
-instead be displayed as 14/3 with the 'fraction' setting, and '4 2/3' with the 'mixed' setting.
-Note that these fractions are typeset by MathJax.
+This changes the way coordinate hints and axes tick labels are shown.  By default these are
+displayed as decimal numbers accurate to five decimal places.  If this is set to 'fraction',
+then those decimals will be converted and displayed as fractions.  If this is set to 'mixed',
+then those decimals will be converted and displayed as mixed numbers.  For example, if the
+snapSizeX is set to 1/3, then what would be displayed as 4.66667 with the default 'decimal'
+setting, would be instead be displayed as 14/3 with the 'fraction' setting, and '4 2/3' with the
+'mixed' setting.  Note that these fractions are typeset by MathJax.
 
-Make sure that the snap size is given with decent accuracy.  For example, if the snap size to
-0.33333, then instead of 1/3 being displayed, 33333/1000000 will be displayed.  It is
+Make sure that the snap size is given with decent accuracy.  For example, if the snap size is
+set to 0.33333, then instead of 1/3 being displayed, 33333/1000000 will be displayed.  It is
 recommended to actually give an actual fraction for the snap size (like 1/3), and let perl and
 javascript compute that to get the best result.
 
 =item coordinateHintsTypeX (Default: C<< coordinateHintsTypeX => undef >>)
 
-This does the same as the coordinateHintsType option, but only for the x-coordinate.
-If this is undefined then the coordinateHintsType option is used for the x-coordinate.
+This does the same as the coordinateHintsType option, but only for the x-coordinate and x-axis
+tick labels.  If this is undefined then the coordinateHintsType option is used for the
+x-coordinate and x-axis tick labels.
 
 =item coordinateHintsTypeY (Default: C<< coordinateHintsTypeY => undef >>)
 
-This does the same as the coordinateHintsType option, but only for the y-coordinate.
-If this is undefined then the coordinateHintsType option is used for the y-coordinate.
+This does the same as the coordinateHintsType option, but only for the y-coordinate and y-axis
+tick labels.  If this is undefined then the coordinateHintsType option is used for the
+y-coordinate and y-axis tick labels.
 
 =item availableTools (Default: C<< availableTools => [ "LineTool", "CircleTool",
     "VerticalParabolaTool", "HorizontalParabolaTool", "FillTool", "SolidDashTool" ] >>)
