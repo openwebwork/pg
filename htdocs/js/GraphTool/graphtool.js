@@ -629,6 +629,7 @@ window.graphTool = (containerId, options) => {
 		gt.setMessageText(
 			gt.tools
 				.map((tool) => (typeof tool.helpText === 'function' ? tool.helpText() : tool.helpText || ''))
+				.concat([gt.selectedObj?.helpText()])
 				.filter((helpText) => !!helpText)
 		);
 	};
@@ -845,6 +846,8 @@ window.graphTool = (containerId, options) => {
 			if (this.baseObj.rendNode === e.target) return true;
 			return this.definingPts.some((point) => point.rendNode === e.target);
 		}
+
+		helpText() {}
 
 		update() {}
 
@@ -1305,6 +1308,11 @@ window.graphTool = (containerId, options) => {
 					return false;
 				}
 
+				helpText() {
+					if ('helpText' in graphObject) return graphObject.helpText.call(this, gt);
+					else if (parentObject) return super.helpText();
+				}
+
 				update() {
 					if ('update' in graphObject) graphObject.update.call(this, gt);
 					else if (parentObject) super.update();
@@ -1519,6 +1527,7 @@ window.graphTool = (containerId, options) => {
 							lastSelected = gt.selectedObj;
 						} else {
 							focusPoint?.rendNode.focus();
+							gt.updateHelp();
 							return;
 						}
 					}
@@ -1566,7 +1575,10 @@ window.graphTool = (containerId, options) => {
 					}
 
 					// Attach a focusin handler to all points to update the coordinates display.
-					point.focusInHandler = () => gt.setTextCoords(point.X(), point.Y());
+					point.focusInHandler = () => {
+						gt.setTextCoords(point.X(), point.Y());
+						setTimeout(() => gt.updateHelp());
+					};
 					point.rendNode.addEventListener('focusin', point.focusInHandler);
 				});
 			}
