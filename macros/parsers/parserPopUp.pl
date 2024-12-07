@@ -302,7 +302,7 @@ sub getCorrectChoice {
 	my @choices = @{ $self->{orderedChoices} };
 	foreach my $i (0 .. $#choices) {
 		if ($label eq $self->{labels}[$i]) {
-			$self->{data} = [ $self->{labels}[$i] ];
+			$self->{data} = [ $self->{values}[$i] ];
 			return;
 		}
 	}
