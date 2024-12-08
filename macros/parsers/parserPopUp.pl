@@ -269,7 +269,7 @@ sub addLabelsValues {
 	my $self    = shift;
 	my $choices = $self->{orderedChoices};
 	my $labels  = [];
-	my $values  = $self->{values};
+	my $values  = [];
 	my $n       = $self->{n};
 
 	foreach my $i (0 .. $n - 1) {
@@ -278,7 +278,7 @@ sub addLabelsValues {
 			$values->[$i] = $choices->[$i]{ $labels->[$i] };
 		} else {
 			$labels->[$i] = $choices->[$i];
-			$values->[$i] = $choices->[$i] unless (defined($values->[$i]) && $values->[$i] ne '');
+			$values->[$i] = $self->{values}[ $self->{order}[$i] ] // $choices->[$i];
 		}
 
 	}
