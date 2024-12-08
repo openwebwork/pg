@@ -389,10 +389,10 @@ sub MENU {
 
 	if ($main::displayMode =~ m/^HTML/) {
 		$menu = main::tag(
-			'span',
-			class                       => 'text-nowrap',
-			data_feedback_insert_elt    => $name,
-			data_feedback_insert_method => 'append_content',
+			'div',
+			class                        => 'd-inline text-nowrap',
+			data_feedback_insert_element => $name,
+			data_feedback_insert_method  => 'append_content',
 			main::tag(
 				'select',
 				class      => 'pg-select',
