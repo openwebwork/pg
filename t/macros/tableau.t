@@ -92,13 +92,13 @@ my $steve_profit           = 4500;
 # need error checking to make sure that tableau->new checks
 # that inputs are matrices
 my $ra_matrix = [
-	[ -$bill_money_commitment,  -$bill_time_commitment,  -1, 0,  1, 0, 0, -$bill_profit ],
-	[ -$steve_money_commitment, -$steve_time_commitment, 0,  -1, 0, 1, 0, -$steve_profit ],
+	[ -$bill_money_commitment,  -$bill_time_commitment,  -1,  0, 1, 0, 0, -$bill_profit ],
+	[ -$steve_money_commitment, -$steve_time_commitment,  0, -1, 0, 1, 0, -$steve_profit ],
 	[ -$money_total,            -$time_total,            -1, -1, 0, 0, 1, 0 ]
 ];
 my $a = Value::Matrix->new([
 	[ -$bill_money_commitment,  -$bill_time_commitment,  -1, 0 ],
-	[ -$steve_money_commitment, -$steve_time_commitment, 0,  -1 ]
+	[ -$steve_money_commitment, -$steve_time_commitment,  0, -1 ]
 ]);
 my $b = Value::Vector->new([ -$bill_profit, -$steve_profit ]);    # need vertical vector
 my $c = Value::Vector->new([ $money_total, $time_total, 1, 1 ]);

@@ -327,9 +327,9 @@ our %known_units = (
 		s      => -2
 	},
 	uN => {    # micronewton
-		factor  => 1E-6,
-		m       => 1,
-		kg      => 1,
+		factor  =>  1E-6,
+		m       =>  1,
+		kg      =>  1,
 		s       => -2,
 		aliases => [ 'microN', "\x{00B5}N" ]
 	},
@@ -346,16 +346,16 @@ our %known_units = (
 		s      => -2
 	},
 	lb => {    # pound
-		factor  => 4.4482216152605,
-		m       => 1,
-		kg      => 1,
+		factor  =>  4.4482216152605,
+		m       =>  1,
+		kg      =>  1,
 		s       => -2,
 		aliases => [ 'pound', 'pounds', 'lbs' ]
 	},
 	ton => {
-		factor  => 8900,
-		m       => 1,
-		kg      => 1,
+		factor  =>  8900,
+		m       =>  1,
+		kg      =>  1,
 		s       => -2,
 		aliases => ['tons']
 	},
@@ -480,69 +480,69 @@ our %known_units = (
 
 	# PRESSURE
 	Pa => {      # pascal
-		factor => 1,
+		factor =>  1,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 	kPa => {     # kilopascal
 		factor => 1000,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 	MPa => {     # megapascal
 		factor => 1E6,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 	GPa => {     # gigapascal
 		factor => 1E9,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 	atm => {     # atmosphere
 		factor => 1.01E5,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 	bar => {
 		factor => 100000,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 	mbar => {    # millibar
 		factor => 100,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 	Torr => {
 		factor => 133.322,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 	mmHg => {
 		factor => 133.322,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 	cmH2O => {    # centimeters of water
 		factor => 98.0638,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 	psi => {      # pounds per square inch
 		factor => 6895,
 		m      => -1,
-		kg     => 1,
+		kg     =>  1,
 		s      => -2
 	},
 
@@ -569,85 +569,85 @@ our %known_units = (
 		s      => 1,
 	},
 	V => {        # volt (also J/C)
-		factor => 1,
-		kg     => 1,
-		m      => 2,
+		factor =>  1,
+		kg     =>  1,
+		m      =>  2,
 		amp    => -1,
 		s      => -3,
 	},
 	mV => {       # millivolt
 		factor => 0.001,
-		kg     => 1,
-		m      => 2,
+		kg     =>  1,
+		m      =>  2,
 		amp    => -1,
 		s      => -3,
 	},
 	kV => {       # killivolt
 		factor => 1000,
-		kg     => 1,
-		m      => 2,
+		kg     =>  1,
+		m      =>  2,
 		amp    => -1,
 		s      => -3,
 	},
 	MV => {       # megavolt
 		factor => 1E6,
-		kg     => 1,
-		m      => 2,
+		kg     =>  1,
+		m      =>  2,
 		amp    => -1,
 		s      => -3,
 	},
 	F => {        # farad (also C/V)
-		factor => 1,
-		amp    => 2,
-		s      => 4,
+		factor =>  1,
+		amp    =>  2,
+		s      =>  4,
 		kg     => -1,
 		m      => -2,
 	},
 	mF => {       # millifarad
 		factor => 0.001,
-		amp    => 2,
-		s      => 4,
+		amp    =>  2,
+		s      =>  4,
 		kg     => -1,
 		m      => -2,
 	},
 	uF => {       # microfarad
-		factor  => 1E-6,
-		amp     => 2,
-		s       => 4,
+		factor  =>  1E-6,
+		amp     =>  2,
+		s       =>  4,
 		kg      => -1,
 		m       => -2,
 		aliases => [ "\x{00B5}F", "\x{338C}" ]
 	},
 	ohm => {      # V/amp
-		factor  => 1,
-		kg      => 1,
-		m       => 2,
+		factor  =>  1,
+		kg      =>  1,
+		m       =>  2,
 		amp     => -2,
 		s       => -3,
 		aliases => ["\x{2126}"]
 	},
 	kohm => {     # kiloohm
-		factor  => 1000,
-		kg      => 1,
-		m       => 2,
+		factor  =>  1000,
+		kg      =>  1,
+		m       =>  2,
 		amp     => -2,
 		s       => -3,
 		aliases => [ "k\x{2126}", "\x{33C0}" ]
 	},
 	Mohm => {     # megaohm
-		factor  => 1E6,
-		kg      => 1,
-		m       => 2,
+		factor  =>  1E6,
+		kg      =>  1,
+		m       =>  2,
 		amp     => -2,
 		s       => -3,
 		aliases => [ "M\x{2126}", "\x{33C1}" ]
 	},
 	S => {        # siemens (1/ohm)
-		factor => 1,
+		factor =>  1,
 		kg     => -1,
 		m      => -2,
-		amp    => 2,
-		s      => 3,
+		amp    =>  2,
+		s      =>  3,
 	},
 	mA => {       # milliampere
 		factor => 0.001,
@@ -656,47 +656,47 @@ our %known_units = (
 
 	# MAGNETIC UNITS
 	T => {        # tesla (also kg / A s^2 or N s / C m)
-		factor => 1,
-		kg     => 1,
+		factor =>  1,
+		kg     =>  1,
 		amp    => -1,
 		s      => -2,
 	},
 	mT => {       # millitesla
 		factor => 0.001,
-		kg     => 1,
+		kg     =>  1,
 		amp    => -1,
 		s      => -2,
 	},
 	G => {        # gauss
 		factor => 1E-4,
-		kg     => 1,
+		kg     =>  1,
 		amp    => -1,
 		s      => -2,
 	},
 	Wb => {       # weber (also T m^2)
-		factor => 1,
-		kg     => 1,
-		m      => 2,
+		factor =>  1,
+		kg     =>  1,
+		m      =>  2,
 		amp    => -1,
 		s      => -2,
 	},
 	H => {        # henry (also V s/amp)
-		factor => 1,
-		kg     => 1,
-		m      => 2,
+		factor =>  1,
+		kg     =>  1,
+		m      =>  2,
 		amp    => -2,
 		s      => -2,
 	},
 
 	# LUMINOSITY
 	lm => {       # lumen (luminous flux)
-		factor => 1,
-		cd     => 1,
+		factor =>  1,
+		cd     =>  1,
 		rad    => -2,
 	},
 	lx => {       # lux (illuminance)
-		factor => 1,
-		cd     => 1,
+		factor =>  1,
+		cd     =>  1,
 		rad    => -2,
 		m      => -2,
 	},
@@ -722,23 +722,23 @@ our %known_units = (
 
 	# RADIATION
 	Sv => {       # sievert, dose equivalent radiation (http://xkcd.com/radiation)
-		factor => 1,
-		m      => 2,
+		factor =>  1,
+		m      =>  2,
 		s      => -2,
 	},
 	mSv => {      # millisievert (http://blog.xkcd.com/2011/03/19/radiation-chart)
 		factor => 0.001,
-		m      => 2,
+		m      =>  2,
 		s      => -2,
 	},
 	uSv => {      # microsievert (http://blog.xkcd.com/2011/04/26/radiation-chart-update)
-		factor  => 0.000001,
-		m       => 2,
+		factor  =>  0.000001,
+		m       =>  2,
 		s       => -2,
 		aliases => ["\x{00B5}Sv"]
 	},
 	Bq => {       # becquerel, radioactivity (https://en.wikipedia.org/wiki/Becquerel)
-		factor => 1,
+		factor =>  1,
 		s      => -1,
 	},
 
@@ -756,8 +756,8 @@ our %known_units = (
 		mol    => 1,
 	},
 	kat => {         # katal (catalytic activity)
-		factor => 1,
-		mol    => 1,
+		factor =>  1,
+		mol    =>  1,
 		s      => -1,
 	},
 
