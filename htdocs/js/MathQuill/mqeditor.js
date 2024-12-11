@@ -7,7 +7,7 @@
 	window.answerQuills = {};
 
 	// initialize MathQuill
-	const MQ = MathQuill.getInterface(2);
+	const MQ = MathQuill.getInterface();
 
 	let toolbarEnabled = (localStorage.getItem('MQEditorToolbarEnabled') ?? 'true') === 'true';
 
@@ -43,7 +43,7 @@
 
 		// Default options.
 		const cfgOptions = {
-			spaceBehavesLikeTab: true,
+			enableSpaceNavigation: true,
 			leftRightIntoCmdGoes: 'up',
 			restrictMismatchedBrackets: true,
 			sumStartsWithNEquals: true,
@@ -62,7 +62,8 @@
 		if (answerQuill.latexInput.dataset.mqOpts)
 			Object.assign(cfgOptions, JSON.parse(answerQuill.latexInput.dataset.mqOpts));
 
-		// This is after the option merge to prevent handlers from being overridden.
+		// The handlers and blurWithCursor options are set after
+		// the option merge to prevent them from being overridden.
 		cfgOptions.handlers = {
 			// Disable the toolbar when a text block is entered.
 			textBlockEnter: () => {
@@ -75,6 +76,11 @@
 					answerQuill.toolbar.querySelectorAll('button').forEach((button) => (button.disabled = false));
 			}
 		};
+
+		cfgOptions.blurWithCursor = (e) =>
+			toolbarEnabled &&
+			answerQuill.toolbar &&
+			(e.relatedTarget?.closest('.quill-toolbar') || e.relatedTarget?.classList.contains('symbol-button'));
 
 		const latexEntryMode = input.classList.contains('latexentryfield');
 
@@ -273,6 +279,26 @@
 				if (feedbackBtn) bootstrap.Popover.getInstance(feedbackBtn)?.update();
 			};
 
+			// Trigger a button press when the enter key is pressed in an answer box.
+			cfgOptions.handlers.enter = () => {
+				// Ensure that the toolbar and any open tooltips are removed.
+				answerQuill.toolbar?.tooltips.forEach((tooltip) => tooltip.dispose());
+				answerQuill.toolbar?.remove();
+				delete answerQuill.toolbar;
+
+				// For ww2 homework, depends on $pg{options}{enterKey}
+				const enterKeySubmit = document.getElementById('enter_key_submit');
+				if (enterKeySubmit) enterKeySubmit.click();
+				else document.getElementById('previewAnswers_id')?.click();
+				// For gateway quizzes, always the preview button
+				document.querySelector('input[name=previewAnswers]')?.click();
+				// For ww3
+				const previewButtonId = answerQuill.textarea
+					.closest('[name=problemMainForm]')
+					?.id.replace('problemMainForm', 'previewAnswers');
+				if (previewButtonId) document.getElementById(previewButtonId)?.click();
+			};
+
 			input.after(answerQuill);
 		}
 
@@ -301,9 +327,11 @@
 				delete answerQuill.toolbar;
 				toolbar.style.opacity = 0;
 				window.removeEventListener('resize', toolbar.setPosition);
+				window.removeEventListener('focus', toolbar.removeOnWindowRefocus);
 				toolbar.tooltips.forEach((tooltip) => tooltip.dispose());
 				toolbar.addEventListener('transitionend', () => toolbar.remove(), { once: true });
 				toolbar.addEventListener('transitioncancel', () => toolbar.remove(), { once: true });
+				if (toolbarEnabled && document.activeElement !== answerQuill.textarea) answerQuill.mathField.blur();
 			}
 		};
 
@@ -319,16 +347,30 @@
 
 			answerQuill.toolbar.addEventListener('focusout', (e) => {
 				if (
+					!document.hasFocus() ||
 					(e.relatedTarget &&
 						(e.relatedTarget.closest('.quill-toolbar') ||
 							e.relatedTarget.classList.contains('symbol-button') ||
-							e.relatedTarget.parentElement?.parentElement === answerQuill)) ||
+							e.relatedTarget === answerQuill.textarea)) ||
 					(answerQuill.clearButton && e.relatedTarget === answerQuill.clearButton)
 				)
 					return;
 
 				toolbarRemove();
 			});
+
+			// If the window is refocused after a blur, and the focus is not on the toolbar
+			// or the MathQuill input, then remove the toolbar.
+			answerQuill.toolbar.removeOnWindowRefocus = () => {
+				if (
+					document.activeElement &&
+					!document.activeElement.closest('.quill-toolbar') &&
+					!document.activeElement.classList.contains('symbol-button') &&
+					document.activeElement !== answerQuill.textarea
+				)
+					toolbarRemove();
+			};
+			window.addEventListener('focus', answerQuill.toolbar.removeOnWindowRefocus);
 
 			answerQuill.toolbar.tooltips = [];
 
@@ -347,7 +389,7 @@
 				button.append(icon);
 				answerQuill.toolbar.append(button);
 
-				MQ.StaticMath(icon, { mouseEvents: false });
+				MQ.StaticMath(icon, { mouseEvents: false, tabbable: false });
 
 				answerQuill.toolbar.tooltips.push(new bootstrap.Tooltip(button, { placement: 'left' }));
 
@@ -357,8 +399,34 @@
 				});
 			}
 
+			const getNextFocusableElement = (currentElement) => {
+				const focusableElements = Array.from(
+					document.querySelectorAll(
+						'a[href]:not([tabindex="-1"]),' +
+							'button:not([tabindex="-1"]),' +
+							'input:not([tabindex="-1"]),' +
+							'textarea:not([tabindex="-1"]),' +
+							'select:not([tabindex="-1"]),' +
+							'details:not([tabindex="-1"]),' +
+							'[tabindex]:not([tabindex="-1"])'
+					)
+				);
+
+				let currentIndex = focusableElements.indexOf(currentElement);
+				if (currentIndex === -1) return;
+
+				for (const focusableElement of focusableElements.slice(currentIndex + 1)) {
+					if (!focusableElement.disabled && focusableElement.offsetParent !== null) return focusableElement;
+				}
+			};
+
 			answerQuill.toolbar.addEventListener('keydown', (e) => {
-				if (e.key === 'Escape') toolbarRemove();
+				if (e.key === 'Escape') {
+					const nextFocusable = getNextFocusableElement(answerQuill.toolbar.lastElementChild);
+					console.log(nextFocusable);
+					toolbarRemove();
+					nextFocusable?.focus();
+				}
 			});
 
 			answerQuill.toolbar.setPosition = () => {
@@ -494,10 +562,11 @@
 
 		answerQuill.textarea.addEventListener('focusout', (e) => {
 			if (
-				e.relatedTarget &&
-				(e.relatedTarget.closest('.quill-toolbar') ||
-					e.relatedTarget.classList.contains('symbol-button') ||
-					(answerQuill.clearButton && e.relatedTarget === answerQuill.clearButton))
+				!document.hasFocus() ||
+				(e.relatedTarget &&
+					(e.relatedTarget.closest('.quill-toolbar') ||
+						e.relatedTarget.classList.contains('symbol-button') ||
+						(answerQuill.clearButton && e.relatedTarget === answerQuill.clearButton)))
 			)
 				return;
 
@@ -507,29 +576,6 @@
 		window.answerQuills[answerLabel] = answerQuill;
 
 		if (latexEntryMode) return;
-
-		// Trigger a button press when the enter key is pressed in an answer box.
-		answerQuill.keydownHandler = (e) => {
-			if (e.key == 'Enter') {
-				// Ensure that the toolbar and any open tooltips are removed.
-				answerQuill.toolbar?.tooltips.forEach((tooltip) => tooltip.dispose());
-				answerQuill.toolbar?.remove();
-				delete answerQuill.toolbar;
-
-				// For ww2 homework, depends on $pg{options}{enterKey}
-				const enterKeySubmit = document.getElementById('enter_key_submit');
-				if (enterKeySubmit) enterKeySubmit.click();
-				else document.getElementById('previewAnswers_id')?.click();
-				// For gateway quizzes, always the preview button
-				document.querySelector('input[name=previewAnswers]')?.click();
-				// For ww3
-				const previewButtonId = answerQuill.textarea
-					.closest('[name=problemMainForm]')
-					?.id.replace('problemMainForm', 'previewAnswers');
-				if (previewButtonId) document.getElementById(previewButtonId)?.click();
-			}
-		};
-		answerQuill.addEventListener('keydown', answerQuill.keydownHandler);
 
 		setTimeout(() => {
 			answerQuill.mathField.latex(answerQuill.latexInput.value);
