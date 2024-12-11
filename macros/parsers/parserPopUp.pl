@@ -474,7 +474,7 @@ sub MENU {
 					main::tag('input', type => 'hidden', name => $name, value => $answer_value),
 					main::tag(
 						'button',
-						class          => 'btn btn-outline-dark dropdown-toggle text-nowrap ',
+						class          => 'btn dropdown-toggle text-nowrap ',
 						type           => 'button',
 						data_bs_toggle => 'dropdown',
 						aria_expanded  => 'false',
