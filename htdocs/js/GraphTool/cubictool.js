@@ -240,13 +240,12 @@
 				};
 
 				this.phase2 = (coords) => {
-					// Don't allow the second point to be created on the same
-					// vertical line as the first point or off the board.
-					if (
-						this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						!gt.boardHasPoint(coords[1], coords[2])
-					)
-						return;
+					if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+					// If the current coordinates are on the same vertical line as the first point,
+					// then use the highlight point coordinates instead.
+					if (Math.abs(this.point1.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps)
+						coords = this.hlObjs.hl_point.coords.usrCoords;
 
 					gt.board.off('up');
 
@@ -272,14 +271,15 @@
 				};
 
 				this.phase3 = (coords) => {
-					// Don't allow the third point to be created on the same vertical line as the
-					// first point, on the same vertical line as the second point, or off the board.
+					if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+					// If the current coordinates are on the same vertical line as the first point, or on the same
+					// vertical line as the second point, then use the highlight point coordinates instead.
 					if (
-						this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						this.point2.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						!gt.boardHasPoint(coords[1], coords[2])
+						Math.abs(this.point1.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps ||
+						Math.abs(this.point2.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps
 					)
-						return;
+						coords = this.hlObjs.hl_point.coords.usrCoords;
 
 					gt.board.off('up');
 					this.point3 = gt.graphObjectTypes.cubic.createPoint(coords[1], coords[2], [
@@ -311,16 +311,17 @@
 				};
 
 				this.phase4 = (coords) => {
-					// Don't allow the fourth point to be created on the same vertical line as the first
-					// point, on the same vertical line as the second point, on the same vertical line as
-					// the third point, or off the board.
+					if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+					// If the current coordinates are on the same vertical line as the first point, on the same vertical
+					// line as the second point, or on the same vertical line as the third point, then use the highlight
+					// point coordinates instead.
 					if (
-						this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						this.point2.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						this.point3.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-						!gt.boardHasPoint(coords[1], coords[2])
+						Math.abs(this.point1.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps ||
+						Math.abs(this.point2.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps ||
+						Math.abs(this.point3.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps
 					)
-						return;
+						coords = this.hlObjs.hl_point.coords.usrCoords;
 
 					gt.board.off('up');
 
