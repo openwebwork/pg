@@ -128,6 +128,11 @@ window.graphTool = (containerId, options) => {
 	// Merge options that are set by the problem.
 	if (typeof options.JSXGraphOptions === 'object') JXG.merge(cfgOptions, options.JSXGraphOptions);
 
+	cfgOptions.boundingBox[0] = cfgOptions.boundingBox[0] - JXG.Math.eps;
+	cfgOptions.boundingBox[1] = cfgOptions.boundingBox[1] + JXG.Math.eps;
+	cfgOptions.boundingBox[2] = cfgOptions.boundingBox[2] + JXG.Math.eps;
+	cfgOptions.boundingBox[3] = cfgOptions.boundingBox[3] - JXG.Math.eps;
+
 	const setupBoard = () => {
 		gt.board = JXG.JSXGraph.initBoard(`${containerId}_graph`, cfgOptions);
 		gt.board.suspendUpdate();
