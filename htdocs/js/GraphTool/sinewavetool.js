@@ -225,8 +225,8 @@
 				this.supportsSolidDash = true;
 
 				this.phase1 = (coords) => {
-					// Don't allow the point to be created off the board.
-					if (!gt.boardHasPoint(coords[1], coords[2])) return;
+					// If the current coordinates are off the board, then use the highlight point coordinates instead.
+					if (!gt.boardHasPoint(coords[1], coords[2])) coords = this.hlObjs.hl_point.coords.usrCoords;
 
 					gt.board.off('up');
 
@@ -252,13 +252,13 @@
 				};
 
 				this.phase2 = (coords) => {
-					// Don't allow the second point to be created on the same
-					// vertical line as the first point or off the board.
+					// If the current coordinates are on the same vertical line as the first point or off the board,
+					// then use the coordinates of the highlight point instead.
 					if (
-						Math.abs(this.shiftPoint.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps ||
-						!gt.boardHasPoint(coords[1], coords[2])
+						!gt.boardHasPoint(coords[1], coords[2]) ||
+						Math.abs(this.shiftPoint.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps
 					)
-						return;
+						coords = this.hlObjs.hl_point.coords.usrCoords;
 
 					gt.board.off('up');
 
@@ -291,13 +291,13 @@
 				};
 
 				this.phase3 = (coords) => {
-					// Don't allow the third point to be created on the same
-					// horizontal line as the first point, or off the board.
+					// If the current coordinates are on the same horizontal line as the first point or off the board,
+					// then use the highlight point coordinates instead.
 					if (
 						Math.abs(this.shiftPoint.Y() - gt.snapRound(coords[2], gt.snapSizeY)) < JXG.Math.eps ||
 						!gt.boardHasPoint(coords[1], coords[2])
 					)
-						return;
+						coords = this.hlObjs.hl_point.coords.usrCoords;
 
 					gt.board.off('up');
 
@@ -369,7 +369,7 @@
 					this.hlObjs.hl_point.rendNode.focus();
 				}
 
-				// Make sure the highlight point is not moved off the board, that the sine wave is not degenerate.
+				// Make sure the highlight point is not moved off the board, and that the sine wave is not degenerate.
 				if (e instanceof Event) {
 					gt.graphObjectTypes.sineWave.adjustDragPosition(
 						e,
@@ -420,6 +420,7 @@
 
 				gt.setTextCoords(this.hlObjs.hl_point.X(), this.hlObjs.hl_point.Y());
 				gt.board.update();
+				return true;
 			},
 
 			deactivate(gt) {
