@@ -269,7 +269,7 @@ sub addLabelsValues {
 	my $self    = shift;
 	my $choices = $self->{orderedChoices};
 	my $labels  = [];
-	my $values  = $self->{values};
+	my $values  = [];
 	my $n       = $self->{n};
 
 	foreach my $i (0 .. $n - 1) {
@@ -278,7 +278,7 @@ sub addLabelsValues {
 			$values->[$i] = $choices->[$i]{ $labels->[$i] };
 		} else {
 			$labels->[$i] = $choices->[$i];
-			$values->[$i] = $choices->[$i] unless (defined($values->[$i]) && $values->[$i] ne '');
+			$values->[$i] = $self->{values}[ $self->{order}[$i] ] // $choices->[$i];
 		}
 
 	}
@@ -302,7 +302,7 @@ sub getCorrectChoice {
 	my @choices = @{ $self->{orderedChoices} };
 	foreach my $i (0 .. $#choices) {
 		if ($label eq $self->{labels}[$i]) {
-			$self->{data} = [ $self->{labels}[$i] ];
+			$self->{data} = [ $self->{values}[$i] ];
 			return;
 		}
 	}
@@ -389,10 +389,10 @@ sub MENU {
 
 	if ($main::displayMode =~ m/^HTML/) {
 		$menu = main::tag(
-			'span',
-			class                       => 'text-nowrap',
-			data_feedback_insert_elt    => $name,
-			data_feedback_insert_method => 'append_content',
+			'div',
+			class                        => 'd-inline text-nowrap',
+			data_feedback_insert_element => $name,
+			data_feedback_insert_method  => 'append_content',
 			main::tag(
 				'select',
 				class      => 'pg-select',
