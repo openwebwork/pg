@@ -488,13 +488,16 @@ sub MENU {
 							'',
 							map {
 								main::tag(
-									'button',
-									class => 'dropdown-item'
-										. ($self->{values}[$_] eq $answer_value ? ' active' : ''),
-									type         => 'button',
-									data_value   => $self->{values}[$_],
-									data_content => $self->{labels}[$_],
-									$self->{labels}[$_]
+									'li',
+									main::tag(
+										'button',
+										class => 'dropdown-item'
+											. ($self->{values}[$_] eq $answer_value ? ' active' : ''),
+										type         => 'button',
+										data_value   => $self->{values}[$_],
+										data_content => $self->{labels}[$_],
+										$self->{labels}[$_]
+									)
 								)
 							} (0 .. $#list)
 						)
