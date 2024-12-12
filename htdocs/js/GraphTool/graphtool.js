@@ -686,7 +686,8 @@ window.graphTool = (containerId, options) => {
 	// degenerate.
 	gt.adjustDragPosition = (e, point, pairedPoint) => {
 		if (
-			(point.X() == pairedPoint?.X() && point.Y() == pairedPoint?.Y()) ||
+			(Math.abs(point.X() - pairedPoint?.X()) < JXG.Math.eps &&
+				Math.abs(point.Y() - pairedPoint?.Y()) < JXG.Math.eps) ||
 			!gt.boardHasPoint(point.X(), point.Y())
 		) {
 			const bbox = gt.board.getBoundingBox();
@@ -696,7 +697,11 @@ window.graphTool = (containerId, options) => {
 			let y = point.Y() < bbox[3] ? bbox[3] : point.Y() > bbox[1] ? bbox[1] : point.Y();
 
 			// Adjust position of the point if it has the same coordinates as its paired point.
-			if (pairedPoint && x === pairedPoint.X() && y === pairedPoint.Y()) {
+			if (
+				pairedPoint &&
+				Math.abs(x - pairedPoint.X()) < JXG.Math.eps &&
+				Math.abs(y - pairedPoint.Y()) < JXG.Math.eps
+			) {
 				let xDir, yDir;
 
 				if (e.type === 'pointermove') {
@@ -735,7 +740,11 @@ window.graphTool = (containerId, options) => {
 	// horizontal or vertical line as its paired point by a drag. Note that when this method is called, the point has
 	// already been moved by JSXGraph.  This prevents parabolas from being made degenerate.
 	gt.adjustDragPositionRestricted = (e, point, pairedPoint) => {
-		if (point.X() == pairedPoint?.X() || point.Y() == pairedPoint?.Y() || !gt.boardHasPoint(point.X(), point.Y())) {
+		if (
+			Math.abs(point.X() - pairedPoint?.X()) < JXG.Math.eps ||
+			Math.abs(point.Y() - pairedPoint?.Y()) < JXG.Math.eps ||
+			!gt.boardHasPoint(point.X(), point.Y())
+		) {
 			const bbox = gt.board.getBoundingBox();
 
 			// Clamp the coordinates to the board.
@@ -756,8 +765,8 @@ window.graphTool = (containerId, options) => {
 					yDir = e.key === 'ArrowUp' ? 1 : e.key === 'ArrowDown' ? -1 : 0;
 				}
 
-				if (x == pairedPoint.X()) x += xDir * gt.snapSizeX;
-				if (y == pairedPoint.Y()) y += yDir * gt.snapSizeY;
+				if (Math.abs(x - pairedPoint.X()) < JXG.Math.eps) x += xDir * gt.snapSizeX;
+				if (Math.abs(y - pairedPoint.Y()) < JXG.Math.eps) y += yDir * gt.snapSizeY;
 
 				// If the computed new coordinates are off the board,
 				// then move the coordinates the other direction instead.
@@ -1524,8 +1533,9 @@ window.graphTool = (containerId, options) => {
 							// object's defining points.
 							for (const point of gt.selectedObj.definingPts) {
 								if (
-									point.X() == gt.snapRound(coords.usrCoords[1], gt.snapSizeX) &&
-									point.Y() == gt.snapRound(coords.usrCoords[2], gt.snapSizeY)
+									Math.abs(point.X() - gt.snapRound(coords.usrCoords[1], gt.snapSizeX)) <
+										JXG.Math.eps &&
+									Math.abs(point.Y() - gt.snapRound(coords.usrCoords[2], gt.snapSizeY)) < JXG.Math.eps
 								)
 									return;
 							}
@@ -1735,16 +1745,17 @@ window.graphTool = (containerId, options) => {
 			gt.board.update();
 		}
 
-		// In phase2 the user has selected a second point.  If that point is on the board
-		// and is not the same as the first point, then finalize the line.
+		// In phase2 the user has selected a second point.  If that point is on the board , then finalize the line.
 		phase2(coords) {
-			// Don't allow the second point to be created on top of the first or off the board
+			if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+			// If the current coordinates are the same those of the first point,
+			// then use the highlight point coordinates instead.
 			if (
-				(this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) &&
-					this.point1.Y() == gt.snapRound(coords[2], gt.snapSizeY)) ||
-				!gt.boardHasPoint(coords[1], coords[2])
+				Math.abs(this.point1.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps &&
+				Math.abs(this.point1.Y() - gt.snapRound(coords[2], gt.snapSizeY)) < JXG.Math.eps
 			)
-				return;
+				coords = this.hlObjs.hl_point.coords.usrCoords;
 
 			gt.board.off('up');
 
@@ -1848,11 +1859,11 @@ window.graphTool = (containerId, options) => {
 			gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
 		}
 
-		// In phase1 the user has selected a point.  If that point is on the board, then make
-		// that the center of the circle, and set up phase2.
+		// In phase1 the user has selected a point. If the point is on the board, then create the center of the circle,
+		// and set up phase2.
 		phase1(coords) {
-			// Don't allow the point to be created off the board.
 			if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
 			gt.board.off('up');
 
 			this.center = gt.board.create('point', [coords[1], coords[2]], {
@@ -1880,16 +1891,17 @@ window.graphTool = (containerId, options) => {
 			gt.board.update();
 		}
 
-		// In phase2 the user has selected a second point.  If that point is on the board
-		// and is not the same as the center, then finalize the circle.
+		// In phase2 the user has selected a second point. If that point is on the board, then finalize the circle.
 		phase2(coords) {
-			// Don't allow the second point to be created on top of the center or off the board
+			if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+			// If the current coordinates are the same those of the first point,
+			// then use the highlight point coordinates instead.
 			if (
-				(this.center.X() == gt.snapRound(coords[1], gt.snapSizeX) &&
-					this.center.Y() == gt.snapRound(coords[2], gt.snapSizeY)) ||
-				!gt.boardHasPoint(coords[1], coords[2])
+				Math.abs(this.center.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps &&
+				Math.abs(this.center.Y() - gt.snapRound(coords[2], gt.snapSizeY)) < JXG.Math.eps
 			)
-				return;
+				coords = this.hlObjs.hl_point.coords.usrCoords;
 
 			gt.board.off('up');
 
@@ -2041,14 +2053,15 @@ window.graphTool = (containerId, options) => {
 		}
 
 		phase2(coords) {
-			// Don't allow the second point to be created on the same
-			// horizontal or vertical line as the vertex or off the board.
+			if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+			// If the current coordinates are on the same horizontal or vertical line as the vertex,
+			// then use the highlight point coordinates instead.
 			if (
-				this.vertex.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-				this.vertex.Y() == gt.snapRound(coords[2], gt.snapSizeY) ||
-				!gt.boardHasPoint(coords[1], coords[2])
+				Math.abs(this.vertex.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps ||
+				Math.abs(this.vertex.Y() - gt.snapRound(coords[2], gt.snapSizeY)) < JXG.Math.eps
 			)
-				return;
+				coords = this.hlObjs.hl_point.coords.usrCoords;
 
 			gt.board.off('up');
 
@@ -2175,6 +2188,7 @@ window.graphTool = (containerId, options) => {
 		phase1(coords) {
 			// Don't allow the fill to be created off the board
 			if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
 			gt.board.off('up');
 
 			gt.selectedObj = new gt.graphObjectTypes.fill(gt.createPoint(coords[1], coords[2]));

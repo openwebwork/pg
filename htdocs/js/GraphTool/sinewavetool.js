@@ -225,8 +225,8 @@
 				this.supportsSolidDash = true;
 
 				this.phase1 = (coords) => {
-					// If the current coordinates are off the board, then use the highlight point coordinates instead.
-					if (!gt.boardHasPoint(coords[1], coords[2])) coords = this.hlObjs.hl_point.coords.usrCoords;
+					// Don't allow the point to be created off the board
+					if (!gt.boardHasPoint(coords[1], coords[2])) return;
 
 					gt.board.off('up');
 
@@ -252,12 +252,11 @@
 				};
 
 				this.phase2 = (coords) => {
-					// If the current coordinates are on the same vertical line as the first point or off the board,
-					// then use the coordinates of the highlight point instead.
-					if (
-						!gt.boardHasPoint(coords[1], coords[2]) ||
-						Math.abs(this.shiftPoint.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps
-					)
+					if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+					// If the current coordinates are on the same vertical line as the first point,
+					// then use the highlight point coordinates instead.
+					if (Math.abs(this.shiftPoint.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps)
 						coords = this.hlObjs.hl_point.coords.usrCoords;
 
 					gt.board.off('up');
@@ -291,12 +290,11 @@
 				};
 
 				this.phase3 = (coords) => {
-					// If the current coordinates are on the same horizontal line as the first point or off the board,
+					if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+					// If the current coordinates are on the same horizontal line as the first point,
 					// then use the highlight point coordinates instead.
-					if (
-						Math.abs(this.shiftPoint.Y() - gt.snapRound(coords[2], gt.snapSizeY)) < JXG.Math.eps ||
-						!gt.boardHasPoint(coords[1], coords[2])
-					)
+					if (Math.abs(this.shiftPoint.Y() - gt.snapRound(coords[2], gt.snapSizeY)) < JXG.Math.eps)
 						coords = this.hlObjs.hl_point.coords.usrCoords;
 
 					gt.board.off('up');

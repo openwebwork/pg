@@ -559,12 +559,12 @@
 				};
 
 				this.phase2 = (coords) => {
-					// Don't allow the second point to be created on the first point or off the board.
-					if (
-						this.point1.X() === gt.snapRound(coords[1], gt.snapSizeX) ||
-						!gt.boardHasPoint(coords[1], coords[2])
-					)
-						return;
+					if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+					// If the current coordinates are the same as those of the first point,
+					// then use the highlight point coordinates instead.
+					if (Math.abs(this.point1.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps)
+						coords = this.hlObjs.hl_point.coords.usrCoords;
 
 					gt.board.off('up');
 
