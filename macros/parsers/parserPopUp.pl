@@ -471,7 +471,8 @@ sub MENU {
 				data_feedback_insert_method  => 'append_content',
 				join(
 					'',
-					main::tag('input', type => 'hidden', name => $name, value => $answer_value),
+					main::tag('input', type  => 'hidden',          name => $name, value => $answer_value),
+					main::tag('span',  class => 'visually-hidden', $aria_label),
 					main::tag(
 						'button',
 						class          => 'btn dropdown-toggle text-nowrap ',
