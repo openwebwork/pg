@@ -482,7 +482,7 @@ window.graphTool = (containerId, options) => {
 			});
 		}
 
-		const resize = () => {
+		const resize = (gt.resize = () => {
 			// If the container does not have width or height (for example if the graph is inside a closed scaffold when
 			// the window is resized), then delay resizing the graph until the container does have width and height.
 			if (!gt.board.containerObj.offsetWidth || !gt.board.containerObj.offsetHeight) {
@@ -501,7 +501,7 @@ window.graphTool = (containerId, options) => {
 				gt.graphedObjs.forEach((object) => object.onResize());
 				gt.staticObjs.forEach((object) => object.onResize());
 			}
-		};
+		});
 
 		window.addEventListener('resize', resize);
 
@@ -2696,4 +2696,8 @@ window.graphTool = (containerId, options) => {
 		gt.updateText();
 		gt.updateUI();
 	}
+
+	// When MathJax accessibility is enabled the tick label positions are off.
+	// Updating the board after the labels are typeset fixes this.
+	if (window.MathJax) MathJax.startup.promise = MathJax.startup.promise.then(() => gt.board.update());
 };
