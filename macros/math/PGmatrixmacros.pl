@@ -805,7 +805,7 @@ for incorrect input. --MEG
 sub check_matrix_from_ans_box_cmp {
 	my $correctMatrix     = shift;
 	my $string_matrix_cmp = sub {
-		$string = shift @_;
+		my $string = shift;
 		my $studentMatrix;
 		$studentMatrix = Matrix(create2d_matrix($string));
 		die "I give up";
@@ -852,18 +852,20 @@ sub zero_check {
 
 =head2 vec_dot() (deprecated -- use MathObjects vectors and matrices)
 
-sub vec_dot{
-        my $vec1 = shift;
-        my $vec2 = shift;
-        warn "vectors must have the same length" unless @$vec1 == @$vec2;  # the vectors must have the same length.
-        my @vec1=@$vec1;
-        my @vec2=@$vec2;
-        my $sum = 0;
+=cut
 
-        while(@vec1) {
-                $sum += shift(@vec1)*shift(@vec2);
-        }
-        $sum;
+sub vec_dot {
+	my $vec1 = shift;
+	my $vec2 = shift;
+	warn "vectors must have the same length" unless @$vec1 == @$vec2;    # the vectors must have the same length.
+	my @vec1 = @$vec1;
+	my @vec2 = @$vec2;
+	my $sum  = 0;
+
+	while (@vec1) {
+		$sum += shift(@vec1) * shift(@vec2);
+	}
+	$sum;
 }
 
 =head2 proj_vect (deprecated -- use MathObjects vectors and matrices)
