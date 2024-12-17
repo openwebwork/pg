@@ -593,9 +593,8 @@ sub add_container {
 					'div',
 					class => 'accordion-header'
 						. (
-							$iscorrect && ($main::envir{showFeedback} || $main::envir{forceShowAttemptResults})
-							? ' iscorrect'
-							: ' iswrong'
+							$iscorrect && (($main::envir{showFeedback} && $main::envir{showAttemptResults})
+								|| $main::envir{forceShowAttemptResults}) ? ' iscorrect' : ' iswrong'
 						)
 						. ($canopen ? ' canopen' : ' cannotopen'),
 					id => "$label-header",
