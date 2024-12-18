@@ -264,10 +264,6 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		showMessages            => $options->{showMessages}            // 1,
 		showCorrectAnswers      => $options->{showCorrectAnswers}      // 0,
 
-		# The next has marks what data was updated and needs to be saved
-		# by the front end.
-		PERSISTENCE_HASH_UPDATED => {},
-
 		inputs_ref => $options->{inputs_ref},
 
 		(map { $_ => $ansEvalDefaults->{$_} } keys %$ansEvalDefaults),

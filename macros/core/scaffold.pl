@@ -184,6 +184,16 @@ the first section, you might want the first section to be closed, and
 have the student open it by hand before anwering the questions.  In
 this case, set this value to 0 (it is 1 by default).
 
+=item C<S<< preview_can_change_state => 0 or 1 >>
+
+This determines if scaffold state can be changed when a preview occurs
+(i.e., when the "Preview My Answers" button is used).  If this is 0,
+then when a preview occurs any scaffold sections that were open before
+the preview will remain open, and any scaffold sections that were closed
+before the preview will remain closed. If this is 1, then the rules
+described above will be applied using the scores of the answers in the
+parts.  This is 1 by default.
+
 =item C<S<< numbered => 0 or 1 >>>
 
 This determines whether each section is automatically numbered before
@@ -353,6 +363,7 @@ sub new {
 		hardcopy_is_open          => "always",                  # open all possible sections in hardcopy
 		open_first_section        => 1,                         # 0 means don't open any sections initially
 		numbered                  => 0,                         # 1 means sections will be printed with their number
+		preview_can_change_state  => 1,
 		%options,
 		number     => ++$scaffold_no,                           # the number for this scaffold
 		depth      => $scaffold_depth,                          # the nesting depth for this scaffold
@@ -536,15 +547,23 @@ sub add_container {
 		# Nothing needs to be done for the PTX display mode.
 		return if $Scaffold::isPTX;
 
+		my $scaffoldScores = main::persistent_data('_scaffold_scores') // {};
+
 		# Provide a "scaffold_force" option in the AnswerHash that can be used to force
 		# Scaffold to consider the score to be 1. This is used by PGessaymacros.pl.
+		# Also, if answers are being previewed and the preview_can_change_state option is 0, then use the scores saved
+		# in the persistent data hash form the last answer submission (if there is no data for an answer, then the
+		# anwser is considered blank).
 		for (@{ $self->{ans_names} }) {
 			next unless defined $PG_ANSWERS_HASH->{$_};
-			$scaffold->{scores}{$_} =
-				$PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{scaffold_force}
-				? 1
+			$scaffold->{scores}{$_} = $scaffoldScores->{$_} =
+				$PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{scaffold_force} ? 1
+				: !$scaffold->{preview_can_change_state} && $PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{isPreview}
+				? $scaffoldScores->{$_}
 				: $PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{score};
 		}
+
+		main::persistent_data(_scaffold_scores => $scaffoldScores);
 
 		# Set the active scaffold to the scaffold for this section so that is_correct, can_open,
 		# and is_open methods use the correct one.
