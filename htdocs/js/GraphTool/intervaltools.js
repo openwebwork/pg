@@ -366,14 +366,20 @@
 						...gt.graphObjectTypes.interval.maybeBracketAttributes()
 					});
 					point.setAttribute({ snapToGrid: true });
-					point.on('down', () => gt.graphObjectTypes.interval.pointDown(point));
-					point.on('up', () => gt.graphObjectTypes.interval.pointUp(point));
-					if (typeof paired_point !== 'undefined') {
-						point.paired_point = paired_point;
-						paired_point.paired_point = point;
-						paired_point.on('drag', (e) => gt.graphObjectTypes.interval.pairedPointDrag(e, paired_point));
-						point.on('drag', (e) => gt.graphObjectTypes.interval.pairedPointDrag(e, point));
+
+					if (!gt.isStatic) {
+						point.on('down', () => gt.graphObjectTypes.interval.pointDown(point));
+						point.on('up', () => gt.graphObjectTypes.interval.pointUp(point));
+						if (typeof paired_point !== 'undefined') {
+							point.paired_point = paired_point;
+							paired_point.paired_point = point;
+							paired_point.on('drag', (e) =>
+								gt.graphObjectTypes.interval.pairedPointDrag(e, paired_point)
+							);
+							point.on('drag', (e) => gt.graphObjectTypes.interval.pairedPointDrag(e, point));
+						}
 					}
+
 					if (!gt.options.useBracketEnds) return point;
 
 					point.rendNode.classList.add('hidden-end-point');
@@ -553,12 +559,12 @@
 				};
 
 				this.phase2 = (coords) => {
-					// Don't allow the second point to be created on the first point or off the board.
-					if (
-						this.point1.X() === gt.snapRound(coords[1], gt.snapSizeX) ||
-						!gt.boardHasPoint(coords[1], coords[2])
-					)
-						return;
+					if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+					// If the current coordinates are the same as those of the first point,
+					// then use the highlight point coordinates instead.
+					if (Math.abs(this.point1.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps)
+						coords = this.hlObjs.hl_point.coords.usrCoords;
 
 					gt.board.off('up');
 

@@ -97,7 +97,11 @@ window.graphTool = (containerId, options) => {
 		defaultAxes: {},
 		axis: {
 			ticks: {
-				label: { highlight: false },
+				label: {
+					highlight: false,
+					display: 'html',
+					useMathJax: true
+				},
 				insertTicks: false,
 				ticksDistance: 2,
 				minorTicks: 1,
@@ -124,6 +128,11 @@ window.graphTool = (containerId, options) => {
 	// Merge options that are set by the problem.
 	if (typeof options.JSXGraphOptions === 'object') JXG.merge(cfgOptions, options.JSXGraphOptions);
 
+	cfgOptions.boundingBox[0] = cfgOptions.boundingBox[0] - JXG.Math.eps;
+	cfgOptions.boundingBox[1] = cfgOptions.boundingBox[1] + JXG.Math.eps;
+	cfgOptions.boundingBox[2] = cfgOptions.boundingBox[2] + JXG.Math.eps;
+	cfgOptions.boundingBox[3] = cfgOptions.boundingBox[3] - JXG.Math.eps;
+
 	const setupBoard = () => {
 		gt.board = JXG.JSXGraph.initBoard(`${containerId}_graph`, cfgOptions);
 		gt.board.suspendUpdate();
@@ -140,6 +149,81 @@ window.graphTool = (containerId, options) => {
 			gt.board.defaultAxes.y.point1.setPosition(JXG.COORDS_BY_USER, [0, bbox[3]]);
 			gt.board.defaultAxes.y.point2.setPosition(JXG.COORDS_BY_USER, [0, bbox[1]]);
 		}
+
+		// Override the generateLabelText method for the axes ticks so
+		// that 0 is formatted the same as the other tick labels.
+		const generateLabelText = function (tick, zero, value) {
+			if (!JXG.exists(value)) {
+				const distance = this.getDistanceFromZero(zero, tick);
+				if (Math.abs(distance) < JXG.Math.eps) return this.formatLabelText(0);
+				value = distance / this.visProp.scale;
+			}
+			return this.formatLabelText(value);
+		};
+
+		// Override the formatLabelText method for the axes ticks so that fractions can be either mixed numbers or
+		// improper fractions depending on our coorinateHintsType settings instead of using the JXG toFraction setting
+		// that only allows mixed numbers.  This also honors the useMathJax setting even if the fraction setting is not
+		// used, and furthermore includes the scale symbol in the MathJax portion of the text. This looks better and
+		// allows the usage of '\\pi' instead of the unicode symbol for pi. Another change is that numbers with
+		// magnitude greater than 10^-5 are not displayed in scientific notation.
+		const formatLabelText = function (value, addTeXDelims) {
+			let labelText;
+
+			if (JXG.isNumber(value)) {
+				const showFraction =
+					this === gt.board.defaultAxes.x.defaultTicks
+						? options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction'
+						: options.coordinateHintsTypeY === 'mixed' || options.coordinateHintsTypeY === 'fraction';
+				if (showFraction) {
+					labelText = gt.toFraction(
+						value,
+						this.visProp.label.usemathjax,
+						this === gt.board.defaultAxes.x.defaultTicks
+							? options.coordinateHintsTypeX === 'mixed'
+							: options.coordinateHintsTypeY === 'mixed'
+					);
+				} else {
+					if (this.useLocale()) {
+						labelText = this.formatNumberLocale(value, this.visProp.digits);
+					} else {
+						if (Math.abs(value) > 1e-5) labelText = (Math.round(value * 1e5) / 1e5).toString();
+						else {
+							labelText = (Math.round(value * 1e11) / 1e11).toString();
+
+							if (labelText.length > this.visProp.maxlabellength || labelText.indexOf('e') !== -1)
+								labelText = value.toExponential(this.visProp.digits).toString();
+						}
+					}
+				}
+
+				if (this.visProp.beautifulscientificticklabels)
+					labelText = this.beautifyScientificNotationLabel(labelText);
+
+				if (labelText.indexOf('.') > -1 && labelText.indexOf('e') === -1) {
+					// Trim trailing zeros.
+					labelText = labelText.replace(/0+$/, '');
+					// Remove the decimal if it is now at the end.
+					labelText = labelText.replace(/\.$/, '');
+				}
+			} else {
+				labelText = value.toString();
+			}
+
+			if (this.visProp.scalesymbol.length > 0) {
+				if (labelText === '1') labelText = this.visProp.scalesymbol;
+				else if (labelText === '-1') labelText = `-${this.visProp.scalesymbol}`;
+				else if (labelText !== '0') labelText = labelText + this.visProp.scalesymbol;
+			}
+
+			if (this.visProp.useunicodeminus) labelText = labelText.replace(/-/g, '\u2212');
+			return addTeXDelims ?? this.visProp.label.usemathjax ? `\\(${labelText}\\)` : labelText;
+		};
+
+		gt.board.defaultAxes.x.defaultTicks.generateLabelText = generateLabelText;
+		gt.board.defaultAxes.x.defaultTicks.formatLabelText = formatLabelText;
+		gt.board.defaultAxes.y.defaultTicks.generateLabelText = generateLabelText;
+		gt.board.defaultAxes.y.defaultTicks.formatLabelText = formatLabelText;
 
 		// Add labels to the x and y axes.
 		if (options.xAxisLabel) {
@@ -345,7 +429,7 @@ window.graphTool = (containerId, options) => {
 				}
 
 				// Check to see if the pointer is on an object, in which case focus that.  This focuses the first object
-				// found searching in the order that the objecs were graphed.
+				// found searching in the order that the objects were graphed.
 				for (const obj of gt.graphedObjs) {
 					if (obj.baseObj.hasPoint(...coords)) {
 						for (const point of obj.definingPts) {
@@ -398,7 +482,7 @@ window.graphTool = (containerId, options) => {
 			});
 		}
 
-		const resize = () => {
+		const resize = (gt.resize = () => {
 			// If the container does not have width or height (for example if the graph is inside a closed scaffold when
 			// the window is resized), then delay resizing the graph until the container does have width and height.
 			if (!gt.board.containerObj.offsetWidth || !gt.board.containerObj.offsetHeight) {
@@ -417,7 +501,7 @@ window.graphTool = (containerId, options) => {
 				gt.graphedObjs.forEach((object) => object.onResize());
 				gt.staticObjs.forEach((object) => object.onResize());
 			}
-		};
+		});
 
 		window.addEventListener('resize', resize);
 
@@ -429,30 +513,36 @@ window.graphTool = (containerId, options) => {
 	};
 
 	// Some utility functions.
-	gt.snapRound = (x, snap, precision = 10 ** 5) => Math.round(Math.round(x / snap) * snap * precision) / precision;
+	gt.snapRound = (x, snap, precision = 1 / JXG.Math.eps) =>
+		Math.round(Math.round(x / snap) * snap * precision) / precision;
 
-	// Convert a decimal number into a fraction or mixed number with denominator at most 10 ** 8.
-	gt.toLatexFrac = (x, mixed = false, _snapSize = gt.snapSizeX) => {
-		const sign = x ? Math.abs(x) / x : 1,
-			int = mixed ? Math.trunc(sign * x) : 0;
-		let a = 0,
-			step = sign * x - int,
-			h0 = 1,
-			h1 = a,
-			k0 = 0,
-			k1 = 1;
+	// Convert a decimal number into a fraction or mixed number.  This is basically the JXG.toFraction method except
+	// that the "mixed" parameter is added, and it returns an improper fraction if mixed is false.
+	gt.toFraction = (x, useTeX, mixed, order) => {
+		const arr = JXG.Math.decToFraction(x, order);
 
-		while (Math.abs(step - a) >= JXG.Math.eps) {
-			step = 1 / (step - a);
-			a = Math.trunc(step);
-			const [newh, newk] = [a * h1 + h0, a * k1 + k0];
-			if (newk > 10 ** 8) break;
-			[h0, h1, k0, k1] = [h1, newh, k1, newk];
+		if (arr[1] === 0 && arr[2] === 0) {
+			return '0';
+		} else {
+			let str = '';
+			// Sign
+			if (arr[0] < 0) str += '-';
+			if (arr[2] === 0) {
+				// Integer
+				str += arr[1];
+			} else if (!(arr[2] === 1 && arr[3] === 1)) {
+				// Proper fraction
+				if (mixed) {
+					if (arr[1] !== 0) str += arr[1] + ' ';
+					if (useTeX === true) str += `\\frac{${arr[2]}}{${arr[3]}}`;
+					else str += `${arr[2]}/${arr[3]}`;
+				} else {
+					if (useTeX === true) str += `\\frac{${arr[3] * arr[1] + arr[2]}}{${arr[3]}}`;
+					else str += `${arr[3] * arr[1] + arr[2]}/${arr[3]}`;
+				}
+			}
+			return str;
 		}
-
-		if (k1 === 1) return mixed ? `${sign * int}` : `${sign * h1}`;
-		else if (int === 0) return `${sign === -1 ? '-' : ''}\\frac{${h1}}{${k1}}`;
-		else return `${sign * int}\\frac{${h1}}{${k1}}`;
 	};
 
 	gt.setTextCoords = options.showCoordinateHints
@@ -463,32 +553,30 @@ window.graphTool = (containerId, options) => {
 					if (xSnap <= bbox[0]) gt.current_pos_text.setText(() => '\\(-\\infty\\)');
 					else if (xSnap >= bbox[2]) gt.current_pos_text.setText(() => '\\(\\infty\\)');
 					else {
-						if (options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction') {
-							const text = gt.toLatexFrac(
-								gt.snapRound(x, gt.snapSizeX, 10 ** 13),
-								options.coordinateHintsTypeX === 'mixed'
-							);
-							gt.current_pos_text.setText(() => `\\(${text}\\)`);
-						} else gt.current_pos_text.setText(() => `\\(${xSnap}\\)`);
+						const scaleX = cfgOptions.defaultAxes.x.ticks.scale || 1;
+						gt.current_pos_text.setText(
+							() =>
+								`\\(${gt.board.defaultAxes.x.defaultTicks.formatLabelText(
+									gt.snapRound(x / scaleX, gt.snapSizeX / scaleX),
+									false
+								)}\\)`
+						);
 					}
 				}
 			: (x, y) => {
-					const xText =
-						options.coordinateHintsTypeX === 'mixed' || options.coordinateHintsTypeX === 'fraction'
-							? gt.toLatexFrac(
-									gt.snapRound(x, gt.snapSizeX, 10 ** 13),
-									options.coordinateHintsTypeX === 'mixed'
-								)
-							: gt.snapRound(x, gt.snapSizeX);
-					const yText =
-						options.coordinateHintsTypeY === 'mixed' || options.coordinateHintsTypeY === 'fraction'
-							? gt.toLatexFrac(
-									gt.snapRound(y, gt.snapSizeY, 10 ** 13),
-									options.coordinateHintsTypeY === 'mixed',
-									gt.snapSizeY
-								)
-							: gt.snapRound(y, gt.snapSizeY);
-					gt.current_pos_text.setText(() => `\\(\\left(${xText}, ${yText}\\right)\\)`);
+					const scaleX = cfgOptions.defaultAxes.x.ticks.scale || 1;
+					const scaleY = cfgOptions.defaultAxes.y.ticks.scale || 1;
+
+					gt.current_pos_text.setText(
+						() =>
+							`\\(\\left(${gt.board.defaultAxes.x.defaultTicks.formatLabelText(
+								gt.snapRound(x / scaleX, gt.snapSizeX / scaleX),
+								false
+							)}, ${gt.board.defaultAxes.y.defaultTicks.formatLabelText(
+								gt.snapRound(y / scaleY, gt.snapSizeY / scaleY),
+								false
+							)}\\right)\\)`
+					);
 				}
 		: () => {};
 
@@ -546,6 +634,7 @@ window.graphTool = (containerId, options) => {
 		gt.setMessageText(
 			gt.tools
 				.map((tool) => (typeof tool.helpText === 'function' ? tool.helpText() : tool.helpText || ''))
+				.concat([gt.selectedObj?.helpText()])
 				.filter((helpText) => !!helpText)
 		);
 	};
@@ -597,7 +686,8 @@ window.graphTool = (containerId, options) => {
 	// degenerate.
 	gt.adjustDragPosition = (e, point, pairedPoint) => {
 		if (
-			(point.X() == pairedPoint?.X() && point.Y() == pairedPoint?.Y()) ||
+			(Math.abs(point.X() - pairedPoint?.X()) < JXG.Math.eps &&
+				Math.abs(point.Y() - pairedPoint?.Y()) < JXG.Math.eps) ||
 			!gt.boardHasPoint(point.X(), point.Y())
 		) {
 			const bbox = gt.board.getBoundingBox();
@@ -607,7 +697,11 @@ window.graphTool = (containerId, options) => {
 			let y = point.Y() < bbox[3] ? bbox[3] : point.Y() > bbox[1] ? bbox[1] : point.Y();
 
 			// Adjust position of the point if it has the same coordinates as its paired point.
-			if (pairedPoint && x === pairedPoint.X() && y === pairedPoint.Y()) {
+			if (
+				pairedPoint &&
+				Math.abs(x - pairedPoint.X()) < JXG.Math.eps &&
+				Math.abs(y - pairedPoint.Y()) < JXG.Math.eps
+			) {
 				let xDir, yDir;
 
 				if (e.type === 'pointermove') {
@@ -646,7 +740,11 @@ window.graphTool = (containerId, options) => {
 	// horizontal or vertical line as its paired point by a drag. Note that when this method is called, the point has
 	// already been moved by JSXGraph.  This prevents parabolas from being made degenerate.
 	gt.adjustDragPositionRestricted = (e, point, pairedPoint) => {
-		if (point.X() == pairedPoint?.X() || point.Y() == pairedPoint?.Y() || !gt.boardHasPoint(point.X(), point.Y())) {
+		if (
+			Math.abs(point.X() - pairedPoint?.X()) < JXG.Math.eps ||
+			Math.abs(point.Y() - pairedPoint?.Y()) < JXG.Math.eps ||
+			!gt.boardHasPoint(point.X(), point.Y())
+		) {
 			const bbox = gt.board.getBoundingBox();
 
 			// Clamp the coordinates to the board.
@@ -667,8 +765,8 @@ window.graphTool = (containerId, options) => {
 					yDir = e.key === 'ArrowUp' ? 1 : e.key === 'ArrowDown' ? -1 : 0;
 				}
 
-				if (x == pairedPoint.X()) x += xDir * gt.snapSizeX;
-				if (y == pairedPoint.Y()) y += yDir * gt.snapSizeY;
+				if (Math.abs(x - pairedPoint.X()) < JXG.Math.eps) x += xDir * gt.snapSizeX;
+				if (Math.abs(y - pairedPoint.Y()) < JXG.Math.eps) y += yDir * gt.snapSizeY;
 
 				// If the computed new coordinates are off the board,
 				// then move the coordinates the other direction instead.
@@ -695,21 +793,23 @@ window.graphTool = (containerId, options) => {
 			...gt.definingPointAttributes
 		});
 		point.setAttribute({ snapToGrid: true });
-		point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-		point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
-		if (typeof paired_point !== 'undefined') {
-			point.paired_point = paired_point;
-			paired_point.paired_point = point;
-			paired_point.on(
-				'drag',
-				restrict
-					? (e) => gt.pairedPointDragRestricted(e, paired_point)
-					: (e) => gt.pairedPointDrag(e, paired_point)
-			);
-			point.on(
-				'drag',
-				restrict ? (e) => gt.pairedPointDragRestricted(e, point) : (e) => gt.pairedPointDrag(e, point)
-			);
+		if (!gt.isStatic) {
+			point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
+			point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+			if (typeof paired_point !== 'undefined') {
+				point.paired_point = paired_point;
+				paired_point.paired_point = point;
+				paired_point.on(
+					'drag',
+					restrict
+						? (e) => gt.pairedPointDragRestricted(e, paired_point)
+						: (e) => gt.pairedPointDrag(e, paired_point)
+				);
+				point.on(
+					'drag',
+					restrict ? (e) => gt.pairedPointDragRestricted(e, point) : (e) => gt.pairedPointDrag(e, point)
+				);
+			}
 		}
 		return point;
 	};
@@ -760,6 +860,8 @@ window.graphTool = (containerId, options) => {
 			if (this.baseObj.rendNode === e.target) return true;
 			return this.definingPts.some((point) => point.rendNode === e.target);
 		}
+
+		helpText() {}
 
 		update() {}
 
@@ -1220,6 +1322,11 @@ window.graphTool = (containerId, options) => {
 					return false;
 				}
 
+				helpText() {
+					if ('helpText' in graphObject) return graphObject.helpText.call(this, gt);
+					else if (parentObject) return super.helpText();
+				}
+
 				update() {
 					if ('update' in graphObject) graphObject.update.call(this, gt);
 					else if (parentObject) super.update();
@@ -1426,14 +1533,16 @@ window.graphTool = (containerId, options) => {
 							// object's defining points.
 							for (const point of gt.selectedObj.definingPts) {
 								if (
-									point.X() == gt.snapRound(coords.usrCoords[1], gt.snapSizeX) &&
-									point.Y() == gt.snapRound(coords.usrCoords[2], gt.snapSizeY)
+									Math.abs(point.X() - gt.snapRound(coords.usrCoords[1], gt.snapSizeX)) <
+										JXG.Math.eps &&
+									Math.abs(point.Y() - gt.snapRound(coords.usrCoords[2], gt.snapSizeY)) < JXG.Math.eps
 								)
 									return;
 							}
 							lastSelected = gt.selectedObj;
 						} else {
 							focusPoint?.rendNode.focus();
+							gt.updateHelp();
 							return;
 						}
 					}
@@ -1481,7 +1590,10 @@ window.graphTool = (containerId, options) => {
 					}
 
 					// Attach a focusin handler to all points to update the coordinates display.
-					point.focusInHandler = () => gt.setTextCoords(point.X(), point.Y());
+					point.focusInHandler = () => {
+						gt.setTextCoords(point.X(), point.Y());
+						setTimeout(() => gt.updateHelp());
+					};
 					point.rendNode.addEventListener('focusin', point.focusInHandler);
 				});
 			}
@@ -1633,16 +1745,17 @@ window.graphTool = (containerId, options) => {
 			gt.board.update();
 		}
 
-		// In phase2 the user has selected a second point.  If that point is on the board
-		// and is not the same as the first point, then finalize the line.
+		// In phase2 the user has selected a second point.  If that point is on the board , then finalize the line.
 		phase2(coords) {
-			// Don't allow the second point to be created on top of the first or off the board
+			if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+			// If the current coordinates are the same those of the first point,
+			// then use the highlight point coordinates instead.
 			if (
-				(this.point1.X() == gt.snapRound(coords[1], gt.snapSizeX) &&
-					this.point1.Y() == gt.snapRound(coords[2], gt.snapSizeY)) ||
-				!gt.boardHasPoint(coords[1], coords[2])
+				Math.abs(this.point1.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps &&
+				Math.abs(this.point1.Y() - gt.snapRound(coords[2], gt.snapSizeY)) < JXG.Math.eps
 			)
-				return;
+				coords = this.hlObjs.hl_point.coords.usrCoords;
 
 			gt.board.off('up');
 
@@ -1746,11 +1859,11 @@ window.graphTool = (containerId, options) => {
 			gt.board.on('up', (e) => this.phase1(gt.getMouseCoords(e).usrCoords));
 		}
 
-		// In phase1 the user has selected a point.  If that point is on the board, then make
-		// that the center of the circle, and set up phase2.
+		// In phase1 the user has selected a point. If the point is on the board, then create the center of the circle,
+		// and set up phase2.
 		phase1(coords) {
-			// Don't allow the point to be created off the board.
 			if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
 			gt.board.off('up');
 
 			this.center = gt.board.create('point', [coords[1], coords[2]], {
@@ -1778,16 +1891,17 @@ window.graphTool = (containerId, options) => {
 			gt.board.update();
 		}
 
-		// In phase2 the user has selected a second point.  If that point is on the board
-		// and is not the same as the center, then finalize the circle.
+		// In phase2 the user has selected a second point. If that point is on the board, then finalize the circle.
 		phase2(coords) {
-			// Don't allow the second point to be created on top of the center or off the board
+			if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+			// If the current coordinates are the same those of the first point,
+			// then use the highlight point coordinates instead.
 			if (
-				(this.center.X() == gt.snapRound(coords[1], gt.snapSizeX) &&
-					this.center.Y() == gt.snapRound(coords[2], gt.snapSizeY)) ||
-				!gt.boardHasPoint(coords[1], coords[2])
+				Math.abs(this.center.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps &&
+				Math.abs(this.center.Y() - gt.snapRound(coords[2], gt.snapSizeY)) < JXG.Math.eps
 			)
-				return;
+				coords = this.hlObjs.hl_point.coords.usrCoords;
 
 			gt.board.off('up');
 
@@ -1939,14 +2053,15 @@ window.graphTool = (containerId, options) => {
 		}
 
 		phase2(coords) {
-			// Don't allow the second point to be created on the same
-			// horizontal or vertical line as the vertex or off the board.
+			if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
+			// If the current coordinates are on the same horizontal or vertical line as the vertex,
+			// then use the highlight point coordinates instead.
 			if (
-				this.vertex.X() == gt.snapRound(coords[1], gt.snapSizeX) ||
-				this.vertex.Y() == gt.snapRound(coords[2], gt.snapSizeY) ||
-				!gt.boardHasPoint(coords[1], coords[2])
+				Math.abs(this.vertex.X() - gt.snapRound(coords[1], gt.snapSizeX)) < JXG.Math.eps ||
+				Math.abs(this.vertex.Y() - gt.snapRound(coords[2], gt.snapSizeY)) < JXG.Math.eps
 			)
-				return;
+				coords = this.hlObjs.hl_point.coords.usrCoords;
 
 			gt.board.off('up');
 
@@ -2073,6 +2188,7 @@ window.graphTool = (containerId, options) => {
 		phase1(coords) {
 			// Don't allow the fill to be created off the board
 			if (!gt.boardHasPoint(coords[1], coords[2])) return;
+
 			gt.board.off('up');
 
 			gt.selectedObj = new gt.graphObjectTypes.fill(gt.createPoint(coords[1], coords[2]));
@@ -2580,4 +2696,8 @@ window.graphTool = (containerId, options) => {
 		gt.updateText();
 		gt.updateUI();
 	}
+
+	// When MathJax accessibility is enabled the tick label positions are off.
+	// Updating the board after the labels are typeset fixes this.
+	if (window.MathJax) MathJax.startup.promise = MathJax.startup.promise.then(() => gt.board.update());
 };
