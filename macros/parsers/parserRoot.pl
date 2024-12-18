@@ -82,6 +82,7 @@ sub Enable {
 	$context = main::Context() unless Value::isContext($context);
 	$context->functions->add(root => { class => 'parser::Root::Function::numeric2' },);
 	$context->functions->set(root => { negativeIsComplex => 1 }) if $complex;
+	$context->flag('mathQuillOpts')->{rootsAreExponents} = 0;
 }
 
 sub EnableComplex {

@@ -979,9 +979,11 @@ sub ENDDOCUMENT {
 				my $mq_part_opts = $ansHash->{mathQuillOpts} // $mq_opts;
 				next if $mq_part_opts =~ /^\s*disabled\s*$/i;
 
-				my $context = $ansHash->{correct_value}->context if $ansHash->{correct_value};
-				$mq_part_opts->{rootsAreExponents} = 0
-					if $context && $context->functions->get('root') && !defined $mq_part_opts->{rootsAreExponents};
+				if ($ansHash->{correct_value}) {
+					for (keys %{ $ansHash->{correct_value}->context->flag('mathQuillOpts') }) {
+						$mq_part_opts->{$_} = 0 unless defined $mq_part_opts->{$_};
+					}
+				}
 
 				my $name = "MaThQuIlL_$response";
 				RECORD_EXTRA_ANSWERS($name);
