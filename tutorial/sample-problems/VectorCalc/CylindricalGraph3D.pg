@@ -18,54 +18,74 @@
 #:% categories = [graph]
 
 #:% section = preamble
-#: The dynamic graph is generated with `plotly3D.pl`,
-#: so this is needed.
+#: The dynamic graph is generated with PODLINK('plotly3D.pl').
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
 
-#:% section=setup
-#: We generate the plot parametrically for the radial functions `z=cos(r^2/4)`
-#: and `z=r*sin^2(t)`.
+#:% section = setup
+#: To add a plotly graph to a problem, first create a `Graph3D` object by
+#: calling the `Graph3D` method. Note that there are several options that can be
+#: passed to the `Graph3D` method that affect the display of the graph. This
+#: example uses the defaults for all of the options. Then add objects to the
+#: graph by calling the `Graph3D` object methods. This example demonstrates the
+#: usage of the `addSurface` method. Its syntax is
 #:
-#: This occurs with `x=u*cos(v)` and `y=u*sin(v)`, where `u` and `v` are
-#: used as the radial and angular variables respectively.  These are the
-#: default variables used.
+#: ```{#addsurface-usage .perl}
+#: $graph->addSurface(
+#:     [xFunction, yFunction, zFunction],
+#:     [uMin, uMax, uCount],
+#:     [vMin, vMax, vCount],
+#:     options
+#: );
+#: ```
 #:
-#: The second plot changes the variables to `r` and `t` and shows a function
-#: with a non-rotational symmetric plot.
+#: where `xFunction`, `yFunction`, and `zFunction` are the parametric functions
+#: for the `x`, `y`, and `z` coordinates, respectively, `uMin` and `uMax` are
+#: the maximum and minimum values for the parameter `u` and `uCount` is the
+#: number of values in that range to use, `vMin` and `vMax` are the maximum and
+#: minimum values for the parameter `v` and `vCount` is the number of values in
+#: that range to use, and the `options` are additional options that can be set
+#: using the format `option => value`. Note that `uCount` and `vCount` are
+#: optional and both default to 20 if not given.
 #:
-#: The `addSurface` is very flexible, but if you are plotting a function in
-#: cylindrical coordinates, then the first two functions should remain the
-#: same.
+#: First, generate the graph for the function parameterized by `x = u * cos(v)`,
+#: `y = u * sin(v)`, and `z = $a * cos(u^2 / 4)` is generated. This graph uses
+#: the default variables `u` and `v`.
 #:
-#: See PODLINK('plotly3D.pl') for more information on options.
+#: Second, generate the graph for the function parameterized by `x = r * cos(t)`,
+#: `y = r * sin(t)`, and `z = r * sin(t)^2`. Since the variables `r` and `t` are
+#: used and are not the default variables, those must be specified.
+#:
+#: See PODLINK('plotly3D.pl') for more details on the usage of the `Graph3D`
+#: object and its `addSurface` method.
 $a = random(2, 5);
 
-$gr1 = Graph3D();
-$gr1->addSurface(
-    [ 'u*cos(v)', 'u*sin(v)', "$a*cos(u^2/4)" ],
-    [ 0,          6,          30 ],
-    [ 0,          2 * pi,     30 ]
+$graph1 = Graph3D();
+$graph1->addSurface(
+    [ 'u * cos(v)', 'u * sin(v)', "$a * cos(u^2 / 4)" ],
+    [ 0,            6,            30 ],
+    [ 0,            2 * pi,       30 ]
 );
 
-$gr2 = Graph3D();
-$gr2->addSurface(
-    [ 'r*cos(t)', 'r*sin(t)', 'r*sin(t)^2' ],
-    [ 0,          6,          30 ],
-    [ 0,          2 * pi,     30 ],
+$graph2 = Graph3D();
+$graph2->addSurface(
+    [ 'r * cos(t)', 'r * sin(t)', 'r * sin(t)^2' ],
+    [ 0,            6,            30 ],
+    [ 0,            2 * pi,       30 ],
     variables => [ 'r', 't' ]
 );
 
-#:% section=statement
-#: This shows how to add a plot to the problem.
+#:% section = statement
+#: If `$graph` is a `Graph3D` object, then insert its graph into the problem
+#: with `[@ $graph->Print @]*`.
 BEGIN_PGML
-This just shows the two plots side by side.
+[@ $graph1->Print @]*
 
-[@ $gr1->Print @]* [@ $gr2->Print @]*
+[@ $graph2->Print @]*
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION

@@ -18,7 +18,7 @@
 #:% categories = [difference quotient]
 
 #:% section = preamble
-#: We need to include the macros file `parserDifferenceQuotient.pl`.
+#: Include the macro file PODLINK('parserDifferenceQuotient.pl').
 DOCUMENT();
 
 loadMacros(
@@ -27,8 +27,9 @@ loadMacros(
 );
 
 #:% section = setup
-#: The routine DifferenceQuotient('function', 'variable') takes the simplified function
-#: and a variable name. If the variable is omitted, dx is used by default.
+#: The `DifferenceQuotient` method takes a simplified function for its first
+#: parameter, and a variable name for its second optional parameter. If the
+#: variable name is omitted, then `x` is used by default.
 $limit = DifferenceQuotient('2 * x + h', 'h');
 
 $fp = Compute('2 x');

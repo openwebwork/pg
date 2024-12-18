@@ -15,10 +15,11 @@
 #:% name = Factored Polynomial
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories = [polynomial]
+#:% categories = [polynomials]
 
 #:% section = preamble
-#: We require additional contexts provided by `contextPolynomialFactors.pl` and `contextLimitedPowers.pl`
+#: Additional contexts provided by the PODLINK('contextPolynomialFactors.pl')
+#: and PODLINK('contextLimitedPowers.pl') macros are needed.
 DOCUMENT();
 
 loadMacros(
@@ -28,16 +29,19 @@ loadMacros(
 );
 
 #:% section = setup
-#: For the factored form we need to change to the `PolynomialFactors-Strict` context
-#: and restrict the allowed powers to either 0 or 1 using the `LimitedPowers::OnlyIntegers`
-#: block of code. Note: restricting all exponents to 0 or 1 means that repeated factors
-#: will have to be entered in the form `k(ax+b)(ax+b)` instead of `k(ax+b)^2`. Also,
-#: restricting all exponents to 0 or 1 means that the polynomial must factor as a
-#: product of linear factors (no irreducible quadratic factors can appear). Of course,
-#: we could allow exponents to be 0, 1, or 2, but then students would be allowed to
-#: enter reducible quadratic factors. There are no restrictions on the coefficients, i.e.,
-#: the quadratic could have any nonzero leading coefficient. We set `singleFactors => 0`
-#: so that repeated, non-simplified factors do not generate errors.
+#: Before computing the answer which will be the factored form of the
+#: polynomial, change to the `PolynomialFactors-Strict` context, and restrict
+#: the allowed powers to only 0 and 1 using the `LimitedPowers::OnlyIntegers`
+#: method. Note that restricting all powers to 0 or 1 means that repeated
+#: factors will have to be entered in the form `k(ax+b)(ax+b)` instead of
+#: `k(ax+b)^2`. Also, restricting all exponents to 0 or 1 means that the
+#: polynomial must factor as a product of linear factors (no irreducible
+#: quadratic factors can appear). If the exponents of 0, 1, or 2 were allowed,
+#: then students would be allowed to enter reducible quadratic factors. There
+#: are no restrictions on the coefficients, so the quadratic could have any
+#: nonzero leading coefficient. Also set `singleFactors => 0` so that repeated,
+#: non-simplified factors do not generate errors.
+
 # Expanded form
 Context('Numeric');
 $poly = Compute('8x^2 + 28x + 12');
@@ -53,7 +57,7 @@ LimitedPowers::OnlyIntegers(
 $factored = Compute('4(2x+1)(x+3)');
 
 #:% section = statement
-#: We should explicitly tell students to enter answers in the form `k(ax+b)(cx+d)`.
+#: Explicitly inform students to enter answers in the form `k(ax+b)(cx+d)`.
 BEGIN_PGML
 Write the quadratic expression [`[$poly]`] in factored form [`k(ax+b)(cx+d)`].
 

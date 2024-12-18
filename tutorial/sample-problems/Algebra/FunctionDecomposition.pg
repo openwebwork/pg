@@ -17,19 +17,19 @@
 #:% categories = [composition]
 
 #:% section = preamble
-#: We need to include the macro file `answerComposition.pl`, which provides an answer
-#: checker that determines if two functions compose to form a given function. This
-#: can be used in problems where you ask a student to break a given function into a
-#: composition of two simpler functions, neither of which is allowed to be the
-#: identity function.
+#: Include the macro file PODLINK('answerComposition.pl') which provides an
+#: answer checker that determines if two functions compose to form a given
+#: function. This can be used in problems where a student is asked to break a
+#: given function into a composition of two simpler functions, neither of which
+#: is allowed to be the identity function.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'answerComposition.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We will ask the students for a function `f(u)` and and function `g(x)` such
-#: that `f(g(x))` is a given function.  Therefore, we need to make `u` a
-#: variable and define `$f` and `$g`.
+#: This problem asks the students for functions `y = f(u)` and `u = g(x)` such
+#: that `f(g(x))` is a given function. Therefore, the variable `u` needs to be
+#: added to the context, and the functions `$f` and `$g` defined.
 Context()->variables->add(u => 'Real');
 
 $a = random(2, 9);
@@ -44,12 +44,12 @@ of two simpler functions [`y = f(u)`] and [`u = g(x)`].
 
 * [`f(u) =`] [_]{ width => 15 }
 
-* [`g(x) =`]  [_]{ width => 15 }
+* [`g(x) =`] [_]{ width => 15 }
 END_PGML
 
 #:% section = answer
-#: We use the `COMPOSITION_ANS()` routine to evaluate both answer blanks. It is
-#: possible to use the same variable for both answer blanks. See
+#: Use the `COMPOSITION_ANS` routine to evaluate the answers. It is possible to
+#: use the same variable for both answer rules. See
 #: PODLINK('answerComposition.pl') for more options and details.
 COMPOSITION_ANS($f, $g, vars => [ 'u', 'x' ], showVariableHints => 1);
 

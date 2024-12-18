@@ -1,0 +1,131 @@
+## DESCRIPTION
+## This shows how to use LayoutTable for layout.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('tutorial', 'table')
+
+#:% name = Layout Table
+#:% type = [technique]
+#:% categories = table
+#:% see_also = [DataTables.pg]
+
+#:% section = preamble
+#: This shows how to use the `LayoutTable` function in PODLINK('niceTables.pl').
+#: Note that the PODLINK('niceTables.pl') macro is automatically loaded by
+#: `PGML.pl`, so it is not necessary to load it explicitly.
+#:
+#: The PODLINK('PGtikz.pl') macro is also used in this example to demonstrate
+#: inserting a dynamically generated image into a table.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: A `LayoutTable` is meant to be used for layout, i.e., to organize various
+#: HTML elements nicely for display. It is not meant to be used to display
+#: organized data. If a table that displays organized data is needed use
+#: `DataTable` instead. See PROBLINK('DataTables.pg') for an example of the
+#: usage of the `DataTable` method.
+#:
+#: Typically the `PGML` syntax for a `DataTable` should be used as is done in
+#: this example. However, the result of calling `DataTable` could also be used.
+#: It is called as follows.
+#:
+#: ```{#datatable .perl}
+#: $table = LayoutTable(
+#:     [
+#:         [row1],
+#:         [row2],
+#:         ...
+#:         [rowN]
+#:     ],
+#:     options
+#: );
+#: ```
+#:
+#: where the data goes in as an array reference of array references. Some of the
+#: `DataTable` options are demonstrated here, but the full list of options and
+#: explanation of there usage is in
+#: PODLINK('the niceTables.pl documentation','niceTables.pl')
+#:
+#: Then the table would be inserted into the problem text by adding `[$table]*`
+#: in the desired location inside the `BEGIN_PGML/END_PGML` block.
+#:
+#: In this example a table with one row and two columns is created. The primary
+#: text of the problem and answer will be in the left column, and the image
+#: will be displayed in the right column. In the setup the answer and the image
+#: are defined.
+$a   = random(0, 3);
+$ans = Compute("x^2 + $a")->reduce;
+
+$graph = createTikZImage();
+$graph->tikzLibraries('arrows.meta');
+$graph->BEGIN_TIKZ
+\tikzset{>={Stealth[scale = 1.5]}}
+\filldraw[
+    draw = LightBlue,
+    fill = white,
+    rounded corners = 10pt,
+    thick,
+    use as bounding box
+] (-6, 7) rectangle (6, -1);
+\draw[->, thick] (-6, 0) -- (6, 0) node[above left, outer sep = 3pt] {\(x\)};
+\foreach \x in {-5, ..., -1, 1, 2, ..., 5}
+    \draw(\x, 5pt) -- (\x, -5pt) node[below] {\(\x\)};
+\draw[->, thick] (0, -1) -- (0, 7) node[below right, outer sep = 3pt] {\(y\)};
+\foreach \y in {1, ..., 6}
+    \draw (5pt, \y) -- (-5pt, \y) node[left] {\(\y\)};
+\draw[blue, ultra thick] plot[domain = -2.5:2.5, smooth] (\x, {\x * \x + $a});
+END_TIKZ
+
+$altText =
+    "graph of a parabola with vertex at (0, $a) and "
+    . 'passing through the point (1, '
+    . ($a + 1) . ')';
+
+#:% section = statement
+#: The `PGML` syntax for inserting a `LayoutTable` is `[# ... #]*{ options }`.
+#: Note that it is the `*` after `*]` that makes this a `LayoutTable` as opposed
+#: to a `DataTable`. In between `[#` and `#]*` any number of cells can be added
+#: with `[. ... .]`. The end of a row is marked by adding a `*` to the end of
+#: the last cell in the row (the `*` can be omitted on the last row and since
+#: this example only has one row, none of these are needed). Inside of a cell
+#: started with `[.` and ended with `.]` all of the usual `PGML` syntax can be
+#: used.
+#:
+#: Options can also be passed to a cell with `[. ... .]{ options }`. This
+#: example does not use any cell options.
+BEGIN_PGML
+[#
+    [.
+        A common situation is that there is a problem with a graph and
+        the problem is in the left column and the graph is in the right
+        column.
+
+        This even works with an equation like [`e^{i\pi} + 1 = 0`].
+
+        Answer rules can also be added.
+
+        A formula for the function graphed on the right is
+        [`f(x) =`] [_]{$ans}{10}.
+    .]
+    [.[![$altText]!]{$graph}{400}{ image_options => { tex_size => 600 } }.]
+#]*{ align => 'lc' }
+END_PGML
+
+#:% section = answer
+#: Since `ans_rule` is used to produce answer blanks, this in needed.
+ANS($ans->cmp);
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -17,18 +17,19 @@
 #:% categories = [point, answers]
 
 #:% section = preamble
-#: We only need to load `contextLimitedPoint.pl` if we want to prevent operations between points.
+#: Load PODLINK('contextLimitedPoint.pl') to prevent operations between points.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedPoint.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We could have used `Context("Point");` instead, which would allow mathematical
-#: operations between points (such as adding points as if they were vectors). The
-#: x-intercepts are clearly a list of points. We used a list with only one element
-#: for the y-intercepts so that a student who mistakenly enters two points will be
-#: told their second point is incorrect. If we did not use a list for the y-intercepts,
-#: a student who enters two points would be given an error message instead.
+#: `Context('Point')` could be used instead, which would allow mathematical
+#: operations between points (such as adding points as if they were vectors).
+#: The `x`-intercepts are clearly a list of points. A list with only one
+#: element is used for the `y`-intercepts so that a student who mistakenly
+#: enters two points will be told their second point is incorrect. If a list
+#: is not used for the `y`-intercepts, a student who enters two points would be
+#: given an error message instead.
 Context('LimitedPoint');
 
 $f = Compute("x^2 - 1");
@@ -52,7 +53,5 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-COMMENT('MathObject version. Uses PGML.');
 
 ENDDOCUMENT();

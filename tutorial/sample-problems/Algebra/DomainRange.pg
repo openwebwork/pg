@@ -17,42 +17,42 @@
 #:% categories = [domain]
 
 #:% section = preamble
-#: The `contextInequalities.pl` macro is used for inequality answers.
+#: The PODLINK('contextInequalities.pl') macro is used for inequality answers.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: Different contexts can be used for different answers in a problem.
-#: Calling Context('Inequalities-Only') creates a new instance of the context.
-#: The two contexts in this problem have different variables defined.  The
-#: first only has the variable "x", and the second only has the variable "y".
-#: Note that calling `->variables->are(x => 'Real')` for the first instance is
-#: actually unnecessary since "x" is the only variable in the context by
-#: default.  It is only shown here for emphasis.
-
-#: For the first part, the "Inequalities-Only" context is used.  That context
-#: requires students to enter their answer using inequalities.  If the
-#: "Inequalities" context had been used instead, then students would also be
-#: able to enter answers using interval notation. For more details, please see
-#: `contextInequalities.pl`.
+#: In addition to showing how to use the PODLINK('contextInequalities.pl')
+#: macro, this example problem demonstrates how different contexts can be used
+#: for different answers in a problem.
 #:
-#: Calling Context('Inequalities-Only') creates a new instance of the context.
-#: The first two contexts in this problem have different variables defined.  The
-#: first only has the variable "x", and the second only has the variable "y".
-#: Note that calling `->variables->are(x => 'Real')` for the first instance is
-#: actually unnecessary since "x" is the only variable in the context by
-#: default.  It is only shown here for emphasis.
+#: First, `Context('Inequalities-Only')->variables->are(x => 'Real')` is called,
+#: and this creates a new context instance. This instance only has the variable
+#: `x`. Note that calling `->variables->are(x => 'Real')` for this instance is
+#: actually unnecessary since `x` is the only variable in the context by
+#: default. It is only shown here for emphasis. The `$domain` is computed in
+#: this context.
+#:
+#: Next, `Context('Inequalities-Only')->variables->are(y => 'Real')` is called,
+#: and this creates another context instance.  This instance only has the
+#: variable `y`. The `$range` is computed in this context.
+#:
+#: Note that the "Inequalities-Only" requires students to enter their answer
+#: using inequalities. The more general "Inequalities" context provided in the
+#: PODLINK('contextInequalities.pl') macro, also allows answers to be entered
+#: using interval notation. For more details, please see
+#: PODLINK('contextInequalities.pl').
 #:
 #: Setting the context flag `formatStudentAnswer => 'parsed'` insists that the
 #: `parsed` student answers be displayed and no further reduction or evaluation
-#: is done.  Generally this means the student answer is displayed much as it is
-#: entered.  In particular in this instance it prevents the student's answer
+#: be done. Generally this means the student answer is displayed much as it is
+#: entered. In particular in this instance it prevents the student's answer
 #: from being reduced to a decimal.
 #:
-#: For the second part, the "Interval" context is used instead.  Change to this
-#; context by calling `Context('Interval')`. Note that `inf` is built-in for
-#: infinte intervals.
+#: For the last part, the "Interval" context is used instead. This context is
+#: changed to by calling `Context('Interval')`. Note that `inf` is built-in for
+#: infinite intervals.
 $a = random(1, 6);
 
 Context('Inequalities-Only')->variables->are(x => 'Real');
@@ -72,7 +72,7 @@ $range_interval  = Compute('[0, inf)');
 
 #:% section = statement
 BEGIN_PGML
-Suppose [`f(x) = \sqrt(x - [$a])`].
+Suppose [`f(x) = \sqrt{x - [$a]}`].
 
 Enter inequalities for the domain and range of [`f`].
 
@@ -82,9 +82,9 @@ Range: [_]{$range}{15}
 
 Use interval notation to give the domain and range of [`f`].
 
-Domain: [____]{$domain_interval}
+Domain: [_]{$domain_interval}{15}
 
-Range: [____]{$range_interval}
+Range: [_]{$range_interval}{15}
 END_PGML
 
 #:% section = solution

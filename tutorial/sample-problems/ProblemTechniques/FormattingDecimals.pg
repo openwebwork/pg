@@ -1,0 +1,93 @@
+## DESCRIPTION
+## Formatting decimals and using logarithmic functions.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('formatting decimals', 'logarithm')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Formatting Decimals
+#:% type = technique
+#:% categories = [formatting decimals, logarithm]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Since the domain of a logarithmic function is all positive real numbers, the
+#: domain for function evaluation with the variable `x` is set to `[0.1, 4]`.
+#:
+#: This example used to use Perl's `sprintf(format, number)` command to format
+#: the decimal. The format `'%0.3f'` rounds to 3 decimal places and ensures
+#: precisely 3 decimal places with 0 padding. However, Perl rounding via
+#: `sprintf` is not entirely reliable due to finite precision representation of
+#: floating point numbers. For example, `sprintf('%0.2f', 100.255)` gives
+#: `100.25` (this is because the binary representation of `100.255` actually
+#: rounds to `100.254999999999995` accurate to 15 decimal places). So this
+#: example now uses `Round` from PODLINK('PGauxiliaryFunctions.pl') (which is
+#: loaded by PODLINK('PGstandard.pl')) for more reliable rounding. The format
+#: for calling `Round` is `Round(number, number of decimal places)`. Be aware
+#: that if further calculations are performed with a number that has been
+#: rounded, numerical error may still be an issue.
+#:
+#: So in short, do not use `sprintf` for rounding in problems as was previously
+#: done in this example.
+#:
+#: The logarithmic change of base formula
+#: `log10(a) = log(a) / log(10) = ln(a) / ln(10)` can be used to compute a
+#: logarithm with base 10. The functions `log10` and `logten` are also defined
+#: which can be used for this.
+#:
+#: Note that if `Context()->flags->set(useBaseTenLog => 1)` is called, then the
+#: `log` function will be the logarithm with base 10. By default the
+#: `useBaseTenLog` flag is 0, and the `log` function is the natural logarithm.
+#:
+#: If a function for log base 2 (or another base) is needed see
+#: PROBLINK('AddingFunctions.pg') for how to define and add a new function
+#: to the context so that students can enter it in their answers.
+Context()->variables->set(x => { limits => [ 0.1, 4 ] });
+
+$a = random(3, 7);
+
+$ans1 = Real(Round(ln($a), 3));
+
+$ans2 = Formula('ln(x)')->eval(x => $a);
+
+$ans3 = Real(Round(ln($a) / ln(10), 3));
+
+$ans4 = Formula('ln(x) / ln(10)')->eval(x => $a);
+
+#:% section = statement
+#: Notice the difference in decimal formatting when "Show Correct Answers"
+#: is clicked versus when "Submit Answers" is clicked.
+BEGIN_PGML
+Notice the formatting and rounding differences between [`[$ans1]`] and
+[`[$ans2]`].
+
+Try entering [`\ln([$a])`], [`\log([$a])`], [`\ln([$a]) / \ln(10)`],
+[`\log([$a]) / \log(10)`], [`\mathrm{logten}([$a])`], or
+[`\mathrm{log10}([$a]) `].
+
+1. [`\ln([$a]) =`] [_]{$ans1}{10}
+
+2. [`\ln([$a]) =`] [_]{$ans2}{10}
+
+3. [`\log_{10}([$a]) =`] [_]{$ans3}{10}
+
+4. [`\log_{10}([$a]) =`] [_]{$ans4}{10}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

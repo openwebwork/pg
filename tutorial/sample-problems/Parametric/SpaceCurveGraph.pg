@@ -16,28 +16,34 @@
 #:% subject = [parametric, graph]
 
 #:% section = preamble
-#: The macro `plotly3D.pl` is used to produce the graph.
+#: The macro PODLINK('plotly3D.pl') is used to produce the graph.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: A `plotly3D` graph is created with the `Graph3D` function. There are many options as
-#: decribed in PODLINK('the POD','plotly3D.pl'), but to get started include the `height` and `width`.
+#: A `plotly3D` graph is created with the `Graph3D` function. There are many
+#: options as decribed in PODLINK('plotly3D macro documentation','plotly3D.pl').
+#: In this example, only the `height`, `width`, and `title` are provided.
 #:
-#: A parametric curve (space curve) is added to the graph with the `addCurve` method,
-#: which takes an array ref of length 3.  These are strings as javascript function in the
-#: variable `t`.  The second array ref is `[tmin, tmax, samples]`.
+#: A parametric curve is added to the graph with the `addCurve` method, which
+#: takes takes 2 array references with each array of length 3. The entries of
+#: the first array will be used as the body of JavaScript functions with
+#: parameter `t` whose values are the `x`, `y`, and `z` coordinates,
+#: respectively, of a point on the curve. For example, `t * cos(t)` would be
+#: converted into the JavaScript function `(t) => t * cos(t)` for the
+#: `x`-coordinate. The entries of the second array are the minimum and maximum
+#: values for the parameter `t`, and the number of samples to use for `t`.
 $graph = Graph3D(
     height => 300,
     width  => 300,
     title  => 'Spiral in 3D',
 );
 
-$graph->addCurve([ 't*cos(t)', 't*sin(t)', 't' ], [ 0, 6 * pi, 150 ]);
+$graph->addCurve([ 't * cos(t)', 't * sin(t)', 't' ], [ 0, 6 * pi, 150 ]);
 
 #:% section = statement
-#: This just prints the graph.  No question is asked.
+#: Insert the graph into the problem.
 BEGIN_PGML
 [@ $graph->Print @]*
 END_PGML

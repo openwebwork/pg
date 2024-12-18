@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Graphing a polar curve given by r=f(theta)
+## Graphing a polar curve given by r = f(theta)
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -16,45 +16,49 @@
 #:% subject = parametric
 
 #:% section = preamble
-#: We use `PGtikz.pl` to generate the graph.
+#: The PODLINK('PGtikz.pl') macro is used to generate the graph.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: The package `PGtikz.pl` is used to produce the curve.  The plotting routine used in
-#: this way plots parametrically and we plot the polar curve parametrically.
+#: The polar curve is plotted parametrically.
 Context()->variables->are(t => 'Real');
 
 $graph = createTikZImage();
 $graph->tikzLibraries('arrows.meta');
 $graph->BEGIN_TIKZ
-\tikzset{>={Stealth[scale=1.5]}}
+\tikzset{>={Stealth[scale = 1.5]}}
 \filldraw[
-    draw=LightBlue,
-    fill=white,
-    rounded corners=10pt,
-    thick,use as bounding box
-] (-3.5,-3.5) rectangle (3.5,3.5);
-\draw[->] (-3.5,0) -- (3.5,0) node[above left,outer sep=3pt] {\(x\)};
-\draw[->] (0,-3.5) -- (0,3.5) node[below right,outer sep=3pt] {\(y\)};
-\draw[DarkGreen,very thick]
-    plot [samples=250,domain=0:{2*pi},variable=\t]
-    ({3*cos(5*\t r)*cos(\t r)},{3*cos(5*\t r)*sin(\t r)});
-\fill[opacity=0.5,fill=DarkGreen]
-    (0,0) -- plot[samples=250,domain={-pi/10}:{pi/10},variable=\t]
-    ({3*cos(5*\t r)*cos(\t r)},{3*cos(5*\t r)*sin(\t r)}) -- cycle;
+    draw = LightBlue,
+    fill = white,
+    rounded corners = 10pt,
+    thick,
+    use as bounding box
+] (-3.5, -3.5) rectangle (3.5, 3.5);
+\draw[->] (-3.5, 0) -- (3.5, 0) node[above left, outer sep = 3pt] {\(x\)};
+\draw[->] (0, -3.5) -- (0, 3.5) node[below right,outer sep = 3pt] {\(y\)};
+\draw[DarkGreen, very thick]
+    plot [samples = 200, domain = 0:{2 * pi}, variable = \t]
+    ({3 * cos(5 * \t r) * cos(\t r)}, {3 * cos(5 * \t r) * sin(\t r)});
+\fill[opacity = 0.5, fill = DarkGreen]
+    (0, 0) -- plot[samples = 100, domain = {-pi / 10}:{pi / 10}, variable = \t]
+    ({3 * cos(5 * \t r) * cos(\t r)}, {3 * cos(5 * \t r) * sin(\t r)}) -- cycle;
 END_TIKZ
 
+#:% section = statement
+#: The alternate text provided in this example is not sufficient. I don't know
+#: how one would describe a rose curve to someone who can not see it. Perhaps
+#: seek assistance from an expert in assistive technologies to find a better
+#: description.
 BEGIN_PGML
 Find the area enclosed by one petal of the rose curve
 [`r = f(\theta) = \cos(5\theta)`].
 
->>[@ image($graph, width => 300) @]*<<
-
+>>[!a rose curve!]{$graph}{300}<<  
 >>Graph of [`r = \cos(5\theta)`]<<
 
-Area = [_____]{'pi/20'}
+Area = [_____]{'pi / 20'}
 END_PGML
 
 #:% section = solution

@@ -16,9 +16,10 @@
 #:% subject = parametric
 
 #:% section = preamble
-#: We load `parserVectorUtils.pl` which provides the `Line()` subroutine for a particular
-#: parametrization of a line, as well as `parserParametricLine.pl` which provides a subroutine
-#: `ParametricLine()` that allows students to enter any parametrization.
+#: The PODLINK('parserVectorUtils.pl') macro is used which provides the
+#: `non_zero_point3D`, `non_zero_vector3D`, and `Line` methods. The
+#: PODLINK('parserParametricLine.pl') macro is also used which provides the
+#: `ParametricLine` method that gives a MathObject form of a parametric line.
 DOCUMENT();
 
 loadMacros(
@@ -28,31 +29,35 @@ loadMacros(
 );
 
 #:% section = setup
-#: For the answer which is a particular parametrization through two points at times `t=0` and `t=1`,
-#: we use `Line()`. To allow students to enter any equation for a parametric line through two points,
-#: we use `ParametricLine()` The syntax is fairly self-explanatory.
+#: The `non_zero_point3D` method returns a nonzero `Point` in the third
+#: dimension with random coordinates that are the requested range. The accepted
+#: arguments (all of which are optional) are the minimum coordinate value
+#: (default -5), maximum coordinate value (default 5), and step size (default 1)
+#: respectively. The `non_zero_vector3D` method is the same but returns a
+#: `Vector`.
+#:
+#: The `ParametricLine` method is used for a general parameterization of the
+#: line.
+#:
+#: The `Line` method is used for a particular parametrization through the two
+#: points at `t = 0` and `t = 1`.
 Context('Vector')->variables->are(t => 'Real');
 
-$P = non_zero_point3D(-9, 9, 1);
-$V = non_zero_vector3D(-9, 9, 1);
-
-$Q1 = Point($P + $V);
-$Q2 = Point($P + 2 * $V);
+$P = non_zero_point3D(-9, 9);
+$V = non_zero_vector3D(-9, 9);
 
 $general    = ParametricLine($P, $V);
-$particular = Line($P, $V, '2t');
+$particular = Line($P, 2 * $V);
 
 #:% section = statement
 BEGIN_PGML
-a. Find any vector parametric equation for the
-line that goes through the points [`[$P]`] and
-[`[$Q1]`].
+a. Find any vector parametric equation for the line that goes through the points
+[`[$P]`] and [`[@ Point($P + $V) @]`].
 
     [`\vec{L}(t) =`] [_]{$general}{20}
 
-b. Find a vector parametric equation for the
-line that goes through the point [`[$P]`]
-when [`t = 0`] and the point [`[$Q2]`] when
+b. Find a vector parametric equation for the line that goes through the point
+[`[$P]`] when [`t = 0`] and the point [`[@ Point($P + 2 * $V) @]`] when
 [`t = 1`].
 
     [`\vec{L}(t) =`] [_]{$particular}{20}

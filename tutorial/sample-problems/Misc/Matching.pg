@@ -16,9 +16,9 @@
 #:% categories = [multiple choice, misc]
 
 #:% section = preamble
-#: The `PGchoicemacros.pl` macro is used to construct the list of multiple
-#: choice items, and the custom problem grader fluid from `PGgraders.pl` is
-#: used for incremental grading.
+#: The PODLINK('PGchoicemacros.pl') macro is used to construct the list of
+#: multiple choice items, and the custom problem grader fluid from
+#: PODLINK('PGgraders.pl') is used for incremental grading.
 DOCUMENT();
 
 loadMacros(
@@ -31,14 +31,14 @@ loadMacros(
 #: Withhold feedback when answers are submitted by setting
 #: `$showPartialCorrectAnswers = 0;`.
 #:
-#: This problem uses an incremental grader called the `custom_problem_grader_fluid`.
-#: With this problem grader, the number of correct answers `[2, 4, 6]`
-#: and their corresponding scores `[0.3, 0.6, 1]` must be specified.  The last
-#: entry in the `grader_numright` array must be the total number of questions
-#: asked, and the last entry in the `grader_scores` array must be 1
-#: (otherwise nobody can earn full credit!).  The grader message can also
-#: be customized by setting the value of `grader_message` to the desired custom
-#: message.
+#: This problem uses an incremental grader called the
+#: `custom_problem_grader_fluid`. With this problem grader, the number of
+#: correct answers `[2, 4, 6]` and their corresponding scores `[0.3, 0.6, 1]`
+#: must be specified.  The last entry in the `grader_numright` array must be the
+#: total number of questions asked, and the last entry in the `grader_scores`
+#: array must be 1 (otherwise nobody can earn full credit!).  The grader message
+#: can also be customized by setting the value of `grader_message` to the
+#: desired custom message.
 #:
 #: If a grader is desired that awards full credit when all questions are correct
 #: and no credit otherwise, use the commented out standard problem grader code
@@ -46,7 +46,7 @@ loadMacros(
 #:
 #: Create a list of 6 questions and answers, 2 extra answers, and a
 #: 'None of the above' answer that will be made last with `makeLast`.
-#: So the popup list must have 9 entries A through I.
+#: So the pop up list must have 9 entries A through I.
 #:
 #: As an alternative, see PROBLINK('MatchingAlt.pg') for another way to write
 #: a matching problem.
@@ -64,7 +64,7 @@ $ENV{grader_message} =
 # All or nothing grader
 # install_problem_grader(~~&std_problem_grader);
 
-# Create a matching list and use popups
+# Create a matching list and use pop ups
 $ml = new_match_list();
 $ml->rf_print_q(~~&pop_up_list_print_q);
 $ml->ra_pop_up_list([
@@ -104,7 +104,8 @@ $ml->choose_extra(2);
 $ml->makeLast('None of the above');
 
 #:% section = statement
-#:The `ColumnMatchTable()` method is provided by the macro file `unionTables.pl`.
+#: The `ColumnMatchTable` method is provided by the macro file
+#: PODLINK('unionTables.pl').
 BEGIN_PGML
 Match each question with its answer.
 
@@ -115,12 +116,9 @@ END_PGML
 ANS(str_cmp($ml->ra_correct_ans));
 
 #:% section = solution
-#: Extract the correct answers from the MatchList object and reformat.
-@correct      = @{ $ml->ra_correct_ans() };
-$answerstring = join(', ', @correct);
-
+#: Extract the correct answers from the `MatchList` object and reformat.
 BEGIN_PGML_SOLUTION
-The correct answers are [$answerstring].
+The correct answers are [@ join(', ', @{ $ml->ra_correct_ans() }) @].
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

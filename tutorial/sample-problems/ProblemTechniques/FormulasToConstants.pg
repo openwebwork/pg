@@ -1,0 +1,60 @@
+## DESCRIPTION
+## Formulas up to additive constants.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Date(05/28/2023)
+## Institution(Missouri Western State University)
+## Author(Glenn Rice)
+## KEYWORDS('formulas', 'constants')
+
+#:% name = Formulas up to additive constants
+#:% type = technique
+#:% categories = [constant]
+
+#:% section = preamble
+#: There are two types of answers demonstrated here. One is "a particular
+#: antiderivative of f(x)", and the other is "all antiderivatives of f(x)". The
+#: former requires that a student enter an answer like `F(x)`, `F(x) + 1`, or
+#: `F(x) - sqrt(8)`, and the latter, that a student enter an answer like
+#: `F(x) + C` or `F(x) + 5 - k`.
+#:
+#: To check the all antiderivatives of a function, that is, a formula up
+#: to an arbitrary additive constant, the `parserFormulaUpToConstant.pl` macro
+#: is used. To check a particular antiderivative of a function, that is, a
+#: formula that is unique up to a specific additive constant, this macro is
+#: not needed.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',                'PGML.pl',
+    'parserFormulaUpToConstant.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
+#: Define a particular antiderivative `$func` and all antiderivatives `$gfunc`.
+#: For the latter it is not required to include `+ C`. It would be equivalent to
+#: specify `$gfunc = FormulaUpToConstant('sin(x)')`.
+$func  = Formula('sin(x)');
+$gfunc = FormulaUpToConstant('sin(x) + C');
+
+#:% section = statement
+#: Call the MathObject `cmp` method and specify the `upToConstant => 1` option.
+#: This allows the student answer to differ from the correct answer by any
+#: constant. Both `sin(x)` and `sin(x) + 5` would be marked correct, but
+#: `sin(x) + C` is not correct since it is a family of answers and not a
+#: specific antiderivative. Note that for the formula up to an arbitrary
+#: constant the comparison will correctly mark student's answers that have
+#: different arbitrary constants. Thus, a student answer to the second question
+#: of `sin(x) + k` will be marked correct as will `sin(x) + c`. Any letter can
+#: be used for the constant that is not a variable or predefined constant (like
+#: `e`) in the context.
+BEGIN_PGML
+An antiderivative of [`\cos(x)`] is [_]{$func->cmp(upToConstant => 1)}
+
+The most general antiderivative is [_]{$gfunc}
+END_PGML
+
+ENDDOCUMENT();

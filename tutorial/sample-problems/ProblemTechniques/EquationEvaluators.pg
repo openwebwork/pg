@@ -1,0 +1,103 @@
+## DESCRIPTION
+## This code shows how to check student answers that are equations.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('answer', 'custom')
+
+# updated to full problem by Peter Staab (06/01/2023)
+
+#:% name = Implicit Equations Evaluators
+#:% type = technique
+#:% categories = [implicit]
+
+#:% section = preamble
+#: Include the macro PODLINK('parserImplicitEquation.pl').
+DOCUMENT();
+loadMacros(
+    'PGstandard.pl',             'PGML.pl',
+    'parserImplicitEquation.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
+#: Select the `ImplicitEquation` context, and define the equation for the
+#: answer. Note that the `ImplicitEquation` context contains the variables `x`
+#: and `y` by default. If other variables are needed, they will need to be
+#: added.
+#:
+#: Its often important to set the limits for variables when working with
+#: equations. In this case the limits for the variable `x` are set to the
+#: interval `[-2, 2]` and the limits for the variable `y` are set to the
+#: interval `[0, 4]`.
+#:
+#: The `ImplicitEquation` checker attempts to locate the solutions for the given
+#: equation using a random search. This search can fail in some cases which will
+#: result in correct answers being marked incorrect, or incorrect answers being
+#: marked correct.  Thus it is generally a good idea to specify some particular
+#: solutions. This can be done in the `ImplicitEquation` call, by passing the
+#: `solutions` option as is done in this example.
+#:
+#: Also, for this type of answer checking it is likely that the student will
+#: represent the function in a form that exceeds the default problem checking
+#: tolerances, and so be marked as incorrect. To correct for this it may be
+#: necessary to specify a tolerance. An absolute tolerance can be set in the
+#: `ImplicitEquation` call, e.g.,
+#:
+#: ```{#set-tolerance .perl}
+#: $eqn = ImplicitEquation("y = (x-1)^2", tolerance => 0.0001);
+#: ```
+#:
+#: It is possible to remove the error message "Can't find any solutions to your
+#: equation" by remapping it to another error message. The message has to be
+#: non-empty, but it can be the string containing one space `" "`, as in
+#:
+#: ```{#error-message .perl}
+#: Context()->{error}{msg}{"Can't find any solutions to your equation"} = " ";
+#: ```
+#:
+#: However, this is not recommended as it can be confusing. Although no error
+#: message will be shown, the answer feedback button will still show a dot
+#: indicating a message is present.
+#:
+#: A better way to remove the error message would be to use a post-filter to
+#: remove the message after the answer has been graded. The
+#: PODLINK('answerHints.pl') file provides one way to do this.
+#: A post-filter can also be added manually for this as in the following
+#: example.
+#:
+#: ```{#post-filter .perl}
+#: $ans = ImplicitEquation('y = (x-1)^2')->cmp->withPostFilter(sub {
+#:    my $ans = shift;
+#:    delete $ans->{ans_message}
+#:        if $ans->{ans_message} eq "Can't find any solutions to your equation";
+#:    return $ans;
+#: });
+#: ```
+Context('ImplicitEquation');
+Context()->variables->set(
+    x => { limits => [ -2, 2 ] },
+    y => { limits => [ 0,  4 ] }
+);
+
+$ans = ImplicitEquation('y = (x-1)^2');
+
+#:% section = statement
+BEGIN_PGML
+Give the equation of a shift of the parabola [`y = x^2`] that opens upward and
+has its vertex at [`(1, 0)`].
+
+Equation: [___]{$ans}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

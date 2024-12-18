@@ -21,40 +21,33 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: The first line sets the limits of evaluation for any problem in the context
-#: to `[-1,1]`.
+#: The first line sets the limits of evaluation for the variable `x` and for any
+#: answer in the context to `[-1, 1]`.
 #:
-#: Alternatively, the limits on the context can be set with
-#:```{.perl}
-#:Context()->flags->set(limits=>[2,5]);
-#:```
+#: Alternatively, the limits for all variables in the context can be set with
+#: `Context()->flags->set(limits => [-1, 1])`.
 #:
-#: For the points for `$g`, note that the domain of `$g` is all values outside
-#: of the interval `(-2,2)`. One way to handle this would be to set the `limits`
-#: for the function to be outside this interval.  Alteratively, as shown,
-#: the points are set with the `test_points` field to be a set of points
-#: that don't include `(-2,2)`.
+#: For another alternative, the limits for the context could be left at their
+#: default values, and instead the limits for a specific formula can be set
+#: with `$f->{limits} = [-1, 1]`.
+#:
+#: For the test points of `$g`, note that the domain of `$g` is
+#: `(-inf, -2] U [2,inf)`. One way to handle this would be to set the `limits`
+#: for the function to be some interval contained in the domain. Alternatively,
+#: as shown, the test points can be set with the `test_points` field to be a
+#: specific set of values in the domain.
 Context()->variables->set(x => { limits => [ -1, 1 ] });
 
-# Alternately
-Context()->flags->set(limits => [ 2, 5 ]);
+$f = Compute('sqrt(x + 1)');
 
-$f = Compute('sqrt(x+1)');
-
-## Or, setting the limits only for the given
-##    formula, we don't need to reset the Context,
-##    and just include
-# $func = Compute('sqrt(x-1)');
-# $func->{limits} = [2,5];
-
-$g = Compute("sqrt(x^2 - 4)");
+$g = Compute('sqrt(x^2 - 4)');
 $g->{test_points} = [ [-3], [-2], [2], [3], [4] ];
 
 #:% section = statement
 BEGIN_PGML
-Enter [`[$f]`] [___]{$f}
+Enter [`[$f]`]: [___]{$f}
 
-Enter [`[$g]`] [___]{$g}
+Enter [`[$g]`]: [___]{$g}
 END_PGML
 
 #:% section = solution

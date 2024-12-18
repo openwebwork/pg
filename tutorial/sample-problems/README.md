@@ -81,7 +81,7 @@ directory of pg. There are the following options (and many are required):
 - `out_dir` or `o`: The directory where the resulting documentation files (HTML)
 will be located.
 - `pod_root` or `p`: The URL where the POD is located.  This is needed to
-correctly link POD documentation from the sample problems.
+correctly link POD from the sample problems.
 - `pg_doc_home` or `h`: The URL of the directory for `out_dir`.  This is needed
 for correct linking.
 - `verbose` or `v`: verbose mode.
