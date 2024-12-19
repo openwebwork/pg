@@ -104,6 +104,7 @@ sub Init {
 			string        => ' <= ',
 			TeX           => '\le ',
 			kind          => "le",
+			alternatives  => ["\x{2264}"],
 			class         => 'LinearInequality::inequality',
 			formulaClass  => "LinearInequality"
 		},
@@ -126,6 +127,7 @@ sub Init {
 			TeX           => '\ge ',
 			kind          => 'ge',
 			reverse       => 'le',
+			alternatives  => ["\x{2265}"],
 			class         => 'LinearInequality::inequality',
 			formulaClass  => "LinearInequality"
 		},
