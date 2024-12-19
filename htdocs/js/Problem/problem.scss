@@ -71,6 +71,7 @@
 	input[type='radio'],
 	input[type='checkbox'],
 	span[id^='mq-answer'],
+	.pg-dropdown .btn.dropdown-toggle,
 	.graphtool-container {
 		&.correct:not(:focus):not(.mq-focused) {
 			border-color: rgba(81, 153, 81, 0.8); /* green */
@@ -118,6 +119,7 @@
 	input[type='radio'],
 	input[type='checkbox'],
 	textarea,
+	.pg-dropdown .btn.dropdown-toggle,
 	select {
 		&:focus {
 			border-color: rgba(112, 154, 192, 0.8);
