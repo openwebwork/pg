@@ -585,7 +585,8 @@ sub _check {
 	#  This is not a mixed number, so convert to original class and do
 	#  its _check
 	#
-	unless ($allowMixedNumbers
+	unless ($self->{bop} eq 'mixedNum'
+		&& $allowMixedNumbers
 		&& $self->extensionClassMatch($self->{lop}, 'INTEGER', 'MINUS')
 		&& !$self->{lop}{hadParens}
 		&& $self->extensionClassMatch($self->{rop}, 'FRACTION')
@@ -594,7 +595,13 @@ sub _check {
 	{
 		$self->{bop} = $self->{def}{string};
 		$self->{def} = $context->{operators}{ $self->{bop} };
-		return $self->mutate->_check;
+		my $class = $self->{def}{class};
+		if ($class eq ref($self) || $class =~ m/^context::Fraction::BOP::[Ss]pace$/) {
+			$self->mutate;
+		} else {
+			bless $self, $class;
+		}
+		return $self->_check;
 	}
 	$self->{type} = $context::Fraction::MIXED;
 	$self->Error("Mixed numbers are not allowed; you must use a pure fraction")
@@ -611,7 +618,7 @@ sub _check {
 }
 
 #
-#  For when the space operator's space property sends to an
+#  For when the space operator's string property sends to an
 #  operator we didn't otherwise subclass.
 #
 package context::Fraction::BOP::Space;
