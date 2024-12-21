@@ -104,8 +104,8 @@ sub create {
 #
 #      would attach the class context::Quaternions::BOP::add to the
 #      plus sign in our Quaternion setting.  If the space operator (' ')
-#      in your list, and if the original context has it point to an
-#      operator that is NOT in your list, then that references operator
+#      is in your list, and if the original context has it point to an
+#      operator that is NOT in your list, then that referenced operator
 #      is redirected automatically to 'BOP::Space' in your base context
 #      package.  In our case, we would want to include a definition for
 #      context::Quaternions::BOP::Space in order to cover that possibility.
