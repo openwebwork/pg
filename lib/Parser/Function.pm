@@ -214,7 +214,7 @@ sub checkComplexOrMatrix {
 	my $self = shift;
 	my $op   = $self->{params}[0];
 	return if ($self->checkArgCount(1));
-	$self->Error("Function '%s' requires a Complex or Matrixinput", $self->{name})
+	$self->Error("Function '%s' requires a Complex or Matrix input", $self->{name})
 		unless $op->isNumber || $op->type eq "Matrix" || $self->context->flag("allowBadFunctionInputs");
 	$self->{type} = $op->typeRef;
 }
