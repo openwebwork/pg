@@ -354,6 +354,7 @@ sub Init {
 		showMixedNumbers  => 1,
 	);
 	$context->{cmpDefaults}{Fraction} = { studentsMustReduceFractions => 1 };
+	$context->parens->redefine('(');
 
 	$context = $main::context{LimitedProperFraction} = $context->copy;
 	$context->flags->set(requireProperFractions => 1);
@@ -565,6 +566,14 @@ sub TeX {
 	return $TeX;
 }
 
+#
+#  Derivative of fraction is 0 since it is constant
+#
+sub D {
+	my $self = shift;
+	return $self->Item('Number')->new($self->{equation}, 0);
+}
+
 #################################################################################################
 #################################################################################################
 
@@ -661,6 +670,14 @@ sub reduce {
 	return $self;
 }
 
+#
+#  Derivative of a mixed number is 0 since it is constant
+#
+sub D {
+	my $self = shift;
+	return $self->Item('Number')->new($self->{equation}, 0);
+}
+
 #################################################################################################
 #################################################################################################
 
@@ -673,8 +690,12 @@ our @ISA = ('context::Fraction::Class', 'Parser::UOP');
 sub _check {
 	my $self = shift;
 	$self->{hadParens} = 1 if $self->{op}{hadParens};
-	&{ $self->super('_check') }($self);
-	$self->setExtensionClass('MINUS') if $self->{op}->class eq 'Number';
+	if ($self->extensionClassMatch($self->{op}, 'FRACTION')) {
+		$self->{type} = $Value::Type{number};
+	} else {
+		&{ $self->super('_check') }($self);
+		$self->setExtensionClass('MINUS') if $self->{op}->class eq 'Number';
+	}
 	$self->mutate;
 }
 
