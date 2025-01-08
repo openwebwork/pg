@@ -170,7 +170,8 @@ sub AnswerHints {
 							$wrong = main::Formula($wrong);
 							$wrong = $wrong->{tree}->Compute if $wrong->{tree}{canCompute};
 						}
-						if (($ans->{ans_message} eq "" || $options{replaceMessage})
+						if (($ans->{score} < 1 || $options{checkCorrect})
+							&& ($ans->{ans_message} eq "" || $options{replaceMessage})
 							&& AnswerHints::Compare($wrong, $student, $ans, @{ $options{cmp_options} }))
 						{
 							$ans->{ans_message} = $ans->{error_message} = $message;
