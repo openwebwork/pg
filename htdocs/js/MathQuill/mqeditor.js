@@ -62,19 +62,11 @@
 		cfgOptions.handlers = {
 			// Disable the toolbar when a text block is entered.
 			textBlockEnter: () => {
-				if (answerQuill.toolbar) {
-					// This is a workaround for a Google Chrome oddity. For some reason, if a button is disabled, then
-					// when it loses focus, the relatedTarget in the focusout event is not set even though the
-					// relatedTarget is not the button at all, but where the focus is going. Firefox and Safari
-					// (apparently) still set the relatedTarget.
-					answerQuill.toolbar.preventRemove = true;
-					answerQuill.toolbar.querySelectorAll('button').forEach((button) => (button.disabled = true));
-				}
+				answerQuill.toolbar?.querySelectorAll('button').forEach((button) => (button.disabled = true));
 			},
 			// Re-enable the toolbar when a text block is exited.
 			textBlockExit: () => {
-				if (answerQuill.toolbar)
-					answerQuill.toolbar.querySelectorAll('button').forEach((button) => (button.disabled = false));
+				answerQuill.toolbar?.querySelectorAll('button').forEach((button) => (button.disabled = false));
 			}
 		};
 
@@ -355,12 +347,9 @@
 						(e.relatedTarget.closest('.quill-toolbar') ||
 							e.relatedTarget.classList.contains('symbol-button') ||
 							e.relatedTarget === answerQuill.textarea)) ||
-					(answerQuill.clearButton && e.relatedTarget === answerQuill.clearButton) ||
-					answerQuill.toolbar?.preventRemove
-				) {
-					if (answerQuill.toolbar) delete answerQuill.toolbar.preventRemove;
+					(answerQuill.clearButton && e.relatedTarget === answerQuill.clearButton)
+				)
 					return;
-				}
 
 				toolbarRemove();
 			});
@@ -400,8 +389,8 @@
 				answerQuill.toolbar.tooltips.push(new bootstrap.Tooltip(button, { placement: 'left' }));
 
 				button.addEventListener('click', () => {
-					answerQuill.mathField.cmd(button.dataset.latex);
 					answerQuill.textarea.focus();
+					answerQuill.mathField.cmd(button.dataset.latex);
 				});
 			}
 
@@ -566,8 +555,6 @@
 		});
 
 		answerQuill.textarea.addEventListener('focusout', (e) => {
-			if (answerQuill.toolbar) delete answerQuill.toolbar.preventRemove;
-
 			if (
 				!document.hasFocus() ||
 				(e.relatedTarget &&
