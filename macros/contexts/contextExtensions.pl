@@ -243,6 +243,17 @@ sub extend {
 		}
 	}
 
+	if ($options{lists}) {
+		my $lists       = $context->lists;
+		my $listClasses = $options{lists};
+		for my $list (keys %{$listClasses}) {
+			my $def = $lists->get($list);
+			Value->Error("Context '%s' does not have a definition for '%s'", $from, $op) unless $list;
+			$data->{$list} = $def->{class};
+			$lists->set($list => { class => "context::$context->{baseName}::$listClasses->{$list}" });
+		}
+	}
+
 	#
 	#  Replace any Parser/Value classes that are needed, saving the
 	#  originals in the class data for the context
