@@ -62,13 +62,11 @@
 		cfgOptions.handlers = {
 			// Disable the toolbar when a text block is entered.
 			textBlockEnter: () => {
-				if (answerQuill.toolbar)
-					answerQuill.toolbar.querySelectorAll('button').forEach((button) => (button.disabled = true));
+				answerQuill.toolbar?.querySelectorAll('button').forEach((button) => (button.disabled = true));
 			},
 			// Re-enable the toolbar when a text block is exited.
 			textBlockExit: () => {
-				if (answerQuill.toolbar)
-					answerQuill.toolbar.querySelectorAll('button').forEach((button) => (button.disabled = false));
+				answerQuill.toolbar?.querySelectorAll('button').forEach((button) => (button.disabled = false));
 			}
 		};
 
@@ -394,8 +392,8 @@
 				answerQuill.toolbar.tooltips.push(new bootstrap.Tooltip(button, { placement: 'left' }));
 
 				button.addEventListener('click', () => {
-					answerQuill.mathField.cmd(button.dataset.latex);
 					answerQuill.textarea.focus();
+					answerQuill.mathField.cmd(button.dataset.latex);
 				});
 			}
 
@@ -423,7 +421,6 @@
 			answerQuill.toolbar.addEventListener('keydown', (e) => {
 				if (e.key === 'Escape') {
 					const nextFocusable = getNextFocusableElement(answerQuill.toolbar.lastElementChild);
-					console.log(nextFocusable);
 					toolbarRemove();
 					nextFocusable?.focus();
 				}
