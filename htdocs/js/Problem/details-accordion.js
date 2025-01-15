@@ -6,9 +6,11 @@
 		if (!collapseEl || !button || !details) return;
 
 		const collapse = new bootstrap.Collapse(collapseEl, { toggle: false });
-		button.addEventListener('click', () => collapse.toggle());
+		button.addEventListener('click', (e) => {
+			collapse.toggle();
+			e.preventDefault();
+		});
 
-		details.addEventListener('click', (e) => e.preventDefault());
 		collapseEl.addEventListener('show.bs.collapse', () => {
 			details.open = true;
 			button.classList.remove('collapsed');
