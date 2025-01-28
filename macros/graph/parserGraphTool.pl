@@ -440,9 +440,12 @@ sub new {
 	my ($self, @options) = @_;
 	my $class   = ref($self) || $self;
 	my $context = Parser::Context->getCopy('Point');
-	$context->parens->set('{' => { close => '}', type => 'List', formList => 1, formMatrix => 0, removable => 0 });
+	$context->parens->set(
+		'{' => { close => '}', type => 'List', formList => 1, formMatrix => 0, removable => 0 },
+		'[' => { type  => 'Interval' }
+	);
 	$context->lists->set(
-		'GraphTool' => {
+		GraphTool => {
 			class       => 'Parser::List::List',
 			open        => '',
 			close       => '',
