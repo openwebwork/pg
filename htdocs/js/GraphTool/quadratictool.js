@@ -8,8 +8,16 @@
 			preInit(gt, point1, point2, point3, solid) {
 				[point1, point2, point3].forEach((point) => {
 					point.setAttribute(gt.definingPointAttributes);
-					point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-					point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+					if (!gt.isStatic) {
+						point.on('down', () => {
+							point.dragging = true;
+							gt.board.containerObj.style.cursor = 'none';
+						});
+						point.on('up', () => {
+							delete point.dragging;
+							gt.board.containerObj.style.cursor = 'auto';
+						});
+					}
 				});
 				return gt.graphObjectTypes.quadratic.createQuadratic(point1, point2, point3, solid, gt.color.curve);
 			},
@@ -123,6 +131,7 @@
 
 				groupedPointDrag(gt, e) {
 					gt.graphObjectTypes.quadratic.adjustDragPosition(e, this, this.grouped_points);
+					gt.setTextCoords(this.X(), this.Y());
 					gt.updateObjects();
 					gt.updateText();
 				},

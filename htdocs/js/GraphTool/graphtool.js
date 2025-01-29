@@ -686,7 +686,8 @@ window.graphTool = (containerId, options) => {
 	// degenerate.
 	gt.adjustDragPosition = (e, point, pairedPoint) => {
 		if (
-			(Math.abs(point.X() - pairedPoint?.X()) < JXG.Math.eps &&
+			(pairedPoint &&
+				Math.abs(point.X() - pairedPoint?.X()) < JXG.Math.eps &&
 				Math.abs(point.Y() - pairedPoint?.Y()) < JXG.Math.eps) ||
 			!gt.boardHasPoint(point.X(), point.Y())
 		) {
@@ -732,6 +733,7 @@ window.graphTool = (containerId, options) => {
 
 	gt.pairedPointDrag = (e, point) => {
 		gt.adjustDragPosition(e, point, point.paired_point);
+		gt.setTextCoords(point.X(), point.Y());
 		gt.updateObjects();
 		gt.updateText();
 	};
@@ -741,8 +743,9 @@ window.graphTool = (containerId, options) => {
 	// already been moved by JSXGraph.  This prevents parabolas from being made degenerate.
 	gt.adjustDragPositionRestricted = (e, point, pairedPoint) => {
 		if (
-			Math.abs(point.X() - pairedPoint?.X()) < JXG.Math.eps ||
-			Math.abs(point.Y() - pairedPoint?.Y()) < JXG.Math.eps ||
+			(pairedPoint &&
+				(Math.abs(point.X() - pairedPoint.X()) < JXG.Math.eps ||
+					Math.abs(point.Y() - pairedPoint.Y()) < JXG.Math.eps)) ||
 			!gt.boardHasPoint(point.X(), point.Y())
 		) {
 			const bbox = gt.board.getBoundingBox();
@@ -782,6 +785,7 @@ window.graphTool = (containerId, options) => {
 
 	gt.pairedPointDragRestricted = (e, point) => {
 		gt.adjustDragPositionRestricted(e, point, point.paired_point);
+		gt.setTextCoords(point.X(), point.Y());
 		gt.updateObjects();
 		gt.updateText();
 	};
@@ -794,8 +798,14 @@ window.graphTool = (containerId, options) => {
 		});
 		point.setAttribute({ snapToGrid: true });
 		if (!gt.isStatic) {
-			point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-			point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+			point.on('down', () => {
+				point.dragging = true;
+				gt.board.containerObj.style.cursor = 'none';
+			});
+			point.on('up', () => {
+				delete point.dragging;
+				gt.board.containerObj.style.cursor = 'auto';
+			});
 			if (typeof paired_point !== 'undefined') {
 				point.paired_point = paired_point;
 				paired_point.paired_point = point;
@@ -893,13 +903,19 @@ window.graphTool = (containerId, options) => {
 		onResize() {}
 
 		updateTextCoords(coords) {
-			return !this.definingPts.every((point) => {
+			for (const point of this.definingPts) {
+				if (point.dragging) {
+					gt.setTextCoords(point.X(), point.Y());
+					return true;
+				}
+			}
+			for (const point of this.definingPts) {
 				if (point.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
 					gt.setTextCoords(point.X(), point.Y());
-					return false;
+					return true;
 				}
-				return true;
-			});
+			}
+			return false;
 		}
 
 		static restore(string) {

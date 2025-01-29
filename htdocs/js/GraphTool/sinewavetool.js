@@ -8,8 +8,16 @@
 			preInit(gt, shiftPoint, periodPoint, amplitudePoint, solid) {
 				[shiftPoint, periodPoint, amplitudePoint].forEach((point) => {
 					point.setAttribute(gt.definingPointAttributes);
-					point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-					point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+					if (!gt.isStatic) {
+						point.on('down', () => {
+							point.dragging = true;
+							gt.board.containerObj.style.cursor = 'none';
+						});
+						point.on('up', () => {
+							delete point.dragging;
+							gt.board.containerObj.style.cursor = 'auto';
+						});
+					}
 				});
 				return gt.graphObjectTypes.sineWave.createSineWave(
 					shiftPoint,
@@ -23,17 +31,6 @@
 			postInit(_gt, shiftPoint, periodPoint, amplitudePoint) {
 				this.definingPts.push(shiftPoint, periodPoint, amplitudePoint);
 				this.focusPoint = shiftPoint;
-			},
-
-			updateTextCoords(gt, coords) {
-				for (const point of this.definingPts) {
-					if (point.dragged || point.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
-						delete point.dragged;
-						gt.setTextCoords(point.X(), point.Y());
-						return true;
-					}
-				}
-				return false;
 			},
 
 			stringify(gt) {
@@ -194,8 +191,7 @@
 
 					if (shiftPoint) periodPoint?.setPosition(JXG.COORDS_BY_USER, [periodPoint.X(), shiftPoint.Y()]);
 
-					if (e.type === 'pointermove') this.dragged = true;
-
+					gt.setTextCoords(this.X(), this.Y());
 					gt.updateObjects();
 					gt.updateText();
 				},

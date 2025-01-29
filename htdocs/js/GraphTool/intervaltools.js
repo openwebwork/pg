@@ -354,6 +354,7 @@
 				pairedPointDrag(gt, e, point) {
 					gt.adjustDragPositionRestricted(e, point, point.paired_point);
 					if (point.Y() !== 0) point.setPosition(JXG.COORDS_BY_USER, [point.X(), 0]);
+					gt.setTextCoords(this.X(), 0);
 					gt.updateObjects();
 					gt.updateText();
 				},
@@ -368,8 +369,14 @@
 					point.setAttribute({ snapToGrid: true });
 
 					if (!gt.isStatic) {
-						point.on('down', () => gt.graphObjectTypes.interval.pointDown(point));
-						point.on('up', () => gt.graphObjectTypes.interval.pointUp(point));
+						point.on('down', () => {
+							point.dragging = true;
+							gt.graphObjectTypes.interval.pointDown(point);
+						});
+						point.on('up', () => {
+							delete point.dragging;
+							gt.graphObjectTypes.interval.pointUp(point);
+						});
 						if (typeof paired_point !== 'undefined') {
 							point.paired_point = paired_point;
 							paired_point.paired_point = point;
