@@ -369,14 +369,8 @@
 					point.setAttribute({ snapToGrid: true });
 
 					if (!gt.isStatic) {
-						point.on('down', () => {
-							point.dragging = true;
-							gt.graphObjectTypes.interval.pointDown(point);
-						});
-						point.on('up', () => {
-							delete point.dragging;
-							gt.graphObjectTypes.interval.pointUp(point);
-						});
+						point.on('down', () => gt.graphObjectTypes.interval.pointDown(point));
+						point.on('up', () => gt.graphObjectTypes.interval.pointUp(point));
 						if (typeof paired_point !== 'undefined') {
 							point.paired_point = paired_point;
 							paired_point.paired_point = point;
@@ -424,6 +418,7 @@
 
 				pointDown(gt, point) {
 					if (gt.activeTool !== gt.selectTool) return;
+					point.dragging = true;
 
 					const thisObj = gt.graphedObjs.filter(
 						(obj) => obj.definingPts.filter((pt) => pt === point).length
@@ -443,7 +438,8 @@
 					gt.board.containerObj.style.cursor = 'none';
 				},
 
-				pointUp(gt) {
+				pointUp(gt, point) {
+					delete point.dragging;
 					gt.board.containerObj.style.cursor = 'auto';
 				},
 

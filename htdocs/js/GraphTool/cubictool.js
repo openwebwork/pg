@@ -9,14 +9,8 @@
 				[point1, point2, point3, point4].forEach((point) => {
 					point.setAttribute(gt.definingPointAttributes);
 					if (!gt.isStatic) {
-						point.on('down', () => {
-							point.dragging = true;
-							gt.board.containerObj.style.cursor = 'none';
-						});
-						point.on('up', () => {
-							delete point.dragging;
-							gt.board.containerObj.style.cursor = 'auto';
-						});
+						point.on('down', () => gt.onPointDown(point));
+						point.on('up', () => gt.onPointUp(point));
 					}
 				});
 				return gt.graphObjectTypes.cubic.createCubic(point1, point2, point3, point4, solid, gt.color.curve);
