@@ -25,6 +25,17 @@
 				this.focusPoint = shiftPoint;
 			},
 
+			updateTextCoords(gt, coords) {
+				for (const point of this.definingPts) {
+					if (point.dragged || point.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
+						delete point.dragged;
+						gt.setTextCoords(point.X(), point.Y());
+						return true;
+					}
+				}
+				return false;
+			},
+
 			stringify(gt) {
 				return [
 					this.baseObj.getAttribute('dash') == 0 ? 'solid' : 'dashed',
@@ -182,6 +193,8 @@
 						]);
 
 					if (shiftPoint) periodPoint?.setPosition(JXG.COORDS_BY_USER, [periodPoint.X(), shiftPoint.Y()]);
+
+					if (e.type === 'pointermove') this.dragged = true;
 
 					gt.updateObjects();
 					gt.updateText();
