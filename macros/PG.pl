@@ -1020,7 +1020,7 @@ sub ENDDOCUMENT {
 
 	if ($main::displayMode =~ /HTML/i && ($rh_envir->{showFeedback} || $rh_envir->{forceShowAttemptResults})) {
 		add_content_post_processor(sub {
-			my $problemContents = shift;
+			my ($problemContents, $pageHeader, $problemResult) = @_;
 
 			my $numCorrect        = 0;
 			my $numBlank          = 0;
@@ -1082,8 +1082,13 @@ sub ENDDOCUMENT {
 					push(@{ $options{feedbackElements} }, @$elements);
 				}
 
-				if (($rh_envir->{showAttemptResults} && $PG->{flags}{showPartialCorrectAnswers})
-					|| $rh_envir->{forceShowAttemptResults})
+				if (
+					(
+						$rh_envir->{showAttemptResults} && ($PG->{flags}{showPartialCorrectAnswers}
+							|| (defined $problemResult->{score} && $problemResult->{score} >= 1))
+					)
+					|| $rh_envir->{forceShowAttemptResults}
+					)
 				{
 					if ($showCorrectOnly) {
 						$options{resultClass} = 'correct-only';
@@ -1322,9 +1327,6 @@ sub ENDDOCUMENT {
 			}
 
 			# Generate the result summary if results are being shown.
-			# FIXME: This is set up to occur when it did previously.  That is it ignores the value of
-			# $PG->{flags}{showPartialCorrectAnswers}. It seems that is incorrect, as it makes that setting rather
-			# pointless.  The summary still reveals if the answer is correct or not.
 			if ($rh_envir->{showAttemptResults} || $rh_envir->{forceShowAttemptResults}) {
 				my @summary;
 
