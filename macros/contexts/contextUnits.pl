@@ -388,7 +388,7 @@ In order to be able to differentiate a formula that returns a number
 with units, the MathObjects library needs to know the units of the
 variable you are differentiating by.  For example, if you have
 
-    $s = Compute("(3t^2 - 2x) m");
+    $s = Compute("(3t^2 - 2t) m");
 
 as a function of time, C<t>, then you would like
 
@@ -397,7 +397,7 @@ as a function of time, C<t>, then you would like
 to be equivalent to C<Compute("(6t - 2) m/s")>.
 
 To enable this, you must tell the C<Units> context that C<t> has units
-of seconds.  That is done using the C<asignUnits()> function of the
+of seconds.  That is done using the C<assignUnits()> function of the
 context:
 
     Context("Units")
@@ -417,6 +417,10 @@ call as you like.  E.g.
 to assign the variable C<t> units of seconds and C<s> units of meters.
 These values are only used in differentiation, so don't affect other
 formulas, and aren't involved in type-checking or other operations.
+
+If you assign units to a variable that hasn't yet been added to the
+context, C<assignUnits> will first add the variable as a real-valued
+one and then assign the units to it.
 
 
 =head2 Answer checking for units and numbers with units
@@ -2112,7 +2116,7 @@ sub _call {
 #
 #  Differentiate a function with a number-with-units as an argument.
 #
-#  Get the argument as a FOrmula.
+#  Get the argument as a Formula.
 #  If the the argument is an angle, get its quantity (which includes
 #    the unit factor) and differentiate that.
 #  Otherwise, remove the unit from the function call and differentiate that.

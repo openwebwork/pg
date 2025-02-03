@@ -14,7 +14,7 @@ sub Parser::D {
 	my $self = shift;
 	my @vars = keys %{ $self->{variables} };
 	my $X    = @vars == 1 ? $vars[0] : undef;
-	push(@_, $X) if @_ == 0 && defined $X;
+	CORE::push(@_, $X) if @_ == 0 && defined $X;
 	$self->Error("You must specify a variable to differentiate by") unless @_;
 
 	my @x;
@@ -29,7 +29,7 @@ sub Parser::D {
 		}
 		my $def = $self->context->variables->get($x);
 		$self->Error([ "Variable of differentiation not defined: %s", $x ]) unless $def;
-		push(@x, ($x) x $d) if $d;
+		CORE::push(@x, ($x) x $d) if $d;
 	}
 
 	my $f = $self->{tree};
