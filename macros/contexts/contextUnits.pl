@@ -168,7 +168,7 @@ to C<context::Units::extending()>, as in
     $context = Context(context::Units::extending("LimitedFraction", limited => 1));
     $context->addUnitsFor("length");
 
-In this case, the C<limited => 1> option indicates that no operations
+In this case, the C<<limited => 1>> option indicates that no operations
 are allowed between numbers with units, and since the
 C<LimitedFraction> context doesn't allow operations otherwise, you
 will only be able to enter fractions or whole numbers, with or without
