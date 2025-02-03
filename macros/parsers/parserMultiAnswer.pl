@@ -62,6 +62,7 @@ sub new {
 		part                => 0,
 		singleResult        => 0,
 		namedRules          => 0,
+		cmpOpts             => undef,
 		checkTypes          => 1,
 		allowBlankAnswers   => 0,
 		tex_separator       => $separator . '\,',
@@ -70,6 +71,7 @@ sub new {
 		format              => undef,
 		context             => $context,
 		single_ans_messages => [],
+		partialCredit       => $main::showPartialCorrectAnswers,
 	}, $class;
 }
 
@@ -89,15 +91,34 @@ sub setCmpFlags {
 #  the individual answer checkers.
 #
 sub cmp {
-	my $self    = shift;
-	my %options = @_;
+	my ($self, %options) = @_;
+
+	%options = (%options, %{ $self->{cmpOpts} }) if ref($self->{cmpOpts}) eq 'HASH';
+
 	foreach my $id ('checker', 'separator') {
 		if (defined($options{$id})) {
 			$self->{$id} = $options{$id};
 			delete $options{$id};
 		}
 	}
-	die "You must supply a checker subroutine" unless ref($self->{checker}) eq 'CODE';
+
+	unless (ref($self->{checker}) eq 'CODE') {
+		die "Your checker must be a subroutine." if defined($self->{checker});
+		$self->{checker} = sub {
+			my ($correct, $student, $self, $ans) = @_;
+			my @scores;
+
+			for (0 .. $self->length - 1) {
+				push(@scores, $correct->[$_] == $student->[$_] ? 1 : 0);
+			}
+			return \@scores if $self->{partialCredit};
+			for (@scores) {
+				return 0 unless $_;
+			}
+			return 1;
+		}
+	}
+
 	if ($self->{allowBlankAnswers}) {
 		foreach my $cmp (@{ $self->{cmp} }) {
 			$cmp->install_pre_filter('erase');
@@ -474,9 +495,9 @@ converted into C<MathObjects>).
 
 C<MultiAnswer> objects have the following attributes:
 
-=head2 checker (required)
+=head2 checker
 
-A coderef to be called to check student answers. This is the only required attribute.
+A coderef to be called to check student answers.
 
 The C<checker> routine receives four parameters: a reference to the array of correct answers,
 a reference to the array of student answers, a reference to the C<MultiAnswer> object itself,
@@ -490,6 +511,16 @@ reference to an array of scores (one for each answer).
 	}
 	$multianswer_obj = $multianswer_obj->with(checker=>~~&always_right);
 
+If a C<checker> is not provided, a default checker is used. The default checker checks if each
+answer is equal to its correct answer (using the overloaded C<==> operator). If C<< partialCredit => 1 >>,
+the checker returns an array of 0s and 1s listing which answers are correct giving partial credit.
+If C<< partialCredit => 0 >>, the checker only returns 1 if all answers are correct, otherwise returns 0.
+
+=head2 partialCredit
+
+This is used with the default checker to determine if the default checker should reward partial
+credit, based on the number of correct answers, or not. Default: C<$showPartialCorrectAnswers>.
+
 =head2 singleResult
 
 Indicates whether to show only one entry in the results table (C<< singleResult => 1 >>)
@@ -500,6 +531,12 @@ or one for each answer rule (C<< singleResult => 0 >>). Default: 0.
 Indicates whether to use named rules or default rule names. Use named rules (C<< namedRules => 1 >>)
 if you need to intersperse other rules with the ones for the C<MultiAnswer>. In this case, you must
 use C<NAMED_ANS> instead of C<ANS>. Default: 0.
+
+=head2 cmpOpts
+
+This is a hash of options that will be passed to the cmp method. For example,
+C<< cmpOpts => { weight => 0.5 } >>. This option is provided to make it more convenient to pass
+options to cmp when utilizing PGML. Default: undef (no options are sent).
 
 =head2 checkTypes
 
