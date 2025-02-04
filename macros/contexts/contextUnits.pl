@@ -14,8 +14,8 @@ To load, use
 
     loadMacros('contextUnits.pl');
 
-and then select the Units or LimitedUnits context and enable the units
-that you want to use.  E.g.,
+and then select the C<Units> or C<LimitedUnits> context and enable the
+units that you want to use.  E.g.,
 
     Context("Units")->withUnitsFor("length");
 
@@ -65,13 +65,34 @@ context, as in
 or
 
     $context = Context("Units");
-    $context->addCategories("volume");
+    $context->withUnitsFor("volume");
     $context->addUnits("m", "cm");
 
 to get a units context with units for volume as well as C<m> and C<cm>
 and any aliases for these units (e.g., C<meter>, C<meters>, etc.).
 Use C<addUnitsNotAliases()> in place of C<addUnits()> to add just the
 named units without adding any aliases for them.
+
+You can remove individual units from the context using the
+C<removeUnits()> method of the context.  For example
+
+    Context("Units")->withUnitsFor("length")->removeUnits("ft", "inch", "mile", "furlong");
+
+removes the English units and their aliases, leaving only the metric
+units.  To remove a unit without removing its aliases, use C<removeUnitsNotAliases()>
+instead.
+
+Note that the units are stored in the context as constants, so to list
+all the units, together with other constants, use
+
+    Context()->constants->names;
+
+The constants that are units have the C<isUnit> property set.  So
+
+    grep {Context()->constants->get($_)->{isUnit}} (Context()->constants->names);
+
+will get the list of units.
+
 
 =head2 Custom units
 
@@ -120,30 +141,13 @@ Finally,
       oranges => { fruit => 1, aliases => ["orange"], factor => 2 }
     );
 
-    Compute("1 apple") == Compute("2 oranges"); # returns 1
+    Compute("2 apples") == Compute("1 orange"); # returns 1
 
-will make an apple equivalent to two oranges by making both C<apples>
-and C<oranges> be examples of the fundamental unit C<fruit>.
-
-You can remove individual units from the context using the
-C<removeUnits()> method of the context.  For example
-
-    Context("Units")->withUnitsFor("length")->removeUnits("ft", "inch", "mile", "furlong");
-
-removes the English units and their aliases, leaving only the metric
-units.  To remove a unit without removing its aliases, use C<removeUnitsNotAliases()>
-instead.
-
-Note that the units are stored in the context as constants, so to list
-all the units, together with other constants, use
-
-    Context()->constants->names;
-
-The constants that are units have the C<isUnit> property set.  So
-
-    grep {Context()->constants->get($_)->{isUnit}} (Context()->constants->names);
-
-will get the list of units.
+will make an orange equivalent to two apples by making both C<apples>
+and C<oranges> be examples of the fundamental unit C<fruit>, but with
+C<oranges> having a factor of 2 times the fundamental unit, so an
+C<orange> is considered to be 2 C<fruit>, while an C<apple> is one
+C<fruit>.
 
 
 =head2 Adding units to other contexts
@@ -164,7 +168,7 @@ to C<context::Units::extending()>, as in
     $context = Context(context::Units::extending("LimitedFraction", limited => 1));
     $context->addUnitsFor("length");
 
-In this case, the C<limited => 1> option indicates that no operations
+In this case, the C<<limited => 1>> option indicates that no operations
 are allowed between numbers with units, and since the
 C<LimitedFraction> context doesn't allow operations otherwise, you
 will only be able to enter fractions or whole numbers, with or without
@@ -257,7 +261,8 @@ Units can be preceded by formulas as well as numbers.  For example
 makes C<$f> be a Formula returning a Number-with-Unit.  Note, however,
 that since the space before the unit has the same precedence as
 multiplication (just as it does within a formula), if the expression
-before the unit includes addition, you need to enclose it in parentheses:
+before the unit includes addition or subtraction, you need to enclose
+it in parentheses:
 
     $n = Compute("(1+4) meters");
     $f = Compute("(1+2x) meters");
@@ -348,7 +353,7 @@ object relative to the base units using the C<quantity> method:
 Using C<< $m->quantity >> is equivalent to calling C<< $m->toBaseUnits->number >>.
 
 Finally, you can get the factor by which the given units must be
-multiplied to obtain the quantity in the fundamental base uses using
+multiplied to obtain the quantity in the fundamental base units using
 the C<factor> method:
 
     $f = Compute("3 ft")->factor;    # returns 0.3048
@@ -357,7 +362,7 @@ Similarly, you can use the C<factor> method of a unit object to get
 the factor for that unit.
 
 Most functions, such as C<sqrt()> and C<ln()>, will report an error if
-hey are passed a number with units (or a bare unit).  Important
+they are passed a number with units (or a bare unit).  Important
 exceptions are the trigonometric and hyperbolic functions, which
 accept a number with units provided the units are angular units.  For
 example,
@@ -377,6 +382,47 @@ units, and returns a number with units having the same units, but the
 quantity is the absolute value of the original quantity.
 
 
+=head2 Differentiation of numbers with units
+
+In order to be able to differentiate a formula that returns a number
+with units, the MathObjects library needs to know the units of the
+variable you are differentiating by.  For example, if you have
+
+    $s = Compute("(3t^2 - 2t) m");
+
+as a function of time, C<t>, then you would like
+
+    $v = $s->D("t");
+
+to be equivalent to C<Compute("(6t - 2) m/s")>.
+
+To enable this, you must tell the C<Units> context that C<t> has units
+of seconds.  That is done using the C<assignUnits()> function of the
+context:
+
+    Context("Units")
+      ->withUnitsFor("length", "time")
+      ->assignUnits(t => "s");
+
+You can pass as many unit assignments to a single C<assignUnits()>
+call as you like.  E.g.
+
+    Context("Units")
+      ->withUnitsFor("length", "time")
+      ->assignUnits(
+        t => "s",
+        s => "m"
+      );
+
+to assign the variable C<t> units of seconds and C<s> units of meters.
+These values are only used in differentiation, so don't affect other
+formulas, and aren't involved in type-checking or other operations.
+
+If you assign units to a variable that hasn't yet been added to the
+context, C<assignUnits> will first add the variable as a real-valued
+one and then assign the units to it.
+
+
 =head2 Answer checking for units and numbers with units
 
 You can use units and numbers with units within PGML or C<ANS()> calls
@@ -389,7 +435,7 @@ in the same way that you use any other MathObject.  For example
 Here, the student can answer any equivalent units, such as C<ft/s^2>
 or even C<mi/h^2>, and get full credit.  If you wish to require the
 units to being the same as the correct answer, you can use the
-C<sameUnits> option on the answer checker (to set the C<sameUnits>
+C<sameUnits> option on the answer checker (or set the C<sameUnits>
 flag in the units context):
 
     $u = Compute("m/s^2");
@@ -591,6 +637,9 @@ sub extending {
 				power         => 3,
 				isCommand     => 1
 			}
+		},
+		lists => {
+			AbsoluteValue => 'AbsoluteValue',
 		},
 		functions => 'trig|hyperbolic|numeric',
 		value     => [ 'Real()', 'Formula' ],
@@ -873,6 +922,26 @@ sub removeUnitsNotAliases {
 	my $constants = $self->constants;
 	my @units     = grep { defined($constants->get($_)) } @_;
 	$self->constants->remove(@units);
+}
+
+#
+#  Assigns units to a list of variables (for differentiation)
+#
+sub assignUnits {
+	my ($self, %vars) = @_;
+	my $constants = $self->constants;
+	my $variables = $self->variables;
+	for my $x (keys %vars) {
+		Value->Error("Unit for '%s' is not defined in this context", $x)
+			unless ($constants->get($vars{$x}) || {})->{isUnit};
+		my $units = context::Units::Unit->new($vars{$x});
+		if ($variables->get($x)) {
+			$variables->set($x => { units => $units });
+		} else {
+			$variables->add($x => [ 'Real', units => $units ]);
+		}
+	}
+	return $self;
 }
 
 #################################################################################################
@@ -1160,7 +1229,8 @@ sub power {
 	$self->Error("A Unit can't be raised to %s", Value::showClass($r))
 		unless $l->type eq 'Unit' && $r->type eq 'Number';
 	my $n = $r->value;
-	$self->Error("A Unit can only be raised to a non-zero integer value") if $n == 0 || CORE::int($n) != $n;
+	$self->Error("A Unit can only be raised to a non-zero integer value")
+		if $n == 0 || CORE::int($n) != $n;
 	return $l->raiseUnit($n);
 }
 
@@ -1174,6 +1244,39 @@ sub compare {
 	my ($ls, $rs) = ($l->fString, $r->fString);
 	return $ls cmp $rs unless $ls eq $rs;
 	return $l->{factor} <=> $r->{factor};
+}
+
+#
+#  Get the list of variables to differentiate by
+#
+sub DiffVars {
+	my $self = shift;
+	my @x;
+	while (@_) {
+		my $d = 1;
+		my $x = shift;
+		($d, $x) = ($x, shift) if $x =~ m/^\d+$/;
+		$self->Error([ "You must specify a variable to differentiate by following %s", $d ])
+			unless defined $x;
+		my $def = $self->context->variables->get($x);
+		$self->Error([ "Variable of differentiation not defined: %s", $x ])
+			unless $def;
+		$self->Error("You can't differentiate by a variable that is not assigned a unit")
+			unless $def->{units};
+		push(@x, ($x) x $d) if $d;
+	}
+	return @x;
+}
+
+#
+#  Differentiate by the given variables (provided they have assigned units).
+#
+sub D {
+	my $self  = shift;
+	my $vars  = $self->context->variables;
+	my $units = $self->copy;
+	map { $units = $units->perUnit($vars->get($_)->{units}) } $self->DiffVars(@_);
+	return $units;
 }
 
 #############################################################
@@ -1518,7 +1621,7 @@ sub mult {
 	return $self->new($l->number->copy,        $l->unit->appendUnit($r))       if $lUnitN && $rUnit;
 	return $self->new($l->number * $r->number, $l->unit->appendUnit($r->unit)) if $lUnitN && $rUnitN;
 	return $self->new($l * $r->number,         $r->unit->copy)                 if $l->type eq 'Number';
-	return $self->new($l->number * $r,         $l->unit->copy)                 if $$r->type eq 'Number';
+	return $self->new($l->number * $r,         $l->unit->copy)                 if $r->type eq 'Number';
 	$self->Error("A Unit can't be multiplied by %s", Value::showClass($r)) if $lUnit;
 	$self->Error("Can't multiply %s by a Unit", Value::showClass($l));
 }
@@ -1564,6 +1667,14 @@ sub compare {
 	my ($ls, $rs) = ($l->fString, $r->fString);
 	return $ls cmp $rs unless $ls eq $rs;
 	return $l->quantity <=> $r->quantity;
+}
+
+#
+#  Differentiate the number and unts by the given variables.
+#
+sub D {
+	my $self = shift;
+	return $self->new($self->number->D(@_), $self->unit->D(@_));
 }
 
 #############################################################
@@ -1833,6 +1944,7 @@ our @ISA = ('context::Units::BOP');
 
 sub _check { (shift)->checkNumberUnits }
 sub _eval  { $_[1] + $_[2] }
+sub D      { Parser::BOP::add::D(@_) }
 
 #############################################################
 
@@ -1841,6 +1953,7 @@ our @ISA = ('context::Units::BOP');
 
 sub _check { (shift)->checkNumberUnits }
 sub _eval  { $_[1] - $_[2] }
+sub D      { Parser::BOP::subtract::D(@_) }
 
 #############################################################
 
@@ -1854,6 +1967,21 @@ sub _check {
 	$self->checkCancelledUnits() if ref($self) eq $class;
 }
 sub _eval { $_[1] * $_[2] }
+
+sub D {
+	my ($self, $x) = @_;
+	return $self->Diff($self->{lop}, $self->{rop}, $x)
+		if $self->{rop}->type eq 'Unit';
+	return $self->Diff($self->{rop}, $self->{lop}, $x)
+		if $self->{lop}->type eq 'Unit';
+	return Parser::BOP::multiply::D($self, $x);
+}
+
+sub Diff {
+	my ($self, $op, $units, $x) = @_;
+	$units = $self->Item('Value')->new($self->{equation}, $units->eval->D($x));
+	return $self->new($self->{equation}, $self->{bop}, $op->D($x), $units);
+}
 
 #############################################################
 
@@ -1872,6 +2000,7 @@ sub _check {
 	$self->checkCancelledUnits() if ref($self) eq $class;
 }
 sub _eval { $_[1] / $_[2] }
+sub D     { Parser::BOP::divide::D(@_) }
 
 #############################################################
 
@@ -1894,6 +2023,7 @@ sub _check {
 }
 
 sub _eval { $_[1]**$_[2] }
+sub D     { Parser::BOP::power::D(@_) }
 
 #############################################################
 
@@ -1941,15 +2071,17 @@ sub isAngle {
 }
 
 #
-#  Check whether degrees or other units are allowed, and do the usual
-#  check (for error reporting) if not.
+#  Check whether degrees or other units are allowed,
+#   otherwise convert to the usual function and do its check.
 #
 sub _check {
 	my $self = shift;
 	return if &{ $self->super('checkArgCount') }($self, 1);
 	my $arg = $self->{params}->[0];
-	if (($self->allowDegrees && $self->isAngle($arg)) || ($self->allowUnits && $arg->type eq $context::Units::NUNIT)) {
+	if ($self->allowDegrees && $self->isAngle($arg)) {
 		$self->{type} = $Value::Type{number};
+	} elsif ($self->allowUnits && $arg->type eq $context::Units::NUNIT) {
+		$self->{type} = $NUMBER_WITH_UNIT;
 	} else {
 		$self->mutate->_check;
 	}
@@ -1961,11 +2093,7 @@ sub _check {
 sub _eval {
 	my ($self, $arg) = @_;
 	my $name = $self->{name};
-	$arg = $arg->quantity
-		if $self->allowDegrees
-		&& Value::isValue($arg)
-		&& $arg->type eq $context::Units::NUNIT
-		&& $arg->fString eq 'rad';
+	$arg = $arg->quantity if $self->allowDegrees && $arg->fString eq 'rad';
 	return &{ $self->super($name) }($self, $arg);
 }
 
@@ -1981,8 +2109,24 @@ sub _call {
 	Value::Error("Function '%s' has too many inputs", $name) if scalar(@_) > 1;
 	Value::Error("Function '%s' has too few inputs",  $name) if scalar(@_) == 0;
 	$n = $n->quantity if $self->allowDegrees && $n->fString eq 'rad';
-	Value::Error("The input to '%s' must be a number", $name) unless $n->isNumber || $self->allowUnits;
+	Value::Error("The input to '%s' must be a number", $name) unless $n->isNumber || $self->allowUnits($name);
 	return &{ $self->super($name) }($self, $n);
+}
+
+#
+#  Differentiate a function with a number-with-units as an argument.
+#
+#  Get the argument as a Formula.
+#  If the the argument is an angle, get its quantity (which includes
+#    the unit factor) and differentiate that.
+#  Otherwise, remove the unit from the function call and differentiate that.
+#
+sub D {
+	my $self = shift;
+	my $arg  = $self->Package('Formula')->new($self->{params}[0]);
+	return &{ $self->super($self->{name}) }($self, $arg->quantity)->D(@_)
+		if $self->allowDegrees && $arg->fString eq 'rad';
+	return (&{ $self->super($self->{name}) }($self, $arg->number) * $arg->unit)->D(@_);
 }
 
 #############################################################
@@ -2001,7 +2145,26 @@ package context::Units::Function::numeric;
 our @ISA = ('context::Units::Function::common');
 
 sub allowDegrees {0}
-sub allowUnits   { (shift)->{name} eq 'abs' }
+sub allowUnits   { ((shift)->{name} || shift) eq 'abs' }
+
+#############################################################
+
+package context::Units::AbsoluteValue;
+our @ISA = ('context::Units::Super', 'Parser::List::AbsoluteValue');
+
+sub _check {
+	my $self = shift;
+	return $self->mutate->_check
+		unless $self->{type}{length} == 1
+		&& $self->{coords}[0]->type eq $context::Units::NUNIT;
+	$self->{type} = $context::Units::NUMBER_WITH_UNIT;
+}
+
+sub D {
+	my $self = shift;
+	my $arg  = $self->Package('Formula')->new($self->{coords}[0]);
+	return (abs($arg->number) * $arg->unit)->D(@_);
+}
 
 #################################################################################################
 #################################################################################################
@@ -2051,6 +2214,14 @@ sub number {
 			&& $self->{tree}{lop}->type eq 'Number'
 			&& $self->{tree}{rop}->type eq 'Unit');
 	return $self / $self->getTypicalValue($self)->unit;
+}
+
+sub quantity {
+	my $self = shift;
+	$self->checkNumberWithUnits('number');
+	my $number = $self->number;
+	my $factor = $self->unit->factor;
+	return $factor == 1 ? $number : $factor * $number;
 }
 
 package context::Units::Parser::Formula;

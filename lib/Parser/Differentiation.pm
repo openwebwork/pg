@@ -12,28 +12,26 @@
 #
 sub Parser::D {
 	my $self = shift;
-	my $d;
-	my @x = @_;
-	my $x;
-	if (defined($x[0]) && $x[0] =~ m/^\d+$/) {
-		$d = shift(@x);
-		$self->Error("You can only specify one variable when you give a derivative count")
-			unless scalar(@x) <= 1;
-		return ($self) if $d == 0;
-	}
-	if (scalar(@x) == 0) {
-		my @vars = keys(%{ $self->{variables} });
-		my $n    = scalar(@vars);
-		if ($n == 0) {
-			return $self->new('0') if $self->{isNumber};
-			$x = 'x';
-		} else {
-			$self->Error("You must specify a variable to differentiate by") unless $n == 1;
-			$x = $vars[0];
+	my @vars = keys %{ $self->{variables} };
+	my $X    = @vars == 1 ? $vars[0] : undef;
+	CORE::push(@_, $X) if @_ == 0 && defined $X;
+	$self->Error("You must specify a variable to differentiate by") unless @_;
+
+	my @x;
+	while (@_) {
+		my $d = 1;
+		my $x = shift;
+		($d, $x) = ($x, shift) if $x =~ m/^\d+$/;
+		if (!defined $x) {
+			$self->Error([ "You must specify a variable to differentiate by following %s", $d ])
+				unless defined $X;
+			$x = $X;
 		}
-		CORE::push(@x, $x);
+		my $def = $self->context->variables->get($x);
+		$self->Error([ "Variable of differentiation not defined: %s", $x ]) unless $def;
+		CORE::push(@x, ($x) x $d) if $d;
 	}
-	@x = ($x[0]) x $d if $d;
+
 	my $f = $self->{tree};
 	foreach $x (@x) {
 		return (0 * $self)->reduce('0*x' => 1) unless defined $self->{variables}{$x};
