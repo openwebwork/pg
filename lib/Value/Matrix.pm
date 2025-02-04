@@ -52,25 +52,43 @@ Contexts
 
 Creation methods
 
-		 $M1 = Matrix([1,2],[3,4]);
-   		 $M2 = Matrix([5,6],[7,8]);
-    	  $v = Vector(9,10);
-    	  $w = ColumnVector(9,10); # differs in how it is printed
+	$M1 = Matrix(1, 2, 3);    # 1D tensor (row vector)
+	$M1 = Matrix([1, 2, 3]);
+
+	$M2 = Matrix([1, 2], [3, 4]);    # 2D tensor (matrix)
+	$M2 = Matrix([[1, 2], [3, 4]]);
+
+	$M3 = Matrix([[1, 2], [3, 4]], [[5, 6], [7, 8]]);    # 3D tensor
+	$M3 = Matrix([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]);
+
+	$M4 = ...
 
 Commands added in Value::matrix
 
 	Conversion
-		$matrix->values produces [[3,4,5],[1,3,4]] recursive array references of numbers (not MathObjects)
-		$matrix->wwMatrix   produces CPAN MatrixReal1 matrix, used for computation subroutines
+		$matrix->value produces an array of numbers (for a 1D tensor) or array refs representing the rows.
+		These are perl numbers and array refs, not MathObjects.
+		$M1->value is (1, 2, 3)
+		$M2->value is ([1, 2], [3, 4])
+		$M3->value is ([[1, 2], [3, 4]], [[5, 6], [7, 8]])
+		$matrix->wwMatrix produces CPAN MatrixReal1 matrix, used for computation subroutines and can only
+		be used on 1D tensors (row vector) or 2D tensors (matrix).
 
 	Information
-		$matrix->dimension:  ARRAY
+		$matrix->dimensions produces an array. For an n-dimensional tensor, the array has n entries for
+		the n dimensions.
 
 	Access values
 
-		row : MathObjectMatrix
-		column : MathObjectMatrix
-		element : Real or Complex value
+		row(i) : MathObjectMatrix
+			For a 1D tensor, produces a 1D tensor
+			For nD tensor with n > 1, produces a (n-1)D tensor
+		column(j) : MathObjectMatrix or Real or Complex
+			For a 1D tensor, produces a Real or Complex
+			For nD tensor with n > 1, produces an nD tensor where 2nd dimension is 1
+		element : Real or Complex value when passed the same number of arguments as the dimension of the tensor.
+			If passed more than n arguments, null. If the dimension of the tensor is n and element is passed
+			k arguments with k < n, then this produces the corresponding (n-k)-dimensional tensor.
 
 	Assign values
 
