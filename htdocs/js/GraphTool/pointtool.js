@@ -28,8 +28,8 @@
 				this.focusPoint = this.baseObj;
 
 				if (!gt.isStatic) {
-					this.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-					this.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+					this.on('down', () => gt.onPointDown(this.baseObj));
+					this.on('up', () => gt.onPointUp(this.baseObj));
 					this.on('drag', (e) => {
 						gt.adjustDragPosition(e, this.baseObj);
 						gt.updateText();

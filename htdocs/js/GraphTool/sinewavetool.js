@@ -8,8 +8,10 @@
 			preInit(gt, shiftPoint, periodPoint, amplitudePoint, solid) {
 				[shiftPoint, periodPoint, amplitudePoint].forEach((point) => {
 					point.setAttribute(gt.definingPointAttributes);
-					point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-					point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+					if (!gt.isStatic) {
+						point.on('down', () => gt.onPointDown(point));
+						point.on('up', () => gt.onPointUp(point));
+					}
 				});
 				return gt.graphObjectTypes.sineWave.createSineWave(
 					shiftPoint,
@@ -183,6 +185,7 @@
 
 					if (shiftPoint) periodPoint?.setPosition(JXG.COORDS_BY_USER, [periodPoint.X(), shiftPoint.Y()]);
 
+					gt.setTextCoords(this.X(), this.Y());
 					gt.updateObjects();
 					gt.updateText();
 				},

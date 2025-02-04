@@ -686,7 +686,8 @@ window.graphTool = (containerId, options) => {
 	// degenerate.
 	gt.adjustDragPosition = (e, point, pairedPoint) => {
 		if (
-			(Math.abs(point.X() - pairedPoint?.X()) < JXG.Math.eps &&
+			(pairedPoint &&
+				Math.abs(point.X() - pairedPoint?.X()) < JXG.Math.eps &&
 				Math.abs(point.Y() - pairedPoint?.Y()) < JXG.Math.eps) ||
 			!gt.boardHasPoint(point.X(), point.Y())
 		) {
@@ -732,6 +733,7 @@ window.graphTool = (containerId, options) => {
 
 	gt.pairedPointDrag = (e, point) => {
 		gt.adjustDragPosition(e, point, point.paired_point);
+		gt.setTextCoords(point.X(), point.Y());
 		gt.updateObjects();
 		gt.updateText();
 	};
@@ -741,8 +743,9 @@ window.graphTool = (containerId, options) => {
 	// already been moved by JSXGraph.  This prevents parabolas from being made degenerate.
 	gt.adjustDragPositionRestricted = (e, point, pairedPoint) => {
 		if (
-			Math.abs(point.X() - pairedPoint?.X()) < JXG.Math.eps ||
-			Math.abs(point.Y() - pairedPoint?.Y()) < JXG.Math.eps ||
+			(pairedPoint &&
+				(Math.abs(point.X() - pairedPoint.X()) < JXG.Math.eps ||
+					Math.abs(point.Y() - pairedPoint.Y()) < JXG.Math.eps)) ||
 			!gt.boardHasPoint(point.X(), point.Y())
 		) {
 			const bbox = gt.board.getBoundingBox();
@@ -782,8 +785,19 @@ window.graphTool = (containerId, options) => {
 
 	gt.pairedPointDragRestricted = (e, point) => {
 		gt.adjustDragPositionRestricted(e, point, point.paired_point);
+		gt.setTextCoords(point.X(), point.Y());
 		gt.updateObjects();
 		gt.updateText();
+	};
+
+	gt.onPointDown = (point) => {
+		point.dragging = true;
+		gt.board.containerObj.style.cursor = 'none';
+	};
+
+	gt.onPointUp = (point) => {
+		delete point.dragging;
+		gt.board.containerObj.style.cursor = 'auto';
 	};
 
 	gt.createPoint = (x, y, paired_point, restrict) => {
@@ -794,8 +808,8 @@ window.graphTool = (containerId, options) => {
 		});
 		point.setAttribute({ snapToGrid: true });
 		if (!gt.isStatic) {
-			point.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-			point.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+			point.on('down', () => gt.onPointDown(point));
+			point.on('up', () => gt.onPointUp(point));
 			if (typeof paired_point !== 'undefined') {
 				point.paired_point = paired_point;
 				paired_point.paired_point = point;
@@ -893,13 +907,19 @@ window.graphTool = (containerId, options) => {
 		onResize() {}
 
 		updateTextCoords(coords) {
-			return !this.definingPts.every((point) => {
+			for (const point of this.definingPts) {
+				if (point.dragging) {
+					gt.setTextCoords(point.X(), point.Y());
+					return true;
+				}
+			}
+			for (const point of this.definingPts) {
 				if (point.hasPoint(coords.scrCoords[1], coords.scrCoords[2])) {
 					gt.setTextCoords(point.X(), point.Y());
-					return false;
+					return true;
 				}
-				return true;
-			});
+			}
+			return false;
 		}
 
 		static restore(string) {
@@ -1759,15 +1779,17 @@ window.graphTool = (containerId, options) => {
 
 			gt.board.off('up');
 
-			this.point1.setAttribute(gt.definingPointAttributes);
-			this.point1.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-			this.point1.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+			const point1 = this.point1;
+			delete this.point1;
 
-			const point2 = gt.createPoint(coords[1], coords[2], this.point1);
-			gt.selectedObj = new gt.graphObjectTypes.line(this.point1, point2, gt.drawSolid);
+			point1.setAttribute(gt.definingPointAttributes);
+			point1.on('down', () => gt.onPointDown(point1));
+			point1.on('up', () => gt.onPointUp(point1));
+
+			const point2 = gt.createPoint(coords[1], coords[2], point1);
+			gt.selectedObj = new gt.graphObjectTypes.line(point1, point2, gt.drawSolid);
 			gt.selectedObj.focusPoint = point2;
 			gt.graphedObjs.push(gt.selectedObj);
-			delete this.point1;
 
 			this.finish();
 		}
@@ -1905,15 +1927,17 @@ window.graphTool = (containerId, options) => {
 
 			gt.board.off('up');
 
-			this.center.setAttribute(gt.definingPointAttributes);
-			this.center.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-			this.center.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+			const center = this.center;
+			delete this.center;
 
-			const point = gt.createPoint(coords[1], coords[2], this.center);
-			gt.selectedObj = new gt.graphObjectTypes.circle(this.center, point, gt.drawSolid);
+			center.setAttribute(gt.definingPointAttributes);
+			center.on('down', () => gt.onPointDown(center));
+			center.on('up', () => gt.onPointUp(center));
+
+			const point = gt.createPoint(coords[1], coords[2], center);
+			gt.selectedObj = new gt.graphObjectTypes.circle(center, point, gt.drawSolid);
 			gt.selectedObj.focusPoint = point;
 			gt.graphedObjs.push(gt.selectedObj);
-			delete this.center;
 
 			this.finish();
 		}
@@ -2065,15 +2089,17 @@ window.graphTool = (containerId, options) => {
 
 			gt.board.off('up');
 
-			this.vertex.setAttribute(gt.definingPointAttributes);
-			this.vertex.on('down', () => (gt.board.containerObj.style.cursor = 'none'));
-			this.vertex.on('up', () => (gt.board.containerObj.style.cursor = 'auto'));
+			const vertex = this.vertex;
+			delete this.vertex;
 
-			const point = gt.createPoint(coords[1], coords[2], this.vertex, true);
-			gt.selectedObj = new gt.graphObjectTypes.parabola(this.vertex, point, this.vertical, gt.drawSolid);
+			vertex.setAttribute(gt.definingPointAttributes);
+			vertex.on('down', () => gt.onPointDown(vertex));
+			vertex.on('up', () => gt.onPointUp(vertex));
+
+			const point = gt.createPoint(coords[1], coords[2], vertex, true);
+			gt.selectedObj = new gt.graphObjectTypes.parabola(vertex, point, this.vertical, gt.drawSolid);
 			gt.selectedObj.focusPoint = point;
 			gt.graphedObjs.push(gt.selectedObj);
-			delete this.vertex;
 
 			this.finish();
 		}

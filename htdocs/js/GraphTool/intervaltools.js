@@ -354,6 +354,7 @@
 				pairedPointDrag(gt, e, point) {
 					gt.adjustDragPositionRestricted(e, point, point.paired_point);
 					if (point.Y() !== 0) point.setPosition(JXG.COORDS_BY_USER, [point.X(), 0]);
+					gt.setTextCoords(this.X(), 0);
 					gt.updateObjects();
 					gt.updateText();
 				},
@@ -417,6 +418,7 @@
 
 				pointDown(gt, point) {
 					if (gt.activeTool !== gt.selectTool) return;
+					point.dragging = true;
 
 					const thisObj = gt.graphedObjs.filter(
 						(obj) => obj.definingPts.filter((pt) => pt === point).length
@@ -436,7 +438,8 @@
 					gt.board.containerObj.style.cursor = 'none';
 				},
 
-				pointUp(gt) {
+				pointUp(gt, point) {
+					delete point.dragging;
 					gt.board.containerObj.style.cursor = 'auto';
 				},
 
