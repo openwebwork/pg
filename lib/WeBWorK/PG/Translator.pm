@@ -1174,9 +1174,12 @@ sub post_process_content {
 		$self->{safe}->share_from('main', [qw(%Mojo::Base:: %Mojo::Collection:: %Mojo::DOM::)]);
 		our $problemDOM =
 			Mojo::DOM->new->xml($self->{rh_pgcore}{displayMode} eq 'PTX')->parse(${ $self->{PG_PROBLEM_TEXT_REF} });
-		our $pageHeader = Mojo::DOM->new(${ $self->{PG_HEADER_TEXT_REF} });
-		$self->{safe}->share('$problemDOM', '$pageHeader');
-		$self->{safe}->reval('for (@{ $main::PG->{content_post_processors} }) { $_->($problemDOM, $pageHeader); }', 1);
+		our $pageHeader    = Mojo::DOM->new(${ $self->{PG_HEADER_TEXT_REF} });
+		our $problemResult = $self->rh_problem_result;
+		$self->{safe}->share('$problemDOM', '$pageHeader', '$problemResult');
+		$self->{safe}->reval(
+			'for (@{ $main::PG->{content_post_processors} }) { $_->($problemDOM, $pageHeader, $problemResult); }',
+			1);
 		warn "ERRORS from post processing PG text:\n$@\n" if $@;
 
 		$self->{PG_PROBLEM_TEXT_REF} = \($problemDOM->to_string);
