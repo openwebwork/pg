@@ -685,7 +685,11 @@ our @ISA = ('Parser::Context');
 #  The units from the original Units package
 #
 our %UNITS = (%Units::known_units);
-$UNITS{$_} = $UNITS{L} for ('litre', 'litres', 'litre', 'litres');    # add these extras
+our %ALIAS = (%Units::unit_aliased_to);
+for ('litre', 'litres', 'liter', 'liters') {
+	$UNITS{$_} = $UNITS{L};
+	$ALIAS{$_} = 'L';
+}
 
 #
 #  The categories of units that can be selected.
@@ -782,6 +786,7 @@ sub addUnit {
 				isConstant => 1
 			}
 		);
+		$constants->set($name => { ustring => $ALIAS{$name} })      if $ALIAS{$name};
 		$constants->add(map { $_ => { alias => $name } } @$aliases) if $aliases;
 		$self->addUnitAliases($name) unless $options{noaliases};
 	} else {
@@ -1326,25 +1331,26 @@ sub fString {
 #
 #  Get the string version using original units using:
 #    The original order and powers if $exact is set, or
-#    Alphabetic order and fractions otherwise.
+#    Alphabetic order and fractions otherwise.  Use
+#    alias strings to normalize the result.
 #
 sub uString {
 	my ($self, $exact) = @_;
-	return $self->stringFor('nunits', 'dunits', $exact ? $self->{order} : undef, !$exact);
+	return $self->stringFor('nunits', 'dunits', $exact ? $self->{order} : undef, !$exact, 0, 1);
 }
 
 #
 #  Creates the string version using the given order and power settings
 #
 sub stringFor {
-	my ($self, $key1, $key2, $order, $noNegativePowers, $allowEmptyNumerator) = @_;
+	my ($self, $key1, $key2, $order, $noNegativePowers, $allowEmptyNumerator, $useAlias) = @_;
 	my ($nunits, $dunits) = ({ %{ $self->{$key1} } }, { %{ $self->{$key2} } });
 	$order = [ main::lex_sort(keys %$nunits, keys %$dunits) ] unless $order;
 	my ($ns, $ds) = ([], []);
 	my $constants = $self->context->constants;
 	for my $u (@$order) {
-		$self->pushUnitString($ns, $ds, $u, $nunits->{$u}, $noNegativePowers);
-		$self->pushUnitString($ds, $ns, $u, $dunits->{$u}, $noNegativePowers);
+		$self->pushUnitString($ns, $ds, $u, $nunits->{$u}, $noNegativePowers, $useAlias);
+		$self->pushUnitString($ds, $ns, $u, $dunits->{$u}, $noNegativePowers, $useAlias);
 		$nunits->{$u} = $dunits->{$u} = 0;    # don't include them again
 	}
 	my ($num, $den) = (join(' ', @$ns), join(' ', @$ds));
@@ -1359,10 +1365,10 @@ sub stringFor {
 #  a negative power or not
 #
 sub pushUnitString {
-	my ($self, $units, $invert, $u, $n, $noNegativePowers) = @_;
+	my ($self, $units, $invert, $u, $n, $noNegativePowers, $useAlias) = @_;
 	return unless $n;
 	my $def  = $self->context->constants->get($u);
-	my $unit = ($def->{string} || $u);
+	my $unit = (($useAlias ? $def->{ustring} : '') || $def->{string} || $u);
 	if (!$noNegativePowers && ($self->{negativePowers}{$u} || $self->getFlag('useNegativePowers'))) {
 		push(@$invert, $unit . "^-$n");
 	} else {
