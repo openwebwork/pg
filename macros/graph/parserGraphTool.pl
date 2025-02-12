@@ -53,12 +53,12 @@ For PGML you can just do
 
 =head1 GRAPH OBJECTS
 
-There are eleven types of graph objects that the students can graph. Points, lines, circles,
-parabolas, quadratics, cubics, intervals, sine waves, triangles, quadrilaterals and fills (or
-shading of a region). The syntax for each of these objects to pass to the GraphTool constructor
-is summarized as follows.  Each object must be enclosed in braces. The first element in the
-braces must be the name of the object. The following elements in the braces depend on the type
-of element.
+There are several types of graph objects that the students can graph. Points, lines, circles,
+parabolas, quadratics, cubics, intervals, sine waves, triangles, quadrilaterals, vectors, and
+fills (or shading of a region). The syntax for each of these objects to pass to the GraphTool
+constructor is summarized as follows.  Each object must be enclosed in braces. The first element
+in the braces must be the name of the object. The following elements in the braces depend on the
+type of element.
 
 For points the name "point" must be followed by the coordinates. For example:
 
@@ -131,6 +131,12 @@ indicate if the triangle is expected to be drawn solid or dashed. That is follow
 vertices of the quadrilateral. For example:
 
 	"{quadrilateral,solid,(0,0),(4,3),(2,3),(4,-3)}"
+
+For vectors the name "vector" must be followed by the word "solid" or "dashed" to indicate if
+the vector is expected to be drawn solid or dashed.  That is followed by the initial point and
+the terminal point. For example:
+
+    "{vector,solid,(0,0),(3,4)}"
 
 The student answers that are returned by the JavaScript will be a list of the list objects
 discussed above and will be parsed by WeBWorK and passed to the checker as such.  The default
@@ -311,8 +317,8 @@ This is an array of tools that will be made available for students to use in the
 The order the tools are listed here will also be the order the tools are presented in the graph
 tool button box.  In addition to the tools listed in the default options above, there is a
 "PointTool", three point "QuadraticTool", four point "CubicTool", "IntervalTool",
-"IncludeExcludePointTool", "SineWaveTool", "TriangleTool", and "QuadrilateralTool".  Note that
-the case of the tool names must match what is shown.
+"IncludeExcludePointTool", "SineWaveTool", "TriangleTool", "QuadrilateralTool", and
+"VectorTool".  Note that the case of the tool names must match what is shown.
 
 =item staticObjects (Default: C<< staticObjects => [] >>)
 
@@ -454,6 +460,7 @@ sub _parserGraphTool_init {
 	ADD_JS_FILE('js/GraphTool/sinewavetool.js',                  0, { defer => undef });
 	ADD_JS_FILE('js/GraphTool/triangle.js',                      0, { defer => undef });
 	ADD_JS_FILE('js/GraphTool/quadrilateral.js',                 0, { defer => undef });
+	ADD_JS_FILE('js/GraphTool/vector.js',                        0, { defer => undef });
 
 	return;
 }
@@ -1349,6 +1356,77 @@ parser::GraphTool->addGraphObjects(
 				}
 			);
 		}
+	},
+	vector => {
+		js   => 'graphTool.vectorTool.Vector',
+		tikz => {
+			code => sub {
+				my $gt = shift;
+
+				my ($p1x, $p1y) = @{ $_->{data}[2]{data} };
+				my ($p2x, $p2y) = @{ $_->{data}[3]{data} };
+
+				if ($p1x == $p2x) {
+					# Vertical vector
+					return (
+						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1], *->] ($p1x, $p1y) -- ($p2x, $p2y);\n",
+						[
+							"($p1x,$gt->{bBox}[3]) -- ($p1x,$gt->{bBox}[1])"
+								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[2],$gt->{bBox}[3]) -- cycle",
+							sub { return $_[0] - $p1x; }
+						]
+					);
+				} else {
+					# Non-vertical vector
+					my $m = ($p2y - $p1y) / ($p2x - $p1x);
+					my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
+					return (
+						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1], *->] ($p1x, $p1y) -- ($p2x, $p2y);\n",
+						[
+							"($gt->{bBox}[0],"
+								. &$y($gt->{bBox}[0]) . ') -- '
+								. "($gt->{bBox}[2],"
+								. &$y($gt->{bBox}[2]) . ')'
+								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
+							sub { return $_[1] - &$y($_[0]); }
+						]
+					);
+				}
+			}
+		},
+		cmp => sub {
+			my ($vector) = @_;
+
+			my $solid_dashed   = $vector->{data}[1];
+			my $initial_point  = $vector->{data}[2];
+			my $terminal_point = $vector->{data}[3];
+
+			# These are the coefficients a, b, and c in ax + by + c = 0.
+			my @stdform = (
+				$vector->{data}[2]{data}[1] - $vector->{data}[3]{data}[1],
+				$vector->{data}[3]{data}[0] - $vector->{data}[2]{data}[0],
+				$vector->{data}[2]{data}[0] * $vector->{data}[3]{data}[1] -
+					$vector->{data}[3]{data}[0] * $vector->{data}[2]{data}[1]
+			);
+
+			my $vectorPointCmp = sub {
+				my $point = shift;
+				my ($x, $y) = $point->value;
+				return $stdform[0] * $x + $stdform[1] * $y + $stdform[2] <=> 0;
+			};
+
+			return (
+				$vectorPointCmp,
+				sub {
+					my ($other, $fuzzy) = @_;
+					return
+						$other->{data}[0] eq 'vector'
+						&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
+						&& $initial_point == $other->{data}[2]
+						&& $terminal_point == $other->{data}[3];
+				}
+			);
+		}
 	}
 );
 
@@ -1367,6 +1445,8 @@ parser::GraphTool->addTools(
 	TriangleTool => 'graphTool.triangleTool.TriangleTool',
 	# A quadrilateral tool.
 	QuadrilateralTool => 'graphTool.quadrilateralTool.QuadrilateralTool',
+	# A vector tool.
+	VectorTool => 'graphTool.vectorTool.VectorTool',
 	# Include/Exclude point tool.
 	IncludeExcludePointTool => 'graphTool.includeExcludePointTool.IncludeExcludePointTool',
 );
