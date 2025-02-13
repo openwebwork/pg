@@ -152,9 +152,10 @@ END_PGML
 #: * full credit is awarded for 4 correct answers.
 #:
 #: This is only here to demonstrate the usage of the fluid problem grader, and
-#: because that is how this problem has been. It would be better to use the
-#: weighted grader for a problem like this. The parts of this problem are not
-#: equal, so the fluid problem grader is not a good choice.
+#: because that is how this problem has been. It would be better to use
+#: weights with the default `avg_problem_grader` for a problem like this. The
+#: parts of this problem are not equal, so the fluid problem grader is not a
+#: good choice.
 install_problem_grader(~~&custom_problem_grader_fluid);
 
 $ENV{grader_numright} = [ 2,   4 ];

@@ -17,23 +17,14 @@
 #:% categories = [volume, solid of revolution, disk method]
 
 #:% section = preamble
-#: Load the PODLINK('weightedGrader.pl') macro so that weights can be assigned
-#: to the various answers in the problem. Load the PODLINK('answerHints.pl')
-#: macro to give student feedback on particular incorrect answers. Note that the
-#: PODLINK('niceTables.pl') macro is loaded via the `PGML.pl` macro, and is used
-#: to construct a table that will make the answer rules for the limits of
-#: integration appear at the top and bottom of the integral symbol.
-#:
-#: Then call the `install_weighted_grader` method to use the weighted grader.
+#: Load the PODLINK('answerHints.pl') macro to give student feedback on
+#: particular incorrect answers. Note that the PODLINK('niceTables.pl') macro is
+#: loaded via the `PGML.pl` macro, and is used to construct a table that will
+#: make the answer rules for the limits of integration appear at the top and
+#: bottom of the integral symbol.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',  'PGML.pl',
-    'answerHints.pl', 'weightedGrader.pl',
-    'PGcourse.pl'
-);
-
-install_weighted_grader();
+loadMacros('PGstandard.pl', 'PGML.pl', 'answerHints.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: First, the variables `x`, `dx`, `y`, and `dy` are added to the context.
@@ -67,8 +58,9 @@ $volume     = NEW_ANS_NAME();
 #: Then the integral is formatted with a `LayoutTable` from the
 #: PODLINK('niceTables.pl') macro using its `PGML` syntax. Note that each answer
 #: rule is given the appropriate name from the names generated before in the
-#: last answer rule option. In addition the weight for each answer is passed via
-#: the `weight` option to the `cmp` method.
+#: last answer rule option. In addition the weight for each answer (the percent
+#: that answer is worth in the final problem score) is passed via the `weight`
+#: option to the `cmp` method.
 #:
 #: Answer hints for various incorrect answers are provided for the integrand
 #: answer by adding `->withPostFilter(AnswerHints(...))` to the `cmp` call.

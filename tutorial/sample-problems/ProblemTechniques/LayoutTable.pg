@@ -91,7 +91,7 @@ $altText =
 
 #:% section = statement
 #: The `PGML` syntax for inserting a `LayoutTable` is `[# ... #]*{ options }`.
-#: Note that it is the `*` after `*]` that makes this a `LayoutTable` as opposed
+#: Note that it is the `*` after `#]` that makes this a `LayoutTable` as opposed
 #: to a `DataTable`. In between `[#` and `#]*` any number of cells can be added
 #: with `[. ... .]`. The end of a row is marked by adding a `*` to the end of
 #: the last cell in the row (the `*` can be omitted on the last row and since

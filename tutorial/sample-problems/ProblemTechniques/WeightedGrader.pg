@@ -18,18 +18,17 @@
 #:% categories = [grader]
 
 #:% section = preamble
-#: Load the PODLINK('weightedGrader.pl') macro.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'weightedGrader.pl', 'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: Call `install_weighted_grader` so that the weighted grader is used.
-install_weighted_grader();
 
 #:% section = statement
+#: The default `avg_problem_grader` allows answers to be assigned weights,
+#: i.e., given precedence in the problem score when the problem is graded.
 #: Assign weights to answers by passing the `weight` via `cmp_options`. The
 #: example here gives weights as percents that sum to 100, but weights of
-#: (2, 5, 3), (4, 10, 6), or (0.2, 0.5, 0.3) would give the same weighting.
+#: `(2, 5, 3)`, `(4, 10, 6)`, or `(0.2, 0.5, 0.3)` would give the same weighting.
 #:
 #: Note that if an answer is created as a MathObject in the problem setup, then
 #: the weight can also be assigned by passing the `weight` option to the `cmp`

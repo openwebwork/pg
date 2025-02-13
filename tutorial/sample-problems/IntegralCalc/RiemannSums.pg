@@ -17,21 +17,14 @@
 #:% categories = [Riemann sums]
 
 #:% section = preamble
-#: The PODLINK('weightedGrader.pl') macro is used to give different parts of the
-#: answer different weights, the PODLINK('parserPopUp.pl') macro is used to
-#: create drop down menus, and the PODLINK('PGtikz.pl') macro is used to produce
-#: the graphs.
-#:
-#: Call the `install_weighted_grader` method to use the weighted grader.
+#: The PODLINK('parserPopUp.pl') macro is used to create drop down menus, and
+#: the PODLINK('PGtikz.pl') macro is used to produce the graphs.
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',     'PGML.pl',
-    'weightedGrader.pl', 'parserPopUp.pl',
-    'PGtikz.pl',         'PGcourse.pl'
+    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGtikz.pl',
+    'PGcourse.pl'
 );
-
-install_weighted_grader();
 
 #:% section = setup
 #: First generate a random constant for the function and the interval endpoints.
@@ -161,8 +154,10 @@ $rightRiemannSumAltText =
     . "$y[3], and $y[4], respectively are also shown.";
 
 #:% section = statement
-#: The weights for the weighted grader are assigned by passing the `weight` flag
-#: to the `cmp` method.
+#: The default `avg_problem_grader` used in this problem allows answers to be
+#: assigned weights, i.e., given precedence in the problem score when the
+#: problem is graded. The answers are assigned weights by passing the `weight`
+#: flag to the `cmp` method.
 #:
 #: Note that there are two spaces at the end of the line
 #: `>>[!left Riemann sum!]{$graph1}{250}<<` as well as at the end of the
