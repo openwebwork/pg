@@ -1225,7 +1225,6 @@ C<check_syntax( $rh_ans, %options)>
 
 returns an answer hash.
 
-latex2html preview code are installed in the answer hash.
 The input has been transformed, changing 7pi to 7*pi  or 7x to 7*x.
 Syntax error messages may be generated and stored in student_ans
 Additional syntax error messages are stored in {ans_message} and duplicated in {error_message}

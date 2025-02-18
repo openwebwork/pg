@@ -56,10 +56,9 @@ sub Overline {
     BoldMath($vectorName)
 
 This gets a bold letter in TeX as well as HTML modes.
-Although \boldsymbol{} works fine on screen in latex2html mode,
-the PDF file produces non-bold letters.  I haven't been able to
-track this down, so used \mathbf{} in TeX mode, which produces
-roman bold, not math-italic bold.
+Although \boldsymbol{} works fine on screen, the PDF file produces non-bold
+letters.  I haven't been able to track this down, so used \mathbf{} in TeX mode,
+which produces roman bold, not math-italic bold.
 
 =cut
 

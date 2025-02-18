@@ -11,13 +11,6 @@ sub _unionMacros_init { };    # don't reload this file
 $WW = "WeBWorK";
 
 #
-#  Shorthands for entering and leaving rawhtml mode in
-#  LaTeX2HTML (since they are so commonly used).
-#
-$bHTML = '\begin{rawhtml}';
-$eHTML = '\end{rawhtml}';
-
-#
 #  HTML(htmlcode)
 #  HTML(htmlcode,texcode)
 #
@@ -57,7 +50,7 @@ $BSMALL = HTML('<SMALL>',  '{\small ');
 $ESMALL = HTML('</SMALL>', '}');
 
 #
-#  Remove extra space in bold in latex2html mode
+#  Remove extra space in bold
 #
 $BBOLD = HTML('<B>',  '{\bf ');
 $EBOLD = HTML('</B>', '}');

@@ -1133,6 +1133,7 @@ a hard copy output.
              )
 
     M3      (tex_version, latex2html_version, html_version) #obsolete
+            Note the LaTeX2HTML version remains for backward compatibility.
 
 =cut
 
@@ -2814,7 +2815,7 @@ sub image {
 	$valign = 'top'    if ($out_options{valign} eq 'top');
 	$valign = 'bottom' if ($out_options{valign} eq 'bottom');
 
-	# if width and/or height are explicit, create string for attribute to be used in HTML, LaTeX2HTML
+	# if width and/or height are explicit, create string for attribute to be used in HTML
 	my $width_attrib  = ($width)  ? qq{ width="$width"}   : '';
 	my $height_attrib = ($height) ? qq{ height="$height"} : '';
 

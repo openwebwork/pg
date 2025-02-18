@@ -4,9 +4,6 @@
 
 # loadMacros("unionImage.pl", "unionTables.pl",);
 
-$bHTML = '\begin{rawhtml}';
-$eHTML = '\end{rawhtml}';
-
 #  HTML(htmlcode)
 #  HTML(htmlcode,texcode)
 #
