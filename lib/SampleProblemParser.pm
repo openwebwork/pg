@@ -25,7 +25,7 @@ use File::Basename qw(dirname basename);
 use File::Find     qw(find);
 use Pandoc;
 
-our @EXPORT_OK = qw(parseSampleProblem generateMetadata);
+our @EXPORT_OK = qw(parseSampleProblem generateMetadata getSampleProblemCode);
 
 =head1 NAME
 
@@ -150,7 +150,7 @@ sub generateMetadata ($problem_dir, %options) {
 				say "Reading file: $File::Find::name" if $options{verbose};
 
 				if ($File::Find::name =~ /\.pg$/) {
-					my $metadata = parseMetadata($File::Find::name, $problem_dir, $options{macro_locations});
+					my $metadata = parseMetadata($File::Find::name, $problem_dir);
 					unless (@{ $metadata->{types} }) {
 						warn "The type of sample problem is missing for $File::Find::name.";
 						return;
@@ -175,7 +175,7 @@ my @macros_to_skip = qw(
 	PGstandard.pl
 );
 
-sub parseMetadata ($path, $problem_dir, $macro_locations = {}) {
+sub parseMetadata ($path, $problem_dir) {
 	open(my $FH, '<:encoding(UTF-8)', $path) or do {
 		warn qq{Could not open file "$path": $!};
 		return {};
@@ -226,6 +226,43 @@ sub parseMetadata ($path, $problem_dir, $macro_locations = {}) {
 	}
 
 	return $metadata;
+}
+
+=head2 C<getSampleProblemCode>
+
+Parse a PG file with extra documentation comments and strip that all out
+returning the clean problem code. This returns the same code that the
+C<parseSampleProblem> returns, except at much less expense as it does not parse
+the documentation, it does not require that the metadata be parsed first, and it
+does not need macro POD information.
+
+=cut
+
+sub getSampleProblemCode ($file) {
+	my $filename = basename($file);
+	open(my $FH, '<:encoding(UTF-8)', $file) or do {
+		warn qq{Could not open file "$file": $!};
+		return '';
+	};
+	my @file_contents = <$FH>;
+	close $FH;
+
+	my (@code_rows, $inCode);
+
+	while (my $row = shift @file_contents) {
+		chomp($row);
+		$row =~ s/\t/    /g;
+		if ($row =~ /^#:(.*)?/) {
+			# This is documentation so skip it.
+		} elsif ($row =~ /^\s*(END)?DOCUMENT.*$/) {
+			$inCode = $1 ? 0 : 1;
+			push(@code_rows, $row);
+		} elsif ($inCode) {
+			push(@code_rows, $row);
+		}
+	}
+
+	return join("\n", @code_rows);
 }
 
 1;
