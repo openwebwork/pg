@@ -16,9 +16,9 @@
 #:% categories = [multiple choice, misc]
 
 #:% section = preamble
-#: The `PGchoicemacros.pl` macro is used to construct the list of multiple
-#: choice items, and the custom problem grader fluid from `PGgraders.pl` is
-#: used for incremental grading.
+#: The PODLINK('PGchoicemacros.pl') macro is used to construct the list of
+#: multiple choice items, and the custom problem grader fluid from
+#: PODLINK('PGgraders.pl') is used for incremental grading.
 DOCUMENT();
 
 loadMacros(
@@ -30,14 +30,14 @@ loadMacros(
 #: Withhold feedback when answers are submitted by setting
 #: `$showPartialCorrectAnswers = 0;`.
 #:
-#: This problem uses an incremental grader called the `custom_problem_grader_fluid`.
-#: With this problem grader, the number of correct answers `[2, 4, 6]`
-#: and their corresponding scores `[0.3, 0.6, 1]` must be specified.  The last
-#: entry in the `grader_numright` array must be the total number of questions
-#: asked, and the last entry in the `grader_scores` array must be 1
-#: (otherwise nobody can earn full credit!).  The grader message can also
-#: be customized by setting the value of `grader_message` to the desired custom
-#: message.
+#: This problem uses an incremental grader called the
+#: `custom_problem_grader_fluid`. With this problem grader, the number of
+#: correct answers `[2, 4, 6]` and their corresponding scores `[0.3, 0.6, 1]`
+#: must be specified.  The last entry in the `grader_numright` array must be the
+#: total number of questions asked, and the last entry in the `grader_scores`
+#: array must be 1 (otherwise nobody can earn full credit!).  The grader message
+#: can also be customized by setting the value of `grader_message` to the
+#: desired custom message.
 #:
 #: If a grader is desired that awards full credit when all questions are correct
 #: and no credit otherwise, use the commented out standard problem grader code

@@ -23,23 +23,24 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: The macro `contextFraction.pl` provides four contexts:
+#: The PODLINK('contextFraction.pl') macro provides four contexts:
 #:
-#:```{#contexts .perl}
+#: ```{#contexts .perl}
 #: Context('Fraction');
 #: Context('Fraction-NoDecimals');
 #: Context('LimitedFraction');
 #: Context('LimitedProperFraction');
-#:```
-#: For the differences among these, see the POD documentation for
-#: PODLINK('contextFraction.pl').
+#: ```
+#:
+#: See PODLINK('contextFraction.pl') for the differences between these contexts.
 Context('Fraction-NoDecimals');
 
 $answer = Compute('3/2');
 
 #:% section = statement
 #: There are many context flags that control how fraction answers are checked.
-#: See the POD documentation for PODLINK('contextFraction.pl').
+#: See the documentation for the PODLINK('contextFraction.pl') macro for more
+#: details.
 BEGIN_PGML
 Simplify [``\frac{6}{4}``].
 

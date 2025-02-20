@@ -17,8 +17,8 @@
 
 #:% section = preamble
 #: This example shows how to get student input in the form of a graph
-#: by using interactive graphing tools. Load the `parserGraphTool.pl` macro for
-#: this.
+#: by using interactive graphing tools. Load the PODLINK('parserGraphTool.pl')
+#: macro for this.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
@@ -39,15 +39,15 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #: In this case the options that are set are:
 #:
 #: * `numberLine` is set to 1 (true) to indicate this is a one-dimensional
-#: graph.
+#:   graph.
 #: * `bBox`: For a number line the bounding box is an array reference [xmin, xmax]
-#: containing the left and right limits of the visible graph.
+#:   containing the left and right limits of the visible graph.
 #: * `availableTools`: This determines which tools will be available for the
-#: student to use.
+#:   student to use.
 #: * `ticksDistanceX`: The distance between tick marks in the x direction.
 #: * `minorTicksX`: The number of minor ticks to show. This can be 0.
-#: * `useBracketEnds`: 1 (true) means to use () and [] to denote the intervals
-#: a value of 0 means to use open and solid circles.
+#: * `useBracketEnds`: 1 (true) means to use () and [] to denote the interval
+#:   ends, and a value of 0 means to use open and solid circles.
 $x1 = random(1, 5);
 
 $gt1 = GraphTool("{interval, (-$x1,$x1]}")->with(

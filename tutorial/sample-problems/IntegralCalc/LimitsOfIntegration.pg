@@ -1,5 +1,5 @@
 ## DESCRIPTION
-## Answer blanks in the limits of integration
+## Answer rules in limits of integration
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
@@ -11,15 +11,15 @@
 ## MO(1)
 ## KEYWORDS('Integrals', 'answer blanks in limits of integration')
 
-#:% name = Answer Blanks in Limits of Integration
+#:% name = Answer Rules in Limits of Integration
 #:% type = Sample
 #:% subject = integral calculus
 #:% categories = [antiderivatives]
 
 #:% section = preamble
-#: We  use `niceTables.pl` for table formatting commands we will use to put
-#: the answer blanks in the limits of integration.  We use `answerHints.pl` to
-#: help guide students toward the correct answer.
+#: The PODLINK('niceTables.pl') macro is used to construct a table containing
+#: the answer rules in the limits of integration.  The PODLINK('answerHints.pl')
+#: macro is used to help guide students toward the correct answer.
 DOCUMENT();
 
 loadMacros(
@@ -28,12 +28,13 @@ loadMacros(
 );
 
 #:% section = setup
-#: We define both `x` and `t` as variables as well as the differential `dx`
-#: (which would be incorrect) and the correct `dt`.
+#: The variables `x`, `t`, `dx`, and `dt` are added to the context. Note that
+#: `dx` would be incorrect for a student to use in the answer and `dt` is the
+#: correct differential.
 #:
-#: The `LayoutTable` of PODLINK('niceTables.pl') is used to display the
-#: definite integral.  Note that the `align => 'rl'` is used to get the
-#: formatting to look correct.
+#: The `LayoutTable` of PODLINK('niceTables.pl') is used to display the definite
+#: integral.  Note that the option `align => 'rl'` is used to make the
+#: formatting look right.
 Context()->variables->are(
     x  => 'Real',
     dx => 'Real',
@@ -45,7 +46,7 @@ $integral = LayoutTable(
     [
         [ ' ', ans_rule(4) ],
         [
-            '\(f(x)= \)' . ans_rule(10) . '\(+\)',
+            '\(f(x)= \) ' . ans_rule(10) . ' \(+\)',
             '\(\displaystyle \int \;\;\)' . ans_rule(10)
         ],
         [ ' ', ans_rule(4) ],
@@ -54,31 +55,32 @@ $integral = LayoutTable(
     allcellcss => { padding => '3pt' }
 );
 
+$fx = Formula("sin(x)");
+$ft = Formula("sin(t)");
+
 #:% section = statement
 #: The integral is placed in the problem with the `[$integral]*` which displays
 #: the table.
 BEGIN_PGML
-Find a formula for the function [`f(x)`] such that [`f '(x) = [$fpx]`] and
-[`f(2) = 5`].  Use [`t`] as the variable of integration inside the integral.
+Find a formula for the function [`f(x)`] such that [`f'(x) = [$fx]`] and
+[`f(2) = 5`].  Use [`t`] for the variable of integration.
 
 [$integral]*
 END_PGML
 
 #:% section = answer
-#: The answer blanks are written out as `ans_rule`, so we must use this style of
-#: answer checking.  We use `AnswerHints` to guide the students to the correct answer.
-#: Note that we also include the incorrect answer with the `x` as the variable
-#: and give the student feedback on this.
-$fpx = Formula("sin(x)");
-$fpt = Formula("sin(t)");
-
+#: The answer rules are inserted using `ans_rule`, so `ANS` must be called to
+#: associate the answer evaluators to those answer rules.  The `AnswerHints`
+#: method is used to provide hints that guide the students to the correct
+#: answer. Note that hints for the incorrect answers that use `x` for the
+#: variable instead of `t` are cases that a hint is provided for.
 ANS(Compute('x')->cmp());
 ANS(Compute('5')->cmp());
 ANS(
-    Compute("$fpt * dt")->cmp()->withPostFilter(AnswerHints(
-        Formula("$fpx")    => "Are you using the correct variable?",
-        Formula("$fpx*dx") => "Are you using the correct variable?",
-        Formula("$fpt")    => "Don't forget the differential dt",
+    Compute("$ft * dt")->cmp()->withPostFilter(AnswerHints(
+        Formula("$fx")    => "Are you using the correct variable?",
+        Formula("$fx*dx") => "Are you using the correct variable?",
+        Formula("$ft")    => "Don't forget the differential \(dt\).",
     ))
 );
 ANS(Compute('2')->cmp());

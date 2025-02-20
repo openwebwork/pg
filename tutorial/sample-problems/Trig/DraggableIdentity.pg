@@ -14,42 +14,41 @@
 #:% name = Draggable Trigonometry Identity
 #:% type = Sample
 #:% subject = [proof, trigonometry]
-#:% categories = [trigonometry, draggable]
+#:% categories = [draggable]
 
 #:% section = preamble
-#: This problem uses the `draggableProof.pl` macro to display "buckets" that the
-#: student can drag statements to and from.
+#: This problem uses the PODLINK('draggableProof.pl`) macro to display "buckets"
+#: that the student can drag statements to and from.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: The `DraggableProof` function takes an arrayref of correct statements,
-#: followed (optionally) by extra statements. See
-#: PODLINK('the Draggable Proof POD', 'draggableProof.pl') for more options.
+#: The `DraggableProof` function takes a reference to an array of correct
+#: statements, followed (optionally) by a reference to an array of extra
+#: statements. See PODLINK('draggableProof.pl') for more details.
 #:
 #: This shows how other identities could be structured. You probably want
 #: some incorrect statements to make the problem a little bit harder.
 $proof = DraggableProof(
     # These are the correct statements of the proof in the correct order.
     [
-        '\(\sin(\pi-\theta) = \sin(\pi)\cos(\theta)-\cos(\pi)\sin(\theta) \)',
-        '\(\sin(\pi-\theta) = 0 \cdot \cos(\theta) - (-1)\cdot \sin(\theta)\)',
-        '\(\sin(\pi-\theta) = 0+1\sin(\theta)\)',
-        '\(\sin(\pi-\theta) = \sin(\theta)\)',
+        '\(\sin(\pi - \theta) = \sin(\pi)\cos(\theta) - \cos(\pi)\sin(\theta)\)',
+        '\(\sin(\pi - \theta) = (0)\cos(\theta) - (-1)\sin(\theta)\)',
+        '\(\sin(\pi - \theta) = 0 + (1)\sin(\theta)\)',
+        '\(\sin(\pi - \theta) = \sin(\theta)\)',
     ],
     # These are extra statements that are not needed.
     [
-        '\(\sin(\pi-\theta) = \cos(\pi)\cos(\theta)-\sin(\pi)\sin(\theta) \)',
-        '\(\sin(\pi-\theta) = 0\cdot\cos(\theta)-(-1)\sin(\theta) \)',
-        '\(\sin(\pi-\theta) = \sin(\pi)\cos(\theta)+\cos(\pi)\sin(\theta) \)',
-        '\(\sin(\pi-\theta) = 0\cdot\cos(\theta)+1 \cdot\sin(\theta) \)',
-        '\(\sin(\pi-\theta) = 1\cdot\cos(\theta)+0 \cdot\sin(\theta) \)',
+        '\(\sin(\pi - \theta) = \cos(\pi)\cos(\theta) - \sin(\pi)\sin(\theta)\)',
+        '\(\sin(\pi - \theta) = \sin(\pi)\cos(\theta) + \cos(\pi)\sin(\theta)\)',
+        '\(\sin(\pi - \theta) = (1)\cos(\theta) + (0)\sin(\theta)\)',
     ]
 );
 
 #:% section = statement
-#: The line `[_]{$proof}` prints the statement and options in the proof and sets up the answer rule.
+#: The line `[_]{$proof}` inserts the drag and drop "buckets" containing the
+#: proof statements that are to be selected and ordered.
 BEGIN_PGML
 Prove the trigonmetric identity [`\sin(\pi-\theta) = \sin(\theta)`].
 

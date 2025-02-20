@@ -15,17 +15,18 @@
 #:% name = Answer is an Equation
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories = [equation, function, answers]
+#:% categories = [equations, functions, answers]
 
 #:% section = preamble
-#: We need to include the macro file `parserAssignment.pl`.
+#: The macro file PODLINK('parserAssignment.pl') needs to be included.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We must allow assignment, and declare any function names we wish to use. For
-#: more details and examples in other MathObjects contexts, see
+#: To allow assignments in the current context call `parser::Assignment->Allow`.
+#: To allow students to enter an assignment in which the left side is a function
+#: declaration call `parser::Assignment->Function('f')`. For more details, see
 #: PODLINK('parserAssignment.pl').
 Context()->variables->are(x => 'Real', y => 'Real');
 parser::Assignment->Allow;

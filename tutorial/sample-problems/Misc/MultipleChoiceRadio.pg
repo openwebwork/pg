@@ -17,16 +17,23 @@
 #:% see_also = [MultipleChoicePopup.pg, MultipleChoiceCheckbox.pg, ManyMultipleChoice.pg]
 
 #:% section = preamble color:blue
-#:The macro `parserRadioButtons.pl` must be loaded.
+#: The macro PODLINK('parserRadioButtons.pl') is used for radio button answers.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserRadioButtons.pl', 'PGcourse.pl');
 
 #:% section = setup
-#:To create a radio object, use `$radio = RadioButtons([choices,...],correct,options);`
-#:For all options, see MultipleChoiceProblems and parserRadioButtons.pl. The context
-#:is not really necessary, but multiple choice questions are often follow-up questions,
-#:so we leave it in.
+#: Call `RadioButtons` to create a radio button answer object. The format is
+#:
+#: ```{#constructor .perl}
+#: RadioButtons([choices, ...], correct, options);
+#: ```
+#:
+#: For more details see PODLINK('parserRadioButtons.pl').
+#:
+#: Setting the option `separator` to `$SPACE x 5` results in a horizontal
+#: list of radio buttons.  Note that `$SPACE` should be used and not `&nbsp;` so
+#: that this works in both html and hard copy.
 $radio1 = RadioButtons(
     [ [ 'Red', 'Blue', 'Green' ], 'None of these' ],
     'Blue',    # correct answer
@@ -35,7 +42,7 @@ $radio1 = RadioButtons(
 $radio2 = RadioButtons(
     [ [ 'Red', 'Blue', 'Green' ], 'None of these' ],
     2,         # correct answer as an index (starting at 0)
-    separator => $SPACE x 4
+    separator => $SPACE x 5
 );
 
 #:% section = statement

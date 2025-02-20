@@ -22,38 +22,49 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: The partial differentiation operator is `->D('x')`.
+#: The differentiation operator is `->D('x')`.
 #:
-#: The main difference between `eval()` and `substitute()` is
+#: The main difference between the `eval` and `substitute` methods is
 #:
-#:   - `eval()` returns a `Real` (a number)
-#:   - `substitute()` returns a `Formula`
+#:   - `eval` returns a `Real` (a number)
+#:   - `substitute` returns a `Formula`
 #:
-#: Since plugging a particular number `$k` into the Formula `$f` returns a Formula `$k x`,
-#: if we had used the eval method `$ans2 = $fx->eval(k => $k);` instead of the `substitute`
-#: method, we would get errors because `$k x` is a Formula, not a Real. Note: You cannot
-#: use eval or substitute to perform function composition, i.e., you can only plug in
-#: numbers, not formulas.
+#: For a constant answer either the `eval` method can be used in which case the
+#: answer would be a `Real`, or the `substitute` method can be used in which
+#: case the answer would be a constant `Formula`.
 #:
-#: When the answer is a constant, we can use either the eval method, in which case the
-#: answer would be a Real, or the substitute method, in which case the answer would
-#: be a constant Formula. If you use the eval method, `$ans3 = $fx->eval(x => $a * pi, k => $k);`
-#: the answer will be a Real and will display as a single number in decimal format.
-#: If you use the substitute method instead, you have more control over how the answer
-#: will be displayed. In particular, the context flag reduceConstants controls whether
-#: the answer will be reduced to a single number in decimal format, the flag
-#: reduceConstantFunctions controls whether or not expressions such as `4 + 5 * 2` are
-#: reduced to 14, and setting the context flag `formatStudentAnswer => 'parsed'` will
-#: prevent the student's answer from being reduced to a single number in decimal
-#: format and will also display pi instead of 3.14159...
+#: For example, the `eval` method could be used as in
+#: `$ans3 = $fx->eval(x => $a * pi, k => $k)` to obtain a `Real` which will
+#: display as a single number in decimal format. Note that the `eval` method
+#: requires values for all variables in the formula.  For example, calling
+#: `$fx->eval(k => $k)` gives errors, because a value is not provided for the
+#: variable `x`.
 #:
-#: For more details, see eval versus substitute, formatting correct answers, and
-#: constants in problems.
+#: The substitute method can be used instead which gives more control over how
+#: the answer will be displayed. In particular, the context flag
+#: `reduceConstants` controls whether simple constant expressions like `2 * 4`
+#: or `5 * pi` will be reduced to numbers in decimal format, the flag
+#: `reduceConstantFunctions` controls whether or not expressions such as
+#: `sqrt(3)` or `sin(3)` are evaluated to numbers or left as a function
+#: evaluated at a number, and setting the context flag `formatStudentAnswer =>
+#: 'parsed'` will prevent the student's "Entered" answer from being reduced to a
+#: single number in decimal format, and will display constants like `pi` instead
+#: of an approximation being displayed.
+#:
+#: It is important to note that the above rules do not apply to the numbers
+#: passed to the `substitute` method. So `$a * pi` will be converted into
+#: decimal form before it is used by the `substitute` method.
+#:
+#: Note that neither the `eval` method or `substitute` method can be used to
+#: perform function composition. Only numbers can be plugged in, not formulas.
+#:
+#: For more details see PROBLINK('EvalVersusSubstitute.pg') and
+#: PROBLINK('ConstantsInProblems.pg').
 Context()->variables->add(k => 'Real');
 Context()->flags->set(
-    reduceConstants         => 0,           # no decimals
-    reduceConstantFunctions => 1,           # simplify 4 + 5 * 2?
-    formatStudentAnswer     => 'parsed',    # no decimals
+    reduceConstants         => 0,
+    reduceConstantFunctions => 0,
+    formatStudentAnswer     => 'parsed',
 );
 
 $a = random(6, 9);
@@ -63,12 +74,8 @@ $f  = Formula('k x^2');
 $fx = $f->D('x');
 
 $ans1 = $fx;
-
-$ans2 = $fx->substitute(k => $k);    # formula
-# $ans2 = $fx->eval(k => $k); # gives errors, must eval to real
-
-$ans3 = $fx->substitute(x => $a * pi, k => $k);    # formula
-# $ans3 = $fx->eval(x => $a * pi, k => $k); # real
+$ans2 = $fx->substitute(k => $k);
+$ans3 = $fx->substitute(x => $a * pi, k => $k);
 
 #:% section = statement
 BEGIN_PGML

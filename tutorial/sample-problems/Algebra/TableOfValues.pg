@@ -17,47 +17,41 @@
 #:% categories = [table]
 
 #:% section = preamble
+#: The PODLINK('niceTables.pl') macro is implicitly used in this problem, but is
+#: automatically loaded by the `PGML.pl` macro.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'PGcourse.pl');
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We create an empty array `@answer` and use a for loop to simplify filling it
-#: with values.
-#:
-#: The `DataTable` is from PODLINK('niceTables.pl').  This builds a simple table. The options
-#: `horizontalrules` and `texalignment` gives the borders around each of the cells.
+#: Create the array `@answer` filled with values via a map.
 $f = Formula('3^(-x)');
 
-@answer = ();
-for $i (0 .. 2) {
-    $answer[$i] = $f->eval(x => $i);
-}
-
-$table = DataTable(
-    [
-        [ '\(x\)', '\(f(x)\)' ],
-        [ '\(0\)', ans_rule(4) ],
-        [ '\(1\)', ans_rule(4) ],
-        [ '\(2\)', ans_rule(4) ],
-    ],
-    horizontalrules => 1,
-    texalignment    => '|c|c|'
-);
+@answer = map { $f->eval(x => $_) } 0 .. 2;
 
 #:% section = statement
+#: Create a PODLINK('niceTables.pl') `DataTable` via the PGML syntax. The first
+#: row is declared to be a row of headers by adding the `headerrow => 1` option
+#: to any cell in that row. Note that this option applies to the entire row. The
+#: `horizontalrules` and `texalignment`options add borders around each of the
+#: cells. The option `padding => [0.5, 0.5]` adds a bit more vertical space in
+#: each cell to improve the appearance. The option `valign => 'middle'` gives
+#: better vertical alignment for this table.
 BEGIN_PGML
 If [`f(x) = [$f]`], fill in the table of values with numbers.
 
-[@ $table @]*
-END_PGML
-
-#:% section = answer
-#: Because the answer blanks are built with `ans_rule` inside the table, we
-#: need to use the traditional `ANS` call here.
-for $i (0 .. 2) {
-    ANS($answer[$i]->cmp);
+[#
+	[.[`x`].] [.[`f(x)`].]*{ headerrow => 1 }
+	[.[`0`].] [.[_]{$answer[0]}.]*
+	[.[`1`].] [.[_]{$answer[1]}.]*
+	[.[`2`].] [.[_]{$answer[2]}.]*
+#]{
+	horizontalrules => 1,
+   	texalignment    => '|c|c|',
+   	padding         => [ 0.5, 0.5 ],
+	valign          => 'middle'
 }
+END_PGML
 
 #:% section = solution
 BEGIN_PGML_SOLUTION
