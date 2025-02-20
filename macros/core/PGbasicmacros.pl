@@ -3220,6 +3220,24 @@ sub tag {
 	return "<$tag" . ($attributes_str ? " $attributes_str" : '') . '>' . ($SELF_CLOSING{$tag} ? '' : "$content</$tag>");
 }
 
+# Show text and problem code
+# argument should be a path to a text file, relative to templates folder
+sub text_file {
+	TEXT(
+		MODES(HTML => '<pre>', TeX => '\begin{verbatim}', PTX => '<pre>'),
+		${ read_whole_problem_file($envir{templateDirectory} . shift) },
+		MODES(HTML => '</pre>', TeX => '\end{verbatim}', PTX => '</pre>')
+	);
+}
+
+# argument should be a path to a pg file, relative to templates folder
+sub problem_with_code {
+	my $filepath = shift;
+	text_file($filepath);
+	TEXT($HR);
+	includePGproblem($filepath);
+}
+
 ###########
 # Auxiliary macros
 
