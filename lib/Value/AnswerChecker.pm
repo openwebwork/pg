@@ -170,7 +170,7 @@ sub cmp_parse {
 			/reduced/i   and do {
 				my $oldFlags = contextSet($context, reduceConstants => 1, reduceConstantFunctions => 0);
 				$ans->{student_ans} = preformat($ans->{student_formula}->substitute()->string);
-				contextSet($context, %{$oldFags});
+				contextSet($context, %{$oldFlags});
 				last;
 			};
 			warn "Unknown student answer format |$ans->{formatStudentAnswer}|";
