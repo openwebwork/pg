@@ -53,11 +53,12 @@ For PGML you can just do
 
 =head1 GRAPH OBJECTS
 
-There are nine types of graph objects that the students can graph. Points, lines, circles,
-parabolas, quadratics, cubics, intervals, sine waves, and fills (or shading of a region). The
-syntax for each of these objects to pass to the GraphTool constructor is summarized as follows.
-Each object must be enclosed in braces. The first element in the braces must be the name of the
-object. The following elements in the braces depend on the type of element.
+There are eleven types of graph objects that the students can graph. Points, lines, circles,
+parabolas, quadratics, cubics, intervals, sine waves, triangles, quadrilaterals and fills (or
+shading of a region). The syntax for each of these objects to pass to the GraphTool constructor
+is summarized as follows.  Each object must be enclosed in braces. The first element in the
+braces must be the name of the object. The following elements in the braces depend on the type
+of element.
 
 For points the name "point" must be followed by the coordinates. For example:
 
@@ -118,6 +119,18 @@ The last two elements are the period and amplitude. For Example:
 	"{sineWave,solid,(2,-4),3,5}"
 
 represents the function C<f(x) = 5 sin((2 pi / 3)(x - (-4))) + 2>.
+
+For triangles the name "triangle" must be followed by the word "solid" or "dashed" to indicate
+if the triangle is expected to be drawn solid or dashed. That is followed by the three vertices
+of the triangle. For example:
+
+	"{triangle,solid,(-1,2),(1,0),(3,3)}"
+
+For quadrilaterals the name "quadrilateral" must be followed by the word "solid" or "dashed" to
+indicate if the triangle is expected to be drawn solid or dashed. That is followed by the four
+vertices of the quadrilateral. For example:
+
+	"{quadrilateral,solid,(0,0),(4,3),(2,3),(4,-3)}"
 
 The student answers that are returned by the JavaScript will be a list of the list objects
 discussed above and will be parsed by WeBWorK and passed to the checker as such.  The default
@@ -298,8 +311,8 @@ This is an array of tools that will be made available for students to use in the
 The order the tools are listed here will also be the order the tools are presented in the graph
 tool button box.  In addition to the tools listed in the default options above, there is a
 "PointTool", three point "QuadraticTool", four point "CubicTool", "IntervalTool",
-"IncludeExcludePointTool", and "SineWaveTool".  Note that the case of the tool names must match
-what is shown.
+"IncludeExcludePointTool", "SineWaveTool", "TriangleTool", and "QuadrilateralTool".  Note that
+the case of the tool names must match what is shown.
 
 =item staticObjects (Default: C<< staticObjects => [] >>)
 
@@ -439,6 +452,8 @@ sub _parserGraphTool_init {
 	ADD_JS_FILE('js/GraphTool/cubictool.js',                     0, { defer => undef });
 	ADD_JS_FILE('js/GraphTool/intervaltools.js',                 0, { defer => undef });
 	ADD_JS_FILE('js/GraphTool/sinewavetool.js',                  0, { defer => undef });
+	ADD_JS_FILE('js/GraphTool/triangle.js',                      0, { defer => undef });
+	ADD_JS_FILE('js/GraphTool/quadrilateral.js',                 0, { defer => undef });
 
 	return;
 }
@@ -1149,6 +1164,191 @@ parser::GraphTool->addGraphObjects(
 				}
 			);
 		}
+	},
+	triangle => {
+		js   => 'graphTool.triangleTool.Triangle',
+		tikz => {
+			code => sub {
+				my $gt = shift;
+
+				my ($p1x, $p1y) = @{ $_->{data}[2]{data} };
+				my ($p2x, $p2y) = @{ $_->{data}[3]{data} };
+				my ($p3x, $p3y) = @{ $_->{data}[4]{data} };
+
+				return (
+					"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]]"
+						. " ($p1x, $p1y) -- ($p2x, $p2y) -- ($p3x, $p3y) -- cycle;",
+					[
+						"($p1x, $p1y) -- ($p2x, $p2y) -- ($p3x, $p3y) -- cycle",
+						sub {
+							my $denominator = ($p2y - $p3y) * ($p1x - $p3x) + ($p3x - $p2x) * ($p1y - $p3y);
+							my $s =
+								(($p2y - $p3y) * ($_[0] - $p3x) + ($p3x - $p2x) * ($_[1] - $p3y)) / $denominator;
+							my $t =
+								(($p3y - $p1y) * ($_[0] - $p3x) + ($p1x - $p3x) * ($_[1] - $p3y)) / $denominator;
+							if ($s >= 0 && $t >= 0 && $s + $t <= 1) {
+								return 0 if ($s == 0 || $t == 0 || $s + $t == 1);
+								return 1;
+							}
+							return -1;
+						}
+					]
+				);
+			}
+		},
+		cmp => sub {
+			my $triangle = shift;
+
+			my $solid_dashed = $triangle->{data}[1];
+			my $p1           = $triangle->{data}[2];
+			my $p2           = $triangle->{data}[3];
+			my $p3           = $triangle->{data}[4];
+
+			my ($p1x, $p1y) = $p1->value;
+			my ($p2x, $p2y) = $p2->value;
+			my ($p3x, $p3y) = $p3->value;
+			my $denominator = ($p2y - $p3y) * ($p1x - $p3x) + ($p3x - $p2x) * ($p1y - $p3y);
+
+			return (
+				sub {
+					my $point = shift;
+					my ($x, $y) = $point->value;
+					my $s = (($p2y - $p3y) * ($x - $p3x) + ($p3x - $p2x) * ($y - $p3y)) / $denominator;
+					my $t = (($p3y - $p1y) * ($x - $p3x) + ($p1x - $p3x) * ($y - $p3y)) / $denominator;
+					if ($s >= 0 && $t >= 0 && $s + $t <= 1) {
+						return 0 if ($s == 0 || $t == 0 || $s + $t == 1);
+						return 1;
+					}
+					return -1;
+				},
+				sub {
+					my ($other, $fuzzy) = @_;
+					return 0 if $other->{data}[0] ne 'triangle' || (!$fuzzy && $other->{data}[1] ne $solid_dashed);
+
+					for my $otherPoint (@{ $other->{data} }[ 2, 3, 4 ]) {
+						return 0 if !(grep { $_ == $otherPoint } $p1, $p2, $p3);
+					}
+
+					return 1;
+				}
+			);
+		}
+	},
+	quadrilateral => {
+		js   => 'graphTool.quadrilateralTool.Quadrilateral',
+		tikz => {
+			code => sub {
+				my $gt = shift;
+
+				my @points = @{ $_->{data} }[ 2 .. 5 ];
+				my ($p1x, $p1y) = @{ $points[0]{data} };
+				my ($p2x, $p2y) = @{ $points[1]{data} };
+				my ($p3x, $p3y) = @{ $points[2]{data} };
+				my ($p4x, $p4y) = @{ $points[3]{data} };
+
+				return (
+					"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]]"
+						. " ($p1x, $p1y) -- ($p2x, $p2y) -- ($p3x, $p3y) -- ($p4x, $p4y) -- cycle;",
+					[
+						"($p1x, $p1y) -- ($p2x, $p2y) -- ($p3x, $p3y) -- ($p4x, $p4y) -- cycle",
+						sub {
+							my ($x, $y) = @_;
+
+							# Check to see if the point is on the border.
+							for my $i (0 .. 3) {
+								my ($x1, $y1) = @{ $points[$i]{data} };
+								my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ]{data} };
+								return 0
+									if ($x <= main::max($x1, $x2)
+										&& $x >= main::min($x1, $x2)
+										&& $y <= main::max($y1, $y2)
+										&& $y >= main::min($y1, $y2)
+										&& ($y - $y1) * ($x2 - $x1) - ($y2 - $y1) * ($x - $x1) == 0);
+							}
+
+							# Check to see if the point is inside.
+							my $isIn = 0;
+							for my $i (0 .. 3) {
+								my ($x1, $y1) = @{ $points[$i]{data} };
+								my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ]{data} };
+								if ($y1 > $y != $y2 > $y && $x - $x1 < (($x2 - $x1) * ($y - $y1)) / ($y2 - $y1)) {
+									$isIn = !$isIn;
+								}
+							}
+							return 1 if $isIn;
+
+							return -1;
+						}
+					]
+				);
+			}
+		},
+		cmp => sub {
+			my $quadrilateral = shift;
+
+			my $solid_dashed = $quadrilateral->{data}[1];
+			my @points       = @{ $quadrilateral->{data} }[ 2 .. 5 ];
+
+			return (
+				sub {
+					my $point = shift;
+					my ($x, $y) = $point->value;
+
+					# Check to see if the point is on the border.
+					for my $i (0 .. 3) {
+						my ($x1, $y1) = @{ $points[$i]{data} };
+						my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ]{data} };
+						return 0
+							if ($x <= main::max($x1, $x2)
+								&& $x >= main::min($x1, $x2)
+								&& $y <= main::max($y1, $y2)
+								&& $y >= main::min($y1, $y2)
+								&& ($y - $y1) * ($x2 - $x1) - ($y2 - $y1) * ($x - $x1) == 0);
+					}
+
+					# Check to see if the point is inside.
+					my $isIn = 0;
+					for my $i (0 .. 3) {
+						my ($x1, $y1) = @{ $points[$i]{data} };
+						my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ]{data} };
+						if ($y1 > $y != $y2 > $y && $x - $x1 < (($x2 - $x1) * ($y - $y1)) / ($y2 - $y1)) {
+							$isIn = !$isIn;
+						}
+					}
+					return 1 if $isIn;
+
+					return -1;
+				},
+				sub {
+					my ($other, $fuzzy) = @_;
+					return 0
+						if $other->{data}[0] ne 'quadrilateral' || (!$fuzzy && $other->{data}[1] ne $solid_dashed);
+
+					# Check for the four possible cycles that give the same quadrilateral in both directions.
+					for my $i (0 .. 3) {
+						my $correct = 1;
+						for my $j (0 .. 3) {
+							if ($points[ ($i + $j) % 4 ] != $other->{data}[ $j + 2 ]) {
+								$correct = 0;
+								last;
+							}
+						}
+						return 1 if $correct;
+
+						$correct = 1;
+						for my $j (0 .. 3) {
+							if ($points[ 3 - ($i + $j) % 4 ] != $other->{data}[ $j + 2 ]) {
+								$correct = 0;
+								last;
+							}
+						}
+						return 1 if $correct;
+					}
+
+					return 0;
+				}
+			);
+		}
 	}
 );
 
@@ -1163,6 +1363,10 @@ parser::GraphTool->addTools(
 	IntervalTool => 'graphTool.intervalTool.IntervalTool',
 	# A sine wave tool.
 	SineWaveTool => 'graphTool.sineWaveTool.SineWaveTool',
+	# A triangle tool.
+	TriangleTool => 'graphTool.triangleTool.TriangleTool',
+	# A quadrilateral tool.
+	QuadrilateralTool => 'graphTool.quadrilateralTool.QuadrilateralTool',
 	# Include/Exclude point tool.
 	IncludeExcludePointTool => 'graphTool.includeExcludePointTool.IncludeExcludePointTool',
 );
