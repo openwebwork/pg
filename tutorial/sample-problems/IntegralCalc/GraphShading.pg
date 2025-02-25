@@ -32,11 +32,13 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 #: The shading in done with the `\filldraw` command with the
 #: `fill opacity = 0.5`. Also note that one of the sides of the filled area is
 #: the square root function.
-$a    = random(-4, 2);
-$b    = random(1,  4);
-$g    = Compute("$b + sqrt(x - $a)");
-$gtex = "$b + \sqrt{" . nicestring([ 1, -$a ]) . '}';
-$ans  = Compute("3*$b + 14/3");
+
+Context('Numeric');
+
+$a   = random(-4, 2);
+$b   = random( 1, 4);
+$g   = Compute("$b + sqrt(x - $a)")->reduce;
+$ans = Compute("3*$b + 14/3");
 
 $graph = createTikZImage();
 $graph->tikzLibraries('arrows.meta');
@@ -77,7 +79,7 @@ $altText =
 
 #:% section = statement
 BEGIN_PGML
-Use the graph to find the area of the shaded region under [`f(x) = [$gtex]`].
+Use the graph to find the area of the shaded region under [`f(x) = [$g]`].
 
 >>[![$altText]!]{$graph}{400}<<
 

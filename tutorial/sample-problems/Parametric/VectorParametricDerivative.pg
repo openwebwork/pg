@@ -14,6 +14,7 @@
 #:% name = Parametric Vector Function with Derivative
 #:% type = Sample
 #:% subject = parametric
+#:% see_also = [VectorParametricFunction.pg, VectorParametricLines.pg]
 
 #:% section = preamble
 #: Although not necessary for the code demonstrated in this example, you might
