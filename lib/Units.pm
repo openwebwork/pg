@@ -786,11 +786,19 @@ our %known_units = (
 	},
 );
 
+# A map from unit name to its aliases
+our %unit_aliases;
+
+# A map from units name to what it is an alias for
+our %unit_aliased_to;
+
 # Process aliases.
 for my $unit (keys %known_units) {
 	if (ref $known_units{$unit}{aliases} eq 'ARRAY') {
 		my $aliases = delete $known_units{$unit}{aliases};
-		$known_units{$_} = $known_units{$unit} for @$aliases;
+		$known_units{$_}     = $known_units{$unit} for @$aliases;
+		$unit_aliased_to{$_} = $unit               for @$aliases;
+		$unit_aliases{$unit} = $aliases;
 	}
 }
 
