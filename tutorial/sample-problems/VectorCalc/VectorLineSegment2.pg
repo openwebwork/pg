@@ -17,6 +17,7 @@
 #:% type = [technique, sample]
 #:% categories = vector
 #:% subject = Vector Calculus
+#:% see_also = [VectorParametricLine.pg, VectorLineSegment1.pg]
 
 #:% section = preamble
 #:  The PODLINK('parseVectorUtils.pl') macro is loaded for the
@@ -41,14 +42,14 @@ $ans = Compute("$P + $speed * t * $disp / norm($disp)");
 
 #:% section = statement
 BEGIN_PGML
-A particle starts at the point [`P = [$P]`] when [`t = 0`] and moves along a
-straight line toward [`Q = [@ Point($P + $disp) @]`] at a speed of [`[$speed]`]
-centimeters per second.  Assume that [`x`], [`y`], and [`z`] are measured in
-centimeters.
+A particle starts at the point [`P = [$P]`] when [`t = 0`]
+and moves along a straight line toward [`Q = [@ Point($P + $disp) @]`]
+at a speed of [`[$speed]`] centimeters per second . Assume that [`x`],
+[`y`], and [`z`] are measured in centimeters.
 
 Find a vector equation for the position of the object.
 
-[` \vec{r}(t) = `] [____]{$ans}
+[` \vec{r}(t) = `] [__]{$ans}
 
 _Do not include units in your answer._
 END_PGML

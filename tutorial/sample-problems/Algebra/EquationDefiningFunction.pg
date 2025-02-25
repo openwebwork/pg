@@ -26,7 +26,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
 #:% section = setup
 #: To allow assignments in the current context call `parser::Assignment->Allow`.
 #: To allow students to enter an assignment in which the left side is a function
-#: declaration call `parser::Assignment->Function('f')`. For more details, see
+#: use `parser::Assignment->Function('f')`. For more details, see
 #: PODLINK('parserAssignment.pl').
 Context()->variables->are(x => 'Real', y => 'Real');
 parser::Assignment->Allow;

@@ -17,6 +17,7 @@
 #:% type = [technique, sample]
 #:% categories = vector
 #:% subject = Vector Calculus
+#:% see_also = [VectorParametricLine.pg, VectorLineSegment2.pg]
 
 #:% section = preamble
 #: The PODLINK('parseParametricLine.pl') macro provides the `ParametricLine`
@@ -83,10 +84,11 @@ $multians = MultiAnswer($line, Real(0), Real(1))->with(
 #:% section = statement
 #: Use `$multians` for each answer.
 BEGIN_PGML
-Find a vector equation for the line segment from the point [`P = [$P]`] to
-[`Q = [$Q]`].
+Find a vector equation for the line segment from the point
+[`P = [$P]`] to [`Q = [$Q]`] .
 
 [`\vec{r}(t) =`] [__]{$multians}{15}
+
 for [_]{$multians}{4} [` \leq t \leq `] [_]{$multians}{4}
 END_PGML
 

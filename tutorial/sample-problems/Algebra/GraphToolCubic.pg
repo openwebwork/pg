@@ -13,7 +13,7 @@
 #:% name = Graph Tool, plotting a cubic
 #:% type = [Sample, technique]
 #:% subject = [algebra, precalculus]
-#:% categories = [graph]
+#:% categories = [graph, graphtool]
 
 #:% section = preamble
 #: This example shows how to get student input in the form of a graph (a cubic)

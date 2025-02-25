@@ -82,7 +82,7 @@ loadMacros(
 Context('ImplicitEquation');
 Context()->variables->set(
     x => { limits => [ -2, 2 ] },
-    y => { limits => [ 0,  4 ] }
+    y => { limits => [  0, 4 ] }
 );
 
 $ans = ImplicitEquation('y = (x-1)^2');
