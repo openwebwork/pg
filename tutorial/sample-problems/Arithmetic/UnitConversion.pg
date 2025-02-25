@@ -1,0 +1,68 @@
+## DESCRIPTION
+## Answer is a number or formula with units
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(02/15/2025)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## Static(1)
+## MO(1)
+## KEYWORDS('differential calculus', 'units')
+
+# Update 2025.02 to use the contextUnits.pl macro.
+
+#:% name = Unit Conversion
+#:% type = Sample
+#:% subject = arithmetic
+#:% categories = [units]
+
+#:% section = preamble
+#: We load `contextUnits.pl` in order to use the Units context.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: First, we use the Units context from the PODLINK('contextUnits.pl') macro. This is
+#: related to the 'Numeric' context with the ability to handle units. The first question
+#: involves volume units so we set that.
+#:
+Context('Units')->withUnitsFor('volume');
+
+$v        = random(25, 200, 25);
+$vol      = Compute("$v ml");
+$vol_cups = $vol->toUnits('cup');
+
+Context('Units')->withUnitsFor('length', 'time');
+
+$s     = random(22, 110, 11);
+$speed = Compute("$s ft/s");
+
+#:% section = statement
+#: The `->toUnits` method converts the given number with units to the requested unit.  The
+#: `with(sameUnits =>1)` means that the student answer must be in the same units.
+#: Don't forget to use `helpLink('units')` so your students will have access to the
+#: complete list of units that WeBWorK understands.
+BEGIN_PGML
+Perform the following unit conversions:
+
+a) Convert [$vol] to cups.  You may use [`1\;\text{L} = 1000\;\text{ml}`], [`1\;\text{qt} =  0.9464\;\text{L}`] and [`1\;\text{qt}=4\;\text{cups}`].
+
+    Answer: [_]{$vol_cups->with(sameUnits => 1)}
+
+b) Convert [$s] to miles per hour.  Recall that [`1\;\text{mile}=5280\;\text{feet}`].
+
+    Answer: [_]{$speed->toUnits('mi/h')->with(sameUnits => 1)}
+
+Note: use units in all answers. [@ helpLink('units') @]*
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+[$vol->toUnits('cups')]
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

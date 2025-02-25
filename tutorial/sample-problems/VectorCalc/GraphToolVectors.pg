@@ -1,0 +1,56 @@
+## DESCRIPTION
+## Shows a triangle tool within the GraphTool.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(Sample Problems)
+## DBsection(Graph Tool)
+## Date(02/25/2025)
+## Institution(Missouri Western)
+## Author(Glenn Rice)
+## MO(1)
+## KEYWORDS('graph tool', 'vectors')
+
+#:% name = Vector Graph Tool
+#:% type = Sample
+#:% subject = [geometry]
+#:% categories = [graph, graphtool]
+
+#:% section = preamble
+#: Load the PODLINK('parserGraphTool.pl') macro to be able to use the GraphTool.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This finds three unique random points and sets up the GraphTool.  The line
+#: `{ vector, solid, ($x1, $y1), ($x2, $y2) }` creates a vector from ($x1, $x2)
+#: to ($x2, $y2) as a solid line.
+$x1 = random(-8, 8);
+$y1 = random(-8, 8);
+do { $x2 = random(-8, 8); $y2 = random(-8, 8); } until $x2 != $x1 || $y2 != $y1;
+
+$gt = GraphTool("{vector, solid, ($x1, $y1), ($x2, $y2)}")
+    ->with(availableTools => [ 'VectorTool', 'FillTool', 'SolidDashTool' ]);
+
+#:% section = statement
+#: First, ask the question with the given points.  Then add the `[_]{$gt}` to produce
+#: the graph tool within the problem.
+BEGIN_PGML
+Graph the vector with initial point [`([$x1],[$y1])`] and terminal point
+[`([$x2],[$y2])`].
+
+[_]{$gt}
+END_PGML
+
+#:% section = solution
+#: The important thing to note is that it is simple to add the correct graph using the
+#: method `generateAnswerGraph` as shown in the solution here.  The PGML directive [ ]*
+#: needs a * for the HTML version to be rendered correctly.
+BEGIN_PGML_SOLUTION
+The correct answer is
+
+[$gt->generateAnswerGraph]*
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
