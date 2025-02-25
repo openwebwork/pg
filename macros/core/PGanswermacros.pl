@@ -584,14 +584,6 @@ sub function_from_string2 {
 
 	    	if ( defined($PG_eval_errors) and $PG_eval_errors =~ /\S/ ) {
 	    	    $PGanswerMessage	= clean_up_error_msg($PG_eval_errors);
-# This message seemed too verbose, but it does give extra information, we'll see if it is needed.
-#                    "<br> There was an error in evaluating your function <br>
-# 					! . $originalEqn . q! <br>
-# 					at ( " . join(', ', @VARS) . " ) <br>
-# 					 $PG_eval_errors
-# 					";   # this message appears in the answer section which is not process by Latex2HTML so it must
-# 					     # be in HTML.  That is why $BR is NOT used.
-
 			}
 			(wantarray) ? ($out, $PGanswerMessage): $out;   # PGanswerMessage may be undefined.
 	    };
@@ -1233,7 +1225,6 @@ C<check_syntax( $rh_ans, %options)>
 
 returns an answer hash.
 
-latex2html preview code are installed in the answer hash.
 The input has been transformed, changing 7pi to 7*pi  or 7x to 7*x.
 Syntax error messages may be generated and stored in student_ans
 Additional syntax error messages are stored in {ans_message} and duplicated in {error_message}

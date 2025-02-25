@@ -11,25 +11,17 @@ sub _unionMacros_init { };    # don't reload this file
 $WW = "WeBWorK";
 
 #
-#  Shorthands for entering and leaving rawhtml mode in
-#  LaTeX2HTML (since they are so commonly used).
-#
-$bHTML = '\begin{rawhtml}';
-$eHTML = '\end{rawhtml}';
-
-#
 #  HTML(htmlcode)
 #  HTML(htmlcode,texcode)
 #
-#  Insert $html in HTML mode or \begin{rawhtml}$html\end{rawhtml} in
-#  Latex2HTML mode.  In TeX mode, insert nothing for the first form, and
-#  $tex for the second form.
+#  Insert $html in HTML mode.  In TeX mode, insert nothing for the first form,
+#  and $tex for the second form.
 #
 sub HTML {
 	my ($html, $tex) = @_;
 	return ('') unless (defined($html) && $html ne '');
 	$tex = ''   unless (defined($tex));
-	MODES(TeX => $tex, Latex2HTML => $bHTML . $html . $eHTML, HTML => $html);
+	MODES(TeX => $tex, HTML => $html);
 }
 
 #
@@ -58,7 +50,7 @@ $BSMALL = HTML('<SMALL>',  '{\small ');
 $ESMALL = HTML('</SMALL>', '}');
 
 #
-#  Remove extra space in bold in latex2html mode
+#  Remove extra space in bold
 #
 $BBOLD = HTML('<B>',  '{\bf ');
 $EBOLD = HTML('</B>', '}');
@@ -105,10 +97,9 @@ $BBR = HTML('<BR>');
 #  Broser-only \displaystyle
 #
 $DISPLAY = MODES(
-	TeX        => '',
-	Latex2HTML => '\displaystyle ',
-	HTML_tth   => '\displaystyle ',
-	HTML       => ''
+	TeX      => '',
+	HTML_tth => '\displaystyle ',
+	HTML     => ''
 );
 
 #
@@ -118,9 +109,8 @@ sub Title {
 	my $title = shift;
 
 	TEXT(MODES(
-		TeX        => "\\par\\begin{centering}{\\bf $title}\\par\\end{centering}\\nobreak\n",
-		Latex2HTML => $bHTML . '<CENTER><H2>' . $title . '</H2></CENTER>' . $eHTML,
-		HTML       => '<CENTER><H2>' . $title . '</H2></CENTER>'
+		TeX  => "\\par\\begin{centering}{\\bf $title}\\par\\end{centering}\\nobreak\n",
+		HTML => '<CENTER><H2>' . $title . '</H2></CENTER>'
 	));
 }
 

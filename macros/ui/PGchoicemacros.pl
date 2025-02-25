@@ -268,22 +268,12 @@ sub std_print_q {
 	my (@questions) = @_;
 	my $length      = $self->{ans_rule_len};
 	my $out         = "";
-	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
 	if ($main::displayMode =~ /^HTML/) {
 		my $i = 1;
 		my $quest;
 		$out = "\n<P>\n";
 		foreach $quest (@questions) {
 			$out .= ans_rule($length) . "&nbsp;<B>$i.</B> $quest<BR>";
-			$i++;
-		}
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i = 1;
-		my $quest;
-		$out = "\\par\n";
-		foreach $quest (@questions) {
-			$out .= ans_rule($length)
-				. "\\begin{rawhtml}<B>$i. </B>\\end{rawhtml} $quest\\begin{rawhtml}<BR>\\end{rawhtml}\n";
 			$i++;
 		}
 	} elsif ($main::displayMode eq 'TeX') {
@@ -335,7 +325,6 @@ sub pop_up_list_print_q {
 	my @list        = @{ $self->{ra_pop_up_list} };
 	my $out         = "";
 
-	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
 	if ($main::displayMode =~ /^HTML/) {
 		my $i = 1;
 		my $quest;
@@ -344,17 +333,6 @@ sub pop_up_list_print_q {
 			$i++;
 		}
 		$out .= "<br>\n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i = 1;
-		my $quest;
-		foreach $quest (@questions) {
-			$out .=
-				" \\begin{rawhtml}<p><B>\\end{rawhtml}"
-				. pop_up_list(@list)
-				. " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
-			$i++;
-		}
-		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
 	} elsif ($main::displayMode eq 'TeX') {
 		$out = "\n\\par\\begin{enumerate}\n";
 		my $i = 1;
@@ -401,11 +379,7 @@ sub quest_first_pop_up_list_print_q {
 	if ($main::displayMode eq 'HTML_MathJax'
 		|| $main::displayMode eq 'HTML_dpng'
 		|| $main::displayMode eq 'HTML'
-		|| $main::displayMode eq 'HTML_tth'
-		|| $main::displayMode eq 'HTML_jsMath'
-		|| $main::displayMode eq 'HTML_asciimath'
-		|| $main::displayMode eq 'HTML_LaTeXMathML'
-		|| $main::displayMode eq 'HTML_img')
+		|| $main::displayMode eq 'HTML_tth')
 	{
 		my $i = 1;
 		my $quest;
@@ -414,17 +388,6 @@ sub quest_first_pop_up_list_print_q {
 			$i++;
 		}
 		$out .= "<br>\n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i = 1;
-		my $quest;
-		foreach $quest (@questions) {
-			$out .=
-				" \\begin{rawhtml}<p><B>\\end{rawhtml}"
-				. pop_up_list(@list)
-				. " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
-			$i++;
-		}
-		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
 	} elsif ($main::displayMode eq 'TeX') {
 		$out = "\n\\par\\begin{enumerate}\n";
 		my $i = 1;
@@ -472,11 +435,7 @@ sub ans_in_middle_pop_up_list_print_q {
 	if ($main::displayMode eq 'HTML_MathJax'
 		|| $main::displayMode eq 'HTML_dpng'
 		|| $main::displayMode eq 'HTML'
-		|| $main::displayMode eq 'HTML_tth'
-		|| $main::displayMode eq 'HTML_jsMath'
-		|| $main::displayMode eq 'HTML_asciimath'
-		|| $main::displayMode eq 'HTML_LaTeXMathML'
-		|| $main::displayMode eq 'HTML_img')
+		|| $main::displayMode eq 'HTML_tth')
 	{
 		my $i = 1;
 		my $quest;
@@ -485,17 +444,6 @@ sub ans_in_middle_pop_up_list_print_q {
 			$i++;
 		}
 		$out .= "";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i = 1;
-		my $quest;
-		foreach $quest (@questions) {
-			$out .=
-				" \\begin{rawhtml}<p><B>\\end{rawhtml}"
-				. pop_up_list(@list)
-				. " $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";
-			$i++;
-		}
-		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
 	} elsif ($main::displayMode eq 'TeX') {
 		$out = "\n\\par\\begin{enumerate}\n";
 		my $i = 1;
@@ -570,10 +518,7 @@ sub std_print_a {
 	my @alpha   = ('A' .. 'Z', 'AA' .. 'ZZ');
 	my $letter;
 	my $out = &main::MODES(
-		TeX        => "\\begin{enumerate}\n",
-		Latex2HTML => " \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
-		# kludge to fix IE/CSS problem
-		#"<OL COMPACT TYPE=\"A\" START=\"1\">\n"
+		TeX  => "\\begin{enumerate}\n",
 		HTML => "<BLOCKQUOTE>\n",
 		PTX  => '<ol label="A.">' . "\n",
 	);
@@ -581,18 +526,14 @@ sub std_print_a {
 	foreach $elem (@array) {
 		$letter = shift @alpha;
 		$out .= &main::MODES(
-			TeX        => "\\item[$main::ALPHABET[$i].] $elem\n",
-			Latex2HTML => " \\begin{rawhtml} <LI> \\end{rawhtml} $elem  ",
-			#"<LI> $elem</LI>\n"
+			TeX  => "\\item[$main::ALPHABET[$i].] $elem\n",
 			HTML => "<br /> <b>$letter.</b> $elem\n",
 			PTX  => "<li>$elem</li>\n",
 		);
 		$i++;
 	}
 	$out .= &main::MODES(
-		TeX        => "\\end{enumerate}\n",
-		Latex2HTML => " \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
-		#"</OL>\n"
+		TeX  => "\\end{enumerate}\n",
 		HTML => "</BLOCKQUOTE>\n",
 		PTX  => "</ol>",
 	);
@@ -627,7 +568,7 @@ sub radio_print_a {
 	my $out       = "";
 	my $i         = 0;
 	my @in        = ();
-	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
+
 	if ($main::displayMode =~ /^HTML/) {
 		foreach my $ans (@answers) {
 			push(@in, ($main::ALPHABET[$i], "<B> $main::ALPHABET[$i]. </B> $ans"));
@@ -636,14 +577,6 @@ sub radio_print_a {
 		my @radio_buttons = ans_radio_buttons(@in);
 		$out = "\n<BR>" . join "\n<BR>", @radio_buttons;
 		$out .= "<BR>\n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		foreach my $ans (@answers) {
-			push(@in, ($main::ALPHABET[$i], "\\begin{rawhtml}<B> $main::ALPHABET[$i]. </B> \\end{rawhtml} $ans"));
-			$i++;
-		}
-		my @radio_buttons = ans_radio_buttons(@in);
-		$out = "\\begin{rawhtml}<BR>\\end{rawhtml}" . join "\\begin{rawhtml}<BR>\\end{rawhtml}", @radio_buttons;
-		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
 	} elsif ($main::displayMode eq 'TeX') {
 		foreach my $ans (@answers) {
 			push(@in, ($main::ALPHABET[$i], "$main::ALPHABET[$i]. $ans"));
@@ -688,7 +621,7 @@ sub checkbox_print_a {
 	my $out       = "";
 	my $i         = 0;
 	my @in        = ();
-	# 	if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
+
 	if ($main::displayMode =~ /^HTML/) {
 		foreach my $ans (@answers) {
 			push(@in, ($main::ALPHABET[$i], "<B> $main::ALPHABET[$i]. </B> $ans"));
@@ -697,14 +630,6 @@ sub checkbox_print_a {
 		my @checkboxes = ans_checkbox(@in);
 		$out = "\n<BR>" . join "\n<BR>", @checkboxes;
 		$out .= "<BR>\n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		foreach my $ans (@answers) {
-			push(@in, ($main::ALPHABET[$i], "\\begin{rawhtml}<B> $main::ALPHABET[$i]. </B> \\end{rawhtml} $ans"));
-			$i++;
-		}
-		my @checkboxes = ans_checkbox(@in);
-		$out = "\\begin{rawhtml}<BR>\\end{rawhtml}" . join "\\begin{rawhtml}<BR>\\end{rawhtml}", @checkboxes;
-		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
 	} elsif ($main::displayMode eq 'TeX') {
 		foreach my $ans (@answers) {
 			push(@in, ($main::ALPHABET[$i], "$main::ALPHABET[$i]. $ans"));
@@ -824,7 +749,7 @@ sub shuffle {
 sub match_questions_list {
 	my (@questions) = @_;
 	my $out = "";
-	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
+
 	if ($main::displayMode =~ /^HTML/) {
 		my $i = 1;
 		my $quest;
@@ -833,17 +758,6 @@ sub match_questions_list {
 			$i++;
 		}
 		$out .= "<br>\n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i = 1;
-		my $quest;
-		foreach $quest (@questions) {
-			$out .=
-				" \\begin{rawhtml}<BR>\\end{rawhtml} "
-				. ans_rule(4)
-				. "\\begin{rawhtml}<B>\\end{rawhtml} $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";  #"$i.   $quest";
-			$i++;
-		}
-		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
 	} elsif ($main::displayMode eq 'TeX') {
 		$out = "\n\\par\\begin{enumerate}\n";
 		my $i = 1;
@@ -868,7 +782,7 @@ sub match_questions_list {
 sub match_questions_list_varbox {
 	my ($length, @questions) = @_;
 	my $out = "";
-	#if ($main::displayMode eq 'HTML' || $main::displayMode eq 'HTML_tth') {
+
 	if ($main::displayMode =~ /^HTML/) {
 		my $i = 1;
 		my $quest;
@@ -877,17 +791,6 @@ sub match_questions_list_varbox {
 			$i++;
 		}
 		$out .= "<br>\n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		my $i = 1;
-		my $quest;
-		foreach $quest (@questions) {
-			$out .=
-				" \\begin{rawhtml}<BR>\\end{rawhtml} "
-				. ans_rule($length)
-				. "\\begin{rawhtml}<B>\\end{rawhtml} $i. \\begin{rawhtml}</B>\\end{rawhtml}   $quest";  #"$i.   $quest";
-			$i++;
-		}
-		$out .= " \\begin{rawhtml}<BR>\\end{rawhtml} ";
 	} elsif ($main::displayMode eq 'TeX') {
 		$out = "\n\\par\\begin{enumerate}\n";
 		my $i = 1;
@@ -908,4 +811,3 @@ sub match_questions_list_varbox {
 =cut
 
 1;
-

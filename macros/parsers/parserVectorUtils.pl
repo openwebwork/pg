@@ -56,10 +56,9 @@ sub Overline {
     BoldMath($vectorName)
 
 This gets a bold letter in TeX as well as HTML modes.
-Although \boldsymbol{} works fine on screen in latex2html mode,
-the PDF file produces non-bold letters.  I haven't been able to
-track this down, so used \mathbf{} in TeX mode, which produces
-roman bold, not math-italic bold.
+Although \boldsymbol{} works fine on screen, the PDF file produces non-bold
+letters.  I haven't been able to track this down, so used \mathbf{} in TeX mode,
+which produces roman bold, not math-italic bold.
 
 =cut
 
@@ -67,12 +66,11 @@ sub BoldMath {
 	my $v    = shift;
 	my $HTML = '<B><I>' . $v . '</B></I>';
 	MODES(
-		TeX        => "\\boldsymbol{$v}",    #  doesn't seem to work in TeX mode
-											 #    TeX => "\\mathbf{$v}",      #  gives non-italic bold in TeX mode
-		Latex2HTML => "\\boldsymbol{$v}",
-		HTML       => $HTML,
-		HTML_tth   => '\begin{rawhtml}' . $HTML . '\end{rawhtml}',
-		HTML_dpng  => "\\boldsymbol{$v}",
+		TeX       => "\\boldsymbol{$v}",    #  doesn't seem to work in TeX mode
+											#    TeX => "\\mathbf{$v}",      #  gives non-italic bold in TeX mode
+		HTML      => $HTML,
+		HTML_tth  => '\begin{rawhtml}' . $HTML . '\end{rawhtml}',
+		HTML_dpng => "\\boldsymbol{$v}",
 	);
 }
 

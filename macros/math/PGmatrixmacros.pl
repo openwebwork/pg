@@ -228,16 +228,10 @@ sub dm_begin_matrix {
 			$out .= '\begingroup\setbox3=\hbox{\ensuremath{';
 		}
 		$out .= '\displaystyle\left' . $opts{'left'} . "\\begin{array}{$aligns} \n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml} <TABLE  BORDER=0>\n\\end{rawhtml}";
 	} elsif ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		$out .= qq!<TABLE class="matrix" BORDER="0" style="border-collapse: separate; border-spacing:10px 0px;">\n!;
 	} elsif ($main::displayMode eq 'PTX') {
@@ -255,10 +249,6 @@ sub dm_special_tops {
 	my @alignList  = @{ $opts{'alignList'} };
 	my ($j,   $k);
 	my ($brh, $erh) = ("", "");    # Start and end raw html
-	if ($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
 
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
 		for $j (@top_labels) {
@@ -274,11 +264,7 @@ sub dm_special_tops {
 	} elsif ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		$out .= "$brh<tr><td>$erh";    # Skip a column for the left brace
 		for $j (@top_labels) {
@@ -306,19 +292,11 @@ sub dm_mat_left {
 	my $out = '';
 	my $j;
 	my ($brh, $erh) = ("", "");    # Start and end raw html
-	if ($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
 
 	if ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		$out .= "$brh<tr valign=\"center\"><td nowrap=\"nowrap\" align=\"left\" rowspan=\"$numrows\">$erh";
 		$out .= dm_image_delimeter($numrows, $opts{'left'});
@@ -339,10 +317,6 @@ sub dm_mat_right {
 	my $out     = '';
 	my $j;
 	my ($brh, $erh) = ("", "");    # Start and end raw html
-	if ($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
 
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'} or $main::displayMode eq 'PTX') {
 		return "";
@@ -351,11 +325,7 @@ sub dm_mat_right {
 	if ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		$out .= "$brh<td nowrap=\"nowrap\" align=\"right\" rowspan=\"$numrows\">$erh";
 
@@ -380,16 +350,10 @@ sub dm_end_matrix {
 			$out .= '}} \dimen3=\ht3 \advance\dimen3 by 3ex \ht3=\dimen3' . "\n" . '\box3\endgroup';
 		}
 		$out .= $opts{'force_tex'} ? '' : "\\) ";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
 	} elsif ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		$out .= "</TABLE>\n";
 	} elsif ($main::displayMode eq 'PTX') {
@@ -478,10 +442,6 @@ sub dm_mat_row {
 	my ($brh, $erh) = ("", "");    # Start and end raw html
 	my $element;
 	my $colcount = 0;
-	if ($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
 		while (@elements) {
 			$colcount++;
@@ -508,11 +468,7 @@ sub dm_mat_row {
 	} elsif ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		if (not $opts{'isfirst'}) { $out .= "$brh\n<TR>\n$erh"; }
 		while (@elements) {
@@ -540,9 +496,6 @@ sub dm_mat_row {
 				$element = shift(@elements);
 				if (ref($element) eq 'Fraction') {
 					$element = $element->print_inline();
-#}elsif( $element =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ and $element != sprintf($opts{'num_format'},$element) and $element - sprintf($opts{'num_format'},$element) < $main::functZeroLevelTolDefault){
-#	$element = sprintf($opts{'num_format'},$element);
-#	$element = 0 if abs($element) < $main::functZeroLevelTolDefault;
 				}
 				$out .= "$brh<TD nowrap=\"nowrap\" align=\"$myalign\">$erh";
 				$out .= '<table border="1"><tr><td>'
@@ -636,10 +589,6 @@ sub mbox {
 	my $out = "";
 	my $j;
 	my ($brh, $erh) = ("", "");    # Start and end raw html if needed
-	if ($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
 	my @hlist = @{$inList};
 	if ($main::displayMode eq 'TeX') {
 		if ($opts{allowbreaks} ne 'no') { $out .= '\mbox{'; }

@@ -30,22 +30,6 @@ sub alt_print_q {
 				. ".</B>&nbsp;</TD><TD>$quest</TD></TR>\n";
 		}
 		$out .= "</TABLE>\n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		$out = "\\par\n\\begin{rawhtml}" . "<TABLE BORDER=0 CELLSPACING=$sep CELLPADDING=0>\\end{rawhtml}\n";
-		foreach $quest (@questions) {
-			$out .=
-				'\begin{rawhtml}<TR VALIGN="'
-				. $valign . '">'
-				. '<TD>\end{rawhtml}'
-				. ans_rule($length)
-				. '\begin{rawhtml}&nbsp;</TD>'
-				. '<TD><B>'
-				. $i++
-				. '.&nbsp;</B></TD><TD>\\end{rawhtml} '
-				. $quest
-				. '\begin{rawhtml}</TD></TR>\\end{rawhtml}' . "\n";
-		}
-		$out .= "\\begin{rawhtml}</TABLE>\n\\end{rawhtml}";
 	} elsif ($main::displayMode eq 'TeX') {
 		$out = "\n\\par\\begin{enumerate}\n\\advance\\leftskip by 2em";
 		foreach $quest (@questions) { $out .= "\\item[" . ans_rule($length) . ' ' . $i++ . ".] $quest\n" }
@@ -64,25 +48,21 @@ sub alt_print_a {
 	my $i       = 0;
 
 	my $out = MODES(
-		TeX        => "\\begin{enumerate}\n",
-		Latex2HTML => qq{\\begin{rawhtml}<TABLE BORDER="0" CELLSPACING="$sep" CELLPADDING=0>\\end{rawhtml}\n},
-		HTML       => qq{<TABLE BORDER="0" CELLSPACING="$sep" CELLPADDING=0>},
+		TeX  => "\\begin{enumerate}\n",
+		HTML => qq{<TABLE BORDER="0" CELLSPACING="$sep" CELLPADDING=0>},
 	);
 	my $elem;
 	foreach $elem (@array) {
 		my $c = $main::ALPHABET[$i];
 		$out .= MODES(
-			TeX        => "\\item[$c.] $elem\n",
-			Latex2HTML => qq{\\begin{rawhtml}<TR VALIGN="$valign"><TD STYLE="height: 1.5em"><B>$c.</B>&nbsp;</TD>}
-				. qq{<TD>\\end{rawhtml}$elem\\begin{rawhtml}</TD></TR>\\end{rawhtml}\n},
+			TeX  => "\\item[$c.] $elem\n",
 			HTML => qq{<TR VALIGN="$valign"><TD STYLE="height: 1.5em"><B>$c.</B>&nbsp;</TD><TD>$elem</TD></TR>\n},
 		);
 		$i++;
 	}
 	$out .= MODES(
-		TeX        => "\\end{enumerate}\n",
-		Latex2HTML => "\\begin{rawhtml}</TABLE>\\end{rawhtml}\n",
-		HTML       => "</TABLE>\n",
+		TeX  => "\\end{enumerate}\n",
+		HTML => "</TABLE>\n",
 	);
 	$out;
 }

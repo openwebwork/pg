@@ -98,9 +98,8 @@ sub Image {
 	$TeX  = '\includegraphics[width=' . $ratio . '\linewidth]{' . $image . '}';
 	$TeX  = '\centerline{' . $TeX . '}' if $tcenter;
 	MODES(
-		TeX        => $TeX . "\n",
-		Latex2HTML => $bHTML . $HTML . $eHTML,
-		HTML       => $HTML
+		TeX  => $TeX . "\n",
+		HTML => $HTML
 	);
 }
 
