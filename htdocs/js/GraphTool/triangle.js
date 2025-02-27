@@ -135,6 +135,8 @@
 						Math.abs(x - groupedPoints[0].X()) < JXG.Math.eps &&
 						Math.abs(y - groupedPoints[0].Y()) < JXG.Math.eps
 					) {
+						let xDir = 0,
+							yDir = 0;
 						// Adjust position of the point if it has the same coordinates as its paired point.
 						if (e.type === 'pointermove') {
 							const coords = gt.getMouseCoords(e);

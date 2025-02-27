@@ -597,13 +597,20 @@ sub with {
 	return $self->SUPER::with(%options);
 }
 
+sub sign {
+	my $x = shift;
+	return -1 if $x < -0.000001;
+	return 1  if $x > 0.000001;
+	return 0;
+}
+
 my %graphObjectTikz = (
 	line => {
 		code => sub {
 			my $self = shift;
 
-			my ($p1x, $p1y) = @{ $_->{data}[2]{data} };
-			my ($p2x, $p2y) = @{ $_->{data}[3]{data} };
+			my ($p1x, $p1y) = map { $_->value } @{ $_->{data}[2]{data} };
+			my ($p2x, $p2y) = map { $_->value } @{ $_->{data}[3]{data} };
 
 			if ($p1x == $p2x) {
 				# Vertical line
@@ -613,7 +620,7 @@ my %graphObjectTikz = (
 					[
 						$line
 							. "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[2],$self->{bBox}[3]) -- cycle",
-						sub { return $_[0] - $p1x; }
+						sub { return sign($_[0] - $p1x); }
 					]
 				);
 			} else {
@@ -630,7 +637,7 @@ my %graphObjectTikz = (
 					[
 						$line
 							. "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[0],$self->{bBox}[1]) -- cycle",
-						sub { return $_[1] - &$y($_[0]); }
+						sub { return sign($_[1] - &$y($_[0])); }
 					]
 				);
 			}
@@ -639,21 +646,19 @@ my %graphObjectTikz = (
 	circle => {
 		code => sub {
 			my $self = shift;
-			my ($cx, $cy) = @{ $_->{data}[2]{data} };
-			my ($px, $py) = @{ $_->{data}[3]{data} };
+			my ($cx, $cy) = map { $_->value } @{ $_->{data}[2]{data} };
+			my ($px, $py) = map { $_->value } @{ $_->{data}[3]{data} };
 			my $r      = sqrt(($cx - $px)**2 + ($cy - $py)**2);
 			my $circle = "($cx, $cy) circle[radius=$r]";
-			return (
-				"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $circle;\n",
-				[ $circle, sub { return $r - sqrt(($cx - $_[0])**2 + ($cy - $_[1])**2); } ]
-			);
+			return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $circle;\n",
+				[ $circle, sub { return sign($r - sqrt(($cx - $_[0])**2 + ($cy - $_[1])**2)); } ]);
 		}
 	},
 	parabola => {
 		code => sub {
 			my $self = shift;
-			my ($h,  $k)  = @{ $_->{data}[3]{data} };
-			my ($px, $py) = @{ $_->{data}[4]{data} };
+			my ($h,  $k)  = map { $_->value } @{ $_->{data}[3]{data} };
+			my ($px, $py) = map { $_->value } @{ $_->{data}[4]{data} };
 
 			if ($_->{data}[2] eq 'vertical') {
 				# Vertical parabola
@@ -664,7 +669,7 @@ my %graphObjectTikz = (
 				my $parabola = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x-($h))^2+($k)})";
 				return (
 					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;\n",
-					[ $parabola, sub { return $a * ($_[1] - $a * ($_[0] - $h)**2 - $k); } ]
+					[ $parabola, sub { return sign($a * ($_[1] - $a * ($_[0] - $h)**2 - $k)); } ]
 				);
 			} else {
 				# Horizontal parabola
@@ -675,7 +680,7 @@ my %graphObjectTikz = (
 				my $parabola = "plot[domain=$dmin:$dmax,smooth]({$a*(\\x-($k))^2+($h)},\\x)";
 				return (
 					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;\n",
-					[ $parabola, sub { return $a * ($_[0] - $a * ($_[1] - $k)**2 - $h); } ]
+					[ $parabola, sub { return sign($a * ($_[0] - $a * ($_[1] - $k)**2 - $h)); } ]
 				);
 			}
 		}
@@ -683,10 +688,16 @@ my %graphObjectTikz = (
 	fill => {
 		code => sub {
 			my ($self, $fill, $object_data) = @_;
-			my ($fx, $fy) = @{ $fill->{data}[1]{data} };
+			my ($fx, $fy) = map { $_->value } @{ $fill->{data}[1]{data} };
 			my $clip_code = '';
 			for (@$object_data) {
-				my $clip_dir = &{ $_->[1] }($fx, $fy);
+				if (ref($_->[0]) eq 'CODE') {
+					my $objectClipCode = $_->[0]->($fx, $fy);
+					return '' unless $objectClipCode;
+					$clip_code .= $_->[0]->($fx, $fy);
+					next;
+				}
+				my $clip_dir = $_->[1]->($fx, $fy);
 				return '' if $clip_dir == 0;
 				$clip_code .= "\\clip " . ($clip_dir < 0 ? '[inverse clip]' : '') . $_->[0] . ";\n";
 			}
@@ -846,7 +857,7 @@ parser::GraphTool->addGraphObjects(
 		tikz => {
 			code => sub {
 				my $gt = shift;
-				my ($x, $y) = @{ $_->{data}[1]{data} };
+				my ($x, $y) = map { $_->value } @{ $_->{data}[1]{data} };
 				return (
 					"\\draw[line width=4pt,blue,fill=red] ($x,$y) circle[radius=5pt];",
 					[ '', sub { return ($_[0] - $x)**2 + ($_[1] - $y)**2; } ]
@@ -873,9 +884,9 @@ parser::GraphTool->addGraphObjects(
 		tikz => {
 			code => sub {
 				my $gt = shift;
-				my ($x1, $y1) = @{ $_->{data}[2]{data} };
-				my ($x2, $y2) = @{ $_->{data}[3]{data} };
-				my ($x3, $y3) = @{ $_->{data}[4]{data} };
+				my ($x1, $y1) = map { $_->value } @{ $_->{data}[2]{data} };
+				my ($x2, $y2) = map { $_->value } @{ $_->{data}[3]{data} };
+				my ($x3, $y3) = map { $_->value } @{ $_->{data}[4]{data} };
 
 				my $den = ($x1 - $x2) * ($x1 - $x3) * ($x2 - $x3);
 				my $a   = (($x2 - $x3) * $y1 + ($x3 - $x1) * $y2 + ($x1 - $x2) * $y3) / $den;
@@ -889,7 +900,7 @@ parser::GraphTool->addGraphObjects(
 						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
 						[
 							"$line -- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return $_[1] - &$y($_[0]); }
+							sub { sign(return $_[1] - &$y($_[0])); }
 						]
 					);
 				} else {
@@ -904,10 +915,8 @@ parser::GraphTool->addGraphObjects(
 					my $dmin      = $h - $diff;
 					my $dmax      = $h + $diff;
 					my $quadratic = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x)^2+($b)*\\x+($c)})";
-					return (
-						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $quadratic;",
-						[ $quadratic, sub { return $a * ($_[1] - $a * $_[0]**2 - $b * $_[0] - $c); } ]
-					);
+					return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $quadratic;",
+						[ $quadratic, sub { return sign($a * ($_[1] - $a * $_[0]**2 - $b * $_[0] - $c)); } ]);
 				}
 			}
 		},
@@ -949,10 +958,10 @@ parser::GraphTool->addGraphObjects(
 		tikz => {
 			code => sub {
 				my $gt = shift;
-				my ($x1, $y1) = @{ $_->{data}[2]{data} };
-				my ($x2, $y2) = @{ $_->{data}[3]{data} };
-				my ($x3, $y3) = @{ $_->{data}[4]{data} };
-				my ($x4, $y4) = @{ $_->{data}[5]{data} };
+				my ($x1, $y1) = map { $_->value } @{ $_->{data}[2]{data} };
+				my ($x2, $y2) = map { $_->value } @{ $_->{data}[3]{data} };
+				my ($x3, $y3) = map { $_->value } @{ $_->{data}[4]{data} };
+				my ($x4, $y4) = map { $_->value } @{ $_->{data}[5]{data} };
 
 				my $c3 =
 					($y1 / (($x1 - $x2) * ($x1 - $x3) * ($x1 - $x4)) +
@@ -974,7 +983,7 @@ parser::GraphTool->addGraphObjects(
 						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
 						[
 							"$line -- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return $_[1] - &$y($_[0]); }
+							sub { return sign($_[1] - &$y($_[0])); }
 						]
 					);
 				} elsif ($c3 == 0) {
@@ -991,10 +1000,8 @@ parser::GraphTool->addGraphObjects(
 					my $dmin     = $h - $diff;
 					my $dmax     = $h + $diff;
 					my $parabola = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x)^2+($b)*\\x+($c)})";
-					return (
-						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;",
-						[ $parabola, sub { return $a * ($_[1] - $a * $_[0]**2 - $b * $_[0] - $c); } ]
-					);
+					return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;",
+						[ $parabola, sub { return sign($a * ($_[1] - $a * $_[0]**2 - $b * $_[0] - $c)); } ]);
 				} else {
 					# Non-degenerate cubic
 					my $cubic_function = sub {
@@ -1045,7 +1052,7 @@ parser::GraphTool->addGraphObjects(
 									: ("-- ($gt->{bBox}[2],$gt->{bBox}[3]) -- ($gt->{bBox}[0],$gt->{bBox}[3])"
 										. "-- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle")
 								),
-							sub { return $c3 * ($_[1] - $cubic_function->($_[0])); }
+							sub { return sign($c3 * ($_[1] - $cubic_function->($_[0]))); }
 						]
 					);
 				}
@@ -1098,7 +1105,7 @@ parser::GraphTool->addGraphObjects(
 		tikz => {
 			code => sub {
 				my $gt = shift;
-				my ($start, $end) = @{ $_->{data}[1]{data} };
+				my ($start, $end) = map { $_->value } @{ $_->{data}[1]{data} };
 
 				my $openEnd =
 					$gt->{useBracketEnds}
@@ -1152,11 +1159,15 @@ parser::GraphTool->addGraphObjects(
 			code => sub {
 				my $gt = shift;
 
-				my ($phase, $yshift) = @{ $_->{data}[2]{data} };
-				my $period    = $_->{data}[3];
-				my $amplitude = $_->{data}[4];
+				my ($phase, $yshift) = map { $_->value } @{ $_->{data}[2]{data} };
+				my $period    = $_->{data}[3]->value;
+				my $amplitude = $_->{data}[4]->value;
 
-				my $sinFormula = main::Formula("$amplitude sin(2 * pi / $period (x - $phase)) + $yshift");
+				my $pi = main::pi->value;
+
+				my $sinFunction = sub {
+					return $amplitude * CORE::sin(2 * $pi / $period * ($_[0] - $phase)) + $yshift;
+				};
 
 				my $height     = $gt->{bBox}[1] - $gt->{bBox}[3];
 				my $lowerBound = $gt->{bBox}[3] - $height;
@@ -1166,7 +1177,7 @@ parser::GraphTool->addGraphObjects(
 
 				my $coords;
 				do {
-					my $y = $sinFormula->eval(x => $x)->value;
+					my $y = $sinFunction->($x);
 					$coords .= "($x,$y) " if $y >= $lowerBound && $y <= $upperBound;
 					$x += $step;
 				} while $x < $gt->{bBox}[2];
@@ -1177,7 +1188,7 @@ parser::GraphTool->addGraphObjects(
 					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $sin;\n",
 					[
 						$sin . "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-						sub { return $_[1] - $sinFormula->eval(x => $_[0])->value; }
+						sub { return sign($_[1] - $sinFunction->($_[0])); }
 					]
 				);
 			}
@@ -1216,9 +1227,9 @@ parser::GraphTool->addGraphObjects(
 			code => sub {
 				my $gt = shift;
 
-				my ($p1x, $p1y) = @{ $_->{data}[2]{data} };
-				my ($p2x, $p2y) = @{ $_->{data}[3]{data} };
-				my ($p3x, $p3y) = @{ $_->{data}[4]{data} };
+				my ($p1x, $p1y) = map { $_->value } @{ $_->{data}[2]{data} };
+				my ($p2x, $p2y) = map { $_->value } @{ $_->{data}[3]{data} };
+				my ($p3x, $p3y) = map { $_->value } @{ $_->{data}[4]{data} };
 
 				return (
 					"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]]"
@@ -1285,45 +1296,99 @@ parser::GraphTool->addGraphObjects(
 			code => sub {
 				my $gt = shift;
 
-				my @points = @{ $_->{data} }[ 2 .. 5 ];
-				my ($p1x, $p1y) = @{ $points[0]{data} };
-				my ($p2x, $p2y) = @{ $points[1]{data} };
-				my ($p3x, $p3y) = @{ $points[2]{data} };
-				my ($p4x, $p4y) = @{ $points[3]{data} };
+				my @points = map { [ $_->{data}[0]->value, $_->{data}[1]->value ] } @{ $_->{data} }[ 2 .. 5 ];
+
+				my (@borderCmps, @borderClipCode);
+				for my $i (0 .. 3) {
+					my ($x1, $y1) = @{ $points[$i] };
+					my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ] };
+
+					if ($x1 == $x2) {
+						# Vertical line
+						push(@borderCmps, sub { return sign($_[0] - $x1) });
+						push(
+							@borderClipCode,
+							sub {
+								return
+									"\\clip"
+									. ($_[0] < $x1 ? '[inverse clip]' : '')
+									. "($x1,$gt->{bBox}[3]) -- ($x1,$gt->{bBox}[1]) -- "
+									. "($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[2],$gt->{bBox}[3]) -- cycle;\n";
+							}
+						);
+					} else {
+						# Non-vertical line
+						my $m   = ($y2 - $y1) / ($x2 - $x1);
+						my $eqn = sub { return $m * ($_[0] - $x1) + $y1; };
+
+						push(@borderCmps, sub { return sign($_[1] - $eqn->($_[0])); });
+						push(
+							@borderClipCode,
+							sub {
+								return
+									"\\clip"
+									. ($_[1] < $eqn->($_[0]) ? '[inverse clip]' : '')
+									. "($gt->{bBox}[0],"
+									. $eqn->($gt->{bBox}[0]) . ') -- '
+									. "($gt->{bBox}[2],"
+									. $eqn->($gt->{bBox}[2]) . ') -- '
+									. "($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle;\n";
+							}
+						);
+					}
+				}
+
+				my $fillCmp = sub {
+					my ($x, $y) = @_;
+
+					# Check to see if the point is on the border.
+					for my $i (0 .. 3) {
+						my ($x1, $y1) = @{ $points[$i] };
+						my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ] };
+						return 0
+							if ($x <= main::max($x1, $x2)
+								&& $x >= main::min($x1, $x2)
+								&& $y <= main::max($y1, $y2)
+								&& $y >= main::min($y1, $y2)
+								&& ($y - $y1) * ($x2 - $x1) - ($y2 - $y1) * ($x - $x1) == 0);
+					}
+
+					# Check to see if the point is inside.
+					my $isIn = 0;
+					for my $i (0 .. 3) {
+						my ($x1, $y1) = @{ $points[$i] };
+						my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ] };
+						if ($y1 > $y != $y2 > $y && $x - $x1 < (($x2 - $x1) * ($y - $y1)) / ($y2 - $y1)) {
+							$isIn = !$isIn;
+						}
+					}
+					if ($isIn) {
+						my $result = 1;
+						for my $i (0 .. 3) {
+							$result |= 1 << ($i + 1) if $borderCmps[$i]->($x, $y) > 0;
+						}
+						return $result;
+					}
+
+					return -1;
+				};
 
 				return (
-					"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]]"
-						. " ($p1x, $p1y) -- ($p2x, $p2y) -- ($p3x, $p3y) -- ($p4x, $p4y) -- cycle;",
+					"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]] "
+						. join(' -- ', map {"($_->[0], $_->[1])"} @points)
+						. " -- cycle;\n",
 					[
-						"($p1x, $p1y) -- ($p2x, $p2y) -- ($p3x, $p3y) -- ($p4x, $p4y) -- cycle",
 						sub {
 							my ($x, $y) = @_;
-
-							# Check to see if the point is on the border.
-							for my $i (0 .. 3) {
-								my ($x1, $y1) = @{ $points[$i]{data} };
-								my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ]{data} };
-								return 0
-									if ($x <= main::max($x1, $x2)
-										&& $x >= main::min($x1, $x2)
-										&& $y <= main::max($y1, $y2)
-										&& $y >= main::min($y1, $y2)
-										&& ($y - $y1) * ($x2 - $x1) - ($y2 - $y1) * ($x - $x1) == 0);
-							}
-
-							# Check to see if the point is inside.
-							my $isIn = 0;
-							for my $i (0 .. 3) {
-								my ($x1, $y1) = @{ $points[$i]{data} };
-								my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ]{data} };
-								if ($y1 > $y != $y2 > $y && $x - $x1 < (($x2 - $x1) * ($y - $y1)) / ($y2 - $y1)) {
-									$isIn = !$isIn;
-								}
-							}
-							return 1 if $isIn;
-
-							return -1;
-						}
+							my $cmp = $fillCmp->($x, $y);
+							return                                                        if $cmp == 0;
+							return join('', map { $borderClipCode[$_]->($x, $y) } 0 .. 3) if $cmp > 0;
+							return
+								"\\clip[inverse clip] "
+								. join(' -- ', map {"($_->[0], $_->[1])"} @points)
+								. " -- cycle;\n";
+						},
+						$fillCmp
 					]
 				);
 			}
@@ -1333,6 +1398,20 @@ parser::GraphTool->addGraphObjects(
 
 			my $solid_dashed = $quadrilateral->{data}[1];
 			my @points       = @{ $quadrilateral->{data} }[ 2 .. 5 ];
+
+			my @borderCmps;
+			for my $i (0 .. 3) {
+				my ($x1, $y1) = @{ $points[$i]{data} };
+				my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ]{data} };
+
+				if ($x1 == $x2) {
+					# Vertical line
+					push(@borderCmps, sub { return $_[0] - $x1 });
+				} else {
+					# Non-vertical line
+					push(@borderCmps, sub { return $_[1] - ($y2 - $y1) / ($x2 - $x1) * ($_[0] - $x1) - $y1; });
+				}
+			}
 
 			return (
 				sub {
@@ -1360,7 +1439,13 @@ parser::GraphTool->addGraphObjects(
 							$isIn = !$isIn;
 						}
 					}
-					return 1 if $isIn;
+					if ($isIn) {
+						my $result = 1;
+						for my $i (0 .. 3) {
+							$result |= 1 << ($i + 1) if $borderCmps[$i]->($x, $y) > 0;
+						}
+						return $result;
+					}
 
 					return -1;
 				},
@@ -1411,7 +1496,7 @@ parser::GraphTool->addGraphObjects(
 						[
 							"($p1x,$gt->{bBox}[3]) -- ($p1x,$gt->{bBox}[1])"
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[2],$gt->{bBox}[3]) -- cycle",
-							sub { return $_[0] - $p1x; }
+							sub { return sign($_[0] - $p1x); }
 						]
 					);
 				} else {
@@ -1426,7 +1511,7 @@ parser::GraphTool->addGraphObjects(
 								. "($gt->{bBox}[2],"
 								. &$y($gt->{bBox}[2]) . ')'
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return $_[1] - &$y($_[0]); }
+							sub { return sign($_[1] - &$y($_[0])); }
 						]
 					);
 				}
@@ -1481,7 +1566,7 @@ parser::GraphTool->addGraphObjects(
 						[
 							"($p1x,$gt->{bBox}[3]) -- ($p1x,$gt->{bBox}[1])"
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[2],$gt->{bBox}[3]) -- cycle",
-							sub { return $_[0] - $p1x; }
+							sub { return sign($_[0] - $p1x); }
 						]
 					);
 				} else {
@@ -1496,7 +1581,7 @@ parser::GraphTool->addGraphObjects(
 								. "($gt->{bBox}[2],"
 								. &$y($gt->{bBox}[2]) . ')'
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return $_[1] - &$y($_[0]); }
+							sub { return sign($_[1] - &$y($_[0])); }
 						]
 					);
 				}

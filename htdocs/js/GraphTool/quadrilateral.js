@@ -65,11 +65,9 @@
 				].join(',');
 			},
 
-			// Note that this is an interior fill which is a bit inconsistent with the other fill cmp methods for other
-			// graph objects.  Other grap objects use an inequality fill.
 			fillCmp(gt, point) {
 				// Check to see if the point is on the border.
-				for (i = 0, j = this.definingPts.length - 1; i < this.definingPts.length; j = i++) {
+				for (let i = 0, j = this.definingPts.length - 1; i < this.definingPts.length; j = i++) {
 					if (
 						point[1] <= Math.max(this.definingPts[i].X(), this.definingPts[j].X()) &&
 						point[1] >= Math.min(this.definingPts[i].X(), this.definingPts[j].X()) &&
@@ -89,7 +87,13 @@
 				// Check to see if the point is inside.
 				const scrCoords = new JXG.Coords(JXG.COORDS_BY_USER, [point[1], point[2]], gt.board).scrCoords;
 				const isIn = JXG.Math.Geometry.pnpoly(scrCoords[1], scrCoords[2], this.baseObj.vertices);
-				if (isIn) return 1;
+				if (isIn) {
+					let result = 1;
+					for (const [i, border] of this.baseObj.borders.entries()) {
+						if (gt.sign(JXG.Math.innerProduct(point, border.stdform)) > 0) result |= 1 << (i + 1);
+					}
+					return result;
+				}
 				return -1;
 			},
 
@@ -143,6 +147,8 @@
 						Math.abs(x - groupedPoints[0].X()) < JXG.Math.eps &&
 						Math.abs(y - groupedPoints[0].Y()) < JXG.Math.eps
 					) {
+						let xDir = 0,
+							yDir = 0;
 						// Adjust position of the point if it has the same coordinates as its only grouped point.
 						if (e.type === 'pointermove') {
 							const coords = gt.getMouseCoords(e);
