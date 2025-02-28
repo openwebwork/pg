@@ -53,12 +53,25 @@ For PGML you can just do
 
 =head1 GRAPH OBJECTS
 
-There are several types of graph objects that the students can graph. Points, lines, circles,
-parabolas, quadratics, cubics, intervals, sine waves, triangles, quadrilaterals, vectors, and
-fills (or shading of a region). The syntax for each of these objects to pass to the GraphTool
-constructor is summarized as follows.  Each object must be enclosed in braces. The first element
-in the braces must be the name of the object. The following elements in the braces depend on the
-type of element.
+The following types of graph objects can be graphed:
+
+	points
+	lines
+	circles
+	parabolas
+	quadratics
+	cubics
+	intervals
+	sine waves
+	triangles
+	quadrilaterals
+	line segments
+	vectors
+	fills (or shading of a region)
+
+The syntax for each of these objects to pass to the GraphTool constructor is summarized as
+follows.  Each object must be enclosed in braces. The first element in the braces must be the
+name of the object. The following elements in the braces depend on the type of element.
 
 For points the name "point" must be followed by the coordinates. For example:
 
@@ -131,6 +144,12 @@ indicate if the triangle is expected to be drawn solid or dashed. That is follow
 vertices of the quadrilateral. For example:
 
 	"{quadrilateral,solid,(0,0),(4,3),(2,3),(4,-3)}"
+
+For line segments the name "segment" must be followed by the word "solid" or "dashed" to
+indicate if the segment is expected to be drawn solid or dashed.  That is followed by the two
+points that are at the ends of the line segment. For example:
+
+    "{segment,solid,(0,0),(3,4)}"
 
 For vectors the name "vector" must be followed by the word "solid" or "dashed" to indicate if
 the vector is expected to be drawn solid or dashed.  That is followed by the initial point and
@@ -315,10 +334,21 @@ y-coordinate and y-axis tick labels.
 
 This is an array of tools that will be made available for students to use in the graph tool.
 The order the tools are listed here will also be the order the tools are presented in the graph
-tool button box.  In addition to the tools listed in the default options above, there is a
-"PointTool", three point "QuadraticTool", four point "CubicTool", "IntervalTool",
-"IncludeExcludePointTool", "SineWaveTool", "TriangleTool", "QuadrilateralTool", and
-"VectorTool".  Note that the case of the tool names must match what is shown.
+tool button box.  In addition to the tools listed in the default options above, the following
+tools may be used:
+
+    "PointTool"
+    three point "QuadraticTool"
+    four point "CubicTool"
+    "IntervalTool"
+    "IncludeExcludePointTool"
+    "SineWaveTool"
+    "TriangleTool"
+    "QuadrilateralTool"
+    "SegmentTool"
+    "VectorTool"
+
+Note that the case of the tool names must match what is shown.
 
 =item staticObjects (Default: C<< staticObjects => [] >>)
 
@@ -383,6 +413,13 @@ this graph mode is not used.
 If set to 1, then parentheses and brackets will be used for interval end point delimiters
 instead of open and closed dots.  This option only has effect when C<numberLine> is 1, and
 the C<IntervalTool> is used.
+
+=item vectorsArePositional (Default: C<< vectorsArePositional => 0 >>)
+
+If set to 1, then the default checker will consider two vectors that have the same magnitude and
+direction but different initial points to be different vectors.  Otherwise two vectors that have
+the same magnitude and direction will be considered equal. This option only has effect when a
+C<vector> is part of the answer, and the C<VectorTool> is used.
 
 =back
 
@@ -460,7 +497,7 @@ sub _parserGraphTool_init {
 	ADD_JS_FILE('js/GraphTool/sinewavetool.js',                  0, { defer => undef });
 	ADD_JS_FILE('js/GraphTool/triangle.js',                      0, { defer => undef });
 	ADD_JS_FILE('js/GraphTool/quadrilateral.js',                 0, { defer => undef });
-	ADD_JS_FILE('js/GraphTool/vector.js',                        0, { defer => undef });
+	ADD_JS_FILE('js/GraphTool/segments.js',                      0, { defer => undef });
 
 	return;
 }
@@ -534,6 +571,7 @@ sub new {
 		showInStatic         => 1,
 		numberLine           => 0,
 		useBracketEnds       => 0,
+		vectorsArePositional => 0,
 		availableTools       =>
 			[ 'LineTool', 'CircleTool', 'VerticalParabolaTool', 'HorizontalParabolaTool', 'FillTool', 'SolidDashTool' ],
 		texSize    => 400,
@@ -1357,19 +1395,19 @@ parser::GraphTool->addGraphObjects(
 			);
 		}
 	},
-	vector => {
-		js   => 'graphTool.vectorTool.Vector',
+	segment => {
+		js   => 'graphTool.segmentTool.Segment',
 		tikz => {
 			code => sub {
 				my $gt = shift;
 
-				my ($p1x, $p1y) = @{ $_->{data}[2]{data} };
-				my ($p2x, $p2y) = @{ $_->{data}[3]{data} };
+				my ($p1x, $p1y) = map { $_->value } @{ $_->{data}[2]{data} };
+				my ($p2x, $p2y) = map { $_->value } @{ $_->{data}[3]{data} };
 
 				if ($p1x == $p2x) {
-					# Vertical vector
+					# Vertical segment
 					return (
-						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1], *->] ($p1x, $p1y) -- ($p2x, $p2y);\n",
+						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]] ($p1x, $p1y) -- ($p2x, $p2y);\n",
 						[
 							"($p1x,$gt->{bBox}[3]) -- ($p1x,$gt->{bBox}[1])"
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[2],$gt->{bBox}[3]) -- cycle",
@@ -1377,11 +1415,11 @@ parser::GraphTool->addGraphObjects(
 						]
 					);
 				} else {
-					# Non-vertical vector
+					# Non-vertical segment
 					my $m = ($p2y - $p1y) / ($p2x - $p1x);
 					my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
 					return (
-						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1], *->] ($p1x, $p1y) -- ($p2x, $p2y);\n",
+						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]] ($p1x, $p1y) -- ($p2x, $p2y);\n",
 						[
 							"($gt->{bBox}[0],"
 								. &$y($gt->{bBox}[0]) . ') -- '
@@ -1395,7 +1433,77 @@ parser::GraphTool->addGraphObjects(
 			}
 		},
 		cmp => sub {
-			my ($vector) = @_;
+			my ($segment) = @_;
+
+			my $solid_dashed = $segment->{data}[1];
+			my @points       = @{ $segment->{data} }[ 2, 3 ];
+
+			# These are the coefficients a, b, and c in ax + by + c = 0.
+			my @stdform = (
+				$segment->{data}[2]{data}[1] - $segment->{data}[3]{data}[1],
+				$segment->{data}[3]{data}[0] - $segment->{data}[2]{data}[0],
+				$segment->{data}[2]{data}[0] * $segment->{data}[3]{data}[1] -
+					$segment->{data}[3]{data}[0] * $segment->{data}[2]{data}[1]
+			);
+
+			my $segmentPointCmp = sub {
+				my $point = shift;
+				my ($x, $y) = $point->value;
+				return $stdform[0] * $x + $stdform[1] * $y + $stdform[2] <=> 0;
+			};
+
+			return (
+				$segmentPointCmp,
+				sub {
+					my ($other, $fuzzy) = @_;
+					return
+						$other->{data}[0] eq 'segment'
+						&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
+						&& (($points[0] == $other->{data}[2] && $points[1] == $other->{data}[3])
+							|| ($points[1] == $other->{data}[2] && $points[0] == $other->{data}[3]));
+				}
+			);
+		}
+	},
+	vector => {
+		js   => 'graphTool.vectorTool.Vector',
+		tikz => {
+			code => sub {
+				my $gt = shift;
+
+				my ($p1x, $p1y) = map { $_->value } @{ $_->{data}[2]{data} };
+				my ($p2x, $p2y) = map { $_->value } @{ $_->{data}[3]{data} };
+
+				if ($p1x == $p2x) {
+					# Vertical vector
+					return (
+						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1], ->] ($p1x, $p1y) -- ($p2x, $p2y);\n",
+						[
+							"($p1x,$gt->{bBox}[3]) -- ($p1x,$gt->{bBox}[1])"
+								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[2],$gt->{bBox}[3]) -- cycle",
+							sub { return $_[0] - $p1x; }
+						]
+					);
+				} else {
+					# Non-vertical vector
+					my $m = ($p2y - $p1y) / ($p2x - $p1x);
+					my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
+					return (
+						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1], ->] ($p1x, $p1y) -- ($p2x, $p2y);\n",
+						[
+							"($gt->{bBox}[0],"
+								. &$y($gt->{bBox}[0]) . ') -- '
+								. "($gt->{bBox}[2],"
+								. &$y($gt->{bBox}[2]) . ')'
+								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
+							sub { return $_[1] - &$y($_[0]); }
+						]
+					);
+				}
+			}
+		},
+		cmp => sub {
+			my ($vector, $gt) = @_;
 
 			my $solid_dashed   = $vector->{data}[1];
 			my $initial_point  = $vector->{data}[2];
@@ -1415,17 +1523,39 @@ parser::GraphTool->addGraphObjects(
 				return $stdform[0] * $x + $stdform[1] * $y + $stdform[2] <=> 0;
 			};
 
-			return (
-				$vectorPointCmp,
-				sub {
-					my ($other, $fuzzy) = @_;
-					return
-						$other->{data}[0] eq 'vector'
-						&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
-						&& $initial_point == $other->{data}[2]
-						&& $terminal_point == $other->{data}[3];
-				}
-			);
+			my $positionalCmp = sub {
+				my ($other, $fuzzy) = @_;
+				return
+					$other->{data}[0] eq 'vector'
+					&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
+					&& $initial_point == $other->{data}[2]
+					&& $terminal_point == $other->{data}[3];
+			};
+
+			if ($gt->{vectorsArePositional}) {
+				return ($vectorPointCmp, $positionalCmp);
+			} else {
+				# This comparison method will only return that the other vector is correct once. If the same vector is
+				# graphed again at a different location it will be considered incorrect for this answer.
+				my $foundCorrect = 0;
+				return (
+					$vectorPointCmp,
+					sub {
+						my ($other, $fuzzy) = @_;
+						return $positionalCmp->($other, 1) if $fuzzy;
+						return 0
+							unless !$foundCorrect
+							&& $other->{data}[0] eq 'vector'
+							&& $other->{data}[1] eq $solid_dashed
+							&& ($other->{data}[3]{data}[0] - $other->{data}[2]{data}[0] ==
+								$terminal_point->{data}[0] - $initial_point->{data}[0])
+							&& ($other->{data}[3]{data}[1] - $other->{data}[2]{data}[1] ==
+								$terminal_point->{data}[1] - $initial_point->{data}[1]);
+						$foundCorrect = 1;
+						return 1;
+					}
+				);
+			}
 		}
 	}
 );
@@ -1445,6 +1575,8 @@ parser::GraphTool->addTools(
 	TriangleTool => 'graphTool.triangleTool.TriangleTool',
 	# A quadrilateral tool.
 	QuadrilateralTool => 'graphTool.quadrilateralTool.QuadrilateralTool',
+	# A line segment tool.
+	SegmentTool => 'graphTool.segmentTool.SegmentTool',
 	# A vector tool.
 	VectorTool => 'graphTool.vectorTool.VectorTool',
 	# Include/Exclude point tool.
@@ -1645,7 +1777,7 @@ sub cmp {
 					for (0 .. $#student) {
 						my $other_type = $student[$_]{data}[0];
 						next unless $other_type eq $answer_type;
-						if (($graphObjectCmps{ $student[$_]{data}[0] }->($student[$_]))[1]->($answer, 1)) {
+						if (($graphObjectCmps{ $student[$_]{data}[0] }->($student[$_], $self))[1]->($answer, 1)) {
 							$student[$_] = $answer if $answer->{data}[1] eq 'solid';
 							next ANSWER;
 						}
@@ -1663,7 +1795,7 @@ sub cmp {
 			for (@$correct) {
 				my $type = $_->{data}[0];
 				next if $type eq 'fill' || ref($graphObjectCmps{$type}) ne 'CODE';
-				my ($fill_cmp, $object_cmp) = $graphObjectCmps{$type}->($_);
+				my ($fill_cmp, $object_cmp) = $graphObjectCmps{$type}->($_, $self);
 				push(@object_cmps,      $object_cmp);
 				push(@object_fill_cmps, $fill_cmp);
 			}
@@ -1700,7 +1832,7 @@ sub cmp {
 				for (@{ $self->SUPER::new($self->{context}, @{ $self->{staticObjects} })->{data} }) {
 					my $type = $_->{data}[0];
 					next if $type eq 'fill';
-					push(@object_fill_cmps, ($graphObjectCmps{$type}->($_))[0])
+					push(@object_fill_cmps, ($graphObjectCmps{$type}->($_, $self))[0])
 						if ref($graphObjectCmps{$type}) eq 'CODE';
 				}
 
