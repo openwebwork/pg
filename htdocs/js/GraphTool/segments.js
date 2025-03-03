@@ -27,6 +27,17 @@
 		return new objectClass(point1, point2, /solid/.test(string));
 	};
 
+	const hasPoint = function (gt, point) {
+		const eps = 0.5 / Math.sqrt(gt.board.unitX * gt.board.unitY);
+		return (
+			gt.graphObjectTypes.line.prototype.hasPoint.call(this, point) &&
+			point[1] >= Math.min(this.definingPts[0].X(), this.definingPts[1].X()) - eps &&
+			point[1] <= Math.max(this.definingPts[0].X(), this.definingPts[1].X()) + eps &&
+			point[2] >= Math.min(this.definingPts[0].Y(), this.definingPts[1].Y()) - eps &&
+			point[2] <= Math.max(this.definingPts[0].Y(), this.definingPts[1].Y()) + eps
+		);
+	};
+
 	const initialize = function (gt, helpText, objectClass) {
 		this.phase1 = (coords) => {
 			gt.toolTypes.LineTool.prototype.phase1.call(this, coords);
@@ -73,6 +84,10 @@
 					this.baseObj.setAttribute({ straightFirst: false, straightLast: false });
 				},
 
+				hasPoint(gt, point) {
+					return hasPoint.call(this, gt, point);
+				},
+
 				stringify(gt) {
 					return stringify.call(this, gt);
 				},
@@ -113,6 +128,10 @@
 				postInit(_gt, _point1, _point2, _solid) {
 					this.baseObj.setAttribute({ straightFirst: false, straightLast: false });
 					this.baseObj.setArrow(false, { type: 1, size: 4 });
+				},
+
+				hasPoint(gt, point) {
+					return hasPoint.call(this, gt, point);
 				},
 
 				stringify(gt) {

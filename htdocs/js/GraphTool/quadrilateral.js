@@ -99,6 +99,23 @@
 				return -1;
 			},
 
+			hasPoint(gt, point) {
+				const eps = 0.5 / Math.sqrt(gt.board.unitX * gt.board.unitY);
+				for (const border of this.baseObj.borders) {
+					if (
+						Math.abs(JXG.Math.innerProduct(point, border.stdform)) /
+							Math.sqrt(border.stdform[1] ** 2 + border.stdform[2] ** 2) <
+							eps &&
+						point[1] >= Math.min(border.point1.X(), border.point2.X()) - eps &&
+						point[1] <= Math.max(border.point1.X(), border.point2.X()) + eps &&
+						point[2] >= Math.min(border.point1.Y(), border.point2.Y()) - eps &&
+						point[2] <= Math.max(border.point1.Y(), border.point2.Y()) + eps
+					)
+						return true;
+				}
+				return false;
+			},
+
 			setSolid(_gt, solid) {
 				for (const border of this.baseObj.borders) border.setAttribute({ dash: solid ? 0 : 2 });
 			},
