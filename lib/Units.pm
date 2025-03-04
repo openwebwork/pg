@@ -92,7 +92,7 @@ our %known_units = (
 
 	# ANGLES: fundamental unit rad (radian)
 	deg => {    # degree
-		factor  => 0.0174532925,
+		factor  => $PI / 180,
 		rad     => 1,
 		aliases => [ "\x{00B0}", 'degree', 'degrees' ]
 	},
