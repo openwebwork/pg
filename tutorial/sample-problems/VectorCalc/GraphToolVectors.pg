@@ -23,22 +23,22 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: This finds three unique random points and sets up the GraphTool.  The line
-#: `{ vector, solid, ($x1, $y1), ($x2, $y2) }` creates a vector from ($x1, $x2)
-#: to ($x2, $y2) as a solid line.
-$x1 = random(-8, 8);
-$y1 = random(-8, 8);
-do { $x2 = random(-8, 8); $y2 = random(-8, 8); } until $x2 != $x1 || $y2 != $y1;
+#: This problem asks for a vector with random endpoint $vx1, $vy1.  Create this with
+#: `{ vector, solid (0,0), ($vx1, $vx2) }`.
+#:
+#: The answer check will give credit for a vector with same length and point in the
+#: same direction.  The starting point does not need to be the origin.
+$vx1 = random(-8, 8);
+$vy1 = random(-8, 8);
 
-$gt = GraphTool("{vector, solid, ($x1, $y1), ($x2, $y2)}")
+$gt = GraphTool("{vector, solid, (0, 0), ($vx1, $vy1)}")
     ->with(availableTools => [ 'VectorTool', 'FillTool', 'SolidDashTool' ]);
 
 #:% section = statement
 #: First, ask the question with the given points.  Then add the `[_]{$gt}` to produce
 #: the graph tool within the problem.
 BEGIN_PGML
-Graph the vector with initial point [`([$x1],[$y1])`] and terminal point
-[`([$x2],[$y2])`].
+Graph the vector [`\langle[$vx1], [$vy1]\rangle`].
 
 [_]{$gt}
 END_PGML
@@ -46,11 +46,12 @@ END_PGML
 #:% section = solution
 #: The important thing to note is that it is simple to add the correct graph using the
 #: method `generateAnswerGraph` as shown in the solution here.  The PGML directive [ ]*
-#: needs a * for the HTML version to be rendered correctly.
+#: needs a * for the graph tool to be rendered correctly.
 BEGIN_PGML_SOLUTION
-The correct answer is
-
+A correct answer is
 [$gt->generateAnswerGraph]*
+
+But any vector with the same length and in the same direction would be correct as well.
 END_PGML_SOLUTION
 
 ENDDOCUMENT();
