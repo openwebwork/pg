@@ -205,6 +205,20 @@ indicating that mixed numbers are not allowed.  This flag is off by
 default in all four contexts.  You should not set both
 C<requirePureFractions> and C<requireProperFractions> to 1.
 
+=item S<C<< fractionTolerance >>>
+
+Thie determines the tolerance to use when comparing a fraction to a
+real number.  The fraction will be converted to a real, and then this
+is used as the tolerance in a relative-tolerance comparison of the two
+reals.  The default is 10E-10, meaning the decimal must match to
+roughly 10 digits.
+
+=item S<C<< contFracMaxDen >>>
+
+This is the largest denominator to allow for continued-fraction
+computations when trying to produce a fraction from a real number.
+The default is 10**8.
+
 =back
 
 Fraction objects have two methods that can be useful when
@@ -326,6 +340,7 @@ sub extending {
 			requireProperFractions => $options{requireProperFractions} || 0,
 			requirePureFractions   => $options{requirePureFractions}   || 0,
 			showMixedNumbers       => $options{showMixedNumbers}       || 0,
+			fractionTolerance      => $options{fractionTolerance}      || 10**-10,
 			contFracMaxDen         => $options{contFracMaxDen} // 10**8,
 		},
 		reductions => { 'a/b' => 1, 'a b/c' => 1, '0 a/b' => 1 },
@@ -454,8 +469,8 @@ sub toFraction {
 	if ($x == 0) {
 		($a, $b) = (0, 1);
 	} else {
-		my $sign = $x / abs($x);
-		($a, $b) = $self->continuedFraction(abs($x), $max);
+		my $sign = $x / CORE::abs($x);
+		($a, $b) = $self->continuedFraction(CORE::abs($x), $max);
 		$a = $sign * $a;
 	}
 	my $Real = $self->Package("Real");
@@ -991,8 +1006,25 @@ sub power {
 }
 
 sub compare {
-	my ($self, $l, $r) = Value::checkOpOrderWithPromote(@_);
-	return $l->eval <=> $r->eval;
+	my ($self, $other, $flag) = @_;
+	$other = Value::makeValue($other) unless Value::isValue($other);
+	if ($other->classMatch('Fraction')) {
+		my ($s, $l, $r) = Value::checkOpOrder($self, $other, $flag);
+		my ($a, $b) = $l->value;
+		my ($c, $d) = $r->value;
+		return ($a * $d) <=> ($c * $b);
+	}
+	if ($other->classMatch('Real')) {
+		my $tolerance = $self->getFlag('fractionTolerance', 10**-10);
+		my $self      = $self->eval->with(tolerance => $tolerance, tolType => 'relative');
+		$other = $other->value;
+		my ($s, $l, $r) = Value::checkOpOrder($self, $other, $flag);
+		return $l <=> $r;
+	}
+	if ($other->classMatch("Infinity")) {
+		return $other->{isNegative} ? 1 : -1;
+	}
+	$self->Error("You can't compare %s to %s", $self->showClass, $other->showClass);
 }
 
 ##################################################
