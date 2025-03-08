@@ -909,7 +909,7 @@ sub isOne  { (shift)->eval == 1 }
 sub eval {
 	my $self = shift;
 	my ($a, $b) = $self->value;
-	return $a / $b;
+	return $self->Package('Real')->new($self->context, $a / $b);
 }
 
 #
