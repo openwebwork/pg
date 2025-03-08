@@ -325,7 +325,7 @@ sub TeX {
 #
 sub cmp_defaults {
 	my $self = shift;
-	{$self->SUPER::cmp_defaults(@_), showLengthHints => 0, partialCredit => 0};
+	{ $self->SUPER::cmp_defaults(@_), showLengthHints => 0, partialCredit => 0 };
 }
 
 #
