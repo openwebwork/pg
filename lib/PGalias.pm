@@ -45,7 +45,7 @@ sub new {
 	# caller to pass in a problemUUID that will provide the required uniqueness.  That could include a course name, a
 	# student login name, etc.
 	$self->{unique_id_stub} = create_uuid_as_string(UUID_V3, UUID_NS_URL,
-		join('-', $envir->{psvn} // (), $envir->{problemSeed}, $envir->{problemUUID} // ()));
+		join('-', $envir->{psvn} // (), $envir->{problemSeed} // (), $envir->{problemUUID} // ()));
 
 	# Check the parameters.
 	$self->warning_message('The displayMode is not defined')    unless $self->{displayMode};

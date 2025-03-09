@@ -210,7 +210,7 @@ C<requirePureFractions> and C<requireProperFractions> to 1.
 Thie determines the tolerance to use when comparing a fraction to a
 real number.  The fraction will be converted to a real, and then this
 is used as the tolerance in a relative-tolerance comparison of the two
-reals.  The default is 10E-10, meaning the decimal must match to
+reals.  The default is 1E-10, meaning the decimal must match to
 roughly 10 digits.
 
 =item S<C<< contFracMaxDen >>>
