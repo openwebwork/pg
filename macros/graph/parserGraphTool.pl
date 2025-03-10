@@ -177,9 +177,10 @@ evaluated at the point is positive.  The second method when called passing anoth
 list constructed from one of the objects described as above will return 1 if the two objects are
 exactly the same, and 0 otherwise.  A second parameter may be passed and if that parameter is 1,
 then the method will return 1 if the two objects are the same ignoring if the two objects are
-solid or dashed, and 0 otherwise.  In the following example, the C<$lineCmp> method is defined
-to be the second method (indexed by 1) that is returned by calling the C<'line'> method on the
-first correct answer in the example.
+solid or dashed, and 0 otherwise.
+
+In the following example, the C<$lineCmp> method is defined to be the second method (indexed by
+1) that is returned by calling the C<'line'> method on the first correct answer in the example.
 
     $m = 2 * random(1, 4);
 
@@ -217,6 +218,14 @@ first correct answer in the example.
             }
         }
     }
+
+Note that for C<'vector'> graph objects the C<GraphTool> object must be passed in addition to
+the correct C<'vector'> object to compare to. For example,
+
+	my $vectorCmp = ($graphToolObjectCmps->{vector}->($correct->[0], $gt))[1];
+
+This is so that the correct methods can be returned that take into account the
+C<vectorsArePositional> option that is set for the particular C<$gt> object.
 
 =head1 OPTIONS
 
@@ -1298,7 +1307,7 @@ parser::GraphTool->addGraphObjects(
 
 				my @points = map { [ $_->{data}[0]->value, $_->{data}[1]->value ] } @{ $_->{data} }[ 2 .. 5 ];
 
-				my (@borderCmps, @borderClipCode);
+				my (@borderCmps, @borderClipCode, @borderStdForms);
 				for my $i (0 .. 3) {
 					my ($x1, $y1) = @{ $points[$i] };
 					my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ] };
@@ -1336,7 +1345,45 @@ parser::GraphTool->addGraphObjects(
 							}
 						);
 					}
+					push(@borderStdForms, [ $y1 - $y2, $x2 - $x1, $x1 * $y2 - $x2 * $y1 ]);
 				}
+
+				my $isCrossed = (
+					(
+						$points[0][0] * $borderStdForms[2][0] +
+							$points[0][1] * $borderStdForms[2][1] +
+							$borderStdForms[2][2] > 0
+					) != (
+						$points[1][0] * $borderStdForms[2][0] +
+							$points[1][1] * $borderStdForms[2][1] +
+							$borderStdForms[2][2] > 0
+						)
+						&& ($points[2][0] * $borderStdForms[0][0] +
+							$points[2][1] * $borderStdForms[0][1] +
+							$borderStdForms[0][2] > 0) != (
+							$points[3][0] * $borderStdForms[0][0] +
+							$points[3][1] * $borderStdForms[0][1] +
+							$borderStdForms[0][2] > 0
+							)
+					)
+					|| (
+						(
+							$points[0][0] * $borderStdForms[1][0] +
+							$points[0][1] * $borderStdForms[1][1] +
+							$borderStdForms[2][2] > 0
+						) != (
+							$points[3][0] * $borderStdForms[1][0] +
+							$points[3][1] * $borderStdForms[1][1] +
+							$borderStdForms[2][2] > 0
+						)
+						&& ($points[1][0] * $borderStdForms[3][0] +
+							$points[1][1] * $borderStdForms[3][1] +
+							$borderStdForms[0][2] > 0) != (
+							$points[2][0] * $borderStdForms[3][0] +
+							$points[2][1] * $borderStdForms[3][1] +
+							$borderStdForms[0][2] > 0
+							)
+					);
 
 				my $fillCmp = sub {
 					my ($x, $y) = @_;
@@ -1363,6 +1410,8 @@ parser::GraphTool->addGraphObjects(
 						}
 					}
 					if ($isIn) {
+						return 1 if !$isCrossed;
+
 						my $result = 1;
 						for my $i (0 .. 3) {
 							$result |= 1 << ($i + 1) if $borderCmps[$i]->($x, $y) > 0;
@@ -1382,9 +1431,10 @@ parser::GraphTool->addGraphObjects(
 							my ($x, $y) = @_;
 							my $cmp = $fillCmp->($x, $y);
 							return                                                        if $cmp == 0;
-							return join('', map { $borderClipCode[$_]->($x, $y) } 0 .. 3) if $cmp > 0;
+							return join('', map { $borderClipCode[$_]->($x, $y) } 0 .. 3) if $isCrossed && $cmp > 0;
 							return
-								"\\clip[inverse clip] "
+								'\\clip'
+								. ($cmp < 0 ? '[inverse clip] ' : ' ')
 								. join(' -- ', map {"($_->[0], $_->[1])"} @points)
 								. " -- cycle;\n";
 						},

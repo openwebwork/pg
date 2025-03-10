@@ -88,6 +88,8 @@
 				const scrCoords = new JXG.Coords(JXG.COORDS_BY_USER, [point[1], point[2]], gt.board).scrCoords;
 				const isIn = JXG.Math.Geometry.pnpoly(scrCoords[1], scrCoords[2], this.baseObj.vertices);
 				if (isIn) {
+					if (!this.isCrossed()) return 1;
+
 					let result = 1;
 					for (const [i, border] of this.baseObj.borders.entries()) {
 						if (gt.sign(JXG.Math.innerProduct(point, border.stdform)) > 0) result |= 1 << (i + 1);
@@ -129,6 +131,23 @@
 					[point1, point2, point3]
 				);
 				return new gt.graphObjectTypes.quadrilateral(point1, point2, point3, point4, /solid/.test(string));
+			},
+
+			classMethods: {
+				isCrossed() {
+					const points = this.baseObj.vertices;
+					const borders = this.baseObj.borders;
+					return (
+						(JXG.Math.innerProduct(points[0].coords.usrCoords, borders[2].stdform) > 0 !=
+							JXG.Math.innerProduct(points[1].coords.usrCoords, borders[2].stdform) > 0 &&
+							JXG.Math.innerProduct(points[2].coords.usrCoords, borders[0].stdform) > 0 !=
+								JXG.Math.innerProduct(points[3].coords.usrCoords, borders[0].stdform) > 0) ||
+						(JXG.Math.innerProduct(points[0].coords.usrCoords, borders[1].stdform) > 0 !=
+							JXG.Math.innerProduct(points[3].coords.usrCoords, borders[1].stdform) > 0 &&
+							JXG.Math.innerProduct(points[1].coords.usrCoords, borders[3].stdform) > 0 !=
+								JXG.Math.innerProduct(points[2].coords.usrCoords, borders[3].stdform) > 0)
+					);
+				}
 			},
 
 			helperMethods: {
