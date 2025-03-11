@@ -837,15 +837,6 @@ window.graphTool = (containerId, options) => {
 	class GraphObject {
 		supportsSolidDash = true;
 
-		// If this is true for an object, then the flood fill algorithm will check for and not allow side changes.  This
-		// means that the flood algorithm will not rely entirely on the hasPoint method to determine if a point is on a
-		// boundary created by the object, and will check if there is a side change as determined by the fillCmp method.
-		// The real point of this is that some of the objects have unreliable hasPoint methods (most objects defined by
-		// curves), and using a the fillCmp region determination is more reliable. Note that this also will only work
-		// for an object that divides the plane into regions that are separated by lines or curves that are part of the
-		// object.
-		floodFillCheckSides = false;
-
 		constructor(jsxGraphObject) {
 			this.baseObj = jsxGraphObject;
 			this.definingPts = [];
@@ -892,8 +883,8 @@ window.graphTool = (containerId, options) => {
 			return 1;
 		}
 
-		hasPoint(/* point */) {
-			return false;
+		onBoundary(point, aVal /*, from */) {
+			return this.fillCmp(point) != aVal;
 		}
 
 		remove() {
@@ -982,14 +973,6 @@ window.graphTool = (containerId, options) => {
 			return gt.sign(JXG.Math.innerProduct(point, this.baseObj.stdform));
 		}
 
-		hasPoint(point) {
-			return (
-				Math.abs(JXG.Math.innerProduct(point, this.baseObj.stdform)) /
-					Math.sqrt(this.baseObj.stdform[1] ** 2 + this.baseObj.stdform[2] ** 2) <
-				0.5 / Math.sqrt(gt.board.unitX * gt.board.unitY)
-			);
-		}
-
 		static restore(string) {
 			let pointData = gt.pointRegexp.exec(string);
 			const points = [];
@@ -1040,16 +1023,6 @@ window.graphTool = (containerId, options) => {
 			return gt.sign(
 				this.baseObj.stdform[3] * (point[1] * point[1] + point[2] * point[2]) +
 					JXG.Math.innerProduct(point, this.baseObj.stdform)
-			);
-		}
-
-		hasPoint(point) {
-			return (
-				Math.abs(
-					Math.sqrt((this.definingPts[0].X() - point[1]) ** 2 + (this.definingPts[0].Y() - point[2]) ** 2) -
-						this.baseObj.Radius()
-				) <
-				0.5 / Math.sqrt(gt.board.unitX * gt.board.unitY)
 			);
 		}
 
@@ -1117,7 +1090,6 @@ window.graphTool = (containerId, options) => {
 
 	class Parabola extends GraphObject {
 		static strId = 'parabola';
-		floodFillCheckSides = true;
 
 		constructor(vertex, point, vertical, solid) {
 			super(createParabola(vertex, point, vertical, solid, gt.color.curve));
@@ -1140,11 +1112,6 @@ window.graphTool = (containerId, options) => {
 		fillCmp(point) {
 			if (this.vertical) return gt.sign(point[2] - this.baseObj.Y(point[1]));
 			else return gt.sign(point[1] - this.baseObj.X(point[2]));
-		}
-
-		hasPoint(point) {
-			if (this.vertical) return Math.abs(point[2] - this.baseObj.Y(point[1])) < 0.5 / gt.board.unitY;
-			else return Math.abs(point[1] - this.baseObj.X(point[2])) < 0.5 / gt.board.unitX;
 		}
 
 		static restore(string) {
@@ -1237,6 +1204,9 @@ window.graphTool = (containerId, options) => {
 					delete this.fillObj;
 				}
 
+				// If the fill point is not on the board, then the flood fill algorithm will loop infinitely. So bail.
+				if (!gt.boardHasPoint(...this.baseObj.coords.usrCoords.slice(1))) return;
+
 				const allObjects = gt.graphedObjs
 					.concat(gt.staticObjs)
 					.filter((o) => !(o instanceof gt.graphObjectTypes['fill']));
@@ -1244,17 +1214,9 @@ window.graphTool = (containerId, options) => {
 				// Determine which side of each object needs to be shaded.  If the point
 				// is on a graphed object, then don't fill.
 				const a_vals = Array(allObjects.length);
-				if (options.useFloodFill) {
-					for (const [i, object] of allObjects.entries()) {
-						if (!object.floodFillCheckSides && object.hasPoint(this.baseObj.coords.usrCoords)) return;
-						a_vals[i] = object.fillCmp(this.baseObj.coords.usrCoords);
-						if (object.floodFillCheckSides && a_vals[i] == 0) return;
-					}
-				} else {
-					for (const [i, object] of allObjects.entries()) {
-						a_vals[i] = object.fillCmp(this.baseObj.coords.usrCoords);
-						if (a_vals[i] == 0) return;
-					}
+				for (const [i, object] of allObjects.entries()) {
+					a_vals[i] = object.fillCmp(this.baseObj.coords.usrCoords);
+					if (a_vals[i] == 0) return;
 				}
 
 				const canvas = document.createElement('canvas');
@@ -1276,26 +1238,27 @@ window.graphTool = (containerId, options) => {
 						colorLayerData.data[pixelPos + 1] == Number('0x' + gt.color.fill.slice(3, 5)) &&
 						colorLayerData.data[pixelPos + 2] == Number('0x' + gt.color.fill.slice(5));
 
-					const isBoundaryPixel = (x, y) => {
+					const isBoundaryPixel = (x, y, fromDir) => {
 						const curPixel = [
 							1,
 							(x - gt.board.origin.scrCoords[1]) / gt.board.unitX,
 							(gt.board.origin.scrCoords[2] - y) / gt.board.unitY
 						];
+						const fromPixel = [
+							1,
+							curPixel[1] + fromDir[0] / gt.board.unitX,
+							curPixel[2] + fromDir[1] / gt.board.unitY
+						];
 						for (const [i, object] of allObjects.entries()) {
-							if (
-								(object.floodFillCheckSides && object.fillCmp(curPixel) != a_vals[i]) ||
-								object.hasPoint(curPixel)
-							)
-								return true;
+							if (object.onBoundary(curPixel, a_vals[i], fromPixel)) return true;
 						}
 						return false;
 					};
 
 					const pixelStack = [
 						[
-							Math.round(this.definingPts[0].coords.scrCoords.slice(1)[0]),
-							Math.round(this.definingPts[0].coords.scrCoords.slice(1)[1])
+							Math.round(this.definingPts[0].coords.scrCoords[1]),
+							Math.round(this.definingPts[0].coords.scrCoords[2])
 						]
 					];
 
@@ -1308,7 +1271,7 @@ window.graphTool = (containerId, options) => {
 						let pixelPos = (y * canvas.width + x) * 4;
 
 						// Go up until the boundary of the fill region or the edge of the canvas is reached.
-						while (y >= 0 && !isBoundaryPixel(x, y)) {
+						while (y >= 0 && !isBoundaryPixel(x, y, [0, 1])) {
 							y -= 1;
 							pixelPos -= canvas.width * 4;
 						}
@@ -1319,13 +1282,13 @@ window.graphTool = (containerId, options) => {
 						let reachRight = false;
 
 						// Go down until the boundary of the fill region or the edge of the canvas is reached.
-						while (y < canvas.height && !isBoundaryPixel(x, y)) {
+						while (y < canvas.height && !isBoundaryPixel(x, y, [0, -1])) {
 							fillPixel(pixelPos);
 
 							// While proceeding down check to the left and right to see
 							// if the fill region extends in those directions.
 							if (x > 0) {
-								if (!isFilled(pixelPos - 4) && !isBoundaryPixel(x - 1, y)) {
+								if (!isFilled(pixelPos - 4) && !isBoundaryPixel(x - 1, y, [1, 0])) {
 									if (!reachLeft) {
 										// Add pixel to stack
 										pixelStack.push([x - 1, y]);
@@ -1335,7 +1298,7 @@ window.graphTool = (containerId, options) => {
 							}
 
 							if (x < canvas.width - 1) {
-								if (!isFilled(pixelPos + 4) && !isBoundaryPixel(x + 1, y)) {
+								if (!isFilled(pixelPos + 4) && !isBoundaryPixel(x + 1, y, [-1, 0])) {
 									if (!reachRight) {
 										// Add pixel to stack
 										pixelStack.push([x + 1, y]);
@@ -1495,10 +1458,10 @@ window.graphTool = (containerId, options) => {
 					return 1;
 				}
 
-				hasPoint(point) {
-					if ('hasPoint' in graphObject) return graphObject.hasPoint.call(this, gt, point);
-					else if (parentObject) return super.hasPoint(point);
-					return 1;
+				onBoundary(point, aVal, from) {
+					if ('onBoundary' in graphObject) return graphObject.onBoundary.call(this, gt, point, aVal, from);
+					else if (parentObject) return super.onBoundary(point, aVal, from);
+					return false;
 				}
 
 				remove() {

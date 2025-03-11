@@ -634,38 +634,34 @@ my %graphObjectTikz = (
 
 			if ($p1x == $p2x) {
 				# Vertical line
-				my $line = "($p1x,$self->{bBox}[3]) -- ($p1x,$self->{bBox}[1])";
+				my $line    = "($p1x,$self->{bBox}[3]) -- ($p1x,$self->{bBox}[1])";
+				my $fillCmp = sub { return sign($_[0] - $p1x); };
 				return (
 					"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $line;\n",
 					[
 						$line
 							. "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[2],$self->{bBox}[3]) -- cycle",
-						sub { return sign($_[0] - $p1x); },
-						sub { return abs($_[0] - $p1x) < 0.5 / $self->{unitX}; }
+						$fillCmp,
+						sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 					]
 				);
 			} else {
 				# Non-vertical line
-				my $m            = ($p2y - $p1y) / ($p2x - $p1x);
-				my $y            = sub { return $m * ($_[0] - $p1x) + $p1y; };
-				my @stdform      = ($p1y - $p2y, $p2x - $p1x, $p1x * $p2y - $p2x * $p1y);
-				my $normalLength = sqrt($stdform[0]**2 + $stdform[1]**2);
+				my $m = ($p2y - $p1y) / ($p2x - $p1x);
+				my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
 				my $line =
 					"($self->{bBox}[0],"
 					. $y->($self->{bBox}[0]) . ') -- '
 					. "($self->{bBox}[2],"
 					. $y->($self->{bBox}[2]) . ')';
+				my $fillCmp = sub { return sign($_[1] - $y->($_[0])); };
 				return (
 					"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $line;\n",
 					[
 						$line
 							. "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[0],$self->{bBox}[1]) -- cycle",
-						sub { return sign($_[1] - $y->($_[0])); },
-						sub {
-							return
-								abs($_[0] * $stdform[0] + $_[1] * $stdform[1] + $stdform[2]) / $normalLength <
-								0.5 / sqrt($self->{unitX} * $self->{unitY});
-						}
+						$fillCmp,
+						sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 					]
 				);
 			}
@@ -680,17 +676,10 @@ my %graphObjectTikz = (
 			my $r      = sqrt(($cx - $px)**2 + ($cy - $py)**2);
 			my $circle = "($cx, $cy) circle[radius=$r]";
 
+			my $fillCmp = sub { return sign($r - sqrt(($cx - $_[0])**2 + ($cy - $_[1])**2)); };
 			return (
 				"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $circle;\n",
-				[
-					$circle,
-					sub { return sign($r - sqrt(($cx - $_[0])**2 + ($cy - $_[1])**2)); },
-					sub {
-						return
-							abs($r - sqrt(($cx - $_[0])**2 + ($cy - $_[1])**2)) <
-							0.5 / sqrt($self->{unitX} * $self->{unitY});
-					}
-				]
+				[ $circle, $fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; } ]
 			);
 		}
 	},
@@ -709,13 +698,10 @@ my %graphObjectTikz = (
 				my $dmax      = $h + $diff;
 				my $parabola  = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x-($h))^2+($k)})";
 				my $yEquation = sub { return $a * ($_[0] - $h)**2 + $k; };
+				my $fillCmp   = sub { return sign($a * ($_[1] - $yEquation->($_[0]))); };
 				return (
 					"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $parabola;\n",
-					[
-						$parabola,
-						sub { return sign($a * ($_[1] - $yEquation->($_[0]))); },
-						sub { return abs($_[1] - $yEquation->($_[0])) < 0.5 / $self->{unitY}; }, 1
-					]
+					[ $parabola, $fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; } ]
 				);
 			} else {
 				# Horizontal parabola
@@ -725,13 +711,10 @@ my %graphObjectTikz = (
 				my $dmax      = $k + $diff;
 				my $parabola  = "plot[domain=$dmin:$dmax,smooth]({$a*(\\x-($k))^2+($h)},\\x)";
 				my $xEquation = sub { return $a * ($_[0] - $k)**2 + $h; };
+				my $fillCmp   = sub { return sign($a * ($_[0] - $xEquation->($_[1]))); };
 				return (
 					"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $parabola;\n",
-					[
-						$parabola,
-						sub { return sign($a * ($_[0] - $xEquation->($_[1]))); },
-						sub { return abs($_[0] - $xEquation->($_[1])) < 0.5 / $self->{unitX}; }, 1
-					]
+					[ $parabola, $fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; } ]
 				);
 			}
 		}
@@ -752,19 +735,20 @@ my %graphObjectTikz = (
 
 				# If the point is on a graphed object, then don't fill.
 				for (0 .. $#$object_data) {
-					return '' if !$object_data->[$_][3] && $object_data->[$_][2]->($fx, $fy);
 					$aVals[$_] = $object_data->[$_][1]->($fx, $fy);
-					return '' if $object_data->[$_][3] && $aVals[$_] == 0;
+					return '' if $aVals[$_] == 0;
 				}
 
 				my $isBoundaryPixel = sub {
-					my ($x, $y) = @_;
-					my $x_real = $self->{bBox}[0] + $x / $self->{unitX};
-					my $y_real = $self->{bBox}[1] - $y / $self->{unitY};
+					my ($x, $y, $fromDir) = @_;
+					my $curPoint =
+						[ $self->{bBox}[0] + $x / $self->{unitX}, $self->{bBox}[1] - $y / $self->{unitY} ];
+					my $from = [
+						$curPoint->[0] + $fromDir->[0] / $self->{unitX},
+						$curPoint->[1] + $fromDir->[1] / $self->{unitY}
+					];
 					for (0 .. $#$object_data) {
-						return 1
-							if ($object_data->[$_][3] && $object_data->[$_][1]->($x_real, $y_real) != $aVals[$_])
-							|| $object_data->[$_][2]->($x_real, $y_real);
+						return 1 if $object_data->[$_][2]->($curPoint, $aVals[$_], $from);
 					}
 					return 0;
 				};
@@ -783,7 +767,7 @@ my %graphObjectTikz = (
 					my $pixelPos = $y * $fillResolution + $x;
 
 					# Go up until the boundary of the fill region or the edge of board is reached.
-					while ($y >= 0 && !$isBoundaryPixel->($x, $y)) {
+					while ($y >= 0 && !$isBoundaryPixel->($x, $y, [ 0, 1 ])) {
 						$y        -= 1;
 						$pixelPos -= $fillResolution;
 					}
@@ -794,14 +778,14 @@ my %graphObjectTikz = (
 					my $reachRight = 0;
 
 					# Go down until the boundary of the fill region or the edge of the board is reached.
-					while ($y < $fillResolution && !$isBoundaryPixel->($x, $y)) {
+					while ($y < $fillResolution && !$isBoundaryPixel->($x, $y, [ 0, -1 ])) {
 						# Fill the pixel
 						$floodMap[$pixelPos] = 1;
 
 						# While proceeding down check to the left and right to
 						# see if the fill region extends in those directions.
 						if ($x > 0) {
-							if (!$floodMap[ $pixelPos - 1 ] && !$isBoundaryPixel->($x - 1, $y)) {
+							if (!$floodMap[ $pixelPos - 1 ] && !$isBoundaryPixel->($x - 1, $y, [ 1, 0 ])) {
 								if (!$reachLeft) {
 									push(@pixelStack, [ $x - 1, $y ]);
 									$reachLeft = 1;
@@ -812,7 +796,7 @@ my %graphObjectTikz = (
 						}
 
 						if ($x < $fillResolution - 1) {
-							if (!$floodMap[ $pixelPos + 1 ] && !$isBoundaryPixel->($x + 1, $y)) {
+							if (!$floodMap[ $pixelPos + 1 ] && !$isBoundaryPixel->($x + 1, $y, [ -1, 0 ])) {
 								if (!$reachRight) {
 									push(@pixelStack, [ $x + 1, $y ]);
 									$reachRight = 1;
@@ -1050,7 +1034,7 @@ our %graphObjectCmps = (
 					&& $other->{data}[3] == $vertex
 					&& $parabolaPointCmp->($other->{data}[4]) == 0;
 			},
-			[ defined $gt ? @{ ($graphObjectTikz{parabola}{code}->($gt, $parabola))[1] }[ 1 .. 3 ] : () ]
+			[ defined $gt ? @{ ($graphObjectTikz{parabola}{code}->($gt, $parabola))[1] }[ 1, 2 ] : () ]
 		);
 	},
 	fill => sub {
@@ -1081,22 +1065,17 @@ our %graphObjectCmps = (
 				# FIXME: How should this case be graded? Really, it never should happen. It means the problem author
 				# chose a fill point on another object. Probably because of carelessness with random parameters.
 				for (0 .. $#$object_fill_cmps) {
-					return $object_fill_cmps->[$_][1]->($px, $py) ? 1 : 0
-						if !$object_fill_cmps->[$_][2] && $object_fill_cmps->[$_][1]->($fx, $fy);
 					$aVals[$_] = $object_fill_cmps->[$_][0]->($fx, $fy);
-					return $object_fill_cmps->[$_][0]->($px, $py) == 0 ? 1 : 0
-						if $object_fill_cmps->[$_][2] && $aVals[$_] == 0;
+					return $object_fill_cmps->[$_][0]->($px, $py) == 0 ? 1 : 0 if $aVals[$_] == 0;
 				}
 
 				my $isBoundaryPixel = sub {
-					my ($x, $y) = @_;
-					my $x_real = $gt->{bBox}[0] + $x / $gt->{unitX};
-					my $y_real = $gt->{bBox}[1] - $y / $gt->{unitY};
+					my ($x, $y, $fromDir) = @_;
+					my $curPoint = [ $gt->{bBox}[0] + $x / $gt->{unitX}, $gt->{bBox}[1] - $y / $gt->{unitY} ];
+					my $from     = [ $curPoint->[0] + $fromDir->[0] / $gt->{unitX},
+						$curPoint->[1] + $fromDir->[1] / $gt->{unitY} ];
 					for (0 .. $#$object_fill_cmps) {
-						return 1
-							if ($object_fill_cmps->[$_][2]
-								&& $object_fill_cmps->[$_][0]->($x_real, $y_real) != $aVals[$_])
-							|| $object_fill_cmps->[$_][1]->($x_real, $y_real);
+						return 1 if $object_fill_cmps->[$_][1]->($curPoint, $aVals[$_], $from);
 					}
 					return 0;
 				};
@@ -1118,7 +1097,7 @@ our %graphObjectCmps = (
 					my $pixelPos = $y * $fillResolution + $x;
 
 					# Go up until the boundary of the fill region or the edge of board is reached.
-					while ($y >= 0 && !$isBoundaryPixel->($x, $y)) {
+					while ($y >= 0 && !$isBoundaryPixel->($x, $y, [ 0, 1 ])) {
 						$y        -= 1;
 						$pixelPos -= $fillResolution;
 					}
@@ -1129,7 +1108,7 @@ our %graphObjectCmps = (
 					my $reachRight = 0;
 
 					# Go down until the boundary of the fill region or the edge of the board is reached.
-					while ($y < $fillResolution && !$isBoundaryPixel->($x, $y)) {
+					while ($y < $fillResolution && !$isBoundaryPixel->($x, $y, [ 0, -1 ])) {
 						return 1 if $x == $pxPixel && $y == $pyPixel;
 
 						# Fill the pixel
@@ -1138,7 +1117,7 @@ our %graphObjectCmps = (
 						# While proceeding down check to the left and right to
 						# see if the fill region extends in those directions.
 						if ($x > 0) {
-							if (!$floodMap[ $pixelPos - 1 ] && !$isBoundaryPixel->($x - 1, $y)) {
+							if (!$floodMap[ $pixelPos - 1 ] && !$isBoundaryPixel->($x - 1, $y, [ 1, 0 ])) {
 								if (!$reachLeft) {
 									push(@pixelStack, [ $x - 1, $y ]);
 									$reachLeft = 1;
@@ -1149,7 +1128,7 @@ our %graphObjectCmps = (
 						}
 
 						if ($x < $fillResolution - 1) {
-							if (!$floodMap[ $pixelPos + 1 ] && !$isBoundaryPixel->($x + 1, $y)) {
+							if (!$floodMap[ $pixelPos + 1 ] && !$isBoundaryPixel->($x + 1, $y, [ -1, 0 ])) {
 								if (!$reachRight) {
 									push(@pixelStack, [ $x + 1, $y ]);
 									$reachRight = 1;
@@ -1264,12 +1243,13 @@ parser::GraphTool->addGraphObjects(
 						. $y->($gt->{bBox}[0])
 						. ") -- ($gt->{bBox}[2],"
 						. $y->($gt->{bBox}[2]) . ")";
+					my $fillCmp = sub { return sign($_[1] - $y->($_[0])); };
 					return (
 						"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $line;\n",
 						[
 							"$line -- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return sign($_[1] - $y->($_[0])); },
-							sub { return abs($_[1] - $y->($_[0])) < 0.5 / $gt->{unitY}; }
+							$fillCmp,
+							sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 						]
 					);
 				} else {
@@ -1286,14 +1266,11 @@ parser::GraphTool->addGraphObjects(
 					my $quadratic = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x)^2+($b)*\\x+($c)})";
 
 					my $quadraticFunction = sub { return $a * $_[0]**2 + $b * $_[0] + $c; };
+					my $fillCmp           = sub { return sign($a * ($_[1] - $quadraticFunction->($_[0]))); };
 
 					return (
 						"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $quadratic;",
-						[
-							$quadratic,
-							sub { return sign($a * ($_[1] - $quadraticFunction->($_[0]))); },
-							sub { return abs($_[1] - $quadraticFunction->($_[0])) < 0.5 / $gt->{unitY}; }, 1
-						]
+						[ $quadratic, $fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; } ]
 					);
 				}
 			}
@@ -1327,7 +1304,7 @@ parser::GraphTool->addGraphObjects(
 						&& $quadraticPointCmp->($other->{data}[3]) == 0
 						&& $quadraticPointCmp->($other->{data}[4]) == 0;
 				},
-				[ defined $gt ? @{ ($graphObjectTikz{quadratic}{code}->($gt, $quadratic))[1] }[ 1 .. 3 ] : () ]
+				[ defined $gt ? @{ ($graphObjectTikz{quadratic}{code}->($gt, $quadratic))[1] }[ 1, 2 ] : () ]
 			);
 		}
 	},
@@ -1362,12 +1339,13 @@ parser::GraphTool->addGraphObjects(
 						. $y->($gt->{bBox}[0])
 						. ") -- ($gt->{bBox}[2],"
 						. $y->($gt->{bBox}[2]) . ")";
+					my $fillCmp = sub { return sign($_[1] - $y->($_[0])); };
 					return (
 						"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $line;\n",
 						[
 							"$line -- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return sign($_[1] - $y->($_[0])); },
-							sub { return abs($_[1] - $y->($_[0])) < 0.5 / $gt->{unitY}; }
+							$fillCmp,
+							sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 						]
 					);
 				} elsif (abs($c3) < 0.000001) {
@@ -1386,14 +1364,11 @@ parser::GraphTool->addGraphObjects(
 					my $parabola = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x)^2+($b)*\\x+($c)})";
 
 					my $quadraticFunction = sub { return $a * $_[0]**2 + $b * $_[0] + $c; };
+					my $fillCmp           = sub { return sign($a * ($_[1] - $quadraticFunction->($_[0]))); };
 
 					return (
 						"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $parabola;",
-						[
-							$parabola,
-							sub { return sign($a * ($_[1] - $quadraticFunction->($_[0]))); },
-							sub { return abs($_[1] - $quadraticFunction->($_[0])) < 1 / $gt->{unitY}; }, 1
-						]
+						[ $parabola, $fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; } ]
 					);
 				} else {
 					# Non-degenerate cubic
@@ -1433,7 +1408,8 @@ parser::GraphTool->addGraphObjects(
 						$x += $step;
 					} while ($x < $gt->{bBox}[2]);
 
-					my $cubic = "plot[smooth] coordinates { $coords }";
+					my $cubic   = "plot[smooth] coordinates { $coords }";
+					my $fillCmp = sub { return sign($c3 * ($_[1] - $cubicFunction->($_[0]))); };
 					return (
 						"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $cubic;",
 						[
@@ -1445,9 +1421,8 @@ parser::GraphTool->addGraphObjects(
 									: ("-- ($gt->{bBox}[2],$gt->{bBox}[3]) -- ($gt->{bBox}[0],$gt->{bBox}[3])"
 										. "-- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle")
 								),
-							sub { return sign($c3 * ($_[1] - $cubicFunction->($_[0]))); },
-							sub { return abs($_[1] - $cubicFunction->($_[0])) < 0.5 / $gt->{unitY}; },
-							1
+							$fillCmp,
+							sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 						]
 					);
 				}
@@ -1491,7 +1466,7 @@ parser::GraphTool->addGraphObjects(
 						&& $cubicPointCmp->($other->{data}[4]) == 0
 						&& $cubicPointCmp->($other->{data}[5]) == 0;
 				},
-				[ defined $gt ? @{ ($graphObjectTikz{cubic}{code}->($gt, $cubic))[1] }[ 1 .. 3 ] : () ]
+				[ defined $gt ? @{ ($graphObjectTikz{cubic}{code}->($gt, $cubic))[1] }[ 1, 2 ] : () ]
 			);
 		}
 	},
@@ -1584,15 +1559,14 @@ parser::GraphTool->addGraphObjects(
 					$x += $step;
 				} while $x < $gt->{bBox}[2];
 
-				my $sin = "plot[smooth] coordinates { $coords }";
+				my $sin     = "plot[smooth] coordinates { $coords }";
+				my $fillCmp = sub { return sign($_[1] - $sinFunction->($_[0])); };
 
 				return (
 					"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $sin;\n",
 					[
 						$sin . "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-						sub { return sign($_[1] - $sinFunction->($_[0])); },
-						sub { return abs($_[1] - $sinFunction->($_[0])) < 0.5 / $gt->{unitY}; },
-						1
+						$fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 					]
 				);
 			}
@@ -1622,7 +1596,7 @@ parser::GraphTool->addGraphObjects(
 						main::Formula("$amplitude sin(2 * pi / abs($period) (x - $phase)) + $yshift");
 					return ($fuzzy || $other->{data}[1] eq $solid_dashed) && $sinFormula == $otherSinFormula;
 				},
-				[ defined $gt ? @{ ($graphObjectTikz{sineWave}{code}->($gt, $sineWave))[1] }[ 1 .. 3 ] : () ]
+				[ defined $gt ? @{ ($graphObjectTikz{sineWave}{code}->($gt, $sineWave))[1] }[ 1, 2 ] : () ]
 			);
 		}
 	},
@@ -1647,36 +1621,40 @@ parser::GraphTool->addGraphObjects(
 					push(@normalLengths,  sqrt($borderStdForms[-1][0]**2 + $borderStdForms[-1][1]**2));
 				}
 
+				my $fillCmp = sub {
+					my $s =
+						(($p2y - $p3y) * ($_[0] - $p3x) + ($p3x - $p2x) * ($_[1] - $p3y)) / $denominator;
+					my $t =
+						(($p3y - $p1y) * ($_[0] - $p3x) + ($p1x - $p3x) * ($_[1] - $p3y)) / $denominator;
+					if ($s >= 0 && $t >= 0 && $s + $t <= 1) {
+						return 0 if ($s == 0 || $t == 0 || $s + $t == 1);
+						return 1;
+					}
+					return -1;
+				};
+
 				return (
 					"\\draw[thick, blue, line width = 2.5pt, $object->{data}[1]] "
 						. join(' -- ', map {"($_->[0], $_->[1])"} @points)
 						. ' -- cycle;',
 					[
 						join(' -- ', map {"($_->[0], $_->[1])"} @points) . ' -- cycle',
+						$fillCmp,
 						sub {
-							my $s =
-								(($p2y - $p3y) * ($_[0] - $p3x) + ($p3x - $p2x) * ($_[1] - $p3y)) / $denominator;
-							my $t =
-								(($p3y - $p1y) * ($_[0] - $p3x) + ($p1x - $p3x) * ($_[1] - $p3y)) / $denominator;
-							if ($s >= 0 && $t >= 0 && $s + $t <= 1) {
-								return 0 if ($s == 0 || $t == 0 || $s + $t == 1);
-								return 1;
-							}
-							return -1;
-						},
-						sub {
-							my ($x, $y) = @_;
+							my ($point, $aVal, $from) = @_;
+							return 1 if $fillCmp->(@$point) != $aVal;
 							for (0 .. $#borderStdForms) {
 								my @stdform = @{ $borderStdForms[$_] };
 								my ($x1, $y1) = @{ $points[$_] };
 								my ($x2, $y2) = @{ $points[ ($_ + 1) % 3 ] };
 								return 1
-									if abs($x * $stdform[0] + $y * $stdform[1] + $stdform[2]) / $normalLengths[$_] <
-									0.5 / sqrt($gt->{unitX} * $gt->{unitY})
-									&& $x >= main::min($x1, $x2) - 0.5 / $gt->{unitX}
-									&& $x <= main::max($x1, $x2) + 0.5 / $gt->{unitX}
-									&& $y >= main::min($y1, $y2) - 0.5 / $gt->{unitY}
-									&& $y <= main::max($y1, $y2) + 0.5 / $gt->{unitY};
+									if (
+										abs($point->[0] * $stdform[0] + $point->[1] * $stdform[1] + $stdform[2]) /
+										$normalLengths[$_]) < 0.5 / sqrt($gt->{unitX} * $gt->{unitY})
+									&& $point->[0] > main::min($x1, $x2) - 0.5 / $gt->{unitX}
+									&& $point->[0] < main::max($x1, $x2) + 0.5 / $gt->{unitX}
+									&& $point->[1] > main::min($y1, $y2) - 0.5 / $gt->{unitY}
+									&& $point->[1] < main::max($y1, $y2) + 0.5 / $gt->{unitY};
 							}
 							return 0;
 						}
@@ -1866,21 +1844,27 @@ parser::GraphTool->addGraphObjects(
 						},
 						$fillCmp,
 						sub {
-							my ($x, $y) = @_;
+							my ($point, $aVal, $from) = @_;
+							return 1 if $fillCmp->(@$point) != $aVal;
 							for (0 .. $#borderStdForms) {
 								my @stdform = @{ $borderStdForms[$_] };
 								my ($x1, $y1) = @{ $points[$_] };
 								my ($x2, $y2) = @{ $points[ ($_ + 1) % 4 ] };
 								return 1
-									if abs($x * $stdform[0] + $y * $stdform[1] + $stdform[2]) / $normalLengths[$_] <
-									0.5 / sqrt($gt->{unitX} * $gt->{unitY})
-									&& $x >= main::min($x1, $x2) - 0.5 / $gt->{unitX}
-									&& $x <= main::max($x1, $x2) + 0.5 / $gt->{unitX}
-									&& $y >= main::min($y1, $y2) - 0.5 / $gt->{unitY}
-									&& $y <= main::max($y1, $y2) + 0.5 / $gt->{unitY};
+									if (
+										abs($point->[0] * $stdform[0] + $point->[1] * $stdform[1] + $stdform[2]) /
+										$normalLengths[$_] < 0.5 /
+										sqrt($gt->{unitX} * $gt->{unitY}))
+									&& $point->[0] > main::min($x1, $x2) - 0.5 / $gt->{unitX}
+									&& $point->[0] < main::max($x1, $x2) + 0.5 / $gt->{unitX}
+									&& $point->[1] > main::min($y1, $y2) - 0.5 / $gt->{unitY}
+									&& $point->[1] < main::max($y1, $y2) + 0.5 / $gt->{unitY};
 							}
 							return 0;
-						}
+						},
+						sub { return 0; },
+						1,
+						1
 					]
 				);
 			}
@@ -1993,12 +1977,31 @@ parser::GraphTool->addGraphObjects(
 						[
 							"($p1x,$gt->{bBox}[3]) -- ($p1x,$gt->{bBox}[1])"
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[2],$gt->{bBox}[3]) -- cycle",
-							sub { return sign($_[0] - $p1x); },
 							sub {
-								return
-									abs($_[0] - $p1x) < 1 / $gt->{unitX}
-									&& $_[1] >= main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
-									&& $_[1] <= main::max($p1y, $p2y) + 0.5 / $gt->{unitY};
+								return sign($_[0] - $p1x)
+									|| ($_[1] >= main::min($p1y, $p2y) && $_[1] <= main::max($p1y, $p2y) ? 0 : 1);
+							},
+							sub {
+								my ($point, $aVal, $from) = @_;
+								my @crossingStdForm = (
+									$point->[1] - $from->[1],
+									$from->[0] - $point->[0],
+									$point->[0] * $from->[1] - $point->[1] * $from->[0]
+								);
+								return (
+									($from->[0] * ($p1y - $p2y) > $p1x * ($p1y - $p2y)) !=
+										($point->[0] * ($p1y - $p2y) > $p1x * ($p1y - $p2y))
+										&& ($p1x * $crossingStdForm[0] +
+											$p1y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0) != (
+											$p2x * $crossingStdForm[0] +
+											$p2y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0
+											)
+									)
+									|| (abs($_[0] - $p1x) < 0.5 / $gt->{unitX}
+										&& $_[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
+										&& $_[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
 							}
 						]
 					);
@@ -2016,16 +2019,37 @@ parser::GraphTool->addGraphObjects(
 								. "($gt->{bBox}[2],"
 								. $y->($gt->{bBox}[2]) . ')'
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return sign($_[1] - $y->($_[0])); },
 							sub {
-								my ($x, $y) = @_;
-								return
-									abs($x * $stdform[0] + $y * $stdform[1] + $stdform[2]) / $normalLength <
-									1 / sqrt($gt->{unitX} * $gt->{unitY})
-									&& $x >= main::min($p1x, $p2x) - 0.5 / $gt->{unitX}
-									&& $x <= main::max($p1x, $p2x) + 0.5 / $gt->{unitX}
-									&& $y >= main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
-									&& $y <= main::max($p1y, $p2y) + 0.5 / $gt->{unitY};
+								return sign($_[1] - $y->($_[0]))
+									|| ($_[0] >= main::min($p1x, $p2x)
+										&& $_[0] <= main::max($p1x, $p2x)
+										&& $_[1] >= main::min($p1y, $p2y)
+										&& $_[1] <= main::max($p1y, $p2y) ? 0 : 1);
+							},
+							sub {
+								my ($point, $aVal, $from) = @_;
+								my @crossingStdForm = (
+									$point->[1] - $from->[1],
+									$from->[0] - $point->[0],
+									$point->[0] * $from->[1] - $point->[1] * $from->[0]
+								);
+								my $pointSide = $point->[0] * $stdform[0] + $point->[1] * $stdform[1] + $stdform[2];
+								return (
+									($from->[0] * $stdform[0] + $from->[1] * $stdform[1] + $stdform[2] > 0) !=
+										$pointSide > 0
+										&& ($p1x * $crossingStdForm[0] +
+											$p1y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0) != (
+											$p2x * $crossingStdForm[0] +
+											$p2y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0
+											)
+									)
+									|| ((abs($pointSide) / $normalLength < 0.5 / sqrt($gt->{unitX} * $gt->{unitY}))
+										&& $point->[0] > main::min($p1x, $p2x) - 0.5 / $gt->{unitX}
+										&& $point->[0] < main::max($p1x, $p2x) + 0.5 / $gt->{unitX}
+										&& $point->[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
+										&& $point->[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
 							}
 						]
 					);
@@ -2083,12 +2107,31 @@ parser::GraphTool->addGraphObjects(
 						[
 							"($p1x,$gt->{bBox}[3]) -- ($p1x,$gt->{bBox}[1])"
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[2],$gt->{bBox}[3]) -- cycle",
-							sub { return sign($_[0] - $p1x); },
 							sub {
-								return
-									abs($_[0] - $p1x) < 1 / $gt->{unitX}
-									&& $_[1] >= main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
-									&& $_[1] <= main::max($p1y, $p2y) + 0.5 / $gt->{unitY};
+								return sign($_[0] - $p1x)
+									|| ($_[1] >= main::min($p1y, $p2y) && $_[1] <= main::max($p1y, $p2y) ? 0 : 1);
+							},
+							sub {
+								my ($point, $aVal, $from) = @_;
+								my @crossingStdForm = (
+									$point->[1] - $from->[1],
+									$from->[0] - $point->[0],
+									$point->[0] * $from->[1] - $point->[1] * $from->[0]
+								);
+								return (
+									($from->[0] * ($p1y - $p2y) > $p1x * ($p1y - $p2y)) !=
+										($point->[0] * ($p1y - $p2y) > $p1x * ($p1y - $p2y))
+										&& ($p1x * $crossingStdForm[0] +
+											$p1y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0) != (
+											$p2x * $crossingStdForm[0] +
+											$p2y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0
+											)
+									)
+									|| (abs($_[0] - $p1x) < 0.5 / $gt->{unitX}
+										&& $_[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
+										&& $_[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
 							}
 						]
 					);
@@ -2107,16 +2150,37 @@ parser::GraphTool->addGraphObjects(
 								. "($gt->{bBox}[2],"
 								. $y->($gt->{bBox}[2]) . ')'
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return sign($_[1] - $y->($_[0])); },
 							sub {
-								my ($x, $y) = @_;
-								return
-									abs($x * $stdform[0] + $y * $stdform[1] + $stdform[2]) / $normalLength <
-									1 / sqrt($gt->{unitX} * $gt->{unitY})
-									&& $x >= main::min($p1x, $p2x) - 0.5 / $gt->{unitX}
-									&& $x <= main::max($p1x, $p2x) + 0.5 / $gt->{unitX}
-									&& $y >= main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
-									&& $y <= main::max($p1y, $p2y) + 0.5 / $gt->{unitY};
+								return sign($_[1] - $y->($_[0]))
+									|| ($_[0] >= main::min($p1x, $p2x)
+										&& $_[0] <= main::max($p1x, $p2x)
+										&& $_[1] >= main::min($p1y, $p2y)
+										&& $_[1] <= main::max($p1y, $p2y) ? 0 : 1);
+							},
+							sub {
+								my ($point, $aVal, $from) = @_;
+								my @crossingStdForm = (
+									$point->[1] - $from->[1],
+									$from->[0] - $point->[0],
+									$point->[0] * $from->[1] - $point->[1] * $from->[0]
+								);
+								my $pointSide = $point->[0] * $stdform[0] + $point->[1] * $stdform[1] + $stdform[2];
+								return (
+									($from->[0] * $stdform[0] + $from->[1] * $stdform[1] + $stdform[2] > 0) !=
+										$pointSide > 0
+										&& ($p1x * $crossingStdForm[0] +
+											$p1y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0) != (
+											$p2x * $crossingStdForm[0] +
+											$p2y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0
+											)
+									)
+									|| ((abs($pointSide) / $normalLength < 0.5 / sqrt($gt->{unitX} * $gt->{unitY}))
+										&& $point->[0] > main::min($p1x, $p2x) - 0.5 / $gt->{unitX}
+										&& $point->[0] < main::max($p1x, $p2x) + 0.5 / $gt->{unitX}
+										&& $point->[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
+										&& $point->[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
 							}
 						]
 					);

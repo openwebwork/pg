@@ -25,7 +25,6 @@
 			postInit(_gt, shiftPoint, periodPoint, amplitudePoint) {
 				this.definingPts.push(shiftPoint, periodPoint, amplitudePoint);
 				this.focusPoint = shiftPoint;
-				this.floodFillCheckSides = true;
 			},
 
 			stringify(gt) {
@@ -42,10 +41,6 @@
 
 			fillCmp(gt, point) {
 				return gt.sign(point[2] - this.baseObj.Y(point[1]));
-			},
-
-			hasPoint(gt, point) {
-				return Math.abs(point[2] - this.baseObj.Y(point[1])) < 0.5 / gt.board.unitY;
 			},
 
 			restore(gt, string) {
