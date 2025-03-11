@@ -354,7 +354,7 @@
 				pairedPointDrag(gt, e, point) {
 					gt.adjustDragPositionRestricted(e, point, point.paired_point);
 					if (point.Y() !== 0) point.setPosition(JXG.COORDS_BY_USER, [point.X(), 0]);
-					gt.setTextCoords(this.X(), 0);
+					gt.setTextCoords(point.X(), 0);
 					gt.updateObjects();
 					gt.updateText();
 				},
