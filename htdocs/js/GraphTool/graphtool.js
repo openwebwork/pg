@@ -1225,18 +1225,22 @@ window.graphTool = (containerId, options) => {
 				const context = canvas.getContext('2d');
 				const colorLayerData = context.getImageData(0, 0, canvas.width, canvas.height);
 
+				const fillRed = Number('0x' + gt.color.fill.slice(1, 3));
+				const fillBlue = Number('0x' + gt.color.fill.slice(3, 5));
+				const fillGreen = Number('0x' + gt.color.fill.slice(5));
+
 				const fillPixel = (pixelPos) => {
-					colorLayerData.data[pixelPos] = Number('0x' + gt.color.fill.slice(1, 3));
-					colorLayerData.data[pixelPos + 1] = Number('0x' + gt.color.fill.slice(3, 5));
-					colorLayerData.data[pixelPos + 2] = Number('0x' + gt.color.fill.slice(5));
+					colorLayerData.data[pixelPos] = fillRed;
+					colorLayerData.data[pixelPos + 1] = fillBlue;
+					colorLayerData.data[pixelPos + 2] = fillGreen;
 					colorLayerData.data[pixelPos + 3] = 255;
 				};
 
 				if (options.useFloodFill) {
 					const isFilled = (pixelPos) =>
-						colorLayerData.data[pixelPos] == Number('0x' + gt.color.fill.slice(1, 3)) &&
-						colorLayerData.data[pixelPos + 1] == Number('0x' + gt.color.fill.slice(3, 5)) &&
-						colorLayerData.data[pixelPos + 2] == Number('0x' + gt.color.fill.slice(5));
+						colorLayerData.data[pixelPos] == fillRed &&
+						colorLayerData.data[pixelPos + 1] == fillBlue &&
+						colorLayerData.data[pixelPos + 2] == fillGreen;
 
 					const isBoundaryPixel = (x, y, fromDir) => {
 						const curPixel = [
@@ -1283,6 +1287,11 @@ window.graphTool = (containerId, options) => {
 
 						// Go down until the boundary of the fill region or the edge of the canvas is reached.
 						while (y < canvas.height && !isBoundaryPixel(x, y, [0, -1])) {
+							// FIXME: This should not be needed, but for some reason when several segments or vectors
+							// are plotted in certain positions the algorithm starts filling already filled pixels
+							// repeatedly and loops infinitely. The similar Perl code in the macro does not do this.
+							if (isFilled(pixelPos)) break;
+
 							fillPixel(pixelPos);
 
 							// While proceeding down check to the left and right to see
