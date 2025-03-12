@@ -1219,9 +1219,11 @@ window.graphTool = (containerId, options) => {
 					if (a_vals[i] == 0) return;
 				}
 
+				const bBox = gt.board.getBoundingBox();
+
 				const canvas = document.createElement('canvas');
-				canvas.width = gt.board.canvasWidth;
-				canvas.height = gt.board.canvasHeight;
+				canvas.width = gt.board.canvasWidth + 1;
+				canvas.height = gt.board.canvasHeight + 1;
 				const context = canvas.getContext('2d');
 				const colorLayerData = context.getImageData(0, 0, canvas.width, canvas.height);
 
@@ -1243,11 +1245,7 @@ window.graphTool = (containerId, options) => {
 						colorLayerData.data[pixelPos + 2] == fillGreen;
 
 					const isBoundaryPixel = (x, y, fromDir) => {
-						const curPixel = [
-							1,
-							(x - gt.board.origin.scrCoords[1]) / gt.board.unitX,
-							(gt.board.origin.scrCoords[2] - y) / gt.board.unitY
-						];
+						const curPixel = [1, bBox[0] + x / gt.board.unitX, bBox[1] - y / gt.board.unitY];
 						const fromPixel = [
 							1,
 							curPixel[1] + fromDir[0] / gt.board.unitX,
@@ -1261,8 +1259,8 @@ window.graphTool = (containerId, options) => {
 
 					const pixelStack = [
 						[
-							Math.round(this.definingPts[0].coords.scrCoords[1]),
-							Math.round(this.definingPts[0].coords.scrCoords[2])
+							Math.round((this.definingPts[0].X() - bBox[0]) * gt.board.unitX),
+							Math.round((bBox[1] - this.definingPts[0].Y()) * gt.board.unitY)
 						]
 					];
 
@@ -1344,14 +1342,9 @@ window.graphTool = (containerId, options) => {
 				const dataURL = canvas.toDataURL('image/png');
 				canvas.remove();
 
-				const boundingBox = gt.board.getBoundingBox();
 				this.fillObj = gt.board.create(
 					'image',
-					[
-						dataURL,
-						[boundingBox[0], boundingBox[3]],
-						[boundingBox[2] - boundingBox[0], boundingBox[1] - boundingBox[3]]
-					],
+					[dataURL, [bBox[0], bBox[3]], [bBox[2] - bBox[0], bBox[1] - bBox[3]]],
 					{ withLabel: false, highlight: false, fixed: true, layer: 0 }
 				);
 			};
