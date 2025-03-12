@@ -779,6 +779,10 @@ my %graphObjectTikz = (
 
 					# Go down until the boundary of the fill region or the edge of the board is reached.
 					while ($y < $fillResolution && !$isBoundaryPixel->($x, $y, [ 0, -1 ])) {
+						# This is a protection against infinite loops.  I have not seen this occur with this code unlike
+						# the corresponding JavaScript code, but it doesn't hurt to add the protection.
+						last if $floodMap[$pixelPos];
+
 						# Fill the pixel
 						$floodMap[$pixelPos] = 1;
 
@@ -1110,6 +1114,10 @@ our %graphObjectCmps = (
 					# Go down until the boundary of the fill region or the edge of the board is reached.
 					while ($y < $fillResolution && !$isBoundaryPixel->($x, $y, [ 0, -1 ])) {
 						return 1 if $x == $pxPixel && $y == $pyPixel;
+
+						# This is a protection against infinite loops.  I have not seen this occur with this code unlike
+						# the corresponding JavaScript code, but it doesn't hurt to add the protection.
+						last if $floodMap[$pixelPos];
 
 						# Fill the pixel
 						$floodMap[$pixelPos] = 1;
