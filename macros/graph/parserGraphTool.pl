@@ -1869,10 +1869,7 @@ parser::GraphTool->addGraphObjects(
 									&& $point->[1] < main::max($y1, $y2) + 0.5 / $gt->{unitY};
 							}
 							return 0;
-						},
-						sub { return 0; },
-						1,
-						1
+						}
 					]
 				);
 			}
