@@ -930,8 +930,8 @@ my %graphObjectTikz = (
 				for (@$object_data) {
 					if (ref($_->[0]) eq 'CODE') {
 						my $objectClipCode = $_->[0]->($fx, $fy);
-						return '' unless $objectClipCode;
-						$clip_code .= $_->[0]->($fx, $fy);
+						return '' unless defined $objectClipCode;
+						$clip_code .= $objectClipCode;
 						next;
 					}
 					my $clip_dir = $_->[1]->($fx, $fy);
@@ -1782,20 +1782,26 @@ parser::GraphTool->addGraphObjects(
 						(
 							$points[0][0] * $borderStdForms[1][0] +
 							$points[0][1] * $borderStdForms[1][1] +
-							$borderStdForms[2][2] > 0
+							$borderStdForms[1][2] > 0
 						) != (
 							$points[3][0] * $borderStdForms[1][0] +
 							$points[3][1] * $borderStdForms[1][1] +
-							$borderStdForms[2][2] > 0
+							$borderStdForms[1][2] > 0
 						)
 						&& ($points[1][0] * $borderStdForms[3][0] +
 							$points[1][1] * $borderStdForms[3][1] +
-							$borderStdForms[0][2] > 0) != (
+							$borderStdForms[3][2] > 0) != (
 							$points[2][0] * $borderStdForms[3][0] +
 							$points[2][1] * $borderStdForms[3][1] +
-							$borderStdForms[0][2] > 0
+							$borderStdForms[3][2] > 0
 							)
 					);
+
+				if ($isCrossed) {
+					warn 'this is crossed';
+				} else {
+					warn 'this is NOT crossed';
+				}
 
 				my $fillCmp = sub {
 					my ($x, $y) = @_;
