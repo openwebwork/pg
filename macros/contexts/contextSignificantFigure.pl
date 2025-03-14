@@ -1,8 +1,170 @@
 
-loadMacros('MathObjects.pl','PGauxiliaryFunctions.pl');
+=head1 NAME
+
+contextSignificantFigure.pl - Implements a context to handle numbers where significant figures is important.
+
+=head1 DESCRIPTION
+
+This file implements a MathObject SignificantFigure class that provides the ability to create
+numbers for given significant figures as well as the operations +, -, *, /, **
+
+To load this context, use
+
+    loadMacros('contextSignificantFigure.pl');
+
+and then set this context with
+
+    Context('SignificantFigure');
+
+or
+
+    Context('LimitedSignificantFigure');
+
+where the latter context, you or the student is not allowed to perform any operations on
+any numbers.
+
+=cut
+
+loadMacros('MathObjects.pl', 'PGauxiliaryFunctions.pl');
 
 sub _contextSignificantFigure_init {
 	context::SignificantFigure::Init(@_);
+	sub SigFigNumber { return SignificantFigure->new(@_); }
+}
+
+package SignificantFigure;
+our @ISA = ('Value::Real');
+
+use Data::Dumper;
+
+sub new {
+	print Dumper 'in SignificantFigure::new';
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $value   = shift;
+	my $n       = shift;                                                # number of significant digits
+	print Dumper $value;
+	$self = bless $self->SUPER::new($context, $value), $class;
+
+	# remove all leading zeros
+	$value =~ s/^0+//r;
+
+	my $s;                                                              # Used to store the sigfigs if $n is passed in.
+	if ($value =~ /\./) {
+		my @s = split(/\./, $value);
+		$self->{exp} = -1 * length($s[1]);
+		# If the number is in the form .XXX, then $s[0] is ''
+		$self->{value_int} = ($s[0] || 0) * 10**(-$self->{exp}) + $s[1];
+		$self->{sigfigs}   = $self->{value_int} < 0 ? length($self->{value_int}) - 1 : length($self->{value_int});
+		$s                 = $self->{sigfigs};    # needs to be saved for later.
+
+	} elsif ($value =~ /^-?([1-9](\d*[1-9])?)(0*)$/) {
+		$self->{value_int} = defined($n) ? substr($1, 0, $n) : $1;
+		$self->{exp}       = defined($n) ? length($3)        : length($3);
+		$self->{sigfigs}   = defined($n) ? $n                : length($value);
+		$s                 = length($self->{value_int});
+	} else {
+		die 'oops';
+	}
+	# If the number of sig figs is passed in, need to adjust all of the values:
+	if (defined($n)) {
+		Value::Error('The number of significant digits needs to be an integer at least 1')
+			unless $n =~ /^\d*$/ && $n > 0;
+
+		# print Dumper ['n', $n, 'sigfigs', $self->{sigfigs}, 's', $s];
+		$self->{exp}       = $self->exp + (length($self->{value_int}) - $n);
+		$self->{sigfigs}   = $n;
+		$self->{value_int} = $n < $s ? substr($self->{value_int}, 0, $n) : $self->{value_int} * 10**($n - $s);
+	}
+
+	$self->{data} = [ $self->{value_int} * 10**$self->{exp} ];
+	return $self;
+}
+
+# Either return the current number of sigfigs for the number or set the current number.
+
+sub sigfigs {
+	my ($self, $num_sigfigs) = @_;
+	return $self->{sigfigs} unless defined($num_sigfigs);
+	Value::Error('The number of significant figures must be an integer >=-1')
+		unless $num_sigfigs =~ /-?\d+/ && $num_sigfigs >= -1;
+
+	my $curr_sigfigs = $self->{sigfigs};
+	my $curr_exp     = $self->{exp};
+
+	return $curr_sigfigs if $curr_sigfigs == $num_sigfigs;
+	# print Dumper [$self->{value_int}, $num_sigfigs, $curr_sigfigs];
+	$self->{sigfigs}   = $num_sigfigs;
+	$self->{value_int} = main::Round($self->{value_int} * 10**($num_sigfigs - $curr_sigfigs))
+		if ($num_sigfigs < $curr_sigfigs);
+	$self->{exp} += $curr_sigfigs - $num_sigfigs;
+	return $self->{sigfigs};
+}
+
+# return the exponent since stored in the form d * 10^(p), where d is an integer.
+sub exp { return shift->{exp}; }
+
+#  Stringify and TeXify the number in the context's base
+sub string { return shift->value; }
+sub TeX    { return '\text{' . shift->string . '}'; }
+
+# Redefine adding two numbers.  This calculates the last significant digit and then converts each number
+# to an integer with the ones being signficant.  Then add and round, finally converting to decimal using the
+# last significant digit as the exponent.
+
+use Data::Dumper;
+
+sub add {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	# Determine the last significant digit (0 = ones, -1 = tenths, ...)
+	my $last_dig_l = length($l->{value_int}) - $l->{sigfigs} + $l->{exp};
+	my $last_dig_r = length($r->{value_int}) - $r->{sigfigs} + $r->{exp};
+	my $last_dig   = main::max($last_dig_l, $last_dig_r);
+	my $sum_int    = main::Round($l->{value_int} * 10**($l->{exp} - $last_dig)) +
+		main::Round($r->{value_int} * 10**($r->{exp} - $last_dig));
+	return $self->new($sum_int * 10**$last_dig, length($sum_int));
+}
+
+# Redefine subtraction.  This calculates the last significant digit and then converts each number
+# to an integer with the ones being signficant.  Then subtract and round, finally converting to decimal using the
+# last significant digit as the exponent.
+
+sub sub {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	# Determine the last significant digit (0 = ones, -1 = tenths, ...)
+	my $last_dig_l = length($l->{value_int}) - $l->{sigfigs} + $l->{exp};
+	my $last_dig_r = length($r->{value_int}) - $r->{sigfigs} + $r->{exp};
+	my $last_dig   = main::max($last_dig_l, $last_dig_r);
+
+	my $diff_int = main::Round($l->{value_int} * 10**($l->{exp} - $last_dig)) -
+		main::Round($r->{value_int} * 10**($r->{exp} - $last_dig));
+	return $self->new($diff_int * 10**$last_dig, length($diff_int));
+}
+
+# Redefine multiplication.  Since the number is stored as an integer, an exponenent and
+# a number of significant figures, we use this information to calculate the product.
+#
+# The integer product is made and then the number of digits kept is the length of the
+# number - min(left, right). Lastly, the decimal is then shifted using the sum of
+# the exponents.
+sub mult {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	my $prod = $l->{value_int} * $r->{value_int};
+	return $self->new($prod * 10**($l->{exp} + $r->exp), main::min($l->sigfigs, $r->sigfigs));
+}
+
+# Redefine division.  Since the number is stored as an integer, an exponenent and
+# a number of significant figures, we use this information to calculate the quotient.
+#
+# The integer product is made and then the number of digits kept is the length of the
+# number - min(left, right). Lastly, the decimal is then shifted using the difference of
+# the exponents.
+
+sub div {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	my $quo = $l->{value_int} / $r->{value_int};
+	return $self->new($quo * 10**($l->{exp} - $r->exp), main::min($r->{sigfigs}, $l->{sigfigs}));
 }
 
 package context::SignificantFigure;
@@ -30,33 +192,32 @@ sub new {
 
 package context::SignificantFigure::Number;
 our @ISA = ('Parser::Number');
+use Data::Dumper;
 
 sub new {
-	my ($self, $equation, $value, $ref) = @_;
-	$value = $value =~ s/^[0]+//r;
+	my $self     = shift;
+	my $class    = ref($self) || $self;
+	my $equation = shift;
+	my $context  = $equation->{context};
+	$self = bless $self->SUPER::new($equation, @_), $class;
+	$self->{value} = SignificantFigure->new($self->{value_string});
+	return $self;
+}
 
-	my $num = $self->SUPER::new($equation, $value, $ref);
-	# store the number as an integer.
-	my ($value_int, $exp, $sigfigs);
-	if ($value =~ /\./) {
-		my @s = split(/\./,$value);
-		$exp = -1*length($s[1]);
-		# If it is in the form .XXX, then $s[0] is ''
-		$value_int = ($s[0] || 0)*10**(-$exp)+$s[1];
-		$sigfigs = $value_int < 0 ? length($value_int)-1 : length($value_int);
-	} else {
-		if ($value =~/^-?([1-9](\d*[1-9])?)(0*)$/) {
-			$value_int = $1;
-			$exp = length($2);
-			$sigfigs = length($value_int);
-		}
-	}
+=head2 SigFigNumber
 
-	$num->{value_int} = $value_int;
-	$num->{exp} = $exp;
-	$num->{sigfigs} = $sigfigs;
+Create a number directly (instead using Compute) either with or without the number of significant
+digits.
 
-	return $num;
+Usage:
+
+    SigFigNumber('1.2345');
+	SigFigNumber(10000,3); # makes a sig fig number which is 1.00 * 10**4
+
+=cut
+
+sub SigFigNumber {
+	return context::SignificantFigure::Number->new(@_x);
 }
 
 sub eval {
@@ -64,65 +225,14 @@ sub eval {
 	return $self->SUPER::eval(@_);
 }
 
-
 #  A replacement for Value::Real that handles Significant figures
 package context::SignificantFigure::Real;
 our @ISA = ('Value::Real');
 
 sub new {
+	print Dumper 'in context::SignificantFigure::Real::new';
+	print Dumper \@_;
 	return shift->SUPER::new(@_);
-}
-
-sub sigfigs {
-	my $self = shift;
-	return $self->{equation}{tree}{sigfigs};
-}
-
-#  Stringify and TeXify the number in the context's base
-sub string {
-	my $self = shift;
-	return $self->value;
-}
-
-sub TeX {
-	my $self = shift;
-	return '\text{' . $self->string . '}';
-}
-
-# Redefine multiplication.  Since the number is stored as an integer, an exponenent and
-# a number of significant figures, we use this information to calculate the product.
-#
-# The integer product is made and then the number of digits kept is the length of the
-# number - min(left, right). Lastly, the decimal is then shifted using the sum of
-# the exponents.
-sub mult {
-	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
-	my $vl = $l->{original_formula}{stack}[0]{value};
-	my $vr = $r->{original_formula}{stack}[0]{value};
-	my $prod = $vr->{value_int}*$vl->{value_int};
-	my $digs = length($prod)-main::min($vr->{sigfigs},$vl->{sigfigs});
-	my $value = main::Round($prod,-$digs)*10**($vl->{exp}+$vr->{exp});
-	return context::SignificantFigure::Number->new($l->{equation},"$value");
-}
-
-# Redefine adding two numbers.  This calculates the last significant digit and then converts each number
-# to an integer with the ones being signficant.  Then add and round, finally converting to decimal using the
-# last significant digit as the exponent.
-
-sub add {
-	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
-	my $vl = $l->{original_formula}{stack}[0]{value};
-	my $vr = $r->{original_formula}{stack}[0]{value};
-
-	# Determine the last significant digit (0 = ones, -1 = tenths, ...)
-	my $last_dig_l = length($vl->{value_int}) - $vl->{sigfigs} + $vl->{exp};
-	my $last_dig_r = length($vr->{value_int}) - $vr->{sigfigs} + $vr->{exp};
-	my $last_dig = main::max($last_dig_l, $last_dig_r);
-
-	my $sum_int = main::Round($vl->{value_int}*10**($vl->{exp}-$last_dig))
-		+ main::Round($vr->{value_int}*10**($vr->{exp}-$last_dig));
-	my $value = $sum_int*10**$last_dig;
-	return context::SignificantFigure::Number->new($l->{equation},"$value");
 }
 
 1;
