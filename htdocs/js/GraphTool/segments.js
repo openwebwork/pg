@@ -40,18 +40,24 @@
 	};
 
 	const onBoundary = function (gt, point, _aVal, from) {
+		if (
+			!(
+				point[1] > Math.min(this.definingPts[0].X(), this.definingPts[1].X()) - 0.5 / gt.board.unitX &&
+				point[1] < Math.max(this.definingPts[0].X(), this.definingPts[1].X()) + 0.5 / gt.board.unitX &&
+				point[2] > Math.min(this.definingPts[0].Y(), this.definingPts[1].Y()) - 0.5 / gt.board.unitY &&
+				point[2] < Math.max(this.definingPts[0].Y(), this.definingPts[1].Y()) + 0.5 / gt.board.unitY
+			)
+		)
+			return 0;
+
 		const crossingStdForm = [point[1] * from[2] - point[2] * from[1], point[2] - from[2], from[1] - point[1]];
 		const pointSide = JXG.Math.innerProduct(point, this.baseObj.stdform);
 		return (
 			(JXG.Math.innerProduct(from, this.baseObj.stdform) > 0 != pointSide > 0 &&
 				JXG.Math.innerProduct(this.baseObj.point1.coords.usrCoords, crossingStdForm) > 0 !=
 					JXG.Math.innerProduct(this.baseObj.point2.coords.usrCoords, crossingStdForm) > 0) ||
-			(Math.abs(pointSide) / Math.sqrt(this.baseObj.stdform[1] ** 2 + this.baseObj.stdform[2] ** 2) <
-				0.5 / Math.sqrt(gt.board.unitX * gt.board.unitY) &&
-				point[1] > Math.min(this.definingPts[0].X(), this.definingPts[1].X()) - 0.5 / gt.board.unitX &&
-				point[1] < Math.max(this.definingPts[0].X(), this.definingPts[1].X()) + 0.5 / gt.board.unitX &&
-				point[2] > Math.min(this.definingPts[0].Y(), this.definingPts[1].Y()) - 0.5 / gt.board.unitY &&
-				point[2] < Math.max(this.definingPts[0].Y(), this.definingPts[1].Y()) + 0.5 / gt.board.unitY)
+			Math.abs(pointSide) / Math.sqrt(this.baseObj.stdform[1] ** 2 + this.baseObj.stdform[2] ** 2) <
+				0.5 / Math.sqrt(gt.board.unitX * gt.board.unitY)
 		);
 	};
 

@@ -843,7 +843,7 @@ my %graphObjectTikz = (
 				my $pass   = 1;
 
 				# This converts the fill boundaries into curves. On the first pass the outer border is obtained. On
-				# subsequent passes borders of innner holes are found.  The outer border curve is filled, and the inner
+				# subsequent passes borders of inner holes are found.  The outer border curve is filled, and the inner
 				# hole curves are clipped out.
 				while (1) {
 					my $pos = 0;
@@ -1994,6 +1994,11 @@ parser::GraphTool->addGraphObjects(
 							},
 							sub {
 								my ($point, $aVal, $from) = @_;
+
+								return 0
+									if !($_[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
+										&& $_[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
+
 								my @crossingStdForm = (
 									$point->[1] - $from->[1],
 									$from->[0] - $point->[0],
@@ -2010,9 +2015,7 @@ parser::GraphTool->addGraphObjects(
 											$crossingStdForm[2] > 0
 											)
 									)
-									|| (abs($_[0] - $p1x) < 0.5 / $gt->{unitX}
-										&& $_[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
-										&& $_[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
+									|| abs($_[0] - $p1x) < 0.5 / $gt->{unitX};
 							}
 						]
 					);
@@ -2039,6 +2042,13 @@ parser::GraphTool->addGraphObjects(
 							},
 							sub {
 								my ($point, $aVal, $from) = @_;
+
+								return 0
+									if !($point->[0] > main::min($p1x, $p2x) - 0.5 / $gt->{unitX}
+										&& $point->[0] < main::max($p1x, $p2x) + 0.5 / $gt->{unitX}
+										&& $point->[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
+										&& $point->[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
+
 								my @crossingStdForm = (
 									$point->[1] - $from->[1],
 									$from->[0] - $point->[0],
@@ -2056,11 +2066,7 @@ parser::GraphTool->addGraphObjects(
 											$crossingStdForm[2] > 0
 											)
 									)
-									|| ((abs($pointSide) / $normalLength < 0.5 / sqrt($gt->{unitX} * $gt->{unitY}))
-										&& $point->[0] > main::min($p1x, $p2x) - 0.5 / $gt->{unitX}
-										&& $point->[0] < main::max($p1x, $p2x) + 0.5 / $gt->{unitX}
-										&& $point->[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
-										&& $point->[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
+									|| abs($pointSide) / $normalLength < 0.5 / sqrt($gt->{unitX} * $gt->{unitY});
 							}
 						]
 					);
