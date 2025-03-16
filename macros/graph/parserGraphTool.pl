@@ -541,6 +541,8 @@ my %contextStrings = (
 	dashed     => {}
 );
 
+my $fillResolution = 400;
+
 sub new {
 	my ($self, @options) = @_;
 	my $class   = ref($self) || $self;
@@ -592,6 +594,8 @@ sub new {
 		useBracketEnds       => 0,
 		vectorsArePositional => 0,
 		useFloodFill         => 1,
+		unitX                => ($fillResolution - 1) / 20,
+		unitY                => ($fillResolution - 1) / 20,
 		availableTools       =>
 			[ 'LineTool', 'CircleTool', 'VerticalParabolaTool', 'HorizontalParabolaTool', 'FillTool', 'SolidDashTool' ],
 		texSize    => 400,
@@ -614,7 +618,15 @@ sub with {
 		);
 	}
 
-	return $self->SUPER::with(%options);
+	$self = $self->SUPER::with(%options);
+
+	# These must be recomputed in case the bounding box changed.  This also prevents someone from changing these
+	# directly.  They must be defined correctly in terms of the fill resolution and the bounding box with the
+	# formulas below or the flood fill algorithm won't work right and could even be thrown into an infinite loop.
+	$self->{unitX} = ($fillResolution - 1) / ($self->{bBox}[2] - $self->{bBox}[0]);
+	$self->{unitY} = ($fillResolution - 1) / ($self->{bBox}[1] - $self->{bBox}[3]);
+
+	return $self;
 }
 
 sub sign {
@@ -725,12 +737,6 @@ my %graphObjectTikz = (
 			my ($fx, $fy) = map { $_->value } @{ $fill->{data}[1]{data} };
 
 			if ($self->{useFloodFill}) {
-				my $fillResolution = 400;
-
-				# These are set on the graphtool object so that the object fill routines can use them.
-				$self->{unitX} = ($fillResolution - 1) / ($self->{bBox}[2] - $self->{bBox}[0]);
-				$self->{unitY} = ($fillResolution - 1) / ($self->{bBox}[1] - $self->{bBox}[3]);
-
 				my @aVals = (0) x @$object_data;
 
 				# If the point is on a graphed object, then don't fill.
@@ -1056,12 +1062,6 @@ our %graphObjectCmps = (
 
 				my ($px, $py) = map { $_->value } @{ $point->{data} };
 				return 1 if $fx == $px && $fy == $py;
-
-				my $fillResolution = 400;
-
-				# These are set on the graphtool object so that the object fill routines can use them.
-				$gt->{unitX} = ($fillResolution - 1) / ($gt->{bBox}[2] - $gt->{bBox}[0]);
-				$gt->{unitY} = ($fillResolution - 1) / ($gt->{bBox}[1] - $gt->{bBox}[3]);
 
 				my @aVals = (0) x @$object_fill_cmps;
 
