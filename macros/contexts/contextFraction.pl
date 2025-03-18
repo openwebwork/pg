@@ -47,7 +47,7 @@ must enter a whole number or a fraction in this context.  It is also
 permissible to enter a whole number WITH a fraction, as in C<2 1/2> for
 "two and one half", or C<5/2>.
 
-The fourth is the same as LimiteFraction, but students must enter proper
+The fourth is the same as LimitedFraction, but students must enter proper
 fractions, and results are shown as proper fractions.
 
 It is also possible to add fractions to an existing context using
