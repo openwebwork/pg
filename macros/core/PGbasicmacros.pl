@@ -2231,11 +2231,6 @@ sub PTX_cleanup {
                     # The function should be called either with value specified (immediate reference) or
                     # with url specified in which case the revealed text is taken from the URL $url.
                     # The $display_text is always visible and is clicked to see the contents of the knowl.
-    htmlLink($url, $text)
-                    # Places a reference to the URL with the specified text in the problem.
-                    # A common usage is \{ htmlLink(alias('prob1_help.html') \}, 'for help')
-                    # where alias finds the full address of the prob1_help.html file in the same directory
-                    # as the problem file
     iframe($url, height=>'', width=>'', id=>'', name=>'' )
                     # insert the web page referenced by $url in a space defined by height and width
                     # if the webpage contains a form then this must be inserted between
@@ -2362,18 +2357,31 @@ sub OL {
 	);
 }
 
+=head2 htmlLink
+
+Usage: C<htmlLink($url, $text, @attributes)>
+
+Places an HTML link to C<$url> with the specified C<$text> in the problem. The
+C<@attributes> are optional.  They should be provided as attribute/value pairs,
+but a single text string argument can be given (although calling C<htmlLink> in
+that way is deprecated and should not be done in new problems).  For example,
+
+    BEGIN_PGML
+    Download the [@ htmlLink($url, 'dataset', download => 'dataset.csv') @]*
+    for this problem.
+
+=cut
+
 sub htmlLink {
-	my $url           = shift;
-	my $text          = shift;
-	my $options       = shift;
-	my $sanitized_url = $url;
-	$sanitized_url =~ s/&/&amp;/g;
-	$options = ""                                             unless defined($options);
-	return "$BBOLD [ the link to '$text'  is broken ] $EBOLD" unless defined($url) and $url;
+	my ($url, $text, @options) = @_;
+	return "$BBOLD [ the link to '$text'  is broken ] $EBOLD" unless $url;
+	my $attributes = @options == 1 ? $options[0] : {@options};
 	MODES(
 		TeX  => "{\\bf \\underline{$text}}",
-		HTML => "<A HREF=\"$url\" $options>$text</A>",
-		PTX  => "<url href=\"$sanitized_url\">$text</url>",
+		HTML => ref($attributes) eq 'HASH'
+		? tag('a', href => $url, %$attributes, $text)
+		: qq{<a href="$url" $attributes>$text</a>},
+		PTX => '<url href="' . ($url =~ s/&/&amp;/g) . qq{">$text</url>},
 	);
 }
 
