@@ -590,7 +590,7 @@ sub insertGraph {
 		my $graphData = $graph->draw;
 		if ($graphData) {
 			if (open(my $fh, '>', $filePath)) {
-				chmod(0777, $filePath);
+				chmod(oct(664), $filePath);
 				print $fh $graphData;
 				close($fh) or warn "Can't close $filePath";
 			} else {
