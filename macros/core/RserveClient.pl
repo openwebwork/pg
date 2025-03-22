@@ -179,6 +179,8 @@ alias name in the C<$url>.
 
 BEGIN { strict->import; }
 
+sub _RserveClient_init { }
+
 my $rserve;    # Statistics::R::IO::Rserve instance
 
 sub _rserve_warn_no_config {
@@ -191,7 +193,7 @@ sub _rserve_warn_no_config {
 sub rserve_start {
 	unless ($main::Rserve->{host}) { _rserve_warn_no_config; return; }
 
-	$rserve = Rserve::access(server => $main::Rserve->{host}, _usesocket => 1);
+	$rserve = Rserve->new(server => $main::Rserve->{host});
 
 	# Keep R's RNG reproducible for this problem
 	$rserve->eval("set.seed($main::problemSeed)");
@@ -200,7 +202,7 @@ sub rserve_start {
 }
 
 sub rserve_finish {
-	$rserve->close() if $rserve;
+	$rserve->close if $rserve;
 	undef $rserve;
 	return;
 }
@@ -212,8 +214,8 @@ sub rserve_eval {
 
 	rserve_start unless $rserve;
 
-	my $result = Rserve::try_eval($rserve, $query);
-	return Rserve::unref_rexp($result);
+	my $result = $rserve->try_eval($query);
+	return unref_rexp($result);
 }
 
 sub rserve_query {
@@ -222,10 +224,10 @@ sub rserve_query {
 	unless ($main::Rserve->{host}) { _rserve_warn_no_config; return; }
 
 	$query = "set.seed($main::problemSeed)\n" . $query;
-	my $rserve_client = Rserve::access(server => $main::Rserve->{host}, _usesocket => 1);
-	my $result        = Rserve::try_eval($rserve_client, $query);
+	my $rserve_client = Rserve->new(server => $main::Rserve->{host});
+	my $result        = $rserve_client->try_eval($query);
 	$rserve_client->close;
-	return Rserve::unref_rexp($result);
+	return unref_rexp($result);
 }
 
 sub rserve_start_plot {
@@ -298,6 +300,16 @@ sub rserve_data_url {
 	my ($remote_file) =
 		rserve_eval(qq{filename <- tempfile(fileext = ".csv"); write.csv($rDataName, filename); filename});
 	return main::alias(rserve_get_file($remote_file));
+}
+
+# Returns an REXP's Perl representation, dereferencing it if it's an array reference.  `REXP::to_perl` returns a string
+# scalar for Symbol, undef for Null, and an array reference to contents for all vector types. This function is a utility
+# wrapper to make it easy to assign a Vector's representation to an array variable, while still working sensibly for
+# non-arrays.
+sub unref_rexp {
+	my $rexp  = shift;
+	my $value = $rexp->to_perl;
+	return ref($value) eq 'ARRAY' ? @$value : $value;
 }
 
 1;
