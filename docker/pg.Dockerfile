@@ -1,8 +1,8 @@
 FROM ubuntu:24.04
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV DEBCONF_NONINTERACTIVE_SEEN true
-ENV DEBCONF_NOWARNINGS yes
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBCONF_NONINTERACTIVE_SEEN=true
+ENV DEBCONF_NOWARNINGS=yes
 
 # Install dependencies
 RUN apt-get update \
@@ -13,19 +13,21 @@ RUN apt-get update \
 		imagemagick \
 		libc6-dev \
 		libclass-accessor-perl \
-		libclass-tiny-perl \
 		libdbi-perl \
 		libencode-perl \
 		libgd-perl \
 		libhtml-parser-perl \
 		liblocale-maketext-lexicon-perl \
 		libmojolicious-perl \
+		libtest-mockobject-perl \
 		libtest2-suite-perl \
 		libtie-ixhash-perl \
 		libuuid-tiny-perl \
 		libyaml-libyaml-perl \
 		make \
 		pdf2svg \
+		r-base-core \
+		r-cran-rserve \
 		texlive \
 		texlive-latex-extra \
 		texlive-latex-recommended \
@@ -38,6 +40,8 @@ RUN mkdir -p /opt/webwork
 
 WORKDIR /opt/webwork/pg
 
-ENV PG_ROOT /opt/webwork/pg
+ENV PG_ROOT=/opt/webwork/pg
+
+ENTRYPOINT ["docker/entrypoint.sh"]
 
 CMD ["/bin/bash"]
