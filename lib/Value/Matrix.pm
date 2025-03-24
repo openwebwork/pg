@@ -103,17 +103,17 @@ Examples:
 
 =head3 Access values
 
-    row(i) : MathObjectMatrix
-        For a 1D tensor, produces a 1D tensor
-        For nD tensor with n > 1, produces a (n-1)D tensor
+    row(i) : MathObject Matrix
+        For a degree 1 Matrix, produces a degree 1 Matrix
+        For a degree n Matrix with n > 1, produces a degree (n-1) Matrix
 
-    column(j) : MathObjectMatrix or Real or Complex
-        For a 1D tensor, produces a Real or Complex
-        For nD tensor with n > 1, produces an nD tensor where 2nd dimension is 1
+    column(j) : MathObject Matrix or Real or Complex
+        For a degree 1 Matrix, produces a Real or Complex
+        For a degree n Matrix with n > 1, produces a degree n Matrix where the 2nd dimesion is length 1
 
-    element : Real or Complex value when passed the same number of arguments as the dimension of the tensor.
-        If passed more than n arguments, null. If the dimension of the tensor is n and element is passed
-	k arguments with k < n, then this produces the corresponding (n-k)-dimensional tensor.
+    element : Real/Complex/Fraction value when passed the same number of arguments as the degree of the Matrix.
+        If passed more than n arguments, null. If the degree of the Matrix is n and C<element> is passed
+	k arguments with k < n, then this produces the corresponding degree (n-k) tensor.
 
 =head3 Update values (these need to be added)
 
@@ -366,7 +366,7 @@ sub isSquare {
 
 =head3 C<isRow>
 
-Return true if the matix is 1-dimensional (i.e., is a matrix row)
+Return true if the matix is degree 1 (i.e., is a matrix row)
 
 Usage:
 
@@ -380,8 +380,7 @@ Usage:
 
 sub isRow {
 	my $self = shift;
-	my @d    = $self->dimensions;
-	return scalar(@d) == 1;
+	return $self->degree == 1;
 }
 
 =head3 C<isOne>
@@ -429,15 +428,21 @@ sub isOne {
 
 =head3 C<isZero>
 
-Check for zero matrix.
+Check for zero Matrix
 
 Usage:
 
     $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [13, 14, 15, 16] ]);
-    $A->isZero;  # is false
+    $A->isZero; # is false
 
     $B = Matrix([ [ 0, 0, 0 ], [ 0, 0, 0 ], [ 0, 0, 0 ] ]);
     $B->isZero; # is true;
+
+    $C = Matrix([ [ [ 1, 0 ], [ 0, 1 ] ], [ [ 1, 0 ], [ 0, 1 ] ] ]);
+    $C->isZero; # is false
+
+    $D = Matrix([ [ [ 0, 0 ], [ 0, 0 ] ], [ [ 0, 0 ], [ 0, 0 ] ] ]);
+    $D->isZero; # is true
 
 =cut
 
@@ -447,22 +452,37 @@ sub isZero {
 	return 1;
 }
 
-#
-#  See if the matrix is triangular, diagonal, symmetric, orthogonal
-#
+=head3 C<isUpperTriangular>
+
+Check if a Matrix is upper triangular (for degree > 2, applies to frontal slice matrices)
+
+=cut
 
 sub isUpperTriangular {
 	my $self = shift;
 	my @d    = $self->dimensions;
 	return 1 if scalar(@d) == 1;
-	return 0 if scalar(@d) > 2;
-	for my $i (2 .. $d[0]) {
-		for my $j (1 .. ($i - 1 < $d[1] ? $i - 1 : $d[1])) {
-			return 0 unless $self->element($i, $j) == 0;
+	if (scalar(@d) == 2) {
+		for my $i (2 .. $d[0]) {
+			for my $j (1 .. ($i - 1 < $d[1] ? $i - 1 : $d[1])) {
+				return 0 unless $self->element($i, $j) == 0;
+			}
+		}
+	} else {
+		for my $row (@{ $self->{data} }) {
+			if (!$row->isUpperTriangular) {
+				return 0;
+			}
 		}
 	}
 	return 1;
 }
+
+=head3 C<isLowerTriangular>
+
+Check if a Matrix is lower triangular (for degree > 2, applies to frontal slice matrices)
+
+=cut
 
 sub isLowerTriangular {
 	my $self = shift;
@@ -471,33 +491,65 @@ sub isLowerTriangular {
 		for ((@{ $self->{data} })[ 1 .. $#{ $self->{data} } ]) {
 			return 0 unless $_ == 0;
 		}
-	}
-	return 0 if scalar(@d) > 2;
-	for my $i (1 .. $d[0] - 1) {
-		for my $j ($i + 1 .. $d[1]) {
-			return 0 unless $self->element($i, $j) == 0;
+	} elsif (scalar(@d) == 2) {
+		for my $i (1 .. $d[0]) {
+			for my $j ($i + 1 .. $d[1]) {
+				return 0 unless $self->element($i, $j) == 0;
+			}
+		}
+	} else {
+		for my $row (@{ $self->{data} }) {
+			if (!$row->isLowerTriangular) {
+				return 0;
+			}
 		}
 	}
 	return 1;
 }
+
+=head3 C<isDiagonal>
+
+Check if a Matrix is diagonal (for degree > 2, applies to frontal slice matrices)
+
+=cut
 
 sub isDiagonal {
 	my $self = shift;
 	return $self->isSquare && $self->isUpperTriangular && $self->isLowerTriangular;
 }
 
+=head3 C<isSymmetric>
+
+Check if a Matrix is symmetric (for degree > 2, applies to frontal slice matrices)
+
+=cut
+
 sub isSymmetric {
 	my $self = shift;
 	return 0 unless $self->isSquare;
-	my $d = ($self->dimensions)[0];
-	return 1 if $d == 1;
-	for my $i (1 .. $d - 1) {
-		for my $j ($i + 1 .. $d) {
-			return 0 unless $self->element($i, $j) == $self->element($j, $i);
+	my @d = $self->dimensions;
+	return 1 if $d[-1] == 1;
+	if (scalar(@d) == 2) {
+		for my $i (1 .. $d[0] - 1) {
+			for my $j ($i + 1 .. $d[0]) {
+				return 0 unless $self->element($i, $j) == $self->element($j, $i);
+			}
+		}
+	} else {
+		for my $row (@{ $self->{data} }) {
+			if (!$row->isSymmetric) {
+				return 0;
+			}
 		}
 	}
 	return 1;
 }
+
+=head3 C<isOrthogonal>
+
+Check if a Matrix is orthogonal (for degree > 2, applies to frontal slice matrices)
+
+=cut
 
 sub isOrthogonal {
 	my $self = shift;
@@ -510,50 +562,77 @@ sub isOrthogonal {
 	return $M->isOne;
 }
 
-#
-#  See if the matrix is in (reduced) row echelon form
-#
+=head3 C<isREF>
+
+Check if a Matrix is in row echelon form (for degree > 2, applies to frontal slice matrices)
+
+=cut
 
 sub isREF {
 	my $self = shift;
 	my @d    = $self->dimensions;
 	return 1 if scalar(@d) == 1;
-	return 0 if scalar(@d) > 2;
-	my $k = 0;
-	for my $i (1 .. $d[0]) {
-		for my $j (1 .. $d[1]) {
-			if ($j <= $k) {
-				return 0 unless $self->element($i, $j) == 0;
-			} elsif ($self->element($i, $j) != 0) {
-				$k = $j;
-				last;
-			} elsif ($j == $d[1]) {
-				$k = $d[1] + 1;
+	if (scalar(@d) == 2) {
+		my $k = 0;
+		for my $i (1 .. $d[0]) {
+			for my $j (1 .. $d[1]) {
+				if ($j <= $k) {
+					return 0 unless $self->element($i, $j) == 0;
+				} elsif ($self->element($i, $j) != 0) {
+					$k = $j;
+					last;
+				} elsif ($j == $d[1]) {
+					$k = $d[1] + 1;
+				}
+			}
+		}
+	} else {
+		for my $row (@{ $self->{data} }) {
+			if (!$row->isREF) {
+				return 0;
 			}
 		}
 	}
 	return 1;
 }
 
+=head3 C<isREF>
+
+Check if a Matrix is in reduced row echelon form (for degree > 2, applies to frontal slice matrices)
+
+=cut
+
 sub isRREF {
 	my $self = shift;
 	my @d    = $self->dimensions;
-	return 1 if scalar(@d) == 1;
-	return 0 if scalar(@d) > 2;
-	my $k = 0;
-	for my $i (1 .. $d[0]) {
-		for my $j (1 .. $d[1]) {
-			if ($j <= $k) {
-				return 0 unless $self->element($i, $j) == 0;
-			} elsif ($self->element($i, $j) != 0) {
-				return 0 unless $self->element($i, $j) == 1;
-				for my $m (1 .. $i - 1) {
-					return 0 unless $self->element($m, $j) == 0;
+	if (scalar(@d) == 1) {
+		for my $i (1 .. $d[0]) {
+			next if $self->element($i) == 0;
+			return $self->element($i) == 1 ? 1 : 0;
+		}
+		return 1;
+	} elsif (scalar(@d) == 2) {
+		my $k = 0;
+		for my $i (1 .. $d[0]) {
+			for my $j (1 .. $d[1]) {
+				if ($j <= $k) {
+					return 0 unless $self->element($i, $j) == 0;
+				} elsif ($self->element($i, $j) != 0) {
+					return 0 unless $self->element($i, $j) == 1;
+					for my $m (1 .. $i - 1) {
+						return 0 unless $self->element($m, $j) == 0;
+					}
+					$k = $j;
+					last;
+				} elsif ($j == $d[1]) {
+					$k = $d[1] + 1;
 				}
-				$k = $j;
-				last;
-			} elsif ($j == $d[1]) {
-				$k = $d[1] + 1;
+			}
+		}
+	} else {
+		for my $row (@{ $self->{data} }) {
+			if (!$row->isRREF) {
+				return 0;
 			}
 		}
 	}
@@ -850,7 +929,7 @@ sub I {
 
 =head3 C<E>
 
-Get an elementary matrix of the requested size and type. These include matrix that upon left multiply will
+Get a degree 2 elementary matrix of the requested size and type. These include matrix that upon left multiply will
 perform row operations.
 
 =over
@@ -963,7 +1042,7 @@ sub E {
 
 =head3 C<P>
 
-Creates a permutation matrix of the requested size.
+Creates a degree 2 permutation matrix of the requested size.
 
 C<< Value::Matrix->P(n,(cycles)) >> in general where C<cycles> is a sequence of array references
 of the cycles.
@@ -1036,7 +1115,7 @@ sub P {
 
 =head3 C<Zero>
 
-Create a zero matrix of requested size.  If called on existing matrix, creates a matrix as
+Create a degree 2 zero matrix of requested size.  If called on existing matrix, creates a matrix as
 the same size as given matrix.
 
 Usage:
@@ -1069,7 +1148,8 @@ sub Zero {
 
 =head3 C<row>
 
-Extract a given row from the matrix.
+Extract a given row from the matrix. For a degree 1 Matrix, $M->row(1) will return $M itself.
+Otherwise, a "row" is defined by the first index. For an degree n Matrix, a "row" will be a degree (n-1) Matrix.
 
 Usage:
 
@@ -1090,7 +1170,9 @@ sub row {
 
 =head3 C<column>
 
-Extract a given column from the matrix.
+Extract a given column from the matrix. For a degree 1 Matrix, C<$M->column(j)> will return the jth entry.
+Otherwise, for an degree n Matrix, C<$M->column(j)> returns an degree n Matrix tensor using j for the second index.
+To obtain the corresponding degree (n-1) Matrix, see C<slice()>.
 
 Usage:
 
@@ -1119,11 +1201,11 @@ sub column {
 
 =head3 C<element>
 
-Extract an element from the given row/col.
+Extract an element from the given position.
 
 Usage:
 
-    $A    = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
+    $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
     $A->element(2,3); # returns 7
 
     $B = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
@@ -1204,6 +1286,8 @@ sub det {
 	my $self = shift;
 	$self->wwMatrixLR;
 	Value->Error("Can't take determinant of non-square matrix") unless $self->isSquare;
+	my $n = $self->degree;
+	Value->Error("Can't take determinant of degree $n matrix") unless ($n <= 2);
 	return Value::makeValue($self->{lrM}->det_LR);
 }
 
