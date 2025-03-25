@@ -430,6 +430,16 @@ direction but different initial points to be different vectors.  Otherwise two v
 the same magnitude and direction will be considered equal. This option only has effect when a
 C<vector> is part of the answer, and the C<VectorTool> is used.
 
+=item useFloodFill (Default: C<< useFloodFill => 0 >>)
+
+If set to 1, then a flood fill algorithm is used for filling regions. The flood fill algorithm
+fills from the selected point outward and stops at boundaries created by the graphed objects.
+The alternate fill that is used if C<useFloodFill> is 0 (the default) is an inequality fill. It
+shades all points that satisfy the same inequalities relative to the graphed objects.  The
+inequality fill algorithm is highly efficient and more reliable, but does not work well and
+doesn't even make sense with some graph objects. For example, it is quite counter intuitive for
+quadrilaterals, triangles, line segments and vectors.
+
 =back
 
 =head1 METHODS
@@ -531,6 +541,8 @@ my %contextStrings = (
 	dashed     => {}
 );
 
+my $fillResolution = 400;
+
 sub new {
 	my ($self, @options) = @_;
 	my $class   = ref($self) || $self;
@@ -581,6 +593,9 @@ sub new {
 		numberLine           => 0,
 		useBracketEnds       => 0,
 		vectorsArePositional => 0,
+		useFloodFill         => 0,
+		unitX                => ($fillResolution - 1) / 20,
+		unitY                => ($fillResolution - 1) / 20,
 		availableTools       =>
 			[ 'LineTool', 'CircleTool', 'VerticalParabolaTool', 'HorizontalParabolaTool', 'FillTool', 'SolidDashTool' ],
 		texSize    => 400,
@@ -603,7 +618,15 @@ sub with {
 		);
 	}
 
-	return $self->SUPER::with(%options);
+	$self = $self->SUPER::with(%options);
+
+	# These must be recomputed in case the bounding box changed.  This also prevents someone from changing these
+	# directly.  They must be defined correctly in terms of the fill resolution and the bounding box with the
+	# formulas below or the flood fill algorithm won't work right and could even be thrown into an infinite loop.
+	$self->{unitX} = ($fillResolution - 1) / ($self->{bBox}[2] - $self->{bBox}[0]);
+	$self->{unitY} = ($fillResolution - 1) / ($self->{bBox}[1] - $self->{bBox}[3]);
+
+	return $self;
 }
 
 sub sign {
@@ -616,20 +639,22 @@ sub sign {
 my %graphObjectTikz = (
 	line => {
 		code => sub {
-			my $self = shift;
+			my ($self, $object) = @_;
 
-			my ($p1x, $p1y) = map { $_->value } @{ $_->{data}[2]{data} };
-			my ($p2x, $p2y) = map { $_->value } @{ $_->{data}[3]{data} };
+			my ($p1x, $p1y) = map { $_->value } @{ $object->{data}[2]{data} };
+			my ($p2x, $p2y) = map { $_->value } @{ $object->{data}[3]{data} };
 
 			if ($p1x == $p2x) {
 				# Vertical line
-				my $line = "($p1x,$self->{bBox}[3]) -- ($p1x,$self->{bBox}[1])";
+				my $line    = "($p1x,$self->{bBox}[3]) -- ($p1x,$self->{bBox}[1])";
+				my $fillCmp = sub { return sign($_[0] - $p1x); };
 				return (
-					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
+					"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $line;\n",
 					[
 						$line
 							. "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[2],$self->{bBox}[3]) -- cycle",
-						sub { return sign($_[0] - $p1x); }
+						$fillCmp,
+						sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 					]
 				);
 			} else {
@@ -638,15 +663,17 @@ my %graphObjectTikz = (
 				my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
 				my $line =
 					"($self->{bBox}[0],"
-					. &$y($self->{bBox}[0]) . ') -- '
+					. $y->($self->{bBox}[0]) . ') -- '
 					. "($self->{bBox}[2],"
-					. &$y($self->{bBox}[2]) . ')';
+					. $y->($self->{bBox}[2]) . ')';
+				my $fillCmp = sub { return sign($_[1] - $y->($_[0])); };
 				return (
-					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
+					"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $line;\n",
 					[
 						$line
 							. "-- ($self->{bBox}[2],$self->{bBox}[1]) -- ($self->{bBox}[0],$self->{bBox}[1]) -- cycle",
-						sub { return sign($_[1] - &$y($_[0])); }
+						$fillCmp,
+						sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 					]
 				);
 			}
@@ -654,42 +681,52 @@ my %graphObjectTikz = (
 	},
 	circle => {
 		code => sub {
-			my $self = shift;
-			my ($cx, $cy) = map { $_->value } @{ $_->{data}[2]{data} };
-			my ($px, $py) = map { $_->value } @{ $_->{data}[3]{data} };
+			my ($self, $object) = @_;
+
+			my ($cx, $cy) = map { $_->value } @{ $object->{data}[2]{data} };
+			my ($px, $py) = map { $_->value } @{ $object->{data}[3]{data} };
 			my $r      = sqrt(($cx - $px)**2 + ($cy - $py)**2);
 			my $circle = "($cx, $cy) circle[radius=$r]";
-			return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $circle;\n",
-				[ $circle, sub { return sign($r - sqrt(($cx - $_[0])**2 + ($cy - $_[1])**2)); } ]);
+
+			my $fillCmp = sub { return sign($r - sqrt(($cx - $_[0])**2 + ($cy - $_[1])**2)); };
+			return (
+				"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $circle;\n",
+				[ $circle, $fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; } ]
+			);
 		}
 	},
 	parabola => {
 		code => sub {
-			my $self = shift;
-			my ($h,  $k)  = map { $_->value } @{ $_->{data}[3]{data} };
-			my ($px, $py) = map { $_->value } @{ $_->{data}[4]{data} };
+			my ($self, $object) = @_;
 
-			if ($_->{data}[2] eq 'vertical') {
+			my ($h,  $k)  = map { $_->value } @{ $object->{data}[3]{data} };
+			my ($px, $py) = map { $_->value } @{ $object->{data}[4]{data} };
+
+			if ($object->{data}[2] eq 'vertical') {
 				# Vertical parabola
-				my $a        = ($py - $k) / ($px - $h)**2;
-				my $diff     = sqrt((($a >= 0 ? $self->{bBox}[1] : $self->{bBox}[3]) - $k) / $a);
-				my $dmin     = $h - $diff;
-				my $dmax     = $h + $diff;
-				my $parabola = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x-($h))^2+($k)})";
+				my $a         = ($py - $k) / ($px - $h)**2;
+				my $diff      = sqrt((($a >= 0 ? $self->{bBox}[1] : $self->{bBox}[3]) - $k) / $a);
+				my $dmin      = $h - $diff;
+				my $dmax      = $h + $diff;
+				my $parabola  = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x-($h))^2+($k)})";
+				my $yEquation = sub { return $a * ($_[0] - $h)**2 + $k; };
+				my $fillCmp   = sub { return sign($a * ($_[1] - $yEquation->($_[0]))); };
 				return (
-					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;\n",
-					[ $parabola, sub { return sign($a * ($_[1] - $a * ($_[0] - $h)**2 - $k)); } ]
+					"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $parabola;\n",
+					[ $parabola, $fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; } ]
 				);
 			} else {
 				# Horizontal parabola
-				my $a        = ($px - $h) / ($py - $k)**2;
-				my $diff     = sqrt((($a >= 0 ? $self->{bBox}[2] : $self->{bBox}[0]) - $h) / $a);
-				my $dmin     = $k - $diff;
-				my $dmax     = $k + $diff;
-				my $parabola = "plot[domain=$dmin:$dmax,smooth]({$a*(\\x-($k))^2+($h)},\\x)";
+				my $a         = ($px - $h) / ($py - $k)**2;
+				my $diff      = sqrt((($a >= 0 ? $self->{bBox}[2] : $self->{bBox}[0]) - $h) / $a);
+				my $dmin      = $k - $diff;
+				my $dmax      = $k + $diff;
+				my $parabola  = "plot[domain=$dmin:$dmax,smooth]({$a*(\\x-($k))^2+($h)},\\x)";
+				my $xEquation = sub { return $a * ($_[0] - $k)**2 + $h; };
+				my $fillCmp   = sub { return sign($a * ($_[0] - $xEquation->($_[1]))); };
 				return (
-					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;\n",
-					[ $parabola, sub { return sign($a * ($_[0] - $a * ($_[1] - $k)**2 - $h)); } ]
+					"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $parabola;\n",
+					[ $parabola, $fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; } ]
 				);
 			}
 		}
@@ -698,25 +735,223 @@ my %graphObjectTikz = (
 		code => sub {
 			my ($self, $fill, $object_data) = @_;
 			my ($fx, $fy) = map { $_->value } @{ $fill->{data}[1]{data} };
-			my $clip_code = '';
-			for (@$object_data) {
-				if (ref($_->[0]) eq 'CODE') {
-					my $objectClipCode = $_->[0]->($fx, $fy);
-					return '' unless $objectClipCode;
-					$clip_code .= $_->[0]->($fx, $fy);
-					next;
+
+			if ($self->{useFloodFill}) {
+				my @aVals = (0) x @$object_data;
+
+				# If the point is on a graphed object, then don't fill.
+				for (0 .. $#$object_data) {
+					$aVals[$_] = $object_data->[$_][1]->($fx, $fy);
+					return '' if $aVals[$_] == 0;
 				}
-				my $clip_dir = $_->[1]->($fx, $fy);
-				return '' if $clip_dir == 0;
-				$clip_code .= "\\clip " . ($clip_dir < 0 ? '[inverse clip]' : '') . $_->[0] . ";\n";
+
+				my $isBoundaryPixel = sub {
+					my ($x, $y, $fromDir) = @_;
+					my $curPoint =
+						[ $self->{bBox}[0] + $x / $self->{unitX}, $self->{bBox}[1] - $y / $self->{unitY} ];
+					my $from = [
+						$curPoint->[0] + $fromDir->[0] / $self->{unitX},
+						$curPoint->[1] + $fromDir->[1] / $self->{unitY}
+					];
+					for (0 .. $#$object_data) {
+						return 1 if $object_data->[$_][2]->($curPoint, $aVals[$_], $from);
+					}
+					return 0;
+				};
+
+				my @floodMap   = (0) x $fillResolution**2;
+				my @pixelStack = ([
+					main::round(($fx - $self->{bBox}[0]) * $self->{unitX}),
+					main::round(($self->{bBox}[1] - $fy) * $self->{unitY})
+				]);
+
+				# Perform the flood fill algorithm.
+				while (@pixelStack) {
+					my ($x, $y) = @{ pop(@pixelStack) };
+
+					# Get current pixel position.
+					my $pixelPos = $y * $fillResolution + $x;
+
+					# Go up until the boundary of the fill region or the edge of board is reached.
+					while ($y >= 0 && !$isBoundaryPixel->($x, $y, [ 0, 1 ])) {
+						$y        -= 1;
+						$pixelPos -= $fillResolution;
+					}
+
+					$y        += 1;
+					$pixelPos += $fillResolution;
+					my $reachLeft  = 0;
+					my $reachRight = 0;
+
+					# Go down until the boundary of the fill region or the edge of the board is reached.
+					while ($y < $fillResolution && !$isBoundaryPixel->($x, $y, [ 0, -1 ])) {
+						# This is a protection against infinite loops.  I have not seen this occur with this code unlike
+						# the corresponding JavaScript code, but it doesn't hurt to add the protection.
+						last if $floodMap[$pixelPos];
+
+						# Fill the pixel
+						$floodMap[$pixelPos] = 1;
+
+						# While proceeding down check to the left and right to
+						# see if the fill region extends in those directions.
+						if ($x > 0) {
+							if (!$floodMap[ $pixelPos - 1 ] && !$isBoundaryPixel->($x - 1, $y, [ 1, 0 ])) {
+								if (!$reachLeft) {
+									push(@pixelStack, [ $x - 1, $y ]);
+									$reachLeft = 1;
+								}
+							} else {
+								$reachLeft = 0;
+							}
+						}
+
+						if ($x < $fillResolution - 1) {
+							if (!$floodMap[ $pixelPos + 1 ] && !$isBoundaryPixel->($x + 1, $y, [ -1, 0 ])) {
+								if (!$reachRight) {
+									push(@pixelStack, [ $x + 1, $y ]);
+									$reachRight = 1;
+								}
+							} else {
+								$reachRight = 0;
+							}
+						}
+
+						$y        += 1;
+						$pixelPos += $fillResolution;
+					}
+				}
+
+				# Next zero out the interior of the filled region so that only the boundary is left.
+				my @floodMapCopy = @floodMap;
+				for ($fillResolution + 1 .. $#floodMap - $fillResolution - 1) {
+					$floodMap[$_] = 0
+						if $floodMapCopy[$_]
+						&& $_ % $fillResolution > 0
+						&& $_ % $fillResolution < $fillResolution - 1
+						&& ($floodMapCopy[ $_ - $fillResolution ]
+							&& $floodMapCopy[ $_ - 1 ]
+							&& $floodMapCopy[ $_ + 1 ]
+							&& $floodMapCopy[ $_ + $fillResolution ]);
+				}
+
+				my $tikz =
+					"\\begin{scope}[fillpurple, line width = 2.5pt]\n"
+					. '\\clip[rounded corners = 14pt] '
+					. "($self->{bBox}[0], $self->{bBox}[3]) rectangle ($self->{bBox}[2], $self->{bBox}[1]);\n";
+
+				my $border = '';
+				my $pass   = 1;
+
+				# This converts the fill boundaries into curves. On the first pass the outer border is obtained. On
+				# subsequent passes borders of inner holes are found.  The outer border curve is filled, and the inner
+				# hole curves are clipped out.
+				while (1) {
+					my $pos = 0;
+					for ($pos = 0; $pos < @floodMap && !$floodMap[$pos]; ++$pos) { }
+					last if ($pos == @floodMap);
+
+					my $followPath;
+					$followPath = sub {
+						my $pos = shift;
+
+						my $length = 0;
+						my @coordinates;
+
+						while (1) {
+							++$length;
+							my $x = $self->{bBox}[0] + ($pos % $fillResolution) / $self->{unitX};
+							my $y = $self->{bBox}[1] - int($pos / $fillResolution) / $self->{unitY};
+							if (@coordinates > 1
+								&& ($y - $coordinates[-2][1]) * ($coordinates[-1][0] - $coordinates[-2][0]) ==
+								($coordinates[-1][1] - $coordinates[-2][1]) * ($x - $coordinates[-2][0]))
+							{
+								$coordinates[-1] = [ $x, $y ];
+							} else {
+								push(@coordinates, [ $x, $y ]);
+							}
+
+							$floodMap[$pos] = 0;
+
+							my $haveRight = $pos % $fillResolution < $fillResolution - 1;
+							my $haveLower = $pos < @floodMap - $fillResolution;
+							my $haveLeft  = $pos % $fillResolution > 0;
+							my $haveUpper = $pos >= $fillResolution;
+
+							my @neighbors;
+
+							push(@neighbors, $pos + 1) if ($haveRight && $floodMap[ $pos + 1 ]);
+							push(@neighbors, $pos + $fillResolution + 1)
+								if ($haveRight && $haveLower && $floodMap[ $pos + $fillResolution + 1 ]);
+							push(@neighbors, $pos + $fillResolution)
+								if ($haveLower && $floodMap[ $pos + $fillResolution ]);
+							push(@neighbors, $pos + $fillResolution - 1)
+								if ($haveLeft && $haveLower && $floodMap[ $pos + $fillResolution - 1 ]);
+							push(@neighbors, $pos - 1) if ($haveLeft && $floodMap[ $pos - 1 ]);
+							push(@neighbors, $pos - $fillResolution - 1)
+								if ($haveLeft && $haveUpper && $floodMap[ $pos - $fillResolution - 1 ]);
+							push(@neighbors, $pos - $fillResolution)
+								if ($haveUpper && $floodMap[ $pos - $fillResolution ]);
+							push(@neighbors, $pos - $fillResolution + 1)
+								if ($haveUpper && $haveRight && $floodMap[ $pos - $fillResolution + 1 ]);
+
+							last unless @neighbors;
+
+							if (@coordinates == 1 || @neighbors == 1) { $pos = $neighbors[0]; }
+							else {
+								my $maxLength = 0;
+								my $maxPath;
+								$floodMap[$_] = 0 for @neighbors;
+								for (@neighbors) {
+									my ($pathLength, @path) = $followPath->($_);
+									if ($pathLength > $maxLength) {
+										$maxLength = $pathLength;
+										$maxPath   = \@path;
+									}
+								}
+								push(@coordinates, @$maxPath);
+								last;
+							}
+						}
+
+						return ($length, @coordinates);
+					};
+
+					(undef, my @coordinates) = $followPath->($pos);
+
+					if ($pass == 1) {
+						$border =
+							"\\filldraw plot coordinates {" . join('', map {"($_->[0],$_->[1])"} @coordinates) . "};\n";
+					} elsif (@coordinates > 2) {
+						$tikz .= "\\clip[inverse clip] plot coordinates {"
+							. join('', map {"($_->[0],$_->[1])"} @coordinates) . "};\n";
+					}
+					++$pass;
+				}
+
+				$tikz .= "$border\\end{scope}\n";
+
+				return $tikz;
+			} else {
+				my $clip_code = '';
+				for (@$object_data) {
+					if (ref($_->[0]) eq 'CODE') {
+						my $objectClipCode = $_->[0]->($fx, $fy);
+						return '' unless defined $objectClipCode;
+						$clip_code .= $objectClipCode;
+						next;
+					}
+					my $clip_dir = $_->[1]->($fx, $fy);
+					return '' if $clip_dir == 0;
+					$clip_code .= "\\clip " . ($clip_dir < 0 ? '[inverse clip]' : '') . $_->[0] . ";\n";
+				}
+				return
+					"\\begin{scope}\n\\clip[rounded corners=14pt] "
+					. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
+					. $clip_code
+					. "\\fill[fillpurple] "
+					. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
+					. "\\end{scope}";
 			}
-			return
-				"\\begin{scope}\n\\clip[rounded corners=14pt] "
-				. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
-				. $clip_code
-				. "\\fill[fillpurple] "
-				. "($self->{bBox}[0],$self->{bBox}[3]) rectangle ($self->{bBox}[2],$self->{bBox}[1]);\n"
-				. "\\end{scope}";
 		},
 		fillType => 1
 	}
@@ -724,7 +959,7 @@ my %graphObjectTikz = (
 
 our %graphObjectCmps = (
 	line => sub {
-		my ($line) = @_;
+		my ($line, $gt) = @_;
 
 		my $solid_dashed = $line->{data}[1];
 		my ($x1, $y1) = $line->{data}[2]->value;
@@ -748,11 +983,12 @@ our %graphObjectCmps = (
 					&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
 					&& $linePointCmp->($other->{data}[2]) == 0
 					&& $linePointCmp->($other->{data}[3]) == 0;
-			}
+			},
+			[ defined $gt ? @{ ($graphObjectTikz{line}{code}->($gt, $line))[1] }[ 1, 2 ] : () ]
 		);
 	},
 	circle => sub {
-		my $circle = shift;
+		my ($circle, $gt) = @_;
 
 		my $solid_dashed = $circle->{data}[1];
 		my $center       = $circle->{data}[2];
@@ -775,11 +1011,12 @@ our %graphObjectCmps = (
 					&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
 					&& $other->{data}[2] == $center
 					&& $circlePointCmp->($other->{data}[3]) == 0;
-			}
+			},
+			[ defined $gt ? @{ ($graphObjectTikz{circle}{code}->($gt, $circle))[1] }[ 1, 2 ] : () ]
 		);
 	},
 	parabola => sub {
-		my $parabola = shift;
+		my ($parabola, $gt) = @_;
 
 		my $solid_dashed        = $parabola->{data}[1];
 		my $vertical_horizontal = $parabola->{data}[2];
@@ -806,22 +1043,127 @@ our %graphObjectCmps = (
 					&& $other->{data}[2] eq $vertical_horizontal
 					&& $other->{data}[3] == $vertex
 					&& $parabolaPointCmp->($other->{data}[4]) == 0;
-			}
+			},
+			[ defined $gt ? @{ ($graphObjectTikz{parabola}{code}->($gt, $parabola))[1] }[ 1, 2 ] : () ]
 		);
 	},
 	fill => sub {
-		my ($fill, $object_fill_cmps) = @_;
+		my ($fill, $object_fill_cmps, $gt) = @_;
 
 		my $fill_point = $fill->{data}[1];
 
-		my $pointInFillRegion = sub {
-			my $point = shift;
+		my $pointInFillRegion;
 
-			for (@$object_fill_cmps) {
-				return 0 if $_->($fill_point) != $_->($point);
-			}
-			return 1;
-		};
+		my ($fx, $fy) = map { $_->value } @{ $fill->{data}[1]{data} };
+
+		if ($gt->{useFloodFill}) {
+			$pointInFillRegion = sub {
+				my $point = shift;
+
+				my ($px, $py) = map { $_->value } @{ $point->{data} };
+				return 1 if $fx == $px && $fy == $py;
+
+				my @aVals = (0) x @$object_fill_cmps;
+
+				# If the point is on a graphed object, then there is no filled region.
+				# FIXME: How should this case be graded? Really, it never should happen. It means the problem author
+				# chose a fill point on another object. Probably because of carelessness with random parameters.
+				for (0 .. $#$object_fill_cmps) {
+					$aVals[$_] = $object_fill_cmps->[$_][0]->($fx, $fy);
+					return $object_fill_cmps->[$_][0]->($px, $py) == 0 ? 1 : 0 if $aVals[$_] == 0;
+				}
+
+				my $isBoundaryPixel = sub {
+					my ($x, $y, $fromDir) = @_;
+					my $curPoint = [ $gt->{bBox}[0] + $x / $gt->{unitX}, $gt->{bBox}[1] - $y / $gt->{unitY} ];
+					my $from     = [ $curPoint->[0] + $fromDir->[0] / $gt->{unitX},
+						$curPoint->[1] + $fromDir->[1] / $gt->{unitY} ];
+					for (0 .. $#$object_fill_cmps) {
+						return 1 if $object_fill_cmps->[$_][1]->($curPoint, $aVals[$_], $from);
+					}
+					return 0;
+				};
+
+				my $pxPixel = main::round(($px - $gt->{bBox}[0]) * $gt->{unitX});
+				my $pyPixel = main::round(($gt->{bBox}[1] - $py) * $gt->{unitY});
+
+				my @floodMap   = (0) x $fillResolution**2;
+				my @pixelStack = ([
+					main::round(($fx - $gt->{bBox}[0]) * $gt->{unitX}),
+					main::round(($gt->{bBox}[1] - $fy) * $gt->{unitY})
+				]);
+
+				# Perform the flood fill algorithm.
+				while (@pixelStack) {
+					my ($x, $y) = @{ pop(@pixelStack) };
+
+					# Get current pixel position.
+					my $pixelPos = $y * $fillResolution + $x;
+
+					# Go up until the boundary of the fill region or the edge of board is reached.
+					while ($y >= 0 && !$isBoundaryPixel->($x, $y, [ 0, 1 ])) {
+						$y        -= 1;
+						$pixelPos -= $fillResolution;
+					}
+
+					$y        += 1;
+					$pixelPos += $fillResolution;
+					my $reachLeft  = 0;
+					my $reachRight = 0;
+
+					# Go down until the boundary of the fill region or the edge of the board is reached.
+					while ($y < $fillResolution && !$isBoundaryPixel->($x, $y, [ 0, -1 ])) {
+						return 1 if $x == $pxPixel && $y == $pyPixel;
+
+						# This is a protection against infinite loops.  I have not seen this occur with this code unlike
+						# the corresponding JavaScript code, but it doesn't hurt to add the protection.
+						last if $floodMap[$pixelPos];
+
+						# Fill the pixel
+						$floodMap[$pixelPos] = 1;
+
+						# While proceeding down check to the left and right to
+						# see if the fill region extends in those directions.
+						if ($x > 0) {
+							if (!$floodMap[ $pixelPos - 1 ] && !$isBoundaryPixel->($x - 1, $y, [ 1, 0 ])) {
+								if (!$reachLeft) {
+									push(@pixelStack, [ $x - 1, $y ]);
+									$reachLeft = 1;
+								}
+							} else {
+								$reachLeft = 0;
+							}
+						}
+
+						if ($x < $fillResolution - 1) {
+							if (!$floodMap[ $pixelPos + 1 ] && !$isBoundaryPixel->($x + 1, $y, [ -1, 0 ])) {
+								if (!$reachRight) {
+									push(@pixelStack, [ $x + 1, $y ]);
+									$reachRight = 1;
+								}
+							} else {
+								$reachRight = 0;
+							}
+						}
+
+						$y        += 1;
+						$pixelPos += $fillResolution;
+					}
+				}
+
+				return 0;
+			};
+		} else {
+			$pointInFillRegion = sub {
+				my $point = shift;
+				my ($px, $py) = map { $_->value } @{ $point->{data} };
+
+				for (@$object_fill_cmps) {
+					return 0 if $_->[0]->($fx, $fy) != $_->[0]->($px, $py);
+				}
+				return 1;
+			};
+		}
 
 		return (
 			$pointInFillRegion,
@@ -865,16 +1207,16 @@ parser::GraphTool->addGraphObjects(
 		js   => 'graphTool.pointTool.Point',
 		tikz => {
 			code => sub {
-				my $gt = shift;
-				my ($x, $y) = map { $_->value } @{ $_->{data}[1]{data} };
-				return (
-					"\\draw[line width=4pt,blue,fill=red] ($x,$y) circle[radius=5pt];",
-					[ '', sub { return ($_[0] - $x)**2 + ($_[1] - $y)**2; } ]
-				);
+				my ($gt, $object) = @_;
+
+				my ($x, $y) = map { $_->value } @{ $object->{data}[1]{data} };
+
+				return ("\\draw[line width=4pt,blue,fill=red] ($x,$y) circle[radius=5pt];",
+					[ '', sub { return 1; }, sub { return 0; } ]);
 			}
 		},
 		cmp => sub {
-			my $pointObject = shift;
+			my ($pointObject, $gt) = @_;
 
 			my $point = $pointObject->{data}[1];
 
@@ -883,7 +1225,8 @@ parser::GraphTool->addGraphObjects(
 				sub {
 					my $other = shift;
 					return $other->{data}[0] eq 'point' && $point == $other->{data}[1];
-				}
+				},
+				[ defined $gt ? @{ ($graphObjectTikz{point}{code}->($gt, $pointObject))[1] }[ 1, 2 ] : () ]
 			);
 		}
 	},
@@ -892,24 +1235,29 @@ parser::GraphTool->addGraphObjects(
 		js   => 'graphTool.quadraticTool.Quadratic',
 		tikz => {
 			code => sub {
-				my $gt = shift;
-				my ($x1, $y1) = map { $_->value } @{ $_->{data}[2]{data} };
-				my ($x2, $y2) = map { $_->value } @{ $_->{data}[3]{data} };
-				my ($x3, $y3) = map { $_->value } @{ $_->{data}[4]{data} };
+				my ($gt, $object) = @_;
+				my ($x1, $y1)     = map { $_->value } @{ $object->{data}[2]{data} };
+				my ($x2, $y2)     = map { $_->value } @{ $object->{data}[3]{data} };
+				my ($x3, $y3)     = map { $_->value } @{ $object->{data}[4]{data} };
 
 				my $den = ($x1 - $x2) * ($x1 - $x3) * ($x2 - $x3);
 				my $a   = (($x2 - $x3) * $y1 + ($x3 - $x1) * $y2 + ($x1 - $x2) * $y3) / $den;
 
-				if ($a == 0) {
+				if (abs($a) < 0.000001) {
 					# Colinear points
 					my $y = sub { return ($y2 - $y1) / ($x2 - $x1) * ($_[0] - $x1) + $y1; };
 					my $line =
-						"($gt->{bBox}[0]," . &$y($gt->{bBox}[0]) . ") -- ($gt->{bBox}[2]," . &$y($gt->{bBox}[2]) . ")";
+						"($gt->{bBox}[0],"
+						. $y->($gt->{bBox}[0])
+						. ") -- ($gt->{bBox}[2],"
+						. $y->($gt->{bBox}[2]) . ")";
+					my $fillCmp = sub { return sign($_[1] - $y->($_[0])); };
 					return (
-						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
+						"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $line;\n",
 						[
 							"$line -- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { sign(return $_[1] - &$y($_[0])); }
+							$fillCmp,
+							sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 						]
 					);
 				} else {
@@ -924,13 +1272,19 @@ parser::GraphTool->addGraphObjects(
 					my $dmin      = $h - $diff;
 					my $dmax      = $h + $diff;
 					my $quadratic = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x)^2+($b)*\\x+($c)})";
-					return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $quadratic;",
-						[ $quadratic, sub { return sign($a * ($_[1] - $a * $_[0]**2 - $b * $_[0] - $c)); } ]);
+
+					my $quadraticFunction = sub { return $a * $_[0]**2 + $b * $_[0] + $c; };
+					my $fillCmp           = sub { return sign($a * ($_[1] - $quadraticFunction->($_[0]))); };
+
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $quadratic;",
+						[ $quadratic, $fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; } ]
+					);
 				}
 			}
 		},
 		cmp => sub {
-			my $quadratic = shift;
+			my ($quadratic, $gt) = @_;
 
 			my $solid_dashed = $quadratic->{data}[1];
 			my ($x1, $y1) = $quadratic->{data}[2]->value;
@@ -957,7 +1311,8 @@ parser::GraphTool->addGraphObjects(
 						&& $quadraticPointCmp->($other->{data}[2]) == 0
 						&& $quadraticPointCmp->($other->{data}[3]) == 0
 						&& $quadraticPointCmp->($other->{data}[4]) == 0;
-				}
+				},
+				[ defined $gt ? @{ ($graphObjectTikz{quadratic}{code}->($gt, $quadratic))[1] }[ 1, 2 ] : () ]
 			);
 		}
 	},
@@ -966,11 +1321,12 @@ parser::GraphTool->addGraphObjects(
 		js   => "graphTool.cubicTool.Cubic",
 		tikz => {
 			code => sub {
-				my $gt = shift;
-				my ($x1, $y1) = map { $_->value } @{ $_->{data}[2]{data} };
-				my ($x2, $y2) = map { $_->value } @{ $_->{data}[3]{data} };
-				my ($x3, $y3) = map { $_->value } @{ $_->{data}[4]{data} };
-				my ($x4, $y4) = map { $_->value } @{ $_->{data}[5]{data} };
+				my ($gt, $object) = @_;
+
+				my ($x1, $y1) = map { $_->value } @{ $object->{data}[2]{data} };
+				my ($x2, $y2) = map { $_->value } @{ $object->{data}[3]{data} };
+				my ($x3, $y3) = map { $_->value } @{ $object->{data}[4]{data} };
+				my ($x4, $y4) = map { $_->value } @{ $object->{data}[5]{data} };
 
 				my $c3 =
 					($y1 / (($x1 - $x2) * ($x1 - $x3) * ($x1 - $x4)) +
@@ -983,19 +1339,24 @@ parser::GraphTool->addGraphObjects(
 						(-$x1 - $x2 - $x4) * $y3 / (($x3 - $x1) * ($x3 - $x2) * ($x3 - $x4)) +
 						(-$x1 - $x2 - $x3) * $y4 / (($x4 - $x1) * ($x4 - $x2) * ($x4 - $x3)));
 
-				if ($c3 == 0 && $c2 == 0) {
+				if (abs($c3) < 0.000001 && abs($c2) < 0.000001) {
 					# Colinear points
 					my $y = sub { return ($y2 - $y1) / ($x2 - $x1) * ($_[0] - $x1) + $y1; };
 					my $line =
-						"($gt->{bBox}[0]," . &$y($gt->{bBox}[0]) . ") -- ($gt->{bBox}[2]," . &$y($gt->{bBox}[2]) . ")";
+						"($gt->{bBox}[0],"
+						. $y->($gt->{bBox}[0])
+						. ") -- ($gt->{bBox}[2],"
+						. $y->($gt->{bBox}[2]) . ")";
+					my $fillCmp = sub { return sign($_[1] - $y->($_[0])); };
 					return (
-						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $line;\n",
+						"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $line;\n",
 						[
 							"$line -- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return sign($_[1] - &$y($_[0])); }
+							$fillCmp,
+							sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 						]
 					);
-				} elsif ($c3 == 0) {
+				} elsif (abs($c3) < 0.000001) {
 					# Quadratic
 					my $den = ($x1 - $x2) * ($x1 - $x3) * ($x2 - $x3);
 					my $a   = (($x2 - $x3) * $y1 + ($x3 - $x1) * $y2 + ($x1 - $x2) * $y3) / $den;
@@ -1009,11 +1370,17 @@ parser::GraphTool->addGraphObjects(
 					my $dmin     = $h - $diff;
 					my $dmax     = $h + $diff;
 					my $parabola = "plot[domain=$dmin:$dmax,smooth](\\x,{$a*(\\x)^2+($b)*\\x+($c)})";
-					return ("\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $parabola;",
-						[ $parabola, sub { return sign($a * ($_[1] - $a * $_[0]**2 - $b * $_[0] - $c)); } ]);
+
+					my $quadraticFunction = sub { return $a * $_[0]**2 + $b * $_[0] + $c; };
+					my $fillCmp           = sub { return sign($a * ($_[1] - $quadraticFunction->($_[0]))); };
+
+					return (
+						"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $parabola;",
+						[ $parabola, $fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; } ]
+					);
 				} else {
 					# Non-degenerate cubic
-					my $cubic_function = sub {
+					my $cubicFunction = sub {
 						return (($_[0] - $x2) *
 								($_[0] - $x3) *
 								($_[0] - $x4) *
@@ -1044,14 +1411,15 @@ parser::GraphTool->addGraphObjects(
 
 					my $coords;
 					do {
-						my $y = $cubic_function->($x);
+						my $y = $cubicFunction->($x);
 						$coords .= "($x,$y) " if $y >= $lowerBound && $y <= $upperBound;
 						$x += $step;
 					} while ($x < $gt->{bBox}[2]);
 
-					my $cubic = "plot[smooth] coordinates { $coords }";
+					my $cubic   = "plot[smooth] coordinates { $coords }";
+					my $fillCmp = sub { return sign($c3 * ($_[1] - $cubicFunction->($_[0]))); };
 					return (
-						"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $cubic;",
+						"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $cubic;",
 						[
 							$cubic
 								. (
@@ -1061,14 +1429,15 @@ parser::GraphTool->addGraphObjects(
 									: ("-- ($gt->{bBox}[2],$gt->{bBox}[3]) -- ($gt->{bBox}[0],$gt->{bBox}[3])"
 										. "-- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle")
 								),
-							sub { return sign($c3 * ($_[1] - $cubic_function->($_[0]))); }
+							$fillCmp,
+							sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 						]
 					);
 				}
 			}
 		},
 		cmp => sub {
-			my $cubic = shift;
+			my ($cubic, $gt) = @_;
 
 			my $solid_dashed = $cubic->{data}[1];
 			my ($x1, $y1) = $cubic->{data}[2]->value;
@@ -1104,7 +1473,8 @@ parser::GraphTool->addGraphObjects(
 						&& $cubicPointCmp->($other->{data}[3]) == 0
 						&& $cubicPointCmp->($other->{data}[4]) == 0
 						&& $cubicPointCmp->($other->{data}[5]) == 0;
-				}
+				},
+				[ defined $gt ? @{ ($graphObjectTikz{cubic}{code}->($gt, $cubic))[1] }[ 1, 2 ] : () ]
 			);
 		}
 	},
@@ -1113,8 +1483,9 @@ parser::GraphTool->addGraphObjects(
 		js   => 'graphTool.intervalTool.Interval',
 		tikz => {
 			code => sub {
-				my $gt = shift;
-				my ($start, $end) = map { $_->value } @{ $_->{data}[1]{data} };
+				my ($gt, $object) = @_;
+
+				my ($start, $end) = map { $_->value } @{ $object->{data}[1]{data} };
 
 				my $openEnd =
 					$gt->{useBracketEnds}
@@ -1124,9 +1495,13 @@ parser::GraphTool->addGraphObjects(
 					$gt->{useBracketEnds} ? '{Bracket[width=24pt,line width=3pt,length=8pt]}' : '{Circle[scale=1.1]}';
 
 				my $open =
-					$start eq '-infinity' ? '{Stealth[scale=1.1]}' : $_->{data}[1]{open} eq '[' ? $closedEnd : $openEnd;
+					$start eq '-infinity'             ? '{Stealth[scale=1.1]}'
+					: $object->{data}[1]{open} eq '[' ? $closedEnd
+					:                                   $openEnd;
 				my $close =
-					$end eq 'infinity' ? '{Stealth[scale=1.1]}' : $_->{data}[1]{close} eq ']' ? $closedEnd : $openEnd;
+					$end eq 'infinity'                 ? '{Stealth[scale=1.1]}'
+					: $object->{data}[1]{close} eq ']' ? $closedEnd
+					:                                    $openEnd;
 
 				$start = $gt->{bBox}[0] if $start eq '-infinity';
 				$end   = $gt->{bBox}[2] if $end eq 'infinity';
@@ -1144,12 +1519,12 @@ parser::GraphTool->addGraphObjects(
 
 				return (
 					"\\draw[thick,blue,line width=4pt,$open-$close$shortenRight$shortenLeft] ($start,0) -- ($end,0);\n",
-					[ '', sub { return 0; } ]
+					[ '', sub { return 1; }, sub { return 0; } ]
 				);
 			}
 		},
 		cmp => sub {
-			my $intervalObj = shift;
+			my ($intervalObj, $gt) = @_;
 
 			my $interval = $intervalObj->{data}[1];
 
@@ -1158,7 +1533,8 @@ parser::GraphTool->addGraphObjects(
 				sub {
 					my $other = shift;
 					return $other->{data}[0] eq 'interval' && $interval == $other->{data}[1];
-				}
+				},
+				[ defined $gt ? @{ ($graphObjectTikz{interval}{code}->($gt, $intervalObj))[1] }[ 1, 2 ] : () ]
 			);
 		}
 	},
@@ -1166,11 +1542,11 @@ parser::GraphTool->addGraphObjects(
 		js   => 'graphTool.sineWaveTool.SineWave',
 		tikz => {
 			code => sub {
-				my $gt = shift;
+				my ($gt, $object) = @_;
 
-				my ($phase, $yshift) = map { $_->value } @{ $_->{data}[2]{data} };
-				my $period    = $_->{data}[3]->value;
-				my $amplitude = $_->{data}[4]->value;
+				my ($phase, $yshift) = map { $_->value } @{ $object->{data}[2]{data} };
+				my $period    = $object->{data}[3]->value;
+				my $amplitude = $object->{data}[4]->value;
 
 				my $pi = main::pi->value;
 
@@ -1191,19 +1567,20 @@ parser::GraphTool->addGraphObjects(
 					$x += $step;
 				} while $x < $gt->{bBox}[2];
 
-				my $sin = "plot[smooth] coordinates { $coords }";
+				my $sin     = "plot[smooth] coordinates { $coords }";
+				my $fillCmp = sub { return sign($_[1] - $sinFunction->($_[0])); };
 
 				return (
-					"\\draw[thick,blue,line width=2.5pt,$_->{data}[1]] $sin;\n",
+					"\\draw[thick,blue,line width=2.5pt,$object->{data}[1]] $sin;\n",
 					[
 						$sin . "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-						sub { return sign($_[1] - $sinFunction->($_[0])); }
+						$fillCmp, sub { return $fillCmp->(@{ $_[0] }) != $_[1]; }
 					]
 				);
 			}
 		},
 		cmp => sub {
-			my $sineWave = shift;
+			my ($sineWave, $gt) = @_;
 
 			my $solid_dashed = $sineWave->{data}[1];
 			my ($phase, $yshift) = $sineWave->{data}[2]->value;
@@ -1226,7 +1603,8 @@ parser::GraphTool->addGraphObjects(
 					my $otherSinFormula =
 						main::Formula("$amplitude sin(2 * pi / abs($period) (x - $phase)) + $yshift");
 					return ($fuzzy || $other->{data}[1] eq $solid_dashed) && $sinFormula == $otherSinFormula;
-				}
+				},
+				[ defined $gt ? @{ ($graphObjectTikz{sineWave}{code}->($gt, $sineWave))[1] }[ 1, 2 ] : () ]
 			);
 		}
 	},
@@ -1234,35 +1612,66 @@ parser::GraphTool->addGraphObjects(
 		js   => 'graphTool.triangleTool.Triangle',
 		tikz => {
 			code => sub {
-				my $gt = shift;
+				my ($gt, $object) = @_;
 
-				my ($p1x, $p1y) = map { $_->value } @{ $_->{data}[2]{data} };
-				my ($p2x, $p2y) = map { $_->value } @{ $_->{data}[3]{data} };
-				my ($p3x, $p3y) = map { $_->value } @{ $_->{data}[4]{data} };
+				my @points = map { [ $_->{data}[0]->value, $_->{data}[1]->value ] } @{ $object->{data} }[ 2 .. 4 ];
+
+				my ($p1x, $p1y) = @{ $points[0] };
+				my ($p2x, $p2y) = @{ $points[1] };
+				my ($p3x, $p3y) = @{ $points[2] };
+				my $denominator = ($p2y - $p3y) * ($p1x - $p3x) + ($p3x - $p2x) * ($p1y - $p3y);
+
+				my (@borderStdForms, @normalLengths);
+				for (0 .. $#points) {
+					my ($x1, $y1) = @{ $points[$_] };
+					my ($x2, $y2) = @{ $points[ ($_ + 1) % 3 ] };
+					push(@borderStdForms, [ $y1 - $y2, $x2 - $x1, $x1 * $y2 - $x2 * $y1 ]);
+					push(@normalLengths,  sqrt($borderStdForms[-1][0]**2 + $borderStdForms[-1][1]**2));
+				}
+
+				my $fillCmp = sub {
+					my $s =
+						(($p2y - $p3y) * ($_[0] - $p3x) + ($p3x - $p2x) * ($_[1] - $p3y)) / $denominator;
+					my $t =
+						(($p3y - $p1y) * ($_[0] - $p3x) + ($p1x - $p3x) * ($_[1] - $p3y)) / $denominator;
+					if ($s >= 0 && $t >= 0 && $s + $t <= 1) {
+						return 0 if ($s == 0 || $t == 0 || $s + $t == 1);
+						return 1;
+					}
+					return -1;
+				};
 
 				return (
-					"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]]"
-						. " ($p1x, $p1y) -- ($p2x, $p2y) -- ($p3x, $p3y) -- cycle;",
+					"\\draw[thick, blue, line width = 2.5pt, $object->{data}[1]] "
+						. join(' -- ', map {"($_->[0], $_->[1])"} @points)
+						. ' -- cycle;',
 					[
-						"($p1x, $p1y) -- ($p2x, $p2y) -- ($p3x, $p3y) -- cycle",
+						join(' -- ', map {"($_->[0], $_->[1])"} @points) . ' -- cycle',
+						$fillCmp,
 						sub {
-							my $denominator = ($p2y - $p3y) * ($p1x - $p3x) + ($p3x - $p2x) * ($p1y - $p3y);
-							my $s =
-								(($p2y - $p3y) * ($_[0] - $p3x) + ($p3x - $p2x) * ($_[1] - $p3y)) / $denominator;
-							my $t =
-								(($p3y - $p1y) * ($_[0] - $p3x) + ($p1x - $p3x) * ($_[1] - $p3y)) / $denominator;
-							if ($s >= 0 && $t >= 0 && $s + $t <= 1) {
-								return 0 if ($s == 0 || $t == 0 || $s + $t == 1);
-								return 1;
+							my ($point, $aVal, $from) = @_;
+							return 1 if $fillCmp->(@$point) != $aVal;
+							for (0 .. $#borderStdForms) {
+								my @stdform = @{ $borderStdForms[$_] };
+								my ($x1, $y1) = @{ $points[$_] };
+								my ($x2, $y2) = @{ $points[ ($_ + 1) % 3 ] };
+								return 1
+									if (
+										abs($point->[0] * $stdform[0] + $point->[1] * $stdform[1] + $stdform[2]) /
+										$normalLengths[$_]) < 0.5 / sqrt($gt->{unitX} * $gt->{unitY})
+									&& $point->[0] > main::min($x1, $x2) - 0.5 / $gt->{unitX}
+									&& $point->[0] < main::max($x1, $x2) + 0.5 / $gt->{unitX}
+									&& $point->[1] > main::min($y1, $y2) - 0.5 / $gt->{unitY}
+									&& $point->[1] < main::max($y1, $y2) + 0.5 / $gt->{unitY};
 							}
-							return -1;
+							return 0;
 						}
 					]
 				);
 			}
 		},
 		cmp => sub {
-			my $triangle = shift;
+			my ($triangle, $gt) = @_;
 
 			my $solid_dashed = $triangle->{data}[1];
 			my $p1           = $triangle->{data}[2];
@@ -1295,7 +1704,8 @@ parser::GraphTool->addGraphObjects(
 					}
 
 					return 1;
-				}
+				},
+				[ defined $gt ? @{ ($graphObjectTikz{triangle}{code}->($gt, $triangle))[1] }[ 1, 2 ] : () ]
 			);
 		}
 	},
@@ -1303,12 +1713,12 @@ parser::GraphTool->addGraphObjects(
 		js   => 'graphTool.quadrilateralTool.Quadrilateral',
 		tikz => {
 			code => sub {
-				my $gt = shift;
+				my ($gt, $object) = @_;
 
-				my @points = map { [ $_->{data}[0]->value, $_->{data}[1]->value ] } @{ $_->{data} }[ 2 .. 5 ];
+				my @points = map { [ $_->{data}[0]->value, $_->{data}[1]->value ] } @{ $object->{data} }[ 2 .. 5 ];
 
-				my (@borderCmps, @borderClipCode, @borderStdForms);
-				for my $i (0 .. 3) {
+				my (@borderCmps, @borderClipCode, @borderStdForms, @normalLengths);
+				for my $i (0 .. $#points) {
 					my ($x1, $y1) = @{ $points[$i] };
 					my ($x2, $y2) = @{ $points[ ($i + 1) % 4 ] };
 
@@ -1345,7 +1755,9 @@ parser::GraphTool->addGraphObjects(
 							}
 						);
 					}
+
 					push(@borderStdForms, [ $y1 - $y2, $x2 - $x1, $x1 * $y2 - $x2 * $y1 ]);
+					push(@normalLengths,  sqrt($borderStdForms[-1][0]**2 + $borderStdForms[-1][1]**2));
 				}
 
 				my $isCrossed = (
@@ -1370,20 +1782,26 @@ parser::GraphTool->addGraphObjects(
 						(
 							$points[0][0] * $borderStdForms[1][0] +
 							$points[0][1] * $borderStdForms[1][1] +
-							$borderStdForms[2][2] > 0
+							$borderStdForms[1][2] > 0
 						) != (
 							$points[3][0] * $borderStdForms[1][0] +
 							$points[3][1] * $borderStdForms[1][1] +
-							$borderStdForms[2][2] > 0
+							$borderStdForms[1][2] > 0
 						)
 						&& ($points[1][0] * $borderStdForms[3][0] +
 							$points[1][1] * $borderStdForms[3][1] +
-							$borderStdForms[0][2] > 0) != (
+							$borderStdForms[3][2] > 0) != (
 							$points[2][0] * $borderStdForms[3][0] +
 							$points[2][1] * $borderStdForms[3][1] +
-							$borderStdForms[0][2] > 0
+							$borderStdForms[3][2] > 0
 							)
 					);
+
+				if ($isCrossed) {
+					warn 'this is crossed';
+				} else {
+					warn 'this is NOT crossed';
+				}
 
 				my $fillCmp = sub {
 					my ($x, $y) = @_;
@@ -1423,7 +1841,7 @@ parser::GraphTool->addGraphObjects(
 				};
 
 				return (
-					"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]] "
+					"\\draw[thick, blue, line width = 2.5pt, $object->{data}[1]] "
 						. join(' -- ', map {"($_->[0], $_->[1])"} @points)
 						. " -- cycle;\n",
 					[
@@ -1438,13 +1856,32 @@ parser::GraphTool->addGraphObjects(
 								. join(' -- ', map {"($_->[0], $_->[1])"} @points)
 								. " -- cycle;\n";
 						},
-						$fillCmp
+						$fillCmp,
+						sub {
+							my ($point, $aVal, $from) = @_;
+							return 1 if $fillCmp->(@$point) != $aVal;
+							for (0 .. $#borderStdForms) {
+								my @stdform = @{ $borderStdForms[$_] };
+								my ($x1, $y1) = @{ $points[$_] };
+								my ($x2, $y2) = @{ $points[ ($_ + 1) % 4 ] };
+								return 1
+									if (
+										abs($point->[0] * $stdform[0] + $point->[1] * $stdform[1] + $stdform[2]) /
+										$normalLengths[$_] < 0.5 /
+										sqrt($gt->{unitX} * $gt->{unitY}))
+									&& $point->[0] > main::min($x1, $x2) - 0.5 / $gt->{unitX}
+									&& $point->[0] < main::max($x1, $x2) + 0.5 / $gt->{unitX}
+									&& $point->[1] > main::min($y1, $y2) - 0.5 / $gt->{unitY}
+									&& $point->[1] < main::max($y1, $y2) + 0.5 / $gt->{unitY};
+							}
+							return 0;
+						}
 					]
 				);
 			}
 		},
 		cmp => sub {
-			my $quadrilateral = shift;
+			my ($quadrilateral, $gt) = @_;
 
 			my $solid_dashed = $quadrilateral->{data}[1];
 			my @points       = @{ $quadrilateral->{data} }[ 2 .. 5 ];
@@ -1526,7 +1963,12 @@ parser::GraphTool->addGraphObjects(
 					}
 
 					return 0;
-				}
+				},
+				[
+					defined $gt
+					? @{ ($graphObjectTikz{quadrilateral}{code}->($gt, $quadrilateral))[1] }[ 1, 2 ]
+					: ()
+				]
 			);
 		}
 	},
@@ -1534,41 +1976,105 @@ parser::GraphTool->addGraphObjects(
 		js   => 'graphTool.segmentTool.Segment',
 		tikz => {
 			code => sub {
-				my $gt = shift;
+				my ($gt, $object) = @_;
 
-				my ($p1x, $p1y) = map { $_->value } @{ $_->{data}[2]{data} };
-				my ($p2x, $p2y) = map { $_->value } @{ $_->{data}[3]{data} };
+				my ($p1x, $p1y) = map { $_->value } @{ $object->{data}[2]{data} };
+				my ($p2x, $p2y) = map { $_->value } @{ $object->{data}[3]{data} };
 
 				if ($p1x == $p2x) {
 					# Vertical segment
 					return (
-						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]] ($p1x, $p1y) -- ($p2x, $p2y);\n",
+						"\\draw[thick, blue, line width = 2.5pt, $object->{data}[1]] ($p1x, $p1y) -- ($p2x, $p2y);\n",
 						[
 							"($p1x,$gt->{bBox}[3]) -- ($p1x,$gt->{bBox}[1])"
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[2],$gt->{bBox}[3]) -- cycle",
-							sub { return sign($_[0] - $p1x); }
+							sub {
+								return sign($_[0] - $p1x)
+									|| ($_[1] >= main::min($p1y, $p2y) && $_[1] <= main::max($p1y, $p2y) ? 0 : 1);
+							},
+							sub {
+								my ($point, $aVal, $from) = @_;
+
+								return 0
+									if !($_[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
+										&& $_[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
+
+								my @crossingStdForm = (
+									$point->[1] - $from->[1],
+									$from->[0] - $point->[0],
+									$point->[0] * $from->[1] - $point->[1] * $from->[0]
+								);
+								return (
+									($from->[0] * ($p1y - $p2y) > $p1x * ($p1y - $p2y)) !=
+										($point->[0] * ($p1y - $p2y) > $p1x * ($p1y - $p2y))
+										&& ($p1x * $crossingStdForm[0] +
+											$p1y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0) != (
+											$p2x * $crossingStdForm[0] +
+											$p2y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0
+											)
+									)
+									|| abs($_[0] - $p1x) < 0.5 / $gt->{unitX};
+							}
 						]
 					);
 				} else {
 					# Non-vertical segment
-					my $m = ($p2y - $p1y) / ($p2x - $p1x);
-					my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
+					my $m            = ($p2y - $p1y) / ($p2x - $p1x);
+					my $y            = sub { return $m * ($_[0] - $p1x) + $p1y; };
+					my @stdform      = ($p1y - $p2y, $p2x - $p1x, $p1x * $p2y - $p2x * $p1y);
+					my $normalLength = sqrt($stdform[0]**2 + $stdform[1]**2);
 					return (
-						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1]] ($p1x, $p1y) -- ($p2x, $p2y);\n",
+						"\\draw[thick, blue, line width = 2.5pt, $object->{data}[1]] ($p1x, $p1y) -- ($p2x, $p2y);\n",
 						[
 							"($gt->{bBox}[0],"
-								. &$y($gt->{bBox}[0]) . ') -- '
+								. $y->($gt->{bBox}[0]) . ') -- '
 								. "($gt->{bBox}[2],"
-								. &$y($gt->{bBox}[2]) . ')'
+								. $y->($gt->{bBox}[2]) . ')'
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return sign($_[1] - &$y($_[0])); }
+							sub {
+								return sign($_[1] - $y->($_[0]))
+									|| ($_[0] >= main::min($p1x, $p2x)
+										&& $_[0] <= main::max($p1x, $p2x)
+										&& $_[1] >= main::min($p1y, $p2y)
+										&& $_[1] <= main::max($p1y, $p2y) ? 0 : 1);
+							},
+							sub {
+								my ($point, $aVal, $from) = @_;
+
+								return 0
+									if !($point->[0] > main::min($p1x, $p2x) - 0.5 / $gt->{unitX}
+										&& $point->[0] < main::max($p1x, $p2x) + 0.5 / $gt->{unitX}
+										&& $point->[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
+										&& $point->[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
+
+								my @crossingStdForm = (
+									$point->[1] - $from->[1],
+									$from->[0] - $point->[0],
+									$point->[0] * $from->[1] - $point->[1] * $from->[0]
+								);
+								my $pointSide = $point->[0] * $stdform[0] + $point->[1] * $stdform[1] + $stdform[2];
+								return (
+									($from->[0] * $stdform[0] + $from->[1] * $stdform[1] + $stdform[2] > 0) !=
+										$pointSide > 0
+										&& ($p1x * $crossingStdForm[0] +
+											$p1y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0) != (
+											$p2x * $crossingStdForm[0] +
+											$p2y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0
+											)
+									)
+									|| abs($pointSide) / $normalLength < 0.5 / sqrt($gt->{unitX} * $gt->{unitY});
+							}
 						]
 					);
 				}
 			}
 		},
 		cmp => sub {
-			my ($segment) = @_;
+			my ($segment, $gt) = @_;
 
 			my $solid_dashed = $segment->{data}[1];
 			my @points       = @{ $segment->{data} }[ 2, 3 ];
@@ -1596,7 +2102,8 @@ parser::GraphTool->addGraphObjects(
 						&& ($fuzzy || $other->{data}[1] eq $solid_dashed)
 						&& (($points[0] == $other->{data}[2] && $points[1] == $other->{data}[3])
 							|| ($points[1] == $other->{data}[2] && $points[0] == $other->{data}[3]));
-				}
+				},
+				[ defined $gt ? @{ ($graphObjectTikz{segment}{code}->($gt, $segment))[1] }[ 1, 2 ] : () ]
 			);
 		}
 	},
@@ -1604,34 +2111,94 @@ parser::GraphTool->addGraphObjects(
 		js   => 'graphTool.vectorTool.Vector',
 		tikz => {
 			code => sub {
-				my $gt = shift;
+				my ($gt, $object) = @_;
 
-				my ($p1x, $p1y) = map { $_->value } @{ $_->{data}[2]{data} };
-				my ($p2x, $p2y) = map { $_->value } @{ $_->{data}[3]{data} };
+				my ($p1x, $p1y) = map { $_->value } @{ $object->{data}[2]{data} };
+				my ($p2x, $p2y) = map { $_->value } @{ $object->{data}[3]{data} };
 
 				if ($p1x == $p2x) {
 					# Vertical vector
 					return (
-						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1], ->] ($p1x, $p1y) -- ($p2x, $p2y);\n",
+						"\\draw[thick, blue, line width = 2.5pt, $object->{data}[1], -{Stealth[scale = 1.4]}] "
+							. "($p1x, $p1y) -- ($p2x, $p2y);\n",
 						[
 							"($p1x,$gt->{bBox}[3]) -- ($p1x,$gt->{bBox}[1])"
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[2],$gt->{bBox}[3]) -- cycle",
-							sub { return sign($_[0] - $p1x); }
+							sub {
+								return sign($_[0] - $p1x)
+									|| ($_[1] >= main::min($p1y, $p2y) && $_[1] <= main::max($p1y, $p2y) ? 0 : 1);
+							},
+							sub {
+								my ($point, $aVal, $from) = @_;
+								my @crossingStdForm = (
+									$point->[1] - $from->[1],
+									$from->[0] - $point->[0],
+									$point->[0] * $from->[1] - $point->[1] * $from->[0]
+								);
+								return (
+									($from->[0] * ($p1y - $p2y) > $p1x * ($p1y - $p2y)) !=
+										($point->[0] * ($p1y - $p2y) > $p1x * ($p1y - $p2y))
+										&& ($p1x * $crossingStdForm[0] +
+											$p1y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0) != (
+											$p2x * $crossingStdForm[0] +
+											$p2y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0
+											)
+									)
+									|| (abs($_[0] - $p1x) < 0.5 / $gt->{unitX}
+										&& $_[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
+										&& $_[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
+							}
 						]
 					);
 				} else {
 					# Non-vertical vector
-					my $m = ($p2y - $p1y) / ($p2x - $p1x);
-					my $y = sub { return $m * ($_[0] - $p1x) + $p1y; };
+					my $m            = ($p2y - $p1y) / ($p2x - $p1x);
+					my $y            = sub { return $m * ($_[0] - $p1x) + $p1y; };
+					my @stdform      = ($p1y - $p2y, $p2x - $p1x, $p1x * $p2y - $p2x * $p1y);
+					my $normalLength = sqrt($stdform[0]**2 + $stdform[1]**2);
 					return (
-						"\\draw[thick, blue, line width = 2.5pt, $_->{data}[1], ->] ($p1x, $p1y) -- ($p2x, $p2y);\n",
+						"\\draw[thick, blue, line width = 2.5pt, $object->{data}[1], -{Stealth[scale = 1.4]}] "
+							. "($p1x, $p1y) -- ($p2x, $p2y);\n",
 						[
 							"($gt->{bBox}[0],"
-								. &$y($gt->{bBox}[0]) . ') -- '
+								. $y->($gt->{bBox}[0]) . ') -- '
 								. "($gt->{bBox}[2],"
-								. &$y($gt->{bBox}[2]) . ')'
+								. $y->($gt->{bBox}[2]) . ')'
 								. "-- ($gt->{bBox}[2],$gt->{bBox}[1]) -- ($gt->{bBox}[0],$gt->{bBox}[1]) -- cycle",
-							sub { return sign($_[1] - &$y($_[0])); }
+							sub {
+								return sign($_[1] - $y->($_[0]))
+									|| ($_[0] >= main::min($p1x, $p2x)
+										&& $_[0] <= main::max($p1x, $p2x)
+										&& $_[1] >= main::min($p1y, $p2y)
+										&& $_[1] <= main::max($p1y, $p2y) ? 0 : 1);
+							},
+							sub {
+								my ($point, $aVal, $from) = @_;
+								my @crossingStdForm = (
+									$point->[1] - $from->[1],
+									$from->[0] - $point->[0],
+									$point->[0] * $from->[1] - $point->[1] * $from->[0]
+								);
+								my $pointSide = $point->[0] * $stdform[0] + $point->[1] * $stdform[1] + $stdform[2];
+								return (
+									($from->[0] * $stdform[0] + $from->[1] * $stdform[1] + $stdform[2] > 0) !=
+										$pointSide > 0
+										&& ($p1x * $crossingStdForm[0] +
+											$p1y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0) != (
+											$p2x * $crossingStdForm[0] +
+											$p2y * $crossingStdForm[1] +
+											$crossingStdForm[2] > 0
+											)
+									)
+									|| ((abs($pointSide) / $normalLength < 0.5 / sqrt($gt->{unitX} * $gt->{unitY}))
+										&& $point->[0] > main::min($p1x, $p2x) - 0.5 / $gt->{unitX}
+										&& $point->[0] < main::max($p1x, $p2x) + 0.5 / $gt->{unitX}
+										&& $point->[1] > main::min($p1y, $p2y) - 0.5 / $gt->{unitY}
+										&& $point->[1] < main::max($p1y, $p2y) + 0.5 / $gt->{unitY});
+							}
 						]
 					);
 				}
@@ -1668,7 +2235,8 @@ parser::GraphTool->addGraphObjects(
 			};
 
 			if ($gt->{vectorsArePositional}) {
-				return ($vectorPointCmp, $positionalCmp);
+				return ($vectorPointCmp, $positionalCmp,
+					[ @{ ($graphObjectTikz{vector}{code}->($gt, $vector))[1] }[ 1, 2 ] ]);
 			} else {
 				# This comparison method will only return that the other vector is correct once. If the same vector is
 				# graphed again at a different location it will be considered incorrect for this answer.
@@ -1688,7 +2256,8 @@ parser::GraphTool->addGraphObjects(
 								$terminal_point->{data}[1] - $initial_point->{data}[1]);
 						$foundCorrect = 1;
 						return 1;
-					}
+					},
+					[ @{ ($graphObjectTikz{vector}{code}->($gt, $vector))[1] }[ 1, 2 ] ]
 				);
 			}
 		}
@@ -1827,6 +2396,7 @@ sub ans_rule {
 			coordinateHintsTypeY: '${\($self->{coordinateHintsTypeY} // $self->{coordinateHintsType})}',
 			numberLine: $self->{numberLine},
 			useBracketEnds: $self->{useBracketEnds},
+			useFloodFill: $self->{useFloodFill},
 			customGraphObjects: {$customGraphObjects},
 			customTools: {$customTools},
 			availableTools: ['${\(join("','", @{$self->{availableTools}}))}'],
@@ -1905,20 +2475,22 @@ sub cmp {
 			# done.  This means that the solid/dashed status of the objects is ignored for the comparison. Only the
 			# solid variant is kept if both appear.  The idea is that solid covers dashed.  Fills are all kept and
 			# the duplicates dealt with later.
-			my @student;
+			my (@student_objects, @student_fills);
 		ANSWER: for my $answer (@$student) {
-				my $answer_type = $answer->{data}[0];
-				unless ($answer_type eq 'fill') {
-					for (0 .. $#student) {
-						my $other_type = $student[$_]{data}[0];
-						next unless $other_type eq $answer_type;
-						if (($graphObjectCmps{ $student[$_]{data}[0] }->($student[$_], $self))[1]->($answer, 1)) {
-							$student[$_] = $answer if $answer->{data}[1] eq 'solid';
-							next ANSWER;
-						}
+				if ($answer->{data}[0] eq 'fill') {
+					push(@student_fills, $answer);
+					next;
+				}
+				for (0 .. $#student_objects) {
+					next unless $student_objects[$_]{data}[0] eq $answer->{data}[0];
+					if (($graphObjectCmps{ $student_objects[$_]{data}[0] }->($student_objects[$_], $self))[1]
+						->($answer, 1))
+					{
+						$student_objects[$_] = $answer if $answer->{data}[1] eq 'solid';
+						next ANSWER;
 					}
 				}
-				push(@student, $answer);
+				push(@student_objects, $answer);
 			}
 
 			# Cache the correct graph object comparison methods.  Also cache the correct graph object fill comparison
@@ -1930,7 +2502,7 @@ sub cmp {
 			for (@$correct) {
 				my $type = $_->{data}[0];
 				next if $type eq 'fill' || ref($graphObjectCmps{$type}) ne 'CODE';
-				my ($fill_cmp, $object_cmp) = $graphObjectCmps{$type}->($_, $self);
+				my (undef, $object_cmp, $fill_cmp) = $graphObjectCmps{$type}->($_, $self);
 				push(@object_cmps,      $object_cmp);
 				push(@object_fill_cmps, $fill_cmp);
 			}
@@ -1938,20 +2510,15 @@ sub cmp {
 			my @object_scores = (0) x @object_cmps;
 			my @incorrect_objects;
 
-		ENTRY: for my $student_index (0 .. $#student) {
-				my $student_type = $student[$student_index]{data}[0];
-
-				# Grading of fills is deferred until after the other objects, and is only done if they are all correct.
-				next if $student_type eq 'fill';
-
+		ENTRY: for my $student_object (@student_objects) {
 				for (0 .. $#object_cmps) {
-					if ($object_cmps[$_]->($student[$student_index])) {
+					if ($object_cmps[$_]->($student_object)) {
 						++$object_scores[$_];
 						next ENTRY;
 					}
 				}
 
-				push(@incorrect_objects, $student[$student_index]);
+				push(@incorrect_objects, $student_object);
 			}
 
 			my $object_score = 0;
@@ -1962,12 +2529,12 @@ sub cmp {
 			my @incorrect_fill_cmps;
 
 			# Now check the fills if all of the objects were correctly graphed.
-			if ($object_score == @object_scores) {
+			if ($object_score == @object_scores && $object_score == @student_objects) {
 				# Add the fill comparison methods for the static graph objects.
 				for (@{ $self->SUPER::new($self->{context}, @{ $self->{staticObjects} })->{data} }) {
 					my $type = $_->{data}[0];
 					next if $type eq 'fill';
-					push(@object_fill_cmps, ($graphObjectCmps{$type}->($_, $self))[0])
+					push(@object_fill_cmps, ($graphObjectCmps{$type}->($_, $self))[2])
 						if ref($graphObjectCmps{$type}) eq 'CODE';
 				}
 
@@ -1975,33 +2542,25 @@ sub cmp {
 				my @fill_cmps;
 				for (@$correct) {
 					next unless $_->{data}[0] eq 'fill';
-					push(@fill_cmps, ($graphObjectCmps{fill}->($_, \@object_fill_cmps))[1]);
+					push(@fill_cmps, ($graphObjectCmps{fill}->($_, \@object_fill_cmps, $self))[1]);
 				}
 
 				@fill_scores = (0) x @fill_cmps;
 
-			ENTRY: for my $student_index (0 .. $#student) {
-					my $student_type = $student[$student_index]{data}[0];
-					next unless $student_type eq 'fill';
-
+			ENTRY: for my $student_index (0 .. $#student_fills) {
 					for (0 .. $#fill_cmps) {
-						if ($fill_cmps[$_]->($student[$student_index])) {
+						if ($fill_cmps[$_]->($student_fills[$student_index])) {
 							++$fill_scores[$_];
 							next ENTRY;
 						}
 					}
 
 					# Skip incorrect fills in the same region as another incorrect fill.
-					for (@incorrect_fill_cmps) { next ENTRY if $_->($student[$student_index]); }
+					for (@incorrect_fill_cmps) { next ENTRY if $_->($student_fills[$student_index]); }
 
 					# Cache comparison methods for incorrect fills.
-					push(
-						@incorrect_fill_cmps,
-						(
-							$graphObjectCmps{ $student[$student_index]{data}[0] }
-								->($student[$student_index], \@object_fill_cmps)
-						)[1]
-					);
+					push(@incorrect_fill_cmps,
+						($graphObjectCmps{fill}->($student_fills[$student_index], \@object_fill_cmps, $self))[1]);
 				}
 
 				for (@fill_scores) { ++$fill_score if $_; }
@@ -2073,6 +2632,7 @@ sub generateHTMLAnswerGraph {
 			yAxisLabel: '$self->{yAxisLabel}',
 			numberLine: $self->{numberLine},
 			useBracketEnds: $self->{useBracketEnds},
+			useFloodFill: $self->{useFloodFill},
 			customGraphObjects: {$customGraphObjects},
 			JSXGraphOptions: $self->{JSXGraphOptions},
 			ariaDescription: '$ariaDescription'

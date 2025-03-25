@@ -883,6 +883,10 @@ window.graphTool = (containerId, options) => {
 			return 1;
 		}
 
+		onBoundary(point, aVal /*, from */) {
+			return this.fillCmp(point) != aVal;
+		}
+
 		remove() {
 			this.definingPts.forEach((point) => gt.board.removeObject(point));
 			gt.board.removeObject(this.baseObj);
@@ -1200,45 +1204,137 @@ window.graphTool = (containerId, options) => {
 					delete this.fillObj;
 				}
 
-				const centerPt = this.baseObj.coords.usrCoords;
-				const allObjects = gt.graphedObjs.concat(gt.staticObjs);
+				// If the fill point is not on the board, then the flood fill algorithm will loop infinitely. So bail.
+				if (!gt.boardHasPoint(...this.baseObj.coords.usrCoords.slice(1))) return;
+
+				const allObjects = gt.graphedObjs
+					.concat(gt.staticObjs)
+					.filter((o) => !(o instanceof gt.graphObjectTypes['fill']));
 
 				// Determine which side of each object needs to be shaded.  If the point
 				// is on a graphed object, then don't fill.
 				const a_vals = Array(allObjects.length);
-				for (let i = 0; i < allObjects.length; ++i) {
-					a_vals[i] = allObjects[i].fillCmp(centerPt);
+				for (const [i, object] of allObjects.entries()) {
+					a_vals[i] = object.fillCmp(this.baseObj.coords.usrCoords);
 					if (a_vals[i] == 0) return;
 				}
 
+				const bBox = gt.board.getBoundingBox();
+
 				const canvas = document.createElement('canvas');
-				canvas.width = gt.board.canvasWidth;
-				canvas.height = gt.board.canvasHeight;
+				canvas.width = gt.board.canvasWidth + 1;
+				canvas.height = gt.board.canvasHeight + 1;
 				const context = canvas.getContext('2d');
 				const colorLayerData = context.getImageData(0, 0, canvas.width, canvas.height);
 
+				const fillRed = Number('0x' + gt.color.fill.slice(1, 3));
+				const fillBlue = Number('0x' + gt.color.fill.slice(3, 5));
+				const fillGreen = Number('0x' + gt.color.fill.slice(5));
+
 				const fillPixel = (pixelPos) => {
-					colorLayerData.data[pixelPos] = Number('0x' + gt.color.fill.slice(1, 3));
-					colorLayerData.data[pixelPos + 1] = Number('0x' + gt.color.fill.slice(3, 5));
-					colorLayerData.data[pixelPos + 2] = Number('0x' + gt.color.fill.slice(5));
+					colorLayerData.data[pixelPos] = fillRed;
+					colorLayerData.data[pixelPos + 1] = fillBlue;
+					colorLayerData.data[pixelPos + 2] = fillGreen;
 					colorLayerData.data[pixelPos + 3] = 255;
 				};
 
-				const isFillPixel = (x, y) => {
-					const curPixel = [
-						1.0,
-						(x - gt.board.origin.scrCoords[1]) / gt.board.unitX,
-						(gt.board.origin.scrCoords[2] - y) / gt.board.unitY
-					];
-					for (let i = 0; i < allObjects.length; ++i) {
-						if (allObjects[i].fillCmp(curPixel) != a_vals[i]) return false;
-					}
-					return true;
-				};
+				if (options.useFloodFill) {
+					const isFilled = (pixelPos) =>
+						colorLayerData.data[pixelPos] == fillRed &&
+						colorLayerData.data[pixelPos + 1] == fillBlue &&
+						colorLayerData.data[pixelPos + 2] == fillGreen;
 
-				for (let j = 0; j < canvas.width; ++j) {
-					for (let k = 0; k < canvas.height; ++k) {
-						if (isFillPixel(j, k)) fillPixel((k * canvas.width + j) * 4);
+					const isBoundaryPixel = (x, y, fromDir) => {
+						const curPixel = [1, bBox[0] + x / gt.board.unitX, bBox[1] - y / gt.board.unitY];
+						const fromPixel = [
+							1,
+							curPixel[1] + fromDir[0] / gt.board.unitX,
+							curPixel[2] + fromDir[1] / gt.board.unitY
+						];
+						for (const [i, object] of allObjects.entries()) {
+							if (object.onBoundary(curPixel, a_vals[i], fromPixel)) return true;
+						}
+						return false;
+					};
+
+					const pixelStack = [
+						[
+							Math.round((this.definingPts[0].X() - bBox[0]) * gt.board.unitX),
+							Math.round((bBox[1] - this.definingPts[0].Y()) * gt.board.unitY)
+						]
+					];
+
+					while (pixelStack.length) {
+						const newPos = pixelStack.pop();
+						let x = newPos[0];
+						let y = newPos[1];
+
+						// Get current pixel position.
+						let pixelPos = (y * canvas.width + x) * 4;
+
+						// Go up until the boundary of the fill region or the edge of the canvas is reached.
+						while (y >= 0 && !isBoundaryPixel(x, y, [0, 1])) {
+							y -= 1;
+							pixelPos -= canvas.width * 4;
+						}
+
+						y += 1;
+						pixelPos += canvas.width * 4;
+						let reachLeft = false;
+						let reachRight = false;
+
+						// Go down until the boundary of the fill region or the edge of the canvas is reached.
+						while (y < canvas.height && !isBoundaryPixel(x, y, [0, -1])) {
+							// FIXME: This should not be needed, but for some reason when several segments or vectors
+							// are plotted in certain positions the algorithm starts filling already filled pixels
+							// repeatedly and loops infinitely. The similar Perl code in the macro does not do this.
+							if (isFilled(pixelPos)) break;
+
+							fillPixel(pixelPos);
+
+							// While proceeding down check to the left and right to see
+							// if the fill region extends in those directions.
+							if (x > 0) {
+								if (!isFilled(pixelPos - 4) && !isBoundaryPixel(x - 1, y, [1, 0])) {
+									if (!reachLeft) {
+										// Add pixel to stack
+										pixelStack.push([x - 1, y]);
+										reachLeft = true;
+									}
+								} else reachLeft = false;
+							}
+
+							if (x < canvas.width - 1) {
+								if (!isFilled(pixelPos + 4) && !isBoundaryPixel(x + 1, y, [-1, 0])) {
+									if (!reachRight) {
+										// Add pixel to stack
+										pixelStack.push([x + 1, y]);
+										reachRight = true;
+									}
+								} else reachRight = false;
+							}
+
+							y += 1;
+							pixelPos += canvas.width * 4;
+						}
+					}
+				} else {
+					const isFillPixel = (x, y) => {
+						const curPixel = [
+							1.0,
+							(x - gt.board.origin.scrCoords[1]) / gt.board.unitX,
+							(gt.board.origin.scrCoords[2] - y) / gt.board.unitY
+						];
+						for (let i = 0; i < allObjects.length; ++i) {
+							if (allObjects[i].fillCmp(curPixel) != a_vals[i]) return false;
+						}
+						return true;
+					};
+
+					for (let j = 0; j < canvas.width; ++j) {
+						for (let k = 0; k < canvas.height; ++k) {
+							if (isFillPixel(j, k)) fillPixel((k * canvas.width + j) * 4);
+						}
 					}
 				}
 
@@ -1246,14 +1342,9 @@ window.graphTool = (containerId, options) => {
 				const dataURL = canvas.toDataURL('image/png');
 				canvas.remove();
 
-				const boundingBox = gt.board.getBoundingBox();
 				this.fillObj = gt.board.create(
 					'image',
-					[
-						dataURL,
-						[boundingBox[0], boundingBox[3]],
-						[boundingBox[2] - boundingBox[0], boundingBox[1] - boundingBox[3]]
-					],
+					[dataURL, [bBox[0], bBox[3]], [bBox[2] - bBox[0], bBox[1] - bBox[3]]],
 					{ withLabel: false, highlight: false, fixed: true, layer: 0 }
 				);
 			};
@@ -1367,6 +1458,12 @@ window.graphTool = (containerId, options) => {
 					if ('fillCmp' in graphObject) return graphObject.fillCmp.call(this, gt, point);
 					else if (parentObject) return super.fillCmp(point);
 					return 1;
+				}
+
+				onBoundary(point, aVal, from) {
+					if ('onBoundary' in graphObject) return graphObject.onBoundary.call(this, gt, point, aVal, from);
+					else if (parentObject) return super.onBoundary(point, aVal, from);
+					return false;
 				}
 
 				remove() {
