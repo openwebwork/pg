@@ -787,54 +787,60 @@ sub two_sample_t_test {
 	($t, $df, $p);
 }
 
-=head2 Create a data file and make a link to it.
+=head2 insertDataLink
 
-=pod
+Create a CSV data file and make a link to it.
 
-	Usage: insertDataLink($PG,linkText,@dataRefs)
+Usage: C<insertDataLink($linkText, @dataRefs, $linkAttributes)>
 
-Writes the given data to a file and creates a link to the data file. The string headerTitle is the label used in the anchor link.
-		$PG is a ref to an instance of a PGcore object. (Generally just use $PG in a problem)
-    linkText is the text to appear in the anchor/link.
-    @dataRefs is a list of references. Each reference is assumed to be ref to an array.
-          All of the arrays must have the same length.
-          The last entry in the array is assumed to be the label to use in the first row of the csv file.
+Writes the given data to a CSV file and returns a link to the file.
+
+C<$linkText> is the text to appear in the anchor/link.
+
+C<@dataRefs> is a list of references. Each reference is assumed to be ref to an
+array.  All of the arrays must have the same length.  The last entry in the
+array is assumed to be the label to use in the first row of the csv file.
+
+C<linkAttributes> is optional.  If provided, this must be a reference to a hash
+containing additional attributes to add to the HTML C<a> tag. If this parameter
+is not provided or it is provided and a C<download> attributed is not specified
+in the hash, then a default C<download> attribute will be added with the value
+"data.csv".
 
 Usage:
-    # Generate random data
-    @data1 = urand(10.0,2.0,10,2);
-    @data2 = urand(12.0,2.0,10,2);
-    @data3 = urand(14.0,4.0,10,2);
-    @data4 = exprand(0.1,10,2);
 
-    # Append the labels for each data set
-    push(@data1,"w");
-    push(@data2,"x");
-    push(@data3,"y");
-    push(@data4,"z");
+    # Generate random data with labels.
+    $data1 = [ urand(10.0, 2.0, 10, 2), 'w' ];
+    $data2 = [ urand(12.0, 2.0, 10, 2), 'x' ];
+    $data3 = [ urand(14.0, 4.0, 10, 2), 'y' ];
+    $data4 = [ exprand(0.1, 10, 2), 'z' ];
 
-    BEGIN_TEXT
-
-    blah blah
-
-    $BR Data: \{ insertDataLink($PG,"the data",(~~@data1,~~@data2,~~@data3,~~@data4)); \} $BR
-
+    BEGIN_PGML
+    Data: [@ insertDataLink(
+		'the data', $data1, $data2, $data3, $data4,
+		{ download => 'problem-dataset.csv' }
+	) @]*
+    END_PGML
 
 =cut
 
 sub insertDataLink {
-	my $PG       = shift;
-	my $linkText = shift;
-	my @dataRefs = @_;
-	my $stat     = Statistics->new($PG);
+	my @args = @_;
 
-	# Create a file name and get the url as well.
-	my ($fileName, $url) = $stat->make_csv_alias($main::studentLogin, $main::problemSeed, $setName, $main::probNum);
+	# If the $PG object was given then just drop it. This is for backwards compatibility.
+	shift @args if ref($args[0]) eq 'PGcore';
 
-	# Now write the data
-	$stat->write_array_to_CSV($fileName, @dataRefs);
+	my ($linkText, @dataRefs) = @args;
 
-	"<a href=\"$url\">$linkText</a>";
+	my $linkAttributes = {};
+	$linkAttributes = pop @dataRefs if ref $dataRefs[-1] eq 'HASH';
+	$linkAttributes->{download} = 'data.csv' unless $linkAttributes->{download};
+
+	my $filePath = $PG->surePathToTmpFile('data/' . $PG->getUniqueName('csv') . '.csv');
+
+	Statistics::write_array_to_CSV($filePath, @dataRefs);
+
+	return main::tag('a', href => main::alias($filePath), %$linkAttributes, $linkText);
 }
 
 =head2 Five Point Summary function
