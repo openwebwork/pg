@@ -159,10 +159,10 @@ The equation of the circle given by the equation
 
     [`[$circle_eq_lhs] = [$r ** 2]`]
 
-has center at [`([$h],[$k])`] and radius [$r]. To enter the graph,
-click the circle tool, then click on the center at [`([$h],[$k])`]
-and then click on a second point that is [$r] units from the center.
-This is easiest going left, right, up or down from the center.
+has center at [`([$h],[$k])`] and radius [$r].  To enter the graph, click the
+circle tool, then click on the center at [`([$h],[$k])`] and then click on a
+second point that is [$r] units from the center.  This is easiest going left,
+right, up or down from the center.
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

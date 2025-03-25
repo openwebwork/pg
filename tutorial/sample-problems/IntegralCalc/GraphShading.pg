@@ -33,8 +33,6 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 #: `fill opacity = 0.5`. Also note that one of the sides of the filled area is
 #: the square root function.
 
-Context('Numeric');
-
 $a   = random(-4, 2);
 $b   = random( 1, 4);
 $g   = Compute("$b + sqrt(x - $a)")->reduce;
