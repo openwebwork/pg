@@ -46,13 +46,12 @@ Graph the triangle with vertices [`([$x1], [$y1])`], [`([$x2], [$y2])`], and
 END_PGML
 
 #:% section = solution
-#: The important thing to note is that it is simple to add the correct graph using the
-#: method `generateAnswerGraph` as shown in the solution here.  The PGML directive [ ]*
-#: needs a * for the HTML version to be rendered correctly.
+#: To show the graph with alternate text we use the PGML image construct
+#: `[!  !]{$gt}`, where the alternate text is placed within the `[! !]`.
 BEGIN_PGML_SOLUTION
 The correct answer is
 
-[$gt->generateAnswerGraph]*
+[!A graph of the triangle with vertices ([$x1], [$y1]), ([$x2],[$y2]) and ([$x3],[$y3])!]{$gt}
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

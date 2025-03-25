@@ -24,10 +24,9 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: This problem first finds two points with unequal x-values and unequal y-values.
-#: Below we will ask to drap the line segment between these two and add the correct answer
+#: This problem first finds two unique points.
+#: Below we will ask to graph the line segment between these two and add the correct answer
 #: `{ segment, solid, ($sx1, $sy1), ($sx2, $sy2) }` creates this line segment as a solid line.
-#:
 #:
 #: The line segment must have the given the endpoints.
 #:
@@ -53,13 +52,12 @@ Graph the line segment between the points [`([$sx1], [$sy1])`] and
 END_PGML
 
 #:% section = solution
-#: The important thing to note is that it is simple to add the correct graph using the
-#: method `generateAnswerGraph` as shown in the solution here.  The PGML directive [ ]*
-#: needs a * for the graph tool to be rendered correctly.
+#: To show the graph with alternate text we use the PGML image construct
+#: `[!  !]{$gt}`, where the alternate text is placed within the `[! !]`.
 BEGIN_PGML_SOLUTION
 The correct answer is
 
-[$gt->generateAnswerGraph]*
+[!A graph of the line segment from  ([$sx1], [$sy1]) to ([$sx2],[$sy2])!]{$gt}
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

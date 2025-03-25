@@ -51,13 +51,15 @@ Graph the quadrilateral with vertices [`([$x1], [$y1])`], [`([$x2], [$y2])`],
 END_PGML
 
 #:% section = solution
-#: The important thing to note is that it is simple to add the correct graph using the
-#: method `generateAnswerGraph` as shown in the solution here.  The PGML directive [ ]*
-#: needs a * for the HTML version to be rendered correctly.
+#: To show the graph with alternate text we use the PGML image construct
+#: `[!  !]{$gt}`, where the alternate text is placed within the `[! !]`.
+
+$alt_text = "A graph of the quadrilateral with vertices ($x1, $y1), ($x2,$y2), "
+    . "($x3, $y3),and ($x4, $y4)";
 BEGIN_PGML_SOLUTION
 The correct answer is
 
-[$gt->generateAnswerGraph]*
+[![$alt_text]!]{$gt}
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

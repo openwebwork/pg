@@ -33,7 +33,7 @@ loadMacros(
 #: `map` function. If you want a non uniform distribution, you can create a different
 #: range of random numbers for each grade level.
 #:
-#: Make sure that alt text is added to all graph for accessibility. Be detailed.
+#: Make sure that an alternate text is added to all graphs for accessibility. Be detailed.
 
 Context('Percent');
 
@@ -78,7 +78,7 @@ $num_students += $_ for @grades;
 $perA = Real($grades[0] / $num_students);
 
 #:% section = statement
-#: Int this case, we plot the bar graph and ask a question.
+#: In this case, we plot the bar graph and ask a question.
 #: Since the context is 'Percent', the students can
 #: answer the question with either a fraction, decimal or percent.
 BEGIN_PGML

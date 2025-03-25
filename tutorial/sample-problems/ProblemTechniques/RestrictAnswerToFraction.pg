@@ -13,6 +13,7 @@
 
 #:% name = Restrict Answers to a Fraction
 #:% type = [technique, sample]
+#:% category = [answer]
 #:% subject = [algebra, precalculus]
 #:% see_also = [RestrictingFunctions.pg]
 

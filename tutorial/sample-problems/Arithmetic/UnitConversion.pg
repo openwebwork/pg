@@ -38,8 +38,9 @@ $vol_cups = $vol->toUnits('cup');
 
 Context('Units')->withUnitsFor('length', 'time');
 
-$s     = random(22, 110, 11);
-$speed = Compute("$s ft/s");
+$s         = random(22, 110, 11);
+$speed     = Compute("$s ft/s");
+$speed_mph = $speed->toUnits('mi/h');
 
 #:% section = statement
 #: The `->toUnits` method converts the given number with units to the requested unit.  The
@@ -49,20 +50,29 @@ $speed = Compute("$s ft/s");
 BEGIN_PGML
 Perform the following unit conversions:
 
-a) Convert [$vol] to cups.  You may use [`1\;\text{L} = 1000\;\text{ml}`], [`1\;\text{qt} =  0.9464\;\text{L}`] and [`1\;\text{qt}=4\;\text{cups}`].
+a) Convert [$vol] to cups.  You may use [`1\;\text{l} = 1000\;\text{ml}`], [`1\;\text{qt} =  0.9464\;\text{l}`] and [`1\;\text{qt}=4\;\text{cups}`].
 
     Answer: [_]{$vol_cups->with(sameUnits => 1)}
 
-b) Convert [$s] to miles per hour.  Recall that [`1\;\text{mile}=5280\;\text{feet}`].
+b) Convert [$speed] to miles per hour.  Recall that [`1\;\text{mile}=5280\;\text{feet}`].
 
-    Answer: [_]{$speed->toUnits('mi/h')->with(sameUnits => 1)}
+    Answer: [_]{$speed_mph->with(sameUnits => 1)}
 
 Note: use units in all answers. [@ helpLink('units') @]*
 END_PGML
 
 #:% section = solution
 BEGIN_PGML_SOLUTION
-[$vol->toUnits('cups')]
+Using dimensional analysis:
+
+a) [```
+[$vol] \cdot \frac{1\;\text{l}}{1000\;\text{ml}} \cdot \frac{1\;\text{qt}}{0.9464\;\text{l}}
+\cdot \frac{4\;\text{cups}}{1\;\text{qt}} = [$vol_cups]
+```]
+
+b) [```
+[$speed] \cdot \frac{1\;\text{mile}}{5280\;\text{ft}} \cdot \frac{3600\;\text{sec}}{1\;\text{hr}} = [$speed_mph] 
+```]
 END_PGML_SOLUTION
 
 ENDDOCUMENT();
