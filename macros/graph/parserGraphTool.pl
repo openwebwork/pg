@@ -430,13 +430,13 @@ direction but different initial points to be different vectors.  Otherwise two v
 the same magnitude and direction will be considered equal. This option only has effect when a
 C<vector> is part of the answer, and the C<VectorTool> is used.
 
-=item useFloodFill (Default: C<< useFloodFill => 1 >>)
+=item useFloodFill (Default: C<< useFloodFill => 0 >>)
 
-If set to the default value of 1, then a flood fill algorithm is used for filling regions. The
-flood fill algorithm fills from the selected point outward and stops at boundaries created by
-the graphed objects. The alternate fill that is used if C<useFloodFill> is 0 is an inequality
-fill. It shades all points that satisfy the same inequalities relative to the graphed objects.
-The inequality fill algorithm is highly efficient and more reliable, but does not work well and
+If set to 1, then a flood fill algorithm is used for filling regions. The flood fill algorithm
+fills from the selected point outward and stops at boundaries created by the graphed objects.
+The alternate fill that is used if C<useFloodFill> is 0 (the default) is an inequality fill. It
+shades all points that satisfy the same inequalities relative to the graphed objects.  The
+inequality fill algorithm is highly efficient and more reliable, but does not work well and
 doesn't even make sense with some graph objects. For example, it is quite counter intuitive for
 quadrilaterals, triangles, line segments and vectors.
 
@@ -593,7 +593,7 @@ sub new {
 		numberLine           => 0,
 		useBracketEnds       => 0,
 		vectorsArePositional => 0,
-		useFloodFill         => 1,
+		useFloodFill         => 0,
 		unitX                => ($fillResolution - 1) / 20,
 		unitY                => ($fillResolution - 1) / 20,
 		availableTools       =>
