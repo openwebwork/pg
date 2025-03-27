@@ -15,7 +15,8 @@
 
 #:% section = preamble
 #: The PODLINK('PGtikz.pl') macro provides the graphing methods we will use
-#: in this problem and PODLINK('contextPercent.pl') will be to provide the Percent context.
+#: in this problem and PODLINK('contextPercent.pl') will be to provide the
+#: Percent context.
 DOCUMENT();
 
 loadMacros(
@@ -25,15 +26,18 @@ loadMacros(
 );
 
 #:% section = setup
-#: First, we're going to use the 'Percent' context to allow students to enter percents.
+#: First, we're going to use the 'Percent' context to allow students to enter
+#: percents.
 
 #: The graph is created dynamically. The axes are created with the given labels.
-#: Extending the number of bars or the height of the bars should be similar to this code.
-#: The heights of the bars are the grades which are generated randomly with the perl
-#: `map` function. If you want a non uniform distribution, you can create a different
-#: range of random numbers for each grade level.
+#: Extending the number of bars or the height of the bars should be similar to
+#: this code. The heights of the bars are the grades which are generated
+#: randomly with the perl `map` function. If you want a non uniform
+#: distribution, you can create a different range of random numbers for each
+#: grade level.
 #:
-#: Make sure that an alternate text is added to all graphs for accessibility. Be detailed.
+#: Make sure that an alternate text is added to all graphs for accessibility. Be
+#: detailed.
 
 Context('Percent');
 
@@ -67,7 +71,7 @@ END_TIKZ
 
 $alt_text =
     "A bar graph with vertical bars.  The height of the bar labelled A "
-    . "is $grades[0]. The height of the bar labelled B is $grades[1].  The height of the bar "
+    . "is $grades[0]. The height of the bar labelled B is $grades[1].  "
     . " The height of the bar labelled C is $grades[2] and finally the "
     . "bar labelled D is $grades[3].";
 
@@ -90,8 +94,8 @@ END_PGML
 
 #:% section = solution
 BEGIN_PGML_SOLUTION
-The total number of students that took the quiz is [$total] so the percentage is the number
-of A students or [`[$grades[0]]/[$num_students] = [$perA] `]
+The total number of students that took the quiz is [$total] so the percentage is
+the number of A students or [`[$grades[0]]/[$num_students] = [$perA] `]
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

@@ -37,8 +37,8 @@ $gt = GraphTool("{vector, solid, (0, 0), ($vx1, $vy1)}")
     ->with(availableTools => [ 'VectorTool', 'FillTool', 'SolidDashTool' ]);
 
 #:% section = statement
-#: First, ask the question with the given vector.  Then add the `[_]{$gt}` to produce
-#: the graph tool within the problem.
+#: First, ask the question with the given vector.  Then add the `[_]{$gt}` to
+#: produce the graph tool within the problem.
 BEGIN_PGML
 Graph the vector [`\langle[$vx1], [$vy1]\rangle`].
 

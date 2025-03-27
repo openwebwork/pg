@@ -26,9 +26,9 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: First, we use the Units context from the PODLINK('contextUnits.pl') macro. This is
-#: related to the 'Numeric' context with the ability to handle units. The first question
-#: involves volume units so we set that.
+#: First, we use the Units context from the PODLINK('contextUnits.pl') macro.
+#: This is related to the 'Numeric' context with the ability to handle units.
+#: The first question involves volume units so we set that.
 #:
 Context('Units')->withUnitsFor('volume');
 
@@ -43,18 +43,21 @@ $speed     = Compute("$s ft/s");
 $speed_mph = $speed->toUnits('mi/h');
 
 #:% section = statement
-#: The `->toUnits` method converts the given number with units to the requested unit.  The
-#: `with(sameUnits =>1)` means that the student answer must be in the same units.
-#: Don't forget to use `helpLink('units')` so your students will have access to the
-#: complete list of units that WeBWorK understands.
+#: The `->toUnits` method converts the given number with units to the
+#: requested unit.  The `with(sameUnits =>1)` means that the student answer must
+#: be in the same units.  Don't forget to use `helpLink('units')` so your
+#: students will have access to the complete list of units that WeBWorK
+#: understands.
 BEGIN_PGML
 Perform the following unit conversions:
 
-a) Convert [$vol] to cups.  You may use [`1\;\text{l} = 1000\;\text{ml}`], [`1\;\text{qt} =  0.9464\;\text{l}`] and [`1\;\text{qt}=4\;\text{cups}`].
+a) Convert [$vol] to cups.  You may use [`1\;\text{l} = 1000\;\text{ml}`],
+[`1\;\text{qt} =  0.9464\;\text{l}`] and [`1\;\text{qt}=4\;\text{cups}`].
 
     Answer: [_]{$vol_cups->with(sameUnits => 1)}
 
-b) Convert [$speed] to miles per hour.  Recall that [`1\;\text{mile}=5280\;\text{feet}`].
+b) Convert [$speed] to miles per hour.  Recall that
+[`1\;\text{mile}=5280\;\text{feet}`].
 
     Answer: [_]{$speed_mph->with(sameUnits => 1)}
 
@@ -66,12 +69,14 @@ BEGIN_PGML_SOLUTION
 Using dimensional analysis:
 
 a) [```
-[$vol] \cdot \frac{1\;\text{l}}{1000\;\text{ml}} \cdot \frac{1\;\text{qt}}{0.9464\;\text{l}}
+[$vol] \cdot \frac{1\;\text{l}}{1000\;\text{ml}}
+\cdot \frac{1\;\text{qt}}{0.9464\;\text{l}}
 \cdot \frac{4\;\text{cups}}{1\;\text{qt}} = [$vol_cups]
 ```]
 
 b) [```
-[$speed] \cdot \frac{1\;\text{mile}}{5280\;\text{ft}} \cdot \frac{3600\;\text{sec}}{1\;\text{hr}} = [$speed_mph] 
+[$speed] \cdot \frac{1\;\text{mile}}{5280\;\text{ft}}
+\cdot \frac{3600\;\text{sec}}{1\;\text{hr}} = [$speed_mph]
 ```]
 END_PGML_SOLUTION
 
