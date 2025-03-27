@@ -25,14 +25,15 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: This problem first finds two unique points.
-#: Below we will ask to graph the line segment between these two and add the correct answer
-#: `{ segment, solid, ($sx1, $sy1), ($sx2, $sy2) }` creates this line segment as a solid line.
+#: Below we will ask to graph the line segment between these two and add the
+#: correct answer `{ segment, solid, ($sx1, $sy1), ($sx2, $sy2) }` creates this
+#: line segment as a solid line.
 #:
 #: The line segment must have the given the endpoints.
 #:
-#: Mulitple line segments can be added to the graph tool, but note that there is a
-#: Triangle Graph Tool, PROBLINK('TriangleGraphTool.pg') and a Quadrilateral Graph too,
-#: PROBLINK('QuadrilateralGraphTool.pg') as well.
+#: Mulitple line segments can be added to the graph tool, but note that there is
+#: a Triangle Graph Tool, PROBLINK('TriangleGraphTool.pg') and a Quadrilateral
+#: Graph too, PROBLINK('QuadrilateralGraphTool.pg') as well.
 $sx1 = random(-8, 8);
 $sy1 = random(-8, 8);
 do { $sx2 = random(-8, 8); $sy2 = random(-8, 8); }
@@ -42,8 +43,8 @@ $gt = GraphTool("{segment, solid, ($sx1, $sy1), ($sx2, $sy2)}",)
     ->with(availableTools => [ 'SegmentTool', 'FillTool', 'SolidDashTool' ]);
 
 #:% section = statement
-#: First, ask the question with the given points.  Then add the `[_]{$gt}` to produce
-#: the graph tool within the problem.
+#: First, ask the question with the given points.  Then add the `[_]{$gt}` to
+#: produce the graph tool within the problem.
 BEGIN_PGML
 Graph the line segment between the points [`([$sx1], [$sy1])`] and
 [`([$sx2], [$sy2])`].

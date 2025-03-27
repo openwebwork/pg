@@ -27,8 +27,8 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: First, we will set the variable for the functions in the problem to be t.
-#: Since there is a variable of t, we will assign it to be "seconds".
+#: First, set the variable for the functions in the problem to be t,
+#: and assign the units "seconds" to it.
 #:
 #: Use the differentiation operator `->D('t')` to compute the derivated, and the
 #: evaluation method `->eval()` to evaluate it as a function. All of these will

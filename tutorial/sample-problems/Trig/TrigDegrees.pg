@@ -18,8 +18,8 @@
 
 #:% section = preamble
 #: Load the PODLINK('contextTrigDegrees.pl') macro for the `TrigDegrees`
-#: context. Also load the PODLINK('contextUnits.pl') which will require that the answer
-#: has units of degrees.
+#: context. Also load the PODLINK('contextUnits.pl') which will require that the
+#: answer has units of degrees.
 DOCUMENT();
 
 loadMacros(

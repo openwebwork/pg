@@ -56,7 +56,8 @@ $c = random(4,  8,  2);
 #: conjugation of "to do".
 #:
 #: Note: when writing problems using randomPerson in the Problem Editor, use the
-#: "Randomize Seed" button to ensure that the proper pronouns are used for all pronouns.
+#: "Randomize Seed" button to ensure that the proper pronouns are used for all
+#: pronouns.
 BEGIN_PGML
 [$p1] has a ribbon of length [$n] cm.  [$p1->They] [$p1->verb('cut')]
 [$c] cm off the ribbon and [$p1->verb('give')] the piece to [$p1->their]
