@@ -650,7 +650,7 @@ sub mult {
 		return $result;
 	}
 
-	# Promote degree 1 Matrix to degree 2, as row or column depending on side
+	# Promote degree 1 Matrix to degree 2, as row or column depending on size
 	# Later restore result to degree 1 if appropriate
 	my $l1 = scalar(@dl) == 1;
 	my $r1 = scalar(@dr) == 1;
