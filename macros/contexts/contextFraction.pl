@@ -1022,7 +1022,7 @@ sub compare {
 		return $l <=> $r;
 	}
 	if ($other->classMatch("Infinity")) {
-		return $other->{isNegative} ? 1 : -1;
+		return ($flag ? -1 : 1) * ($other->{isNegative} ? 1 : -1);
 	}
 	$self->Error("You can't compare %s to %s", $self->showClass, $other->showClass);
 }
