@@ -418,9 +418,7 @@ sub isOne {
 		}
 	} else {
 		for my $row (@{ $self->{data} }) {
-			if (!$row->isOne) {
-				return 0;
-			}
+			return 0 unless $row->isOne;
 		}
 	}
 	return 1;
@@ -470,9 +468,7 @@ sub isUpperTriangular {
 		}
 	} else {
 		for my $row (@{ $self->{data} }) {
-			if (!$row->isUpperTriangular) {
-				return 0;
-			}
+			return 0 unless $row->isUpperTriangular;
 		}
 	}
 	return 1;
@@ -499,9 +495,7 @@ sub isLowerTriangular {
 		}
 	} else {
 		for my $row (@{ $self->{data} }) {
-			if (!$row->isLowerTriangular) {
-				return 0;
-			}
+			return 0 unless $row->isLowerTriangular;
 		}
 	}
 	return 1;
@@ -537,9 +531,7 @@ sub isSymmetric {
 		}
 	} else {
 		for my $row (@{ $self->{data} }) {
-			if (!$row->isSymmetric) {
-				return 0;
-			}
+			return 0 unless $row->isSymmetric;
 		}
 	}
 	return 1;
@@ -588,15 +580,13 @@ sub isREF {
 		}
 	} else {
 		for my $row (@{ $self->{data} }) {
-			if (!$row->isREF) {
-				return 0;
-			}
+			return 0 unless $row->isREF;
 		}
 	}
 	return 1;
 }
 
-=head3 C<isREF>
+=head3 C<isRREF>
 
 Check if a Matrix is in reduced row echelon form (for degree > 2, applies to frontal slice matrices)
 
@@ -631,9 +621,7 @@ sub isRREF {
 		}
 	} else {
 		for my $row (@{ $self->{data} }) {
-			if (!$row->isRREF) {
-				return 0;
-			}
+			return 0 unless $row->isREF;
 		}
 	}
 	return 1;
