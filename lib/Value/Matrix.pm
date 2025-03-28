@@ -307,7 +307,7 @@ returns C<(2,2,2)>
 
 #
 #  Recursively get the dimensions of the matrix.
-#  Returns (d_1,d_2,...,d_n) for an degree n Matrix.
+#  Returns (d_1,d_2,...,d_n) for a degree n Matrix.
 #
 sub dimensions {
 	my $self = shift;
@@ -359,8 +359,8 @@ Usage:
 sub isSquare {
 	my $self = shift;
 	my @d    = $self->dimensions;
-	if (scalar(@d) == 1) { return $d[0] == 1 }
-	return ($d[-1] == $d[-2]);
+	return $d[0] == 1 if scalar(@d) == 1;
+	return $d[-1] == $d[-2];
 }
 
 =head3 C<isRow>
@@ -798,7 +798,7 @@ sub transpose {
 
 =head3 C<I>
 
-Get a identity Matrix of the requested size
+Get an identity Matrix of the requested size
 
     Value::Matrix->I(n)
 
@@ -1209,7 +1209,7 @@ sub det {
 sub inverse {
 	my $self = shift;
 	my @d    = $self->dimensions;
-	my @M    = ();
+	my @M;
 	for my $i (0 .. $d[0] - 1) {
 		if (scalar(@d) == 2) {
 			$self->wwMatrixLR;
