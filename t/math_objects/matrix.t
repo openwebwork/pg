@@ -15,18 +15,18 @@ loadMacros('MathObjects.pl');
 
 Context('Matrix');
 use Data::Dumper;
-subtest 'Creating degree 1 matrices (row vector)' => sub {
+subtest 'Creating a degree 1 Matrix (row vector)' => sub {
 	ok my $M1 = Matrix(1, 2, 3), 'Create a row vector';
 	is $M1->class, 'Matrix', 'M1 is a Matrix';
 	my $M2 = Compute('[1,2,3]');
 	is $M2->class,     'Matrix',    'Creation using Compute results in a Matrix.';
-	is [ $M1->value ], [ 1, 2, 3 ], 'M1 is the row matrix [1,23]';
-	is [ $M2->value ], [ 1, 2, 3 ], 'M2 is the row matrix [1,23]';
+	is [ $M1->value ], [ 1, 2, 3 ], 'M1 is the row matrix [1,2,3]';
+	is [ $M2->value ], [ 1, 2, 3 ], 'M2 is the row matrix [1,2,3]';
 	is $M1->degree,    1,           'M1 is a degree 1 matrix.';
 	is $M2->degree,    1,           'M2 is a degree 1 matrix.';
 };
 
-subtest 'Creating Matrices' => sub {
+subtest 'Creating a degree 2 Matrix' => sub {
 	my $values = [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ];
 	my $A      = Matrix($values);
 	is $A->class,     'Matrix', 'Input as array ref is a Matrix.';
@@ -39,7 +39,7 @@ subtest 'Creating Matrices' => sub {
 	is $C->degree, 2,        'C is a degree 2 matrix.';
 };
 
-subtest 'Creating Tensors (degree 3)' => sub {
+subtest 'Creating a degree 3 Matrix (tensor)' => sub {
 	my $values = [ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ];
 	ok my $M3 = Matrix([ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ]), 'Creation of a tensor';
 	is $M3->class, 'Matrix', 'Checking the result is a Matrix';
@@ -48,7 +48,7 @@ subtest 'Creating Tensors (degree 3)' => sub {
 	is $M3->degree, 3, 'M3 is a degree 3 matrix.';
 };
 
-subtest 'Matrix Dimensions' => sub {
+subtest 'Get dimensions' => sub {
 	my $A       = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
 	my $B       = Matrix([ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ] ]);
 	my $C       = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
@@ -63,30 +63,48 @@ subtest 'Matrix Dimensions' => sub {
 	is \@dimsRow, [4],         'The dimensions of a row vector are correct.';
 };
 
-subtest 'isSquare and isOne' => sub {
-	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
-	my $B = Matrix([ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ] ]);
-	ok !$A->isSquare, 'The matrix A is not square.';
-	ok $B->isSquare,  'The matrix B is square.';
+subtest 'Use isSquare, isOne, and isRow methods' => sub {
+	my $A1 = Matrix([ 1, 2, 3, 4 ]);
+	my $B1 = Matrix([1]);
+	my $C1 = Matrix([2]);
+	ok !$A1->isSquare, 'The matrix A1 is not square.';
+	ok $B1->isSquare,  'The matrix B1 is square.';
+	ok $C1->isSquare,  'The matrix C1 is square.';
+	ok !$A1->isOne,    'The matrix A1 is not an identity.';
+	ok $B1->isOne,     'The matrix B1 is an identity.';
+	ok !$C1->isOne,    'The matrix C1 is not an identity.';
+	ok $A1->isRow,     'The matrix A1 is a row.';
+	ok $B1->isRow,     'The matrix B1 is a row.';
+	ok $C1->isRow,     'The matrix C1 is a row.';
 
-	my $row_vect = Matrix([ 1, 2, 3, 4 ]);
-	ok $row_vect->isRow, 'The matrix [[1,2,3,4]] is a row vector.';
-	ok !$A->isRow,       'The matrix A is not a row vector.';
+	my $A2 = Matrix([ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ]);
+	my $B2 = Matrix([ 1, 0 ], [ 0, 1 ]);
+	my $C2 = Matrix([ 2, 0 ], [ 1, 2 ]);
+	ok !$A2->isSquare, 'The matrix A2 is not square.';
+	ok $B2->isSquare,  'The matrix B2 is square.';
+	ok $C2->isSquare,  'The matrix C2 is square.';
+	ok !$A2->isOne,    'The matrix A2 is not an identity.';
+	ok $B2->isOne,     'The matrix B2 is an identity.';
+	ok !$C2->isOne,    'The matrix C2 is not an identity.';
+	ok !$A2->isRow,    'The matrix A2 is not a row.';
+	ok !$B2->isRow,    'The matrix B2 is not a row.';
+	ok !$C2->isRow,    'The matrix C2 is not a row.';
 
-	ok !$A->isOne, 'The matrix A is not an identity matrix.';
-	ok $B->isOne,  'The matrix B is an identity matrix.';
-
-	# tensors (degree 3)
-	my $D = Matrix([ [ [ 1, 0 ], [ 0, 1 ] ], [ [ 1, 0 ], [ 0, 1 ] ] ]);
-	my $E = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ] ]);
-	my $F = Matrix([ [ [ 1, 2 ] ], [ [ 3, 4 ] ] ]);
-	ok $D->isOne,     "The tensor D's last two dimensions is an identity";
-	ok !$E->isOne,    "The tensor E's last two dimensions is not an identity";
-	ok $E->isSquare,  'The tensor E is square.';
-	ok !$F->isSquare, 'The tensor F is not square.';
+	my $A3 = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ], [ [ 7, 8, 9 ], [ 10, 11, 12 ] ]);
+	my $B3 = Matrix([ [ 1, 0 ], [ 0, 1 ] ], [ [ 1, 0 ], [ 0, 1 ] ]);
+	my $C3 = Matrix([ [ 2, 0 ], [ 0, 1 ] ], [ [ 1, 0 ], [ 0, 1 ] ]);
+	ok !$A3->isSquare, 'The matrix A3 is not square.';
+	ok $B3->isSquare,  'The matrix B3 is square.';
+	ok $C3->isSquare,  'The matrix C3 is square.';
+	ok !$A3->isOne,    'The matrix A3 is not an identity.';
+	ok $B3->isOne,     'The matrix B3 is an identity.';
+	ok !$C3->isOne,    'The matrix C3 is not an identity.';
+	ok !$A3->isRow,    'The matrix A3 is not a row.';
+	ok !$B3->isRow,    'The matrix B3 is not a row.';
+	ok !$C3->isRow,    'The matrix C3 is not a row.';
 };
 
-subtest 'Triangular Matrices' => sub {
+subtest 'Use tests for triangular matrices' => sub {
 	my $A1 = Matrix([ [ 1, 2, 3, 4 ], [ 0, 6, 7, 8 ], [ 0, 0,  11, 12 ], [ 0,  0,  0,  16 ] ]);
 	my $A2 = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ] ]);
 	ok $A1->isUpperTriangular,  'test for upper triangular matrix';
@@ -98,14 +116,14 @@ subtest 'Triangular Matrices' => sub {
 
 };
 
-subtest 'Transpose' => sub {
+subtest 'Transpose a Matrix' => sub {
 	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
 	my $B = Matrix([ [ 1, 5, 9 ], [ 2, 6, 10 ], [ 3, 7, 11 ], [ 4, 8, 12 ] ]);
 	is $A->transpose->TeX, $B->TeX, 'Test the tranpose of a matrix.';
 
 	my $row       = Matrix([ 1, 2, 3, 4 ]);
 	my $row_trans = Matrix([ [1], [2], [3], [4] ]);
-	is $row->transpose->TeX, $row_trans->TeX, 'Transpose of a Matrix with one row.';
+	is $row->transpose->TeX, $row_trans->TeX, 'Transpose of a degree 1 Matrix.';
 
 	my $C = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
 	like dies {
@@ -118,10 +136,10 @@ subtest 'Extract an element' => sub {
 	my $B   = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
 	my $row = Matrix([ 1, 2, 3, 4 ]);
 
-	is $A->element(1, 1),    1,  'extract an element from a 2D matrix.';
-	is $A->element(3, 2),    10, 'extract an element from a 2D matrix.';
-	is $B->element(1, 2, 1), 3,  'extract an element from a 3D matrix.';
-	is $row->element(2),     2,  'extract an element from a row matrix';
+	is $A->element(1, 1),    1,  'extract an element from a degree 2 matrix.';
+	is $A->element(3, 2),    10, 'extract an element from a degree 2 matrix.';
+	is $B->element(1, 2, 1), 3,  'extract an element from a degree 3 matrix.';
+	is $row->element(2),     2,  'extract an element from a degree 1 matrix.';
 };
 
 subtest 'Extract a column' => sub {
@@ -134,7 +152,7 @@ subtest 'Extract a column' => sub {
 	}, qr/Column must be a positive integer/, 'Test that an error is thrown for passing a non-positive integer.';
 };
 
-subtest 'Identity matrix' => sub {
+subtest 'Construct an identity matrix' => sub {
 	my $I = Value::Matrix->I(3);
 	my $B = Matrix([ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ] ]);
 	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
@@ -143,7 +161,7 @@ subtest 'Identity matrix' => sub {
 	is $A->I->TeX, $B->TeX, 'Create a 3 x 3 identity matrix by using an existing matrix.';
 };
 
-subtest 'Permutation matrices' => sub {
+subtest 'Construct a permutation matrix' => sub {
 	my $P1 = Value::Matrix->P(3, [ 1, 2, 3 ]);
 	is $P1->TeX, Matrix([ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ])->TeX, 'Create permuation matrix on cycle (123)';
 
@@ -165,7 +183,7 @@ subtest 'Permutation matrices' => sub {
 		'Create a permutation matrix based on an existing matrix.';
 };
 
-subtest 'Zero matrix' => sub {
+subtest 'Construct a zero matrix' => sub {
 	my $Z1 = Matrix([ [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ] ]);
 	my $Z2 = Matrix([ [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ], [ 0, 0, 0, 0 ] ]);
 	is Value::Matrix->Zero(3, 4)->TeX, $Z1->TeX, 'Create a 3 by 4 zero matrix.';
@@ -179,7 +197,7 @@ subtest 'Zero matrix' => sub {
 	}, qr/Dimension must be a positive integer/, 'Test that an error is thrown for passing a non-positive integer.';
 };
 
-subtest 'Add Matrices' => sub {
+subtest 'Add matrices' => sub {
 	my $row1 = Matrix(1, 2, 3);
 	my $row2 = Matrix(4, 5, 6);
 	my $sum1 = Matrix(5, 7, 9);
@@ -209,7 +227,7 @@ subtest 'Add Matrices' => sub {
 		'Test that adding tensors of different dimsensions throws an error.';
 };
 
-subtest 'Subtract Matrices' => sub {
+subtest 'Subtract matrices' => sub {
 	my $row1  = Matrix( 1,  2,  3);
 	my $row2  = Matrix( 4,  5,  6);
 	my $diff1 = Matrix(-3, -3, -3);
@@ -239,7 +257,7 @@ subtest 'Subtract Matrices' => sub {
 		'Test that subtracting tensors of different dimsensions throws an error.';
 };
 
-subtest 'Multiply Matrices' => sub {
+subtest 'Multiply matrices' => sub {
 
 	my $A     = Matrix([ [ 1, 2, 3 ],   [ 4, 5, 6 ],     [ 7, 8, 9 ] ]);
 	my $B     = Matrix([ [ 0, 1, 0 ],   [ -1, 2, -3 ],   [ -2, -1, 0 ] ]);
@@ -265,27 +283,9 @@ subtest 'Multiply Matrices' => sub {
 	my $v     = Vector(1,  2,  3);
 	my $prod5 = Vector(14, 32, 50);
 	ok $A*$v == $prod5, 'Multiply a 3 by 3 matrix and a vector of length 3';
-
-	#tensors
-	# my $M1 = Matrix([ [ [ 1, 0 ], [ 0, 1 ] ], [ [ 1, 0 ], [ 0, 1 ] ] ]);
-	# my $M2 = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
-	# my $M3 = Matrix([ [ [ 2, 2 ], [ 3, 5 ] ], [ [ 6, 6 ], [ 7, 9 ] ] ]);
-	# ok $M1 + $M2 == $M3, 'Checking the sum of two tensors';
-
-	# my $row3 = Matrix([ 1, 2, 3, 4 ]);
-	# like dies { $row1 + $row3 }, qr/Can't add Matrices with different dimensions/,
-	# 	'Test that adding row matrices of different dimsensions throws an error.';
-
-	# my $C = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ] ]);
-	# like dies { $A + $C }, qr/Can't add Matrices with different dimensions/,
-	# 	'Test that adding matrices of different dimsensions throws an error.';
-
-	# my $M4 = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ] ]);
-	# like dies { $M3 + $M4 }, qr/Can't add Matrices with different dimensions/,
-	# 	'Test that adding tensors of different dimsensions throws an error.';
 };
 
-subtest 'Elementary Matrices' => sub {
+subtest 'Construct an elementary matrix' => sub {
 	my $E1 = Value::Matrix->E(3, [ 1, 3 ]);
 	is $E1->TeX, Matrix([ [ 0, 0, 1 ], [ 0, 1, 0 ], [ 1, 0, 0 ] ])->TeX, 'Elementary Matrix with a row swap';
 
