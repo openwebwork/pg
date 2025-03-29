@@ -83,8 +83,9 @@ Examples:
 
 =head3 Conversion
 
-    $matrix->value produces an array of numbers (for a degree 1 Matrix) or array refs representing the rows.
-    These are perl numbers and array refs, not MathObjects.
+    $matrix->value produces an array of references to nested arrays, except at
+    the deepest level, where there will be the more basic MathObjects that make
+    up the Matrix (e.g. Real, Complex, Fraction, a mix of these, etc)
 
     $M1->value is (1, 2, 3)
     $M2->value is ([1, 2], [3, 4])
