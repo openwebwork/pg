@@ -26,10 +26,16 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: First, we use the Units context from the PODLINK('contextUnits.pl') macro.
+#: The Units context is from the PODLINK('contextUnits.pl') macro.
 #: This is related to the 'Numeric' context with the ability to handle units.
 #: The first question involves volume units so we set that.
 #:
+#: The `->toUnits` method converts the given number with units to the
+#: requested unit.
+#:
+#: The second part below is a different conversion question, so the line
+#: `Context('Units')->withUnitsFor('length', 'time');` resets the contxt with
+#: a new set of units.
 Context('Units')->withUnitsFor('volume');
 
 $v        = random(25, 200, 25);
@@ -43,11 +49,9 @@ $speed     = Compute("$s ft/s");
 $speed_mph = $speed->toUnits('mi/h');
 
 #:% section = statement
-#: The `->toUnits` method converts the given number with units to the
-#: requested unit.  The `with(sameUnits =>1)` means that the student answer must
-#: be in the same units.  Don't forget to use `helpLink('units')` so your
-#: students will have access to the complete list of units that WeBWorK
-#: understands.
+#: The `with(sameUnits =>1)` requires the student answer to be in the same
+#: units.  Use `helpLink('units')` for students to have access to the complete
+#: list of units that WeBWorK understands.
 BEGIN_PGML
 Perform the following unit conversions:
 
