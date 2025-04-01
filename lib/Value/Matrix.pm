@@ -64,17 +64,17 @@ Allows complex entries
 
 =back
 
-=head2 Creation of Matrices
+=head2 Creation of Matrix MathObjects
 
 Examples:
 
-    $M1 = Matrix(1, 2, 3);    # 1D (row vector)
+    $M1 = Matrix(1, 2, 3);    # degree 1 (row vector)
     $M1 = Matrix([1, 2, 3]);
 
-    $M2 = Matrix([1, 2], [3, 4]);    # 2D (matrix)
+    $M2 = Matrix([1, 2], [3, 4]);    # degree 2 (matrix)
     $M2 = Matrix([[1, 2], [3, 4]]);
 
-    $M3 = Matrix([[1, 2], [3, 4]], [[5, 6], [7, 8]]);    # 3D (tensor)
+    $M3 = Matrix([[1, 2], [3, 4]], [[5, 6], [7, 8]]);    # degree 3 (tensor)
     $M3 = Matrix([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]);
 
     $M4 = ...
@@ -83,20 +83,23 @@ Examples:
 
 =head3 Conversion
 
-    $matrix->value produces an array of numbers (for a 1D tensor) or array refs representing the rows.
-    These are perl numbers and array refs, not MathObjects.
+    $matrix->value produces an array of references to nested arrays, except at
+    the deepest level, where there will be the more basic MathObjects that make
+    up the Matrix (e.g. Real, Complex, Fraction, a mix of these, etc)
 
     $M1->value is (1, 2, 3)
     $M2->value is ([1, 2], [3, 4])
     $M3->value is ([[1, 2], [3, 4]], [[5, 6], [7, 8]])
 
     $matrix->wwMatrix produces CPAN MatrixReal1 matrix, used for computation subroutines and can only
-    be used on 1D tensors (row vector) or 2D tensors (matrix).
+    be used on a degree 1 or degree 2 Matrix.
 
 =head3 Information
 
-    $matrix->dimensions produces an array. For an n-dimensional tensor, the array has n entries for
+    $matrix->dimensions produces an array. For an n-degree Matrix, the array has n entries for
     the n dimensions.
+
+    $matrix->degree returns the degree of the Matrix (the depth of the nested array).
 
 =head3 Access values
 
@@ -305,7 +308,7 @@ returns C<(2,2,2)>
 
 #
 #  Recursively get the dimensions of the matrix.
-#  Returns (d_1,d_2,...,d_n) for an nD matrix.
+#  Returns (d_1,d_2,...,d_n) for a degree n Matrix.
 #
 sub dimensions {
 	my $self = shift;
@@ -313,6 +316,13 @@ sub dimensions {
 	my $v    = $self->data;
 	return ($r,) unless Value::classMatch($v->[0], 'Matrix');
 	return ($r, $v->[0]->dimensions);
+}
+
+sub degree {
+	my $self = shift;
+	my $v    = $self->data;
+	return 1 unless Value::classMatch($v->[0], 'Matrix');
+	return 1 + $v->[0]->degree;
 }
 
 #
@@ -327,24 +337,31 @@ sub typeRef {
 
 =head3 C<isSquare>
 
-Return true is the matrix is 1D of length 1 or 2D and square, false otherwise
+Return true if the Matrix is degree 1 of length 1 or its last two dimensions are equal, false otherwise
 
 Usage:
 
-    $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
-    $B = Matrix([ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ] ]);
+    $A = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]);
+    $B = Matrix([ [ 1, 0, 0 ], [ 0, 1, 0 ] ]);
+    $C = Matrix(1);
+    $D = Matrix(1, 2);
+    $E = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ] ]);
+    $F = Matrix([ [ [ 1, 2 ] ], [ [ 3, 4 ] ] ]);
 
-    $A->isSquare; # is '' (false)
-    $B->isSquare; # is 1 (true);
+    $A->isSquare; # is 1  (true)  because it is a 3x3 matrix
+    $B->isSquare; # is '' (false) because it is a 2x3 matrix
+    $C->isSquare; # is 1  (true)  because it is a degree 1 matrix of length 1
+    $D->isSquare; # is '' (false) because it is a degree 1 matrix of length 2
+    $E->isSquare; # is 1  (true)  because it is a 1x2x2 tensor
+    $F->isSquare; # is '' (false) because it is a 2x1x2 tensor
 
 =cut
 
 sub isSquare {
 	my $self = shift;
 	my @d    = $self->dimensions;
-	return 1 if scalar(@d) == 1 && $d[0] == 1;
-	return 0 if scalar(@d) != 2;
-	return $d[0] == $d[1];
+	return $d[0] == 1 if scalar(@d) == 1;
+	return $d[-1] == $d[-2];
 }
 
 =head3 C<isRow>
@@ -369,7 +386,7 @@ sub isRow {
 
 =head3 C<isOne>
 
-Check for identity matrix.
+Check for identity Matrix (for degree > 2, this means the last two dimensions hold identity matrices)
 
 Usage:
 
@@ -379,19 +396,33 @@ Usage:
     $B = Matrix([ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ] ]);
     $B->isOne; # is true;
 
+    $C = Matrix(1);
+    $C->isOne; # is true
+
+    $D = Matrix([ [ [ 1, 0 ], [ 0, 1 ] ], [ [ 1, 0 ], [ 0, 1 ] ] ]);
+    $D->isOne; # is true
+
 =cut
 
 sub isOne {
 	my $self = shift;
 	return 0 unless $self->isSquare;
-	my $i = 0;
-	for my $row (@{ $self->{data} }) {
-		my $j = 0;
-		for my $k (@{ $row->{data} }) {
-			return 0 unless $k eq (($i == $j) ? "1" : "0");
-			$j++;
+	if ($self->degree <= 2) {
+		my $i = 0;
+		for my $row (@{ $self->{data} }) {
+			my $j = 0;
+			for my $k (@{ $row->{data} }) {
+				return 0 unless $k eq (($i == $j) ? "1" : "0");
+				$j++;
+			}
+			$i++;
 		}
-		$i++;
+	} else {
+		for my $row (@{ $self->{data} }) {
+			if (!$row->isOne) {
+				return 0;
+			}
+		}
 	}
 	return 1;
 }
@@ -597,36 +628,73 @@ sub mult {
 		return $self->make(@coords);
 	}
 
-	#  Make points and vectors into columns if they are on the right.
-	$r = !$flag && Value::classMatch($r, 'Point', 'Vector') ? ($self->promote($r))->transpose : $self->promote($r);
+	# Special case if $r is a Point or Vector and if $l is a degree 2 Matrix,
+	# we promote $r to a degree 1 Matrix and later restore the product to be Point or Vector
+	$r =
+		!$flag
+		&& Value::classMatch($r, 'Point', 'Vector')
+		&& $l->degree == 2 ? ($self->promote($r))->transpose : $self->promote($r);
 
-	if   (!$flag && Value::classMatch($r, 'Point', 'Vector')) { $r = ($self->promote($r))->transpose }
-	else                                                      { $r = $self->promote($r) }
-	#
-	if ($flag) { my $tmp = $l; $l = $r; $r = $tmp }
+	if ($flag) { ($l, $r) = ($r, $l) }
 	my @dl = $l->dimensions;
 	my @dr = $r->dimensions;
-	if (scalar(@dl) == 1) { @dl = (1, @dl); $l = $self->make($l) }
-	if (scalar(@dr) == 1) { @dr = (@dr, 1); $r = $self->make($r)->transpose }
-	Value::Error("Can only multiply 2-dimensional matrices") if scalar(@dl) > 2 || scalar(@dr) > 2;
-	Value::Error("Matrices of dimensions %dx%d and %dx%d can't be multiplied", @dl, @dr) unless ($dl[1] == $dr[0]);
+	my @l  = $l->value;
+	my @r  = $r->value;
 
-	#  Perform matrix multiplication.
+	# Special case if $r and $l are both degree 1, perform dot product
+	if (scalar(@dl) == 1 && scalar(@dr) == 1) {
+		Value::Error("Can't multiply degree 1 matrices of different lengths") unless ($dl[0] == $dr[0]);
+		my $result = 0;
+		for my $i (0 .. $dl[0] - 1) {
+			$result += $l[$i] * $r[$i];
+		}
+		return $result;
+	}
 
-	my @l = $l->value;
-	my @r = $r->value;
+	# Promote degree 1 Matrix to degree 2, as row or column depending on size
+	# Later restore result to degree 1 if appropriate
+	my $l1 = scalar(@dl) == 1;
+	my $r1 = scalar(@dr) == 1;
+	if ($l1) { @dl = (1, @dl); $l = $self->make($l); @l = $l->value }
+	if ($r1) { @dr = (@dr, 1); $r = $self->make($r)->transpose; @r = $r->value }
+
+	# Multiplication is only possible when dimensions are Zxmxn and Zxnxk
+	my $bad_dims;
+	if (scalar(@dl) != scalar(@dr)) {
+		$bad_dims = 1;
+	} elsif ($dl[-1] != $dr[-2]) {
+		$bad_dims = 1;
+	} else {
+		for my $i (0 .. scalar(@dl) - 3) {
+			if ($dl[$i] != $dr[$i]) {
+				$bad_dims = 1;
+				last;
+			}
+		}
+	}
+	Value::Error("Matrices of dimensions %s and %s can't be multiplied", join('x', @dl), join('x', @dr)) if $bad_dims;
+
+	# Perform matrix/tensor multiplication.
 	my @M = ();
 	for my $i (0 .. $dl[0] - 1) {
-		my @row = ();
-		for my $j (0 .. $dr[1] - 1) {
-			my $s = 0;
-			for my $k (0 .. $dl[1] - 1) { $s += $l[$i]->[$k] * $r[$k]->[$j] }
-			push(@row, $s);
+		if (scalar(@dl) == 2) {
+			my @row = ();
+			for my $j (0 .. $dr[1] - 1) {
+				my $s = 0;
+				for my $k (0 .. $dl[1] - 1) { $s += $l[$i]->[$k] * $r[$k]->[$j] }
+				push(@row, $s);
+			}
+			push(@M, $self->make(@row));
+		} else {
+			push(@M, $l->data->[$i] * $r->data->[$i]);
 		}
-		push(@M, $self->make(@row));
 	}
 	$self = $self->inherit($other) if Value::isValue($other);
-	return $self->make(@M);
+
+	if ($l1) { return $self->make(@M)->row(1) }
+	if ($r1) { return $self->make(@M)->transpose->row(1) }
+
+	return $other->new($self->make(@M));
 }
 
 sub div {
@@ -653,10 +721,23 @@ sub power {
 		$self->Error("Matrix is not invertible") unless defined($l);
 	}
 	Value::Error("Matrix powers must be non-negative integers") unless _isNumber($r) && $r =~ m/^\d+$/;
-	return $context->Package("Matrix")->I($l->length, $context) if $r == 0;
-	my $M = $l;
-	for my $i (2 .. $r) { $M = $M * $l }
-	return $M;
+	return $l if $r == 1;
+	my @powers = ($l);
+	my @d      = $l->dimensions;
+	my $d      = pop @d;
+	pop @d;
+	my $return = $context->Package("Matrix")->I(\@d, $d);
+	my $p      = $r;
+
+	while ($p) {
+		if ($p % 2) {
+			$p      -= 1;
+			$return *= $powers[-1];
+		}
+		push(@powers, $powers[-1] * $powers[-1]);
+		$p /= 2;
+	}
+	return $return;
 }
 
 #  Do lexicographic comparison (row by row)
@@ -718,31 +799,51 @@ sub transpose {
 
 =head3 C<I>
 
-Get an identity matrix of the requested size
+Get an identity Matrix of the requested size
 
     Value::Matrix->I(n)
 
 Usage:
 
-    Value::Matrix->I(3); # returns a 3 by 3 identity matrix.
-    $A->I; # return an n by n identity matrix, where n is the number of rows of A
+    Value::Matrix->I(3); # returns a 3x3 identity matrix.
+    Value::Matrix->I([2],3);  # returns a 2x3x3 identity Matrix (tensor)
+    Value::Matrix->I([2,4],2);  # returns a 2x4x2x2 identity Matrix (tensor)
+    $A->I; # return an identity matrix of the appropriate degree and dimensions such that I*A = A
 
 =cut
 
 sub I {
-	my $self    = shift;
-	my $d       = shift;
-	my $context = shift || $self->context;
-	$d = ($self->dimensions)[0] if !defined $d && ref($self);
+	my $self = shift;
+	my @d;
+	my $d;
+	my $context;
+	if (ref($self) eq 'Value::Matrix') {
+		@d = $self->dimensions;
+		pop @d unless scalar(@d) == 1;
+		$d       = pop @d;
+		$context = $self->context;
+	} else {
+		$d = shift;    # array ref, or number
+		if (ref($d) eq 'ARRAY') {
+			@d = @{$d};
+			$d = shift;
+		}
+		Value::Error("You must provide a dimension for the Identity matrix") unless ($d || $d eq '0');
+		Value::Error("Dimension must be a positive integer")                 unless $d =~ m/^[1-9]\d*$/;
+		$context = shift || $self->context;
+	}
 
-	Value::Error("You must provide a dimension for the Identity matrix") unless defined $d;
-	Value::Error("Dimension must be a positive integer")                 unless $d =~ m/^[1-9]\d*$/;
-
-	my @M    = ();
+	my @M;
 	my $REAL = $context->Package('Real');
 
-	for my $i (0 .. $d - 1) {
-		push(@M, $self->make($context, map { $REAL->new(($_ == $i) ? 1 : 0) } 0 .. $d - 1));
+	if (!@d) {
+		for my $i (0 .. $d - 1) {
+			push(@M, $self->make($context, map { $REAL->new(($_ == $i) ? 1 : 0) } 0 .. $d - 1));
+		}
+	} else {
+		for my $i (1 .. $d[0]) {
+			push(@M, Value::Matrix->I([ @d[ 1 .. $#d ] ], $d));
+		}
 	}
 	return $self->make($context, @M);
 }
@@ -1108,10 +1209,19 @@ sub det {
 
 sub inverse {
 	my $self = shift;
-	$self->wwMatrixLR;
-	Value->Error("Can't take inverse of non-square matrix") unless $self->isSquare;
-	my $I = $self->{lrM}->invert_LR;
-	return (defined($I) ? $self->new($I) : $I);
+	my @d    = $self->dimensions;
+	my @M;
+	for my $i (0 .. $d[0] - 1) {
+		if (scalar(@d) == 2) {
+			$self->wwMatrixLR;
+			Value->Error("Can't take inverse of non-square matrix") unless $self->isSquare;
+			my $I = $self->{lrM}->invert_LR;
+			return (defined($I) ? $self->new($I) : $I);
+		} else {
+			push(@M, $self->data->[$i]->inverse);
+		}
+	}
+	return $self->new($self->make(@M));
 }
 
 sub decompose_LR {
