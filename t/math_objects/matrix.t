@@ -14,7 +14,7 @@ do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 loadMacros('MathObjects.pl');
 
 Context('Matrix');
-use Data::Dumper;
+
 subtest 'Creating a degree 1 Matrix (row vector)' => sub {
 	ok my $M1 = Matrix(1, 2, 3), 'Create a row vector';
 	is $M1->class, 'Matrix', 'M1 is a Matrix';
