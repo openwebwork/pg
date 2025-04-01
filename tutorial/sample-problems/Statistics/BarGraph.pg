@@ -26,8 +26,7 @@ loadMacros(
 );
 
 #:% section = setup
-#: First, we're going to use the 'Percent' context to allow students to enter
-#: percents.
+#: The 'Percent' context allow students to enter percents.
 
 #: The graph is created dynamically. The axes are created with the given labels.
 #: Extending the number of bars or the height of the bars should be similar to
@@ -85,6 +84,8 @@ $perA = Real($grades[0] / $num_students);
 #: In this case, we plot the bar graph and ask a question.
 #: Since the context is 'Percent', the students can
 #: answer the question with either a fraction, decimal or percent.
+#: If only percent answers is desired, see the flags for the Percent context
+#: in the macro.
 BEGIN_PGML
 The following is a distribution of grades on a Statistics quiz.
 >>[! [$alt_text] !]{$graph}{400}<<

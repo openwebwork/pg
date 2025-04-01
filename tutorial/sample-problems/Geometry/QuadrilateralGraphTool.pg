@@ -41,8 +41,8 @@ $gt = GraphTool(
     ->with(
         availableTools => [ 'QuadrilateralTool', 'FillTool', 'SolidDashTool' ]);
 #:% section = statement
-#: First, ask the question with the given vertices.  Then add the `[_]{$gt}` to
-#: produce the graph tool within the problem.
+#: This asks the student to graph a quadrilateral with the given vertices.
+#: The code `[_]{$gt}` inserts the graph tool.
 BEGIN_PGML
 Graph the quadrilateral with vertices [`([$x1], [$y1])`], [`([$x2], [$y2])`],
 [`([$x3], [$y3])`], and [`([$x4], [$y4])`] in that order.
@@ -53,7 +53,6 @@ END_PGML
 #:% section = solution
 #: To show the graph with alternate text we use the PGML image construct
 #: `[!  !]{$gt}`, where the alternate text is placed within the `[! !]`.
-
 $alt_text = "A graph of the quadrilateral with vertices ($x1, $y1), ($x2,$y2), "
     . "($x3, $y3),and ($x4, $y4)";
 BEGIN_PGML_SOLUTION
