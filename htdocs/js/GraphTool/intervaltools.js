@@ -354,7 +354,7 @@
 				pairedPointDrag(gt, e, point) {
 					gt.adjustDragPositionRestricted(e, point, point.paired_point);
 					if (point.Y() !== 0) point.setPosition(JXG.COORDS_BY_USER, [point.X(), 0]);
-					gt.setTextCoords(this.X(), 0);
+					gt.setTextCoords(point.X(), 0);
 					gt.updateObjects();
 					gt.updateText();
 				},
@@ -371,9 +371,12 @@
 					if (!gt.isStatic) {
 						point.on('down', () => gt.graphObjectTypes.interval.pointDown(point));
 						point.on('up', () => gt.graphObjectTypes.interval.pointUp(point));
-						if (typeof paired_point !== 'undefined') {
-							point.paired_point = paired_point;
-							paired_point.paired_point = point;
+					}
+
+					if (typeof paired_point !== 'undefined') {
+						point.paired_point = paired_point;
+						paired_point.paired_point = point;
+						if (!gt.isStatic) {
 							paired_point.on('drag', (e) =>
 								gt.graphObjectTypes.interval.pairedPointDrag(e, paired_point)
 							);

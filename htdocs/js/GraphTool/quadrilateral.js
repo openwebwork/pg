@@ -88,6 +88,8 @@
 				const scrCoords = new JXG.Coords(JXG.COORDS_BY_USER, [point[1], point[2]], gt.board).scrCoords;
 				const isIn = JXG.Math.Geometry.pnpoly(scrCoords[1], scrCoords[2], this.baseObj.vertices);
 				if (isIn) {
+					if (!this.isCrossed()) return 1;
+
 					let result = 1;
 					for (const [i, border] of this.baseObj.borders.entries()) {
 						if (gt.sign(JXG.Math.innerProduct(point, border.stdform)) > 0) result |= 1 << (i + 1);
@@ -95,6 +97,24 @@
 					return result;
 				}
 				return -1;
+			},
+
+			onBoundary(gt, point, aVal, _from) {
+				if (this.fillCmp(point) != aVal) return true;
+
+				for (const border of this.baseObj.borders) {
+					if (
+						Math.abs(JXG.Math.innerProduct(point, border.stdform)) /
+							Math.sqrt(border.stdform[1] ** 2 + border.stdform[2] ** 2) <
+							0.5 / Math.sqrt(gt.board.unitX * gt.board.unitY) &&
+						point[1] > Math.min(border.point1.X(), border.point2.X()) - 0.5 / gt.board.unitX &&
+						point[1] < Math.max(border.point1.X(), border.point2.X()) + 0.5 / gt.board.unitX &&
+						point[2] > Math.min(border.point1.Y(), border.point2.Y()) - 0.5 / gt.board.unitY &&
+						point[2] < Math.max(border.point1.Y(), border.point2.Y()) + 0.5 / gt.board.unitY
+					)
+						return true;
+				}
+				return false;
 			},
 
 			setSolid(_gt, solid) {
@@ -129,6 +149,23 @@
 					[point1, point2, point3]
 				);
 				return new gt.graphObjectTypes.quadrilateral(point1, point2, point3, point4, /solid/.test(string));
+			},
+
+			classMethods: {
+				isCrossed() {
+					const points = this.baseObj.vertices;
+					const borders = this.baseObj.borders;
+					return (
+						(JXG.Math.innerProduct(points[0].coords.usrCoords, borders[2].stdform) > 0 !=
+							JXG.Math.innerProduct(points[1].coords.usrCoords, borders[2].stdform) > 0 &&
+							JXG.Math.innerProduct(points[2].coords.usrCoords, borders[0].stdform) > 0 !=
+								JXG.Math.innerProduct(points[3].coords.usrCoords, borders[0].stdform) > 0) ||
+						(JXG.Math.innerProduct(points[0].coords.usrCoords, borders[1].stdform) > 0 !=
+							JXG.Math.innerProduct(points[3].coords.usrCoords, borders[1].stdform) > 0 &&
+							JXG.Math.innerProduct(points[1].coords.usrCoords, borders[3].stdform) > 0 !=
+								JXG.Math.innerProduct(points[2].coords.usrCoords, borders[3].stdform) > 0)
+					);
+				}
 			},
 
 			helperMethods: {

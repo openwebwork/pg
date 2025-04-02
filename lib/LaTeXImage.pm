@@ -155,7 +155,7 @@ sub header {
 				. (ref $_ eq "ARRAY"                             ? $_->[0]     : $_) . "}\n"
 		} grep { (ref $_ eq "ARRAY" && $_->[0] ne 'xcolor') || $_ ne 'xcolor' } @{ $self->texPackages }
 	);
-	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}") if ($self->tikzLibraries ne "");
+	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}\n") if ($self->tikzLibraries ne "");
 	push(@output, $self->addToPreamble);
 	push(@output, "\\begin{document}\n");
 	if ($self->environment->[0]) {
@@ -191,7 +191,7 @@ sub draw {
 		if (open(my $fh, ">", "$working_dir/image-dvisvgm.tex")) {
 			my @header = $self->header;
 			splice @header, 1, 0, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n";
-			chmod(0777, "$working_dir/image-dvisvgm.tex");
+			chmod(oct(664), "$working_dir/image-dvisvgm.tex");
 			print $fh @header;
 			print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 			print $fh $self->footer;
@@ -200,7 +200,7 @@ sub draw {
 				. WeBWorK::PG::IO::externalCommand('latex')
 				. " --interaction=nonstopmode image-dvisvgm.tex > latex.stdout 2> /dev/null";
 			move("$working_dir/image-dvisvgm.dvi", "$working_dir/image.dvi");
-			chmod(0777, "$working_dir/image.dvi");
+			chmod(oct(664), "$working_dir/image.dvi");
 		} else {
 			warn "Can't open $working_dir/image-dvisvgm.tex for writing.";
 			return '';
@@ -208,7 +208,7 @@ sub draw {
 	}
 	if ($ext ne 'svg' || ($ext eq 'svg' && $svgMethod ne 'dvisvgm')) {
 		if (open(my $fh, ">", "$working_dir/image.tex")) {
-			chmod(0777, "$working_dir/image.tex");
+			chmod(oct(664), "$working_dir/image.tex");
 			print $fh $self->header;
 			print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 			print $fh $self->footer;
@@ -216,7 +216,7 @@ sub draw {
 			system "cd $working_dir && "
 				. WeBWorK::PG::IO::externalCommand('latex2pdf')
 				. " --interaction=nonstopmode image.tex > latex.stdout 2> /dev/null";
-			chmod(0777, "$working_dir/image.pdf");
+			chmod(oct(664), "$working_dir/image.pdf");
 		} else {
 			warn "Can't open $working_dir/image.tex for writing.";
 			return '';
