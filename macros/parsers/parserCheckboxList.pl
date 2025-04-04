@@ -553,7 +553,7 @@ sub CHECKS {
 
 	my @checks;
 	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
-	my $label = main::generate_aria_label($name);
+	my $label = (delete $options{aria_label}) // main::generate_aria_label($name);
 
 	for my $i (0 .. $#{ $self->{orderedChoices} }) {
 		my $value = $self->{values}[$i];
@@ -567,12 +567,18 @@ sub CHECKS {
 				main::NAMED_ANS_CHECKBOX_OPTION(
 					$name, $value, " $tag",
 					id         => "${name}_$i",
-					aria_label => $label . 'option ' . ($i + 1) . ' ',
+					aria_label => $label . main::maketext('option [_1] ', $i + 1),
 					%options
 				)
 			);
 		} else {
-			push(@checks, main::NAMED_ANS_CHECKBOX($name, $value, " $tag", $extend, %options));
+			push(
+				@checks,
+				main::NAMED_ANS_CHECKBOX(
+					$name, $value, " $tag", $extend, %options,
+					aria_label => $label . main::maketext('option [_1] ', 1)
+				)
+			);
 		}
 	}
 
