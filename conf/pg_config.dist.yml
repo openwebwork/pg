@@ -248,7 +248,7 @@ modules:
   - ['Tie::IxHash']
   - ['Locale::Maketext']
   - ['WeBWorK::PG::Localize']
-  - [JSON]
+  - ['Mojo::JSON']
   - ['Class::Tiny']
   - ['IO::Handle']
   - ['Rserve']

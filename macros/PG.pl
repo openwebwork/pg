@@ -1029,7 +1029,7 @@ sub ENDDOCUMENT {
 							id    => $name,
 							value => $inputs_ref->{$name} // '',
 							scalar(keys %$mq_part_opts)
-							? (data => { mq_opts => JSON->new->encode($mq_part_opts) })
+							? (data => { mq_opts => Mojo::JSON::encode_json($mq_part_opts) })
 							: ''
 						)->to_string
 					);
@@ -1257,7 +1257,7 @@ sub ENDDOCUMENT {
 								}
 							)->to_string
 						),
-						answer_labels          => JSON->new->encode($response_obj->{response_order}),
+						answer_labels          => Mojo::JSON::encode_json($response_obj->{response_order}),
 						bs_toggle              => 'popover',
 						bs_trigger             => 'click',
 						bs_placement           => $showCorrectOnly ? 'right' : 'bottom',

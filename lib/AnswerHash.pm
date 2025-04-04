@@ -126,8 +126,8 @@ The answer hash class is guaranteed to contain the following instance variables:
 
 package AnswerHash;
 use Exporter;
-use PGUtil qw(not_null pretty_print);
-use JSON;
+use PGUtil     qw(not_null pretty_print);
+use Mojo::JSON qw(encode_json);
 
 # initialization fields
 my %fields = (
@@ -269,7 +269,7 @@ sub stringify_hash {
 		my $ref = ref($self->{$key});
 		next if !$ref;
 		if ($ref eq "HASH" or $ref eq "ARRAY") {
-			$self->{$key} = JSON->new->utf8->allow_unknown->convert_blessed->allow_blessed->encode($self->{$key});
+			$self->{$key} = encode_json($self->{$key});
 		} else {
 			$self->{$key} = "$self->{$key}";
 		}

@@ -422,7 +422,7 @@ sub cmp {
 				$options->{insertElement} = $selected->first->parent;
 				my $contents = $selected->first->parent->at('div.radio-content[data-radio]');
 				if ($contents) {
-					my $partNames = JSON->new->decode($contents->attr('data-part-names'));
+					my $partNames = Mojo::JSON::decode_json($contents->attr('data-part-names'));
 					for (@$partNames) {
 						my $ansRules = $contents->find(qq{[name="$_"]});
 						if (@$ansRules > 1) {
@@ -679,7 +679,7 @@ sub ans_rule {
 				class           => 'radio-content',
 				data_radio      => $radio_name,
 				data_index      => $self->{values}[$i],
-				data_part_names => JSON->new->encode(\@part_names),
+				data_part_names => Mojo::JSON::encode_json(\@part_names),
 				sprintf($data[$i][0] =~ s/%s\*/%s/gr, @part_rules)
 			),
 			PTX => sprintf($data[$i][0] =~ s/%s\*/%s/gr, @part_rules)
