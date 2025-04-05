@@ -13,7 +13,9 @@ use WeBWorK::PG;
 use PGcore;
 use Parser;
 
-%main::envir = %{ WeBWorK::PG::defineProblemEnvironment(WeBWorK::PG::Environment->new) };
+$WeBWorK::PG::IO::pg_envir = WeBWorK::PG::Environment->new;
+
+%main::envir = %{ WeBWorK::PG::defineProblemEnvironment($WeBWorK::PG::IO::pg_envir) };
 
 sub PG_restricted_eval {
 	my @input = @_;

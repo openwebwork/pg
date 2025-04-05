@@ -2,9 +2,6 @@
 
 use Test2::V0 '!E', { E => 'EXISTS' };
 
-# Quell a warning about this being used only once.
-local $main::envir;
-
 die "PG_ROOT not found in environment.\n" unless $ENV{PG_ROOT};
 do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
@@ -35,7 +32,8 @@ like $img, qr!
 	>$!x, 'img tag has correct format';
 
 # Note that the image file is not generated until after the `image($drawing)` call.
-my $image_file = "$main::envir{tempDirectory}images/" . $drawing->imageName . '.' . $drawing->ext;
+my $image_file =
+	"$WeBWorK::PG::IO::pg_envir->{directories}{html_temp}/images/" . $drawing->imageName . '.' . $drawing->ext;
 ok -e $image_file, 'image file is generated';
 
 # Delete the generated image file.

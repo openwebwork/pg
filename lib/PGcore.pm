@@ -98,7 +98,6 @@ sub new {
 		WARNING_messages            => [],
 		DEBUG_messages              => [],
 		names_created               => 0,
-		external_refs               => {},       # record of external references
 		%options,                                # allows overrides and initialization
 	};
 	bless $self, $class;
@@ -115,7 +114,6 @@ sub initialize {
 	$self->{PG_original_problem_seed} = $self->{envir}->{problemSeed};
 	$self->{PG_random_generator}      = new PGrandom($self->{PG_original_problem_seed});
 	$self->{problemSeed}              = $self->{PG_original_problem_seed};
-	$self->{tempDirectory}            = $self->{envir}->{tempDirectory};
 	$self->{PG_problem_grader}        = $self->{envir}->{PROBLEM_GRADER_TO_USE};
 	$self->{PG_alias}                 = PGalias->new(
 		$self->{envir},
@@ -589,13 +587,7 @@ sub insertGraph {
 	{
 		my $graphData = $graph->draw;
 		if ($graphData) {
-			if (open(my $fh, '>', $filePath)) {
-				chmod(oct(664), $filePath);
-				print $fh $graphData;
-				close($fh) or warn "Can't close $filePath";
-			} else {
-				warn "Can't open $filePath";
-			}
+			WeBWorK::PG::IO::saveDataToFile($graphData, $filePath);
 		} else {
 			warn "Error generating graph for $filePath";
 		}
@@ -667,8 +659,9 @@ sub surePathToTmpFile {
 	# if the path starts with $tmpDirectory (which is permitted but optional) remove this initial segment
 	$path =~ s|^$tmpDirectory|| if $path =~ m|^$tmpDirectory|;
 
-	# find the nodes on the given path
-	my @nodes = split("$delim", $path);
+	# Find the nodes on the given path. Any ".." elements in the path are remove to prevent
+	# someone from trying to write to a file outside the temporary directory.
+	my @nodes = grep { $_ ne '..' } split("$delim", $path);
 
 	# create new path
 	$path = $tmpDirectory;
@@ -735,7 +728,7 @@ sub AskSage {
 
 sub tempDirectory {
 	my $self = shift;
-	return $self->{tempDirectory};
+	return "$WeBWorK::PG::IO::pg_envir->{directories}{html_temp}/";
 }
 
 =head1 Message channels

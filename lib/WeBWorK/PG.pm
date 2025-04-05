@@ -54,6 +54,8 @@ sub new_helper ($invocant, %options) {
 	my $class = ref($invocant) || $invocant;
 
 	my $pg_envir = WeBWorK::PG::Environment->new($options{courseName});
+	$pg_envir->{directories}{html_temp} = $options{tempDirectory} =~ s!/*$!!r if $options{tempDirectory};
+	$WeBWorK::PG::IO::pg_envir = $pg_envir;
 
 	# Make sure these are defined.
 	$options{sourceFilePath}    //= '';
@@ -287,7 +289,6 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		htmlDirectory     => $options->{htmlDirectory}     // "$pg_envir->{directories}{html}/",
 		htmlURL           => $options->{htmlURL}           // "$pg_envir->{URLs}{html}/",
 		templateDirectory => $options->{templateDirectory} // '',
-		tempDirectory     => $options->{tempDirectory}     // "$pg_envir->{directories}{html_temp}/",
 		tempURL           => $options->{tempURL}           // "$pg_envir->{URLs}{tempURL}/",
 		localHelpURL      => $options->{localHelpURL}      // "$pg_envir->{URLs}{localHelpURL}/",
 

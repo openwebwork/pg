@@ -31,7 +31,7 @@ sub new {
 	$self->{probFileName}      = $envir->{probFileName} // '';
 	$self->{htmlDirectory}     = $envir->{htmlDirectory};
 	$self->{htmlURL}           = $envir->{htmlURL};
-	$self->{tempDirectory}     = $envir->{tempDirectory};
+	$self->{tempDirectory}     = "$WeBWorK::PG::IO::pg_envir->{directories}{html_temp}/";
 	$self->{templateDirectory} = $envir->{templateDirectory};
 	$self->{tempURL}           = $envir->{tempURL};
 	$self->{displayMode}       = $envir->{displayMode};
