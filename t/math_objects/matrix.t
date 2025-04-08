@@ -14,7 +14,7 @@ do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 loadMacros('MathObjects.pl');
 
 Context('Matrix');
-use Data::Dumper;
+
 subtest 'Creating a degree 1 Matrix (row vector)' => sub {
 	ok my $M1 = Matrix(1, 2, 3), 'Create a row vector';
 	is $M1->class, 'Matrix', 'M1 is a Matrix';
@@ -105,15 +105,82 @@ subtest 'Use isSquare, isOne, and isRow methods' => sub {
 };
 
 subtest 'Use tests for triangular matrices' => sub {
-	my $A1 = Matrix([ [ 1, 2, 3, 4 ], [ 0, 6, 7, 8 ], [ 0, 0,  11, 12 ], [ 0,  0,  0,  16 ] ]);
+	my $A1 = Matrix([ [ 1, 2, 3, 4 ], [ 0, 6, 7, 8 ], [ 0, 0, 11, 12 ], [ 0, 0, 0, 16 ] ]);
 	my $A2 = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ] ]);
+	my $A3 = Matrix($A1, $A1);
+	my $A4 = Matrix($A2, $A1);
 	ok $A1->isUpperTriangular,  'test for upper triangular matrix';
 	ok !$A2->isUpperTriangular, 'not an upper triangular matrix';
+	ok $A3->isUpperTriangular,  'test for upper triangular degree 3 matrix';
+	ok !$A4->isUpperTriangular, 'not an upper triangular degree 3 matrix';
 	my $B1 = Matrix([ [ 1, 0, 0, 0 ], [ 5, 6, 0, 0 ], [ 9, 10, 11, 0 ], [ 13, 14, 15, 16 ] ]);
-	ok $B1->isLowerTriangular, 'test for lower triangular matrix';
 	my $B2 = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
+	my $B3 = Matrix($B1, $B1);
+	my $B4 = Matrix($B2, $B2);
+	ok $B1->isLowerTriangular,  'test for lower triangular matrix';
 	ok !$B2->isLowerTriangular, 'not a lower triangular matrix.';
+	ok $B3->isLowerTriangular,  'test for lower triangular degree 3 matrix';
+	ok !$B4->isLowerTriangular, 'not a lower triangular degree 3 matrix.';
 
+};
+
+subtest 'Test if a Matrix is symmetric' => sub {
+	my $A = Matrix(5);
+	ok $A->isSymmetric, 'test a degree 1 Matrix of length 1 is symmetric';
+	my $B = Matrix([ 1, 2 ], [ 2, 3 ]);
+	my $C = Matrix([ 1, 2 ], [ 3, 4 ]);
+	ok $B->isSymmetric,  'test a degree 2 symmetric Matrix';
+	ok !$C->isSymmetric, 'test a degree 2 nonsymmetric Matrix';
+	my $D = Matrix($B, $B);
+	my $E = Matrix($B, $C);
+	ok $D->isSymmetric,  'test a degree 3 symmetric Matrix';
+	ok !$E->isSymmetric, 'test a degree 3 nonsymmetric Matrix';
+};
+
+subtest 'Test if a Matrix is orthogonal' => sub {
+	my $A = Matrix(-1);
+	my $B = Matrix( 2);
+	ok $A->isOrthogonal,  'test a degree 1 orthogonal Matrix';
+	ok !$B->isOrthogonal, 'test a degree 1 nonorthogonal Matrix';
+	my $C = Matrix([ 3 / 5, 4 / 5 ], [ -4 / 5, 3 / 5 ]);
+	my $D = Matrix([ 1, 2 ], [ 3, 4 ]);
+	ok $C->isOrthogonal,  'test a degree 2 orthogonal Matrix';
+	ok !$D->isOrthogonal, 'test a degree 2 nonorthogonal Matrix';
+	# uncomment these once transposition is valid for higher degree Matrices
+	#my $E = Matrix($C, [ [ 0, 1 ], [ -1, 0 ] ]);
+	#my $F = Matrix($D, $C);
+	#ok $E->isOrthogonal,  'test a degree 3 orthogonal Matrix';
+	#ok !$F->isOrthogonal, 'test a degree 3 nonorthogonal Matrix';
+};
+
+subtest 'Test if Matrix is in (R)REF' => sub {
+	my $A1 = Matrix(0);
+	my $A2 = Matrix(1);
+	my $A3 = Matrix(2);
+	my $A4 = Matrix(1, 3, 4);
+	my $A5 = Matrix(2, 3, 4);
+	my $A6 = Matrix(0, 3, 4);
+	my $A7 = Matrix(0, 1, 4);
+	ok $A1->isRREF,  "$A1 is in RREF";
+	ok $A2->isRREF,  "$A2 is in RREF";
+	ok !$A3->isRREF, "$A3 is not in RREF";
+	ok $A4->isRREF,  "$A4 is in RREF";
+	ok !$A5->isRREF, "$A5 is not in RREF";
+	ok !$A6->isRREF, "$A6 is not in RREF";
+	ok $A7->isRREF,  "$A7 is in RREF";
+
+	my $B1 = Matrix([ 1, 2, 3 ], [ 0, 4, 5 ]);
+	my $B2 = Matrix([ 1, 2, 3 ], [ 0, 1, 5 ]);
+	my $B3 = Matrix([ 1, 0, 3 ], [ 0, 1, 5 ]);
+	my $B4 = Matrix([ 0, 1, 3 ], [ 2, 1, 5 ]);
+	ok $B1->isREF,   "$B1 is in REF";
+	ok !$B1->isRREF, "$B1 is not in RREF";
+	ok $B2->isREF,   "$B2 is in REF";
+	ok !$B2->isRREF, "$B2 is not in RREF";
+	ok $B3->isREF,   "$B3 is in REF";
+	ok $B3->isRREF,  "$B3 is in RREF";
+	ok !$B4->isREF,  "$B4 is not in REF";
+	ok !$B4->isRREF, "$B4 is not in RREF";
 };
 
 subtest 'Transpose a Matrix' => sub {
