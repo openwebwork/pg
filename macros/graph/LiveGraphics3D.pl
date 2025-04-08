@@ -150,7 +150,7 @@ sub LiveGraphics3D {
 			'div',
 			class        => 'live-graphics-3d-container',
 			style        => "width:${w}px;height:${h}px;border:1px solid black;",
-			data_options => JSON->new->encode({
+			data_options => Mojo::JSON::encode_json({
 				width    => $w - 2,
 				height   => $h - 2,
 				maxTicks => $options{max_ticks},

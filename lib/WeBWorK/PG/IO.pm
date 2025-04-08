@@ -32,7 +32,7 @@ use warnings;
 use utf8;
 
 use Encode                qw(encode decode);
-use JSON                  qw(decode_json);
+use Mojo::JSON            qw(decode_json);
 use File::Spec::Functions qw(canonpath);
 use File::Find            qw(finddepth);
 

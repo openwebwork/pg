@@ -1033,7 +1033,7 @@ sub string {
 	return $open . join($comma, @coords) . $close;
 }
 
-# This is called by JSON->encode when convert_blessed is true to convert this value object into a string.
+# This is called by Mojo::JSON::encode_json when convert_blessed is true to convert this value object into a string.
 sub TO_JSON {
 	return shift->string;
 }

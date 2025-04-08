@@ -291,7 +291,7 @@ C<JXG.JSXGraph.initBoard> at L<https://jsxgraph.org/docs/symbols/JXG.JSXGraph.ht
 For example the following value for C<JSXGraphOptions> will give the same result for the
 JavaScript graph as the default values for the options above:
 
-    JSXGraphOptions => JSON->new->encode({
+    JSXGraphOptions => Mojo::JSON::encode_json({
         boundingBox => [-10, 10, 10, -10],
         defaultAxes => {
             x => { ticks => { ticksDistance => 2, minorTicks => 1} },
@@ -2300,7 +2300,7 @@ sub type { return 'List'; }
 sub constructJSXGraphOptions {
 	my $self = shift;
 	return if defined($self->{JSXGraphOptions});
-	$self->{JSXGraphOptions} = JSON->new->encode({
+	$self->{JSXGraphOptions} = Mojo::JSON::encode_json({
 		boundingBox => $self->{bBox},
 		$self->{numberLine}
 		? (

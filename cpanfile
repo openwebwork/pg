@@ -14,8 +14,7 @@ on runtime => sub {
 	requires 'GD';
 	requires 'HTML::Entities';
 	requires 'HTML::Parser';
-	requires 'JSON';
-	requires 'JSON::XS';
+	requires 'Mojo::JSON';
 	requires 'Locale::Maketext';
 	requires 'Locale::Maketext::Lexicon';
 	requires 'Mojolicious';
