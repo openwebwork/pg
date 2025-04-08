@@ -18,8 +18,6 @@ RUN apt-get update \
 		libencode-perl \
 		libgd-perl \
 		libhtml-parser-perl \
-		libjson-perl \
-		libjson-xs-perl \
 		liblocale-maketext-lexicon-perl \
 		libmojolicious-perl \
 		libtest2-suite-perl \
