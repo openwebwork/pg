@@ -81,7 +81,6 @@ sub _contextForm_init {
 		Context($newContext);
 		$correct = Formula("$correct");
 		$student = Formula("$ans->{student_formula}");
-		$student = $ans->{student_formula};
 		my $setSqrt = Context()->flag("setSqrt");
 		my $setRoot = Context()->flag("setRoot");
 		Context()->flags->set(
