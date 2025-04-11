@@ -810,6 +810,8 @@ sub power {
 #  Do lexicographic comparison (row by row)
 sub compare {
 	my ($self, $l, $r) = Value::checkOpOrderWithPromote(@_);
+	$l = $l->transpose if ($l->degree == 1 && $r->degree == 2);
+	$r = $r->transpose if ($l->degree == 2 && $r->degree == 1);
 	Value::Error("Can't compare Matrices with different dimensions")
 		unless join(',', $l->dimensions) eq join(',', $r->dimensions);
 	my @l = @{ $l->data };
