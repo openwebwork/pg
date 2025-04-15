@@ -28,6 +28,11 @@
 			display: inline-block;
 			margin-left: 5px;
 			line-height: 26px;
+
+			.radio-buttons-container,
+			.checkboxes-container {
+				max-width: 100%;
+			}
 		}
 
 		input[type='radio'] {
