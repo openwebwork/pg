@@ -104,14 +104,14 @@ sub new {
 	if (!defined $n) {
 		my $digits = $value;
 		if ($value == 0) {    # 0 is has infinite sig figs
-			$n = inf;
+			$n = 'inf';
 		} elsif ($value !~ m/\./) {    # it is an integer
 			$digits =~ s/^[+-]?0*//;    # remove signs and leading zeros;
 			$digits =~ s/0+$//;         # remove trailing zeros;
 		} else {
 			$digits =~ s/[Ee].*$//;     # remove exponent, if any
 			if ($value == 0) {
-				$digits =~ s/^[+-]?0+(.(?:\.|$))/\1/;    # remove leading 0s before the decimal
+				$digits =~ s/^[+-]?0+(.(?:\.|$))/$1/;    # remove leading 0s before the decimal
 				$digits =~ s/[-+.]//g;                   # remove non-digits
 			} else {
 				$digits =~ s/[-+.]//g;                   # remove non-digits
@@ -126,7 +126,7 @@ sub new {
 	$self  = bless $self->SUPER::new($context, $value + 0), $class;
 	$self->sigfigs($n);
 	$self->{data} = [$value];
-	$self->{exp}  = $n == inf ? 0 : (split(/E/, $value))[1] + 0;
+	$self->{exp}  = $n == 'inf' ? 0 : (split(/E/, $value))[1] + 0;
 
 	return $self;
 }
@@ -142,9 +142,8 @@ sub sigfigs {
 		unless $num_sigfigs =~ m/^inf$/ || ($num_sigfigs =~ /-?\d+/ && $num_sigfigs >= 1);
 	my ($v, $exp);
 	if ($num_sigfigs =~ m/^inf$/) {
-		$num_sigfigs = inf;
-		$v           = $self->value;
-		$exp         = 0;
+		$v   = $self->value;
+		$exp = 0;
 	} else {
 		($v, $exp) = split(/E/, $self->value);
 		$exp = 0 unless defined($exp);    # if $self->value is not in exponential form.
@@ -180,7 +179,7 @@ sub string {
 sub TeX {
 	my $self = shift;
 	my $tex  = $self->string;
-	$tex =~ s/E(?:(-)|\+)0*([1-9]\d?)/\\times 10^{\1\2}/;
+	$tex =~ s/E(?:(-)|\+)0*([1-9]\d?)/\\times 10^{$1$2}/;
 	return "{$tex}";
 }
 
