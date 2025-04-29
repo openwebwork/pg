@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -29,13 +15,13 @@ The reverse works as well: the answer could be "x^2+3x+2" and "(x+1)(x+2)"
 will not be accepted.
 
 In general if you have a problem where "form" matters, try this context. It
-may not always work for you out of the box. But even then you may be able to 
+may not always work for you out of the box. But even then you may be able to
 adjust the bizarro details to make it work.
 
 For example if you wanted to factor x^2+2x+1 and you declare "(x+1)^2" to be
 the answer, at first it will not accept "(x+1)(x+1)". Because bizarro exponents
 are not activated. But you could activate them (or deactivate bizarro multiplication
-and division while activating bizarro addition and subtraction) and then 
+and division while activating bizarro addition and subtraction) and then
 "(x+1)^2" and "(x+1)(x+1)" would be equivalent, yet distinct from "x^2+2x+1".
 
 

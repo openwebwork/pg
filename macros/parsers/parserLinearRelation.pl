@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =encoding utf8
 
@@ -29,7 +15,7 @@ Activate the context with:
 
     Context("LinearRelation");
 
-Use C<LinearRelation(formula)>, C<Formula(formula)>, or C<Compute(formula)> to 
+Use C<LinearRelation(formula)>, C<Formula(formula)>, or C<Compute(formula)> to
 to create a LinearRelation object using a string formula. Alternatively, use
 C<LinearRelation(vector,point,sign> where C<vector> is the normal vector and
 C<point> is a point on the plane. Either can be an array reference or a Math
@@ -63,7 +49,7 @@ to each other.
 
 There is one special context flag.
 
-=over 
+=over
 
 =item S<C<< standardForm >>>
 
@@ -71,7 +57,7 @@ This determines whether something like C<<LinearRelation("x+2 < y+z")>> will be
 displayed as C<<x+2 < y+z>> or converted to standard form: C<<x-y-z < -2>>.
 It is 0 by default.
 
-=back 
+=back
 
 There is one special method for LinearRelation objects.
 
