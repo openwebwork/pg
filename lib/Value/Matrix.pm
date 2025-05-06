@@ -837,29 +837,155 @@ sub twiddle {
 	return $self->make(@coords);
 }
 
-=head3 C<transpose>
+=head3 C<slice>
 
-Take the transpose of a matrix.
+Apply this to a degree n Matrix, passing (m, k), and produce the degree (n-1) Matrix defined by
+taking all entries whose position has mth index with value k. For example if C<$M> is a 4x5x6
+Matrix, then m can be 1, 2, or 3. If m is 2, then k can be 1, 2, 3, 4, or  5. C<$M-<gt>slice(2,3)>
+is the 4x6 Matrix such that the entry at position (i,j) is the entry of C<$M> at position (i,3,j).
 
 Usage:
 
     $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
-    $A->transpose;
+    $A->slice(1, 2)
+    # Index 1 identifies the 1st, 2nd, or 3rd row above, and with value 2 we get the second one:
+    # Matrix([5, 6, 7, 8])
+
+    $B = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
+    $B->slice(1, 2)
+    # Index 1 identifies the two arrays at depth 1, and with value 2 we get the second one:
+    # Matrix([ [ 5, 6 ], [ 7, 8 ] ])
+    $B->slice(2, 1)
+    # Here we take all entries from $B where the 2nd index is 1: the 1 at position (1,1,1),
+    # the 2 at position (1,1,2), the 5 at position (2,1,1), and the 6 at position (2,1,2):
+    # Matrix([ [ 1, 2 ], [ 5, 6 ] ])
+    $B->slice(3, 1)
+    # Here we take all entries from $B where the 3rd index is 1: the 1 at position (1,1,1),
+    # the 3 at position (1,2,1), the 5 at position (2,1,1), and the 7 at position (2,2,1):
+    # Matrix([ [ 1, 3 ], [ 5, 7 ] ])
 
 =cut
 
+sub slice {
+	my ($self, $index, $value) = @_;
+	my @d = $self->dimensions;
+	my $d = scalar(@d);
+	my $w = $d[0];
+	Value::Error("index must be an integer from 1 to $d") unless ($index == int($index) && $index >= 1 && $index <= $d);
+	my $M = $self->data;
+	if ($index == 1) {
+		Value::Error("value must be an integer from 1 to $w")
+			unless ($value == int($value) && $value >= 1 && $value <= $w);
+		return $M->[ $value - 1 ];
+	} else {
+		my @rows;
+		for (1 .. $w) {
+			push @rows, $M->[ $_ - 1 ]->slice($index - 1, $value);
+		}
+		return $self->make(@rows);
+	}
+}
+
+=head3 C<transpose>
+
+Take the transpose of a matrix. For a degree 1 Matrix, first promote to a degree 2 Matrix.
+For a degree n Matrix, apply a permutation of the indices. The default permutation transposes the
+last two indices. To specify a permutation, provide an array reference representing a cycle
+or an array of array references that represents a product of cycles. If a permutation is not
+specified, the default is the usual transposition of the last two indices.
+
+Usage:
+
+    $A = Matrix([
+        [ 1,  2,  3,  4 ],
+        [ 5,  6,  7,  8 ],
+        [ 9, 10, 11, 12 ]
+    ]);
+    $A->transpose
+    # will be
+    # [
+    #     [ 1, 5, 9 ],
+    #     [ 2, 6, 10 ],
+    #     [ 3, 7, 11 ],
+    #     [ 4, 8, 12 ]
+    # ]
+
+    $B = Matrix([
+        [ [ 1, 2 ], [ 3, 4 ] ],
+        [ [ 5, 6 ], [ 7, 8 ] ]
+    ]);
+    $B->transpose([1, 2, 3])
+    # will be
+    # [
+    #     [ [ 1, 3 ], [ 5, 7 ] ],
+    #     [ [ 2, 4 ], [ 6, 8 ] ]
+    # ]
+
+    $C = Matrix([
+        [ [ [ 1,  2 ], [  3,  4 ] ], [ [  5,  6 ], [  7,  8 ] ] ],
+        [ [ [ 9, 10 ], [ 11, 12 ] ], [ [ 13, 14 ], [ 15, 16 ] ] ]
+    ]);
+    $C->transpose([ [ 1, 2], [3, 4] ])
+    # will be
+    # [
+    #     [ [ [ 1, 3 ], [ 2, 4 ] ], [ [  9, 11 ], [ 10, 12 ] ] ],
+    #     [ [ [ 5, 7 ], [ 6, 8 ] ], [ [ 13, 15 ], [ 14, 16 ] ] ]
+    # ]
+=cut
+
 sub transpose {
-	my $self = promote(@_);
+	my $self = shift;
+	my $p    = shift;
 	my @d    = $self->dimensions;
-	if (scalar(@d) == 1) { @d = (1, @d); $self = $self->make($self) }
-	Value::Error("Can't transpose %d-dimensional matrices", scalar(@d)) unless scalar(@d) == 2;
+	my $N    = scalar(@d);
+
+	# elevate a degree 1 Matrix to degree 2
+	if ($N == 1) { @d = (1, @d); $N = 2; $self = $self->make($self) }
+
+	# default to transpose last two indices
+	$p = [ [ $N - 1, $N ] ] unless $p;
+
+	# build the permutation hash from cycles
+	my %p;
+	if (ref $p eq 'HASH') {
+		%p = %{$p};
+	} else {
+		$p = [$p] unless ref($p->[0]);
+		my @p = (1 .. $N);
+		for my $cycle (@{$p}) {
+			next unless defined $cycle->[0];
+			my $tmp = $p[ $cycle->[0] - 1 ];
+			for my $i (0 .. $#{$cycle} - 1) {
+				$p[ $cycle->[$i] - 1 ] = $p[ $cycle->[ $i + 1 ] - 1 ];
+			}
+			$p[ $cycle->[-1] - 1 ] = $tmp;
+		}
+		%p = map { $_ => $p[ $_ - 1 ] } (1 .. $N);
+	}
+	%p = reverse %p;
 
 	my @M = ();
-	my $M = $self->data;
-	for my $j (0 .. $d[1] - 1) {
-		my @row = ();
-		for my $i (0 .. $d[0] - 1) { push(@row, $M->[$i]->data->[$j]) }
-		push(@M, $self->make(@row));
+	if ($N == 2) {
+		return $self if ($p{1} == 1);
+		my $M = $self->data;
+		for my $j (0 .. $d[1] - 1) {
+			my @row = ();
+			for my $i (0 .. $d[0] - 1) { push(@row, $M->[$i]->data->[$j]) }
+			push(@M, $self->make(@row));
+		}
+	} else {
+		# reduce the permutation hash
+		my @q  = map { $p{$_} } (1 .. $N);
+		my $p1 = shift @q;
+		for (@q) {
+			$_-- if ($_ >= $p1);
+		}
+		my %q = map { $_ => $q[ $_ - 1 ] } (1 .. $N - 1);
+
+		for my $j (1 .. $d[ $p1 - 1 ]) {
+			my $slice = $self->slice($p1, $j);
+			push(@M, $slice->class eq 'Matrix' ? $slice->transpose(\%q) : $slice);
+		}
 	}
 	return $self->make(@M);
 }
