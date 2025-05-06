@@ -419,7 +419,7 @@ sub MENU {
 	my $menu    = "";
 	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 	my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
-	my $aria_label   = main::generate_aria_label($name);
+	my $aria_label   = $options{aria_label} // main::generate_aria_label($name);
 
 	if ($main::displayMode =~ m/^HTML/) {
 		if ($self->{useHTMLSelect}) {

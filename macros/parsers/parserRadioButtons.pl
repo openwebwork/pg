@@ -627,7 +627,6 @@ sub BUTTONS {
 	my @choices = @{ $self->{orderedChoices} };
 	my @radio   = ();
 	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
-	my $label = main::generate_aria_label($name);
 
 	foreach my $i (0 .. $#choices) {
 		my $value = $self->{values}[$i];
@@ -639,8 +638,7 @@ sub BUTTONS {
 				@radio,
 				main::NAMED_ANS_RADIO_EXTENSION(
 					$name, $value, $tag,
-					aria_label => $label . "option " . ($i + 1) . " ",
-					id         => "${name}_$i",
+					id => "${name}_$i",
 					$self->{uncheckable}
 					? (
 						attributes => {

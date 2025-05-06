@@ -467,11 +467,10 @@ sub NAMED_ANS_RADIO {
 			'label',
 			tag(
 				'input',
-				type       => 'radio',
-				name       => $name,
-				id         => $name,
-				aria_label => $options{aria_label} // generate_aria_label($name) . 'option 1 ',
-				value      => $value,
+				type  => 'radio',
+				name  => $name,
+				id    => $name,
+				value => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
 				)
@@ -499,11 +498,10 @@ sub NAMED_ANS_RADIO_EXTENSION {
 			'label',
 			tag(
 				'input',
-				type       => 'radio',
-				name       => $name,
-				id         => $options{id}         // "${name}_$value",
-				aria_label => $options{aria_label} // generate_aria_label($name),
-				value      => $value,
+				type  => 'radio',
+				name  => $name,
+				id    => $options{id} // "${name}_$value",
+				value => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
 				)
@@ -541,30 +539,30 @@ sub generate_aria_label {
 
 	# if we dont have an AnSwEr type name then we do the best we can
 	if ($name !~ /AnSwEr\d+/) {
-		return maketext('answer') . ' ' . $name;
+		return maketext('answer [_1] ', $name);
 	}
 
 	# check for quiz prefix
 	if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
 		$name =~ s/Q0*(\d+)_//;
-		$label .= maketext('problem') . ' ' . $1 . ' ';
+		$label .= maketext('problem [_1] ', $1);
 	}
 
 	# get answer number
 	$name =~ /AnSwEr0*(\d+)/;
-	$label .= maketext('answer') . ' ' . $1 . ' ';
+	$label .= maketext('answer [_1] ', $1);
 
 	# check for Multianswer
 	if ($name =~ /MuLtIaNsWeR_/) {
 		$name =~ s/MuLtIaNsWeR_//;
 		$name =~ /AnSwEr(\d+)_(\d+)/;
-		$label .= maketext('part') . ' ' . ($2 + 1) . ' ';
+		$label .= maketext('part [_1] ', $2 + 1);
 	}
 
 	# check for Matrix
 	if ($name =~ /^MaTrIx_/) {
 		$name =~ /_(\d+)_(\d+)$/;
-		$label .= maketext('row') . ' ' . ($1 + 1) . ' ' . maketext('column') . ' ' . ($2 + 1) . ' ';
+		$label .= maketext('row [_1] column [_2] ', $1 + 1, $2 + 1);
 	}
 
 	return $label;
@@ -624,7 +622,7 @@ sub NAMED_ANS_CHECKBOX {
 				type       => 'checkbox',
 				name       => $name,
 				id         => $name,
-				aria_label => generate_aria_label($name) . 'option 1 ',
+				aria_label => $options{aria_label} // (generate_aria_label($name) . maketext('option [_1] ', 1)),
 				value      => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
@@ -677,7 +675,9 @@ sub NAMED_ANS_CHECKBOX_BUTTONS {
 	while (@buttons) {
 		$value = shift @buttons;
 		$tag   = shift @buttons;
-		push(@out, NAMED_ANS_CHECKBOX_OPTION($name, $value, $tag, aria_label => $label . "option $count "));
+		push(@out,
+			NAMED_ANS_CHECKBOX_OPTION($name, $value, $tag, aria_label => $label . maketext('option [_1] ', $count))
+		);
 		$count++;
 	}
 

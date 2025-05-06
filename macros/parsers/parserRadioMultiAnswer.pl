@@ -620,6 +620,34 @@ sub label {
 	return $self->{labels}[$i];
 }
 
+sub generate_aria_label {
+	my ($name, $radioIndex, $partIndex) = @_;
+	my $label = '';
+
+	$name =~ s/$answerPrefix//;
+
+	# Check for the quiz prefix.
+	if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
+		$name =~ s/Q0*(\d+)_//;
+		$label .= main::maketext('problem [_1] ', $1);
+	}
+
+	# Get the answer number.
+	$name =~ /AnSwEr0*(\d+)/;
+	$label .= main::maketext('answer [_1] ', $1);
+
+	$label .= main::maketext('part [_1] ',    $radioIndex);
+	$label .= main::maketext('subpart [_1] ', $partIndex);
+
+	# Check for a Matrix answer.
+	if ($name =~ /^MaTrIx_/) {
+		$name =~ /_(\d+)_(\d+)$/;
+		$label .= main::maketext('row [_1] column [_2] ', $1 + 1, $2 + 1);
+	}
+
+	return $label;
+}
+
 # Produce the answer rule.
 sub ans_rule {
 	my ($self, $size, @options) = @_;
@@ -648,6 +676,7 @@ sub ans_rule {
 							? (defined $size->[$i][ $_ - 1 ] ? $size->[$i][ $_ - 1 ] : 20)
 							: $size,
 							answer_group_name => $radio_name,
+							aria_label        => generate_aria_label($name, $i + 1, $_),
 							@options
 						)
 					)
@@ -663,6 +692,7 @@ sub ans_rule {
 							? (defined $size->[$i][ $_ - 1 ] ? $size->[$i][ $_ - 1 ] : 20)
 							: $size,
 							answer_group_name => $radio_name,
+							aria_label        => generate_aria_label($name, $i + 1, $_),
 							@options
 						)
 					)
@@ -724,11 +754,10 @@ sub begin_radio {
 		HTML => qq{<div class="radio-container">}
 			. main::tag(
 				'input',
-				type       => 'radio',
-				name       => $name,
-				id         => "$name$idSuffix",
-				aria_label => main::generate_aria_label("$answerPrefix${name}_0") . ' option ' . ($i + 1),
-				value      => $value,
+				type  => 'radio',
+				name  => $name,
+				id    => "$name$idSuffix",
+				value => $value,
 				$self->{uncheckable}
 				? (
 					data_uncheckable_radio => 1,
