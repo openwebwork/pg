@@ -459,7 +459,7 @@ sub ans_matrix {
 		foreach my $j (0 .. $cols - 1) {
 			my $label;
 			if ($options{aria_label}) {
-				$label = $options{aria_label} . main::maketext('row [_1] col [_2] ', $i + 1, $j + 1);
+				$label = $options{aria_label} . pgCall('maketext', 'row [_1] col [_2] ', $i + 1, $j + 1);
 			} else {
 				$label = pgCall('generate_aria_label', ANS_NAME($ename, $i, $j));
 			}
