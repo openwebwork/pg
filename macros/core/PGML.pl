@@ -966,6 +966,21 @@ sub new {
 	bless { type => $type, %$fields }, $class;
 }
 
+sub stringifyHash {
+	my ($self, $hash) = @_;
+	return '{ ' . join(
+		', ',
+		map {
+			"$_ => "
+				. (
+					ref($hash->{$_}) eq 'HASH'
+					? $self->stringifyHash($hash->{$_})
+					: ("'" . $self->quote($hash->{$_}) . "'"))
+		} PGML::Sort(keys %$hash)
+	) . ' }';
+
+}
+
 sub show {
 	my $self    = shift;
 	my $indent  = shift || "";
@@ -974,7 +989,9 @@ sub show {
 		next if $id eq "stack";
 		if (ref($self->{$id}) eq 'ARRAY') {
 			push(@strings,
-				$indent . $id . ": [" . join(',', map { "'" . $self->quote($_) . "'" } @{ $self->{$id} }) . "]");
+				$indent . $id . ": [" . join(', ', map { "'" . $self->quote($_) . "'" } @{ $self->{$id} }) . "]");
+		} elsif (ref($self->{$id}) eq 'HASH') {
+			push(@strings, $indent . $id . ": " . $self->stringifyHash($self->{$id}));
 		} else {
 			push(@strings, $indent . $id . ": '" . $self->quote($self->{$id}) . "'");
 		}
@@ -1227,7 +1244,7 @@ sub show {
 	my $self    = shift;
 	my $indent  = shift;
 	my @strings = ($self->SUPER::show($indent));
-	push(@strings, $indent . "stack: ['" . join("','", map { $self->quote($_) } @{ $self->{stack} }) . "']");
+	push(@strings, $indent . "stack: ['" . join("', '", map { $self->quote($_) } @{ $self->{stack} }) . "']");
 	return join("\n", @strings);
 }
 
