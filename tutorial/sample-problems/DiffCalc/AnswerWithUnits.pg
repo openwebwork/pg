@@ -12,8 +12,6 @@
 ## MO(1)
 ## KEYWORDS('differential calculus', 'units')
 
-# Updated 2025.02 to use the contextUnits.pl macro.
-
 #:% name = Answer with Units
 #:% type = Sample
 #:% subject = differential calculus
