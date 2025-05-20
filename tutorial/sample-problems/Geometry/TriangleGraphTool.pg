@@ -1,0 +1,58 @@
+## DESCRIPTION
+## Shows a triangle tool within the GraphTool.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(Sample Problems)
+## DBsection(Graph Tool)
+## Date(02/25/2025)
+## Institution(Missouri Western)
+## Author(Glenn Rice)
+## MO(1)
+## KEYWORDS('graph tool', 'triangle')
+
+#:% name = Triangle Graph Tool
+#:% type = Sample
+#:% subject = [geometry]
+#:% categories = [graph, graphtool]
+
+#:% section = preamble
+#: Load the PODLINK('parserGraphTool.pl') macro to be able to use the GraphTool.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This finds three unique random points and sets up the GraphTool.  The line
+#: `{ triangle, solid, ($x1, $y1), ($x2, $y2), ($x3, $y3) }` creates a triangle
+#: with solid line edges and the given three points.
+$x1 = random(-8, 8);
+$y1 = random(-8, 8);
+do { $x2 = random(-8, 8); $y2 = random(-8, 8) } until $x2 != $x1 || $y2 != $y1;
+do { $x3 = random(-8, 8); $y3 = random(-8, 8) }
+    until ($y3 - $y1) * ($x2 - $x1) != ($y2 - $y1) * ($x3 - $x1);
+
+$gt = GraphTool("{ triangle, solid, ($x1, $y1), ($x2, $y2), ($x3, $y3) }")
+    ->with(availableTools => [ 'TriangleTool', 'FillTool', 'SolidDashTool' ]);
+
+#:% section = statement
+#: This asks the student to graph a triangle with the given vertices.
+#: The code `[_]{$gt}` inserts the graph tool.
+BEGIN_PGML
+Graph the triangle with vertices [`([$x1], [$y1])`], [`([$x2], [$y2])`], and
+[`([$x3], [$y3])`].
+
+[_]{$gt}
+END_PGML
+
+#:% section = solution
+#: To show the graph with alternate text we use the PGML image construct
+#: `[!  !]{$gt}`, where the alternate text is placed within the `[! !]`.
+BEGIN_PGML_SOLUTION
+The correct answer is
+
+[!A graph of the triangle with vertices ([$x1], [$y1]), ([$x2],[$y2]) and
+([$x3],[$y3])!]{$gt}
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

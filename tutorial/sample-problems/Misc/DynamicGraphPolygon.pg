@@ -60,9 +60,9 @@ $plot_setup = qq/
 # The vertices of the triangle chosen randomly will be ($x0, $y0), ($x1, $y0)
 # and ($x0, $y1).
 $x0 = random(-3, -1);
-$x1 = random(1,  3);
+$x1 = random( 1,  3);
 $y0 = random(-3, -1);
-$y1 = random(1,  3);
+$y1 = random( 1,  3);
 
 $graph1 = createTikZImage();
 $graph1->tikzLibraries('arrows.meta');

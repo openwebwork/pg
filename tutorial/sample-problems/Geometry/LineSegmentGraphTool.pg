@@ -1,0 +1,62 @@
+## DESCRIPTION
+## Shows a triangle tool within the GraphTool.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(Sample Problems)
+## DBsection(Graph Tool)
+## Date(02/25/2025)
+## Institution(Missouri Western)
+## Author(Glenn Rice)
+## MO(1)
+## KEYWORDS('graph tool', 'vectors')
+
+#:% name = Line Segment Graph Tool
+#:% type = Sample
+#:% subject = [geometry]
+#:% categories = [graph, graphtool]
+#:% see_also = [VectorGraphTool.pg, TriangleGraphTool.pg, QuadrilateralGraphTool.pg]
+
+#:% section = preamble
+#: Load the PODLINK('parserGraphTool.pl') macro to be able to use the GraphTool.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The graph tool is created with the correct answer
+#: `{ segment, solid, ($sx1, $sy1), ($sx2, $sy2) }`, with unique points
+#: `($sx1, $sy1)` and `($sx2, $sy2)`. For a correct answer, the line segment
+#: must have the given the endpoints and be solid.
+#:
+#: Mulitple line segments can be added to the graph tool, however, if a
+#: triangle or quadrilateral is desired, see PROBLINK('TriangleGraphTool.pg')
+#: and PROBLINK('QuadrilateralGraphTool.pg') for more appropriate tools.
+$sx1 = random(-8, 8);
+$sy1 = random(-8, 8);
+do { $sx2 = random(-8, 8); $sy2 = random(-8, 8); }
+    until $sx2 != $sx1 || $sy2 != $sy1;
+
+$gt = GraphTool("{segment, solid, ($sx1, $sy1), ($sx2, $sy2)}",)
+    ->with(availableTools => [ 'SegmentTool', 'FillTool', 'SolidDashTool' ]);
+
+#:% section = statement
+#: This asks the student to graph the line segment with the given endpoints.
+#: The code `[_]{$gt}` inserts the graph tool.
+BEGIN_PGML
+Graph the line segment between the points [`([$sx1], [$sy1])`] and
+[`([$sx2], [$sy2])`].
+
+[_]{$gt}
+END_PGML
+
+#:% section = solution
+#: To show the graph with alternate text we use the PGML image construct
+#: `[!  !]{$gt}`, where the alternate text is placed within the `[! !]`.
+BEGIN_PGML_SOLUTION
+The correct answer is
+
+[!A graph of the line segment from  ([$sx1], [$sy1]) to ([$sx2],[$sy2])!]{$gt}
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

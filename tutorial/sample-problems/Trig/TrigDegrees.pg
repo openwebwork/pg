@@ -18,13 +18,13 @@
 
 #:% section = preamble
 #: Load the PODLINK('contextTrigDegrees.pl') macro for the `TrigDegrees`
-#: context. Also load the PODLINK('parserNumberWithUnits.pl') so that answers
-#: can be asked for with the degree symbol.
+#: context. Also load the PODLINK('contextUnits.pl') which will require that the
+#: answer has units of degrees.
 DOCUMENT();
 
 loadMacros(
     'PGstandard.pl',         'PGML.pl',
-    'contextTrigDegrees.pl', 'parserNumberWithUnits.pl',
+    'contextTrigDegrees.pl', 'contextUnits.pl',
     'PGcourse.pl'
 );
 
@@ -32,21 +32,24 @@ loadMacros(
 #: Select the `TrigDegrees` context to which evaluates trig functions in
 #: degrees. This applies to any formulas or student answers in this context.
 #:
-#: The second answers is constructed with the `NumberWithUnits` method and the
+#: The second answer is constructed with the `NumberWithUnits` method and the
 #: degree symbol is specified as the unit. Degree measures should always be
 #: given with the degree symbol.
 Context('TrigDegrees');
 
-$ans1 = Compute('sin(30)');
-$ans2 = NumberWithUnits('arcsin(1 / 2)', 'degrees');
+$y = Compute('sin(30)');
+
+Context('Units')->withUnitsFor('angles');
+
+$ang = Compute('30 degrees');
 
 #:% section = statement
 #: Inform the students to give angle measurements in degrees.
 BEGIN_PGML
 Evaluate the following.  Give angles in degrees.
 
-1. [`\sin(30^{\circ}) =`] [_]{$ans1}{5}
-2. [`\arcsin(1 / 2) =`] [_]{$ans2}{5}
+1. [`\sin(30^{\circ}) =`] [_]{$y}
+2. [``\sin^{-1}\left(\frac{1}{2}\right) =``] [_]{$ang->with(sameUnits => 1)}
 END_PGML
 
 #:% section = solution

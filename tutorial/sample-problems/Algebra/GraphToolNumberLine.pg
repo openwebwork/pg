@@ -13,7 +13,7 @@
 #:% name = Graph Tool, number line
 #:% type = [Sample, technique]
 #:% subject = [algebra, precalculus]
-#:% categories = [graph]
+#:% categories = [graph, graphtool]
 
 #:% section = preamble
 #: This example shows how to get student input in the form of a graph
@@ -40,8 +40,8 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #:
 #: * `numberLine` is set to 1 (true) to indicate this is a one-dimensional
 #:   graph.
-#: * `bBox`: For a number line the bounding box is an array reference [xmin, xmax]
-#:   containing the left and right limits of the visible graph.
+#: * `bBox`: For a number line the bounding box is an array reference
+#:  [xmin, xmax] containing the left and right limits of the visible graph.
 #: * `availableTools`: This determines which tools will be available for the
 #:   student to use.
 #: * `ticksDistanceX`: The distance between tick marks in the x direction.

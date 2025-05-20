@@ -13,7 +13,8 @@
 
 #:% name = Restrict Answers to a Constant
 #:% type = [technique, sample]
-#:% subject = [answer]
+#:% category = [answer]
+#:% subject = [trigonometry]
 #:% see_also = [RestrictAnswerToFraction.pg]
 
 #:% section = preamble
@@ -34,7 +35,7 @@ $deriv = Compute(0)->cmp(showTypeWarnings => 0);
 BEGIN_PGML
 Find and completely simplify:
 
-[``\frac{d}{dx}\bigl(\sin^2 x + \cos^2 x\bigr) = ``] [__]{$deriv}
+[`` \frac{d}{dx}\bigl(\sin^2 x +\cos^2 x \bigr)= ``] [__]{$deriv}
 END_PGML
 
 #:% section = solution

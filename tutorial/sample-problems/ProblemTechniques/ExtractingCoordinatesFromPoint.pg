@@ -55,8 +55,8 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: `((2 + (-7)) / 2, (-3 + 8) / 2)` from being accepted.
 Context('Point');
 
-$point1 = Point(random(1,   5),  random(-5, -1));
-$point2 = Point(random(-10, -6), random(6,  10));
+$point1 = Point(random(1,    5), random(-5, -1));
+$point2 = Point(random(-10, -6), random( 6, 10));
 
 ($d1, $d2) = ($point1 - $point2)->value;
 

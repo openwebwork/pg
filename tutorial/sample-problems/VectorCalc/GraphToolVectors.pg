@@ -1,0 +1,59 @@
+## DESCRIPTION
+## Shows a triangle tool within the GraphTool.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(Sample Problems)
+## DBsection(Graph Tool)
+## Date(02/25/2025)
+## Institution(Missouri Western)
+## Author(Glenn Rice)
+## MO(1)
+## KEYWORDS('graph tool', 'vectors')
+
+#:% name = Vector Graph Tool
+#:% type = Sample
+#:% subject = [geometry]
+#:% categories = [graph, graphtool]
+
+#:% section = preamble
+#: Load the PODLINK('parserGraphTool.pl') macro to be able to use the GraphTool.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This problem asks the student to graph the random vector <$vx1, $vy1>.  Set
+#: this as the correct answer by passing `{ vector, solid (0,0), ($vx1, $vx2) }`
+#: to the `GraphTool` method.
+#:
+#: The checker will give credit for any vector that is graphed with the same
+#: length and direction.  The graphed vector's initial point does not need to be
+#: the origin.
+$vx1 = random(-8, 8);
+$vy1 = random(-8, 8);
+
+$gt = GraphTool("{vector, solid, (0, 0), ($vx1, $vy1)}")
+    ->with(availableTools => [ 'VectorTool', 'FillTool', 'SolidDashTool' ]);
+
+#:% section = statement
+#: The question asks the student to graph the given vector.
+#: The code `[_]{$gt}` inserts the graph tool.
+BEGIN_PGML
+Graph the vector [`\langle[$vx1], [$vy1]\rangle`].
+
+[_]{$gt}
+END_PGML
+
+#:% section = solution
+#: To show the graph with alternate text we use the PGML image construct
+#: `[!  !]{$gt}`, where the alternate text is placed within the `[! !]`.
+BEGIN_PGML_SOLUTION
+A correct answer is
+
+[!A graph of the vector from (0,0) to ([$vx1],[$vy1])!]{$gt}
+
+But any vector with the same length and in the same direction would be correct as well.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

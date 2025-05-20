@@ -17,6 +17,7 @@
 #:% type = [technique, sample]
 #:% categories = vector
 #:% subject = Vector Calculus
+#:% see_also = [VectorParametricLine.pg, VectorLineSegment1.pg]
 
 #:% section = preamble
 #:  The PODLINK('parseVectorUtils.pl') macro is loaded for the
@@ -48,7 +49,7 @@ centimeters.
 
 Find a vector equation for the position of the object.
 
-[` \vec{r}(t) = `] [____]{$ans}
+[` \vec{r}(t) = `] [_]{$ans}{10}
 
 _Do not include units in your answer._
 END_PGML

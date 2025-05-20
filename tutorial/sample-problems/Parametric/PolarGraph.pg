@@ -13,7 +13,7 @@
 
 #:% name = Polar Graph
 #:% type = [sample, technique]
-#:% subject = parametric
+#:% subject = [parametric]
 
 #:% section = preamble
 #: The PODLINK('PGtikz.pl') macro is used to generate the graph.

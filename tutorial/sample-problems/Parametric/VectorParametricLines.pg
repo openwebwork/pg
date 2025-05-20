@@ -14,6 +14,7 @@
 #:% name = Parametric Lines
 #:% type = Sample
 #:% subject = parametric
+#:% see_also = [VectorParametricFunction.pg,VectorParametricDerivative.pg]
 
 #:% section = preamble
 #: The PODLINK('parserVectorUtils.pl') macro is used which provides the

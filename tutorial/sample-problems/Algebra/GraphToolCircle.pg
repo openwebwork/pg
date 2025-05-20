@@ -12,8 +12,8 @@
 
 #:% name = Graph Tool, plotting a circle
 #:% type = [Sample, technique]
-#:% subject = [algebra, precalculus]
-#:% categories = [graph]
+#:% subject = [algebra, precalculus, geometry]
+#:% categories = [graph, graphtool]
 
 #:% section = preamble
 #: This example shows how to get student input in the form of a graph (a circle)
