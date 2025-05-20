@@ -255,7 +255,6 @@ modules:
   - ['Locale::Maketext']
   - ['WeBWorK::PG::Localize']
   - ['Mojo::JSON']
-  - ['Class::Tiny']
   - ['IO::Handle']
   - ['Rserve']
   - [DragNDrop]
