@@ -63,7 +63,7 @@
 		},
 
 		CircleTool(gt) {
-			return class CirlceTool extends gt.GenericTool {
+			return class CircleTool extends gt.GenericTool {
 				object = 'circle';
 				useStandardActivation = true;
 				activationHelpText = 'Plot the center of the circle.';
