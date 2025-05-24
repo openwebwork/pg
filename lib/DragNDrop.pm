@@ -187,8 +187,11 @@ sub TeX {
 		}
 		$out .= "}";
 
-		if ($i % 2 == 0) { $out .= "\\columnbreak\n\n" if $i != $#{ $self->{defaultBuckets} } }
-		else             { $out .= "\\ifdefined\\nocolumns\\end{multicols}\\else\\fi\n\\end{minipage}\n" }
+		if ($i % 2 == 0) {
+			$out .= "\\ifdefined\\nocolumns\\columnbreak\\else\\fi\n\n" if $i != $#{ $self->{defaultBuckets} };
+		} else {
+			$out .= "\\ifdefined\\nocolumns\\end{multicols}\\else\\fi\n\\end{minipage}\n";
+		}
 		$out .= "\\vspace{0.75\\baselineskip}\n";
 	}
 	$out .= "\n\\hrule\n\\vspace{0.25\\baselineskip}\n";
