@@ -381,35 +381,36 @@ END_OF_JAVA_TEXT
 
 =head3 newtonDividedDifference
 
-Computes the newton divided difference table.
+Computes the Newton divided difference table.
 
 B<Arguments>
 
 =over
 
-=item * C<x> an array reference for x values.
+=item * C<x> an array reference for x-values.
 
-=item * C<y> an array reference for y values.  This is the first row/column in the divided
+=item * C<y> an array reference for y-values.  This is the first row/column in the divided
 difference table.
 
 =back
 
 B<Ouput>
 
-An arrayref of arrayrefs of Divided Differences.
+An array reference of array referencess of divided differences.
 
 B<Examples>
 
-  $x=[0,1,3,6];
-  $y=[0,1,2,5];
+  $x = [0, 1, 3, 6];
+  $y = [0 ,1 ,2, 5];
 
-  $c=newtonDividedDifference($x,$y)
+  $c = newtonDividedDifference($x, $y);
 
 The result of C<$c> is
 
-  [ [0,1,2,5],
-    [1,0.5,1],
-    [-0.1667,0.1],
+  [
+    [0, 1, 2, 5],
+    [1, 0.5, 1],
+    [-0.1667, 0.1],
     [0.0444]
   ]
 
@@ -423,10 +424,9 @@ This is generally laid out in the following way:
         1
   6  5
 
-where the first column is C<$x>, the second column is C<$y> and the rest of the table
-is
+where the first column is C<$x>, the second column is C<$y> and the rest of the table is
 
-   f[x_i,x_j] = (f[x_j]-f[x_i])/(x_j - x_i)
+   f[x_i, x_j] = (f[x_j] - f[x_i])/(x_j - x_i)
 
 =cut
 
@@ -447,11 +447,11 @@ Returns a code reference to the Legendre Polynomial of degree C<n>.
 
 Usage:
 
-    $poly = legendreP($n)
+    $poly = legendreP($n);
 
-And then evaluations can be found with C<&$poly(0.5)> for example to evaluate the polynomial at
-C<x=5>. Even though this is a polynomial, the standard domain of these are [-1,1], although this
-subroutine does not check for that.
+And then for example to evaluate the polynomial at C<x = 0.5>, use C<&$poly(0.5)>.  Even though
+these are polynomials, the standard domain for these are [-1,1]. However this subroutine does not
+check for that.
 
 =cut
 
@@ -475,10 +475,10 @@ Returns a code reference to the derivative of the Legendre polynomial of degree 
 
 Usage:
 
-    $dp = diffLegendreP($n)
+    $dp = diffLegendreP($n);
 
-If C<$dp = diffLegendreP(5)>, then C<&$dp(0.5)> will find the value of the derivative of the 5th degree
-legendre polynomial at C<x=0.5>.
+If C<$dp = diffLegendreP(5)>, then C<&$dp(0.5)> will find the value of the derivative of the 5th
+degree legendre polynomial at C<x = 0.5>.
 
 =cut
 
@@ -502,7 +502,7 @@ Gaussian Quadrature.
 
 Usage:
 
-    ($nodes, $weights) = legendreP_nodes_weights($n)
+    ($nodes, $weights) = legendreP_nodes_weights($n);
 
 The C<$nodes> and C<$weights> are array references of nodes and weights.
 
@@ -724,9 +724,9 @@ Usage:
 
     inv_romberg(function_reference, a, value);
 
-Finds b such that the integral of the function from a to b is equal to value.
-Assumes that the function is continuous and doesn't take on the zero value.
-Uses Newton's method of approximating roots of equations, and Romberg to evaluate definite integrals.
+Finds b such that the integral of the function from a to b is equal to value. Assumes that the
+function is continuous and doesn't take on the zero value. Uses Newton's method of approximating
+roots of equations, and Romberg to evaluate definite integrals.
 
 Example
 
@@ -768,10 +768,10 @@ Simpson's, the 3/8 rule or Boole's).
 
 Usage:
 
-    newtonCotes($f,$a,$b, n=> 4, method => 'simpson')
+    newtonCotes($f, $a, $b, n => 4, method => 'simpson');
 
 where C<$f> is a subroutine reference (function that takes a single numerical value and
-returns a single value), C<$a> and C<$b> is the interval C<[$a,$b]>.
+returns a single value), and C<[$a, $b]> is an interval to integrate over.
 
 B<Options>
 
@@ -781,11 +781,11 @@ B<Options>
 
 The method options are either open or closed methods. The closed newton-cotes formula methods
 are C<trapezoid, simpson, three-eighths, boole>.  The open newton-cotes formula methods are
-C<open1, open2, open3, open4>, the number indicates the number of used nodes for the formula.
+C<open1, open2, open3, open4>, where the number indicates the number of used nodes for the formula.
 
 =item n
 
-This number is the number of subintervals to use for a composite version of the formula.
+This is the number of subintervals to use for a composite version of the formula.
 If n is set to 1, then this uses the non-composite version of the method.
 
 =back
@@ -836,12 +836,11 @@ sub newtonCotes {
 
 =head3 gaussQuad
 
-Compute the integral of a function C<$f> on an interval C<[a,b]> using Gassian
-Quadrature.
+Compute the integral of a function C<$f> on an interval C<[a, b]> using Gassian Quadrature.
 
 Usage:
 
-     gaussQuad($f,n=>5, a => -1, b => 1, weights => $w, nodes => $nodes)
+     gaussQuad($f, n => 5, a => -1, b => 1, weights => $w, nodes => $nodes);
 
 where C<$f> is a code reference to a function from R => R, C<a> and C<b> are the endpoints of the
 interval, C<n> is the number of nodes to use.  The weights and nodes will depend on the value of
@@ -948,17 +947,18 @@ sub rungeKutta4 {
 
 =head3 solveDiffEqn
 
-Produces a numerical solution to the differential equation y'=f(x,y) using a number of optional methods.
+Produces a numerical solution to the differential equation y' = f(x,y) using a number of optional
+methods.
 
 B<Arguments>
 
 =over
 
-=item * C<f> an subroutine reference that take two inputs (x,y) and returns
+=item * C<f> a subroutine reference that take two inputs (x,y) and returns
 a single number. Note: if you use a Formula to generate a function, create a perl
 function with the C<<$f->perlFunction>> method.
 
-=item * C<y0> a real-values number for the initial point
+=item * C<y0> a real-valued number for the initial point
 
 =back
 
@@ -966,9 +966,9 @@ B<Options>
 
 =over
 
-=item * C<x0> the initial x value (defaults to 0)
+=item * C<x0> the initial x-value (defaults to 0)
 
-=item * C<h> the stepsize of the numerical method (defaults to 0.25)
+=item * C<h> the step size of the numerical method (defaults to 0.25)
 
 =item * C<n> the number of steps to perform (defaults to 4)
 
@@ -982,31 +982,32 @@ An hash with the following fields:
 
 =over
 
-=item *  C<x> an array ref of the x values which are C<x0 + i*h for i=0..n>
+=item *  C<x> an array reference of the x-values which are C<x0 + i*h for i = 0..n>
 
-=item *  C<y> an array ref of the y values (depending on the method used)
+=item *  C<y> an array reference of the y-values (which depend on the method used)
 
-=item *  C<k1, k2, k3, k4> the intermediate function values used (depending on the method).
+=item *  C<k1, k2, k3, k4> the intermediate function values used (which depend on the method).
 
 =back
 
 B<Examples>
 
-The following performs Euler's method on C<y'=xy, y(0) = 1> using C<h=0.5> for C<n=10> points, so
-the last x value is 5.
+The following performs Euler's method on C<y' = xy, y(0) = 1> using C<h = 0.5> for C<n = 10> points,
+so the last x-value is 5.
 
     $f = sub { my ($x, $y) = @_; return $x*$y; }
-    $sol1 = solveDiffEqn($f,1,x0=>0,h=>0.5,n=>10, method => 'euler');
+    $sol1 = solveDiffEqn($f, 1, x0 => 0, h => 0.5, n => 10, method => 'euler');
 
-The output C<$sol> is a hash ref with fields x and y, where each have 11 points.
+The output C<$sol> is a hash reference with fields x and y, where each have 11 points.
 
-The following uses the improved Euler method on C<y'=x^2+y^2, y(0)=1> using C<h=0.2> for C<n=5> points
-(the last x value is 1.0).  Note, this shows how to pass the perl function to the method.
+The following uses the improved Euler method on C<y' = x^2 + y^2, y(0) = 1> using C<h = 0.2> for
+C<n = 5> points (the last x-value is 1.0).  Note, this shows how to pass the perl function to the
+method.
 
     Context()->variables->add(y => 'Real');
-    $G = Formula("x^2+y^2");
+    $G = Formula("x^2 + y^2");
     $g = $G->perlFunction;
-    $sol2 = solveDiffEqn($g, 1, method => 'improved_euler', x0=>0, h=>0.2,n=>5);
+    $sol2 = solveDiffEqn($g, 1, method => 'improved_euler', x0 => 0, h => 0.2,n => 5);
 
 In this case, C<$sol2> returns both x and y, but also, the values of C<k1> and C<k2>.
 
@@ -1070,15 +1071,15 @@ sub solveDiffEqn {
 
 =head3 bisection
 
-Performs the bisection method for the function C<$f> and initial interval C<$int> (arrayref).
-An example is
+Performs the bisection method for the function C<$f> and initial interval C<$int> (an array
+reference). An example is
 
-  $f = sub { $x = shift; $x**2-2;}
+  $f = sub { $x = shift; $x**2 - 2; }
   $bisect = bisection($f, [1, 2]);
 
-The result is a hash with fields root (the estimated root), intervals (an array ref or
-intervals for each step of bisection) or a hash with field C<error> if there is an
-error with either the inputs or from the method.
+The result is a hash with fields C<root> (the estimated root) and C<intervals> (an array reference
+of intervals for each step of bisection) or a hash with field C<error> if there is an error with
+either the inputs or from the method.
 
 B<Arguments>
 
@@ -1087,7 +1088,7 @@ B<Arguments>
 =item * C<f>, a reference to a subroutine with a single input number and single output
 value.
 
-=item * C<int>, an array ref of the interval C<[a,b]> where a < b.
+=item * C<int>, an array reference for the interval C<[a,b]> where a < b.
 
 =back
 
@@ -1109,7 +1110,7 @@ A hash with the following fields
 
 =item * C<root>, the approximate root using bisection.
 
-=item * C<interval>, an arrayref of the intervals (each interval also an array ref)
+=item * C<interval>, an array reference of the intervals (each interval also an array reference)
 
 =item * C<error>, a string specifying the error (either argument argument error or too many steps)
 
@@ -1161,14 +1162,14 @@ sub bisection {
 
 =head3 newton
 
-Performs newton's method for the function C<$f> and initial point C<$x0>.
+Performs Newton's method for the function C<$f> and initial point C<$x0>.
 An example is
 
-    $f = sub { my $x = shift; return $x**2-2; }
-    $df = sub { my $x = shift; return 2*$x; }
+    $f = sub { my $x = shift; return $x**2 - 2; };
+    $df = sub { my $x = shift; return 2*$x; };
     $newton = newton($f, $df, 1);
 
-The result is a hash with fields C<root> (the estimated root) and C<iterations> (an arrayref
+The result is a hash with fields C<root> (the estimated root) and C<iterations> (an array reference
 of the iterations with the first being C<$x0>. The result hash will contain the field C<error>
 if there is an error.
 
@@ -1245,13 +1246,13 @@ sub newton {
 
 =head3 secant
 
-Performs the secant method for finding a root of the function C<$f> with initial points C<$x0> and C<$x1>
-An example is
+Performs the secant method for finding a root of the function C<$f> with initial points C<$x0> and
+C<$x1>. An example is
 
-  $f = sub { my $x = shift; return $x**2-2; }
-  $secant = secant($f,1,2);
+  $f = sub { my $x = shift; return $x**2 - 2; };
+  $secant = secant($f, 1, 2);
 
-The result is a hash with fields C<root> (the estimated root) and C<intervals> (an arrayref
+The result is a hash with fields C<root> (the estimated root) and C<intervals> (an array reference
 of the iterations with the first two being C<$x0> and C<$x1>. The result hash will contain
 the field C<error> if there is an error.
 
@@ -1290,7 +1291,7 @@ A hash with the following fields
 
 =item * C<root>, the approximate root.
 
-=item * C<iterations>, an arrayref of the iterations.
+=item * C<iterations>, an array reference to the iterations.
 
 =item * C<error>, a string specifying the error (either argument argument error or too many steps)
 
