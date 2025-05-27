@@ -1,7 +1,9 @@
 
-=head1 PGdiffeqmacros.pl DESCRIPTION
+# Note: this needs to be deprecated.  But in a lot problems.
 
-# Macros for Prills 163 problems
+=head1 NAME
+
+PGdiffeqmacros.pl - Macros for Prills 163 problems
 
 =cut
 

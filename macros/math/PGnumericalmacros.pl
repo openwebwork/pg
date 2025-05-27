@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-Numerical methods for the PG language
+PGnumericalmacros.pl - Numerical methods for the PG language
 
 =cut
 
@@ -9,9 +9,9 @@ BEGIN { strict->import; }
 
 sub _PGnumericalmacros_init { }
 
-=head2 Interpolation methods
+=head1 Interpolation methods
 
-=head3 plot_list
+=head2 plot_list
 
 Usage:
 
@@ -68,7 +68,7 @@ sub plot_list {
 	};
 }
 
-=head3 horner
+=head2 horner
 
 Usage:
 
@@ -108,7 +108,7 @@ sub horner {
 	};
 }
 
-=head3 hermite
+=head2 hermite
 
 Usage:
 
@@ -162,7 +162,7 @@ sub hermite {
 	return horner(\@zvals, \@output);
 }
 
-=head3 hermite_spline
+=head2 hermite_spline
 
 Usage
 
@@ -225,7 +225,7 @@ sub hermite_spline {
 	};
 }
 
-=head3 cubic_spline
+=head2 cubic_spline
 
 Usage:
 
@@ -379,9 +379,9 @@ END_OF_JAVA_TEXT
 	return $output_str;
 }
 
-=head2 Numerical Integration methods
+=head1 Numerical Integration methods
 
-=head3 lefthandsum
+=head2 lefthandsum
 
 Left Hand Riemann Sum
 
@@ -409,7 +409,7 @@ sub lefthandsum {
 	return $sum * $delta;
 }
 
-=head3 righthandsum
+=head2 righthandsum
 
 Right Hand Riemann Sum
 
@@ -437,7 +437,7 @@ sub righthandsum {
 	return $sum * $delta;
 }
 
-=head3 midpoint
+=head2 midpoint
 
 Usage:
 
@@ -463,7 +463,7 @@ sub midpoint {
 	return $sum * $delta;
 }
 
-=head3 simpson
+=head2 simpson
 
 Usage:
 
@@ -494,7 +494,7 @@ sub simpson {
 	return $sum * $delta / 3;
 }
 
-=head3 trapezoid
+=head2 trapezoid
 
 Usage:
 
@@ -521,7 +521,7 @@ sub trapezoid {
 	return $sum * $delta;
 }
 
-=head3 romberg
+=head2 romberg
 
 Usage:
 
@@ -545,7 +545,7 @@ sub romberg_iter {
 		/ (4**($k - 1) - 1);
 }
 
-=head3 inv_romberg
+=head2 inv_romberg
 
 Inverse Romberg
 
@@ -590,9 +590,9 @@ sub inv_romberg {
 	return $b;
 }
 
-=head2 Differential Equation Methods
+=head1 Differential Equation Methods
 
-=head3 rungeKutta4
+=head2 rungeKutta4
 
 Finds integral curve of a vector field using the 4th order Runge Kutta method by
 providing the function C<rungeKutta4>

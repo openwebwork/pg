@@ -1,3 +1,5 @@
+# Note: this probably no longer works using CGI unless specifically set up.  Deprecate?
+
 if ($displayMode =~ m/HTML/ && !defined($_slides_loaded)) {
 	TEXT('<DIV ID="source_button" STYLE="float:right; margin-right:2em">'
 			. '<SCRIPT>function showSource () {'
@@ -16,7 +18,11 @@ sub NoSourceButton {
 	#  }
 }
 
-=head1   sourceButton
+=head1 NAME
+
+source.pl - allow the source of the problem to be shown.
+
+=head1 DESCRIPTION
 
 activating the source button
 

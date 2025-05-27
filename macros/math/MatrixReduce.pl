@@ -1,16 +1,11 @@
-sub _MatrixReduce_init { };    # don't reload this file
-
-=pod
 
 =head1 NAME
 
-MatrixReduce.pl - reduced row echelon form, row
-operations, and elementary matrices.
+MatrixReduce.pl - reduced row echelon form, row operations, and elementary matrices.
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
 
-Provides subroutines for elementary matrix
-computations using MathObjects matrices.
+Provides subroutines for elementary matrix computations using MathObjects matrices.
 
 =over 12
 
@@ -68,7 +63,7 @@ C<$Areduced = row_add($A,2,1,10);> adds 10 times row 1 to row 2 and places the r
 
 =back
 
-=head1 DESCRIPTION
+=head1 SYNOPSIS
 
 Usage:
 
@@ -147,9 +142,10 @@ Michael Doob, University of Manitoba, Department of Mathematics
 # a consistent system.  Also, with randomly chosen matrices, it is
 # possible to get rows or columns of zeros, so watch out!
 
+sub _MatrixReduce_init { };    # don't reload this file
+
 loadMacros("MathObjects.pl", "contextFraction.pl",);
 
-################################################
 #  rref: input and output are MathObject matrices.
 #  Should be run in Fraction context for best results.
 
@@ -201,7 +197,6 @@ sub rref_perl_array {
 	return @A;
 }
 
-################################################
 #  This was written by Davide Cervone.
 #  http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2970
 
@@ -216,14 +211,10 @@ sub change_matrix_entry {
 	}
 }
 
-################################################
-
 sub identity_matrix {
 	my $n = shift;
 	return Value::Matrix->I($n);
 }
-
-################################################
 
 sub elem_matrix_row_switch {
 
@@ -240,8 +231,6 @@ sub elem_matrix_row_switch {
 	return Matrix(\@m);
 
 }
-
-#########################################
 
 sub elem_matrix_row_mult {
 
@@ -263,8 +252,6 @@ sub elem_matrix_row_mult {
 
 }
 
-######################################
-
 sub elem_matrix_row_add {
 
 	# $n = number of rows (and columns) in matrix
@@ -285,16 +272,14 @@ sub elem_matrix_row_add {
 
 }
 
-##############################################
-
 sub row_add {
 
 	# put  (row i) + s * (row j) into (row i)
 
-	my $M = shift;    # MathObject matrix
-	my $i = shift;    # row index
-	my $j = shift;    # row index
-	my $s = shift;    # scaling factor
+	my $M = shift;                   # MathObject matrix
+	my $i = shift;                   # row index
+	my $j = shift;                   # row index
+	my $s = shift;                   # scaling factor
 
 	my ($r, $c) = $M->dimensions;
 	if (($i < 1) or ($j < 1) or ($i > $r) or ($j > $r)) {
@@ -318,8 +303,6 @@ sub row_add {
 
 }
 
-####################################
-
 sub row_switch {
 
 	my $M  = shift;    # MathObject matrix
@@ -335,8 +318,6 @@ sub row_switch {
 	return Matrix(\@m);
 
 }
-
-#########################################
 
 sub row_mult {
 
@@ -356,8 +337,6 @@ sub row_mult {
 	return Matrix(\@m);
 
 }
-
-####################################
 
 sub apply_fraction_to_matrix_entries {
 

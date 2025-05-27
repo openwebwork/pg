@@ -1,8 +1,7 @@
 
 =head1 NAME
 
-contextRationalFunction.pl - Only allow rational functions
-                             (and their products and powers)
+contextRationalFunction.pl - Only allow rational functions (and their products and powers)
 
 =head1 DESCRIPTION
 
@@ -36,13 +35,9 @@ functions, though they can be re-enabled, if needed.
 
 =cut
 
-##################################################
-
 loadMacros("MathObjects.pl", "contextPolynomialFactors.pl");
 
 sub _contextRationalFunction_init { RationalFunction::Init() }
-
-##############################################
 
 package RationalFunction::BOP::multiply;
 our @ISA = qw(PolynomialFactors::BOP::multiply);
@@ -59,8 +54,6 @@ sub checkFactors {
 	}
 	return 1;
 }
-
-##############################################
 
 package RationalFunction::BOP::divide;
 our @ISA = qw(PolynomialFactors::BOP::divide);
@@ -104,8 +97,6 @@ sub checkFactors {
 	return 1;
 }
 
-##############################################
-
 package RationalFunction::BOP::power;
 our @ISA = qw(PolynomialFactors::BOP::power);
 
@@ -117,8 +108,6 @@ sub checkPolynomial {
 	return 1;
 }
 
-##############################################
-
 package RationalFunction::UOP::minus;
 our @ISA = qw(PolynomialFactors::UOP::minus);
 
@@ -129,16 +118,13 @@ sub checkPolynomial {
 	return 1;
 }
 
-##############################################
-
 package RationalFunction;
 our @ISA = ('PolynomialFactors');
 
 sub Init {
-	#
+
 	#  Build the new context that calls the
 	#  above classes rather than the usual ones
-	#
 
 	my $context = $main::context{RationalFunction} = Parser::Context->getCopy("PolynomialFactors");
 	$context->{name} = "RationalFunction";
@@ -156,9 +142,8 @@ sub Init {
 	);
 	$context->flags->set(strictPowers => 1);
 
-	#
 	#  A context where coefficients can't include operations
-	#
+
 	$context = $main::context{"RationalFunction-Strict"} = $context->copy;
 	$context->flags->set(
 		strictCoefficients => 1,

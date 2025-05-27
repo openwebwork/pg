@@ -1,3 +1,15 @@
+# Note: does this need to be a separate context?  Perhaps a flag in the LimitedNumeric context?
+
+=head1 NAME
+
+contextLeadingZero.pl - Require numeric answers to have a 0 before the decimal point.
+
+=head1 DESCRIPTION
+
+Require numeric answers to have a 0 before the decimal point.
+
+=cut
+
 loadMacros("contextLimitedNumeric.pl");
 
 $context{LeadingZero} = Parser::Context->getCopy("LimitedNumeric");

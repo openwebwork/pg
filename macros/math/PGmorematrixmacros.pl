@@ -1,7 +1,8 @@
+# Note: move this functionality into the Matrix MathObject.
 
 =head1 NAME
 
-More matrix macros for the PG language
+PGmorematrixmacros.pl - More matrix macros for the PG language
 
 =head1 DESCRIPTION
 
@@ -13,12 +14,6 @@ BEGIN { strict->import; }
 
 # set the prefix used for arrays.
 our $ArRaY = $main::PG->{ARRAY_PREFIX};
-
-=head2 NAME
-
-	macros/PGmorematrixmacros.pl
-
-=cut
 
 sub _PGmorematrixmacros_init { }
 

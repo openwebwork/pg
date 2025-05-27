@@ -1,3 +1,12 @@
+
+# Note: deprecate or update POD.
+
+=head1 NAME
+
+PGnauBinpacking.pl -
+
+=cut
+
 sub PGnextfit {
 	my ($binsize, @input) = @_;
 	my (@list, $val);

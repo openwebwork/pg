@@ -5,6 +5,10 @@ contextBoolean.pl - Implements a MathObject class for Boolean expressions
 
 =head1 DESCRIPTION
 
+This macro provides functionality to handle boolean expression
+
+=head1 SYNOPSIS
+
 Load this file:
 
     loadMacros('contextBoolean.pl');
@@ -13,7 +17,7 @@ and then select the context:
 
     Context('Boolean');
 
-=head2 CONSTANTS
+=head3 CONSTANTS
 
 This constant recognizes two constants by default, C<T> and C<F>. The following are all equivalent:
 
@@ -22,14 +26,14 @@ This constant recognizes two constants by default, C<T> and C<F>. The following 
     $T = Context()->T;
     $T = context::Boolean->T;
 
-=head2 VARIABLES
+=head3 VARIABLES
 
 By default, this context has two variables, C<p> and C<q>. More variables can be added through the usual
 means of modifying context:
 
     Context->variables->add( r => 'Boolean' );
 
-=head2 OPERATORS
+=head3 OPERATORS
 
 Changing the LaTeX representations of the boolean operators is handled through the operators C<or>, C<and>,
 C<xor>, and C<not>. Note the extra space following the LaTeX command.
@@ -66,7 +70,7 @@ to be negated.
 
 =back
 
-=head2 OPERATOR PRECEDENCE
+=head3 OPERATOR PRECEDENCE
 
 =over
 
@@ -86,7 +90,7 @@ The C<oxan> setting priortizes C<or> < C<xor> < C<and> < C<not>.
 
 =back
 
-=head2 REDUCTION
+=head3 REDUCTION
 
 The context also handles C<reduceConstants> with the following reduction rules:
 
@@ -114,7 +118,7 @@ The context also handles C<reduceConstants> with the following reduction rules:
 
 =back
 
-=head2 COMPARISON
+=head3 COMPARISON
 
 Boolean Formula objects are considered equal whenever the two expressions generate the same truth table.
 

@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+# Note: deprecate
 
 sub _unionProblem_init { }
 

@@ -97,24 +97,21 @@ sub _contextScientificNotation_init { ScientificNotation::Init() }
 
 package ScientificNotation;
 
-#
 #  Creates and initializes the ScientificNotation context
-#
+
 sub Init {
-	#
+
 	#  Create the Scientific Notation context
-	#
+
 	my $context = $main::context{ScientificNotation} = Parser::Context->getCopy("Numeric");
 	$context->{name} = "ScientificNotation";
 
-	#
 	#  Make numbers include the leading + or - and not allow E notation
-	#
+
 	$context->{pattern}{number} = '[-+]?(?:\d+(?:\.\d*)?|\.\d+)';
 
-	#
 	#  Remove all the stuff we don't need
-	#
+
 	$context->variables->clear;
 	$context->constants->clear;
 	$context->parens->clear;
@@ -122,9 +119,8 @@ sub Init {
 	$context->functions->clear;
 	$context->strings->clear;
 
-	#
 	#  Only allow  x  and  ^  operators
-	#
+
 	$context->operators->add(
 		'x' => {
 			precedence    => 3,
@@ -155,13 +151,12 @@ sub Init {
 		}
 	);
 
-	#
 	#  Don't reduce constant values (so 10^2 won't be replaced by 100)
-	#
+
 	$context->flags->set(reduceConstants => 0);
-	#
+
 	#  Flags controlling input and output
-	#
+
 	$context->flags->set(
 		snDigits    => 6,     # number of decimal digits in mantissa for output
 		snTrimZeros => 1,     # 1 means remove trailing 0's, 0 means leave them
@@ -171,36 +166,30 @@ sub Init {
 							  #  (negative means no limit)
 	);
 
-	#
 	#  Better error message for this case
-	#
+
 	$context->{error}{msg}{"Unexpected character '%s'"} = "'%s' is not allowed in scientific notation";
 
-	#
 	#  Hook into the Value package lookup mechanism
-	#
+
 	$context->{value}{ScientificNotation} = 'ScientificNotation::Real';
 	$context->{value}{"Real()"}           = 'ScientificNotation::Real';
 
-	#
 	#  Create the constructor function
-	#
+
 	main::PG_restricted_eval('sub ScientificNotation {Value->Package("ScientificNotation")->new(@_)}');
 }
 
-##################################################
-#
 #  The Scientific Notation multiplication operator
-#
+
 package ScientificNotation::BOP::x;
 our @ISA = qw(Parser::BOP);
 
-#
 #  Check that the operand types are compatible, and give
 #  approrpiate error messages if not.  (We have to work
 #  hard to make a good message about the number of
 #  decimal digits required.)
-#
+
 sub _check {
 	my $self = shift;
 	my ($lop, $rop) = ($self->{lop}, $self->{rop});
@@ -227,34 +216,29 @@ sub _check {
 	$self->{isScientificNotation} = 1;                      # mark it so we can tell later on
 }
 
-#
 #  Perform the multiplication and return a ScientificNotation object
-#
+
 sub _eval {
 	my ($self, $a, $b) = @_;
 	$self->Package("ScientificNotation")->make($self->context, $a * $b);
 }
 
-#
 #  Use the ScientificNotation MathObject to produce the output formats
 #  (if other operators are added back into the context, these will
 #   need to be modified to include parens at the appropriate times)
-#
+
 sub string { (shift)->eval->string }
 sub TeX    { (shift)->eval->TeX }
 sub perl   { (shift)->eval->perl }
 
-##################################################
-#
 #  Scientific Notation exponentiation operator
-#
+
 package ScientificNotation::BOP::power;
 our @ISA = qw(Parser::BOP::power);    # inherit from standard power (TeX method in particular)
 
-#
 #  Check that the operand types are compatible and
 #  produce appropriate errors if not
-#
+
 sub _check {
 	my $self = shift;
 	my ($lop, $rop) = ($self->{lop}, $self->{rop});
@@ -268,16 +252,13 @@ sub _check {
 	$self->{isPowerOf10} = 1;                      # mark it so BOP::x above can recognize it
 }
 
-#####################################
-#
 #  A subclass of Real that handles scientific notation
-#
+
 package ScientificNotation::Real;
 our @ISA = ("Value::Real");
 
-#
 #  Override these so we can mark ourselves as scientific notation
-#
+
 sub new {
 	my $self = (shift)->SUPER::new(@_);
 	$self->{isValue} = $self->{isScientificNotation} = 1;
@@ -290,11 +271,10 @@ sub make {
 	return $self;
 }
 
-#
 #  Stringify using x notation not E,
 #  using the right number of digits, and trimming
 #  if requested.
-#
+
 sub string {
 	my $self   = shift;
 	my $digits = $self->getFlag("snDigits");
@@ -304,9 +284,8 @@ sub string {
 	return $r;
 }
 
-#
 #  Convert x notation to TeX form
-#
+
 sub TeX {
 	my $r = (shift)->string;
 	$r =~ s/x/\\times /;
@@ -314,21 +293,17 @@ sub TeX {
 	return $r;
 }
 
-#
 #  What to call us in error messages
-#
+
 sub cmp_class {"Scientific Notation"}
 
-#
 #  Only match against strings and Scientific Notation
-#
+
 sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
 	my $ans   = shift;
 	return $other->{isScientificNotation};
 }
-
-#########################################################################
 
 1;

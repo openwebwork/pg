@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGbasicmacros.pl --- located in the courseScripts directory
+PGbasicmacros.pl - set of basic functions and constants for PG problems.
 
 =head1 DESCRIPTION
 

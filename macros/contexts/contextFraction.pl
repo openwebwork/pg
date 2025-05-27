@@ -257,9 +257,6 @@ loadMacros('contextExtensions.pl');
 
 sub _contextFraction_init { context::Fraction::Init() }
 
-#################################################################################################
-#################################################################################################
-
 package context::Fraction;
 our @ISA = ('Parser::Context');
 
@@ -268,39 +265,33 @@ our $MINUS    = Value::Type("Number", undef, undef, fracData => { class => "MINU
 our $FRACTION = Value::Type("Number", undef, undef, fracData => { class => "FRACTION" });
 our $MIXED    = Value::Type("Number", undef, undef, fracData => { class => "MIXED" });
 
-#
 #  Extend a given context (by name or actual Context object) to include fractions
 #  The options are the default values for the Fraction context flags
-#
+
 sub extending {
 	my ($from, %options) = @_;
 
-	#
 	#  Get a copy of the original context
-	#
+
 	my $context = context::Extensions::create("Fraction", $from);
 
-	#
 	#  Add fractions into the number pattern
-	#
+
 	$context->{pattern}{signedNumber} = '(?:' . $context->{pattern}{signedNumber} . '|-?\d+\s*/\s*-?\d+)';
 
-	#
 	#  Define fractions as being above Infinity
-	#
+
 	$context->{value}{Fraction}      = "context::Fraction::Value::Fraction";
 	$context->{precedence}{Fraction} = $context->{precedence}{Infinity} + .5;
 
-	#
 	#  Set the mixedNum class to be the original multiplication
-	#
+
 	my $operators = $context->operators;
 	my $mult      = $operators->get('*');
 	$context->{'context::Fraction'}{mixedNum} = $mult->{class};
 
-	#
 	#  Extend the context with the needed classes and properties
-	#
+
 	return context::Extensions::extend(
 		$context,
 		opClasses => {
@@ -348,9 +339,8 @@ sub extending {
 	);
 }
 
-#
 #  Initialize the contexts and make the creator function.
-#
+
 sub Init {
 	my $context = $main::context{Fraction} = context::Fraction::extending('Numeric');
 
@@ -377,15 +367,13 @@ sub Init {
 	main::PG_restricted_eval('sub Fraction { Value->Package("Fraction()")->new(@_)} ;');
 }
 
-#
 #  Backward compatibility
-#
+
 sub contFrac   { context::Fraction::Context->continuedFraction(@_) }
 sub toFraction { context::Fraction::Context->toFraction(@_) }
 
-#
 #  Greatest Common Divisor
-#
+
 sub gcd {
 	my ($a, $b) = (abs(shift), abs(shift));
 	($a, $b) = ($b, $a) if $a < $b;
@@ -398,17 +386,15 @@ sub gcd {
 	return $b;
 }
 
-#
 #  Least Common Multiple
-#
+
 sub lcm {
 	my ($a, $b) = @_;
 	return ($a / gcd($a, $b)) * $b;
 }
 
-#
 #  Reduced fraction
-#
+
 sub reduce {
 	my ($a, $b) = @_;
 	($a, $b) = (-$a, -$b) if $b < 0;
@@ -416,53 +402,48 @@ sub reduce {
 	return ($a / $gcd, $b / $gcd);
 }
 
-#################################################################################################
-#################################################################################################
-
 package context::Fraction::Context;
 our @ISA = ('Parser::Context');
 
 sub class {'Context'}
 
-#
 # Takes a positive real input and outputs an array (a,b) where a/b
 # is a very good fraction approximation with b no larger than
 # maxdenominator.
-#
+
 sub continuedFraction {
 	my ($self, $x) = @_;
 	my $step = $x;
 	my $n    = int($step);
 	my ($h0, $h1, $k0, $k1) = (1, $n, 0, 1);
 	my $maxdenominator = $_[2] || $self->flag('contFracMaxDen', 10**8);
-	#
+
 	# End when $step is an integer.
-	#
+
 	while ($step != $n) {
 		$step = 1 / ($step - $n);
-		#
+
 		# Compute the next integer from the continued fraction sequence.
-		#
+
 		$n = int($step);
-		#
+
 		# Compute the next numerator and denominator according to the continued fraction formulas.
-		#
+
 		my ($newh, $newk) = ($n * $h1 + $h0, $n * $k1 + $k0);
-		#
+
 		# Machine rounding error may begin to make denominators skyrocket out of control
-		#
+
 		last if $newk > $maxdenominator;
 		($h0, $h1, $k0, $k1) = ($h1, $newh, $k1, $newk);
 	}
 	return ($h1, $k1);
 }
 
-#
 # Convert a real to a reduced fraction approximation.
-#
+
 # Uses $context->continuedFracation() to convert .333333... into 1/3
 # rather than 333333/1000000, etc.
-#
+
 sub toFraction {
 	my ($self, $x, $max) = @_;
 	my ($a, $b);
@@ -477,23 +458,15 @@ sub toFraction {
 	return [ $Real->make($a), $Real->make($b) ];
 }
 
-#################################################################################################
-#################################################################################################
-
-#
 #  A common class for getting the super-class of an extension class
-#
+
 package context::Fraction::Super;
 our @ISA = ('context::Extensions::Super');
 
 sub extensionContext {'context::Fraction'}
 
-#################################################################################################
-#################################################################################################
-
-#
 #  A common class for handling the fraction class data in an object's typeRef
-#
+
 package context::Fraction::Class;
 our @ISA = ('context::Fraction::Super', 'context::Extensions::Data');
 
@@ -502,16 +475,9 @@ sub extensionID {'fracData'}
 sub extensionClassMatch { (shift)->extensionDataMatch(shift, "class", @_) }
 sub setExtensionClass   { (shift)->setExtensionType(@_) }
 
-#################################################################################################
-#################################################################################################
-
 package context::Fraction::BOP::divide;
 our @ISA = ('context::Fraction::Class', 'Parser::BOP');
 
-#
-#  When strictFraction is in effect, only allow division
-#  with integers and negative integers
-#
 sub _check {
 	my $self = shift;
 	my $lInt = $self->extensionClassMatch($self->{lop}, 'INTEGER', 'MINUS');
@@ -524,17 +490,15 @@ sub _check {
 			if $self->context->flag("requireProperFractions")
 			&& CORE::abs($self->{lop}->eval) >= CORE::abs($self->{rop}->eval);
 	}
-	#
-	#  This is not a fraction, so convert to original class and
-	#  do its _check
-	#
+
+	#  This is not a fraction, so convert to original class and do its _check
+
 	return $self->mutate->_check unless $lInt && $rInt;
 	$self->setExtensionClass('FRACTION');
 }
 
-#
 #  Create a Fraction from the given data
-#
+
 sub _eval {
 	my $self    = shift;
 	my $context = $self->context;
@@ -543,9 +507,8 @@ sub _eval {
 	return $n;
 }
 
-#
 #  Reduce the fraction
-#
+
 sub reduce {
 	my $self   = shift;
 	my $reduce = $self->{equation}{context}{reduction};
@@ -564,9 +527,8 @@ sub reduce {
 	return $self;
 }
 
-#
 #  Display minus signs outside the fraction
-#
+
 sub TeX {
 	my $self = shift;
 	my $bop  = $self->{def};
@@ -581,34 +543,29 @@ sub TeX {
 	return $TeX;
 }
 
-#
 #  Derivative of fraction is 0 since it is constant
-#
+
 sub D {
 	my $self = shift;
 	return $self->Item('Number')->new($self->{equation}, 0);
 }
 
-#################################################################################################
-#################################################################################################
-
 package context::Fraction::BOP::space;
 our @ISA = ('context::Fraction::Class', 'Parser::BOP');
 
-#
 #  If the implied multiplication represents a proper fraction with a
 #  preceding integer, then switch to the proper fraction operator
 #  (for proper handling of string() and TeX() calls), otherwise,
 #  convert the object to a standard multiplication.
-#
+
 sub _check {
 	my $self              = shift;
 	my $context           = $self->context;
 	my $allowMixedNumbers = $context->flag("allowProperFractions") || $context->flag("allowMixedNumbers");
-	#
+
 	#  This is not a mixed number, so convert to original class and do
 	#  its _check
-	#
+
 	unless ($self->{bop} eq 'mixedNum'
 		&& $allowMixedNumbers
 		&& $self->extensionClassMatch($self->{lop}, 'INTEGER', 'MINUS')
@@ -641,33 +598,26 @@ sub _check {
 	}
 }
 
-#
 #  For when the space operator's string property sends to an
 #  operator we didn't otherwise subclass.
-#
+
 package context::Fraction::BOP::Space;
 our @ISA = ('context::Fraction::BOP::space');
 
-#################################################################################################
-#################################################################################################
-
-#
 # Implements the space between mixed numbers
-#
+
 package context::Fraction::BOP::and;
 our @ISA = ('Parser::BOP');
 
-#
 #  For proper fractions, add the integer to the fraction
-#
+
 sub _eval {
 	my ($self, $a, $b) = @_;
 	return ($a >= 0 ? $a + $b : $a - $b)->with(showMixedNumbers => 1);
 }
 
-#
 #  Reduce the fraction
-#
+
 sub reduce {
 	my $self   = shift;
 	my $reduce = $self->{equation}{context}{reduction};
@@ -685,23 +635,18 @@ sub reduce {
 	return $self;
 }
 
-#
 #  Derivative of a mixed number is 0 since it is constant
-#
+
 sub D {
 	my $self = shift;
 	return $self->Item('Number')->new($self->{equation}, 0);
 }
 
-#################################################################################################
-#################################################################################################
-
 package context::Fraction::UOP::minus;
 our @ISA = ('context::Fraction::Class', 'Parser::UOP');
 
-#
 #  For strict fractions, only allow minus on certain operands
-#
+
 sub _check {
 	my $self = shift;
 	$self->{hadParens} = 1 if $self->{op}{hadParens};
@@ -714,9 +659,6 @@ sub _check {
 	$self->mutate;
 }
 
-#################################################################################################
-#################################################################################################
-
 package context::Fraction::Parser::Value;
 our @ISA = ('context::Fraction::Class', 'Parser::Value');
 
@@ -726,9 +668,8 @@ sub check {
 	$self->mutate unless $self->{value}->classMatch('Fraction');
 }
 
-#
 #  Handle reductions of negative fractions
-#
+
 sub reduce {
 	my $self   = shift;
 	my $reduce = $self->context->{reduction};
@@ -738,9 +679,8 @@ sub reduce {
 	return Parser::UOP::Neg($self);
 }
 
-#
 #  Add parentheses if they were there originally, or are needed by precedence
-#
+
 sub string {
 	my $self       = shift;
 	my $string     = &{ $self->super('string') }($self, @_);
@@ -750,10 +690,9 @@ sub string {
 	return $string;
 }
 
-#
 #  Add parentheses if they were there originally, or
 #  are needed by precedence and we asked for exxxtra parens
-#
+
 sub TeX {
 	my $self   = shift;
 	my $string = &{ $self->super('TeX') }($self, @_);
@@ -765,17 +704,12 @@ sub TeX {
 	return $string;
 }
 
-#
 #  Just return the fraction
-#
+
 sub makeMatrix { (shift)->{value} }
 
-#################################################################################################
-#################################################################################################
-
-#
 #  Distinguish integers from decimals
-#
+
 package context::Fraction::Parser::Number;
 our @ISA = ('context::Fraction::Class', 'Parser::Number');
 
@@ -786,15 +720,11 @@ sub new {
 	return $num->mutate;
 }
 
-#################################################################################################
-#################################################################################################
-
 package context::Fraction::Value::Real;
 our @ISA = ('context::Fraction::Super', 'Value::Real');
 
-#
 #  Allow Real to convert Fractions to Reals
-#
+
 sub new {
 	my $self    = shift;
 	my $context = (Value::isContext($_[0]) ? shift : $self->context);
@@ -804,10 +734,9 @@ sub new {
 	return $self->mutate($context)->new($context, $x, @_);
 }
 
-#
 #  Since the signed number pattern now include fractions, we need to make sure
 #  we handle them when a real is made and it looks like a fraction
-#
+
 sub make {
 	my $self    = shift;
 	my $context = (Value::isContext($_[0]) ? shift : $self->context);
@@ -817,21 +746,14 @@ sub make {
 	return $self->mutate($context)->make($context, $x, @_);
 }
 
-#
 #  Since this is called directly, pass it up to the parent
-#
-sub cmp_defaults { (shift)->SUPER::cmp_defaults(@_) }
 
-##################################################
+sub cmp_defaults { (shift)->SUPER::cmp_defaults(@_) }
 
 package context::Fraction::Value::Real_Parens;
 our @ISA = ('context::Fraction::Value::Real');
 
-#################################################################################################
-#################################################################################################
-#
 #  Implements the MathObject for fractions
-#
 
 package context::Fraction::Value::Fraction;
 our @ISA = ('Value');
@@ -861,10 +783,9 @@ sub new {
 	bless { data => [ $a, $b ], context => $context }, $class;
 }
 
-#
 #  Produce a real if one of the terms is not an integer
 #  otherwise produce a fraction.
-#
+
 sub make {
 	my $self    = shift;
 	my $class   = ref($self) || $self;
@@ -878,11 +799,10 @@ sub make {
 	bless { data => [ $a, $b ], context => $context }, $class;
 }
 
-#
 #  Promote to a fraction, allowing reals to be $x/1 even when
 #  not an integer (later $self->make() will produce a Real in
 #  that case)
-#
+
 sub promote {
 	my $self    = shift;
 	my $class   = ref($self) || $self;
@@ -897,9 +817,8 @@ sub promote {
 	return $self->new($context, $x, @_);
 }
 
-#
 #  Create a new formula from the number
-#
+
 sub formula {
 	my $self    = shift;
 	my $value   = shift;
@@ -909,41 +828,36 @@ sub formula {
 	return $formula;
 }
 
-#
 #  Return the real number type
-#
+
 sub typeRef {$context::Fraction::FRACTION}
 sub length  {2}
 
 sub isZero { (shift)->{data}[0] == 0 }
 sub isOne  { (shift)->eval == 1 }
 
-#
 #  Return the real value
-#
+
 sub eval {
 	my $self = shift;
 	my ($a, $b) = $self->value;
 	return $self->Package('Real')->new($self->context, $a / $b);
 }
 
-#
 #  Parts are not Value objects, so don't transfer
-#
+
 sub transferFlags { }
 
-#
 #  Check if a value is an integer
-#
+
 sub isInteger {
 	my $n = shift;
 	$n = $n->value if Value::isReal($n);
 	return $n =~ m/^-?\d+$/;
 }
 
-#
 #  Get a flag that has been renamed
-#
+
 sub getFlagWithAlias {
 	my $self  = shift;
 	my $flag  = shift;
@@ -951,10 +865,7 @@ sub getFlagWithAlias {
 	return $self->getFlag($alias, $self->getFlag($flag));
 }
 
-##################################################
-#
 #  Binary operations
-#
 
 sub add {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
@@ -1027,10 +938,7 @@ sub compare {
 	$self->Error("You can't compare %s to %s", $self->showClass, $other->showClass);
 }
 
-##################################################
-#
 #   Numeric functions
-#
 
 sub abs  { my $self = shift; $self->make(CORE::abs($self->{data}[0]), CORE::abs($self->{data}[1])) }
 sub neg  { my $self = shift; $self->make(-($self->{data}[0]),         $self->{data}[1]) }
@@ -1038,10 +946,7 @@ sub exp  { my $self = shift; $self->make(CORE::exp($self->eval)) }
 sub log  { my $self = shift; $self->make(CORE::log($self->eval)) }
 sub sqrt { my $self = shift; $self->make(CORE::sqrt($self->{data}[0]), CORE::sqrt($self->{data}[1])) }
 
-##################################################
-#
 #   Trig functions
-#
 
 sub sin { my $self = shift; $self->make(CORE::sin($self->eval)) }
 sub cos { my $self = shift; $self->make(CORE::cos($self->eval)) }
@@ -1051,20 +956,14 @@ sub atan2 {
 	return $self->inherit($other)->make(CORE::atan2($l->eval, $r->eval));
 }
 
-##################################################
-#
 #  Differentiation
-#
 
 sub D {
 	my $self = shift;
 	return $self->make(0, 1);
 }
 
-##################################################
-#
 #  Utility
-#
 
 sub reduce {
 	my $self = shift;
@@ -1081,10 +980,7 @@ sub isReduced {
 sub num { (shift->value)[0] }
 sub den { (shift->value)[1] }
 
-##################################################
-#
 #  Formatting
-#
 
 sub string {
 	my ($self, $equation, $skip1, $skip2, $prec) = @_;
@@ -1125,10 +1021,7 @@ sub pdot {
 	return $n;
 }
 
-###########################################################################
-#
 #  Answer Checker
-#
 
 sub cmp_defaults { (
 	shift->SUPER::cmp_defaults(@_),
@@ -1165,8 +1058,5 @@ sub cmp_postprocess {
 	$ans->score(0);
 	$self->cmp_Error($ans, "Your fraction is not reduced") if $ans->{showFractionReduceWarnings};
 }
-
-#################################################################################################
-#################################################################################################
 
 1;

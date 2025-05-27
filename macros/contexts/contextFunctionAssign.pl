@@ -1,9 +1,16 @@
-######################################################################
-#Description:  macro to load parserAssignment and change the error
-#              message to be more specific for a function.  Requires
-#              answers be submitted in the form:
-#              y=formula or f(x)=formula
-######################################################################
+# Note: perhaps deprecate.  Not sure it is being used.
+
+=head1 NAME
+
+contextFunctionAssign.pl - allow an answer to have an function or variable assignment.
+
+=head1 DESCRIPTION
+
+This allows a answer to be a function or variable assignment change the error
+message to be more specific for a function.
+
+=cut
+
 loadMacros("parserAssignment.pl");
 
 sub parser::Assignment::Formula::cmp_equal {
@@ -15,7 +22,5 @@ sub parser::Assignment::Formula::cmp_equal {
 			"Warning: Your answer should be of the form: '" . $self->{tree}{lop}->string . "= formula'";
 	}
 }
-
-######################################################################
 
 1;

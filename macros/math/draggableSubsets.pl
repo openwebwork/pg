@@ -1,9 +1,7 @@
 
-=encoding utf8
-
 =head1 NAME
 
-draggableSubsets.pl
+draggableSubsets.pl - Creates visual items that can be dragged into various buckets.
 
 =head1 DESCRIPTION
 
@@ -11,7 +9,6 @@ This macro helps the instructor create a drag-and-drop environment in which a
 pre-specified set of elements may be dragged to different "buckets", effectively
 partitioning the original set into subsets.
 
-=head1 TERMINOLOGY
 
 An HTML element into or out of which other elements may be dragged will be
 called a "bucket".
@@ -19,7 +16,6 @@ called a "bucket".
 An HTML element which houses a collection of buckets will be called a "bucket
 pool".
 
-=head1 USAGE
 
 To initialize a C<DraggableSubset> bucket pool in a .pg problem, insert the line
 
@@ -76,13 +72,12 @@ Available Options:
 
 Their usage is demonstrated in the example below.
 
-=head1 EXAMPLE
+=head1 SYNOPSIS
 
     DOCUMENT();
     loadMacros(
         'PGstandard.pl',
         'PGML.pl',
-        'MathObjects.pl',
         'draggableSubsets.pl'
     );
 

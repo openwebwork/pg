@@ -1,3 +1,4 @@
+# Note: to be deprecated in favor of niceTables.pl
 
 =head1 NAME
 

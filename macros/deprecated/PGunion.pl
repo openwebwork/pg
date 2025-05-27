@@ -1,3 +1,4 @@
+# Note: this should probably be deprecated.
 #
 #  Load most of the interesting code developed at Union.
 #

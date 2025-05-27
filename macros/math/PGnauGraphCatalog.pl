@@ -1,3 +1,11 @@
+# Note: deprecate or update POD.
+
+=head1 NAME
+
+PGnauGraphCatalog.pl -
+
+=cut
+
 # All simple graphs with fewer than 8 vertices
 
 push @graph1, "0;";

@@ -1,7 +1,8 @@
+# Note: should be deprecated.  Built-in to Matrix MathObjects.
 
 =head1 NAME
 
-Matrix macros for the PG language
+PGmatrixmacros.pl - Matrix macros for the PG language
 
 =head1 DESCRIPTION
 

@@ -1,20 +1,9 @@
 
+## Note: this should be decprecated
+
 =head1 NAME
 
 PGfunctionevaluators.pl - Macros that generate function answer evaluators.
-
-=head1 SYNOPSIS
-
-	ANS(fun_cmp($answer_or_answer_array_ref, %options));
-
-	ANS(function_cmp($correctEqn, $var, $llimit, $ulimit, $relTol, $numPoints, $zeroLevel,
-	                 $zeroLevelTol));
-	ANS(function_cmp_up_to_constant($correctEqn, $var, $llimit, $ulimit, $relpercentTol,
-	                                $numOfPoints, $maxConstantOfIntegration, $zeroLevel,
-	                                $zeroLevelTol));
-	ANS(function_cmp_abs($correctFunction, $var, $llimit, $ulimit, $absTol, $numOfPoints));
-	ANS(function_cmp_up_to_constant_abs($correctFunction, $var, $llimit, $ulimit,
-	                                    $absTol, $numOfPoints, $maxConstantOfIntegration));
 
 =head1 DESCRIPTION
 
@@ -27,12 +16,17 @@ The general function answer evaluator is fun_cmp(). It takes a hash of named
 options as parameters. There are also several specific function_cmp_*() answer
 evaluators for use in common situations which feature a simplified syntax.
 
-=head2 MathObjects and answer evaluators
+=head1 SYNOPSIS
 
-The MathObjects system provides a Formula->cmp() method that produce answer
-evaluators for function comparisons. fun_cmp() has been rewritten to use
-Formula->cmp() to produce the answer evaluator. It is recommended that you use
-the Formula object's cmp() method directly if possible.
+    ANS(fun_cmp($answer_or_answer_array_ref, %options));
+    ANS(function_cmp($correctEqn, $var, $llimit, $ulimit, $relTol, $numPoints, $zeroLevel,
+                     $zeroLevelTol));
+    ANS(function_cmp_up_to_constant($correctEqn, $var, $llimit, $ulimit, $relpercentTol,
+                                    $numOfPoints, $maxConstantOfIntegration, $zeroLevel,
+                                    $zeroLevelTol));
+    ANS(function_cmp_abs($correctFunction, $var, $llimit, $ulimit, $absTol, $numOfPoints));
+    ANS(function_cmp_up_to_constant_abs($correctFunction, $var, $llimit, $ulimit,
+                                        $absTol, $numOfPoints, $maxConstantOfIntegration));
 
 =cut
 
@@ -75,15 +69,16 @@ sub _PGfunctionevaluators_init {
 	}
 }
 
-=head1 fun_cmp
+=head1 MACROS
+=head2 fun_cmp
 
-	ANS(fun_cmp($answer_or_answer_array_ref, %options));
+    ANS(fun_cmp($answer_or_answer_array_ref, %options));
 
 Compares a function or a list of functions, using a named hash of options to set
 parameters. This can make for more readable code than using the function_cmp()
 style, but some people find one or the other easier to remember.
 
-=head2 Options
+=head3 Options
 
 $answer_or_answer_array_ref can either be a string scalar representing the
 correct formula or a reference to an array of string scalars. If multiple
@@ -130,7 +125,7 @@ tolerance of 1 indicates that when the student's function are evaluated, the
 result of evaluation at each point must be within 1% of the correct answer to
 qualify as correct. In other words, a student answer is correct when
 
-	abs(studentAnswer - correctAnswer) <= abs(.01*relTol*correctAnswer)
+    abs(studentAnswer - correctAnswer) <= abs(.01*relTol*correctAnswer)
 
 tol and relTol are mutually exclusive. reltol is also accpeted as a synonym for
 relTol.
@@ -185,13 +180,13 @@ reference to an array of arrays of the form C<[$lower_limit. $upper_limit]>,
 each array corresponding to the lower and upper endpoints of the (half-open)
 domain of one variable. For example,
 
-	vars=>2, limits=>[[0,2], [-3,8]]
+    vars=>2, limits=>[[0,2], [-3,8]]
 
 would cause x to be evaluated in [0,2) and y to be evaluated in [-3,8). If only
 one variable is being used, you can write either:
 
-	limits => [[0,3]]
-	limits => [0,3]
+    limits => [[0,3]]
+    limits => [0,3]
 
 domain is recognized as a synonym for limits.
 
@@ -201,18 +196,18 @@ In some cases, the problem writer may want to specify the points used to check a
 particular function.  For example, if you want to use only integer values, they
 can be specified.  With one variable, either of these two forms work:
 
-	test_points=>[1,4,5,6]
-	test_points=>[[1,4,5,6]]
+    test_points=>[1,4,5,6]
+    test_points=>[[1,4,5,6]]
 
 With more variables, specify the list for the first variable, then the second,
 and so on:
 
-	vars=>['x','y'], test_points=>[[1,4,5],[7,14,29]]".
+    vars=>['x','y'], test_points=>[[1,4,5],[7,14,29]]".
 
 If the problem writer wants random values which need to meet some special
 restrictions (such as being integers), they can be generated in the problem:
 
-	test_points=>[random(1,50), random(1,50), random(1,50), random(1,50)]
+    test_points=>[random(1,50), random(1,50), random(1,50), random(1,50)]
 
 Note that test_points should not be used for function checks which involve
 parameters (either explicitly given by "params", or as antiderivatives).
@@ -238,7 +233,7 @@ If set to one, extra debugging information will be output.
 
 =back
 
-=head2 Examples
+=head3 Examples
 
 	# standard compare, variable is x
 	fun_cmp("3*x");
@@ -545,8 +540,6 @@ sub adaptive_function_cmp {
 		'diagnostics'              => $options{diagnostics},
 	);
 }
-
-=head1 Multi-variable Function Comparisons
 
 =head2 [DEPRECATED] multivar_function_cmp
 

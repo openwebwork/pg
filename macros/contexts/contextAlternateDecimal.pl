@@ -1,9 +1,7 @@
 
 =head1 NAME
 
-C<Context("AlternateDecimal")> - Provides a context that allows the
-entry of decimal numbers using a comma for the decimal indicator
-rather than a dot (e.g., C<3,14159> rather than C<3.14159>).
+contextAlternateDecimal.pl - allow the entry of decimal numbers with other decimal character
 
 =head1 DESCRIPTION
 
@@ -13,11 +11,7 @@ Both forms are always recognized, but you can determine whether one or
 the other form produces an error message when used.  You can also
 force the display of numbers to use one or the other form.
 
-=head1 USAGE
-
-To use this file, first load it into your problem, then select the
-context that you wish to use.  There are three pre-defined contexts,
-C<AlternateDecimal>, C<AlternateDecimal-Only>, and
+There are three pre-defined contexts, C<AlternateDecimal>, C<AlternateDecimal-Only>, and
 C<AlternateDecimal-Warning>.  The first allows both the standard and
 alternate forms to be used, the second allows only the alternate form,
 and the third allows only the standard form, but recognizes the
@@ -82,7 +76,7 @@ would allow students to enter decimals in either format, but all
 numebrs would be displayed in standard form.
 
 
-=head1 LISTS IN ALTERNATE FORMAT
+=head3 LISTS IN ALTERNATE FORMAT
 
 Because the alternate format allows numbers to be entered using commas
 rather than periods, this makes the formation of lists harder.  For
@@ -107,7 +101,7 @@ use C<3, 2,1> since the comma in C<3,> is not part of the number, so
 must be a list separator.
 
 
-=head1 SETTING THE ALTERNATE FORM AS THE DEFAULT
+=head3 SETTING THE ALTERNATE FORM AS THE DEFAULT
 
 If you want to force existing problems to allow (or force, or warn about)
 the alternate format instead, then create a file named

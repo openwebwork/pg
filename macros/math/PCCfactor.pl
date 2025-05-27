@@ -1,28 +1,37 @@
-# The subroutine factoringMethodsis takes arguments
-# ($a[0], $a[1], $b[0], $b[1], $var[0], $var[1])
-# corresponding to a factored polynomial
-# (a[0] $var[0]+b[0] $var[1])(a[1] $var[0]+b[1] $var[1])
-# @a and @b should be integers, and doctored in the problem code so
-# that gcd(@a) and gcd(@b) equal 1.
-# @var should be variables that have been added to the context.
-# $var[1] is optional.
 
-# The output includes various methods to factor the polynomial,
-# including:
-# * number sense method
-# * formula method (perfect squares and difference of squares)
-# * ac method
-# * guess-and-check with generic rectangles method
+=head1 NAME
 
-# If $var[1] is omitted and $var[0] is something like 'xy', then both
-# letters should be variables added to the context, and the expanded
-# (unfactored) versions of polynomials will be shown like
-# Ax^2y^2 + Bxy + C
-# instead of
-# A(xy)^2 + Bxy + C
-# and the factorization is
-# (a[0] $var[2] $var[3] + b[0])(a[1] $var[2] $var[3] + b[1])
-# where $var[2] and $var[3] are the individual letters form the given $var[0]
+PCCfactor.pl - provide some convience routines for factoring qudartics.
+
+=head1 DESCRIPTION
+
+The subroutine factoringMethodsis takes arguments
+($a[0], $a[1], $b[0], $b[1], $var[0], $var[1])
+corresponding to a factored polynomial
+(a[0] $var[0]+b[0] $var[1])(a[1] $var[0]+b[1] $var[1])
+@a and @b should be integers, and doctored in the problem code so
+that gcd(@a) and gcd(@b) equal 1.
+@var should be variables that have been added to the context.
+$var[1] is optional.
+
+ The output includes various methods to factor the polynomial,
+ including:
+ * number sense method
+ * formula method (perfect squares and difference of squares)
+ * ac method
+ * guess-and-check with generic rectangles method
+
+If $var[1] is omitted and $var[0] is something like 'xy', then both
+letters should be variables added to the context, and the expanded
+(unfactored) versions of polynomials will be shown like
+Ax^2y^2 + Bxy + C
+instead of
+A(xy)^2 + Bxy + C
+and the factorization is
+(a[0] $var[2] $var[3] + b[0])(a[1] $var[2] $var[3] + b[1])
+where $var[2] and $var[3] are the individual letters form the given $var[0]
+
+=cut
 
 loadMacros("MathObjects.pl", "PGgraphmacros.pl");
 
@@ -90,7 +99,8 @@ sub factoringMethods {
 			$BBOLD
 			. 'Perfect Square Formula: '
 			. $EBOLD
-			. 'The formula for perfect square trinomials is \[(a \pm b)^2=a^2 \pm 2ab + b^2\] Note that the polynomial \('
+			. 'The formula for perfect square trinomials is \[(a \pm b)^2=a^2 \pm 2ab + b^2\]. '
+			. 'Note that the polynomial \('
 			. $expanded->TeX
 			. '\) matches the formula' . "'"
 			. 's right side, and we have: \[\begin{aligned}[t]'
@@ -147,7 +157,9 @@ sub factoringMethods {
 			$BBOLD
 			. 'Mental Method: '
 			. $EBOLD
-			. 'When we factor a polynomial in the form of \(x^2+bx+c\), \(x^2+bxy+cy^2\), or \(x^2y^2+bxy+c\) we can use mental math to factor. We need to find two numbers whose product is \(c\), and whose sum is \(b\).'
+			. 'When we factor a polynomial in the form of \(x^2+bx+c\), \(x^2+bxy+cy^2\), or \(x^2y^2+bxy+c\) '
+			. 'we can use mental math to factor. We need to find two numbers whose product is \(c\), '
+			. 'and whose sum is \(b\).'
 			. $PAR
 			. 'For \('
 			. $expanded->TeX
@@ -201,7 +213,8 @@ sub factoringMethods {
 		$BBOLD
 		. 'AC Method: '
 		. $EBOLD
-		. 'In this method, we first calculate the product of \(a\) and \(c\) in \(ax^2+bx+c\). For this problem, we have \(('
+		. 'In this method, we first calculate the product of \(a\) and \(c\) in \(ax^2+bx+c\). '
+		. 'For this problem, we have \(('
 		. $co[0]
 		. ') \cdot ('
 		. $co[2] . ') = '
@@ -366,11 +379,15 @@ sub factoringMethods {
 	}
 	$picture[1]->lb(new Label($x[0] - $gap, $y[1] - $squareLength / 4, "$box1Left", 'black', 'right', 'middle'));
 
-	$alt1 =
-		"The graph has four generic rectangles. The top left rectangle has $box1 in it, and the bottom right rectangle has $box4 in it.";
+	$alt1 = "The graph has four generic rectangles. The top left rectangle has $box1 in it, and "
+		. "the bottom right rectangle has $box4 in it.";
 
 	$alt2 =
-		"The graph has four generic rectangles. The top left rectangle has $box1 in it; the top right rectangle has $box2 in it; the bottom left rectangle has $box3 in it; and the bottom right rectangle has $box4 in it. $box1Up is marked above the top left rectangle; $box1Left is marked to the left of the top left rectangle; $box2Up is marked above the top right rectangle; $box3Left is marked to the left of the bottom left rectangle.";
+		"The graph has four generic rectangles. The top left rectangle has $box1 in it; "
+		. "the top right rectangle has $box2 in it; the bottom left rectangle has $box3 in it; "
+		. "and the bottom right rectangle has $box4 in it. $box1Up is marked above the top left "
+		. "rectangle; $box1Left is marked to the left of the top left rectangle; $box2Up is marked "
+		. "above the top right rectangle; $box3Left is marked to the left of the bottom left rectangle.";
 
 	#### End two pictures ###
 
@@ -415,7 +432,8 @@ sub factoringMethods {
 		. $PAR
 		. "The first term\'s coefficient, \\("
 		. $co[0]
-		. '\), can be factored into the product of two numbers (where the first factor is positive) in the following ways: \[\begin{array}{llll}'
+		. '\), can be factored into the product of two numbers (where the first factor is positive) '
+		. 'in the following ways: \[\begin{array}{llll}'
 		. $factorPairsAOutput
 		. '\end{array}\]'
 		. $PAR
@@ -425,7 +443,8 @@ sub factoringMethods {
 		. $factorPairsCOutput
 		. '\end{array}\]'
 		. $PAR
-		. 'We put each pair into the corresponding places next to those generic rectangles, and try to match the area of those rectangles with \('
+		. 'We put each pair into the corresponding places next to those generic rectangles, and try to '
+		. 'match the area of those rectangles with \('
 		. $expanded->TeX
 		. '\) by guess-and-check. The following generic rectangles show the solution:'
 		. $PAR

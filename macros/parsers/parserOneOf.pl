@@ -63,25 +63,21 @@ or
 
 sub _parserOneOf_init { parser::OneOf::Init() }
 
-######################################################################
-
 package parser::OneOf;
 our @ISA = ('Value::List');
 
 my $SEPARATOR = ", ";      # default separator
 my $OR        = " or ";    # default "or" word
 
-#
 #  Define the OneOf() creator function
-#
+
 sub Init {
 	main::PG_restricted_eval('sub OneOf {parser::OneOf->new(@_)}');
 }
 
-#
 #  Use Compute() to handle each of the entries so correct_ans will be set
 #   for each entry
-#
+
 sub new {
 	my $self   = shift;
 	my @params = (@_);
@@ -89,18 +85,16 @@ sub new {
 	return $self->SUPER::new(@params);
 }
 
-#
 #  Return the type of the first entry (usually these will all be the same)
-#
+
 sub type {
 	my $self = shift;
 	$self->{data}[0]->type;
 }
 
-#
 #  Try to match against all the entries, and if any one of them matches,
 #  go with it.
-#
+
 sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
@@ -109,9 +103,8 @@ sub typeMatch {
 	return 0;
 }
 
-#
 #  Return the class for the first entry
-#
+
 sub cmp_class {
 	my $self = shift;
 	return $self->{cmp_class} if defined($self->{cmp_class});
@@ -119,28 +112,25 @@ sub cmp_class {
 	return $x->{cmp_class} || $x->cmp_class();
 }
 
-#
 #  Use the standard cmp_equal, not the list version, since
 #  this acts as a single item not a list.
-#
+
 sub cmp_equal {
 	Value::cmp_equal(@_);
 }
 
-#
 #  Check if the student value equals one of the ones in the correct-answer list
 #  and return the result of that comparison if it is correct.
 #  (FIXME: should this check all and return the highest score?)
-#
+
 sub cmp_compare {
 	my ($self, $other, $ans) = @_;
 	foreach $x (@{ $self->{data} }) { my $result = $x->cmp_compare($other, $ans); return $result if $result }
 	return 0;
 }
 
-#
 #  Produce the correct answer by combining correct answers of the originals.
-#
+
 sub correct_ans {
 	my $self = shift;
 	my $sep  = $self->getFlag("separator", $SEPARATOR);
@@ -148,9 +138,8 @@ sub correct_ans {
 	Value::preformat($self->format("correct_ans", $sep, $or));
 }
 
-#
 #  Produce the string version by making a comma separated list with " or " for the last comma
-#
+
 sub string {
 	my $self = shift;
 	my $sep  = $self->getFlag("separator", $SEPARATOR);
@@ -158,9 +147,8 @@ sub string {
 	$self->format("string", $sep, $or);
 }
 
-#
 #  Produce the TeX version by making a comma separated list with " or " for the last comma
-#
+
 sub TeX {
 	my $self = shift;
 	my $sep  = $self->getFlag("tex_separator", "\\hbox{$SEPARATOR}");
@@ -168,11 +156,10 @@ sub TeX {
 	$self->format("TeX", $sep, $or);
 }
 
-#
 #  Produce a list of entries separated by $sep with $or as the final separator.
 #  The entries are converted using the given $method of the entry.
 #  If there is a format (or tex_format) flag, use that to format the list instead.
-#
+
 sub format {
 	my $self   = shift;
 	my $method = shift;
@@ -191,10 +178,9 @@ sub format {
 	return join($sep, @c) . $or . $last;
 }
 
-#
 #  Make a list containing a formula object rather than a
 #  formula returning a list.
-#
+
 sub formula {
 	my $self  = shift;
 	my $class = ref($self) || $self;

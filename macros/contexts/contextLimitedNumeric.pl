@@ -1,3 +1,5 @@
+# Is this duplicated by Parser::Legacy::LimitedNumeric?
+# If so, remove?
 
 =head1 NAME
 
@@ -5,18 +7,15 @@ contextLimitedNumeric.pl - Allows numeric entry but no operations.
 
 =head1 DESCRIPTION
 
-Implements a context in which numbers can be entered,
-but no operations are permitted between them.
+Implements a context in which numbers can be entered, but no operations are permitted between them.
 
-There are two versions:  one for lists of numbers
-and one for a single number.  Select them using
+There are two versions:  one for lists of numbers and one for a single number.  Select them using
 one of the following commands:
 
     Context("LimitedNumeric-List");
     Context("LimitedNumeric");
 
-(Now uses Parser::Legacy::LimitedNumeric to implement
-these contexts.)
+(Now uses Parser::Legacy::LimitedNumeric to implement these contexts.)
 
 =cut
 

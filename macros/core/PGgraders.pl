@@ -1,9 +1,13 @@
 
-=head1 PGgraders.pl DESCRIPTION
+=head1 NAME
 
-Grader Plug-ins
+PGgraders.pl - provides a set of basic graders.
 
-=cut
+=head1 DESCRIPTION
+
+This macro provides some wasy to do partial credit as well as some weighting.
+
+=head1 FUNCTIONS
 
 =head2 full_partial_grader
 

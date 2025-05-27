@@ -1,4 +1,11 @@
-# PGgraphtheory.pl
+
+# Note: deprecate or update POD.
+
+=head1 NAME
+
+PGnauGraphics.pl -
+
+=cut
 
 loadMacros("PGnauGraphics.pl",);
 

@@ -1,4 +1,6 @@
 
+# Note: this should be deprecated.
+
 =head1 NAME
 
 contextABCD.pl - Contexts for matching problems.
@@ -8,6 +10,8 @@ contextABCD.pl - Contexts for matching problems.
 Implements contexts for string-valued answers especially
 for matching problems (where you match against A, B, C, D,
 and so on).
+
+=head1 SYNOPSIS
 
 There are two contexts defined here,
 

@@ -1,14 +1,7 @@
-sub _VectorListCheckers_init { };    # don't reload this file
-
-=pod
 
 =head1 NAME
 
-VectorListCheckers.pl
-
-=head1 SYNOPSIS
-
-Provides subroutines for answer checking lists MathObjects
+VectorListCheckers.pl - Provides subroutines for answer checking lists MathObjects
 vectors with real entries.
 
 =head1 DESCRIPTION
@@ -101,7 +94,7 @@ Paul Pearson, Hope College, Department of Mathematics
 
 =cut
 
-################################################
+sub _VectorListCheckers_init { };    # don't reload this file
 
 loadMacros("MathObjects.pl",);
 

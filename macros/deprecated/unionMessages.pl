@@ -1,3 +1,5 @@
+# Note: deprecate
+
 sub _unionMessages_init { }
 
 loadMacros("unionMacros.pl");

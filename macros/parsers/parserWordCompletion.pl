@@ -1,3 +1,5 @@
+# Note: documentation is at the end of the file
+
 loadMacros('MathObjects.pl');
 
 sub _parserWordCompletion_init {
@@ -144,7 +146,7 @@ __END__
 
 =head1 NAME
 
-parserWordCompletion.pl
+parserWordCompletion.pl - provide a popup with list of allowable answers.
 
 =head1 DESCRIPTION
 

@@ -1,12 +1,10 @@
 
-=head1 ConditionalHint.pl
+=head1 NAME
 
-=head2 NAME
-
-C<ConditionalHint.pl> - Allows a hint to be revealed after a student
+ConditionalHint.pl - Allows a hint to be revealed after a student
 has entered an answer correctly.
 
-=head2 DESCRIPTION
+=head1 DESCRIPTION
 
 The subroutine C<ConditionalHint()> allows a hint to be revealed
 after a student has entered an answer correctly.  It is useful
@@ -17,9 +15,9 @@ correctly.
 A subroutine C<IsAnswerCorrect()> that returns 0 or 1 is also
 provided.
 
-=head2 USAGE
+=head1 MACROS
 
-=head3 Synopsis of ConditionalHint
+=head2 ConditionalHint
 
     loadMacros("ConditionalHint.pl");
 
@@ -102,10 +100,6 @@ provided.
 
     ENDDOCUMENT();
 
-=head2 AUTHOR
-
-Paul Pearson
-
 =cut
 
 sub _ConditionalHint_init { };    # don't reload this file
@@ -142,14 +136,8 @@ sub IsAnswerCorrect {
 		@_
 	);
 
-	#  my $name_of_correct_answer = shift;
-	#  my $answer_rule_number = shift;
-
-	#  return $name_of_correct_answer->cmp()->evaluate($inputs_ref->{ANS_NUM_TO_NAME($answer_rule_number)})->{score};
-
 	return $options{ans_name}->cmp()->evaluate($inputs_ref->{ ANS_NUM_TO_NAME($options{ans_number}) })->{score};
 
 }
 
 1;
-

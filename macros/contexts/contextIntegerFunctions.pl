@@ -1,3 +1,5 @@
+# Note: the way this is used, it appears that want to allow P and C to be used by
+# authors but not students, so why is this a context?
 
 =head1 NAME
 
@@ -14,7 +16,7 @@ B<Note:> by default, webwork problems do not permit students to use
 C(n,r) and P(n,r) functions.  Problems which do permit this
 should alert the student in their text.
 
-=head1 USAGE
+=head1 SYNOPSISS
 
     Context("IntegerFunctions")
 

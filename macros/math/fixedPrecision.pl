@@ -1,3 +1,12 @@
+# Note: perhaps move into the Numeric context and set a flag?
+
+=head1 NAME
+
+fixedPrecision.pl - sets up a context to check to a fixed precision (exact to some number of
+decimal places).
+
+=cut
+
 sub _fixedPrecision_init { }
 loadMacros('MathObjects.pl');
 

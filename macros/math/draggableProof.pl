@@ -1,24 +1,18 @@
 
-=encoding utf8
-
 =head1 NAME
 
-draggableProof.pl
+draggableProof.pl - Allows the contructions of problems with draggable statements for proofs.
 
 =head1 DESCRIPTION
 
 This macro helps the instructor create a drag-and-drop environment in which
 students are asked to arrange predefined statements into a correct sequence.
 
-=head1 TERMINOLOGY
-
 An HTML element into or out of which other elements may be dragged will be
 called a "bucket".
 
 An HTML element which houses a collection of buckets will be called a "bucket
 pool".
-
-=head1 USAGE
 
 To initialize a C<DraggableProof> bucket pool in a .pg problem, insert the line:
 
@@ -32,17 +26,11 @@ To initialize a C<DraggableProof> bucket pool in a .pg problem, insert the line:
 
 Then insert the draggable proof bucket pool into the problem text with
 
-    BEGIN_TEXT
-    \{$draggable->ans_rule\}
-    END_TEXT
-
-for basic PG, or
-
     BEGIN_PGML
     [_]{$draggable}
     END_PGML
 
-for PGLM.  Note the following also works, but is deprecated.  However, if you
+Note the following also works, but is deprecated.  However, if you
 want your problem to be compatible with previous versions of PG this must be
 used.  Call
 
@@ -80,7 +68,7 @@ Available Options:
 
 Their usage is explained in the example below.
 
-=head1 EXAMPLE
+=head1 SYNOPSIS
 
     DOCUMENT();
     loadMacros(

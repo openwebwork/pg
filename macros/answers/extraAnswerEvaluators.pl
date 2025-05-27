@@ -4,6 +4,11 @@
 extraAnswerEvaluators.pl - Answer evaluators for intervals, lists of numbers,
 and lists of points.
 
+=head1 DESCRIPTION
+
+This is a list of macros that create "answer evaluators" for checking student
+answers of various "exotic" types.
+
 =head1 SYNPOSIS
 
 	interval_cmp() -- checks answers which are unions of intervals. It can also
@@ -22,10 +27,7 @@ and lists of points.
 	                  instructor's equation.  The student's equation must be of
 	                  the same general type as the instructors to get credit.
 
-=head1 DESCRIPTION
 
-This file adds subroutines which create "answer evaluators" for checking student
-answers of various "exotic" types.
 
 =cut
 

@@ -1,16 +1,13 @@
-###
 
 =head1 NAME
 
-PGasu.pl -- located in the pg/macros directory
+PGasu.pl -- A set of macros for old school answer checkers.
 
-=head1 SYNPOSIS
+=head1 DESCRIPTION
 
-Macros contributed by John Jones
+A set of macros for old school answer checkers.
 
-=cut
-
-# Answer evaluator which always marks things correct
+=head1 MACROS
 
 =head2 auto_right()
 
@@ -47,6 +44,10 @@ sub auto_right {
 	return $answerEvaluator;
 }
 
+=head2 auto_right_checker
+
+=cut
+
 # used in auto_right above
 
 # ^function auto_right_checker
@@ -56,7 +57,7 @@ sub auto_right_checker {
 	return ($ans);
 }
 
-=head2	C<no_decs()>
+=head2	no_decs
 
 Can be wrapped around an numerical evaluation.  It marks the answer wrong
 if it contains a decimal point.  Usage:
@@ -82,7 +83,7 @@ sub no_decs {
 	return $old_evaluator;
 }
 
-=head2  C<must_include()>
+=head2  must_include
 
 Wrapper for other answer evaluators.  It insists that a string is part of
 the answer to be marked right.
@@ -103,7 +104,7 @@ sub must_include {
 	return $old_evaluator;
 }
 
-=head2      no_trig_fun()
+=head2 no_trig_fun
 
 Wrapper for other answer evaluators.  It marks the answer wrong if
 it contains one of the six basic trig functions.
@@ -137,9 +138,7 @@ sub no_trig_fun {
 	return $new_eval;
 }
 
-=head2      no_trig()
-
-
+=head2 no_trig
 
 =cut
 
@@ -162,9 +161,7 @@ sub no_trig {
 	return $new_eval;
 }
 
-=head2      exact_no_trig()
-
-
+=head2 exact_no_trig
 
 =cut
 
@@ -187,9 +184,7 @@ sub exact_no_trig {
 	return $new_eval;
 }
 
-=head2      must_have_filter()
-
-=pod
+=head2 must_have_filter
 
 Filter for checking that an answer has (or doesn't have) a certain
 string in it.  This can be used to screen answers where you want them
@@ -264,7 +259,7 @@ sub must_have_filter {
 	return $newfilt;
 }
 
-=head2      catch_errors_filter()
+=head2 catch_errors_filter()
 
 =cut
 
@@ -282,9 +277,7 @@ sub catch_errors_filter {
 	$rh_ans;
 }
 
-=head2      raw_student_answer_filter()
-
-
+=head2 raw_student_answer_filter
 
 =cut
 
@@ -299,9 +292,7 @@ sub raw_student_answer_filter {
 	return $rh_ans;
 }
 
-=head2      no_decimal_list()
-
-
+=head2 no_decimal_list
 
 =cut
 
@@ -333,9 +324,7 @@ sub no_decimal_list {
 	return $answer_evaluator;
 }
 
-=head2      no_decimals()
-
-
+=head2 no_decimals
 
 =cut
 
@@ -367,14 +356,11 @@ sub no_decimals {
 	return $answer_evaluator;
 }
 
-=head2      with_comments()
+=head2 with_comments
 
-
-	# Wrapper for an answer evaluator which can also supply comments
+Wrapper for an answer evaluator which can also supply comments
 
 =cut
-
-# Wrapper for an answer evaluator which can also supply comments
 
 # ^function with_comments
 sub with_comments {
@@ -406,21 +392,15 @@ sub with_comments {
 	$ans_evaluator;
 }
 
-=head2      pc_evaluator()
+=head2 pc_evaluator
 
-
-		# Wrapper for multiple answer evaluators, it takes a list of the following as inputs
-		# [answer_evaluator, partial credit factor, comment]
-		# it applies evaluators from the list until it hits one with positive credit,
-		# weights it by the partial credit factor, and throws in its comment
-
+Wrapper for multiple answer evaluators, it takes a list of the following as inputs
+[answer_evaluator, partial credit factor, comment]
+it applies evaluators from the list until it hits one with positive credit,
+weights it by the partial credit factor, and throws in its comment
 
 =cut
 
-# Wrapper for multiple answer evaluators, it takes a list of the following as inputs
-# [answer_evaluator, partial credit factor, comment]
-# it applies evaluators from the list until it hits one with positive credit,
-# weights it by the partial credit factor, and throws in its comment
 # ^function pc_evaluator
 sub pc_evaluator {
 	my @ev_list;
@@ -462,15 +442,13 @@ sub pc_evaluator {
 	$ans_evaluator;
 }
 
-=head2      weighted_partial_grader
-
-=pod
+=head2 weighted_partial_grader
 
 This is a grader which weights the different parts of the problem
 differently.  The weights passed to it through the environment.  In
 the problem:
 
- $ENV{'partial_weights'} = [.2,.2,.2,.3];
+    $ENV{'partial_weights'} = [.2,.2,.2,.3];
 
 This will soon be superceded by a better grader.
 
@@ -549,8 +527,3 @@ sub weighted_partial_grader {
 }
 
 1;
-
-## Local Variables:
-## mode: CPerl
-## font-lock-mode: t
-## End:

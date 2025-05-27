@@ -1,3 +1,5 @@
+# Note: deprecate
+
 ######################################################################
 #
 #  Some macros that add to the ones like $PAR, $BR, etc.

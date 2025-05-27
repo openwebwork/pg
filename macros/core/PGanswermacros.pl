@@ -1,3 +1,5 @@
+# Note: I don't believe this is used any longer.  Deprecate.
+
 # FIXME TODO:
 # Document and maybe split out: filters, graders, utilities
 

@@ -1,7 +1,8 @@
+# Note: this is in the Matrix MathObject now, deprecate?
 
 =head1 NAME
 
-F<contextMatrixExtras.pl> - Add transpose, trace, and determinant to Matrix context
+contextMatrixExtras.pl - Add transpose, trace, and determinant to Matrix context
 
 =head1 DESCRIPTION
 
@@ -63,11 +64,9 @@ sub _contextMatrixExtras_init {
 	);
 }
 
-####################################################
-#
 #  Implements the ^T operation on matrices
 #    (as a right-associative unary operator)
-#
+
 package context::MatrixExtras::UOP::transpose;
 @ISA = ("Parser::UOP");
 
@@ -83,34 +82,29 @@ sub perl {
 	return '(' . $self->{op}->perl . '->transpose)';
 }
 
-####################################################
-#
 #  Implement functions with one matrix input and real output
-#
+
 package context::MatrixExtras::Function::matrix;
 our @ISA = ("Parser::Function");
 
-#
 #  Check for a single Matrix-valued input
-#
+
 sub _check { (shift)->checkMatrix(@_) }
 
-#
 #  Evaluate by promoting to a Matrix
 #    and then calling the routine from the Value package
-#
+
 sub _eval {
 	my $self = shift;
 	my $name = $self->{def}{method} || $self->{name};
 	$self->Package("Matrix")->promote($self->context, $_[0])->$name;
 }
 
-#
 #  Check for a single Matrix-valued argument
 #  Then promote it to a Matrix (does error checking)
 #    and call the routine from Value package (after
 #    converting "tr" to "trace")
-#
+
 sub _call {
 	my $self = shift;
 	my $name = shift;

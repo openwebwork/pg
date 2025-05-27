@@ -1,3 +1,5 @@
+# Note: documentation at the bottom of the file
+
 loadMacros('MathObjects.pl');
 
 sub _quickMatrixEntry_init {

@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-unorderedAnswer.pl - allow the answers to be checked independent of order.
+unorderedAnswer.pl - allow the answers to be checked independent of order
 
 =head1 SYNOPSIS
 
@@ -18,6 +18,8 @@ Routines for groups of answer blanks where the user can enter answers in any ord
 loadMacros("answerUtils.pl");
 
 sub _unorderedAnswer_init { };    # don't reload this file
+
+=head1 MACROS
 
 =head2 UNORDERED_ANS
 

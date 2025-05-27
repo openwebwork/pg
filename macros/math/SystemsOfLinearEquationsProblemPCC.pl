@@ -1,4 +1,12 @@
 
+# Note: deprecate or update POD.
+
+=head1 NAME
+
+SystemOfLinearEquationsProblemPCC.pl -
+
+=cut
+
 loadMacros('PCCmacros.pl', 'contextFraction.pl');
 
 sub SystemOfLinearEquationsProblemSetup {
@@ -11,8 +19,11 @@ sub SystemOfLinearEquationsProblemSetup {
 	$zeroe = ($e == Fraction(0, 1)) ? 0 : 1;
 	$zerof = ($f == Fraction(0, 1)) ? 0 : 1;
 
-#How will the equations be displayed?
-# This is tricky - we can't use Formula reductions or the fractions will be converted to decimals. So special treatment is given to "0x", "1x", and "-1x". Also, care is taken to prevent "--x" from becoming "+x" when it should just be "x".
+	#How will the equations be displayed?
+	# This is tricky - we can't use Formula reductions or the fractions will be converted to decimals.
+	# So special treatment is given to "0x", "1x", and "-1x". Also, care is taken to prevent "--x" from
+	# becoming "+x" when it should just be "x".
+
 	Context()->flags->set(reduceConstants => 0, showExtraParens => 0);
 
 	$asided = $a * (-1)**$xside1;

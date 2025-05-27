@@ -23,8 +23,6 @@ loadMacros("MathObjects.pl");
 
 sub _contextString_init { context::String::Init() };    # don't load it again
 
-##################################################
-
 package context::String::Variable;
 
 sub new {
@@ -35,8 +33,6 @@ sub new {
 	my $strings  = join(', ', @strings[ 0 .. $#strings - 1 ]) . ' or ' . $strings[-1];
 	$equation->Error([ "Your answer should be one of %s", $strings ]);
 }
-
-##################################################
 
 package context::String::Formula;
 our @ISA = qw(Value::Formula);
@@ -57,8 +53,6 @@ sub _check {
 	my $self = shift;
 	context::String::Variable->new($self->{equation});    # report an error
 }
-
-##################################################
 
 package context::String;
 

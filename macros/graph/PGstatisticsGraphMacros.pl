@@ -1,8 +1,7 @@
-#require 'PGstatisticsmacros.pl';
 
 =head1 NAME
 
-PGstatisticsGraphMacros -- in courseScripts directory
+PGstatisticsGraphMacros.pl - Provides statistic graphs using the WWPlot macros.
 
 =head1 SYNPOSIS
 
@@ -24,10 +23,7 @@ access to the underlying modules.  If these complicated projects are
 common then it may be desirable to create additional macros.  (See
 numericalmacros.pl for one example.)
 
-
-=cut
-
-=head2 Other constructs
+=head2 SEE ALSO
 
 See F<PGbasicmacros> for definitions of C<image> and C<caption>
 
@@ -85,6 +81,10 @@ sub push_stat_data_set {
 	push(@accumulatedDataSets, $data);
 }
 
+=head2 init_statistics_graph
+
+=cut
+
 sub init_statistics_graph {
 	my (%options) = @_;
 	my $numberDataSets = 1 + $#accumulatedDataSets;
@@ -118,6 +118,10 @@ sub init_statistics_graph {
 	$graphRef;
 }
 
+=head2 getMinMax
+
+=cut
+
 sub getMinMax {
 	# Routine to return the smallest and largest value in the list of
 	# numbers given for the arguments to the function.
@@ -130,6 +134,10 @@ sub getMinMax {
 	}
 	($xmin, $xmax);
 }
+
+=head2 add_boxplot
+
+=cut
 
 sub add_boxplot {
 	# add_boxplot($graphRef,{"outliers"=>1});
@@ -231,6 +239,10 @@ sub add_boxplot {
 
 	$bounds;
 }
+
+=head2 add_histogram
+
+=cut
 
 sub add_histogram {
 	my $graphRef       = shift;
@@ -337,7 +349,5 @@ sub add_histogram {
 
 	$bounds;
 }
-
-#########################################################
 
 1;

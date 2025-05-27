@@ -1,8 +1,12 @@
 
-=head1 PGpolynomialmacros.pl DESCRIPTION
+=head1 NAME
+
+PGpolynomialmacros.pl - this macro contains routines use to create and manipulate polynomials.
+
+=head1 DESCRIPTION
 
  ##########################################################
- #  It contains rountines used to create and manipulate  ##
+ #  It contains routines used to create and manipulate  ##
  #  polynomials for WeBWorK                              ##
  #                                                       ##
  #  Copyright 2002 Mark Schmitt                          ##

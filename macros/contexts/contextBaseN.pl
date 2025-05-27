@@ -10,11 +10,9 @@ This context implements positive integers and some operations on integers in a n
 greater than or equal to 2.  The numbers will be stored internally in decimal, though parsed
 and shown in the chosen base.
 
-In addition, basic integer arithemetic (+,-,*,/,%,^) are available for these numbers.
-Division is defined in an integer sense.
-
 The original purpose for this is simple conversion and operations in another base, however
-it is not limited to this.
+it is not limited to this. In addition, basic integer arithemetic (+,-,*,/,%,^) are available for these numbers.
+Division is defined in an integer sense.
 
 To use a non-decimal base MathObject, first load the contextBaseN.pl file:
 
@@ -75,7 +73,7 @@ A few strings can be passed to the C<setBase> method with preset meanings:
 
 The last two digits for C<base64> are nonstandard. We want to avoid '+' and '/' here as they have arithmetic meaning.
 
-=head2 Sample PG problem
+=head3 Sample PG problem
 
 A simple PG problem that asks a student to convert a number into base-5:
 
@@ -113,6 +111,8 @@ sub Init {
 	$context->operators->undefine($context->operators->names);
 	$context->parens->undefine('|', '{', '[');
 }
+
+=head1 MACROS
 
 =head2 convertBase
 
@@ -302,9 +302,8 @@ sub eval {
 package context::BaseN::BOP::modulo;
 our @ISA = ('Parser::BOP::divide');
 
-#
 #  Do the division.
-#
+
 sub _eval { $_[1] % $_[2] }
 
 #  A replacement for Value::Real that handles non-decimal integers

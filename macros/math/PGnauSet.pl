@@ -1,3 +1,12 @@
+
+# Note: deprecate or update POD.
+
+=head1 NAME
+
+PGnauSet.pl -
+
+=cut
+
 loadMacros("PGnauGraphics.pl",);
 
 #######################################################################################################

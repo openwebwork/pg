@@ -1,10 +1,8 @@
-sub _MatrixCheckers_init { };    # don't reload this file
-
-=pod
 
 =head1 NAME
 
-MatrixCheckers.pl
+MatrixCheckers.pl - Provides subroutines for answer checking using MathObjects
+matrices with real entries.
 
 =head1 SYNOPSIS
 
@@ -122,17 +120,11 @@ on the hyperplane (i.e., the first vector input is always a
 particular solution), while the remaining vectors are a basis for
 the hyperplane (i.e., they span the homogeneous solution set).
 
-=head1 AUTHORS
-
-Paul Pearson, Hope College, Department of Mathematics
-
 =cut
 
-################################################
+sub _MatrixCheckers_init { };    # don't reload this file
 
-loadMacros("MathObjects.pl",);    # , will "parserMultiAnswer.pl" create an infinite loop?
-
-################################################
+loadMacros("MathObjects.pl",);   # , will "parserMultiAnswer.pl" create an infinite loop?
 
 sub concatenate_columns_into_matrix {
 
@@ -144,8 +136,6 @@ sub concatenate_columns_into_matrix {
 	return Matrix(\@temp)->transpose;
 
 }
-
-##########################################
 
 sub basis_checker_one_column {
 
@@ -167,8 +157,6 @@ sub basis_checker_one_column {
 	return $S->isParallel($C);
 
 }
-
-##########################################
 
 sub basis_checker_columns {
 
@@ -215,8 +203,6 @@ sub basis_checker_columns {
 
 }
 
-#############################################
-
 sub unit_basis_checker_one_column {
 
 	my ($correct, $student, $answerHash) = @_;
@@ -235,8 +221,6 @@ sub unit_basis_checker_one_column {
 	return ($S->isParallel($C) and norm($S) == 1);
 
 }
-
-###############################################
 
 sub orthonormal_basis_checker_columns {
 
@@ -290,8 +274,6 @@ sub orthonormal_basis_checker_columns {
 
 }
 
-##############################################
-
 sub basis_checker_rows {
 
 	my ($correct, $student, $answerHash) = @_;
@@ -337,8 +319,6 @@ sub basis_checker_rows {
 	return $S == $C * $X;
 
 }
-
-#############################################
 
 sub orthonormal_basis_checker_rows {
 
@@ -392,8 +372,6 @@ sub orthonormal_basis_checker_rows {
 	return $S == $C * $X;
 
 }
-
-##############################################
 
 sub parametric_plane_checker_columns {
 
@@ -456,7 +434,5 @@ sub parametric_plane_checker_columns {
 	return $S == $C * $X;
 
 }
-
-########################################################
 
 1;
