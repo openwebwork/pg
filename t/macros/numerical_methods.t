@@ -108,6 +108,7 @@ subtest 'Riemann Sums' => sub {
 subtest 'Quadrature' => sub {
 	my $f = sub { my $x = shift; return $x * $x; };
 	my $g = sub { my $x = shift; return exp($x); };
+	my $h = sub { my $x = shift; return exp(-$x * $x / 2) / sqrt(4 * acos(0)); };
 	is simpson($f, 0, 2, steps => 4), 8 / 3,                "Simpson's rule of x^2 on [0,2]";
 	is Round(simpson($g, 0, 1), 7),   Round(exp(1) - 1, 7), "Simpson's rule of e^x on [0,1]";
 	like dies { simpson($f, 0, 2, steps => 5); },
@@ -120,6 +121,8 @@ subtest 'Quadrature' => sub {
 	is romberg($g, 0, 1), exp(1) - 1, 'Romberg interation on e^x on [0,1]';
 
 	is inv_romberg($g, 0, exp(1) - 1), 1.0, 'Inverse Romberg to find b with int of e^x on [0,b] returns 1';
+	is inv_romberg($h, 0, 0.45), 1.64485362695934,
+		'Inverse Romberg to find b with int of the normal curve on [0,b] returns 1.64485362695934';
 
 	is newtonCotes($f, 0, 2, n => 4, method => 'trapezoid'),     2.75,  'Newton-Cotes (trapezoid) of x^2 on [0,2]';
 	is newtonCotes($f, 0, 2, n => 4, method => 'simpson'),       8 / 3, 'Newton-Cotes (simpson) of x^2 on [0,2]';
@@ -156,16 +159,16 @@ subtest 'Quadrature - Open Newton-Cotes' => sub {
 
 subtest 'Legendre Polynomial' => sub {
 	my $leg3 = legendreP(3);
-	is &$leg3(0.5),  (5 * (0.5)**3 - 3 * (0.5)) / 2.0,   'testing legendreP(3,0.5)';
+	is &$leg3( 0.5), (5 * (0.5)**3 - 3 * (0.5)) / 2.0,   'testing legendreP(3,0.5)';
 	is &$leg3(-0.9), (5 * (-0.9)**3 - 3 * (-0.9)) / 2.0, 'testing legendreP(3,0.5)';
-	is &$leg3(1),  1,  'testing legendreP(3,1)';
+	is &$leg3( 1),  1, 'testing legendreP(3,1)';
 	is &$leg3(-1), -1, 'testing legendreP(3,-1)';
 
 	my $leg6 = legendreP(6);
 	is &$leg6(0.5), (231 * 0.5**6 - 315 * 0.5**4 + 105 * 0.5**2 - 5) / 16.0, 'testing legendreP(6,0.5)';
 	is Round(&$leg6(-0.3), 10), Round((231 * (-0.3)**6 - 315 * (-0.3)**4 + 105 * (-0.3)**2 - 5) / 16.0, 10),
 		'testing legendreP(6,-0.3)';
-	is &$leg6(1),  1, 'testing legendreP(6,1)';
+	is &$leg6( 1), 1, 'testing legendreP(6,1)';
 	is &$leg6(-1), 1, 'testing legendreP(6,-1)';
 
 	my $leg12 = legendreP(12);
@@ -173,7 +176,7 @@ subtest 'Legendre Polynomial' => sub {
 	is Round(&$leg12(-0.9), 15), Round(41726683414959 / 1024000000000000, 15), 'evaluating legendreP(12,-0.9)';
 
 	my $dleg3 = diffLegendreP(3);
-	is &$dleg3(0.5),  (15 * (0.5)**2 - 3) / 2.0, 'testing diffLegendreP(3,0.5)';
+	is &$dleg3( 0.5), (15 * (0.5)**2 - 3) / 2.0, 'testing diffLegendreP(3,0.5)';
 	is &$dleg3(-0.9), (15 * (0.9)**2 - 3) / 2.0, 'testing diffLegendreP(3,-0.9)';
 
 	my $dleg10 = diffLegendreP(10);
@@ -197,8 +200,8 @@ subtest 'Legendre Polynomial Roots and Weights' => sub {
 		roundArray(
 			[
 				-0.9815606342467192, -0.9041172563704748, -0.7699026741943047, -0.5873179542866175,
-				-0.3678314989981802, -0.1252334085114689, 0.1252334085114689,  0.3678314989981802,
-				0.5873179542866175,  0.7699026741943047,  0.9041172563704748,  0.9815606342467192
+				-0.3678314989981802, -0.1252334085114689,  0.1252334085114689,  0.3678314989981802,
+				 0.5873179542866175,  0.7699026741943047,  0.9041172563704748, 0.9815606342467192
 			],
 			digits => 14
 		),

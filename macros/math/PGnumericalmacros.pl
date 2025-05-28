@@ -1,7 +1,11 @@
 
 =head1 NAME
 
-Numerical methods for the PG language
+PGnumericalmacros.pl - Numerical methods for the PG language
+
+=head1 DESCRIPTION
+
+The functions in this macro are perl subroutines of standard numerical methods.
 
 =cut
 
@@ -9,18 +13,17 @@ BEGIN { strict->import; }
 
 sub _PGnumericalmacros_init { }
 
-=head2 Interpolation methods
+=head1 INTERPOLATION METHODS
 
-=head3 plot_list
+=head2 plot_list
 
 Usage:
 
-    plot_list([x0,y0,x1,y1,...]);
-    plot_list([(x0,y0),(x1,y1),...]);
-    plot_list(\x_y_array);
+    plot_list([x0, y0, x1, y1, ...]);
+    plot_list([(x0, y0), (x1, y1), ...]);
 
-    plot_list([x0,x1,x2...], [y0,y1,y2,...]);
-    plot_list(\@xarray,\@yarray);
+    plot_list([x0, x1, x2, ...], [y0, y1, y2, ...]);
+    plot_list(~~@xarray, ~~@yarray);
 
 It is important that the x values in any form are unique or this method fails.  There is no
 check for this however.
@@ -68,7 +71,11 @@ sub plot_list {
 	};
 }
 
-=head3 horner
+=head2 horner
+
+Generates a subroutine which evaluates a polynomial passing through the points
+C<(x0,q0), (x1,q1), (x2, q2)>, ... using Horner's method, which is a form of the polynomial
+that is used for evaluation with fewer operations than the standard form.
 
 Usage:
 
@@ -77,9 +84,6 @@ Usage:
 Produces the newton polynomial
 
     &$fn(x) = q0 + q1*(x-x0) +q2*(x-x1)*(x-x0) + ...;
-
-Generates a subroutine which evaluates a polynomial passing through the points
-C<(x0,q0), (x1,q1), (x2, q2)>, ... using Horner's method.
 
 The array refs for C<x> and C<q> can be any length but must be the same length.
 
@@ -108,14 +112,14 @@ sub horner {
 	};
 }
 
-=head3 hermite
+=head2 hermite
+
+Produces a reference to polynomial function with the specified values and first derivatives
+at (x0,x1,...). C<&$poly(34)> gives a number.
 
 Usage:
 
     $poly = hermite([x0,x1...],[y0,y1...],[yp0,yp1,...]);
-
-Produces a reference to polynomial function with the specified values and first derivatives
-at (x0,x1,...). C<&$poly(34)> gives a number
 
 Generates a subroutine which evaluates a polynomial passing through the specified points
 with the specified derivatives: (x0,y0,yp0) ...
@@ -162,14 +166,14 @@ sub hermite {
 	return horner(\@zvals, \@output);
 }
 
-=head3 hermite_spline
-
-Usage
-
-    $spline = hermit_spline([x0,x1...],[y0,y1...],[yp0,yp1,...]);
+=head2 hermite_spline
 
 Produces a reference to a piecewise cubic hermit spline with the specified values
 and first derivatives at (x0,x1,...).
+
+Usage:
+
+    $spline = hermit_spline([x0,x1...],[y0,y1...],[yp0,yp1,...]);
 
 C<&$spline(45)> evaluates to a number.
 
@@ -225,7 +229,10 @@ sub hermite_spline {
 	};
 }
 
-=head3 cubic_spline
+=head2 cubic_spline
+
+Generic the standard cubic spline of a pair of array references for the x and y
+values.
 
 Usage:
 
@@ -379,7 +386,7 @@ END_OF_JAVA_TEXT
 	return $output_str;
 }
 
-=head3 newtonDividedDifference
+=head2 newtonDividedDifference
 
 Computes the Newton divided difference table.
 
@@ -428,6 +435,11 @@ where the first column is C<$x>, the second column is C<$y> and the rest of the 
 
    f[x_i, x_j] = (f[x_j] - f[x_i])/(x_j - x_i)
 
+This table can then be used to find the interpolated polynomial through the given points. For example in the
+above example, the polynomial through C<$x> and C<$y> is
+
+    0 + 1x -0.1167x(x-1) + 0.04444x(x-1)(x-2).
+
 =cut
 
 sub newtonDividedDifference {
@@ -441,7 +453,7 @@ sub newtonDividedDifference {
 	return $a;
 }
 
-=head3 legendreP
+=head2 legendreP
 
 Returns a code reference to the Legendre Polynomial of degree C<n>.
 
@@ -449,14 +461,15 @@ Usage:
 
     $poly = legendreP($n);
 
-And then for example to evaluate the polynomial at C<x = 0.5>, use C<&$poly(0.5)>.  Even though
-these are polynomials, the standard domain for these are [-1,1]. However this subroutine does not
-check for that.
+For example, if C<$poly = legendreP(7);>, then C<&$poly(0.5)> returns the value of the 7th degree
+Legendre polynomial at x = 0.5.  Legendre polynomials have a standard domain of [-1,1].
+This subroutine does not check for that.
 
 =cut
 
-# This uses the recurrence formula (n+1)P_{n+1}(x) = (2n+1)P_n(x) - n P_{n-1}(x), with  P_0(x)=1 and P_1(x)=x.
-# After testing, this is found to have less round off error than other formula.
+# This uses the recurrence formula (n+1)P_{n+1}(x) = (2n+1)P_n(x) - n P_{n-1}(x), with  P_0(x) = 1 and P_1(x) = x.
+# After testing, this is found to have less round-off error than other formula.
+
 sub legendreP {
 	my ($n) = @_;
 	return sub {
@@ -469,7 +482,7 @@ sub legendreP {
 	};
 }
 
-=head3 diffLegendreP
+=head2 diffLegendreP
 
 Returns a code reference to the derivative of the Legendre polynomial of degree C<n>.
 
@@ -478,7 +491,7 @@ Usage:
     $dp = diffLegendreP($n);
 
 If C<$dp = diffLegendreP(5)>, then C<&$dp(0.5)> will find the value of the derivative of the 5th
-degree legendre polynomial at C<x = 0.5>.
+degree Legendre polynomial at C<x = 0.5>.
 
 =cut
 
@@ -495,7 +508,7 @@ sub diffLegendreP {
 	};
 }
 
-=head3 legendreP_nodes_weights
+=head2 legendreP_nodes_weights
 
 Finds the nodes (roots) and weights of the Legendre Polynomials of degree C<n>. These are used in
 Gaussian Quadrature.
@@ -508,13 +521,14 @@ The C<$nodes> and C<$weights> are array references of nodes and weights.
 
 =cut
 
-# this calculates the roots and weights of the Legendre polynomial of degree n.  The roots
+# This calculates the roots and weights of the Legendre polynomial of degree n.  The roots
 # can be determined exactly for n<=9, due to symmetry, however, this uses newton's method
 # to solve them based on an approximate value
 # (see https://math.stackexchange.com/questions/12160/roots-of-legendre-polynomial )
 #
-# the weights can then be calculated based on a formula shown in
-# https://en.wikipedia.org/wiki/Gaussian_quadrature
+# The weights can then be calculated based on a formula shown in
+# https://en.wikipedia.org/wiki/Gaussian_quadrature .
+
 sub legendreP_nodes_weights {
 	my ($n) = @_;
 
@@ -550,17 +564,17 @@ sub legendreP_nodes_weights {
 	return (\@nodes, \@weights);
 }
 
-=head2 Numerical Integration methods
+=head1 NUMERICAL INTEGRATION METHODS
 
-=head3 lefthandsum
+=head2 lefthandsum
 
-Left Hand Riemann Sum
+Calculate the Left Hand Riemann Sum
 
 Usage:
 
-    lefthandsum(function_reference, start, end, steps=>30 );
+    lefthandsum(function_reference, start, end, steps => 30);
 
-Implements the Left Hand sum using 30 intervals between 'start' and 'end'.
+Implements the Left Hand sum using the given number of intervals between 'start' and 'end'.
 The first three arguments are required.  The final argument (number of steps) is
 optional and defaults to 30.
 
@@ -580,15 +594,15 @@ sub lefthandsum {
 	return $sum * $delta;
 }
 
-=head3 righthandsum
+=head2 righthandsum
 
-Right Hand Riemann Sum
+Calculate the Right Hand Riemann Sum
 
 Usage:
 
-    righthandsum(function_reference, start, end, steps=>30 );
+    righthandsum(function_reference, start, end, steps => 30);
 
-Implements the right hand sum using 30 intervals between 'start' and 'end'.
+Implements the right hand sum using the given number of intervals between 'start' and 'end'.
 The first three arguments are required.  The final argument (number of steps)
 is optional and defaults to 30.
 
@@ -608,15 +622,16 @@ sub righthandsum {
 	return $sum * $delta;
 }
 
-=head3 midpoint
+=head2 midpoint
+
+Approximate the integral of a function using the midpoint rule.
 
 Usage:
 
-    midpoint(function_reference, start, end, steps=>30);
+    midpoint(function_reference, start, end, steps => 30);
 
-Implements the Midpoint rule between 'start' and 'end'.
-The first three arguments are required.  The final argument (number of steps)
-is optional and defaults to 30.
+Implements the midpoint rule between 'start' and 'end' using the given number of steps.
+The first three arguments are required.  The number of steps is optional and defaults to 30.
 
 =cut
 
@@ -634,13 +649,15 @@ sub midpoint {
 	return $sum * $delta;
 }
 
-=head3 simpson
+=head2 simpson
+
+Approximate the integral of a function using Simpson's rule.
 
 Usage:
 
-    simpson(function_reference, start, end, steps=>30 );
+    simpson(function_reference, start, end, steps => 30);
 
-Implements Simpson's rule between 'start' and 'end'.
+Implements Simpson's rule between 'start' and 'end' using the given number of steps.
 The first three arguments are required.  The final argument (number of steps) is
 optional and defaults to 30, but must be even.
 
@@ -665,13 +682,15 @@ sub simpson {
 	return $sum * $delta / 3;
 }
 
-=head3 trapezoid
+=head2 trapezoid
+
+Approximate the integral of a function using the Trapezoid rule.
 
 Usage:
 
-    trapezoid(function_reference, start, end, steps=>30);
+    trapezoid(function_reference, start, end, steps => 30);
 
-Implements the trapezoid rule using 30 intervals between 'start' and 'end'.
+Implements the trapezoid rule between 'start' and 'end' using the given number of steps.
 The first three arguments are required.  The final argument (number of steps)
 is optional and defaults to 30.
 
@@ -692,13 +711,15 @@ sub trapezoid {
 	return $sum * $delta;
 }
 
-=head3 romberg
+=head2 romberg
+
+Implements the Romberg integration routine through 'level' recursive steps.  Level defaults to 6.
 
 Usage:
 
-    romberg(function_reference, x0, x1, level);
+    romberg(function_reference, x0, x1, level => n);
 
-Implements the Romberg integration routine through 'level' recursive steps.  Level defaults to 6.
+
 
 =cut
 
@@ -716,9 +737,9 @@ sub romberg_iter {
 		/ (4**($k - 1) - 1);
 }
 
-=head3 inv_romberg
+=head2 inv_romberg
 
-Inverse Romberg
+Finds the upper limit of an integral using Romberg integration and newton's method.
 
 Usage:
 
@@ -728,12 +749,12 @@ Finds b such that the integral of the function from a to b is equal to value. As
 function is continuous and doesn't take on the zero value. Uses Newton's method of approximating
 roots of equations, and Romberg to evaluate definite integrals.
 
-Example
+Example:
 
-Find the value of b such that the integral of e^(-x^2/2)/sqrt(2*pi) from 0 to b is 0.25.
+Find the value of b such that the integral of e^(-x^2/2)/sqrt(2*pi) from 0 to b is 0.45.
 
-    $f = sub { my $x = shift; return exp(-$x*$x/2)/sqrt(4*acos(0));};
-    $b = inv_romberg($f,0,0.45);
+    $f = sub { my $x = shift; return exp(-$x * $x / 2) / sqrt(4 * acos(0)); };
+    $b = inv_romberg($f, 0, 0.45);
 
 this returns C<1.64485362695934>.   This is the standard normal curve and this
 value is the z value for the 90th percentile.
@@ -761,7 +782,7 @@ sub inv_romberg {
 	return $b;
 }
 
-=head3 newtonCotes
+=head2 newtonCotes
 
 Perform quadrature (numerical integration) using a newtonCotes composite formula (trapezoid,
 Simpson's, the 3/8 rule or Boole's).
@@ -834,7 +855,7 @@ sub newtonCotes {
 	return $h * $quad;
 }
 
-=head3 gaussQuad
+=head2 gaussQuad
 
 Compute the integral of a function C<$f> on an interval C<[a, b]> using Gassian Quadrature.
 
@@ -877,26 +898,28 @@ sub gaussQuad {
 	return 0.5 * ($opts{b} - $opts{a}) * $sum;
 }
 
-=head2 Differential Equation Methods
+=head1 DIFFERENTIAL EQUATION METHODS
 
-=head3 rungeKutta4
+=head2 rungeKutta4
 
-Finds integral curve of a vector field using the 4th order Runge Kutta method by
-providing the function C<rungeKutta4>
+Finds integral curve of a vector field using the 4th order Runge Kutta method.  In particular
+find an approximate solution to
+
+dx/dt = F(t,x)
 
 Usage:
 
-    rungeKutta4( &vectorField(t,x),%options);
+    rungeKutta4(&F(t, x), %options);
+
+Default %options:
+    'initial_t'       => 1,
+    'initial_y'       => 1,
+    'dt'              => 0.01,
+    'num_of_points'   => 10,     # number of reported points
+    'interior_points' => 5,      # number of 'interior' steps between reported points
+    'debug'
 
 Returns:  array ref of points [t,y]
-
-    Default %options:
-        'initial_t'       => 1,
-        'initial_y'       => 1,
-        'dt'              => 0.01,
-        'num_of_points'   => 10,     # number of reported points
-        'interior_points' => 5,      # number of 'interior' steps between reported points
-        'debug'
 
 =cut
 
@@ -945,7 +968,7 @@ sub rungeKutta4 {
 	}
 }
 
-=head3 solveDiffEqn
+=head2 solveDiffEqn
 
 Produces a numerical solution to the differential equation y' = f(x,y) using a number of optional
 methods.
@@ -1067,9 +1090,9 @@ sub solveDiffEqn {
 	}
 }
 
-=head2 Rootfinding
+=head1 ROOTFINDING
 
-=head3 bisection
+=head2 bisection
 
 Performs the bisection method for the function C<$f> and initial interval C<$int> (an array
 reference). An example is
@@ -1160,7 +1183,7 @@ sub bisection {
 	};
 }
 
-=head3 newton
+=head2 newton
 
 Performs Newton's method for the function C<$f> and initial point C<$x0>.
 An example is
@@ -1177,8 +1200,7 @@ B<Arguments>
 
 =over
 
-=item * C<f>, a reference to a subroutine with a single input number and single output
-value.
+=item * C<f>, a reference to a subroutine with a single input number and single output value.
 
 =item * C<df>, a subroutine reference that is the derivative of f.
 
@@ -1192,11 +1214,9 @@ B<Options>
 
 =item * C<max_iter>, the maximum number of iterations to run Newton's method. Default is C<15>.
 
-=item * C<eps>, the cutoff value in the C<x> direction or stopping condition.
-The default is C<1e-8>
+=item * C<eps>, the cutoff value in the C<x> direction or stopping condition. The default is C<1e-8>
 
-=item * C<feps>, the allowed functional value for the stopping condition.  The default
-value is C<1e-10>.
+=item * C<feps>, the allowed functional value for the stopping condition.  The default value is C<1e-10>.
 
 =back
 
@@ -1206,9 +1226,9 @@ A hash with the following fields
 
 =over
 
-=item * C<root>, the approximate root.
+=item * C<root>, the approximate root
 
-=item * C<iterations>, an arrayref of the iterations.
+=item * C<iterations>, an array reference of the iterations
 
 =item * C<error>, a string specifying the error (either argument argument error or too many steps)
 
@@ -1244,7 +1264,7 @@ sub newton {
 	return { root => $iter[$i], iterations => \@iter };
 }
 
-=head3 secant
+=head2 secant
 
 Performs the secant method for finding a root of the function C<$f> with initial points C<$x0> and
 C<$x1>. An example is
@@ -1260,12 +1280,11 @@ B<Arguments>
 
 =over
 
-=item * C<f>, a reference to a subroutine with a single input number and single output
-value.
+=item * C<f>, a reference to a subroutine with a single input number and single output value
 
-=item * C<x0>, a number.
+=item * C<x0>, a number
 
-=item * C<x1>, a number.
+=item * C<x1>, a number
 
 =back
 
@@ -1273,13 +1292,11 @@ B<Options>
 
 =over
 
-=item * C<max_iter>, the maximum number of iterations to run the Secant method. Default is C<20>.
+=item * C<max_iter>, the maximum number of iterations to run the Secant method. The default value is C<20>.
 
-=item * C<eps>, the cutoff value in the C<x> direction or stopping condition.
-The default is C<1e-8>
+=item * C<eps>, the cutoff value in the C<x> direction or stopping condition. The default value is C<1e-8>.
 
-=item * C<feps>, the allowed functional value for the stopping condition.  The default
-value is C<1e-10>.
+=item * C<feps>, the allowed functional value for the stopping condition.  The default value is C<1e-10>.
 
 =back
 
