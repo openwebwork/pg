@@ -61,7 +61,7 @@ sub _reduce {
 	my $reduce = $self->{equation}{context}{reduction};
 	return $self->{rop}                                   if $self->{lop}{isOne}  && $reduce->{'1*x'};
 	return $self->{lop}                                   if $self->{rop}{isOne}  && $reduce->{'x*1'};
-	return $self->makeZero($self->{rop}, $self->{lop})    if $self->{lop}{isZero} && $reduce->{'0*x'};
+	return $self->makeZero($self->{lop}, $self->{rop})    if $self->{lop}{isZero} && $reduce->{'0*x'};
 	return $self->makeZero($self->{lop}, $self->{rop})    if $self->{rop}{isZero} && $reduce->{'x*0'};
 	return $self->makeNeg($self->{lop}{op}, $self->{rop}) if $self->{lop}->isNeg  && $reduce->{'(-x)*y'};
 	return $self->makeNeg($self->{lop}, $self->{rop}{op}) if $self->{rop}->isNeg  && $reduce->{'x*(-y)'};
