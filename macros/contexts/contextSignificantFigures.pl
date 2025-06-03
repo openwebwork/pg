@@ -101,26 +101,29 @@ sub new {
 
 	if (!defined $n) {
 		my $digits = $value;
-		if ($value !~ m/[.Ee]/) {
+		if ($value !~ m/[.Ee]/) {    # The number is an integer.
 			$digits =~ s/0+$//;
+			$digits =~ s/^\+//;
+			$digits = '0', $value = 0 if ($value == 0);    # The number is the integer 0;
 		} else {
-			$digits =~ s/[Ee].*$//;    # remove exponent, if any
+			$digits =~ s/[Ee].*$//;                        # remove exponent, if any
 			if ($value == 0) {
-				$digits =~ s/^[+-]?0+(.(?:\.|$))/$1/;    # remove leading 0s before the decimal
-				$digits =~ s/[-+.]//g;                   # remove non-digits
+				# $digits =~ s/^[+-]?0+(.(?:\.|$))/$1/;    # remove leading 0s before the decimal
+				$digits =~ s/^[+-]?0+\.(0+)$/$1/;
+				# $digits =~ s/^\./0./g;     # add initial zero, if needed
+				$digits =~ s/[-+.]//g;                     # remove non-digits
 			} else {
-				$digits =~ s/[-+.]//g;                   # remove non-digits
-				$digits =~ s/^0+//;                      # remove leading zeros
+				$digits =~ s/[-+.]//g;                     # remove non-digits
+				$digits =~ s/^0+//;                        # remove leading zeros
 			}
 		}
-		$n = length($digits);                            # what remains are the significant digits
+		$n = $digits eq '0' ? 'inf' : length($digits);     # what remains are the significant digits
 	}
 	my $N = $context->checkSigFigs($n);
 
-	$self            = bless $self->SUPER::new($context, ROUND($value, $n)), $class;
-	$value           = $class->format('E', $self->value, $n) unless $n == 'inf';
-	$self->{data}    = [$value];
-	$self->{exp}     = $n == 'inf' ? 0 : (split(/E/, $self->value))[1] + 0;
+	$self            = bless $self->SUPER::new($context, ROUND($value, $N)), $class;
+	$value           = $self->format('E', $self->value, $N) unless $N eq 'inf';
+	$self->{exp}     = $N eq 'inf' ? 0 : (split(/E/, $value))[1] + 0;
 	$self->{sigfigs} = $N;
 
 	return $self;
@@ -134,7 +137,7 @@ sub sigfigs {
 	my ($self, $n) = @_;
 	return $self->{sigfigs} if !defined($n) || $self->{sigfigs} == $n;
 	$self->{sigfigs} = $self->context->checkSigFigs($n);
-	$self->{data}[0] = $n == 'inf' ? $self->value : $self->format('E', ROUND($self->value, $n), $n);
+	$self->{data}[0] = ROUND($self->value, $n);
 	return $self->{sigfigs};
 }
 
@@ -148,8 +151,8 @@ sub E { shift->{exp} }
 # helpful for addition and subtraction.
 sub expFor {
 	my ($self, $value, $exp) = @_;
-	$exp = main::max(3, 14 - $exp);
-	return (split(/E/, $self->format('E', $value, $exp)))[1] + 0;
+	my $n = main::max(3, 14 - $exp);
+	return (split(/E/, $self->format('E', $value, $n)))[1] + 0;
 }
 
 #  Stringify and TeXify the number in the context's base
@@ -160,6 +163,11 @@ sub TeX {
 	my $tex  = $self->string;
 	$tex =~ s/E(?:(-)|\+)0*([1-9]\d?)/\\times 10^{$1$2}/;
 	return "{$tex}";
+}
+
+sub expFormat {
+	my $self = shift;
+	return $self->format('E', $self->value, $self->N);
 }
 
 # Format the number in $value in either 'E' (exponential form) or 'f' decimal form using
@@ -174,7 +182,7 @@ sub format {
 	$n     = $self->N - $self->E unless defined $n;
 	return "$value" if $n == 'inf';
 	$f = 'E', $n = $self->N if $f eq 'f' && ($n < 1 || $self->E >= 14 || -5 >= $self->E);
-	$n = main::max(0, $n - 1);
+	$n = $value == 0 ? $n : main::max(0, $n - 1);
 	return sprintf("%.${n}${f}" . ($n == 0 && $f eq 'f' ? '.' : ''), $value);
 }
 
@@ -248,22 +256,22 @@ sub round {
 
 sub ROUND {
 	my ($x, $n) = @_;
-	return $x if $n == 'inf';                          # keep the same if infinite digits
-	return 0  if $n < 0 || $x == 0;                    # 0 if less than 0 digits wanted or there are no digits
-	my $N = main::max(0, $n - 1);                      # Number of decimals to use in E notation
-	my $r = sprintf("%.${N}E", $x);                    # preliminary rounding of $x
-	my $e = (split(/E/, $r))[1] + 0;                   # exponent for $r
-	my $s = ($x < 0 ? -1 : 1);                         # sign of $x
-	my $m = main::max($n, 14 - $n);                    # position to use for adjustment for repeated 9s
-	$x += $s * 10**($e - $m);                          # adjust for repeated 9s
-	return sprintf("%.${N}E", $x) + 0 unless $n == 0;  # if we want digits, re-round the adjusted value
-													   #
-													   # For zero digits, we add a digit just above the first one in $x,
-													   # round that, then remove the added digit, getting 0 if $x didn't
-													   # round up, or 1 in the proper place if it did.  This means that
-													   # 0.005 rounds to .01, for example, if we ask for no digits,
-													   # so something like 1.23 - .005 will yield 1.22 properly.
-													   #
+	return $x if $n == 'inf';                            # keep the same if infinite digits
+	return 0  if $n < 0 || $x == 0;                      # 0 if less than 0 digits wanted or there are no digits
+	my $N = main::max(0, $n - 1);                        # Number of decimals to use in E notation
+	my $r = sprintf("%.${N}E", $x);                      # preliminary rounding of $x
+	my $e = (split(/E/, $r))[1] + 0;                     # exponent for $r
+	my $s = ($x < 0 ? -1 : 1);                           # sign of $x
+	my $m = main::max($n, 14 - $n);                      # position to use for adjustment for repeated 9s
+	$x += $s * 10**($e - $m);                            # adjust for repeated 9s
+	return sprintf("%.${N}E", $x) + 0 unless $n == 0;    # if we want digits, re-round the adjusted value
+
+	# For zero digits, we add a digit just above the first one in $x,
+	# round that, then remove the added digit, getting 0 if $x didn't
+	# round up, or 1 in the proper place if it did.  This means that
+	# 0.005 rounds to .01, for example, if we ask for no digits,
+	# so something like 1.23 - .005 will yield 1.22 properly.
+
 	my $d = $s * 10**($e + 1);
 	return sprintf("%.0E", $x + $d) - $d;
 }
@@ -322,7 +330,5 @@ sub perl {
 	return $self->SUPER::perl unless $value->{sigfigs};
 	return $self->context->Package('Real') . '->new(' . $value->value . ',' . $value->N . ')';
 }
-
-sub eval { shift->SUPER::eval(@_) }
 
 1;
