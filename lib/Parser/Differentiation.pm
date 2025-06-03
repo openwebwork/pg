@@ -13,7 +13,8 @@
 sub Parser::D {
 	my $self = shift;
 	my @vars = keys %{ $self->{variables} };
-	my $X    = @vars == 1 ? $vars[0] : undef;
+	return $self->isNumber ? $self->new(0) : (0 * $self)->reduce('0*x' => 1) if @vars == 0;
+	my $X = @vars == 1 ? $vars[0] : undef;
 	CORE::push(@_, $X) if @_ == 0 && defined $X;
 	$self->Error("You must specify a variable to differentiate by") unless @_;
 
@@ -28,7 +29,9 @@ sub Parser::D {
 			$x = $X;
 		}
 		my $def = $self->context->variables->get($x);
-		$self->Error([ "Variable of differentiation not defined: %s", $x ]) unless $def;
+		$self->Error([ "Variable of differentiation not defined: %s",  $x ]) unless $def;
+		$self->Error([ "Can't differentiate by a variable of type %s", $def->{type}{name} ])
+			unless $def->{type}{name} eq 'Number';
 		CORE::push(@x, ($x) x $d) if $d;
 	}
 
@@ -777,10 +780,15 @@ sub Value::Union::D {
 #########################################################################
 
 sub Parser::Variable::D {
-	my $self = shift;
-	my $x    = shift;
-	my $d    = ($self->{name} eq $x) ? 1 : 0;
-	return $self->Item("Number")->new($self->{equation}, $d);
+	my $self     = shift;
+	my $x        = shift;
+	my $equation = $self->{equation};
+	if ($self->type eq 'Number') {
+		my $d = ($self->{name} eq $x) ? 1 : 0;
+		return $self->Item('Number')->new($equation, $d);
+	}
+	my $zero = $self->Item('Number')->new($equation, 0);
+	return $self->Item('BOP')->new($equation, '*', $zero, $self->copy)->reduce('0*x' => 1);
 }
 
 #########################################################################
