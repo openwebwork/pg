@@ -23,16 +23,14 @@ or
 where the latter context, you or the student are not allowed to perform any operations on
 any numbers.
 
-=head2 Usage
-
 This is primarily for decimal numbers and keep track of signficant figures.   With the context loaded,
 a call to C<Real> will parse the number or string to keep track of significant figures. For example,
 
-    $x = Real('10.45');;
+    $x = Real('10.45');
     $y = Real('37.1834');
 
 and these numbers will have 6 and 4 signficant figures respectively.  To query the number of significant
-figures, use the C<sigfigs> methods.  For example, C<$x->sigfigs> will return 4.
+figures, use the C<sigfigs> method.  For example, C<< $x->sigfigs >> will return 4.
 
 The standard arithmetic operations +, -, *, / are defined for these and the result will have the correct
 number of significant figures. For example
@@ -52,6 +50,42 @@ Finally, we can also perform subtraction as in
 however, subtraction can lose significant figures.  The answer to this is C<0.23>, so only 2 significant
 figures.
 
+=head2 Significant Figure Rules
+
+A reminder about signficant figures is that all non-zero digits are significant.  The rule about a zero's
+significance depends on where it is in a number.
+
+=over
+
+=item * Zeros between any significant digits are signficant.  The zeros in 12.0034 are significant. There are 6
+significant figures in this number.
+
+=item * Zeros to the left of a non-zero digit are not significant.  The zeros in 0.00123 are not signficant.
+There are 3 significant figures in this number.
+
+=item * Zeros to right of the decimal point and to the right a non-zero digit are significant.  The zeros in 12.3400 are
+significant. There are 6 significant figures in this number.
+
+=item * Zeros to the left of the decimal point and to the right of a non zero digit are not significant.  The
+zeros in 12300 are not significant. There are 3 significant figures in this number.  However, the presesence of
+a significant zero changes the rule.  The zeros in 12300.0  are all significant because the rightmost 0 is
+significant and therefore the other zeros are significant.
+
+
+=back
+
+Note: If a number only consists of zeros has some different rules generally as a result of other operations.
+
+=over
+
+=item * The number 0 has infinite significant figures.
+
+=item * The number 0. has 1 significant figure.
+
+=item * The number 0.00 has 3 significant figures.
+
+=back
+
 =head3 Setting the number of significant figures.
 
 The number of significant figures can be set in two ways.  The first, in creation of the number if the option
@@ -64,7 +98,33 @@ method can set the number of significant figures.  If
 
     $x = Real('1000');
 
-then C<$x> has 1 significant figure, but C<$x->sigfigs(3)> will update that to C<1.00 * 10^3>.
+then C<$x> has 1 significant figure, but C<< $x->sigfigs(3) >> will update that to C<1.00 * 10^3>.
+
+One can set a number with infinite significant figures with C<< sigfigs => 'inf' >>.   This is often done
+with known constants.  A simple example would be that in the perimeter of a square with side C<x>, or C<4x>,
+the 4 would have infinite significant figures, meaning that the result would have the same significant figures
+as the number x.  Example:
+
+    $x = Real(17.05);
+    $p = Real(4, sigfigs => 'inf') * $x;
+
+One can set the number of significant figures after a number has been created with the C<sigfigs> method.  For
+example,
+
+    $x = Real(12.3456);
+
+which has 6 significant figures.  If C<< $x->sigfigs(4) >>, then the result is the number '12.35', where
+rounding has been performed.
+
+=head2 SigFigNumber
+
+The function C<SigFigNumber> will also create a SigFigNumber with the second argument the number of
+significant figures.  For example,
+
+    $a = SigFigNumber(12.345);
+    $b = SigFigNumber(10000,3);
+
+will create a number with 5 and 3 significant figures respectively.
 
 =cut
 
@@ -72,7 +132,11 @@ loadMacros('MathObjects.pl', 'PGauxiliaryFunctions.pl');
 
 sub _contextSignificantFigures_init {
 	context::SignificantFigures::Init(@_);
-	sub SigFigNumber { return context::SignificantFigures::Real->new(@_); }
+
+	sub SigFigNumber {
+		my ($x, @opts) = @_;
+		return context::SignificantFigures::Real->new($x, sigfigs => (@opts == 1 ? $opts[0] : $opts[1]));
+	}
 }
 
 #  A replacement for Value::Real that handles Significant figures
@@ -83,9 +147,8 @@ sub new {
 	my $self    = shift;
 	my $class   = ref($self) || $self;
 	my $context = (Value::isContext($_[0]) ? shift : $self->context);
-	my $value   = shift;
-	my %opts    = @_;
-	my $n       = $opts{sigfigs};
+	my ($value, %opts) = @_;
+	my $n = $opts{sigfigs};
 
 	if (Value::isValue($value) && $value->{sigfigs}) {
 		my $copy = $value->copy->inContext($context);
@@ -101,27 +164,22 @@ sub new {
 
 	if (!defined $n) {
 		my $digits = $value;
+		$digits =~ s/^[-+]//;        # Remove any leading sign.
 		if ($value !~ m/[.Ee]/) {    # The number is an integer.
-			$digits =~ s/0+$//;
-			$digits =~ s/^\+//;
-			$digits = '0', $value = 0 if ($value == 0);    # The number is the integer 0;
+			$digits =~ s/0+$//;      # Remove trailing 0s.
 		} else {
-			$digits =~ s/[Ee].*$//;                        # remove exponent, if any
+			$digits =~ s/[Ee].*$//;    # remove exponent, if any
 			if ($value == 0) {
-				# $digits =~ s/^[+-]?0+(.(?:\.|$))/$1/;    # remove leading 0s before the decimal
-				$digits =~ s/^[+-]?0+\.(0+)$/$1/;
-				# $digits =~ s/^\./0./g;     # add initial zero, if needed
-				$digits =~ s/[-+.]//g;                     # remove non-digits
+				$digits =~ s/^0*\.?/0/;    # remove leading 0s, leaving only one
 			} else {
-				$digits =~ s/[-+.]//g;                     # remove non-digits
-				$digits =~ s/^0+//;                        # remove leading zeros
+				$digits =~ s/\.//g;        # remove non-digits
+				$digits =~ s/^0+//;        # remove leading zeros
 			}
 		}
-		$n = $digits eq '0' ? 'inf' : length($digits);     # what remains are the significant digits
+		$n = length($digits) || 'inf';     # what remains are the significant digits
 	}
 	my $N = $context->checkSigFigs($n);
-
-	$self            = bless $self->SUPER::new($context, ROUND($value, $N)), $class;
+	$self            = bless $self->SUPER::new($context, ROUND($value, $n)), $class;
 	$value           = $self->format('E', $self->value, $N) unless $N eq 'inf';
 	$self->{exp}     = $N eq 'inf' ? 0 : (split(/E/, $value))[1] + 0;
 	$self->{sigfigs} = $N;
@@ -137,7 +195,7 @@ sub sigfigs {
 	my ($self, $n) = @_;
 	return $self->{sigfigs} if !defined($n) || $self->{sigfigs} == $n;
 	$self->{sigfigs} = $self->context->checkSigFigs($n);
-	$self->{data}[0] = ROUND($self->value, $n);
+	$self->{data}[0] = ROUND($self->value, $n) + 0;
 	return $self->{sigfigs};
 }
 
@@ -147,11 +205,11 @@ sub N { shift->{sigfigs} }
 # Return the exponent.
 sub E { shift->{exp} }
 
-# Return the exponential for the given $value with max(3,14-$exp) sigfigs.  This is
+# Return the exponential for the given $value with max($n,14-$n) sigfigs.  This is
 # helpful for addition and subtraction.
 sub expFor {
-	my ($self, $value, $exp) = @_;
-	my $n = main::max(3, 14 - $exp);
+	my ($self, $value, $n) = @_;
+	$n = main::max($n, 14 - $n);
 	return (split(/E/, $self->format('E', $value, $n)))[1] + 0;
 }
 
@@ -159,15 +217,16 @@ sub expFor {
 sub string { shift->format('f') }
 
 sub TeX {
-	my $self = shift;
-	my $tex  = $self->string;
+	my $tex = shift->string;
 	$tex =~ s/E(?:(-)|\+)0*([1-9]\d?)/\\times 10^{$1$2}/;
 	return "{$tex}";
 }
 
-sub expFormat {
-	my $self = shift;
-	return $self->format('E', $self->value, $self->N);
+# Determine the exponent of the given number.  Works like log10, but handles 0 and negatives.
+
+sub expon {
+	my $value = sprintf("%E", shift);
+	return ((split(/E/, $value))[1]) + 0;
 }
 
 # Format the number in $value in either 'E' (exponential form) or 'f' decimal form using
@@ -177,18 +236,22 @@ sub expFormat {
 # format('f', 1.23E-01, 3) returns '0.123'.
 
 sub format {
-	my ($self, $f, $value, $n) = @_;
-	$value = $self->value        unless defined $value;
-	$n     = $self->N - $self->E unless defined $n;
+	my $self = shift;
+	my ($f, $value, $n);
+	($self, $f, $value, $n) = ref($self) eq 'context::SignificantFigures::Real' ? ($self, @_) : (undef, $self, @_);
+	$value = $self->value unless defined $value;
+	$n     = $self->N     unless defined $n;
 	return "$value" if $n == 'inf';
-	$f = 'E', $n = $self->N if $f eq 'f' && ($n < 1 || $self->E >= 14 || -5 >= $self->E);
-	$n = $value == 0 ? $n : main::max(0, $n - 1);
+
+	my $exp = defined($self) ? $self->E : expon($value);
+	$f = 'E' if $f eq 'f' && ($n < 1 || $exp >= 5 || -5 >= $exp);
+	$n -= $exp if $f eq 'f';
+	$n = main::max(0, $n - 1);
 	return sprintf("%.${n}${f}" . ($n == 0 && $f eq 'f' ? '.' : ''), $value);
 }
 
-# Redefine adding two numbers.  This calculates the last significant digit and then converts each number
-# to an integer with the ones being signficant.  Then add and round, finally converting to decimal using the
-# last significant digit as the exponent.
+# Redefine addition.  The leftmost signifcant place in the result is needed to get the
+# correct value.
 
 sub add {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
@@ -197,9 +260,8 @@ sub add {
 	return $self->new($value, sigfigs => $exp + $self->expFor($value, $exp));
 }
 
-# For subtraction of two positive numbers, find the place of the least significant digit.
-# Also, convert each number to the same exponent so the mantissa's in (0,10) before rounding to the
-# correct place.
+# Redefine subtraction.  The leftmost signifcant place in the result is needed to get the
+# correct value.
 
 sub sub {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
@@ -238,8 +300,8 @@ sub neg {
 	return $self->new(-$self->value, sigfigs => $self->{sigfigs});
 }
 
-# The compare method performs a comparsion on the value which is the exponential version of the number
-# as in '1.23E+02'.  The comparison only is true if the string version of the two numbers are exactly the same.
+# The compare method determines that the values are equal with the same number of significant figures.
+# This also handles inequalities as in other Reals.
 
 sub compare {
 	my ($self, $l, $r) = Value::checkOpOrderWithPromote(@_);
@@ -256,11 +318,11 @@ sub round {
 
 sub ROUND {
 	my ($x, $n) = @_;
-	return $x if $n == 'inf';                            # keep the same if infinite digits
-	return 0  if $n < 0 || $x == 0;                      # 0 if less than 0 digits wanted or there are no digits
+	return $x + 0 if $n == 'inf';                        # keep the same if infinite digits
+	return 0      if $n < 0 || $x == 0;                  # 0 if less than 0 digits wanted or there are no digits
 	my $N = main::max(0, $n - 1);                        # Number of decimals to use in E notation
 	my $r = sprintf("%.${N}E", $x);                      # preliminary rounding of $x
-	my $e = (split(/E/, $r))[1] + 0;                     # exponent for $r
+	my $e = expon($r);                                   # exponent for $r
 	my $s = ($x < 0 ? -1 : 1);                           # sign of $x
 	my $m = main::max($n, 14 - $n);                      # position to use for adjustment for repeated 9s
 	$x += $s * 10**($e - $m);                            # adjust for repeated 9s
@@ -302,7 +364,7 @@ sub new {
 
 sub checkSigFigs {
 	my ($self, $n) = @_;
-	return $n if $n == 'inf';
+	return $n if $n eq 'inf';
 	Value::Error('The number of significant figures must be an integer or "inf"') unless $n =~ m/^[+-]?\d+$/;
 	Value::Error('The number of significant figures must be non-negative') if $n < 0;
 	Value::Error('The number of significant figures must be less than 16') if $n > 15;
