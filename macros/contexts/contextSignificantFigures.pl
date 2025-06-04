@@ -135,7 +135,8 @@ sub _contextSignificantFigures_init {
 
 	sub SigFigNumber {
 		my ($x, @opts) = @_;
-		return context::SignificantFigures::Real->new($x, sigfigs => (@opts == 1 ? $opts[0] : $opts[1]));
+		@opts = (sigfigs => $opts[0]) if @opts == 1;
+		return context::SignificantFigures::Real->new($x, @opts);
 	}
 }
 
@@ -172,7 +173,7 @@ sub new {
 			if ($value == 0) {
 				$digits =~ s/^0*\.?/0/;    # remove leading 0s, leaving only one
 			} else {
-				$digits =~ s/\.//g;        # remove non-digits
+				$digits =~ s/\.//;         # remove non-digits
 				$digits =~ s/^0+//;        # remove leading zeros
 			}
 		}
@@ -190,12 +191,13 @@ sub new {
 sub make { shift->new(@_) }
 
 # Either return the current number of sigfigs for the number or set the current number.
-
 sub sigfigs {
 	my ($self, $n) = @_;
-	return $self->{sigfigs} if !defined($n) || $self->{sigfigs} == $n;
-	$self->{sigfigs} = $self->context->checkSigFigs($n);
-	$self->{data}[0] = ROUND($self->value, $n) + 0;
+	return $self->{sigfigs} if !defined($n);
+	my $sigfigs = $self->context->checkSigFigs($n);
+	return $self->{sigfigs} if $self->{sigfigs} == $n;
+	$self->{sigfigs} = $sigfigs;
+	$self->{data}[0] = ROUND($self->value, $n);
 	return $self->{sigfigs};
 }
 
@@ -205,12 +207,12 @@ sub N { shift->{sigfigs} }
 # Return the exponent.
 sub E { shift->{exp} }
 
-# Return the exponential for the given $value with max($n,14-$n) sigfigs.  This is
-# helpful for addition and subtraction.
+# Return the exponential for the given $value with max($n,14-$n) sigfigs.
+# This basically is log10 except handles 0 and negative numbers.
 sub expFor {
 	my ($self, $value, $n) = @_;
-	$n = main::max($n, 14 - $n);
-	return (split(/E/, $self->format('E', $value, $n)))[1] + 0;
+	$n = main::max(0, $n - 1, 14 - $n);
+	return (split(/E/, sprintf("%.${n}E", $value)))[1] + 0;
 }
 
 #  Stringify and TeXify the number in the context's base
@@ -222,13 +224,6 @@ sub TeX {
 	return "{$tex}";
 }
 
-# Determine the exponent of the given number.  Works like log10, but handles 0 and negatives.
-
-sub expon {
-	my $value = sprintf("%E", shift);
-	return ((split(/E/, $value))[1]) + 0;
-}
-
 # Format the number in $value in either 'E' (exponential form) or 'f' decimal form using
 # $n signficant figures.
 
@@ -236,16 +231,14 @@ sub expon {
 # format('f', 1.23E-01, 3) returns '0.123'.
 
 sub format {
-	my $self = shift;
-	my ($f, $value, $n);
-	($self, $f, $value, $n) = ref($self) eq 'context::SignificantFigures::Real' ? ($self, @_) : (undef, $self, @_);
+	my ($self, $f, $value, $n) = @_;
 	$value = $self->value unless defined $value;
 	$n     = $self->N     unless defined $n;
 	return "$value" if $n == 'inf';
-
-	my $exp = defined($self) ? $self->E : expon($value);
+	my $exp = $self->E // $self->expFor($value, 0);
 	$f = 'E' if $f eq 'f' && ($n < 1 || $exp >= 5 || -5 >= $exp);
 	$n -= $exp if $f eq 'f';
+	$value = ROUND($value, 0) if $n == 0;
 	$n = main::max(0, $n - 1);
 	return sprintf("%.${n}${f}" . ($n == 0 && $f eq 'f' ? '.' : ''), $value);
 }
@@ -257,7 +250,7 @@ sub add {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
 	my $exp   = main::min($l->N - $l->E, $r->N - $r->E);
 	my $value = $l->round($exp) + $r->round($exp);
-	return $self->new($value, sigfigs => $exp + $self->expFor($value, $exp));
+	return $self->new($value, sigfigs => main::max(0, $exp + $self->expFor($value, $exp)));
 }
 
 # Redefine subtraction.  The leftmost signifcant place in the result is needed to get the
@@ -267,7 +260,7 @@ sub sub {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
 	my $exp   = main::min($l->N - $l->E, $r->N - $r->E);
 	my $value = $l->round($exp) - $r->round($exp);
-	return $self->new($value, sigfigs => $exp + $self->expFor($value, $exp));
+	return $self->new($value, sigfigs => main::max(0, $exp + $self->expFor($value, $exp)));
 }
 
 # Redefine multiplication.  Use the product of the two numbers and set the number of significant
@@ -322,7 +315,7 @@ sub ROUND {
 	return 0      if $n < 0 || $x == 0;                  # 0 if less than 0 digits wanted or there are no digits
 	my $N = main::max(0, $n - 1);                        # Number of decimals to use in E notation
 	my $r = sprintf("%.${N}E", $x);                      # preliminary rounding of $x
-	my $e = expon($r);                                   # exponent for $r
+	my $e = (split(/E/, $r))[1] + 0;                     # exponent for $r
 	my $s = ($x < 0 ? -1 : 1);                           # sign of $x
 	my $m = main::max($n, 14 - $n);                      # position to use for adjustment for repeated 9s
 	$x += $s * 10**($e - $m);                            # adjust for repeated 9s

@@ -24,31 +24,33 @@ use Data::Dumper;
 Context('SignificantFigures');
 
 sub ROUND  {&context::SignificantFigures::Real::ROUND}
-sub expon  {&context::SignificantFigures::Real::expon}
-sub FORMAT {&context::SignificantFigures::Real::format}
+sub expon  { context::SignificantFigures::Real->expFor($_[0], 0) }
+sub FORMAT { context::SignificantFigures::Real->format(@_) }
 
-# subtest 'Test the helper functions.' => sub {
-# 	is ROUND(1.335,    3), '1.34',   'Round 1.335 to 3 sig figs.';
-# 	is ROUND(12.34567, 5), '12.346', 'Round 12.346 to 5 sig figs.';
-# 	is ROUND(1.005,    3), '1.01',   'Check that rounding up is working with non-perfect values';
+subtest 'Test the helper functions.' => sub {
+	is ROUND(1.335,    3), '1.34',   'Round 1.335 to 3 sig figs.';
+	is ROUND(12.34567, 5), '12.346', 'Round 12.346 to 5 sig figs.';
+	is ROUND(1.005,    3), '1.01',   'Check that rounding up is working with non-perfect values';
+	is ROUND(0.005,    0), 0.01,     'Rounding to 0 sigfigs goes to nearest multiple of 10';
+	is ROUND(0.045,    0), 0,        'Rounding to 0 sigfigs down goes to 0';
 
-# 	my $a1 = Real('1');    # Needed to get a Real (SignificantFigure) MathObject.
-# 	is $a1->expFor('12.34567',   5), '1',  'Find the exponential part of 12.3456';
-# 	is $a1->expFor('0.00124567', 5), '-3', 'Find the exponential part of 0.00123456';
+	my $a1 = Real('1');    # Needed to get a Real (SignificantFigure) MathObject.
+	is $a1->expFor('12.34567',   5), '1',  'Find the exponential part of 12.3456';
+	is $a1->expFor('0.00124567', 5), '-3', 'Find the exponential part of 0.00123456';
 
-# 	is FORMAT('E', '123.546',   6), '1.23546E+02', 'Write 123.546 in exponential form.';
-# 	is FORMAT('f', '1.23E-01',  3), '0.123',       'Write 1.23E-01 in decimal form.';
-# 	is FORMAT('f', '1.23E-03',  3), '0.00123',     'Write 1.23E-01 in decimal form.';
-# 	is FORMAT('f', '5.283E+02', 4), '528.3',       'Write 5.283+02 in decimal form.';
-# 	is FORMAT('f', '1.23E+00',  3), '1.23',        'Write 1.23E+00 in decimal form.';
-# 	is FORMAT('f', '1.23E+01',  3), '12.3',        'Write 1.23E+01 in decimal form.';
-# 	is FORMAT('f', '1.23E+06',  3), '1.23E+06',    'Write 1.23E+01 in decimal form.';
+	is FORMAT('E', '123.546',   6), '1.23546E+02', 'Write 123.546 in exponential form.';
+	is FORMAT('E', 0.8,         1), '8E-01',       '0.8 = 8E-01';
+	is FORMAT('f', '1.23E-01',  3), '0.123',       'Write 1.23E-01 in decimal form.';
+	is FORMAT('f', '1.23E-03',  3), '0.00123',     'Write 1.23E-01 in decimal form.';
+	is FORMAT('f', '5.283E+02', 4), '528.3',       'Write 5.283+02 in decimal form.';
+	is FORMAT('f', '1.23E+00',  3), '1.23',        'Write 1.23E+00 in decimal form.';
+	is FORMAT('f', '1.23E+01',  3), '12.3',        'Write 1.23E+01 in decimal form.';
+	is FORMAT('f', '1.23E+06',  3), '1.23E+06',    'Write 1.23E+01 in decimal form.';
 
-# 	is expon('1000.32'),   3, 'Find the exponent of 1000.32.';
-# 	is expon('0'),         0, 'Find the exponent of 0.';
-# 	is expon('-0.00328'), -3, 'Find the exponent of -0.00328.';
-
-# };
+	is expon('1000.32'),   3, 'Find the exponent of 1000.32.';
+	is expon('0'),         0, 'Find the exponent of 0.';
+	is expon('-0.00328'), -3, 'Find the exponent of -0.00328.';
+};
 
 subtest 'Create numbers with significant digits using Real' => sub {
 	ok my $a1 = Real('0012.34'), 'Creating the number 0012.34';
@@ -90,23 +92,23 @@ subtest 'Create numbers with significant digits using Real' => sub {
 	ok my $a6 = Compute('1230000'), 'Creating the number 12300';
 	is $a6->sigfigs,     3,                     '1230000 has 3 significant figures.';
 	is $a6->E,           6,                     '1230000 = 1.23 * 10^6';
-	is $a6->format('E'), '1.23E+06',            'Correct exponential/internal form';
-	is $a6->string,      '1.23E+06',            'Correct string output.';
-	is $a6->TeX,         '{1.23\times 10^{6}}', 'Correct TeX output.';
+	is $a6->format('E'), '1.23E+06',            'Correct exponential/internal form of 1230000';
+	is $a6->string,      '1.23E+06',            'Correct string output of 1230000';
+	is $a6->TeX,         '{1.23\times 10^{6}}', 'Correct TeX output of 1230000';
 
 	ok my $a7 = Compute('2'), 'Create the number 2';
 	is $a7->sigfigs,     1,       '2 has 1 significant figure.';
 	is $a7->E,           0,       '2 = 2 * 10^0';
-	is $a7->format('E'), '2E+00', 'Correct exponential/internal form';
-	is $a7->string,      '2.',    'Correct string output.';
-	is $a7->TeX,         '{2.}',  'Correct TeX output.';
+	is $a7->format('E'), '2E+00', 'Correct exponential/internal form of 2';
+	is $a7->string,      '2.',    'Correct string output of 2';
+	is $a7->TeX,         '{2.}',  'Correct TeX output of 2';
 
 	ok my $a8 = Compute('-1.932'), 'Creating the number -1.932';
 	is $a8->sigfigs,     4,            '-1.932 has 4 significant figures.';
 	is $a8->E,           0,            '-1.932 = -1.932 * 10^(0)';
-	is $a8->format('E'), '-1.932E+00', 'Correct exponential/internal form';
-	is $a8->string,      '-1.932',     'Correct string output.';
-	is $a8->TeX,         '{-1.932}',   'Correct TeX output.';
+	is $a8->format('E'), '-1.932E+00', 'Correct exponential/internal form of -1.932';
+	is $a8->string,      '-1.932',     'Correct string output of -1.932';
+	is $a8->TeX,         '{-1.932}',   'Correct TeX output of -1.932.';
 
 	ok my $a9 = Compute('-12340000'), 'Creating the number -12340000';
 	is $a9->sigfigs,     4,                       '-12340000 has 4 significant figures';
@@ -165,7 +167,6 @@ subtest 'Create numbers with significant digits using Real' => sub {
 	is $a16->E,           0,       'The exponential of +00 is 0';
 	is $a16->string,      '0.',    'The string version is 0.';
 	is $a16->TeX,         '{0.}',  'The TeX version is {0.}';
-
 };
 
 subtest 'Create numbers by specifying significant figures' => sub {
@@ -202,7 +203,6 @@ subtest 'Check for out of bounds significant figures' => sub {
 		'Try to create a real with non-numerical value';
 	like dies { $a1->sigfigs('eight'); }, qr/The number of significant figures must be an integer or "inf"/,
 		'Try to set a number with non-numerical value';
-
 };
 
 subtest 'Creating numbers with significant figures using Compute' => sub {
@@ -254,7 +254,11 @@ subtest 'Set the number of significant digits' => sub {
 	my $a2 = Compute('-123.45');
 	is $a2->sigfigs,     5,               '-123.45 has 5 significant digits';
 	is $a2->sigfigs(7),  7,               'Change the number of signicant figures to 7';
-	is $a2->format('E'), '-1.234500E+02', "The internal format('E') is '-1.2345E+02'";
+	is $a2->format('E'), '-1.234500E+02', "The internal format is '-1.2345E+02'";
+
+	my $a3 = Real(100, sigfigs => 3);
+	is $a3->sigfigs('inf'), 'inf', "Set the sigfigs to 'inf'";
+	is $a3->format("E"),    '100', 'The interval format is now 100';
 };
 
 subtest 'Multiplying two constants' => sub {
@@ -304,6 +308,10 @@ subtest 'Adding two constants' => sub {
 	is $a5->format('E'), '2.6E+00', '-12.3 + 14.8678 = 2.6 = 2.6E+00 (check format)';
 	is $a5->sigfigs,     2,         '-12.3 + 14.8678 = 2.6 (check sigfigs)';
 	is $a5->E,           0,         '-12.3 + 14.8678 = 2.6 (check exp)';
+
+	my $a6 = Real(-100.005) + Real(100);
+	is $a6->format('E'), '0E+00', '-100.005+100 = 0 (check format)';
+	is $a6->sigfigs,     1,       '-100.005+100 = 0. (1 sigfig)';
 
 };
 
