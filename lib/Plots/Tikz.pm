@@ -70,30 +70,32 @@ sub configure_axes {
 	my $grid  = $axes->grid;
 	my ($xmin, $ymin, $xmax, $ymax) = $axes->bounds;
 	my ($axes_width, $axes_height) = $plots->size;
-	my $show_grid   = $axes->style('show_grid');
-	my $xmajor      = $show_grid && $grid->{xmajor} ? 'true'          : 'false';
-	my $xminor_num  = $show_grid && $grid->{xmajor} ? $grid->{xminor} : 0;
-	my $xminor      = $xminor_num > 0 ? 'true' : 'false';
-	my $ymajor      = $show_grid && $grid->{ymajor} ? 'true'          : 'false';
-	my $yminor_num  = $show_grid && $grid->{ymajor} ? $grid->{yminor} : 0;
-	my $yminor      = $yminor_num > 0 ? 'true' : 'false';
-	my $xticks      = join(',', @{ $grid->{xticks} });
-	my $yticks      = join(',', @{ $grid->{yticks} });
-	my $grid_color  = $axes->style('grid_color');
-	my $grid_color2 = $self->get_color($grid_color);
-	my $grid_alpha  = $axes->style('grid_alpha');
-	my $grid_style  = $axes->style('grid_style');
-	my $xlabel      = $axes->xaxis('label');
-	my $axis_x_line = $axes->xaxis('location');
-	my $axis_x_pos  = $axes->xaxis('position');
-	my $ylabel      = $axes->yaxis('label');
-	my $axis_y_line = $axes->yaxis('location');
-	my $axis_y_pos  = $axes->yaxis('position');
-	my $title       = $axes->style('title');
-	my $axis_on_top = $axes->style('axis_on_top') ? "axis on top,\n\t\t\t" : '';
-	my $hide_x_axis = '';
-	my $hide_y_axis = '';
-	my $xaxis_plot  = ($xmin <= 0 && $xmax >= 0) ? "\\path[name path=xaxis] ($xmin, 0) -- ($xmax,0);\n" : '';
+	my $show_grid    = $axes->style('show_grid');
+	my $xmajor       = $show_grid && $grid->{xmajor} ? 'true' : 'false';
+	my $xminor_num   = $grid->{xminor};
+	my $xminor       = $show_grid && $xminor_num > 0 ? 'true' : 'false';
+	my $ymajor       = $show_grid && $grid->{ymajor} ? 'true' : 'false';
+	my $yminor_num   = $grid->{yminor};
+	my $yminor       = $show_grid && $yminor_num > 0 ? 'true'                                      : 'false';
+	my $xticks       = $axes->xaxis('show_ticks')    ? '{' . join(',', @{ $grid->{xticks} }) . '}' : 'none';
+	my $yticks       = $axes->yaxis('show_ticks')    ? '{' . join(',', @{ $grid->{yticks} }) . '}' : 'none';
+	my $xtick_labels = $axes->xaxis('tick_labels')   ? '' : "\n\t\t\txticklabel=\\empty,";
+	my $ytick_labels = $axes->yaxis('tick_labels')   ? '' : "\n\t\t\tyticklabel=\\empty,";
+	my $grid_color   = $axes->style('grid_color');
+	my $grid_color2  = $self->get_color($grid_color);
+	my $grid_alpha   = $axes->style('grid_alpha');
+	my $grid_style   = $axes->style('grid_style');
+	my $xlabel       = $axes->xaxis('label');
+	my $axis_x_line  = $axes->xaxis('location');
+	my $axis_x_pos   = $axes->xaxis('position');
+	my $ylabel       = $axes->yaxis('label');
+	my $axis_y_line  = $axes->yaxis('location');
+	my $axis_y_pos   = $axes->yaxis('position');
+	my $title        = $axes->style('title');
+	my $axis_on_top  = $axes->style('axis_on_top') ? "axis on top,\n\t\t\t" : '';
+	my $hide_x_axis  = '';
+	my $hide_y_axis  = '';
+	my $xaxis_plot   = ($xmin <= 0 && $xmax >= 0) ? "\\path[name path=xaxis] ($xmin, 0) -- ($xmax,0);\n" : '';
 	$axis_x_pos = $axis_x_pos ? ",\n\t\t\taxis x line shift=" . (-$axis_x_pos) : '';
 	$axis_y_pos = $axis_y_pos ? ",\n\t\t\taxis y line shift=" . (-$axis_y_pos) : '';
 
@@ -121,8 +123,8 @@ sub configure_axes {
 			xlabel={$xlabel},
 			ylabel={$ylabel},
 			title={$title},
-			xtick={$xticks},
-			ytick={$yticks},
+			xtick=$xticks,$xtick_labels
+			ytick=$yticks,$ytick_labels
 			xmajorgrids=$xmajor,
 			xminorgrids=$xminor,
 			minor x tick num=$xminor_num,

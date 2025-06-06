@@ -83,12 +83,11 @@ The minimum value the axis shows. Default is -5.
 
 The maximum value the axis shows. Default is 5.
 
-=item ticks
+=item tick_num
 
-An array which lists the major tick marks. If this array is empty, the ticks are
-generated using either C<tick_delta> or C<tick_num>. Note, JSXGraph doesn't support
-this option, be sure to set C<tick_delta> or C<tick_num> if using JSXGraph.
-Default is C<[]>.
+This is the number of major tick marks to include on the axis. This number is used
+to compute the C<tick_delta> as the difference between the C<max> and C<min> values
+and the number of ticks. Default: 5.
 
 =item tick_delta
 
@@ -97,11 +96,22 @@ This distance is then used to generate the tick marks if the ticks array is empt
 If this is set to 0, this distance is set by using the number of ticks, C<tick_num>.
 Default is 0.
 
-=item tick_num
+=item ticks
 
-This is the number of major tick marks to include on the axis. This number is used
-to compute the C<tick_delta> as the difference between the C<max> and C<min> values
-and the number of ticks. Default: 5.
+An array which lists the major tick marks. If this array is empty, the ticks are
+generated using either C<tick_delta> or C<tick_num>. Note, JSXGraph doesn't support
+this option, be sure to set C<tick_delta> or C<tick_num> if using JSXGraph.
+Default is C<[]>.
+
+=item tick_labels
+
+This can be either 1 (show) or 0 (don't show) the labels for the major ticks.
+Default: 1
+
+=item show_ticks
+
+This can be either 1 (show) or 0 (don't show) the tick lines. If ticks are
+not shown then tick labels won't be shown either. Default: 1
 
 =item label
 
@@ -218,17 +228,19 @@ sub new {
 sub axis_defaults {
 	my ($self, $axis) = @_;
 	return (
-		visible    =>  1,
-		min        => -5,
-		max        =>  5,
-		label      => $axis eq 'y' ? '\(y\)'  : '\(x\)',
-		location   => $axis eq 'y' ? 'center' : 'middle',
-		position   => 0,
-		ticks      => undef,
-		tick_delta => 0,
-		tick_num   => 5,
-		major      => 1,
-		minor      => 3,
+		visible     =>  1,
+		min         => -5,
+		max         =>  5,
+		label       => $axis eq 'y' ? '\(y\)'  : '\(x\)',
+		location    => $axis eq 'y' ? 'center' : 'middle',
+		position    => 0,
+		ticks       => undef,
+		tick_labels => 1,
+		show_ticks  => 1,
+		tick_delta  => 0,
+		tick_num    => 5,
+		major       => 1,
+		minor       => 3,
 	);
 }
 
