@@ -291,12 +291,13 @@ END_HTML
 			offset   => [ -10, 10 ]
 		},
 		ticks => {
-			drawZero      => 1,
+			drawLabels    => $axes->xaxis('tick_labels') && $axes->xaxis('show_ticks') ? 1 : 0,
+			drawZero      => $show_grid                  && $axes->xaxis('major')      ? 1 : 0,
 			insertTicks   => 0,
 			ticksDistance => $axes->xaxis('tick_delta'),
-			majorHeight   => $show_grid && $axes->xaxis('major') ? -1 : 10,
-			minorTicks    => $axes->xaxis('minor'),
-			minorHeight   => $show_grid ? -1 : 7,
+			majorHeight   => $axes->xaxis('show_ticks') ? ($show_grid && $axes->xaxis('major') ? -1 : 10) : 0,
+			minorTicks    => $axes->xaxis('major')      ? $axes->xaxis('minor')                           : 0,
+			minorHeight   => $axes->xaxis('show_ticks') ? ($show_grid ? -1 : 7)                           : 0,
 		},
 		%$JSXGraphXAxisOpts
 	});
@@ -311,12 +312,13 @@ END_HTML
 			offset   => [ 10, -10 ]
 		},
 		ticks => {
-			drawZero      => 1,
+			drawLabels    => $axes->yaxis('tick_labels') && $axes->yaxis('show_ticks') ? 1 : 0,
+			drawZero      => $show_grid                  && $axes->yaxis('major')      ? 1 : 0,
 			insertTicks   => 0,
 			ticksDistance => $axes->yaxis('tick_delta'),
-			majorHeight   => $show_grid && $axes->yaxis('major') ? -1 : 10,
-			minorTicks    => $axes->yaxis('minor'),
-			minorHeight   => $show_grid ? -1 : 7,
+			majorHeight   => $axes->yaxis('show_ticks') ? ($show_grid && $axes->yaxis('major') ? -1 : 10) : 0,
+			minorTicks    => $axes->yaxis('major')      ? $axes->yaxis('minor')                           : 0,
+			minorHeight   => $axes->yaxis('show_ticks') ? ($show_grid ? -1 : 7)                           : 0,
 		},
 		%$JSXGraphYAxisOpts
 	});
