@@ -136,7 +136,7 @@ sub _contextSignificantFigures_init {
 	sub SigFigNumber {
 		my ($x, @opts) = @_;
 		@opts = (sigfigs => $opts[0]) if @opts == 1;
-		return context::SignificantFigures::Real->new($x, @opts);
+		return Value->Package('Real')->new($x, @opts);
 	}
 }
 
@@ -235,10 +235,10 @@ sub format {
 	$value = $self->value unless defined $value;
 	$n     = $self->N     unless defined $n;
 	return "$value" if $n == 'inf';
+	$value = ROUND($value, 0) if $n == 0;
 	my $exp = $self->E // $self->expFor($value, 0);
 	$f = 'E' if $f eq 'f' && ($n < 1 || $exp >= 5 || -5 >= $exp);
 	$n -= $exp if $f eq 'f';
-	$value = ROUND($value, 0) if $n == 0;
 	$n = main::max(0, $n - 1);
 	return sprintf("%.${n}${f}" . ($n == 0 && $f eq 'f' ? '.' : ''), $value);
 }
