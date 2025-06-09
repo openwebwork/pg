@@ -19,11 +19,10 @@ use Plots::JSXGraph;
 use Plots::GD;
 
 sub new {
-	my ($class, $pg, %options) = @_;
-	my $size = $main::envir{onTheFlyImageSize} || 350;
+	my ($class, %options) = @_;
+	my $size = eval('$main::envir{onTheFlyImageSize}') || 350;
 
 	my $self = bless {
-		pg              => $pg,
 		imageName       => {},
 		width           => $size,
 		height          => $size,
@@ -32,30 +31,46 @@ sub new {
 		axes            => Plots::Axes->new,
 		colors          => {},
 		data            => [],
-		%options
 	}, $class;
 
+	# Besides for these core options, pass everything else to the Axes object.
+	for ('width', 'height', 'tex_size', 'ariaDescription') {
+		if ($options{$_}) {
+			$self->{$_} = $options{$_};
+			delete $options{$_};
+		}
+	}
+	$self->axes->set(%options) if %options;
+
+	$self->{pg} = eval('$main::PG');
 	$self->color_init;
 	$self->image_type('JSXGraph');
 	return $self;
 }
 
-# Only insert js file if it isn't already inserted.
-sub insert_js {
-	my ($self, $file) = @_;
-	for my $obj (@{ $self->{pg}{flags}{extra_js_files} }) {
-		return if $obj->{file} eq $file;
-	}
-	push(@{ $self->{pg}{flags}{extra_js_files} }, { file => $file, external => 0, attributes => { defer => undef } });
+sub pgCall {
+	my ($call, @args) = @_;
+	WeBWorK::PG::Translator::PG_restricted_eval('\&' . $call)->(@args);
+	return;
 }
 
-# Only insert css file if it isn't already inserted.
-sub insert_css {
+sub add_js_file {
 	my ($self, $file) = @_;
-	for my $obj (@{ $self->{pg}{flags}{extra_css_files} }) {
-		return if $obj->{file} eq $file;
-	}
-	push(@{ $self->{pg}{flags}{extra_css_files} }, { file => $file, external => 0 });
+	pgCall('ADD_JS_FILE', $file);
+	return;
+}
+
+sub add_css_file {
+	my ($self, $file) = @_;
+	pgCall('ADD_CSS_FILE', $file);
+	return;
+}
+
+sub context {
+	my $self = shift;
+	return $self->{context} if $self->{context};
+	$self->{context} = Parser::Context->current->copy;
+	return $self->{context};
 }
 
 sub colors {
@@ -153,7 +168,7 @@ sub image_type {
 	}
 
 	if ($ext) {
-		if (grep(/^$ext$/, @validExt)) {
+		if (grep {/^$ext$/} @validExt) {
 			$self->{ext} = $ext;
 		} else {
 			warn "Plots: Invalid image extension $ext.";
@@ -189,6 +204,7 @@ sub _add_function {
 
 	my $data = Plots::Data->new(name => 'function');
 	$data->set_function(
+		$self->context,
 		Fx          => $Fx,
 		Fy          => $Fy,
 		xvar        => $var,
@@ -293,6 +309,7 @@ sub add_vectorfield {
 	my ($self, @options) = @_;
 	my $data = Plots::Data->new(name => 'vectorfield');
 	$data->set_function(
+		$self->context,
 		Fx     => '',
 		Fy     => '',
 		xvar   => 'x',

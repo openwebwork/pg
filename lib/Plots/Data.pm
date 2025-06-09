@@ -56,6 +56,7 @@ turned into MathObjects), MathObjects, or per subroutines. The core function dat
 stored in the C<< $data->{function} >> hash, though other data is stored as a style.
 
     $data->set_function(
+        $self->context,
         Fx    => Formula('t'),
         Fy    => Formula('t^2'),
         var   => 't',
@@ -64,9 +65,13 @@ stored in the C<< $data->{function} >> hash, though other data is stored as a st
         steps => 50,
     );
 
+Note, the first argument must be $self->context when called from C<Plots::Plot>
+to use a single context for all C<Plost::Data> objects.
+
 This is also used to set a two variable function (used for slope or vector fields):
 
     $data->set_function(
+        $self->context,
         Fx     => Formula('x^2 + y^2'),
         Fy     => Formula('x - y'),
         xvar   => 'x',
@@ -187,14 +192,16 @@ sub style {
 sub get_math_object {
 	my ($self, $formula, $xvar, $yvar) = @_;
 	return $formula if ref($formula) eq 'CODE' || Value::isFormula($formula);
-	my $localContext = Parser::Context->current(\%main::context)->copy;
-	$localContext->variables->are($yvar ? ($xvar => 'Real', $yvar => 'Real') : ($xvar => 'Real'));
-	$formula = Value->Package('Formula')->new($localContext, $formula);
+	my $context = $self->{context};
+	$context->variables->add($xvar => 'Real') unless $context->variables->get($xvar);
+	$context->variables->add($yvar => 'Real') if $yvar && !$context->variables->get($yvar);
+	$formula = Value->Package('Formula')->new($context, $formula);
 	return $formula;
 }
 
 sub set_function {
-	my ($self, %options) = @_;
+	my ($self, $context, %options) = @_;
+	$self->{context} = $context;
 	my $f = {
 		Fx     => 't',
 		Fy     => '',
@@ -229,8 +236,7 @@ sub set_function {
 sub str_to_real {
 	my ($self, $val) = @_;
 	return $val if !$val || $val !~ /[^\d\-\.]/;
-	my $localContext = Parser::Context->current(\%main::context);
-	return Value->Package('Real')->new($localContext, $val)->value;
+	return Value->Package('Real')->new($self->{context}, $val)->value;
 }
 
 sub update_min_max {
@@ -246,11 +252,7 @@ sub update_min_max {
 sub function_string {
 	my ($self, $coord, $type, $nvars) = @_;
 	my $f  = $self->{function};
-	my $MO = $coord eq 'x' ? $f->{Fx} : $coord eq 'y' ? $f->{Fy} : '';
-	unless ($MO) {
-		warn "Invalid coordinate: $coord";
-		return '';
-	}
+	my $MO = $coord eq 'y' ? $f->{Fy} : $f->{Fx};
 	return '' if ref($MO) eq 'CODE';
 
 	# Ensure -x^2 gets print as -(x^2), since JavaScript finds this ambiguous.
