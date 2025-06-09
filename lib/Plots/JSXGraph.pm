@@ -90,18 +90,28 @@ sub add_curve {
 
 	my $type = 'curve';
 	my $data_points;
-	if ($data->name eq 'function' && ref($data->{function}{Fx}) ne 'CODE' && ref($data->{function}{Fy}) ne 'CODE') {
+	if ($data->name eq 'function') {
 		my $f = $data->{function};
-		$data->update_min_max;
-		if ($f->{var} eq $f->{Fx}->string) {
-			my $min = $data->style('continue_left')  ? '' : $f->{min};
-			my $max = $data->style('continue_right') ? '' : $f->{max};
-			$type        = 'functiongraph';
-			$data_points = '[' . $data->func_to_js('y') . ", $min, $max]";
+		if (ref($f->{Fx}) ne 'CODE' && $f->{xvar} eq $f->{Fx}->string) {
+			my $function = $data->function_string('y', 'js', 1);
+			if ($function) {
+				my $min = $data->style('continue_left')  ? '' : $f->{xmin};
+				my $max = $data->style('continue_right') ? '' : $f->{xmax};
+				$data->update_min_max;
+				$type        = 'functiongraph';
+				$data_points = "[function(t){ return $function; }, $min, $max]";
+			}
 		} else {
-			$data_points = '[' . $data->func_to_js('x') . ', ' . $data->func_to_js('y') . ", $f->{min}, $f->{max}]";
+			my $xfunction = $data->function_string('x', 'js', 1);
+			my $yfunction = $data->function_string('y', 'js', 1);
+			if ($xfunction && $yfunction) {
+				$data->update_min_max;
+				$data_points = "[function(t){ return $xfunction; }, function(t){ return $yfunction; }, "
+					. "$f->{xmin}, $f->{xmax}]";
+			}
 		}
-	} else {
+	}
+	unless ($data_points) {
 		$data->gen_data;
 		$data_points = '[[' . join(',', $data->x) . '],[' . join(',', $data->y) . ']]';
 	}
@@ -343,6 +353,36 @@ sub draw {
 	for my $data ($plots->data('function', 'dataset')) {
 		$self->add_curve($data);
 		$self->add_points($data);
+	}
+
+	# Vector/Slope Fields
+	for my $data ($plots->data('vectorfield')) {
+		my $xfunction = $data->function_string('x', 'js', 2);
+		my $yfunction = $data->function_string('y', 'js', 2);
+
+		if ($xfunction && $yfunction) {
+			my $f            = $data->{function};
+			my $JSXGraphOpts = $data->style('JSXGraphOpts') || {};
+			my $options      = Mojo::JSON::encode_json({
+				strokeColor => $self->get_color($data->style('color')),
+				strokeWidth => $data->style('width'),
+				scale       => $data->style('scale') || 1,
+				($data->style('slopefield') ? (arrowhead => { enabled => 0 }) : ()),
+				%$JSXGraphOpts,
+			});
+			$data->update_min_max;
+
+			if ($data->style('normalize') || $data->style('slopefield')) {
+				my $xtmp = "($xfunction)/Math.sqrt(($xfunction)**2 + ($yfunction)**2)";
+				$yfunction = "($yfunction)/Math.sqrt(($xfunction)**2 + ($yfunction)**2)";
+				$xfunction = $xtmp;
+			}
+
+			$self->{JS} .= "\n\t\tboard_$name.create('vectorfield', [[(x,y) => $xfunction, (x,y) => $yfunction], "
+				. "[$f->{xmin}, $f->{xsteps}, $f->{xmax}], [$f->{ymin}, $f->{ysteps}, $f->{ymax}]], $options);";
+		} else {
+			warn "Vector field not created due to missing JavaScript functions.";
+		}
 	}
 
 	# Stamps

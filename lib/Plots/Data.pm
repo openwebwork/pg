@@ -51,19 +51,37 @@ C<< $data->add([$x1, $y1], [$x2, $y2], ..., [$xn, $yn]) >>.
 
 =item C<< $data->set_function >>
 
-Configures a function to generate data points. C<Fx> and C<Fy> are MathObjects
-or perl subroutines.
+Configures a function to generate data points. C<Fx> and C<Fy> are strings (which are
+turned into MathObjects), MathObjects, or per subroutines. The core function data is
+stored in the C<< $data->{function} >> hash, though other data is stored as a style.
 
     $data->set_function(
-        Fx  => Formula('t'),
-        Fy  => Formula('t^2'),
-        min => -5,
-        max =>  5,
+        Fx    => Formula('t'),
+        Fy    => Formula('t^2'),
+        var   => 't',
+        min   => -5,
+        max   =>  5,
+        steps => 50,
     );
 
-The number of steps used to generate the data is a style and needs to be set separately.
+This is also used to set a two variable function (used for slope or vector fields):
 
-    $data->style(steps => 50);
+    $data->set_function(
+        Fx     => Formula('x^2 + y^2'),
+        Fy     => Formula('x - y'),
+        xvar   => 'x',
+        yvar   => 'y',
+        xmin   => -5,
+        xmax   =>  5,
+        ymin   => -5,
+        ymax   =>  5
+        xsteps => 15,
+        ysteps => 15,
+    );
+
+Note a function always stores the coordinate variables as C<xmin>, C<xmax>, C<xvar>, etc.
+When using a single variable function just use the x-coordinate values. C<min>, C<max>, C<var>,
+C<steps>, will set the x-coordinate values and will override any C<xmin>, C<xmax>, etc settings.
 
 =item C<< $data->gen_data >>
 
@@ -86,6 +104,31 @@ style name. C<< $data->style >> will returns a reference to the full style hash.
 to add / change the styles.
 
     $data->style(color => 'blue', width => 3);
+
+=item C<< $str = $data->function_string($coord, $type, $nvars); >>
+
+Takes a MathObject function string and replaces the function with either
+a JavaScript or PGF function string. If the function contains any function
+tokens not supported, a warning and empty string is returned.
+
+    $coord   'x' or 'y' coordinate function.
+    $type    'js' or 'PGF' (falls back to js for any input except 'PGF').
+    $nvars   1 (single variable functions) or 2 (used for slope/vector fields).
+
+=item C<< $data->update_min_max >>
+
+Updates a functions C<xmin>, C<xmax>, C<ymin>, and C<ymax> values to reals
+using MathObjects. This allows end points like 'pi', 'e', etc.
+
+=item C<< $data->get_start_point >>
+
+Gets the starting (left end) point of a function. This should be used when using
+function strings to avoid generating the function data.
+
+=item C<< $data->get_end_point >>
+
+Gets the ending (right end) point of a function. This should be used when using
+function strings to avoid generating the function data.
 
 =back
 
@@ -142,32 +185,47 @@ sub style {
 }
 
 sub get_math_object {
-	my ($self, $formula, $var) = @_;
+	my ($self, $formula, $xvar, $yvar) = @_;
 	return $formula if ref($formula) eq 'CODE' || Value::isFormula($formula);
 	my $localContext = Parser::Context->current(\%main::context)->copy;
-	$localContext->variables->are($var => 'Real') unless $localContext->variables->get($var);
+	$localContext->variables->are($yvar ? ($xvar => 'Real', $yvar => 'Real') : ($xvar => 'Real'));
 	$formula = Value->Package('Formula')->new($localContext, $formula);
 	return $formula;
 }
 
 sub set_function {
 	my ($self, %options) = @_;
-	my $f = { Fx => 't', Fy => '', var => 't', min => -5, max => 5 };
-	for my $key ('Fx', 'Fy', 'var', 'min', 'max') {
+	my $f = {
+		Fx     => 't',
+		Fy     => '',
+		xvar   => 't',
+		yvar   => '',
+		xmin   => -5,
+		xmax   =>  5,
+		ymin   => -5,
+		ymax   =>  5,
+		xsteps =>  30,
+		ysteps =>  15,
+	};
+	for my $key ('Fx', 'Fy', 'xvar', 'yvar', 'xmin', 'xmax', 'ymin', 'ymax', 'xsteps', 'ysteps') {
 		next unless defined $options{$key};
 		$f->{$key} = $options{$key};
 		delete $options{$key};
 	}
+	for my $key ('var', 'min', 'max', 'steps') {
+		next unless defined $options{$key};
+		$f->{"x$key"} = $options{$key};
+		delete $options{$key};
+	}
 	return unless $f->{Fy};
 
-	$f->{Fx}          = $self->get_math_object($f->{Fx}, $f->{var});
-	$f->{Fy}          = $self->get_math_object($f->{Fy}, $f->{var});
+	$f->{Fx}          = $self->get_math_object($f->{Fx}, $f->{xvar}, $f->{yvar});
+	$f->{Fy}          = $self->get_math_object($f->{Fy}, $f->{xvar}, $f->{yvar});
 	$self->{function} = $f;
 	$self->style(%options) if %options;
 	return;
 }
 
-# Using MathObjects allows string values like 2pi/3, e^2, sqrt(2), etc.
 sub str_to_real {
 	my ($self, $val) = @_;
 	return $val if !$val || $val !~ /[^\d\-\.]/;
@@ -178,21 +236,22 @@ sub str_to_real {
 sub update_min_max {
 	my $self = shift;
 	my $f    = $self->{function};
-	$f->{min} = $self->str_to_real($f->{min});
-	$f->{max} = $self->str_to_real($f->{max});
+	$f->{xmin} = $self->str_to_real($f->{xmin});
+	$f->{xmax} = $self->str_to_real($f->{xmax});
+	$f->{ymin} = $self->str_to_real($f->{ymin});
+	$f->{ymax} = $self->str_to_real($f->{ymax});
 	return;
 }
 
-# Takes a MathObject function string and replaces with JavaScript functions.
-# Function takes either 'x' or 'y' for the corresponding coordinate function.
-sub func_to_js {
-	my ($self, $coord) = @_;
+sub function_string {
+	my ($self, $coord, $type, $nvars) = @_;
 	my $f  = $self->{function};
 	my $MO = $coord eq 'x' ? $f->{Fx} : $coord eq 'y' ? $f->{Fy} : '';
 	unless ($MO) {
 		warn "Invalid coordinate: $coord";
 		return '';
 	}
+	return '' if ref($MO) eq 'CODE';
 
 	# Ensure -x^2 gets print as -(x^2), since JavaScript finds this ambiguous.
 	my $extraParens = $MO->context->flag('showExtraParens');
@@ -201,49 +260,91 @@ sub func_to_js {
 	$func =~ s/\s//g;
 	$MO->context->flags->set(showExtraParens => $extraParens);
 
-	my $var    = $f->{var};
-	my %tokens = (
-		sqrt    => 'Math.sqrt',
-		cbrt    => 'Math.cbrt',
-		hypot   => 'Math.hypot',
-		norm    => 'Math.hypot',
-		pow     => 'Math.pow',
-		exp     => 'Math.exp',
-		abs     => 'Math.abs',
-		round   => 'Math.round',
-		floor   => 'Math.floor',
-		ceil    => 'Math.ceil',
-		sign    => 'Math.sign',
-		int     => 'Math.trunc',
-		log     => 'Math.ln',
-		ln      => 'Math.ln',
-		cos     => 'Math.cos',
-		sin     => 'Math.sin',
-		tan     => 'Math.tan',
-		acos    => 'Math.acos',
-		arccos  => 'Math.acos',
-		asin    => 'Math.asin',
-		arcsin  => 'Math.asin',
-		atan    => 'Math.atan',
-		arctan  => 'Math.atan',
-		atan2   => 'Math.atan2',
-		cosh    => 'Math.cosh',
-		sinh    => 'Math.sinh',
-		tanh    => 'Math.tanh',
-		acosh   => 'Math.acosh',
-		arccosh => 'Math.arccosh',
-		asinh   => 'Math.asinh',
-		arcsinh => 'Math.asinh',
-		atanh   => 'Math.atanh',
-		arctanh => 'Math.arctanh',
-		min     => 'Math.min',
-		max     => 'Math.max',
-		random  => 'Math.random',
-		e       => 'Math.E',
-		pi      => 'Math.PI',
-		'^'     => '**',
-		$var    => $var
-	);
+	$nvars = 1 unless $nvars;
+	my %tokens;
+	if ($type eq 'PGF') {
+		my %vars = ($nvars == 2 ? ($f->{xvar} => 'x', $f->{yvar} => 'y') : ($f->{xvar} => 'x'));
+		%tokens = (
+			sqrt   => 'sqrt',
+			pow    => 'pow',
+			exp    => 'e^',
+			abs    => 'abs',
+			round  => 'round',
+			floor  => 'floor',
+			ceil   => 'ceil',
+			sign   => 'sign',
+			int    => 'int',
+			log    => 'ln',
+			ln     => 'ln',
+			cos    => 'cos',
+			sin    => 'sin',
+			tan    => 'tan',
+			sec    => 'sec',
+			csc    => 'csc',
+			cot    => 'cot',
+			acos   => 'acos',
+			arccos => 'acos',
+			asin   => 'asin',
+			arcsin => 'asin',
+			atan   => 'atan',
+			arctan => 'atan',
+			atan2  => 'atan2',
+			cosh   => 'cosh',
+			sinh   => 'sinh',
+			tanh   => 'tanh',
+			min    => 'min',
+			max    => 'max',
+			random => 'rnd',
+			e      => 'e',
+			pi     => 'pi',
+			'^'    => '^',
+			%vars
+		);
+	} else {
+		my %vars = ($nvars == 2 ? ($f->{xvar} => 'x', $f->{yvar} => 'y') : ($f->{xvar} => 't'));
+		%tokens = (
+			sqrt    => 'Math.sqrt',
+			cbrt    => 'Math.cbrt',
+			hypot   => 'Math.hypot',
+			norm    => 'Math.hypot',
+			pow     => 'Math.pow',
+			exp     => 'Math.exp',
+			abs     => 'Math.abs',
+			round   => 'Math.round',
+			floor   => 'Math.floor',
+			ceil    => 'Math.ceil',
+			sign    => 'Math.sign',
+			int     => 'Math.trunc',
+			log     => 'Math.ln',
+			ln      => 'Math.ln',
+			cos     => 'Math.cos',
+			sin     => 'Math.sin',
+			tan     => 'Math.tan',
+			acos    => 'Math.acos',
+			arccos  => 'Math.acos',
+			asin    => 'Math.asin',
+			arcsin  => 'Math.asin',
+			atan    => 'Math.atan',
+			arctan  => 'Math.atan',
+			atan2   => 'Math.atan2',
+			cosh    => 'Math.cosh',
+			sinh    => 'Math.sinh',
+			tanh    => 'Math.tanh',
+			acosh   => 'Math.acosh',
+			arccosh => 'Math.arccosh',
+			asinh   => 'Math.asinh',
+			arcsinh => 'Math.asinh',
+			atanh   => 'Math.atanh',
+			arctanh => 'Math.arctanh',
+			min     => 'Math.min',
+			max     => 'Math.max',
+			random  => 'Math.random',
+			e       => 'Math.E',
+			pi      => 'Math.PI',
+			'^'     => '**',
+			%vars
+		);
+	}
 
 	my $out = '';
 	my $match;
@@ -253,26 +354,26 @@ sub func_to_js {
 			if ($tokens{$match}) {
 				$out .= $tokens{$match};
 			} else {
-				warn "Unknown token $match in function.";
+				warn "Unsupported token $match in function. Generating points manually.";
 				return '';
 			}
 		} elsif (($match) = ($func =~ m/^([^A-Za-z^]+)/)) {
 			$func = substr($func, length($match));
 			$out .= $match;
 		} else {    # Shouldn't happen, but to stop an infinite loop for safety.
-			warn 'Unknown error parsing function.';
-			last;
+			warn 'Unknown error parsing function. Generating points manually.';
+			return '';
 		}
 	}
 
-	return "function($var){ return $out; }";
+	return $out;
 }
 
 sub stepsize {
-	my ($self, $steps) = @_;
+	my ($self, $steps, $var) = @_;
 	my $f = $self->{function};
 	$self->update_min_max;
-	return ($f->{max} - $f->{min}) / $steps;
+	return ($f->{"${var}max"} - $f->{"${var}min"}) / $steps;
 }
 
 sub get_generator_sub {
@@ -281,10 +382,10 @@ sub get_generator_sub {
 	return $f->{"sub_$coord"} if $f->{"sub_$coord"};
 	my $MO = $f->{"F$coord"};
 	return $MO if ref($MO) eq 'CODE';
-	if ($MO->string eq $f->{var}) {
+	if ($MO->string eq $f->{xvar}) {
 		$f->{"sub_$coord"} = sub { return $_[0]; }
 	} else {
-		my $sub = $MO->perlFunction(undef, [ $f->{var} ]);
+		my $sub = $MO->perlFunction(undef, [ $f->{xvar} ]);
 		$f->{"sub_$coord"} = sub {
 			my $x = shift;
 			my $y = Parser::Eval($sub, $x);
@@ -298,9 +399,9 @@ sub gen_data {
 	my $self = shift;
 	my $f    = $self->{function};
 	return if !$f || $self->size;    # Only generate the data once.
-	my $steps = $self->style('steps') || 30;
-	my $dt    = $self->stepsize($steps);
-	my $t     = $f->{min};
+	my $steps = $f->{xsteps};
+	my $dt    = $self->stepsize($steps, 'x');
+	my $t     = $f->{xmin};
 	my $sub_x = $self->get_generator_sub('x');
 	my $sub_y = $self->get_generator_sub('y');
 
@@ -317,7 +418,7 @@ sub get_start_point {
 	my $f     = $self->{function};
 	my $sub_x = $self->get_generator_sub('x');
 	my $sub_y = $self->get_generator_sub('y');
-	return (&{$sub_x}($f->{min}), &{$sub_y}($f->{min}));
+	return (&{$sub_x}($f->{xmin}), &{$sub_y}($f->{xmin}));
 }
 
 sub get_end_point {
@@ -326,7 +427,7 @@ sub get_end_point {
 	my $f     = $self->{function};
 	my $sub_x = $self->get_generator_sub('x');
 	my $sub_y = $self->get_generator_sub('y');
-	return (&{$sub_x}($f->{max}), &{$sub_y}($f->{max}));
+	return (&{$sub_x}($f->{xmax}), &{$sub_y}($f->{xmax}));
 }
 
 sub _add {
