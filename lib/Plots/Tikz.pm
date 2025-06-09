@@ -16,8 +16,8 @@ sub new {
 	my ($class, $plots) = @_;
 	my $image = LaTeXImage->new;
 	$image->environment('tikzpicture');
-	$image->svgMethod($main::envir{latexImageSVGMethod}           // 'dvisvgm');
-	$image->convertOptions($main::envir{latexImageConvertOptions} // { input => {}, output => {} });
+	$image->svgMethod(eval('$main::envir{latexImageSVGMethod}')           // 'dvisvgm');
+	$image->convertOptions(eval('$main::envir{latexImageConvertOptions}') // { input => {}, output => {} });
 	$image->ext($plots->ext);
 	$image->tikzLibraries('arrows.meta,plotmarks');
 	$image->texPackages(['pgfplots']);
@@ -91,7 +91,6 @@ sub configure_axes {
 	my $ylabel       = $axes->yaxis('label');
 	my $axis_y_line  = $axes->yaxis('location');
 	my $axis_y_pos   = $axes->yaxis('position');
-	my $title        = $axes->style('title');
 	my $axis_on_top  = $axes->style('axis_on_top') ? "axis on top,\n\t\t\t" : '';
 	my $hide_x_axis  = '';
 	my $hide_y_axis  = '';
@@ -124,7 +123,6 @@ sub configure_axes {
 			axis y line=$axis_y_line$axis_y_pos,
 			xlabel={$xlabel},
 			ylabel={$ylabel},
-			title={$title},
 			xtick=$xticks,$xtick_labels
 			ytick=$yticks,$ytick_labels
 			xmajorgrids=$xmajor,
@@ -161,8 +159,8 @@ sub get_plot_opts {
 	my $fill         = $data->style('fill')         || 'none';
 	my $fill_color   = $data->style('fill_color')   || 'default_color';
 	my $fill_opacity = $data->style('fill_opacity') || 0.5;
-	my $tikzOpts     = $data->style('tikzOpts')     || '';
-	my $smooth       = $data->style('tikz_smooth') ? 'smooth, ' : '';
+	my $tikz_options = $data->style('tikz_options') ? ', ' . $data->style('tikz_options') : '';
+	my $smooth       = $data->style('tikz_smooth')  ? 'smooth, '                          : '';
 
 	if ($start =~ /circle/) {
 		$start = '{Circle[sep=-1.196825pt -1.595769' . ($start eq 'open_circle' ? ', open' : '') . ']}';
@@ -187,10 +185,9 @@ sub get_plot_opts {
 	} else {
 		$fill = '';
 	}
-	$name     = ", name path=$name" if $name;
-	$tikzOpts = ", $tikzOpts"       if $tikzOpts;
+	$name = ", name path=$name" if $name;
 
-	return "${smooth}color=$color, line width=${width}pt$marks$linestyle$end_markers$fill$name$tikzOpts";
+	return "${smooth}color=$color, line width=${width}pt$marks$linestyle$end_markers$fill$name$tikz_options";
 }
 
 sub draw {
@@ -205,28 +202,28 @@ sub draw {
 
 	# Plot Data
 	for my $data ($plots->data('function', 'dataset')) {
-		my $n          = $data->size;
-		my $color      = $data->style('color')      || 'default_color';
-		my $fill       = $data->style('fill')       || 'none';
-		my $fill_color = $data->style('fill_color') || 'default_color';
-		my $tikzOpts   = $self->get_plot_opts($data);
+		my $n            = $data->size;
+		my $color        = $data->style('color')      || 'default_color';
+		my $fill         = $data->style('fill')       || 'none';
+		my $fill_color   = $data->style('fill_color') || 'default_color';
+		my $tikz_options = $self->get_plot_opts($data);
 		$tikzCode .= $self->get_color($color);
 		my $plot;
 		if ($data->name eq 'function') {
 			my $f = $data->{function};
 			if (ref($f->{Fx}) ne 'CODE' && $f->{xvar} eq $f->{Fx}->string) {
 				my $function = $data->function_string('y', 'PGF', 1);
-				if ($function) {
+				if ($function ne '') {
 					$data->update_min_max;
-					$tikzOpts .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
+					$tikz_options .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
 					$plot = "{$function}";
 				}
 			} else {
 				my $xfunction = $data->function_string('x', 'PGF', 1);
 				my $yfunction = $data->function_string('y', 'PGF', 1);
-				if ($xfunction && $yfunction) {
+				if ($xfunction ne '' && $yfunction ne '') {
 					$data->update_min_max;
-					$tikzOpts .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
+					$tikz_options .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
 					$plot = "({$xfunction}, {$yfunction})";
 				}
 			}
@@ -236,7 +233,7 @@ sub draw {
 			my $tikzData = join(' ', map { '(' . $data->x($_) . ',' . $data->y($_) . ')'; } (0 .. $n - 1));
 			$plot = "coordinates {$tikzData}";
 		}
-		$tikzCode .= "\\addplot[$tikzOpts] $plot;\n";
+		$tikzCode .= "\\addplot[$tikz_options] $plot;\n";
 
 		$tikzCode .= $self->get_color($fill_color) unless $fill eq 'none';
 		unless ($fill eq 'none' || $fill eq 'self') {
@@ -255,13 +252,12 @@ sub draw {
 		my $xfunction = $data->function_string('x', 'PGF', 2);
 		my $yfunction = $data->function_string('y', 'PGF', 2);
 		my $arrows    = $data->style('slopefield') ? '' : ', -stealth';
-		if ($xfunction && $yfunction) {
-			my $f        = $data->{function};
-			my $color    = $data->style('color');
-			my $width    = $data->style('width');
-			my $scale    = $data->style('scale');
-			my $tikzOpts = $data->style('tikzOpts') || '';
-			$tikzOpts = ", $tikzOpts" if $tikzOpts;
+		if ($xfunction ne '' && $yfunction ne '') {
+			my $f            = $data->{function};
+			my $color        = $data->style('color');
+			my $width        = $data->style('width');
+			my $scale        = $data->style('scale');
+			my $tikz_options = $data->style('tikz_options') ? ', ' . $data->style('tikz_options') : '';
 			$data->update_min_max;
 
 			if ($data->style('normalize') || $data->style('slopefield')) {
@@ -274,9 +270,9 @@ sub draw {
 			$tikzCode .=
 				"\\addplot3[color=$color, line width=${width}pt$arrows, "
 				. "quiver={u=$xfunction, v=$yfunction, scale arrows=$scale}, samples=$f->{xsteps}, "
-				. "domain=$f->{xmin}:$f->{xmax}, domain y=$f->{ymin}:$f->{ymax}$tikzOpts] {1};\n";
+				. "domain=$f->{xmin}:$f->{xmax}, domain y=$f->{ymin}:$f->{ymax}$tikz_options] {1};\n";
 		} else {
-			warn "Vector field not created due to missing JavaScript functions.";
+			warn "Vector field not created due to missing PGF functions.";
 		}
 	}
 
@@ -295,16 +291,16 @@ sub draw {
 
 	# Labels
 	for my $label ($plots->data('label')) {
-		my $str         = $label->style('label');
-		my $x           = $label->x(0);
-		my $y           = $label->y(0);
-		my $color       = $label->style('color')       || 'default_color';
-		my $fontsize    = $label->style('fontsize')    || 'medium';
-		my $orientation = $label->style('orientation') || 'horizontal';
-		my $tikzOpts    = $label->style('tikzOpts')    || '';
-		my $h_align     = $label->style('h_align')     || 'center';
-		my $v_align     = $label->style('v_align')     || 'middle';
-		my $anchor      = $v_align eq 'top' ? 'north' : $v_align eq 'bottom' ? 'south' : '';
+		my $str          = $label->style('label');
+		my $x            = $label->x(0);
+		my $y            = $label->y(0);
+		my $color        = $label->style('color')        || 'default_color';
+		my $fontsize     = $label->style('fontsize')     || 'medium';
+		my $orientation  = $label->style('orientation')  || 'horizontal';
+		my $tikz_options = $label->style('tikz_options') || '';
+		my $h_align      = $label->style('h_align')      || 'center';
+		my $v_align      = $label->style('v_align')      || 'middle';
+		my $anchor       = $v_align eq 'top' ? 'north' : $v_align eq 'bottom' ? 'south' : '';
 		$str = {
 			tiny   => '\tiny ',
 			small  => '\small ',
@@ -314,10 +310,10 @@ sub draw {
 		}->{$fontsize}
 			. $str;
 		$anchor .= $h_align eq 'left' ? ' west' : $h_align eq 'right' ? ' east' : '';
-		$tikzOpts = $tikzOpts ? "$color, $tikzOpts" : $color;
-		$tikzOpts = "anchor=$anchor, $tikzOpts" if $anchor;
-		$tikzOpts = "rotate=90, $tikzOpts"      if $orientation eq 'vertical';
-		$tikzCode .= $self->get_color($color) . "\\node[$tikzOpts] at (axis cs: $x,$y) {$str};\n";
+		$tikz_options = $tikz_options ? "$color, $tikz_options" : $color;
+		$tikz_options = "anchor=$anchor, $tikz_options" if $anchor;
+		$tikz_options = "rotate=90, $tikz_options"      if $orientation eq 'vertical';
+		$tikzCode .= $self->get_color($color) . "\\node[$tikz_options] at (axis cs: $x,$y) {$str};\n";
 	}
 	$tikzCode .= '\end{axis}' . "\n";
 

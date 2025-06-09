@@ -19,23 +19,22 @@ options work with both.
 First create a Plots object:
 
     loadMacros('plots.pl');
-    $plot = Plot();
-
-Configure the L<Axes Object|Plots::Axes>:
-
-    $plot->axes->xaxis(
-        min        => 0,
-        max        => 10,
-        tick_delta => 2,
-        label      => '\(t\)',
+    $plot = Plot(
+        xmin        => 0,
+        xmax        => 10,
+        ymin        => 0,
+        ymax        => 500,
+        xtick_delta => 2,
+        ytick_delta => 50,
+        xlabel      => '\(t\)',
+        ylabel      => '\(h(t)\)',
+        title       => 'Height of an object as a function of time.',
+        axes_on_top => 1,
     );
-    $plot->axes->yaxis(
-        min        => 0,
-        max        => 500,
-        tick_delta => 50,
-        label      => '\(h(t)\)'
-    );
-    $plot->axes->style(title => 'Height of an object as a function of time.');
+
+This single call configures the L<Axes Object|Plots::Axes> (see link for full list of options).
+Options that start with C<x> configure the xaxis, options that start with C<y> configure the
+yaxis, and all other options are Axes styles.
 
 Add a function and other objects to the plot.
 
@@ -75,9 +74,9 @@ For example, add a red line segment from (2,3) to (5,7):
 Add multiple arrows by setting the C<end_mark> (or C<start_mark>) of the dataset.
 
     $plot->add_dataset(
-        [[0, 0], [2,3], color => 'green', end_mark => 'arrow'],
-        [[2, 3], [4,-1], color => 'blue', end_mark => 'arrow'],
-        [[0, 0], [4, -1], color => 'red', end_mark => 'arrow'],
+        [[0, 0], [2,3], color => 'green', end_mark   => 'arrow'],
+        [[2, 3], [4,-1], color => 'blue', end_mark   => 'arrow'],
+        [[0, 0], [4, -1], color => 'red', start_mark => 'arrow'],
     );
 
 If needed, the C<< $plot->add_dataset >> method returns the L<Data|/"DATA OBJECT"> object
@@ -214,6 +213,14 @@ This removes the arrow heads and implies normalized (so all the lines are the sa
 Use this in combination with setting C<Fx => 1> and C<Fy> equal to the slope field formula
 to graph a slope field instead of a vector field. Default: 0
 
+=item jsx_options
+
+A hash reference of options to pass to the JSXGraph C<vectorfield> object.
+
+=item tikz_options
+
+A string of TikZ options to append to the C<\addplot3> which creates the vector field quiver.
+
 =back
 
 =head2 DATASET OPTIONS
@@ -339,25 +346,21 @@ on for functions but off for other datasets. This alters the look of the plot
 and can mess with fills. For functions you will need to explicitly turn it
 off in cases it has undesirable side effects.
 
-=item continue_left
+=item continue, continue_left, continue_right
 
 If set to 1, the graph of a non-parametric function using JSXGraph will keep going
-to the left beyond the minimum bound. This allows zooming out or panning the graph
-to the left. Default: 0
+both left and right beyond the bounds. This allows zooming out or panning the graph.
+This requires the C<Plots::Axes> style C<jsx_navigation> set to 1. This option
+implies both C<continue_left> and C<continue_right>, which can be used to extend
+the function only one direction. Default: 0
 
-=item continue_right
+=item jsx_options
 
-If set to 1, the graph of a non-parametric function using JSXGraph will keep going
-to the right beyond the maximum bound. This allows zooming out or panning the graph
-to the right. Default: 0
+A hash reference of options to add to the JSXGraph output of the associated object.
 
-=item tikzOpts
+=item tikz_options
 
-Additional pgfplots C<\addplot> options to be added to the tikz output.
-
-=item JSXGraphOpts
-
-A hash reference of options to pass to be added to the JSXGraph output.
+Additional pgfplots C<\addplot> options to be appeneded to the tikz output.
 
 =back
 
@@ -409,9 +412,13 @@ The vertical alignment of the text relative to the position of the label,
 that states which end of the label is placed at the label's position.
 Can be one of 'top', 'middle', or 'bottom'. Default: 'middle'
 
-=item tikzOpts
+=item jsx_options
 
-Additional TikZ options to be used when adding the label using TikZ output via C<\node>.
+An hash reference of options to pass to JSXGraph text object.
+
+=item tikz_options
+
+Additional TikZ options to be appended to C<\node> when adding the label.
 
 =back
 
@@ -500,4 +507,4 @@ BEGIN {
 
 sub _plots_init { }
 
-sub Plot { Plots::Plot->new($main::PG, @_); }
+sub Plot { Plots::Plot->new(@_); }

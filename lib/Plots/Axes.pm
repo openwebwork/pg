@@ -27,12 +27,15 @@ The axes object should be accessed through a Plots object using C<< $plot->axes 
 The axes object is used to configure and retrieve information about the axes,
 as in the following examples.
 
-Each axis can be configured individually, such as:
+Each axis and styles can be configured individually, such as:
 
     $plot->axes->xaxis(min => -10, max => 10,  tick_delta => 4);
     $plot->axes->yaxis(min => 0,   max => 100, tick_delta => 20);
+    $plot->axes->style(title => 'Graph of function y = f(x).', show_grid => 0);
 
-This can also be combined using the set method, such as:
+This can be combined using the set method by prepending either C<x> or C<y> in front
+of each key of the axes to configure (note keys that do not start with C<x> or C<y>
+sent to C<< $plot->axes->style >>):
 
     $plot->axes->set(
         xmin        => -10,
@@ -40,19 +43,16 @@ This can also be combined using the set method, such as:
         xtick_delta => 4,
         ymin        => 0,
         ymax        => 100,
-        ytick_delta => 20
+        ytick_delta => 20,
+        title       => 'Graph of function y = f(x).',
+        show_grid   => 0,
     );
-
-In addition to the configuration each axis, there is a set of styles that apply to both axes.
-These are access via the style method. To set one or more styles use:
-
-    $plot->axes->style(title => '\(y = f(x)\)', show_grid => 0);
 
 The same methods also get the value of a single option, such as:
 
-    $xmin   = $plot->axes->xaxis('min');
-    $yticks = $plot->axes->yaxis('ticks');
-    $title  = $plot->axes->style('title');
+    $xmin      = $plot->axes->xaxis('min');
+    $yticks    = $plot->axes->yaxis('ticks');
+    $show_grid = $plot->axes->style('show_grid');
 
 The methods without any inputs return a reference to the full hash, such as:
 
@@ -149,7 +149,7 @@ Default 'middle' or 'center'.
 The position in terms of the appropriate variable to draw the axis if the location is
 set to 'middle' or 'center'. Default is 0.
 
-=item JSXGraphOpts
+=item jsx_options
 
 A hash reference of options to be passed to the JSXGraph axis objects.
 
@@ -157,16 +157,13 @@ A hash reference of options to be passed to the JSXGraph axis objects.
 
 =head1 STYLES
 
-The following styles configure aspects about the axes:
-Currently only TikZ supports the grid color, style, alpha,
-and axes on top styles. JSXGraph only supports the title
-and show_grid styles.
+The following styles configure aspects about the axes.
 
 =over 5
 
 =item title
 
-The title of the graph. Default is ''.
+The title of the graph used as the ARIA label in JSX graph output. Default is ''.
 
 =item show_grid
 
@@ -192,7 +189,12 @@ Configures if the axis should be drawn on top of the graph (1) or below the grap
 Useful when filling a region that covers an axis, if the axis are on top they will still
 be visible after the fill, otherwise the fill will cover the axis. Default: 0
 
-=item JSXGraphOpts
+=item jsx_navigation
+
+Either allow (1) or don't allow (0) the user to pan and zoom the view port of the JSXGraph.
+Best used when plotting functions with the C<continue> style. Default: 0
+
+=item jsx_options
 
 A hash reference of options to be passed to the JSXGraph board object.
 
@@ -273,16 +275,19 @@ sub yaxis {
 
 sub set {
 	my ($self, %options) = @_;
-	my (%xopts, %yopts);
+	my (%xopts, %yopts, %styles);
 	for (keys %options) {
 		if ($_ =~ s/^x//) {
 			$xopts{$_} = $options{"x$_"};
 		} elsif ($_ =~ s/^y//) {
 			$yopts{$_} = $options{"y$_"};
+		} else {
+			$styles{$_} = $options{$_};
 		}
 	}
-	$self->xaxis(%xopts) if %xopts;
-	$self->yaxis(%yopts) if %yopts;
+	$self->xaxis(%xopts)  if %xopts;
+	$self->yaxis(%yopts)  if %yopts;
+	$self->style(%styles) if %styles;
 	return;
 }
 
@@ -294,6 +299,8 @@ sub get {
 			$options{"x$_"} = $self->xaxis($_);
 		} elsif ($_ =~ s/^y//) {
 			$options{"y$_"} = $self->yaxis($_);
+		} else {
+			$options{$_} = $self->style($_);
 		}
 	}
 	return \%options;
