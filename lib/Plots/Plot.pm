@@ -191,9 +191,9 @@ sub _add_function {
 	$data->set_function(
 		Fx          => $Fx,
 		Fy          => $Fy,
-		var         => $var,
-		min         => $min,
-		max         => $max,
+		xvar        => $var,
+		xmin        => $min,
+		xmax        => $max,
 		color       => 'default_color',
 		width       => 2,
 		dashed      => 0,
@@ -287,6 +287,29 @@ sub add_dataset {
 		return [ map { $self->_add_dataset(@$_); } @data ];
 	}
 	return $self->_add_dataset(@data);
+}
+
+sub add_vectorfield {
+	my ($self, @options) = @_;
+	my $data = Plots::Data->new(name => 'vectorfield');
+	$data->set_function(
+		Fx     => '',
+		Fy     => '',
+		xvar   => 'x',
+		yvar   => 'y',
+		xmin   => -5,
+		xmax   =>  5,
+		ymin   => -5,
+		ymax   =>  5,
+		xsteps =>  15,
+		ysteps =>  15,
+		width  =>  1,
+		color  => 'default_color',
+		@options
+	);
+
+	$self->add_data($data);
+	return $data;
 }
 
 sub _add_label {

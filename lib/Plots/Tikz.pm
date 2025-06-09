@@ -116,6 +116,8 @@ sub configure_axes {
 	my $tikzCode = <<END_TIKZ;
 		\\begin{axis}
 		[
+			trig format plots=rad,
+			view={0}{90},
 			height=$axes_height,
 			width=$axes_width,
 			${axis_on_top}axis x line=$axis_x_line$axis_x_pos,
@@ -203,16 +205,40 @@ sub draw {
 
 	# Plot Data
 	for my $data ($plots->data('function', 'dataset')) {
-		$data->gen_data;
 		my $n          = $data->size;
 		my $color      = $data->style('color')      || 'default_color';
 		my $fill       = $data->style('fill')       || 'none';
 		my $fill_color = $data->style('fill_color') || 'default_color';
-		my $tikzData   = join(' ', map { '(' . $data->x($_) . ',' . $data->y($_) . ')'; } (0 .. $n - 1));
 		my $tikzOpts   = $self->get_plot_opts($data);
-		$tikzCode .= $self->get_color($fill_color) unless $fill eq 'none';
-		$tikzCode .= $self->get_color($color) . "\\addplot[$tikzOpts] coordinates {$tikzData};\n";
+		$tikzCode .= $self->get_color($color);
+		my $plot;
+		if ($data->name eq 'function') {
+			my $f = $data->{function};
+			if (ref($f->{Fx}) ne 'CODE' && $f->{xvar} eq $f->{Fx}->string) {
+				my $function = $data->function_string('y', 'PGF', 1);
+				if ($function) {
+					$data->update_min_max;
+					$tikzOpts .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
+					$plot = "{$function}";
+				}
+			} else {
+				my $xfunction = $data->function_string('x', 'PGF', 1);
+				my $yfunction = $data->function_string('y', 'PGF', 1);
+				if ($xfunction && $yfunction) {
+					$data->update_min_max;
+					$tikzOpts .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
+					$plot = "({$xfunction}, {$yfunction})";
+				}
+			}
+		}
+		unless ($plot) {
+			$data->gen_data;
+			my $tikzData = join(' ', map { '(' . $data->x($_) . ',' . $data->y($_) . ')'; } (0 .. $n - 1));
+			$plot = "coordinates {$tikzData}";
+		}
+		$tikzCode .= "\\addplot[$tikzOpts] $plot;\n";
 
+		$tikzCode .= $self->get_color($fill_color) unless $fill eq 'none';
 		unless ($fill eq 'none' || $fill eq 'self') {
 			my $name       = $data->style('name')         || '';
 			my $opacity    = $data->style('fill_opacity') || 0.5;
@@ -221,6 +247,36 @@ sub draw {
 			my $fill_range = defined $fill_min && defined $fill_max ? ", soft clip={domain=$fill_min:$fill_max}" : '';
 			$opacity *= 100;
 			$tikzCode .= "\\addplot[$fill_color!$opacity] fill between[of=$name and $fill$fill_range];\n";
+		}
+	}
+
+	# Vector/Slope Fields
+	for my $data ($plots->data('vectorfield')) {
+		my $xfunction = $data->function_string('x', 'PGF', 2);
+		my $yfunction = $data->function_string('y', 'PGF', 2);
+		my $arrows    = $data->style('slopefield') ? '' : ', -stealth';
+		if ($xfunction && $yfunction) {
+			my $f        = $data->{function};
+			my $color    = $data->style('color');
+			my $width    = $data->style('width');
+			my $scale    = $data->style('scale');
+			my $tikzOpts = $data->style('tikzOpts') || '';
+			$tikzOpts = ", $tikzOpts" if $tikzOpts;
+			$data->update_min_max;
+
+			if ($data->style('normalize') || $data->style('slopefield')) {
+				my $xtmp = "($xfunction)/sqrt(($xfunction)^2 + ($yfunction)^2)";
+				$yfunction = "($yfunction)/sqrt(($xfunction)^2 + ($yfunction)^2)";
+				$xfunction = $xtmp;
+			}
+
+			$tikzCode .= $self->get_color($color);
+			$tikzCode .=
+				"\\addplot3[color=$color, line width=${width}pt$arrows, "
+				. "quiver={u=$xfunction, v=$yfunction, scale arrows=$scale}, samples=$f->{xsteps}, "
+				. "domain=$f->{xmin}:$f->{xmax}, domain y=$f->{ymin}:$f->{ymax}$tikzOpts] {1};\n";
+		} else {
+			warn "Vector field not created due to missing JavaScript functions.";
 		}
 	}
 

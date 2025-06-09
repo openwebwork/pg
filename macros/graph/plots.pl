@@ -152,8 +152,69 @@ MathObjects, or perl subroutines:
         width => 2
     );
 
-It is prefered to use strings or MathObjects instead of perl subroutiens when
-using the default C<JSXGraph> output.
+It is preferred to use strings or MathObjects instead of perl subroutines.
+
+=head2 PLOT VECTOR FIELDS
+
+Vector fields and slope fields can be plotted using the C<< $plot->add_vectorfield >> method.
+
+    $plot->add_vectorfield(
+        Fx     => 'sin(y)',
+        Fy     => 'cos(x)',
+        xvar   => 'x',
+        yvar   => 'y',
+        xmin   => -4,
+        xmax   => 4,
+        ymin   => -4,
+        ymax   => 4,
+        xsteps => 20,
+        ysteps => 15,
+        color  => 'blue',
+        scale  => 0.5,
+    );
+
+This only works if C<Fx> and C<Fy> are strings or MathObjects (no perl functions allowed),
+because the functions are passed off to either JSXGraph or TikZ to do the computation.
+To make all the vectors the same length, add the C<< normalize => 1 >> option. To plot a slope
+field add C<< slopefield => 1 >> option (which removes the arrow heads and makes all the
+lines the same length), then set C<< Fx => 1 >> and C<Fy> equal to the formula to produce
+the slope field.
+
+In addition to the dataset options below, the following additional options apply to
+vector fields.
+
+=over 5
+
+=item xvar, yvar
+
+Name of the x-axis and y-axis variables used. Default: x and y
+
+=item xmin, xmax, ymin, ymax
+
+Range of the x and y coordinates of the vector field. Default: -5 to 5
+
+=item xsteps, ysteps
+
+The number of arrows drawn in each direction. Note, that in TikZ output, this cannot be
+set individually so only C<xsteps> is used. Default: 15
+
+=item scale
+
+A scale factor applied to the arrow length. Default: 1
+
+=item normalize
+
+Makes all the arrows the same length. This just turns C<Fx> and C<Fy> into
+C<(Fx)/sqrt((Fx)^2 + (Fy)^2)> and C<(Fy)/sqrt((Fx)^2 + (Fy)^2)> for convince.
+Default: 0
+
+=item slopefield
+
+This removes the arrow heads and implies normalized (so all the lines are the same length).
+Use this in combination with setting C<Fx => 1> and C<Fy> equal to the slope field formula
+to graph a slope field instead of a vector field. Default: 0
+
+=back
 
 =head2 DATASET OPTIONS
 

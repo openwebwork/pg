@@ -116,6 +116,23 @@ sub VectorField2D {
 
 	my $Fx = $options{Fx};
 	my $Fy = $options{Fy};
+
+	return $gr->add_vectorfield(
+		Fx     => $Fx,
+		Fy     => $Fy,
+		xvar   => $options{xvar},
+		yvar   => $options{yvar},
+		xmin   => $options{xmin},
+		xmax   => $options{xmax},
+		ymin   => $options{ymin},
+		ymax   => $options{ymax},
+		xsteps => $options{xsamples},
+		ysteps => $options{ysamples},
+		width  => $options{vectorthickness},
+		color  => $options{vectorcolor},
+		scale  => $options{vectorscale},
+	) if ref($gr) eq 'Plots::Plot';
+
 	if (Value::isFormula($Fx)) {
 		$Fx = $Fx->perlFunction('', [ "$options{xvar}", "$options{yvar}" ]);
 	} elsif (ref($Fx) ne 'CODE') {
@@ -128,9 +145,6 @@ sub VectorField2D {
 		warn 'VectorField2D: Invalid function Fy provided.';
 		return;
 	}
-
-	# Takes to long to render this field using Tikz, force GD output.
-	$gr->image_type('GD') if (ref($gr) eq 'Plots::Plot');
 
 	# Generate plot data
 	my $dx    = ($options{xmax} - $options{xmin}) / $options{xsamples};
