@@ -15,13 +15,14 @@ use warnings;
 sub new {
 	my ($class, $plots) = @_;
 	my $image = LaTeXImage->new;
-	$image->environment('tikzpicture');
+	$image->environment([ 'tikzpicture', 'framed' ]);
 	$image->svgMethod(eval('$main::envir{latexImageSVGMethod}')           // 'dvisvgm');
 	$image->convertOptions(eval('$main::envir{latexImageConvertOptions}') // { input => {}, output => {} });
 	$image->ext($plots->ext);
-	$image->tikzLibraries('arrows.meta,plotmarks');
+	$image->tikzLibraries('arrows.meta,plotmarks,backgrounds');
 	$image->texPackages(['pgfplots']);
-	$image->addToPreamble('\pgfplotsset{compat=1.18}\usepgfplotslibrary{fillbetween}');
+	$image->addToPreamble('\pgfplotsset{compat=1.18}\usepgfplotslibrary{fillbetween}'
+			. '\tikzset{inner frame sep=0pt,background rectangle/.style={thick,draw=DarkBlue,fill=white}}');
 
 	return bless { image => $image, plots => $plots, colors => {} }, $class;
 }

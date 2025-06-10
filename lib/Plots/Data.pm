@@ -163,7 +163,7 @@ sub size {
 
 sub x {
 	my ($self, $n) = @_;
-	return $self->{x}->[$n] if (defined($n) && defined($self->{x}->[$n]));
+	return $self->{x}[$n] if (defined($n) && defined($self->{x}[$n]));
 	return wantarray ? @{ $self->{x} } : $self->{x};
 }
 
