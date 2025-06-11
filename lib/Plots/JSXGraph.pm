@@ -32,19 +32,19 @@ sub HTML {
 	my $name = $self->{name};
 	my ($width, $height) = $self->plots->size;
 
-	return <<END_HTML;
-<div id="board_$name" class="jxgbox plots-jsxgraph" style="width: ${width}px; height: ${height}px;"></div>
-<script>
-(() => {
-	const draw_board_$name = () => {
-$self->{JS}
-$self->{JSend}
-	}
-	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', draw_board_$name);
-	else draw_board_$name();
-})();
-</script>
-END_HTML
+	return <<~ "END_HTML";
+		<div id="board_$name" class="jxgbox plots-jsxgraph" style="width: ${width}px; height: ${height}px;"></div>
+		<script>
+		(() => {
+			const draw_board_$name = () => {
+				$self->{JS}
+				$self->{JSend}
+			}
+			if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', draw_board_$name);
+			else draw_board_$name();
+		})();
+		</script>
+		END_HTML
 }
 
 sub get_color {
@@ -120,7 +120,6 @@ sub add_curve {
 		$data_points = '[[' . join(',', $data->x) . '],[' . join(',', $data->y) . ']]';
 	}
 
-	$self->{JS} .= "\n\t\t";
 	if ($curve_name) {
 		$self->{JS} .= "const curve_${curve_name}_$name = ";
 	}
@@ -140,50 +139,45 @@ sub add_curve {
 
 		if ($fill eq 'xaxis') {
 			$self->{JSend} .=
-				"\n\t\tconst fill_${curve_name}_$name = board_$name.create('curve', [[], []], $fillOptions);\n"
-				. "\t\tfill_${curve_name}_$name.updateDataArray = function () {\n"
-				. "\t\t\tconst points = curve_${curve_name}_$name.points";
+				"const fill_${curve_name}_$name = board_$name.create('curve', [[], []], $fillOptions);"
+				. "fill_${curve_name}_$name.updateDataArray = function () {"
+				. "const points = curve_${curve_name}_$name.points";
 			if (defined $fill_min && defined $fill_max) {
 				$self->{JSend} .=
-					".filter(p => {\n"
-					. "\t\t\t\treturn p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false\n"
-					. "\t\t\t})";
+					".filter(p => {"
+					. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
 			}
 			$self->{JSend} .=
-				";\n\t\t\tthis.dataX = points.map( p => p.usrCoords[1] );\n"
-				. "\t\t\tthis.dataY = points.map( p => p.usrCoords[2] );\n"
-				. "\t\t\tthis.dataX.push(points[points.length - 1].usrCoords[1], "
-				. "points[0].usrCoords[1], points[0].usrCoords[1]);\n"
-				. "\t\t\tthis.dataY.push(0, 0, points[0].usrCoords[2]);\n"
-				. "\t\t};\n"
-				. "\t\tboard_$name.update();";
+				";this.dataX = points.map( p => p.usrCoords[1] );"
+				. "this.dataY = points.map( p => p.usrCoords[2] );"
+				. "this.dataX.push(points[points.length - 1].usrCoords[1], "
+				. "points[0].usrCoords[1], points[0].usrCoords[1]);"
+				. "this.dataY.push(0, 0, points[0].usrCoords[2]);" . "};"
+				. "board_$name.update();";
 		} else {
 			$self->{JSend} .=
-				"\n\t\tconst fill_${curve_name}_$name = board_$name.create('curve', [[], []], $fillOptions);\n"
-				. "\t\tfill_${curve_name}_$name.updateDataArray = function () {\n"
-				. "\t\t\tconst points1 = curve_${curve_name}_$name.points";
+				"const fill_${curve_name}_$name = board_$name.create('curve', [[], []], $fillOptions);"
+				. "fill_${curve_name}_$name.updateDataArray = function () {"
+				. "const points1 = curve_${curve_name}_$name.points";
 			if (defined $fill_min && defined $fill_max) {
 				$self->{JSend} .=
-					".filter(p => {\n"
-					. "\t\t\t\treturn p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false\n"
-					. "\t\t\t})";
+					".filter(p => {"
+					. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
 			}
-			$self->{JSend} .= ";\n\t\t\tconst points2 = curve_${fill}_$name.points";
+			$self->{JSend} .= ";const points2 = curve_${fill}_$name.points";
 			if (defined $fill_min && defined $fill_max) {
 				$self->{JSend} .=
-					".filter(p => {\n"
-					. "\t\t\t\treturn p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false\n"
-					. "\t\t\t})";
+					".filter(p => {"
+					. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
 			}
 			$self->{JSend} .=
-				";\n\t\t\tthis.dataX = points1.map( p => p.usrCoords[1] ).concat("
-				. "points2.map( p => p.usrCoords[1] ).reverse());\n"
-				. "\t\t\tthis.dataY = points1.map( p => p.usrCoords[2] ).concat("
-				. "points2.map( p => p.usrCoords[2] ).reverse());\n"
-				. "\t\t\tthis.dataX.push(points1[0].usrCoords[1]);\n"
-				. "\t\t\tthis.dataY.push(points1[0].usrCoords[2]);\n"
-				. "\t\t};\n"
-				. "\t\tboard_$name.update();";
+				";this.dataX = points1.map( p => p.usrCoords[1] ).concat("
+				. "points2.map( p => p.usrCoords[1] ).reverse());"
+				. "this.dataY = points1.map( p => p.usrCoords[2] ).concat("
+				. "points2.map( p => p.usrCoords[2] ).reverse());"
+				. "this.dataX.push(points1[0].usrCoords[1]);"
+				. "this.dataY.push(points1[0].usrCoords[2]);" . "};"
+				. "board_$name.update();";
 		}
 	}
 }
@@ -238,7 +232,7 @@ sub add_point {
 	$pointOptions = "JXG.merge($pointOptions, " . Mojo::JSON::encode_json($data->style('jsx_options')) . ')'
 		if $data->style('jsx_options');
 
-	$self->{JS} .= "\n\t\tboard_$name.create('point', [$x, $y], $pointOptions);";
+	$self->{JS} .= "board_$name.create('point', [$x, $y], $pointOptions);";
 }
 
 sub add_points {
@@ -365,11 +359,11 @@ sub init_graph {
 		if $axes->yaxis('jsx_options');
 
 	$self->{JSend} = '';
-	$self->{JS}    = <<END_JS;
-		const board_$name = JXG.JSXGraph.initBoard('board_$name', $JSXOptions);
-		board_$name.create('axis', [[0, $xaxis_pos], [1, $xaxis_pos]], $XAxisOptions);
-		board_$name.create('axis', [[$yaxis_pos, 0], [$yaxis_pos, 1]], $YAxisOptions);
-END_JS
+	$self->{JS}    = <<~ "END_JS";
+			const board_$name = JXG.JSXGraph.initBoard('board_$name', $JSXOptions);
+			board_$name.create('axis', [[0, $xaxis_pos], [1, $xaxis_pos]], $XAxisOptions);
+			board_$name.create('axis', [[$yaxis_pos, 0], [$yaxis_pos, 1]], $YAxisOptions);
+		END_JS
 }
 
 sub draw {
@@ -410,7 +404,7 @@ sub draw {
 				$xfunction = $xtmp;
 			}
 
-			$self->{JS} .= "\n\t\tboard_$name.create('vectorfield', [[(x,y) => $xfunction, (x,y) => $yfunction], "
+			$self->{JS} .= "board_$name.create('vectorfield', [[(x,y) => $xfunction, (x,y) => $yfunction], "
 				. "[$f->{xmin}, $f->{xsteps}, $f->{xmax}], [$f->{ymin}, $f->{ysteps}, $f->{ymax}]], $options);";
 		} else {
 			warn "Vector field not created due to missing JavaScript functions.";
@@ -453,7 +447,7 @@ sub draw {
 		$textOptions = "JXG.merge($textOptions, " . Mojo::JSON::encode_json($label->style('jsx_options')) . ')'
 			if $label->style('jsx_options');
 
-		$self->{JS} .= "\n\t\tboard_$name.create('text', [$x, $y, '$str'], $textOptions);";
+		$self->{JS} .= "board_$name.create('text', [$x, $y, '$str'], $textOptions);";
 	}
 
 	# JSXGraph only produces HTML graphs and uses TikZ for hadrcopy.
