@@ -236,8 +236,9 @@ sub get_plot_opts {
 }
 
 sub draw {
-	my $self  = shift;
-	my $plots = $self->plots;
+	my $self     = shift;
+	my $plots    = $self->plots;
+	my $tikzFill = '';
 
 	# Reset colors just in case.
 	$self->{colors} = {};
@@ -288,9 +289,11 @@ sub draw {
 			my $fill_max   = $data->style('fill_max');
 			my $fill_range = defined $fill_min && defined $fill_max ? ", soft clip={domain=$fill_min:$fill_max}" : '';
 			$opacity *= 100;
-			$tikzCode .= "\\addplot[$fill_color!$opacity] fill between[of=$name and $fill$fill_range];\n";
+			$tikzFill .= "\\addplot[$fill_color!$opacity] fill between[of=$name and $fill$fill_range];\n";
 		}
 	}
+	# Add fills last to ensure all named graphs have been plotted first.
+	$tikzCode .= $tikzFill;
 
 	# Vector/Slope Fields
 	for my $data ($plots->data('vectorfield')) {
