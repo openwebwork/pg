@@ -270,10 +270,10 @@ sub init_graph {
 	# Adjust bounding box to add padding for axes at edge of graph.
 	$xaxis_loc = 'bottom' if $xaxis_loc eq 'box';
 	$yaxis_loc = 'left'   if $yaxis_loc eq 'box';
-	$xmin -= 0.11 * ($xmax - $xmin) if $yaxis_loc eq 'left'   || $xmin == $xaxis_pos;
-	$xmax += 0.11 * ($xmax - $xmin) if $yaxis_loc eq 'right'  || $xmax == $xaxis_pos;
-	$ymin -= 0.11 * ($ymax - $ymin) if $xaxis_loc eq 'bottom' || $ymin == $yaxis_pos;
-	$ymax += 0.11 * ($ymax - $ymin) if $xaxis_loc eq 'top'    || $ymax == $yaxis_pos;
+	$xmin -= 0.11 * ($xmax - $xmin) if $yaxis_loc eq 'left'   || $xmin == $yaxis_pos;
+	$xmax += 0.11 * ($xmax - $xmin) if $yaxis_loc eq 'right'  || $xmax == $yaxis_pos;
+	$ymin -= 0.11 * ($ymax - $ymin) if $xaxis_loc eq 'bottom' || $ymin == $xaxis_pos;
+	$ymax += 0.11 * ($ymax - $ymin) if $xaxis_loc eq 'top'    || $ymax == $xaxis_pos;
 
 	my $JSXOptions = Mojo::JSON::encode_json({
 		title          => $axes->style('title') || 'Graph',
@@ -300,8 +300,8 @@ sub init_graph {
 			highlight => 0
 		},
 		ticks => {
-			drawLabels    => $axes->xaxis('tick_labels') && $axes->xaxis('show_ticks') ? 1 : 0,
-			drawZero      => $show_grid                  && $axes->xaxis('major')      ? 1 : 0,
+			drawLabels    => $axes->xaxis('tick_labels') && $axes->xaxis('show_ticks')       ? 1 : 0,
+			drawZero      => $axes->style('jsx_navigation') || $axes->yaxis('position') != 0 ? 1 : 0,
 			insertTicks   => 0,
 			ticksDistance => $axes->xaxis('tick_delta'),
 			majorHeight   => $axes->xaxis('show_ticks') ? ($show_grid && $axes->xaxis('major') ? -1 : 10) : 0,
@@ -325,8 +325,8 @@ sub init_graph {
 			highlight => 0,
 		},
 		ticks => {
-			drawLabels    => $axes->yaxis('tick_labels') && $axes->yaxis('show_ticks') ? 1 : 0,
-			drawZero      => $show_grid                  && $axes->yaxis('major')      ? 1 : 0,
+			drawLabels    => $axes->yaxis('tick_labels') && $axes->yaxis('show_ticks')       ? 1 : 0,
+			drawZero      => $axes->style('jsx_navigation') || $axes->xaxis('position') != 0 ? 1 : 0,
 			insertTicks   => 0,
 			ticksDistance => $axes->yaxis('tick_delta'),
 			majorHeight   => $axes->yaxis('show_ticks') ? ($show_grid && $axes->yaxis('major') ? -1 : 10) : 0,

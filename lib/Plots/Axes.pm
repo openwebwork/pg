@@ -50,9 +50,9 @@ sent to C<< $plot->axes->style >>):
 
 The same methods also get the value of a single option, such as:
 
-    $xmin      = $plot->axes->xaxis('min');
-    $yticks    = $plot->axes->yaxis('ticks');
-    $show_grid = $plot->axes->style('show_grid');
+    $xmin        = $plot->axes->xaxis('min');
+    $ytick_delta = $plot->axes->yaxis('tick_delta');
+    $show_grid   = $plot->axes->style('show_grid');
 
 The methods without any inputs return a reference to the full hash, such as:
 
@@ -64,7 +64,7 @@ a reference to a hash of requested keys, such as:
 
     $bounds = $plot->axes->get('xmin', 'xmax', 'ymin', 'ymax');
     # The following is equivlant to $plot->axes->grid
-    $grid = $plot->axes->get('xmajor', 'xminor', 'xticks', 'ymajor', 'yminor', 'yticks');
+    $grid = $plot->axes->get('xmajor', 'xminor', 'xtick_delta', 'ymajor', 'yminor', 'ytick_delta');
 
 It is also possible to get the bounds as an array in the order xmin, ymin, xmax, ymax
 using the C<< $plot->axes->bounds >> method.
@@ -92,16 +92,8 @@ and the number of ticks. Default: 5.
 =item tick_delta
 
 This is the distance between each major tick mark, starting from the origin.
-This distance is then used to generate the tick marks if the ticks array is empty.
 If this is set to 0, this distance is set by using the number of ticks, C<tick_num>.
 Default is 0.
-
-=item ticks
-
-An array which lists the major tick marks. If this array is empty, the ticks are
-generated using either C<tick_delta> or C<tick_num>. Note, JSXGraph doesn't support
-this option, be sure to set C<tick_delta> or C<tick_num> if using JSXGraph.
-Default is C<[]>.
 
 =item tick_labels
 
@@ -236,7 +228,6 @@ sub axis_defaults {
 		label       => $axis eq 'y' ? '\(y\)'  : '\(x\)',
 		location    => $axis eq 'y' ? 'center' : 'middle',
 		position    => 0,
-		ticks       => undef,
 		tick_labels => 1,
 		show_ticks  => 1,
 		tick_delta  => 0,
@@ -260,7 +251,7 @@ sub axis {
 		return;
 	}
 	# Deal with ticks individually since they may need to be generated.
-	return $item eq 'ticks' ? $self->{$axis}{ticks} || $self->gen_ticks($self->axis($axis)) : $self->{$axis}{$item};
+	return $item eq 'tick_delta' ? $self->tick_delta($self->{$axis}) : $self->{$axis}{$item};
 }
 
 sub xaxis {
@@ -322,32 +313,17 @@ sub style {
 	return $self->{styles}{$style};
 }
 
-sub gen_ticks {
+sub tick_delta {
 	my ($self, $axis) = @_;
-	my $min   = $axis->{min};
-	my $max   = $axis->{max};
-	my $delta = $axis->{tick_delta};
-	unless ($delta) {
-		$delta = ($max - $min) / $axis->{tick_num};
-		$axis->{tick_delta} = $delta;
-	}
-
-	my @ticks = $min <= 0 && $max >= 0 ? (0) : ();
-	my $point = $delta;
-	# Adjust min/max to place one more tick beyond the graph's edge.
-	$min -= $delta;
-	$max += $delta;
-	do {
-		push(@ticks, $point)     unless $point < $min  || $point > $max;
-		unshift(@ticks, -$point) unless -$point < $min || -$point > $max;
-		$point += $delta;
-	} until (-$point < $min && $point > $max);
-	return \@ticks;
+	return $axis->{tick_delta} if $axis->{tick_delta};
+	return 2 unless $axis->{tick_num};
+	$axis->{tick_delta} = ($axis->{max} - $axis->{min}) / $axis->{tick_num} if $axis->{tick_num};
+	return $axis->{tick_delta};
 }
 
 sub grid {
 	my $self = shift;
-	return $self->get('xmajor', 'xminor', 'xticks', 'ymajor', 'yminor', 'yticks');
+	return $self->get('xmajor', 'xminor', 'xtick_delta', 'ymajor', 'yminor', 'ytick_delta');
 }
 
 sub bounds {
