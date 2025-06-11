@@ -22,25 +22,51 @@ sub new {
 	$image->tikzLibraries('arrows.meta,plotmarks,backgrounds');
 	$image->texPackages(['pgfplots']);
 
-	# Redefine standard layers due to conflict with fillbetween.
-	$image->addToPreamble('\usepgfplotslibrary{fillbetween}'
-			. '\tikzset{inner frame sep=0pt,background rectangle/.style={thick,draw=DarkBlue,fill=white}}'
-			. '\pgfplotsset{compat=1.18,layers/standard/.define layer set={'
-			. 'background,axis background,axis grid,axis ticks,axis lines,axis tick labels,'
-			. 'pre main,main,axis descriptions,axis foreground}{'
-			. 'grid style={/pgfplots/on layer=axis grid},'
-			. 'tick style={/pgfplots/on layer=axis ticks},'
-			. 'axis line style={/pgfplots/on layer=axis lines},'
-			. 'label style={/pgfplots/on layer=axis descriptions},'
-			. 'legend style={/pgfplots/on layer=axis descriptions},'
-			. 'title style={/pgfplots/on layer=axis descriptions},'
-			. 'colorbar style={/pgfplots/on layer=axis descriptions},'
-			. 'ticklabel style={/pgfplots/on layer=axis tick labels},'
-			. 'axis background@ style=  {/pgfplots/on layer=axis background},'
-			. '3d box foreground style= {/pgfplots/on layer=axis foreground}},'
-			. 'layers/axis on top/.define layer set={'
-			. 'background,axis background,pre main,main,axis grid,axis ticks,axis lines,'
-			. 'axis tick labels,axis descriptions,axis foreground}{/pgfplots/layers/standard},}');
+	# Set the pgfplots compatibility, add the pgfplots fillbetween library, set a nice rectangle frame with white
+	# background for the backgrounds library, and redefine standard layers since the backgrounds library uses layers
+	# that conflict with the layers used by the fillbetween library.
+	$image->addToPreamble( <<~ 'END_PREAMBLE');
+		\usepgfplotslibrary{fillbetween}
+		\tikzset{inner frame sep = 0pt, background rectangle/.style = { thick, draw = DarkBlue, fill = white }}
+		\pgfplotsset{
+			compat = 1.18,
+			layers/standard/.define layer set = {
+				background,
+				axis background,
+				axis grid,
+				axis ticks,
+				axis lines,
+				axis tick labels,
+				pre main,
+				main,
+				axis descriptions,
+				axis foreground
+			}{
+				grid style = { /pgfplots/on layer = axis grid },
+				tick style = { /pgfplots/on layer = axis ticks },
+				axis line style = { /pgfplots/on layer = axis lines },
+				label style = { /pgfplots/on layer = axis descriptions },
+				legend style = { /pgfplots/on layer = axis descriptions },
+				title style = { /pgfplots/on layer = axis descriptions },
+				colorbar style = { /pgfplots/on layer = axis descriptions },
+				ticklabel style = { /pgfplots/on layer = axis tick labels },
+				axis background@ style = { /pgfplots/on layer = axis background },
+				3d box foreground style = { /pgfplots/on layer = axis foreground }
+			},
+		    layers/axis on top/.define layer set = {
+		        background,
+		        axis background,
+		        pre main,
+		        main,
+		        axis grid,
+		        axis ticks,
+		        axis lines,
+		        axis tick labels,
+		        axis descriptions,
+		        axis foreground
+		    }{ /pgfplots/layers/standard }
+		}
+		END_PREAMBLE
 
 	return bless { image => $image, plots => $plots, colors => {} }, $class;
 }
@@ -334,7 +360,7 @@ sub draw {
 		$tikz_options = "rotate=90, $tikz_options"      if $orientation eq 'vertical';
 		$tikzCode .= $self->get_color($color) . "\\node[$tikz_options] at (axis cs: $x,$y) {$str};\n";
 	}
-	$tikzCode .= '\end{axis}' . "\n";
+	$tikzCode .= '\end{axis}';
 
 	$plots->{tikzCode} = $tikzCode;
 	$self->im->tex($tikzCode);
