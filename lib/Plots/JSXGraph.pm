@@ -39,22 +39,35 @@ sub HTML {
 		<div id="jsxgraph-plot-$name" class="jxgbox plots-jsxgraph$imageviewClass"$tabindex
 			style="width: ${width}px; height: ${height}px;"></div>
 		<script>
-		(() => {
+		(async () => {
+			const jsxPlotDiv = document.getElementById('jsxgraph-plot-$name');
+			if (!jsxPlotDiv) return;
+
 			const drawBoard = (id) => {
 				$self->{JS}
 				$self->{JSend}
+				board.unsuspendUpdate();
 				return board;
 			}
-			if (document.readyState === 'loading')
-				window.addEventListener('DOMContentLoaded', () => drawBoard('jsxgraph-plot-$name'));
-			else drawBoard('jsxgraph-plot-$name');
 
-			const jsxPlotDiv = document.getElementById('jsxgraph-plot-$name');
+			const drawPromise = (id) => new Promise((resolve) => {
+				if (jsxPlotDiv.offsetWidth === 0) {
+					setTimeout(async () => resolve(await drawPromise(id)), 100);
+					return;
+				}
+				resolve(drawBoard(id));
+			});
+
+			if (document.readyState === 'loading')
+				window.addEventListener('DOMContentLoaded', async () => {
+					await drawPromise('jsxgraph-plot-$name')
+				});
+			else await drawPromise('jsxgraph-plot-$name');
 
 			let jsxBoard = null;
-			jsxPlotDiv?.addEventListener('shown.imageview', () => {
+			jsxPlotDiv?.addEventListener('shown.imageview', async () => {
 				document.getElementById('magnified-jsxgraph-plot-$name')?.classList.add('jxgbox', 'plots-jsxgraph');
-				jsxBoard = drawBoard('magnified-jsxgraph-plot-$name');
+				jsxBoard = await drawPromise('magnified-jsxgraph-plot-$name');
 			});
 			jsxPlotDiv?.addEventListener('resized.imageview', () => {
 				jsxBoard?.resizeContainer(jsxBoard.containerObj.clientWidth, jsxBoard.containerObj.clientHeight, true);
@@ -389,6 +402,7 @@ sub init_graph {
 	$self->{JSend} = '';
 	$self->{JS}    = <<~ "END_JS";
 			const board = JXG.JSXGraph.initBoard(id, $JSXOptions);
+			board.suspendUpdate();
 			board.create('axis', [[$xmin, $xaxis_pos], [$xmax, $xaxis_pos]], $XAxisOptions);
 			board.create('axis', [[$yaxis_pos, $ymin], [$yaxis_pos, $ymax]], $YAxisOptions);
 		END_JS
