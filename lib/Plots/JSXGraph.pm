@@ -266,10 +266,22 @@ sub init_graph {
 	my $show_grid        = $axes->style('show_grid');
 	my $allow_navigation = $axes->style('jsx_navigation') ? 1 : 0;
 	my ($xmin, $ymin, $xmax, $ymax) = $axes->bounds;
-
-	# Adjust bounding box to add padding for axes at edge of graph.
 	$xaxis_loc = 'bottom' if $xaxis_loc eq 'box';
 	$yaxis_loc = 'left'   if $yaxis_loc eq 'box';
+
+	# Determine if zero should be drawn on the axis.
+	my $x_draw_zero =
+		$axes->style('jsx_navigation')
+		|| ($yaxis_loc eq 'center' && $yaxis_pos != 0)
+		|| ($yaxis_loc eq 'left'   && $ymin != 0)
+		|| ($yaxis_loc eq 'right'  && $ymax != 0) ? 1 : 0;
+	my $y_draw_zero =
+		$axes->style('jsx_navigation')
+		|| ($xaxis_loc eq 'middle' && $xaxis_pos != 0)
+		|| ($xaxis_loc eq 'bottom' && $xmin != 0)
+		|| ($xaxis_loc eq 'top'    && $xmax != 0) ? 1 : 0;
+
+	# Adjust bounding box to add padding for axes at edge of graph.
 	$xmin -= 0.11 * ($xmax - $xmin) if $yaxis_loc eq 'left'   || $xmin == $yaxis_pos;
 	$xmax += 0.11 * ($xmax - $xmin) if $yaxis_loc eq 'right'  || $xmax == $yaxis_pos;
 	$ymin -= 0.11 * ($ymax - $ymin) if $xaxis_loc eq 'bottom' || $ymin == $xaxis_pos;
@@ -288,51 +300,65 @@ sub init_graph {
 	$JSXOptions = "JXG.merge($JSXOptions, " . Mojo::JSON::encode_json($axes->style('jsx_options')) . ')'
 		if $axes->style('jsx_options');
 	my $XAxisOptions = Mojo::JSON::encode_json({
-		name      => $axes->xaxis('label'),
-		withLabel => 1,
-		position  => $xaxis_loc eq 'middle'  ? 'sticky' : 'fixed',
-		anchor    => $xaxis_loc eq 'top'     ? 'left'   : $xaxis_loc eq 'bottom' ? 'right' : 'right left',
-		visible   => $axes->xaxis('visible') ? 1        : 0,
-		highlight => 0,
-		label     => {
-			position  => 'rt',
-			offset    => [ -10, 10 ],
+		name       => $axes->xaxis('label'),
+		withLabel  => 1,
+		position   => $xaxis_loc eq 'middle'  ? 'sticky' : 'fixed',
+		anchor     => $xaxis_loc eq 'top'     ? 'left'   : $xaxis_loc eq 'bottom' ? 'right' : 'right left',
+		visible    => $axes->xaxis('visible') ? 1        : 0,
+		highlight  => 0,
+		firstArrow => { size => 7 },
+		lastArrow  => { size => 7 },
+		label      => {
+			position  => 'lrt',
+			offset    => [ -4, 8 ],
 			highlight => 0
 		},
 		ticks => {
-			drawLabels    => $axes->xaxis('tick_labels') && $axes->xaxis('show_ticks')       ? 1 : 0,
-			drawZero      => $axes->style('jsx_navigation') || $axes->yaxis('position') != 0 ? 1 : 0,
+			drawLabels    => $axes->xaxis('tick_labels') && $axes->xaxis('show_ticks') ? 1 : 0,
+			drawZero      => $x_draw_zero,
 			insertTicks   => 0,
 			ticksDistance => $axes->xaxis('tick_delta'),
 			majorHeight   => $axes->xaxis('show_ticks') ? ($show_grid && $axes->xaxis('major') ? -1 : 10) : 0,
 			minorTicks    => $axes->xaxis('major')      ? $axes->xaxis('minor')                           : 0,
 			minorHeight   => $axes->xaxis('show_ticks') ? ($show_grid ? -1 : 7)                           : 0,
-			label         => { highlight => 0 },
+			label         => {
+				highlight => 0,
+				anchorX   => 'middle',
+				anchorY   => $xaxis_loc eq 'top' ? 'bottom' : 'top',
+				offset    => $xaxis_loc eq 'top' ? [ 0, 3 ] : [ 0, -3 ]
+			},
 		},
 	});
 	$XAxisOptions = "JXG.merge($XAxisOptions, " . Mojo::JSON::encode_json($axes->xaxis('jsx_options')) . ')'
 		if $axes->xaxis('jsx_options');
 	my $YAxisOptions = Mojo::JSON::encode_json({
-		name      => $axes->yaxis('label'),
-		withLabel => 1,
-		position  => $yaxis_loc eq 'center'  ? 'sticky'     : 'fixed',
-		anchor    => $yaxis_loc eq 'center'  ? 'right left' : $yaxis_loc,
-		visible   => $axes->yaxis('visible') ? 1            : 0,
-		highlight => 0,
-		label     => {
+		name       => $axes->yaxis('label'),
+		withLabel  => 1,
+		position   => $yaxis_loc eq 'center'  ? 'sticky'     : 'fixed',
+		anchor     => $yaxis_loc eq 'center'  ? 'right left' : $yaxis_loc,
+		visible    => $axes->yaxis('visible') ? 1            : 0,
+		highlight  => 0,
+		firstArrow => { size => 7 },
+		lastArrow  => { size => 7 },
+		label      => {
 			position  => 'rt',
-			offset    => [ 10, -10 ],
+			offset    => [ 6, 0 ],
 			highlight => 0,
 		},
 		ticks => {
-			drawLabels    => $axes->yaxis('tick_labels') && $axes->yaxis('show_ticks')       ? 1 : 0,
-			drawZero      => $axes->style('jsx_navigation') || $axes->xaxis('position') != 0 ? 1 : 0,
+			drawLabels    => $axes->yaxis('tick_labels') && $axes->yaxis('show_ticks') ? 1 : 0,
+			drawZero      => $y_draw_zero,
 			insertTicks   => 0,
 			ticksDistance => $axes->yaxis('tick_delta'),
 			majorHeight   => $axes->yaxis('show_ticks') ? ($show_grid && $axes->yaxis('major') ? -1 : 10) : 0,
 			minorTicks    => $axes->yaxis('major')      ? $axes->yaxis('minor')                           : 0,
 			minorHeight   => $axes->yaxis('show_ticks') ? ($show_grid ? -1 : 7)                           : 0,
-			label         => { highlight => 0 },
+			label         => {
+				highlight => 0,
+				anchorX   => $yaxis_loc eq 'right' ? 'left' : 'right',
+				anchorY   => 'middle',
+				offset    => $yaxis_loc eq 'right' ? [ 6, 0 ] : [ -6, 0 ]
+			},
 		},
 	});
 	$YAxisOptions = "JXG.merge($YAxisOptions, " . Mojo::JSON::encode_json($axes->yaxis('jsx_options')) . ')'

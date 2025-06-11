@@ -127,13 +127,11 @@ This sets if the axis is shown (1) or not (0) on the plot. Default is 1.
 This sets the location of the axes relative to the graph. The possible options
 for each axis are:
 
-    xaxis  =>  'box', 'top', 'middle', 'bottom'
-    yaxis  =>  'box', 'left', 'center', 'right'
+    xaxis  =>  'top', 'middle', 'bottom'
+    yaxis  =>  'left', 'center', 'right'
 
 This places the axis at the appropriate edge of the graph. If 'center' or 'middle'
-are used, the axes appear on the inside of the graph at the appropriate position.
-Setting the location to 'box' creates a box or framed pot. Note, 'box' is not supported
-by JSXgraph, so when using JSXgraph, 'box' is equivalent to 'bottom' or 'left'.
+are used, the axes appear on the inside of the graph at the appropriate axis position.
 Default 'middle' or 'center'.
 
 =item position
