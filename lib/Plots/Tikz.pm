@@ -95,9 +95,9 @@ sub configure_axes {
 	my $xminor       = $show_grid && $xminor_num > 0 ? 'true' : 'false';
 	my $ymajor       = $show_grid && $grid->{ymajor} ? 'true' : 'false';
 	my $yminor_num   = $grid->{yminor};
-	my $yminor       = $show_grid && $yminor_num > 0 ? 'true'                                      : 'false';
-	my $xticks       = $axes->xaxis('show_ticks')    ? '{' . join(',', @{ $grid->{xticks} }) . '}' : 'none';
-	my $yticks       = $axes->yaxis('show_ticks')    ? '{' . join(',', @{ $grid->{yticks} }) . '}' : 'none';
+	my $yminor       = $show_grid && $yminor_num > 0 ? 'true'                                : 'false';
+	my $xticks       = $axes->xaxis('show_ticks')    ? "xtick distance=$grid->{xtick_delta}" : 'xticks=none';
+	my $yticks       = $axes->yaxis('show_ticks')    ? "ytick distance=$grid->{ytick_delta}" : 'yticks=none';
 	my $xtick_labels = $axes->xaxis('tick_labels')   ? '' : "\n\t\t\txticklabel=\\empty,";
 	my $ytick_labels = $axes->yaxis('tick_labels')   ? '' : "\n\t\t\tyticklabel=\\empty,";
 	my $grid_color   = $axes->style('grid_color');
@@ -142,8 +142,8 @@ sub configure_axes {
 			axis y line=$axis_y_line$axis_y_pos,
 			xlabel={$xlabel},
 			ylabel={$ylabel},
-			xtick=$xticks,$xtick_labels
-			ytick=$yticks,$ytick_labels
+			$xticks,$xtick_labels
+			$yticks,$ytick_labels
 			xmajorgrids=$xmajor,
 			xminorgrids=$xminor,
 			minor x tick num=$xminor_num,

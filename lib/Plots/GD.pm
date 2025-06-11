@@ -242,71 +242,49 @@ sub draw {
 	my $grid_style = $axes->style('grid_style');
 	my $show_grid  = $axes->style('show_grid');
 	if ($show_grid && $grid->{xmajor}) {
-		my $xminor = $grid->{xminor} || 0;
-		my $prevx  = $xmin;
-		my $dx     = 0;
-		my $first  = 1;
-		for my $x (@{ $grid->{xticks} }) {
-			# Number comparison of $dx and $x - $prevx failed in some tests, so using string comparison.
-			$xminor = 0           unless ($first || $dx == 0 || $dx eq $x - $prevx);
-			$dx     = $x - $prevx unless $first;
-			$prevx  = $x;
-			$first  = 0;
+		my $xminor = $grid->{xminor}      || 0;
+		my $dx     = $grid->{xtick_delta} || 1;
+		my $x      = (int($xmax / $dx) + 1) * $dx;
+		my $end    = (int($xmin / $dx) - 1) * $dx;
+		while ($x >= $end) {
 			$self->moveTo($x, $ymin);
 			$self->lineTo($x, $ymax, $grid_color, 0.5, 1);
-		}
-		if ($xminor) {
-			$dx /= ($xminor + 1);
-			for my $x (@{ $grid->{xticks} }) {
-				last if $x == $prevx;
-				for (1 .. $xminor) {
-					my $x2 = $x + $dx * $_;
-					$self->moveTo($x2, $ymin);
-					$self->lineTo($x2, $ymax, $grid_color, 0.5, 1);
-				}
+			for (0 .. $xminor) {
+				my $tmp_x = $x + $_ * $dx / ($xminor + 1);
+				$self->moveTo($tmp_x, $ymin);
+				$self->lineTo($tmp_x, $ymax, $grid_color, 0.5, 1);
 			}
+			$x -= $dx;
 		}
 	}
 	if ($show_grid && $grid->{ymajor}) {
-		my $yminor = $grid->{yminor} || 0;
-		my $prevy;
-		my $dy    = 0;
-		my $first = 1;
-		for my $y (@{ $grid->{yticks} }) {
-			# Number comparison of $dy and $y - $prevy failed in some tests, so using string comparison.
-			$yminor = 0           unless ($first || $dy == 0 || $dy eq $y - $prevy);
-			$dy     = $y - $prevy unless $first;
-			$prevy  = $y;
-			$first  = 0;
+		my $yminor = $grid->{yminor}      || 0;
+		my $dy     = $grid->{ytick_delta} || 1;
+		my $y      = (int($ymax / $dy) + 1) * $dy;
+		my $end    = (int($ymin / $dy) - 1) * $dy;
+		while ($y >= $end) {
 			$self->moveTo($xmin, $y);
 			$self->lineTo($xmax, $y, $grid_color, 0.5, 1);
-		}
-		if ($yminor) {
-			$dy /= ($yminor + 1);
-			for my $y (@{ $grid->{yticks} }) {
-				last if $y == $prevy;
-				for (1 .. $yminor) {
-					my $y2 = $y + $dy * $_;
-					$self->moveTo($xmin, $y2);
-					$self->lineTo($xmax, $y2, $grid_color, 0.5, 1);
-				}
+			for (0 .. $yminor) {
+				my $tmp_y = $y + $_ * $dy / ($yminor + 1);
+				$self->moveTo($xmin, $tmp_y);
+				$self->lineTo($xmax, $tmp_y, $grid_color, 0.5, 1);
 			}
+			$y -= $dy;
 		}
 	}
 
 	# Plot axes
-	my $show_x = $axes->xaxis('visible');
-	my $show_y = $axes->yaxis('visible');
-	my $xloc   = $axes->xaxis('location') || 'middle';
-	my $yloc   = $axes->yaxis('location') || 'center';
-	my $xpos   = ($yloc eq 'box' || $yloc eq 'left')   ? $xmin : $yloc eq 'right' ? $xmax : $axes->yaxis('position');
-	my $ypos   = ($xloc eq 'box' || $xloc eq 'bottom') ? $ymin : $xloc eq 'top'   ? $ymax : $axes->xaxis('position');
+	my $xloc = $axes->xaxis('location') || 'middle';
+	my $yloc = $axes->yaxis('location') || 'center';
+	my $xpos = ($yloc eq 'box' || $yloc eq 'left')   ? $xmin : $yloc eq 'right' ? $xmax : $axes->yaxis('position');
+	my $ypos = ($xloc eq 'box' || $xloc eq 'bottom') ? $ymin : $xloc eq 'top'   ? $ymax : $axes->xaxis('position');
 	$xpos = $xmin if $xpos < $xmin;
 	$xpos = $xmax if $xpos > $xmax;
 	$ypos = $ymin if $ypos < $ymin;
 	$ypos = $ymax if $ypos > $ymax;
 
-	if ($show_x) {
+	if ($axes->xaxis('visible')) {
 		my $xlabel      = $axes->xaxis('label') =~ s/\\[\(\[\)\]]//gr;
 		my $tick_align  = ($self->im_y($ymin) - $self->im_y($ypos) < 5)             ? 'bottom' : 'top';
 		my $label_align = ($self->im_y($ypos) - $self->im_y($ymax) < 5)             ? 'top'    : 'bottom';
@@ -320,9 +298,14 @@ sub draw {
 			v_align  => $label_align,
 			h_align  => $label_loc == $xmin ? 'left' : 'right'
 		);
-		for my $x (@{ $grid->{xticks} }) {
+		my $dx  = $grid->{xtick_delta} || 1;
+		my $x   = int($xmax / $dx) * $dx;
+		my $end = int($xmin / $dx) * $dx;
+
+		while ($x >= $end) {
 			$self->draw_label($x, $x, $ypos, font => 'large', v_align => $tick_align, h_align => 'center')
-				unless ($x == $xpos && $show_y);
+				unless $x == $xpos && $axes->yaxis('visible');
+			$x -= $dx;
 		}
 	}
 	if ($axes->yaxis('visible')) {
@@ -339,9 +322,14 @@ sub draw {
 			v_align  => $label_loc == $ymin ? 'bottom' : 'top',
 			h_align  => $label_align
 		);
-		for my $y (@{ $grid->{yticks} }) {
+
+		my $dy  = $grid->{ytick_delta} || 1;
+		my $y   = int($ymax / $dy) * $dy;
+		my $end = int($ymin / $dy) * $dy;
+		while ($y >= $end) {
 			$self->draw_label($y, $xpos, $y, font => 'large', v_align => 'middle', h_align => $tick_align)
-				unless ($y == $ypos && $show_x);
+				unless $y == $ypos && $axes->xaxis('visible');
+			$y -= $dy;
 		}
 	}
 
