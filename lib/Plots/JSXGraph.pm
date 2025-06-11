@@ -277,7 +277,7 @@ sub init_graph {
 
 	my $JSXOptions = Mojo::JSON::encode_json({
 		title          => $axes->style('title') || 'Graph',
-		description    => $axes->style('ariaDescription'),
+		description    => $plots->{ariaDescription},
 		boundingBox    => [ $xmin, $ymax, $xmax, $ymin ],
 		axis           => 0,
 		showNavigation => $allow_navigation,
