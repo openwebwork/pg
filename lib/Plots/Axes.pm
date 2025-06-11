@@ -181,8 +181,10 @@ be visible after the fill, otherwise the fill will cover the axis. Default: 0
 
 =item jsx_navigation
 
-Either allow (1) or don't allow (0) the user to pan and zoom the view port of the JSXGraph.
-Best used when plotting functions with the C<continue> style. Default: 0
+Either allow (1) or don't allow (0) the user to pan and zoom the view port of the
+JSXGraph.  Best used when plotting functions with the C<continue> style. Note that if this
+option is 0, then the image can be clicked on to open a dialog showing a magnified version
+of the graph that can be zoomed in or out.  Default: 0
 
 =item jsx_options
 
