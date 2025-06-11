@@ -176,17 +176,16 @@ sub y {
 sub style {
 	my ($self, @styles) = @_;
 	return $self->{styles} unless @styles;
-	if (scalar(@styles) > 1) {
+	if (ref($styles[0]) eq 'HASH') {
+		map { $self->{styles}{$_} = $styles[0]{$_} } keys %{ $styles[0] };
+		return;
+	}
+	if (@styles % 2 == 0) {
 		my %style_hash = @styles;
-		map { $self->{styles}{$_} = $style_hash{$_}; } (keys %style_hash);
+		map { $self->{styles}{$_} = $style_hash{$_} } keys %style_hash;
 		return;
 	}
-	my $style = $styles[0];
-	if (ref($style) eq 'HASH') {
-		map { $self->{styles}{$_} = $style->{$_}; } (keys %$style);
-		return;
-	}
-	return $self->{styles}{$style};
+	return $self->{styles}{ $styles[0] };
 }
 
 sub get_math_object {
