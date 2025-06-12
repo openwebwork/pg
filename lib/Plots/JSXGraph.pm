@@ -132,9 +132,9 @@ sub add_curve {
 		if (ref($f->{Fx}) ne 'CODE' && $f->{xvar} eq $f->{Fx}->string) {
 			my $function = $data->function_string('y', 'js', 1);
 			if ($function ne '') {
+				$data->update_min_max;
 				my $min = $data->style('continue') || $data->style('continue_left')  ? '' : $f->{xmin};
 				my $max = $data->style('continue') || $data->style('continue_right') ? '' : $f->{xmax};
-				$data->update_min_max;
 				$type        = 'functiongraph';
 				$data_points = "[t => $function, $min, $max]";
 			}
@@ -333,8 +333,8 @@ sub init_graph {
 		highlight     => 0,
 		firstArrow    => 0,
 		lastArrow     => { size => 7 },
-		straightFirst => 0,
-		straightLast  => 0,
+		straightFirst => $allow_navigation,
+		straightLast  => $allow_navigation,
 		label         => {
 			anchorX    => 'middle',
 			anchorY    => 'middle',
@@ -349,8 +349,8 @@ sub init_graph {
 			insertTicks   => 0,
 			ticksDistance => $axes->xaxis('tick_delta'),
 			majorHeight   => $axes->xaxis('show_ticks') ? ($show_grid && $axes->xaxis('major') ? -1 : 10) : 0,
-			minorTicks    => $axes->xaxis('major')      ? $axes->xaxis('minor')                           : 0,
-			minorHeight   => $axes->xaxis('show_ticks') ? ($show_grid ? -1 : 7)                           : 0,
+			minorTicks    => $axes->xaxis('minor'),
+			minorHeight   => $axes->xaxis('show_ticks') ? ($show_grid && $axes->xaxis('major') ? -1 : 7) : 0,
 			label         => {
 				highlight => 0,
 				anchorX   => 'middle',
@@ -370,8 +370,8 @@ sub init_graph {
 		highlight     => 0,
 		firstArrow    => 0,
 		lastArrow     => { size => 7 },
-		straightFirst => 0,
-		straightLast  => 0,
+		straightFirst => $allow_navigation,
+		straightLast  => $allow_navigation,
 		label         => {
 			anchorX    => 'middle',
 			anchorY    => 'middle',
@@ -386,8 +386,8 @@ sub init_graph {
 			insertTicks   => 0,
 			ticksDistance => $axes->yaxis('tick_delta'),
 			majorHeight   => $axes->yaxis('show_ticks') ? ($show_grid && $axes->yaxis('major') ? -1 : 10) : 0,
-			minorTicks    => $axes->yaxis('major')      ? $axes->yaxis('minor')                           : 0,
-			minorHeight   => $axes->yaxis('show_ticks') ? ($show_grid ? -1 : 7)                           : 0,
+			minorTicks    => $axes->yaxis('minor'),
+			minorHeight   => $axes->yaxis('show_ticks') ? ($show_grid && $axes->yaxis('major') ? -1 : 7) : 0,
 			label         => {
 				highlight => 0,
 				anchorX   => $yaxis_loc eq 'right' ? 'left' : 'right',
