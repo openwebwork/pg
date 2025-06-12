@@ -124,8 +124,8 @@ sub configure_axes {
 	my $yminor       = $show_grid && $yminor_num > 0 ? 'true'                                : 'false';
 	my $xticks       = $axes->xaxis('show_ticks')    ? "xtick distance=$grid->{xtick_delta}" : 'xticks=none';
 	my $yticks       = $axes->yaxis('show_ticks')    ? "ytick distance=$grid->{ytick_delta}" : 'yticks=none';
-	my $xtick_labels = $axes->xaxis('tick_labels')   ? '' : "\n\t\t\txticklabel=\\empty,";
-	my $ytick_labels = $axes->yaxis('tick_labels')   ? '' : "\n\t\t\tyticklabel=\\empty,";
+	my $xtick_labels = $axes->xaxis('tick_labels')   ? ''                                    : "\nxticklabel=\\empty,";
+	my $ytick_labels = $axes->yaxis('tick_labels')   ? ''                                    : "\nyticklabel=\\empty,";
 	my $grid_color   = $axes->style('grid_color');
 	my $grid_color2  = $self->get_color($grid_color);
 	my $grid_alpha   = $axes->style('grid_alpha');
@@ -136,28 +136,22 @@ sub configure_axes {
 	my $ylabel       = $axes->yaxis('label');
 	my $axis_y_line  = $axes->yaxis('location');
 	my $axis_y_pos   = $axes->yaxis('position');
-	my $axis_on_top  = $axes->style('axis_on_top') ? "axis on top,\n\t\t\t" : '';
+	my $axis_on_top  = $axes->style('axis_on_top') ? "axis on top,\n" : '';
 	my $hide_x_axis  = '';
 	my $hide_y_axis  = '';
 	my $xaxis_plot   = ($xmin <= 0 && $xmax >= 0) ? "\\path[name path=xaxis] ($xmin, 0) -- ($xmax,0);\n" : '';
-	$axis_x_pos = $axis_x_pos ? ",\n\t\t\taxis x line shift=" . (-$axis_x_pos) : '';
-	$axis_y_pos = $axis_y_pos ? ",\n\t\t\taxis y line shift=" . (-$axis_y_pos) : '';
+	$axis_x_pos = $axis_x_pos ? ",\naxis x line shift=" . (-$axis_x_pos) : '';
+	$axis_y_pos = $axis_y_pos ? ",\naxis y line shift=" . (-$axis_y_pos) : '';
 
 	unless ($axes->xaxis('visible')) {
-		$xlabel = '';
-		$hide_x_axis =
-			"\n\t\t\tx axis line style={draw=none},\n"
-			. "\t\t\tx tick style={draw=none},\n"
-			. "\t\t\txticklabel=\\empty,";
+		$xlabel      = '';
+		$hide_x_axis = "\nx axis line style={draw=none},\n" . "x tick style={draw=none},\n" . "xticklabel=\\empty,";
 	}
 	unless ($axes->yaxis('visible')) {
-		$ylabel = '';
-		$hide_y_axis =
-			"\n\t\t\ty axis line style={draw=none},\n"
-			. "\t\t\ty tick style={draw=none},\n"
-			. "\t\t\tyticklabel=\\empty,";
+		$ylabel      = '';
+		$hide_y_axis = "\ny axis line style={draw=none},\n" . "y tick style={draw=none},\n" . "yticklabel=\\empty,";
 	}
-	my $tikzCode = <<END_TIKZ;
+	my $tikzCode = <<~ "END_TIKZ";
 		\\begin{axis}
 		[
 			trig format plots=rad,
@@ -183,12 +177,10 @@ sub configure_axes {
 			ymax=$ymax,$hide_x_axis$hide_y_axis
 		]
 		$grid_color2$xaxis_plot
-END_TIKZ
+		END_TIKZ
 	chop($tikzCode);
-	$tikzCode =~ s/^\t\t//;
-	$tikzCode =~ s/\n\t\t/\n/g;
 
-	return $tikzCode;
+	return $tikzCode =~ s/^\t//gr;
 }
 
 sub get_plot_opts {

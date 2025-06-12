@@ -112,7 +112,15 @@
 
 		const body = document.createElement('div');
 		body.classList.add('modal-body');
-		body.innerHTML = imgHtml;
+
+		let graphDiv = null;
+		if (imgType == 'div') {
+			graphDiv = document.createElement('div');
+			graphDiv.id = `magnified-${this.id}`;
+			body.append(graphDiv);
+		} else {
+			body.innerHTML = imgHtml;
+		}
 
 		zoomInButton.append(zoomInSVG);
 		zoomOutButton.append(zoomOutSVG);
@@ -135,6 +143,9 @@
 				// This assumes the units of the view box dimensions are points.
 				naturalWidth = (viewBoxDims.width * 4) / 3;
 				naturalHeight = (viewBoxDims.height * 4) / 3;
+			} else if (imgType == 'div') {
+				naturalWidth = this.clientWidth * 1.2;
+				naturalHeight = this.clientHeight * 1.2;
 			}
 
 			const headerHeight = header.offsetHeight;
@@ -150,6 +161,8 @@
 			// Initial image width and height
 			let width = naturalWidth;
 			let height = naturalHeight;
+
+			if (imgType == 'div') this.dispatchEvent(new Event('shown.imageview'));
 
 			// Dialog position
 			let left;
@@ -198,6 +211,12 @@
 				body.style.height = height + 'px';
 				dialog.style.width = width + 18 + 'px';
 				dialog.style.height = height + headerHeight + 18 + 'px';
+
+				if (graphDiv) {
+					graphDiv.style.width = width + 'px';
+					graphDiv.style.height = height + 'px';
+					this.dispatchEvent(new Event('resized.imageview'));
+				}
 
 				// Re-position the modal.
 				if (initial) {
@@ -289,6 +308,7 @@
 			backdrop.style.opacity = '0.2';
 		});
 		modal.addEventListener('hidden.bs.modal', () => {
+			if (imgType == 'div') this.dispatchEvent(new Event('hidden.imageview'));
 			bsModal.dispose();
 			modal.remove();
 			window.removeEventListener('resize', onWinResize);
