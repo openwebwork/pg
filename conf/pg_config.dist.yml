@@ -236,6 +236,7 @@ modules:
   - [Multiple]
   - [PGrandom]
   - [Regression]
+  - ['Plots::Plot', 'Plots::Axes', 'Plots::Data', 'Plots::Tikz', 'Plots::JSXGraph', 'Plots::GD']
   - [Select]
   - [Units]
   - [VectorField]
