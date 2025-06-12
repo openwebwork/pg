@@ -91,18 +91,21 @@ sub add_color {
 # Define some base colors.
 sub color_init {
 	my $self = shift;
-	# Default color names from WWPlot.
 	$self->add_color('default_color', 0,   0,   0);
 	$self->add_color('white',         255, 255, 255);
 	$self->add_color('gray',          128, 128, 128);
+	$self->add_color('grey',          128, 128, 128);
 	$self->add_color('black',         0,   0,   0);
-	# Primary colors from the W3 red, yellow, blue color wheel.
-	$self->add_color('red',    254, 39,  18);
-	$self->add_color('yellow', 254, 254, 51);
-	$self->add_color('blue',   2,   71,  254);
-	$self->add_color('green',  102, 176, 50);
-	$self->add_color('orange', 251, 153, 2);
-	$self->add_color('purple', 134, 1,   175);
+	# Primary and secondary RGB colors (using HTML green instead of RGB green).
+	$self->add_color('red',     255, 0,   0);
+	$self->add_color('green',   0,   128, 0);
+	$self->add_color('blue',    0,   0,   255);
+	$self->add_color('yellow',  255, 255, 0);
+	$self->add_color('cyan',    0,   255, 255);
+	$self->add_color('magenta', 255, 0,   255);
+	# Additional RYB secondary colors.
+	$self->add_color('orange', 255, 128, 0);
+	$self->add_color('purple', 128, 0,   128);
 	return;
 }
 

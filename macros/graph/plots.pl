@@ -466,14 +466,16 @@ Colors are referenced by color names. The default color names, and their RGB def
 
     Color Name        Red Grn Blu
     white             255 255 255
-    gray              128 128 128
+    gray/grey         128 128 128
     black               0   0   0
-    red               254  39  18
-    yellow            254 254  51
-    blue                2  71 254
-    green             102 176  50
-    orange            251 153   2
-    purple            134   1 175
+    red               255   0   0
+    green               0 128   0
+    blue                0   0 255
+    yellow            255 255   0
+    cyan                0 255 255
+    magenta           255   0 255
+    orange            255 128   0
+    purple            128   0 128
 
 The default color used for all plotted elements is named C<default_color>, and is initially black.
 Redefining this color will change the default color used for any plot object.
