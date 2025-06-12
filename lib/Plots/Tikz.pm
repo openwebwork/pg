@@ -115,17 +115,19 @@ sub configure_axes {
 	my $grid  = $axes->grid;
 	my ($xmin, $ymin, $xmax, $ymax) = $axes->bounds;
 	my ($axes_width, $axes_height) = $plots->size;
-	my $show_grid    = $axes->style('show_grid');
-	my $xmajor       = $show_grid && $grid->{xmajor} ? 'true' : 'false';
-	my $xminor_num   = $grid->{xminor};
-	my $xminor       = $show_grid && $xminor_num > 0 ? 'true' : 'false';
-	my $ymajor       = $show_grid && $grid->{ymajor} ? 'true' : 'false';
-	my $yminor_num   = $grid->{yminor};
-	my $yminor       = $show_grid && $yminor_num > 0 ? 'true'                                : 'false';
-	my $xticks       = $axes->xaxis('show_ticks')    ? "xtick distance=$grid->{xtick_delta}" : 'xticks=none';
-	my $yticks       = $axes->yaxis('show_ticks')    ? "ytick distance=$grid->{ytick_delta}" : 'yticks=none';
-	my $xtick_labels = $axes->xaxis('tick_labels')   ? ''                                    : "\nxticklabel=\\empty,";
-	my $ytick_labels = $axes->yaxis('tick_labels')   ? ''                                    : "\nyticklabel=\\empty,";
+	my $show_grid  = $axes->style('show_grid');
+	my $xvisible   = $axes->xaxis('visible');
+	my $yvisible   = $axes->yaxis('visible');
+	my $xmajor     = $show_grid && $xvisible && $grid->{xmajor} ? 'true' : 'false';
+	my $xminor_num = $grid->{xminor};
+	my $xminor     = $show_grid && $xvisible && $xminor_num > 0 ? 'true' : 'false';
+	my $ymajor     = $show_grid && $yvisible && $grid->{ymajor} ? 'true' : 'false';
+	my $yminor_num = $grid->{yminor};
+	my $yminor     = $show_grid && $yvisible && $yminor_num > 0 ? 'true'                                : 'false';
+	my $xticks     = $axes->xaxis('show_ticks')                 ? "xtick distance=$grid->{xtick_delta}" : 'xticks=none';
+	my $yticks     = $axes->yaxis('show_ticks')                 ? "ytick distance=$grid->{ytick_delta}" : 'yticks=none';
+	my $xtick_labels = $axes->xaxis('tick_labels')              ? '' : "\nxticklabel=\\empty,";
+	my $ytick_labels = $axes->yaxis('tick_labels')              ? '' : "\nyticklabel=\\empty,";
 	my $grid_color   = $axes->style('grid_color');
 	my $grid_color2  = $self->get_color($grid_color);
 	my $grid_alpha   = $axes->style('grid_alpha');
@@ -143,11 +145,11 @@ sub configure_axes {
 	$axis_x_pos = $axis_x_pos ? ",\naxis x line shift=" . (-$axis_x_pos) : '';
 	$axis_y_pos = $axis_y_pos ? ",\naxis y line shift=" . (-$axis_y_pos) : '';
 
-	unless ($axes->xaxis('visible')) {
+	unless ($xvisible) {
 		$xlabel      = '';
 		$hide_x_axis = "\nx axis line style={draw=none},\n" . "x tick style={draw=none},\n" . "xticklabel=\\empty,";
 	}
-	unless ($axes->yaxis('visible')) {
+	unless ($yvisible) {
 		$ylabel      = '';
 		$hide_y_axis = "\ny axis line style={draw=none},\n" . "y tick style={draw=none},\n" . "yticklabel=\\empty,";
 	}
