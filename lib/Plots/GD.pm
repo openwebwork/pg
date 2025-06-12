@@ -211,7 +211,7 @@ sub draw_circle_stamp {
 	my ($self, $x, $y, $r, $color, $filled) = @_;
 	my $d = $r ? 2 * $r : 8;
 	$color = $self->color($color || 'default_color');
-	$self->im->filledArc($self->im_x($x), $self->im_y($y), $d, $d, 0, 360, $self->color('nearwhite'));
+	$self->im->filledArc($self->im_x($x), $self->im_y($y), $d, $d, 0, 360, $self->color('white'));
 	$self->im->filledArc($self->im_x($x), $self->im_y($y), $d, $d, 0, 360, $color, $filled ? () : GD::gdNoFill);
 	return;
 }
@@ -226,7 +226,7 @@ sub draw {
 
 	# Initialize image
 	$self->im->interlaced('true');
-	$self->im->fill(1, 1, $self->color('background_color'));
+	$self->im->fill(1, 1, $self->color('white'));
 
 	# Plot data first, then fill in regions before adding axes, grid, etc.
 	$self->draw_data(1);

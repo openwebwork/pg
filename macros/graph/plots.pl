@@ -74,9 +74,9 @@ For example, add a red line segment from (2,3) to (5,7):
 Add multiple arrows by setting the C<end_mark> (or C<start_mark>) of the dataset.
 
     $plot->add_dataset(
-        [[0, 0], [2,3], color => 'green', end_mark   => 'arrow'],
-        [[2, 3], [4,-1], color => 'blue', end_mark   => 'arrow'],
-        [[0, 0], [4, -1], color => 'red', start_mark => 'arrow'],
+        [[0, 0], [2, 3],  color => 'green', end_mark   => 'arrow'],
+        [[2, 3], [4, -1], color => 'blue',  end_mark   => 'arrow'],
+        [[0, 0], [4, -1], color => 'red',   start_mark => 'arrow'],
     );
 
 If needed, the C<< $plot->add_dataset >> method returns the L<Data|/"DATA OBJECT"> object
@@ -267,6 +267,11 @@ Place a mark at the start (left end) of the plot. This can be one of
 
 Place a mark at the end (right end) of the plot. This can be one of
 'none', 'closed_circle', 'open_circle', or 'arrow'. Default: 'none'
+
+=item arrow_size
+
+Sets the arrow head size for C<start_mark> or C<end_mark> arrows.
+Default: 10
 
 =item name
 
@@ -460,17 +465,18 @@ work with TikZ output, instead using the fill methods mentioned above.
 Colors are referenced by color names. The default color names, and their RGB definition are:
 
     Color Name        Red Grn Blu
-    background_color  255 255 255
-    default_color     0   0   0
     white             255 255 255
-    black             0   0   0
-    red               255 0   0
-    green             0   255 0
-    blue              0   0   255
-    yellow            255 255 0
-    orange            255 100 0
-    gray              180 180 180
-    nearwhite         254 254 254
+    gray              128 128 128
+    black               0   0   0
+    red               254  39  18
+    yellow            254 254  51
+    blue                2  71 254
+    green             102 176  50
+    orange            251 153   2
+    purple            134   1 175
+
+The default color used for all plotted elements is named C<default_color>, and is initially black.
+Redefining this color will change the default color used for any plot object.
 
 New colors can be added, or existing colors can be modified, using the C<< $plot->add_color >> method.
 Colors can be added individually or multiple using a single call.

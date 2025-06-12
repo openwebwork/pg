@@ -202,14 +202,18 @@ sub get_plot_opts {
 	if ($start =~ /circle/) {
 		$start = '{Circle[sep=-1.196825pt -1.595769' . ($start eq 'open_circle' ? ', open' : '') . ']}';
 	} elsif ($start eq 'arrow') {
-		$start = '{Latex}';
+		my $arrow_width  = $data->style('arrow_size') || 10;
+		my $arrow_length = int(1.5 * $arrow_width);
+		$start = "{Stealth[length=${arrow_length}pt,width=${arrow_width}pt]}";
 	} else {
 		$start = '';
 	}
 	if ($end =~ /circle/) {
 		$end = '{Circle[sep=-1.196825pt -1.595769' . ($end eq 'open_circle' ? ', open' : '') . ']}';
 	} elsif ($end eq 'arrow') {
-		$end = '{Latex}';
+		my $arrow_width  = $data->style('arrow_size') || 10;
+		my $arrow_length = int(1.5 * $arrow_width);
+		$end = "{Stealth[length=${arrow_length}pt,width=${arrow_width}pt]}";
 	} else {
 		$end = '';
 	}
