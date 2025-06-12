@@ -113,17 +113,16 @@ sub add_curve {
 	my $curve_name   = $data->style('name');
 	my $color        = $self->get_color($data->style('color') || 'default_color');
 	my $line_width   = $data->style('width') || 2;
-	my $arrow_size   = $line_width < 3 ? 12 / $line_width : 6;
-	my $fill         = $data->style('fill') || 'none';
+	my $fill         = $data->style('fill')  || 'none';
 	my $fill_color   = $self->get_color($data->style('fill_color') || 'default_color');
 	my $fill_opacity = $data->style('fill_opacity') || 0.5;
 	my $plotOptions  = Mojo::JSON::encode_json({
 		highlight   => 0,
 		strokeColor => $color,
 		strokeWidth => $line_width,
-		$start eq 'arrow' ? (firstArrow => { type => 5, size => $arrow_size })        : (),
-		$end eq 'arrow'   ? (lastArrow  => { type => 5, size => $arrow_size })        : (),
-		$fill eq 'self'   ? (fillColor  => $fill_color, fillOpacity => $fill_opacity) : (),
+		$start eq 'arrow' ? (firstArrow => { type => 4, size => $data->style('arrow_size') || 10 }) : (),
+		$end eq 'arrow'   ? (lastArrow  => { type => 4, size => $data->style('arrow_size') || 10 }) : (),
+		$fill eq 'self'   ? (fillColor  => $fill_color, fillOpacity => $fill_opacity)               : (),
 		%linestyles,
 	});
 	$plotOptions = "JXG.merge($plotOptions, " . Mojo::JSON::encode_json($data->style('jsx_options')) . ')'
@@ -324,6 +323,7 @@ sub init_graph {
 		pan            => { enabled => $allow_navigation },
 		zoom           => { enabled => $allow_navigation },
 		showCopyright  => 0,
+		drag           => { enabled => 0 },
 	});
 	$JSXOptions = "JXG.merge($JSXOptions, " . Mojo::JSON::encode_json($axes->style('jsx_options')) . ')'
 		if $axes->style('jsx_options');
@@ -487,6 +487,7 @@ sub draw {
 			anchorX     => $h_align eq 'center' ? 'middle' : $h_align,
 			anchorY     => $v_align,
 			cssStyle    => 'padding: 3px;',
+			useMathJax  => 1,
 		});
 		$textOptions = "JXG.merge($textOptions, " . Mojo::JSON::encode_json($label->style('jsx_options')) . ')'
 			if $label->style('jsx_options');
