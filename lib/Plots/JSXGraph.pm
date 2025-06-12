@@ -47,6 +47,9 @@ sub HTML {
 				$self->{JS}
 				$self->{JSend}
 				board.unsuspendUpdate();
+				// This is a workaround for an issue when the magnified graph is drawn in the imageview dialog.
+				// In that case something is messing up the bounding box, so it needs to be reset.
+				board.setBoundingBox(board.attr.boundingbox, board.keepaspectratio, 'keep');
 				return board;
 			}
 
