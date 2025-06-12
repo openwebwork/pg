@@ -40,21 +40,16 @@ sub HTML {
 			style="width: ${width}px; height: ${height}px;"></div>
 		<script>
 		(async () => {
-			const jsxPlotDiv = document.getElementById('jsxgraph-plot-$name');
-			if (!jsxPlotDiv) return;
-
 			const drawBoard = (id) => {
 				$self->{JS}
 				$self->{JSend}
 				board.unsuspendUpdate();
-				// This is a workaround for an issue when the magnified graph is drawn in the imageview dialog.
-				// In that case something is messing up the bounding box, so it needs to be reset.
-				board.setBoundingBox(board.attr.boundingbox, board.keepaspectratio, 'keep');
 				return board;
 			}
 
 			const drawPromise = (id) => new Promise((resolve) => {
-				if (jsxPlotDiv.offsetWidth === 0) {
+				const container = document.getElementById(id);
+				if (!container || container.offsetWidth === 0) {
 					setTimeout(async () => resolve(await drawPromise(id)), 100);
 					return;
 				}
@@ -66,6 +61,8 @@ sub HTML {
 					await drawPromise('jsxgraph-plot-$name')
 				});
 			else await drawPromise('jsxgraph-plot-$name');
+
+			const jsxPlotDiv = document.getElementById('jsxgraph-plot-$name');
 
 			let jsxBoard = null;
 			jsxPlotDiv?.addEventListener('shown.imageview', async () => {
