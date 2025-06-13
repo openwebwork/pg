@@ -423,13 +423,12 @@ The color of the label. Default: 'default_color'
 
 =item fontsize
 
-The size of the label used in GD output. This can be one of
-'tiny', 'small', 'medium', 'large', or 'giant'. Default: 'medium'
+The font size of the label used. This can be one of 'tiny', 'small', 'medium',
+'large', or 'giant'. Default: 'medium'
 
-=item orientation
+=item rotate
 
-The orientation of the font in GD output. Can be one of 'vertical' or 'horizontal'.
-Default: 'horizontal'
+The rotation of the label in degrees. Default: 0
 
 =item h_align
 
