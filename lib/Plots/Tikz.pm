@@ -220,9 +220,21 @@ sub get_plot_opts {
 		$end = '';
 	}
 	my $end_markers = ($start || $end) ? ", $start-$end" : '';
-	$marks     = $self->get_mark($marks);
-	$marks     = $marks ? $mark_size ? ", mark=$marks, mark size=${mark_size}px" : ", mark=$marks" : '';
-	$linestyle = $linestyle eq 'none' ? ', only marks' : ', ' . ($linestyle =~ s/_/ /gr);
+	$marks = $self->get_mark($marks);
+	$marks = $marks ? $mark_size ? ", mark=$marks, mark size=${mark_size}px" : ", mark=$marks" : '';
+
+	$linestyle =~ s/ /_/g;
+	$linestyle = {
+		none               => ', only marks',
+		solid              => ', solid',
+		dashed             => ', dash={on 11pt off 8pt phase 6pt}',
+		short_dashes       => ', dash pattern={on 6pt off 3pt}',
+		long_dashes        => ', dash={on 20pt off 15pt phase 10pt}',
+		dotted             => ', dotted',
+		long_medium_dashes => ', dash={on 20pt off 7pt on 11pt off 7pt phase 10pt}',
+	}->{$linestyle}
+		|| ', solid';
+
 	if ($fill eq 'self') {
 		$fill = ", fill=$fill_color, fill opacity=$fill_opacity";
 	} else {
