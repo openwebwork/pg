@@ -373,9 +373,9 @@ sub draw {
 		my $str          = $label->style('label');
 		my $x            = $label->x(0);
 		my $y            = $label->y(0);
-		my $color        = $label->style('color')       || 'default_color';
-		my $fontsize     = $label->style('fontsize')    || 'medium';
-		my $orientation  = $label->style('orientation') || 'horizontal';
+		my $color        = $label->style('color')    || 'default_color';
+		my $fontsize     = $label->style('fontsize') || 'medium';
+		my $rotate       = $label->style('rotate');
 		my $tikz_options = $label->style('tikz_options');
 		my $h_align      = $label->style('h_align') || 'center';
 		my $v_align      = $label->style('v_align') || 'middle';
@@ -391,7 +391,7 @@ sub draw {
 		$anchor .= $h_align eq 'left' ? ' west' : $h_align eq 'right' ? ' east' : '';
 		$tikz_options = $tikz_options ? "$color, $tikz_options" : $color;
 		$tikz_options = "anchor=$anchor, $tikz_options" if $anchor;
-		$tikz_options = "rotate=90, $tikz_options"      if $orientation eq 'vertical';
+		$tikz_options = "rotate=$rotate, $tikz_options" if $rotate;
 		$tikzCode .= $self->get_color($color) . "\\node[$tikz_options] at (axis cs: $x,$y) {$str};\n";
 	}
 	$tikzCode .= '\end{axis}';

@@ -516,15 +516,14 @@ sub draw {
 		my $str         = $label->style('label');
 		my $x           = $label->x(0);
 		my $y           = $label->y(0);
-		my $fontsize    = $label->style('fontsize')    || 'medium';
-		my $orientation = $label->style('orientation') || 'horizontal';
-		my $h_align     = $label->style('h_align')     || 'center';
-		my $v_align     = $label->style('v_align')     || 'middle';
+		my $fontsize    = $label->style('fontsize') || 'medium';
+		my $h_align     = $label->style('h_align')  || 'center';
+		my $v_align     = $label->style('v_align')  || 'middle';
 		my $anchor      = $v_align eq 'top' ? 'north' : $v_align eq 'bottom' ? 'south' : '';
 		my $textOptions = Mojo::JSON::encode_json({
 			highlight   => 0,
 			fontSize    => { tiny => 8, small => 10, medium => 12, large => 14, giant => 16 }->{$fontsize},
-			rotate      => $orientation eq 'vertical' ? 90 : 0,
+			rotate      => $label->style('rotate') || 0,
 			strokeColor => $self->get_color($label->style('color')),
 			anchorX     => $h_align eq 'center' ? 'middle' : $h_align,
 			anchorY     => $v_align,
