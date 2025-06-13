@@ -86,13 +86,11 @@ sub get_color {
 	return sprintf("#%02x%02x%02x", @{ $self->plots->colors($color) });
 }
 
-sub add_curve {
-	my ($self, $data) = @_;
-	my $linestyle = $data->style('linestyle') || '';
-	return if $linestyle eq 'none';
-
+sub get_linestyle {
+	my ($self, $linestyle) = @_;
+	return 0 unless $linestyle;
 	$linestyle =~ s/ /_/g;
-	$linestyle = {
+	return {
 		solid              => 0,
 		dashed             => 3,
 		short_dashes       => 2,
@@ -101,7 +99,13 @@ sub add_curve {
 		long_medium_dashes => 5,
 	}->{$linestyle}
 		|| 0;
+}
 
+sub add_curve {
+	my ($self, $data) = @_;
+	return if $data->style('linestyle') || '' eq 'none';
+
+	my $linestyle    = $self->get_linestyle($data->style('linestyle'));
 	my $start        = $data->style('start_mark') || '';
 	my $end          = $data->style('end_mark')   || '';
 	my $curve_name   = $data->style('name');
@@ -209,6 +213,7 @@ sub add_curve {
 				. "board.update();";
 		}
 	}
+	return;
 }
 
 sub add_point {
@@ -261,6 +266,7 @@ sub add_point {
 		if $data->style('jsx_options');
 
 	$self->{JS} .= "board.create('point', [$x, $y], $pointOptions);";
+	return;
 }
 
 sub add_points {
@@ -277,6 +283,32 @@ sub add_points {
 	for (0 .. $data->size - 1) {
 		$self->add_point($data, $data->x($_), $data->y($_), $size, $mark, $color);
 	}
+	return;
+}
+
+sub add_circle {
+	my ($self, $data) = @_;
+	my $x             = $data->x(0);
+	my $y             = $data->y(0);
+	my $r             = $data->style('radius');
+	my $linestyle     = $self->get_linestyle($data->style('linestyle'));
+	my $circleOptions = Mojo::JSON::encode_json({
+		highlight   => 0,
+		strokeColor => $self->get_color($data->style('color') || 'default_color'),
+		strokeWidth => $data->style('width') || 2,
+		$data->style('fill') || '' eq 'self'
+		? (
+			fillColor   => $self->get_color($data->style('fill_color') || 'default_color'),
+			fillOpacity => ($data->style('fill_opacity')               || 0.5),
+			)
+		: (),
+		dash => $linestyle == 7 ? 1 : $linestyle,
+	});
+	$circleOptions = "JXG.merge($circleOptions, " . Mojo::JSON::encode_json($data->style('jsx_options')) . ')'
+		if $data->style('jsx_options');
+
+	$self->{JS} .= "board.create('circle', [[$x, $y], $r], $circleOptions);";
+	return;
 }
 
 sub init_graph {
@@ -416,9 +448,13 @@ sub draw {
 	$self->init_graph;
 
 	# Plot Data
-	for my $data ($plots->data('function', 'dataset')) {
-		$self->add_curve($data);
-		$self->add_points($data);
+	for my $data ($plots->data('function', 'dataset', 'circle')) {
+		if ($data->name eq 'circle') {
+			$self->add_circle($data);
+		} else {
+			$self->add_curve($data);
+			$self->add_points($data);
+		}
 	}
 
 	# Vector/Slope Fields
