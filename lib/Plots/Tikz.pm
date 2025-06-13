@@ -187,14 +187,14 @@ sub configure_axes {
 
 sub get_plot_opts {
 	my ($self, $data) = @_;
-	my $color        = $data->style('color')        || 'default_color';
-	my $width        = $data->style('width')        || 1;
-	my $linestyle    = $data->style('linestyle')    || 'solid';
-	my $marks        = $data->style('marks')        || 'none';
-	my $mark_size    = $data->style('mark_size')    || 0;
-	my $start        = $data->style('start_mark')   || 'none';
-	my $end          = $data->style('end_mark')     || 'none';
-	my $name         = $data->style('name')         || '';
+	my $color        = $data->style('color') || 'default_color';
+	my $width        = $data->style('width');
+	my $linestyle    = $data->style('linestyle')  || 'solid';
+	my $marks        = $data->style('marks')      || 'none';
+	my $mark_size    = $data->style('mark_size')  || 0;
+	my $start        = $data->style('start_mark') || 'none';
+	my $end          = $data->style('end_mark')   || 'none';
+	my $name         = $data->style('name');
 	my $fill         = $data->style('fill')         || 'none';
 	my $fill_color   = $data->style('fill_color')   || 'default_color';
 	my $fill_opacity = $data->style('fill_opacity') || 0.5;
@@ -257,7 +257,7 @@ sub draw {
 	my $tikzCode = $self->configure_axes;
 
 	# Plot Data
-	for my $data ($plots->data('function', 'dataset', 'circle')) {
+	for my $data ($plots->data('function', 'dataset', 'circle', 'arc')) {
 		my $n            = $data->size;
 		my $color        = $data->style('color')      || 'default_color';
 		my $fill         = $data->style('fill')       || 'none';
@@ -271,6 +271,18 @@ sub draw {
 			my $y = $data->y(0);
 			my $r = $data->style('radius');
 			$tikzCode .= "\\draw[$tikz_options] (axis cs:$x,$y) circle [radius=$r];\n";
+			next;
+		}
+		if ($data->name eq 'arc') {
+			my ($x1, $y1) = ($data->x(0), $data->y(0));
+			my ($x2, $y2) = ($data->x(1), $data->y(1));
+			my ($x3, $y3) = ($data->x(2), $data->y(2));
+			my $r      = sqrt(($x2 - $x1)**2 + ($y2 - $y1)**2);
+			my $theta1 = 180 * atan2($y2 - $y1, $x2 - $x1) / 3.14159265358979;
+			my $theta2 = 180 * atan2($y3 - $y1, $x3 - $x1) / 3.14159265358979;
+			$theta1 += 360 if $theta1 < 0;
+			$theta2 += 360 if $theta2 < 0;
+			$tikzCode .= "\\draw[$tikz_options] (axis cs:$x2,$y2) arc ($theta1:$theta2:$r);\n";
 			next;
 		}
 
@@ -302,11 +314,11 @@ sub draw {
 		$tikzCode .= "\\addplot[$tikz_options] $plot;\n";
 
 		unless ($fill eq 'none' || $fill eq 'self') {
-			my $name       = $data->style('name')         || '';
+			my $name       = $data->style('name');
 			my $opacity    = $data->style('fill_opacity') || 0.5;
 			my $fill_min   = $data->style('fill_min');
 			my $fill_max   = $data->style('fill_max');
-			my $fill_range = defined $fill_min && defined $fill_max ? ", soft clip={domain=$fill_min:$fill_max}" : '';
+			my $fill_range = $fill_min ne '' && $fill_max ne '' ? ", soft clip={domain=$fill_min:$fill_max}" : '';
 			$opacity *= 100;
 			$tikzFill .= "\\addplot[$fill_color!$opacity] fill between[of=$name and $fill$fill_range];\n";
 		}
@@ -361,12 +373,12 @@ sub draw {
 		my $str          = $label->style('label');
 		my $x            = $label->x(0);
 		my $y            = $label->y(0);
-		my $color        = $label->style('color')        || 'default_color';
-		my $fontsize     = $label->style('fontsize')     || 'medium';
-		my $orientation  = $label->style('orientation')  || 'horizontal';
-		my $tikz_options = $label->style('tikz_options') || '';
-		my $h_align      = $label->style('h_align')      || 'center';
-		my $v_align      = $label->style('v_align')      || 'middle';
+		my $color        = $label->style('color')       || 'default_color';
+		my $fontsize     = $label->style('fontsize')    || 'medium';
+		my $orientation  = $label->style('orientation') || 'horizontal';
+		my $tikz_options = $label->style('tikz_options');
+		my $h_align      = $label->style('h_align') || 'center';
+		my $v_align      = $label->style('v_align') || 'middle';
 		my $anchor       = $v_align eq 'top' ? 'north' : $v_align eq 'bottom' ? 'south' : '';
 		$str = {
 			tiny   => '\tiny ',

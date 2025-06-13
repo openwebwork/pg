@@ -332,6 +332,28 @@ sub add_circle {
 	return $self->_add_circle(@data);
 }
 
+sub _add_arc {
+	my ($self, $point1, $point2, $point3, @options) = @_;
+	my $data = Plots::Data->new(name => 'arc');
+	$data->add($point1, $point2, $point3);
+	$data->style(
+		color => 'default_color',
+		width => 2,
+		@options
+	);
+
+	$self->add_data($data);
+	return $data;
+}
+
+sub add_arc {
+	my ($self, @data) = @_;
+	if (ref($data[0]) eq 'ARRAY' && ref($data[0][0]) eq 'ARRAY') {
+		return [ map { $self->_add_arc(@$_); } @data ];
+	}
+	return $self->_add_arc(@data);
+}
+
 sub add_vectorfield {
 	my ($self, @options) = @_;
 	my $data = Plots::Data->new(name => 'vectorfield');

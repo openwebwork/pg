@@ -166,6 +166,20 @@ or multiple at once.
         ...
     );
 
+=head2 PLOT ARCS
+
+Arcs (or a portion of a circle) can be plotted using the C<< $plot->add_arc >> method.
+This method takes three points. The first point is where the arc starts, the second point
+is the center of the circle, and the third point specifies the ray from the center of
+the circle the arc ends. Arcs always go in the counter clockwise direction.
+
+    $plot->add_arc([$start_x, $start_y], [$center_x, $center_y], [$end_x, $end_y], %options);
+    $plot->add_arc(
+        [[$start_x1, $start_y1], [$center_x1, $center_y1], [$end_x1, $end_y1], %options1],
+        [[$start_x2, $start_y2], [$center_x2, $center_y2], [$end_x2, $end_y2], %options2],
+        ...
+    );
+
 =head2 PLOT VECTOR FIELDS
 
 Vector fields and slope fields can be plotted using the C<< $plot->add_vectorfield >> method.
