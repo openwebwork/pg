@@ -185,7 +185,7 @@ sub style {
 		map { $self->{styles}{$_} = $style_hash{$_} } keys %style_hash;
 		return;
 	}
-	return $self->{styles}{ $styles[0] };
+	return $self->{styles}{ $styles[0] } // '';
 }
 
 sub get_math_object {
