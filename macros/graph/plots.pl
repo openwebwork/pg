@@ -239,11 +239,10 @@ The line width of the plot. Default: 1
 
 =item linestyle
 
-Linestyle can be one of 'solid', 'dashed', 'dotted', 'densely dashed',
-'loosely dashed', 'densely dotted', 'loosely dotted', or 'none'. If set
-to 'none', only the points are shown (see marks for point options) For
-convince underscores can also be used, such as 'densely_dashed'.
-Default: 'solid'
+Linestyle can be one of 'solid', 'dashed', 'dotted', 'short dashes', 'long dashes',
+'long medium dashes' (alternates between long and medium dashes), or 'none'. If set
+to 'none', only the points are shown (see marks for point options) For convince
+underscores can also be used, such as 'long_dashes'. Default: 'solid'
 
 =item marks
 

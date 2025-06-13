@@ -91,19 +91,16 @@ sub add_curve {
 	my $linestyle = $data->style('linestyle') || '';
 	return if $linestyle eq 'none';
 
-	my %linestyles;
-	if ($linestyle eq 'densely dashed') {
-		$linestyles{dash}      = 4;
-		$linestyles{dashScale} = 1;
-	} elsif ($linestyle eq 'loosely dashed') {
-		$linestyles{dash}      = 3;
-		$linestyles{dashScale} = 1;
-	} elsif ($linestyle =~ /dashed/) {
-		$linestyles{dash}      = 1;
-		$linestyles{dashScale} = 1;
-	} elsif ($linestyle =~ /dotted/) {
-		$linestyles{dash} = 1;
-	}
+	$linestyle =~ s/ /_/g;
+	$linestyle = {
+		solid              => 0,
+		dashed             => 3,
+		short_dashes       => 2,
+		long_dashes        => 4,
+		dotted             => 7,
+		long_medium_dashes => 5,
+	}->{$linestyle}
+		|| 0;
 
 	my $start        = $data->style('start_mark') || '';
 	my $end          = $data->style('end_mark')   || '';
@@ -120,7 +117,7 @@ sub add_curve {
 		$start eq 'arrow' ? (firstArrow => { type => 4, size => $data->style('arrow_size') || 10 }) : (),
 		$end eq 'arrow'   ? (lastArrow  => { type => 4, size => $data->style('arrow_size') || 10 }) : (),
 		$fill eq 'self'   ? (fillColor  => $fill_color, fillOpacity => $fill_opacity)               : (),
-		%linestyles,
+		dash => $linestyle,
 	});
 	$plotOptions = "JXG.merge($plotOptions, " . Mojo::JSON::encode_json($data->style('jsx_options')) . ')'
 		if $data->style('jsx_options');
@@ -273,6 +270,9 @@ sub add_points {
 
 	my $size  = $data->style('mark_size') || $data->style('width') || 3;
 	my $color = $self->get_color($data->style('color') || 'default_color');
+
+	# Need to generate points for functions.
+	$data->gen_data if $data->name eq 'function';
 
 	for (0 .. $data->size - 1) {
 		$self->add_point($data, $data->x($_), $data->y($_), $size, $mark, $color);
