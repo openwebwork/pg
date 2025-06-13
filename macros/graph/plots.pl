@@ -153,6 +153,19 @@ MathObjects, or perl subroutines:
 
 It is preferred to use strings or MathObjects instead of perl subroutines.
 
+=head2 PLOT CIRCLES
+
+Circles can be added to the plot by specifing its center and radius using the
+C<< $plot->add_circle >> method. This can either be done either one at a time
+or multiple at once.
+
+    $plot->add_circle([$x, $y], $r, %options);
+    $plot->add_circle(
+        [[$x1, $y1], $r1, %options1],
+        [[$x2, $y2], $r2, %options2],
+        ...
+    );
+
 =head2 PLOT VECTOR FIELDS
 
 Vector fields and slope fields can be plotted using the C<< $plot->add_vectorfield >> method.

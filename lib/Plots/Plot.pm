@@ -309,6 +309,29 @@ sub add_dataset {
 	return $self->_add_dataset(@data);
 }
 
+sub _add_circle {
+	my ($self, $point, $radius, @options) = @_;
+	my $data = Plots::Data->new(name => 'circle');
+	$data->add(@$point);
+	$data->style(
+		radius => $radius,
+		color  => 'default_color',
+		width  => 2,
+		@options
+	);
+
+	$self->add_data($data);
+	return $data;
+}
+
+sub add_circle {
+	my ($self, @data) = @_;
+	if (ref($data[0]) eq 'ARRAY' && ref($data[0][0]) eq 'ARRAY') {
+		return [ map { $self->_add_circle(@$_); } @data ];
+	}
+	return $self->_add_circle(@data);
+}
+
 sub add_vectorfield {
 	my ($self, @options) = @_;
 	my $data = Plots::Data->new(name => 'vectorfield');

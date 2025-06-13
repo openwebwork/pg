@@ -257,13 +257,23 @@ sub draw {
 	my $tikzCode = $self->configure_axes;
 
 	# Plot Data
-	for my $data ($plots->data('function', 'dataset')) {
+	for my $data ($plots->data('function', 'dataset', 'circle')) {
 		my $n            = $data->size;
 		my $color        = $data->style('color')      || 'default_color';
 		my $fill         = $data->style('fill')       || 'none';
 		my $fill_color   = $data->style('fill_color') || 'default_color';
 		my $tikz_options = $self->get_plot_opts($data);
 		$tikzCode .= $self->get_color($color);
+		$tikzCode .= $self->get_color($fill_color) unless $fill eq 'none';
+
+		if ($data->name eq 'circle') {
+			my $x = $data->x(0);
+			my $y = $data->y(0);
+			my $r = $data->style('radius');
+			$tikzCode .= "\\draw[$tikz_options] (axis cs:$x,$y) circle [radius=$r];\n";
+			next;
+		}
+
 		my $plot;
 		if ($data->name eq 'function') {
 			my $f = $data->{function};
@@ -291,7 +301,6 @@ sub draw {
 		}
 		$tikzCode .= "\\addplot[$tikz_options] $plot;\n";
 
-		$tikzCode .= $self->get_color($fill_color) unless $fill eq 'none';
 		unless ($fill eq 'none' || $fill eq 'self') {
 			my $name       = $data->style('name')         || '';
 			my $opacity    = $data->style('fill_opacity') || 0.5;
