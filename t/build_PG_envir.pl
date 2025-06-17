@@ -8,6 +8,8 @@ use lib "$ENV{PG_ROOT}/lib";
 
 my $macros_dir = "$ENV{PG_ROOT}/macros";
 
+use HTML::Entities;
+
 use WeBWorK::PG::Environment;
 use WeBWorK::PG;
 use PGcore;
