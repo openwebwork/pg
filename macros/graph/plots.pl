@@ -106,6 +106,13 @@ parametric functions (an array of two functions) to the graph.
     # Add a parametric circle of radius 5 to the plot.
     $plot->add_function(['5cos(t)', '5sin(t)'], 't', 0, 2*pi);
 
+Polar functions can be graphed using the C<< polar => 1 >> option with a single variable
+function. In this case the input variable (no matter what it is) is treated as a polar angle
+theta, and the function computes the radius for that angle.
+
+    # Polar graph of r = 5cos(3theta).
+    $plot->add_function("5cos(3x)", 'x', 0, 'pi', polar => 1);
+
 Functions can also be added using function strings. Function strings are of the form:
 
     "$function for $variable in <$min,$max> using option1:value1 and option2:value2"
@@ -360,7 +367,7 @@ A number between 0 and 1 giving the opacity of the fill. Default: 0.5
 
 =item fill_min, fill_max
 
-The minmum and maxium x-value to fill between. If either of these are
+The minimum and maximum x-value to fill between. If either of these are
 not defined, then the fill will use the full domain of the function.
 Default: undefined
 
@@ -368,6 +375,11 @@ Default: undefined
 
 This defines the number of points to generate for a dataset from a function.
 Default: 30.
+
+=item polar
+
+If this option is set for a single variable function, the input variable is
+treated as an angle for the polar graph of C<< r = f(theta) >>. Default: 0
 
 =item tikz_smooth
 

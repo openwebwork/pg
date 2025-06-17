@@ -293,6 +293,7 @@ sub draw {
 				my $function = $data->function_string('y', 'PGF', 1);
 				if ($function ne '') {
 					$data->update_min_max;
+					$tikz_options .= ", data cs=polar" if $data->style('polar');
 					$tikz_options .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
 					$plot = "{$function}";
 				}
