@@ -1,0 +1,83 @@
+## DESCRIPTION
+## Dynamically generated graph of a function with shading
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Fitchburg State)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('calculus', 'dynamic graph with shading')
+
+#:% name = Graph Shading (plots)
+#:% type = Sample
+#:% subject = integral calculus
+#:% categories = [plots]
+
+#:% section = preamble
+#: The macro PODLINK('plots.pl') is used to create the plot.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: A randomly transformed version of `sqrt(x)` is created as the function with a
+#: reasonable answer.
+#:
+#: First create a `Plot` object with a plotting window that will capture the
+#: transformed function.  The function is then added to the plot with fill
+#: characteristics.  Note: it is important that the `name` atrribute is defined.
+
+$a    = random(-4, 2);
+$b    = random( 1, 4);
+$g    = Compute("$b + sqrt(x - $a)")->reduce;
+$area = Compute("3*$b + 14/3");
+
+$plot = Plot(
+    xmin        => -8,
+    xmax        =>  8,
+    ymin        => -2,
+    ymax        =>  8,
+    xtick_delta =>  1,
+    ytick_delta => 2
+);
+
+$plot->add_function(
+    $g, 'x', $a, 8,
+    color        => 'blue',
+    name         => 'A',
+    fill         => 'xaxis',
+    fill_min     => $a + 1,
+    fill_max     => $a + 4,
+    fill_color   => 'green',
+    fill_opacity => 0.5
+);
+
+$altText =
+    "The graph of f(x) is shown starting at the point ($a, $b) and increasing "
+    . "to the right, sharply at first, and less sharply as it continues to the "
+    . "right. The region from x = "
+    . ($a + 1)
+    . " to x = "
+    . ($a + 4)
+    . " that is above the x-axis and below the function is shaded.";
+
+#:% section = statement
+BEGIN_PGML
+Use the graph to find the area of the shaded region under [`f(x) = [$g]`].
+
+>>[![$altText]!]{$plot}{400}<<
+
+>>Graph of [`y = f(x)`].<<
+
+Area: [_]{$area}{15}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -11,7 +11,7 @@
 ## MO(1)
 ## KEYWORDS('parametric', 'graph')
 
-#:% name = Parametric Curve Graph
+#:% name = Parametric Curve Graph (tikz)
 #:% types = [Sample, technique]
 #:% subject = parametric
 

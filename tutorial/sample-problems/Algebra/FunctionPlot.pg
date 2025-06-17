@@ -1,0 +1,70 @@
+## DESCRIPTION
+## A dynamic plot of a quadratic function
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(07/01/2025)
+## Institution(Boise State University)
+## Author(Jaimos Skriletz)
+## MO(1)
+## KEYWORDS('algebra', 'precalculus', 'quadratic', 'plot')
+
+#:% name = Function Plot
+#:% type = Sample
+#:% subject = [algebra, precalculus, plot]
+#:% categories = [plot]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: For this problem, a plot of \(y = ax^2\) for a random value of \(a\) is
+#: generated. Create a Plot object with the given plotting window and other
+#: axis properties.
+#:
+#: The `add_function` method takes a string with the function and properties of
+#: the plot. The `{-3,3}` is the domain of the plot where curly braces produces
+#: arrows.  Other formats for this are `(-3,3)` for open endpoints and `[-3,3]`
+#: are closed endpoints.  They can be mixed.
+
+$a = non_zero_random(-3, 3);
+
+$plot = Plot(
+    xmin        => -3.2,
+    xmax        =>  3.2,
+    ymin        => -10,
+    ymax        =>  10,
+    xtick_delta =>  1,
+    ytick_delta =>  2,
+    xlabel      => '\(x\)',
+    ylabel      => '\(y\)',
+);
+
+$plot->add_function("$a x^2 for x in {-3,3} using color:blue, width:3");
+
+#:% section = statement
+#: By default, the plot uses JSXGraph to plot the graph in HTML and will use
+#: tikz/pgfplots to produce the hardcopy.
+#:
+#: The `[! !]{}{}` is a PGML format for inserting an image, with the first
+#: argument is the alternate text for the image, the second argument is the
+#: plot and the third is the width of the plot.
+BEGIN_PGML
+The following plot is a quadratic:
+
+>>[! Plot of a quadratic function !]{$plot}{500}<<
+
+What is the form of the function?  [`f(x)=`] [_]{Compute("$a x^2")}
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
