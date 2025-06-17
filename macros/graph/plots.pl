@@ -359,7 +359,7 @@ and only fills in the area between x=-2 and x=2:
 
 =item fill_color
 
-The color used when filling the region. Default: 'default_color'
+The color used when filling the region. Default: C<color>
 
 =item fill_opacity
 

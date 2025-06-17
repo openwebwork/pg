@@ -116,7 +116,7 @@ sub get_options {
 		: (),
 		$data->style('fill') eq 'self'
 		? (
-			fillColor   => $self->get_color($data->style('fill_color')),
+			fillColor   => $self->get_color($data->style('fill_color') || $data->style('color')),
 			fillOpacity => $data->style('fill_opacity')
 				|| 0.5
 			)
@@ -180,7 +180,7 @@ sub add_curve {
 		my $fill_max    = $data->str_to_real($data->style('fill_max'));
 		my $fillOptions = Mojo::JSON::encode_json({
 			strokeWidth => 0,
-			fillColor   => $self->get_color($data->style('fill_color')),
+			fillColor   => $self->get_color($data->style('fill_color') || $data->style('color')),
 			fillOpacity => $data->style('fill_opacity') || 0.5,
 			highlight   => 0,
 		});
