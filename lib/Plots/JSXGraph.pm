@@ -34,10 +34,14 @@ sub HTML {
 
 	my $imageviewClass = $self->plots->axes->style('jsx_navigation') ? '' : ' image-view-elt';
 	my $tabindex       = $self->plots->axes->style('jsx_navigation') ? '' : ' tabindex="0"';
+	my $details        = $self->plots->{description_details} =~ s/LONG-DESCRIPTION-ID/${name}_details/r;
+	my $aria_details   = $details ? qq! aria-details="${name}_details"! : '';
+	my $divs           = qq!<div id="jsxgraph-plot-$name" class="jxgbox plots-jsxgraph$imageviewClass"$tabindex!
+		. qq!style="width: ${width}px; height: ${height}px;"$aria_details></div>!;
+	$divs = qq!<div class="image-container">$divs$details</div>! if ($details);
 
 	return <<~ "END_HTML";
-		<div id="jsxgraph-plot-$name" class="jxgbox plots-jsxgraph$imageviewClass"$tabindex
-			style="width: ${width}px; height: ${height}px;"></div>
+		$divs
 		<script>
 		(async () => {
 			const drawBoard = (id) => {

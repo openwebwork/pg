@@ -2737,10 +2737,10 @@ sub row {
 
 Usage:
 
-    image($image, width => 200, height => 200, tex_size => 800, valign => 'middle', alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
+    image($image, width => ..., height => ..., tex_size => ..., valign => ..., alt => ..., long_description => ... );
 
 where C<$image> can be a local file path, URL, WWPlot object, PGlateximage object,
-PGtikz object, or parser::GraphTool object.
+PGtikz object, Plots::Plot object, or parser::GraphTool object.
 
 C<width> and C<height> are positive integer pixel counts for HTML display. If both
 are missing, C<width> will default to 200 and C<height> will remain undeclared,
@@ -2757,10 +2757,29 @@ is declared, we presume this is a wide image and then C<tex_size> defaults to 80
 C<valign> can be 'top', 'middle', or 'bottom'.  This aligns the image relative to
 the surrounding line of text.
 
-    image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => ['alt text 1','alt text 2'], extra_html_tags => 'style="border:solid black 1pt"');
-    image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => 'common alt text', extra_html_tags => 'style="border:solid black 1pt"');
+C<alt> should be a string, ideally with fewer than 125 characters, that describes the
+most important features of the image. This should always be used. If the image is
+decorative, C<< alt => '' >> should be used.
 
-this produces an array in array context and joins the elements with C<' '> in scalar context
+C<long_description> provides an optional way to give a more complete description of
+an image. This may include a table (for example to describe complex data in a graph).
+It may be helpful to generate blocks of text and tables and store them in a variable,
+and pass that variable to C<long_description>.
+
+C<extra_html_tags> [DEPRECATED] can be a string will directly be placed into the
+HTML img element. For example, C<< extra_html_tags => 'style="border:solid black 1pt"' >>.
+
+The first argument to C<image()> can alternatively be an array of images:
+
+    image([$image1, $image2], ...);
+
+If so then if C<alt> or C<long_description> are not arrays, they will be used
+repeatedly for each image. Each of C<alt> and C<long_description> can instead be
+arrays of the same length and their entries will be used with the corresponding
+image.
+
+In array context, using C<image()> this way will produces an array in array context
+and join the elements with C<' '> in scalar context.
 
 =cut
 
@@ -2778,8 +2797,9 @@ sub image {
 		tex_size => '',
 		valign   => 'middle',
 		# default value for alt is undef, since an empty string is the explicit indicator of a decorative image
-		alt             => undef,
-		extra_html_tags => '',
+		alt              => undef,
+		long_description => undef,
+		extra_html_tags  => '',
 	);
 	# handle options
 	my %out_options = %known_options;
@@ -2802,9 +2822,11 @@ sub image {
 	$tex_size = 1000 if $tex_size > 1000;
 
 	my $alt         = $out_options{alt};
+	my $desc        = $out_options{long_description};
 	my $width_ratio = $tex_size * (.001);
 	my @image_list  = ();
 	my @alt_list    = ();
+	my @desc_list   = ();
 	my $valign      = 'middle';
 	$valign = 'top'    if ($out_options{valign} eq 'top');
 	$valign = 'bottom' if ($out_options{valign} eq 'bottom');
@@ -2823,16 +2845,56 @@ sub image {
 	} else {
 		for my $i (@image_list) { push(@alt_list, $alt) }
 	}
+	if (ref($desc) =~ /ARRAY/) {
+		@desc_list = @{$desc};
+	} else {
+		for my $i (@image_list) { push(@desc_list, $desc) }
+	}
 
 	my @output_list = ();
 	while (@image_list) {
-		my $image_item = shift @image_list;
+		my $image_item          = shift @image_list;
+		my $description_details = '';
+		if ($desc) {
+			$description_details = tag(
+				'details',
+				'aria-live' => 'polite',
+				class       => 'image-details',
+				name        => 'image-details',
+				tag(
+					'summary',
+					class => 'mt-1',
+					title => 'details',
+					tag(
+						'span',
+						class         => 'badge badge-info bg-secondary',
+						'aria-hidden' => 'true',
+						maketext('image description')
+					)
+					)
+					. tag(
+						'div',
+						id    => 'LONG-DESCRIPTION-ID',
+						class => 'image-details-content bg-white py-2 px-3 my-2 border',
+						shift(@desc_list)
+						. tag('br')
+						. tag(
+							'button',
+							class   => 'image-details-dismiss badge badge-info bg-secondary',
+							type    => 'button',
+							onclick => "this.parentElement.parentElement.removeAttribute('open')",
+							maketext('Close image description')
+						)
+					)
+			);
+		}
 		if (ref $image_item eq 'parser::GraphTool') {
 			push(
 				@output_list,
 				$image_item->generateAnswerGraph(
-					$out_options{width}    || $out_options{height} ? (width   => $width, height => $height) : (),
-					$out_options{tex_size} || $out_options{width}  ? (texSize => $tex_size)                 : (),
+					$out_options{width} || $out_options{height}   ? (width           => $width, height => $height) : (),
+					$out_options{tex_size} || $out_options{width} ? (texSize         => $tex_size)                 : (),
+					$desc                                         ? (longDescription => $description_details)      : (),
 					ariaDescription => shift @alt_list // ''
 				)
 			);
@@ -2846,6 +2908,7 @@ sub image {
 			$image_item->axes->style(ariaDescription => shift @alt_list) if $out_options{alt};
 
 			if ($image_item->ext eq 'html') {
+				$image_item->{description_details} = $description_details;
 				push(@output_list, $image_item->draw);
 				next;
 			}
@@ -2862,6 +2925,7 @@ sub image {
 				|| ref $image_item eq 'PGtikz');
 		my $imageURL = alias($image_item) // '';
 		$imageURL = ($envir{use_site_prefix}) ? $envir{use_site_prefix} . $imageURL : $imageURL;
+		my $id  = $main::PG->getUniqueName('img');
 		my $out = "";
 
 		if ($displayMode eq 'TeX') {
@@ -2889,15 +2953,31 @@ sub image {
 		{
 			my $altattrib = '';
 			if (defined $alt_list[0]) { $altattrib = 'alt="' . encode_pg_and_html(shift @alt_list) . '"' }
-			$out =
-				qq!<IMG SRC="$imageURL" class="image-view-elt $valign" tabindex="0" role="button"$width_attrib$height_attrib $out_options{extra_html_tags} $altattrib>!;
+			if ($desc) {
+				$out .= tag(
+					'div',
+					class => 'image-container pb-2',
+					qq!<img src="$imageURL" class="image-view-elt $valign" tabindex="0" role="button"!
+						. qq!$width_attrib$height_attrib aria-details="${id}_details" $out_options{extra_html_tags} $altattrib>!
+						. ($description_details =~ s/LONG-DESCRIPTION-ID/${id}_details/r)
+				);
+			} else {
+				$out .= qq!<img src="$imageURL" class="image-view-elt $valign" tabindex="0" role="button"!
+					. qq!$width_attrib$height_attrib $out_options{extra_html_tags} $altattrib>!;
+			}
 		} elsif ($displayMode eq 'PTX') {
 			my $ptxwidth = ($width ? int($width / 6) : 80);
+			$out = qq!<image width="$ptxwidth%" source="$imageURL">!;
 			if (defined $alt) {
-				$out = qq!<image width="$ptxwidth%" source="$imageURL"><description>$alt</description></image>!;
-			} else {
-				$out = qq!<image width="$ptxwidth%" source="$imageURL" />!;
+				$out .= "\n<shortdescription>$alt</shortdescription>";
 			}
+			if (defined $desc) {
+				$out .= "\n<description>\n" . PTX_cleanup($desc) . "\n</description>";
+			}
+			if (defined $alt || defined $desc) {
+				$out .= "\n";
+			}
+			$out .= '</image>';
 		} else {
 			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
 		}

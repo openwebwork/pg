@@ -23,8 +23,8 @@ END_TIKZ
 ok my $img = image($drawing), 'img tag is generated';
 
 like $img, qr!
-	^<IMG\s
-	SRC="/pg_files/tmp/images/([a-z0-9_-]*)\.svg"\s
+	^<img\s
+	src="/pg_files/tmp/images/([a-z0-9_-]*)\.svg"\s
 	class="image-view-elt\smiddle"\s
 	tabindex="0"\s
 	role="button"\s

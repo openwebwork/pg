@@ -203,6 +203,25 @@
 	}
 }
 
+.image-container {
+	.image-details-content {
+		position: fixed;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		max-width: 90%;
+		box-shadow: 0 0 100px black;
+		border-top-left-radius: 4px;
+		border-top-right-radius: 4px;
+		z-index: 10;
+	}
+}
+
+.image-details-dismiss {
+	display: block;
+	float: right;
+}
+
 /* rtl:raw:
 .problem-content[dir=ltr] input[type=radio] {
 	margin-right: 0.25rem;
