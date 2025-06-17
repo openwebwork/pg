@@ -293,6 +293,17 @@ sub neg {
 	return $self->new(-$self->value, sigfigs => $self->{sigfigs});
 }
 
+# This promotes non-Sig fig numbers that are used in expressions to a sig fig
+# with infinite precision.
+
+sub promote {
+	my $self    = shift;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $value   = (scalar(@_)              ? shift : $self);
+	return $value->inContext($context) if Value::isValue($value) && $value->{sigfigs};
+	return $self->new($context, $value, sigfigs => 'inf');
+}
+
 # The compare method determines that the values are equal with the same number of significant figures.
 # This also handles inequalities as in other Reals.
 

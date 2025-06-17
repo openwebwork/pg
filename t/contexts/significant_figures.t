@@ -385,10 +385,24 @@ subtest 'Division' => sub {
 
 };
 
-# subtest 'Significant Figures for integers' => sub {
-# 	# my $a1 = Compute('1.0 * 10^2');
-# 	my $a1 = Compute('1.0E+02');
-# 	is $a1->format('E'), '1.0E+02', '1.0 * 10^2 internally is 1.0E+02';
-# };
+subtest 'Significant Figures for integers' => sub {
+	# my $a1 = Compute('1.0 * 10^2');
+	my $a1 = Compute('1.0E+02');
+	is $a1->format('E'), '1.0E+02', '1.0 * 10^2 internally is 1.0E+02';
+};
+
+# The following is used the test if an expression (like an average) has a non sig fig
+# perl number to get promoted to a sig fig with infinite precision.
+
+sub ave {
+	my $sum = 0;
+	$sum += $_ for (@_);
+	return $sum / @_;
+}
+
+subtest 'Check promotion rules' => sub {
+	is ave(3.11,       10.49,       6.72),       6.77333333333333, 'check perl averages';
+	is ave(Real(3.11), Real(10.49), Real(6.72)), 6.773,            'check average with sig fig';
+};
 
 done_testing();
