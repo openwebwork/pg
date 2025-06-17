@@ -160,6 +160,40 @@ MathObjects, or perl subroutines:
 
 It is preferred to use strings or MathObjects instead of perl subroutines.
 
+=head2 PLOT MULTIPATH FUNCTIONS
+
+A multipath function is defined using multiple parametric paths pieced together into into a single
+curve, whose primary use is to create a closed region to be filled using multiple boundaries.
+This is done by providing a list of parametric functions, the name of the parameter, and a list
+of options.
+
+    $plot->add_multipath(
+        [
+            [ $function_x1, $function_y1, $min1, $max1 ],
+            [ $function_x2, $function_y2, $min2, $max2 ],
+            ...
+        ],
+        $variable,
+        %options
+    );
+
+The paths have to be listed in the order they are followed, but the minimum/maximum values
+of the parameter can match the parametrization. The following example creates a sector of
+radius 5 between pi/4 and 3pi/4, by first drawing the line (0,0) to (5sqrt(2),5/sqrt(2)),
+then the arc of the circle of radius 5 from pi/4 to 3pi/4, followed by the final line from
+(-5sqrt(2), 5sqrt(2)) back to the origin.
+
+    $plot->add_multipath(
+        [
+            [ 't',       't',       0,           '5/sqrt(2)' ],
+            [ '5cos(t)', '5sin(t)', 'pi/4',      '3pi/4' ],
+            [ '-t',      't',       '5/sqrt(2)', 0 ],
+        ],
+        't',
+        color => 'green',
+        fill  => 'self',
+    );
+
 =head2 PLOT CIRCLES
 
 Circles can be added to the plot by specifing its center and radius using the

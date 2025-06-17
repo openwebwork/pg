@@ -281,6 +281,30 @@ sub add_function {
 	return ref($f) eq 'ARRAY' ? $self->_add_function($f->[0], $f->[1], @rest) : $self->_add_function(undef, $f, @rest);
 }
 
+sub add_multipath {
+	my ($self, $paths, $var, %options) = @_;
+	my $data  = Plots::Data->new(name => 'multipath');
+	my $steps = 500;                                     # Steps set high to help Tikz deal with boundaries of paths.
+	if ($options{steps}) {
+		$steps = $options{steps};
+		delete $options{steps};
+	}
+	$data->{context} = $self->context;
+	$data->{paths}   = [
+		map { {
+			Fx   => $data->get_math_object($_->[0], $var),
+			Fy   => $data->get_math_object($_->[1], $var),
+			tmin => $data->str_to_real($_->[2]),
+			tmax => $data->str_to_real($_->[3])
+		} } @$paths
+	];
+	$data->{function} = { var => $var, steps => $steps };
+	$data->style(color => 'default_color', width => 2, %options);
+
+	$self->add_data($data);
+	return $data;
+}
+
 # Add a dataset to the graph. A dataset is basically a function in which the data
 # is provided as a list of points, [$x1, $y1], [$x2, $y2], ..., [$xn, $yn].
 # Datasets can be used for points, arrows, lines, polygons, scatter plots, and so on.
