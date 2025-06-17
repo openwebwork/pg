@@ -131,7 +131,6 @@ sub configure_axes {
 	my $grid_color   = $axes->style('grid_color');
 	my $grid_color2  = $self->get_color($grid_color);
 	my $grid_alpha   = $axes->style('grid_alpha');
-	my $grid_style   = $axes->style('grid_style');
 	my $xlabel       = $axes->xaxis('label');
 	my $axis_x_line  = $axes->xaxis('location');
 	my $axis_x_pos   = $axes->xaxis('position');
@@ -172,7 +171,7 @@ sub configure_axes {
 			ymajorgrids=$ymajor,
 			yminorgrids=$yminor,
 			minor y tick num=$yminor_num,
-			grid style={$grid_color!$grid_alpha, $grid_style},
+			grid style={$grid_color!$grid_alpha},
 			xmin=$xmin,
 			xmax=$xmax,
 			ymin=$ymin,

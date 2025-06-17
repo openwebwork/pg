@@ -163,11 +163,6 @@ Either draw (1) or don't draw (0) the grid lines for the axis. Default is 1.
 
 The color of the grid lines. Default is 'gray'.
 
-=item grid_style
-
-The line style of grid lines. This can be 'dashed', 'dotted', 'solid', etc.
-Default is 'solid'.
-
 =item grid_alpha
 
 The alpha value to use to draw the grid lines in Tikz. This is a number from
@@ -175,7 +170,7 @@ The alpha value to use to draw the grid lines in Tikz. This is a number from
 
 =item axis_on_top
 
-Configures if the axis should be drawn on top of the graph (1) or below the graph (0).
+Configures if the Tikz axis should be drawn on top of the graph (1) or below the graph (0).
 Useful when filling a region that covers an axis, if the axis are on top they will still
 be visible after the fill, otherwise the fill will cover the axis. Default: 0
 
@@ -207,7 +202,6 @@ sub new {
 		styles => {
 			title      => '',
 			grid_color => 'gray',
-			grid_style => 'solid',
 			grid_alpha => 40,
 			show_grid  => 1,
 		},
