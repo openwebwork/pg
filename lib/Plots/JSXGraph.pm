@@ -142,24 +142,24 @@ sub add_curve {
 	if ($data->name eq 'function') {
 		my $f = $data->{function};
 		if (ref($f->{Fx}) ne 'CODE' && $f->{xvar} eq $f->{Fx}->string) {
-			my $function = $data->function_string('y', 'js', 1);
+			my $function = $data->function_string($f->{Fy}, 'js', $f->{xvar});
 			if ($function ne '') {
 				$data->update_min_max;
 				my $min = $data->style('continue') || $data->style('continue_left')  ? '' : $f->{xmin};
 				my $max = $data->style('continue') || $data->style('continue_right') ? '' : $f->{xmax};
 				if ($data->style('polar')) {
-					$data_points = "[t => $function, [0, 0], $min, $max]";
+					$data_points = "[x => $function, [0, 0], $min, $max]";
 				} else {
 					$type        = 'functiongraph';
-					$data_points = "[t => $function, $min, $max]";
+					$data_points = "[x => $function, $min, $max]";
 				}
 			}
 		} else {
-			my $xfunction = $data->function_string('x', 'js', 1);
-			my $yfunction = $data->function_string('y', 'js', 1);
+			my $xfunction = $data->function_string($f->{Fx}, 'js', $f->{xvar});
+			my $yfunction = $data->function_string($f->{Fy}, 'js', $f->{xvar});
 			if ($xfunction ne '' && $yfunction ne '') {
 				$data->update_min_max;
-				$data_points = "[t => $xfunction, t => $yfunction, $f->{xmin}, $f->{xmax}]";
+				$data_points = "[x => $xfunction, x => $yfunction, $f->{xmin}, $f->{xmax}]";
 			}
 		}
 	}
@@ -228,6 +228,41 @@ sub add_curve {
 				. "board.update();";
 		}
 	}
+	return;
+}
+
+sub add_multipath {
+	my ($self, $data) = @_;
+	return if $data->style('linestyle') eq 'none';
+
+	my @paths       = @{ $data->{paths} };
+	my $n           = scalar(@paths);
+	my $var         = $data->{function}{var};
+	my $curve_name  = $data->style('name');
+	my $plotOptions = $self->get_options($data);
+	my $jsFunctionx = 'function (x){';
+	my $jsFunctiony = 'function (x){';
+
+	for (0 .. $#paths) {
+		my $path = $paths[$_];
+		my $a    = $_ / $n;
+		my $b    = ($_ + 1) / $n;
+		my $tmin = $path->{tmin};
+		my $tmax = $path->{tmax};
+		my $m    = ($tmax - $tmin) / ($b - $a);
+		my $tmp  = $a < 0 ? 'x+' . (-$a)       : "x-$a";
+		my $t    = $m < 0 ? "($tmin$m*($tmp))" : "($tmin+$m*($tmp))";
+
+		my $xfunction = $data->function_string($path->{Fx}, 'js', $var, undef, $t);
+		my $yfunction = $data->function_string($path->{Fy}, 'js', $var, undef, $t);
+		$jsFunctionx .= "if(x<$b){return $xfunction;}";
+		$jsFunctiony .= "if(x<$b){return $yfunction;}";
+	}
+	$jsFunctionx .= 'return 0;}';
+	$jsFunctiony .= 'return 0;}';
+
+	$self->{JS} .= "const curve_${curve_name} = " if $curve_name;
+	$self->{JS} .= "board.create('curve', [$jsFunctionx, $jsFunctiony, 0, 1], $plotOptions);";
 	return;
 }
 
@@ -464,11 +499,13 @@ sub draw {
 	$self->init_graph;
 
 	# Plot Data
-	for my $data ($plots->data('function', 'dataset', 'circle', 'arc')) {
+	for my $data ($plots->data('function', 'dataset', 'circle', 'arc', 'multipath')) {
 		if ($data->name eq 'circle') {
 			$self->add_circle($data);
 		} elsif ($data->name eq 'arc') {
 			$self->add_arc($data);
+		} elsif ($data->name eq 'multipath') {
+			$self->add_multipath($data);
 		} else {
 			$self->add_curve($data);
 			$self->add_points($data);
@@ -477,11 +514,11 @@ sub draw {
 
 	# Vector/Slope Fields
 	for my $data ($plots->data('vectorfield')) {
-		my $xfunction = $data->function_string('x', 'js', 2);
-		my $yfunction = $data->function_string('y', 'js', 2);
+		my $f         = $data->{function};
+		my $xfunction = $data->function_string($f->{Fx}, 'js', $f->{xvar}, $f->{yvar});
+		my $yfunction = $data->function_string($f->{Fy}, 'js', $f->{xvar}, $f->{yvar});
 
 		if ($xfunction ne '' && $yfunction ne '') {
-			my $f       = $data->{function};
 			my $options = $self->get_options(
 				$data,
 				scale => $data->style('scale') || 1,

@@ -257,7 +257,7 @@ sub draw {
 	my $tikzCode = $self->configure_axes;
 
 	# Plot Data
-	for my $data ($plots->data('function', 'dataset', 'circle', 'arc')) {
+	for my $data ($plots->data('function', 'dataset', 'circle', 'arc', 'multipath')) {
 		my $n            = $data->size;
 		my $color        = $data->style('color')      || 'default_color';
 		my $fill         = $data->style('fill')       || 'none';
@@ -290,7 +290,7 @@ sub draw {
 		if ($data->name eq 'function') {
 			my $f = $data->{function};
 			if (ref($f->{Fx}) ne 'CODE' && $f->{xvar} eq $f->{Fx}->string) {
-				my $function = $data->function_string('y', 'PGF', 1);
+				my $function = $data->function_string($f->{Fy}, 'PGF', $f->{xvar});
 				if ($function ne '') {
 					$data->update_min_max;
 					$tikz_options .= ", data cs=polar" if $data->style('polar');
@@ -298,14 +298,38 @@ sub draw {
 					$plot = "{$function}";
 				}
 			} else {
-				my $xfunction = $data->function_string('x', 'PGF', 1);
-				my $yfunction = $data->function_string('y', 'PGF', 1);
+				my $xfunction = $data->function_string($f->{Fx}, 'PGF', $f->{xvar});
+				my $yfunction = $data->function_string($f->{Fy}, 'PGF', $f->{xvar});
 				if ($xfunction ne '' && $yfunction ne '') {
 					$data->update_min_max;
 					$tikz_options .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
 					$plot = "({$xfunction}, {$yfunction})";
 				}
 			}
+		}
+		if ($data->name eq 'multipath') {
+			my $var   = $data->{function}{var};
+			my @paths = @{ $data->{paths} };
+			my $n     = scalar(@paths);
+			my @tikzFunctionx;
+			my @tikzFunctiony;
+			for (0 .. $#paths) {
+				my $path = $paths[$_];
+				my $a    = $_ / $n;
+				my $b    = ($_ + 1) / $n;
+				my $tmin = $path->{tmin};
+				my $tmax = $path->{tmax};
+				my $m    = ($tmax - $tmin) / ($b - $a);
+				my $tmp  = $a < 0 ? 'x+' . (-$a)       : "x-$a";
+				my $t    = $m < 0 ? "($tmin$m*($tmp))" : "($tmin+$m*($tmp))";
+
+				my $xfunction = $data->function_string($path->{Fx}, 'PGF', $var, undef, $t);
+				my $yfunction = $data->function_string($path->{Fy}, 'PGF', $var, undef, $t);
+				push(@tikzFunctionx, "(x>=$a)*(x<$b)*($xfunction)");
+				push(@tikzFunctiony, "(x>=$a)*(x<$b)*($yfunction)");
+			}
+			$tikz_options .= ", domain=0:1, samples=$data->{function}{steps}";
+			$plot = "\n({" . join("\n+", @tikzFunctionx) . "},\n{" . join("\n+", @tikzFunctiony) . '})';
 		}
 		unless ($plot) {
 			$data->gen_data;
@@ -329,11 +353,11 @@ sub draw {
 
 	# Vector/Slope Fields
 	for my $data ($plots->data('vectorfield')) {
-		my $xfunction = $data->function_string('x', 'PGF', 2);
-		my $yfunction = $data->function_string('y', 'PGF', 2);
+		my $f         = $data->{function};
+		my $xfunction = $data->function_string($f->{Fx}, 'PGF', $f->{xvar}, $f->{yvar});
+		my $yfunction = $data->function_string($f->{Fy}, 'PGF', $f->{xvar}, $f->{yvar});
 		my $arrows    = $data->style('slopefield') ? '' : ', -stealth';
 		if ($xfunction ne '' && $yfunction ne '') {
-			my $f            = $data->{function};
 			my $color        = $data->style('color');
 			my $width        = $data->style('width');
 			my $scale        = $data->style('scale');
