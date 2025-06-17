@@ -196,7 +196,7 @@ sub get_plot_opts {
 	my $end          = $data->style('end_mark')   || 'none';
 	my $name         = $data->style('name');
 	my $fill         = $data->style('fill')         || 'none';
-	my $fill_color   = $data->style('fill_color')   || 'default_color';
+	my $fill_color   = $data->style('fill_color')   || $data->style('color') || 'default_color';
 	my $fill_opacity = $data->style('fill_opacity') || 0.5;
 	my $tikz_options = $data->style('tikz_options') ? ', ' . $data->style('tikz_options') : '';
 	my $smooth       = $data->style('tikz_smooth')  ? 'smooth, '                          : '';
@@ -261,7 +261,7 @@ sub draw {
 		my $n            = $data->size;
 		my $color        = $data->style('color')      || 'default_color';
 		my $fill         = $data->style('fill')       || 'none';
-		my $fill_color   = $data->style('fill_color') || 'default_color';
+		my $fill_color   = $data->style('fill_color') || $data->style('color') || 'default_color';
 		my $tikz_options = $self->get_plot_opts($data);
 		$tikzCode .= $self->get_color($color);
 		$tikzCode .= $self->get_color($fill_color) unless $fill eq 'none';
