@@ -11,7 +11,7 @@
 ## MO(1)
 ## KEYWORDS('parametric', 'graph polar curve')
 
-#:% name = Polar Graph
+#:% name = Polar Graph (tikz)
 #:% type = [sample, technique]
 #:% subject = [parametric]
 

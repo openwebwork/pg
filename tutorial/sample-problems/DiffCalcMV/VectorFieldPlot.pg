@@ -1,0 +1,73 @@
+## DESCRIPTION
+## Use the plots.pl macro to generate a vector/direction field.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2025)
+## Institution(Boise State University)
+## Author(Jaimos Skriletz)
+## MO(1)
+## KEYWORDS('multivariable calculus', 'vector field', 'direction field')
+
+#:% name = Vector Field Plot
+#:% type = Sample
+#:% subject = multivariable calculus
+#:% categories = [plots]
+
+#:% section = preamble
+#: The macro PODLINK('plots.pl') is used to create the plot.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This problem generates the vector field <sin y, cos x>.  First, create a
+#: `Plot` object where the axes are placed in the bottom left corner (instead
+#: of the origin).
+#:
+#: The vector field is created with the `add_vectorfield` method.  Most of the
+#: attributes shown are required.  The `scale` attribute gives a relative
+#: size of the arrows and `normalize` will make a direction field (the length
+#: of all vectors are equal).
+$plot = Plot(xlocation => 'bottom', ylocation => 'left');
+
+$plot->add_vectorfield(
+    Fx        => 'sin(y)',
+    Fy        => 'cos(x)',
+    xvar      => 'x',
+    yvar      => 'y',
+    xmin      => -4,
+    xmax      =>  4,
+    ymin      => -4,
+    ymax      =>  4,
+    xsteps    =>  20,
+    ysteps    =>  15,
+    color     => 'blue',
+    scale     => 0.5,
+    normalize => 1,
+);
+
+$altText =
+    'The direction field graph of <sin(x), cos(x)> which look a '
+    . 'clockwise swirl centered at (pi/2,0), and two counterclockwise '
+    . 'swirls at (-pi/2,pi) and (-pi/2,-pi) among others.  The plotting '
+    . 'window is [-4,4] x [-4,4]';
+
+#:% section = statement
+BEGIN_PGML
+
+The following is a vector field plot of [`\langle \sin x, \cos x \rangle`] on
+the domain [`[-4,4] \times [-4,4]`].
+
+>>[![$altText]!]{$plot}{400}<<
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

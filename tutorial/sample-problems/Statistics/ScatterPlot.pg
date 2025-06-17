@@ -1,0 +1,94 @@
+## DESCRIPTION
+## Scatter Plot with best-fit line
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(07/01/2025)
+## Institution(Boise State University)
+## Author(Jaimos Skriletz)
+## MO(1)
+## KEYWORDS('riemann sum', 'plot')
+
+#:% name = Scatter Plot
+#:% type = Sample
+#:% subject = [statistics, plot]
+#:% categories = [plots]
+
+#:% section = preamble
+#: Make sure that PODLINK('plots.pl') is loaded.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl', 'PGML.pl',
+    'plots.pl',      'PGstatisticsmacros.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
+#: For this problem, we have a data set stored as an array of array
+#: references.  First we find the best-fit line using the `linear_regression`
+#: function of PODLINK('PGstatisticsmacros.pl').  Note: the x and y data
+#: needs to be array references and the 2nd and 3rd lines extract the
+#: components.
+#:
+#: For the plot, first set up the `Plot` with a plotting window that will
+#: caputure the data. The `add_dataset` method adds the data to the plot
+#: with circles and color blue.
+#:
+#: The line is added to the dataset with the `add_function` method.  The 3rd
+#: and 4th arguments are the xmin and xmax of the domain.
+
+@data = ([ 5, 40 ], [ 7, 120 ], [ 12, 180 ], [ 16, 210 ], [ 20, 240 ]);
+
+$x = [ map { $_->[0] } @data ];
+$y = [ map { $_->[1] } @data ];
+($m, $b) = linear_regression($x, $y);
+
+$plot = Plot(
+    xmin        => 0,
+    xmax        => 24,
+    xtick_delta => 4,
+    ymin        => 0,
+    ymax        => 300,
+    aria_label  => 'Linear Regression'
+);
+$plot->add_dataset(
+    @data,
+    linestyle => 'none',
+    marks     => 'circle',
+    color     => 'blue'
+);
+$plot->add_function(
+    "$m x + $b",
+    'x',
+    1,
+    23,
+    color => 'black',
+    width => 1,
+);
+
+#:% section = statement
+#: The data is formatted by putting the array data in a nice format using both
+#: join (which joins an array separated by ', ') and map (which creates a new
+#: array that formats as (x1, y1)).  The [@ @] is used to run perl.
+#:
+#: The `[! !]{}{}` is a PGML format for inserting an image.
+BEGIN_PGML
+A scatter plot of the data:
+
+[``` [@ join(', ', map { "($_->[0], $_->[1])" }  @data)  @] ```]
+
+together with the best-fit line is given by the following plot.
+
+>> [! Scatter Plot with best fit line !]{$plot}{500} <<
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
