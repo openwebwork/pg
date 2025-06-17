@@ -135,7 +135,7 @@ sub add_curve {
 
 	my $curve_name  = $data->style('name');
 	my $fill        = $data->style('fill') || 'none';
-	my $plotOptions = $self->get_options($data);
+	my $plotOptions = $self->get_options($data, $data->style('polar') ? (curveType => 'polar') : ());
 
 	my $type = 'curve';
 	my $data_points;
@@ -147,8 +147,12 @@ sub add_curve {
 				$data->update_min_max;
 				my $min = $data->style('continue') || $data->style('continue_left')  ? '' : $f->{xmin};
 				my $max = $data->style('continue') || $data->style('continue_right') ? '' : $f->{xmax};
-				$type        = 'functiongraph';
-				$data_points = "[t => $function, $min, $max]";
+				if ($data->style('polar')) {
+					$data_points = "[t => $function, [0, 0], $min, $max]";
+				} else {
+					$type        = 'functiongraph';
+					$data_points = "[t => $function, $min, $max]";
+				}
 			}
 		} else {
 			my $xfunction = $data->function_string('x', 'js', 1);
