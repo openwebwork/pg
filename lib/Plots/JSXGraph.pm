@@ -429,6 +429,8 @@ sub init_graph {
 		ticks => {
 			drawLabels    => $axes->xaxis('tick_labels') && $axes->xaxis('show_ticks') ? 1 : 0,
 			drawZero      => $x_draw_zero,
+			strokeColor   => $self->get_color($axes->style('grid_color')),
+			strokeOpacity => $axes->style('grid_alpha') / 200,
 			insertTicks   => 0,
 			ticksDistance => $axes->xaxis('tick_delta'),
 			majorHeight   => $axes->xaxis('show_ticks') ? ($show_grid && $axes->xaxis('major') ? -1 : 10) : 0,
@@ -466,6 +468,8 @@ sub init_graph {
 		ticks => {
 			drawLabels    => $axes->yaxis('tick_labels') && $axes->yaxis('show_ticks') ? 1 : 0,
 			drawZero      => $y_draw_zero,
+			strokeColor   => $self->get_color($axes->style('grid_color')),
+			strokeOpacity => $axes->style('grid_alpha') / 200,
 			insertTicks   => 0,
 			ticksDistance => $axes->yaxis('tick_delta'),
 			majorHeight   => $axes->yaxis('show_ticks') ? ($show_grid && $axes->yaxis('major') ? -1 : 10) : 0,
