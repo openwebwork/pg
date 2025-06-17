@@ -257,10 +257,13 @@ sub function_string {
 
 	# Ensure -x^2 gets print as -(x^2), since JavaScript finds this ambiguous.
 	my $extraParens = $formula->context->flag('showExtraParens');
+	my $format      = $formula->context->{format}{number};
 	$formula->context->flags->set(showExtraParens => 2);
+	$formula->context->{format}{number} = "%f#";
 	my $func = $formula->string;
 	$func =~ s/\s//g;
 	$formula->context->flags->set(showExtraParens => $extraParens);
+	$formula->context->{format}{number} = $format;
 
 	my %tokens;
 	if ($type eq 'PGF') {
