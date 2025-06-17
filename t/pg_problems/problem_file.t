@@ -8,7 +8,7 @@ use Test2::V0;
 use WeBWorK::PG;
 
 ok my $pg = WeBWorK::PG->new(
-	sourceFilePath => "$ENV{PG_ROOT}/t/pg_test_problems/blankProblem.pg",
+	sourceFilePath => "$ENV{PG_ROOT}/t/pg_problems/blankProblem.pg",
 	inputs_ref     => { AnSwEr0001 => '3.14159' },
 	processAnswers => 1,
 	),
