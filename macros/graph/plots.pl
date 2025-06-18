@@ -28,7 +28,7 @@ First create a Plots object:
         ytick_delta => 50,
         xlabel      => '\(t\)',
         ylabel      => '\(h(t)\)',
-        ariaLabel   => 'Height of an object as a function of time.',
+        aria_label  => 'Height of an object as a function of time.',
         axes_on_top => 1,
     );
 
