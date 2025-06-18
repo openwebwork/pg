@@ -2840,10 +2840,10 @@ sub image {
 		}
 		if (ref $image_item eq 'Plots::Plot') {
 			# Update image attributes as needed.
-			$image_item->{width}           = $width          if $out_options{width};
-			$image_item->{height}          = $height         if $out_options{height};
-			$image_item->{tex_size}        = $tex_size       if $out_options{tex_size};
-			$image_item->{ariaDescription} = shift @alt_list if $out_options{alt};
+			$image_item->{width}    = $width    if $out_options{width};
+			$image_item->{height}   = $height   if $out_options{height};
+			$image_item->{tex_size} = $tex_size if $out_options{tex_size};
+			$image_item->axes->style(ariaDescription => shift @alt_list) if $out_options{alt};
 
 			if ($image_item->ext eq 'html') {
 				push(@output_list, $image_item->draw);

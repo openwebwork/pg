@@ -395,8 +395,8 @@ sub init_graph {
 	$ymax += 0.11 * ($ymax - $ymin) if $xaxis_loc eq 'top'    || $ymax == $xaxis_pos;
 
 	my $JSXOptions = Mojo::JSON::encode_json({
-		title          => $axes->style('title') || 'Graph',
-		description    => $plots->{ariaDescription},
+		title          => $axes->style('ariaLabel'),
+		description    => $axes->style('ariaDescription'),
 		boundingBox    => [ $xmin, $ymax, $xmax, $ymin ],
 		axis           => 0,
 		showNavigation => $allow_navigation,

@@ -23,18 +23,17 @@ sub new {
 	my $size = eval('$main::envir{onTheFlyImageSize}') || 350;
 
 	my $self = bless {
-		imageName       => {},
-		width           => $size,
-		height          => $size,
-		tex_size        => 600,
-		ariaDescription => 'Generated graph',
-		axes            => Plots::Axes->new,
-		colors          => {},
-		data            => [],
+		imageName => {},
+		width     => $size,
+		height    => $size,
+		tex_size  => 600,
+		axes      => Plots::Axes->new,
+		colors    => {},
+		data      => [],
 	}, $class;
 
 	# Besides for these core options, pass everything else to the Axes object.
-	for ('width', 'height', 'tex_size', 'ariaDescription') {
+	for ('width', 'height', 'tex_size') {
 		if ($options{$_}) {
 			$self->{$_} = $options{$_};
 			delete $options{$_};
