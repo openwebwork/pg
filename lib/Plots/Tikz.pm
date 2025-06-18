@@ -339,13 +339,17 @@ sub draw {
 		$tikzCode .= "\\addplot[$tikz_options] $plot;\n";
 
 		unless ($fill eq 'none' || $fill eq 'self') {
-			my $name       = $data->style('name');
-			my $opacity    = $data->style('fill_opacity') || 0.5;
-			my $fill_min   = $data->style('fill_min');
-			my $fill_max   = $data->style('fill_max');
-			my $fill_range = $fill_min ne '' && $fill_max ne '' ? ", soft clip={domain=$fill_min:$fill_max}" : '';
-			$opacity *= 100;
-			$tikzFill .= "\\addplot[$fill_color!$opacity] fill between[of=$name and $fill$fill_range];\n";
+			my $name = $data->style('name');
+			if ($name) {
+				my $opacity    = $data->style('fill_opacity') || 0.5;
+				my $fill_min   = $data->style('fill_min');
+				my $fill_max   = $data->style('fill_max');
+				my $fill_range = $fill_min ne '' && $fill_max ne '' ? ", soft clip={domain=$fill_min:$fill_max}" : '';
+				$opacity *= 100;
+				$tikzFill .= "\\addplot[$fill_color!$opacity] fill between[of=$name and $fill$fill_range];\n";
+			} else {
+				warn "Unable to create fill. Missing 'name' attribute.";
+			}
 		}
 	}
 	# Add fills last to ensure all named graphs have been plotted first.

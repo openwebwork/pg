@@ -351,8 +351,9 @@ Default: undefined
 Sets the fill method to use. If set to 'none', no fill will be added.
 If set to 'self', the object fills within itself, best used with closed
 datasets. If set to 'xaxis', this will fill the area between the curve
-and the x-axis. If set to another non-empty string, this is the name of the
-other dataset to fill against.
+and the x-axis. If set to another non-empty string, this is the name of
+the other dataset to fill against. The C<name> attribute must be set to
+fill between the 'xaxis' or another curve.
 
 The following creates a filled rectangle:
 
