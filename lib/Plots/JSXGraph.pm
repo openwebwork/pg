@@ -175,57 +175,61 @@ sub add_curve {
 	$self->add_point($data, $data->get_end_point, $data->style('width'), $data->style('end_mark'))
 		if $data->style('end_mark') =~ /circle/;
 
-	if ($curve_name && $fill ne 'none' && $fill ne 'self') {
-		my $fill_min    = $data->str_to_real($data->style('fill_min'));
-		my $fill_max    = $data->str_to_real($data->style('fill_max'));
-		my $fillOptions = Mojo::JSON::encode_json({
-			strokeWidth => 0,
-			fillColor   => $self->get_color($data->style('fill_color') || $data->style('color')),
-			fillOpacity => $data->style('fill_opacity') || 0.5,
-			highlight   => 0,
-		});
+	if ($fill ne 'none' && $fill ne 'self') {
+		if ($curve_name) {
+			my $fill_min    = $data->str_to_real($data->style('fill_min'));
+			my $fill_max    = $data->str_to_real($data->style('fill_max'));
+			my $fillOptions = Mojo::JSON::encode_json({
+				strokeWidth => 0,
+				fillColor   => $self->get_color($data->style('fill_color') || $data->style('color')),
+				fillOpacity => $data->style('fill_opacity') || 0.5,
+				highlight   => 0,
+			});
 
-		if ($fill eq 'xaxis') {
-			$self->{JSend} .=
-				"const fill_${curve_name} = board.create('curve', [[], []], $fillOptions);"
-				. "fill_${curve_name}.updateDataArray = function () {"
-				. "const points = curve_${curve_name}.points";
-			if ($fill_min ne '' && $fill_max ne '') {
+			if ($fill eq 'xaxis') {
 				$self->{JSend} .=
-					".filter(p => {"
-					. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
+					"const fill_${curve_name} = board.create('curve', [[], []], $fillOptions);"
+					. "fill_${curve_name}.updateDataArray = function () {"
+					. "const points = curve_${curve_name}.points";
+				if ($fill_min ne '' && $fill_max ne '') {
+					$self->{JSend} .=
+						".filter(p => {"
+						. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
+				}
+				$self->{JSend} .=
+					";this.dataX = points.map( p => p.usrCoords[1] );"
+					. "this.dataY = points.map( p => p.usrCoords[2] );"
+					. "this.dataX.push(points[points.length - 1].usrCoords[1], "
+					. "points[0].usrCoords[1], points[0].usrCoords[1]);"
+					. "this.dataY.push(0, 0, points[0].usrCoords[2]);" . "};"
+					. "board.update();";
+			} else {
+				$self->{JSend} .=
+					"const fill_${curve_name} = board.create('curve', [[], []], $fillOptions);"
+					. "fill_${curve_name}.updateDataArray = function () {"
+					. "const points1 = curve_${curve_name}.points";
+				if ($fill_min ne '' && $fill_max ne '') {
+					$self->{JSend} .=
+						".filter(p => {"
+						. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
+				}
+				$self->{JSend} .= ";const points2 = curve_${fill}.points";
+				if ($fill_min ne '' && $fill_max ne '') {
+					$self->{JSend} .=
+						".filter(p => {"
+						. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
+				}
+				$self->{JSend} .=
+					";this.dataX = points1.map( p => p.usrCoords[1] ).concat("
+					. "points2.map( p => p.usrCoords[1] ).reverse());"
+					. "this.dataY = points1.map( p => p.usrCoords[2] ).concat("
+					. "points2.map( p => p.usrCoords[2] ).reverse());"
+					. "this.dataX.push(points1[0].usrCoords[1]);"
+					. "this.dataY.push(points1[0].usrCoords[2]);" . "};"
+					. "board.update();";
 			}
-			$self->{JSend} .=
-				";this.dataX = points.map( p => p.usrCoords[1] );"
-				. "this.dataY = points.map( p => p.usrCoords[2] );"
-				. "this.dataX.push(points[points.length - 1].usrCoords[1], "
-				. "points[0].usrCoords[1], points[0].usrCoords[1]);"
-				. "this.dataY.push(0, 0, points[0].usrCoords[2]);" . "};"
-				. "board.update();";
 		} else {
-			$self->{JSend} .=
-				"const fill_${curve_name} = board.create('curve', [[], []], $fillOptions);"
-				. "fill_${curve_name}.updateDataArray = function () {"
-				. "const points1 = curve_${curve_name}.points";
-			if ($fill_min ne '' && $fill_max ne '') {
-				$self->{JSend} .=
-					".filter(p => {"
-					. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
-			}
-			$self->{JSend} .= ";const points2 = curve_${fill}.points";
-			if ($fill_min ne '' && $fill_max ne '') {
-				$self->{JSend} .=
-					".filter(p => {"
-					. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
-			}
-			$self->{JSend} .=
-				";this.dataX = points1.map( p => p.usrCoords[1] ).concat("
-				. "points2.map( p => p.usrCoords[1] ).reverse());"
-				. "this.dataY = points1.map( p => p.usrCoords[2] ).concat("
-				. "points2.map( p => p.usrCoords[2] ).reverse());"
-				. "this.dataX.push(points1[0].usrCoords[1]);"
-				. "this.dataY.push(points1[0].usrCoords[2]);" . "};"
-				. "board.update();";
+			warn "Unable to create fill. Missing 'name' attribute.";
 		}
 	}
 	return;
