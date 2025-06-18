@@ -110,9 +110,9 @@ sub get_options {
 		strokeColor => $self->get_color($data->style('color')),
 		strokeWidth => $data->style('width'),
 		$data->style('start_mark') eq 'arrow'
-		? (firstArrow => { type => 4, size => $data->style('arrow_size') || 10 })
+		? (firstArrow => { type => 4, size => $data->style('arrow_size') || 8 })
 		: (),
-		$data->style('end_mark') eq 'arrow' ? (lastArrow => { type => 4, size => $data->style('arrow_size') || 10 })
+		$data->style('end_mark') eq 'arrow' ? (lastArrow => { type => 4, size => $data->style('arrow_size') || 8 })
 		: (),
 		$data->style('fill') eq 'self'
 		? (
