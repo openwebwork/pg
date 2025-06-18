@@ -20,12 +20,11 @@ use Plots::GD;
 
 sub new {
 	my ($class, %options) = @_;
-	my $size = eval('$main::envir{onTheFlyImageSize}') || 350;
 
 	my $self = bless {
 		imageName => {},
-		width     => $size,
-		height    => $size,
+		width     => eval('$main::envir{onTheFlyImageSize}') || 350,
+		height    => undef,
 		tex_size  => 600,
 		axes      => Plots::Axes->new,
 		colors    => {},
@@ -109,8 +108,20 @@ sub color_init {
 }
 
 sub size {
-	my $self = shift;
-	return wantarray ? ($self->{width}, $self->{height}) : [ $self->{width}, $self->{height} ];
+	my $self   = shift;
+	my $axes   = $self->axes;
+	my $width  = $self->{width};
+	my $height = $self->{height};
+	unless ($height) {
+		if ($axes->style('aspect_ratio')) {
+			my $x_size = $axes->xaxis('max') - $axes->xaxis('min');
+			my $y_size = $axes->yaxis('max') - $axes->yaxis('min');
+			$height = int($axes->style('aspect_ratio') * $width * $y_size / $x_size);
+		} else {
+			$height = $width;
+		}
+	}
+	return wantarray ? ($width, $height) : [ $width, $height ];
 }
 
 sub data {
