@@ -162,7 +162,7 @@ sub image_type {
 		@validExt = ('html');
 	} elsif ($type eq 'tikz') {
 		$self->{type} = 'Tikz';
-		@validExt = ('svg', 'png', 'pdf');
+		@validExt = ('svg', 'png', 'pdf', 'gif', 'tgz');
 	} elsif ($type eq 'gd') {
 		$self->{type} = 'GD';
 		@validExt = ('png', 'gif');
@@ -181,10 +181,13 @@ sub image_type {
 		$self->{ext} = $validExt[0];
 	}
 
-	# Hardcopy: Tikz needs to use the 'pdf' extension and fallback to Tikz output if ext is 'html'.
-	if ($self->{pg}{displayMode} eq 'TeX' && ($self->{ext} eq 'html' || $self->{type} eq 'Tikz')) {
+	# Hardcopy uses the Tikz 'pdf' extension and PTX uses the Tikz 'tgz' extension.
+	if ($self->{pg}{displayMode} eq 'TeX') {
 		$self->{type} = 'Tikz';
 		$self->{ext}  = 'pdf';
+	} elsif ($self->{pg}{displayMode} eq 'PTX') {
+		$self->{type} = 'Tikz';
+		$self->{ext}  = 'tgz';
 	}
 	return;
 }
