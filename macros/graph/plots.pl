@@ -28,7 +28,7 @@ First create a Plots object:
         ytick_delta => 50,
         xlabel      => '\(t\)',
         ylabel      => '\(h(t)\)',
-        title       => 'Height of an object as a function of time.',
+        ariaLabel   => 'Height of an object as a function of time.',
         axes_on_top => 1,
     );
 
@@ -106,6 +106,13 @@ parametric functions (an array of two functions) to the graph.
     # Add a parametric circle of radius 5 to the plot.
     $plot->add_function(['5cos(t)', '5sin(t)'], 't', 0, 2*pi);
 
+Polar functions can be graphed using the C<< polar => 1 >> option with a single variable
+function. In this case the input variable (no matter what it is) is treated as a polar angle
+theta, and the function computes the radius for that angle.
+
+    # Polar graph of r = 5cos(3theta).
+    $plot->add_function("5cos(3x)", 'x', 0, 'pi', polar => 1);
+
 Functions can also be added using function strings. Function strings are of the form:
 
     "$function for $variable in <$min,$max> using option1:value1 and option2:value2"
@@ -152,6 +159,67 @@ MathObjects, or perl subroutines:
     );
 
 It is preferred to use strings or MathObjects instead of perl subroutines.
+
+=head2 PLOT MULTIPATH FUNCTIONS
+
+A multipath function is defined using multiple parametric paths pieced together into into a single
+curve, whose primary use is to create a closed region to be filled using multiple boundaries.
+This is done by providing a list of parametric functions, the name of the parameter, and a list
+of options.
+
+    $plot->add_multipath(
+        [
+            [ $function_x1, $function_y1, $min1, $max1 ],
+            [ $function_x2, $function_y2, $min2, $max2 ],
+            ...
+        ],
+        $variable,
+        %options
+    );
+
+The paths have to be listed in the order they are followed, but the minimum/maximum values
+of the parameter can match the parametrization. The following example creates a sector of
+radius 5 between pi/4 and 3pi/4, by first drawing the line (0,0) to (5sqrt(2),5/sqrt(2)),
+then the arc of the circle of radius 5 from pi/4 to 3pi/4, followed by the final line from
+(-5sqrt(2), 5sqrt(2)) back to the origin.
+
+    $plot->add_multipath(
+        [
+            [ 't',       't',       0,           '5/sqrt(2)' ],
+            [ '5cos(t)', '5sin(t)', 'pi/4',      '3pi/4' ],
+            [ '-t',      't',       '5/sqrt(2)', 0 ],
+        ],
+        't',
+        color => 'green',
+        fill  => 'self',
+    );
+
+=head2 PLOT CIRCLES
+
+Circles can be added to the plot by specifing its center and radius using the
+C<< $plot->add_circle >> method. This can either be done either one at a time
+or multiple at once.
+
+    $plot->add_circle([$x, $y], $r, %options);
+    $plot->add_circle(
+        [[$x1, $y1], $r1, %options1],
+        [[$x2, $y2], $r2, %options2],
+        ...
+    );
+
+=head2 PLOT ARCS
+
+Arcs (or a portion of a circle) can be plotted using the C<< $plot->add_arc >> method.
+This method takes three points. The first point is where the arc starts, the second point
+is the center of the circle, and the third point specifies the ray from the center of
+the circle the arc ends. Arcs always go in the counter clockwise direction.
+
+    $plot->add_arc([$start_x, $start_y], [$center_x, $center_y], [$end_x, $end_y], %options);
+    $plot->add_arc(
+        [[$start_x1, $start_y1], [$center_x1, $center_y1], [$end_x1, $end_y1], %options1],
+        [[$start_x2, $start_y2], [$center_x2, $center_y2], [$end_x2, $end_y2], %options2],
+        ...
+    );
 
 =head2 PLOT VECTOR FIELDS
 
@@ -239,11 +307,10 @@ The line width of the plot. Default: 1
 
 =item linestyle
 
-Linestyle can be one of 'solid', 'dashed', 'dotted', 'densely dashed',
-'loosely dashed', 'densely dotted', 'loosely dotted', or 'none'. If set
-to 'none', only the points are shown (see marks for point options) For
-convince underscores can also be used, such as 'densely_dashed'.
-Default: 'solid'
+Linestyle can be one of 'solid', 'dashed', 'dotted', 'short dashes', 'long dashes',
+'long medium dashes' (alternates between long and medium dashes), or 'none'. If set
+to 'none', only the points are shown (see marks for point options) For convince
+underscores can also be used, such as 'long_dashes'. Default: 'solid'
 
 =item marks
 
@@ -284,8 +351,9 @@ Default: undefined
 Sets the fill method to use. If set to 'none', no fill will be added.
 If set to 'self', the object fills within itself, best used with closed
 datasets. If set to 'xaxis', this will fill the area between the curve
-and the x-axis. If set to another non-empty string, this is the name of the
-other dataset to fill against.
+and the x-axis. If set to another non-empty string, this is the name of
+the other dataset to fill against. The C<name> attribute must be set to
+fill between the 'xaxis' or another curve.
 
 The following creates a filled rectangle:
 
@@ -326,7 +394,7 @@ and only fills in the area between x=-2 and x=2:
 
 =item fill_color
 
-The color used when filling the region. Default: 'default_color'
+The color used when filling the region. Default: C<color>
 
 =item fill_opacity
 
@@ -334,7 +402,7 @@ A number between 0 and 1 giving the opacity of the fill. Default: 0.5
 
 =item fill_min, fill_max
 
-The minmum and maxium x-value to fill between. If either of these are
+The minimum and maximum x-value to fill between. If either of these are
 not defined, then the fill will use the full domain of the function.
 Default: undefined
 
@@ -342,6 +410,11 @@ Default: undefined
 
 This defines the number of points to generate for a dataset from a function.
 Default: 30.
+
+=item polar
+
+If this option is set for a single variable function, the input variable is
+treated as an angle for the polar graph of C<< r = f(theta) >>. Default: 0
 
 =item tikz_smooth
 
@@ -397,13 +470,12 @@ The color of the label. Default: 'default_color'
 
 =item fontsize
 
-The size of the label used in GD output. This can be one of
-'tiny', 'small', 'medium', 'large', or 'giant'. Default: 'medium'
+The font size of the label used. This can be one of 'tiny', 'small', 'medium',
+'large', or 'giant'. Default: 'medium'
 
-=item orientation
+=item rotate
 
-The orientation of the font in GD output. Can be one of 'vertical' or 'horizontal'.
-Default: 'horizontal'
+The rotation of the label in degrees. Default: 0
 
 =item h_align
 
@@ -466,14 +538,16 @@ Colors are referenced by color names. The default color names, and their RGB def
 
     Color Name        Red Grn Blu
     white             255 255 255
-    gray              128 128 128
+    gray/grey         128 128 128
     black               0   0   0
-    red               254  39  18
-    yellow            254 254  51
-    blue                2  71 254
-    green             102 176  50
-    orange            251 153   2
-    purple            134   1 175
+    red               255   0   0
+    green               0 128   0
+    blue                0   0 255
+    yellow            255 255   0
+    cyan                0 255 255
+    magenta           255   0 255
+    orange            255 128   0
+    purple            128   0 128
 
 The default color used for all plotted elements is named C<default_color>, and is initially black.
 Redefining this color will change the default color used for any plot object.

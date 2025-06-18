@@ -20,21 +20,19 @@ use Plots::GD;
 
 sub new {
 	my ($class, %options) = @_;
-	my $size = eval('$main::envir{onTheFlyImageSize}') || 350;
 
 	my $self = bless {
-		imageName       => {},
-		width           => $size,
-		height          => $size,
-		tex_size        => 600,
-		ariaDescription => 'Generated graph',
-		axes            => Plots::Axes->new,
-		colors          => {},
-		data            => [],
+		imageName => {},
+		width     => eval('$main::envir{onTheFlyImageSize}') || 350,
+		height    => undef,
+		tex_size  => 600,
+		axes      => Plots::Axes->new,
+		colors    => {},
+		data      => [],
 	}, $class;
 
 	# Besides for these core options, pass everything else to the Axes object.
-	for ('width', 'height', 'tex_size', 'ariaDescription') {
+	for ('width', 'height', 'tex_size') {
 		if ($options{$_}) {
 			$self->{$_} = $options{$_};
 			delete $options{$_};
@@ -91,24 +89,39 @@ sub add_color {
 # Define some base colors.
 sub color_init {
 	my $self = shift;
-	# Default color names from WWPlot.
 	$self->add_color('default_color', 0,   0,   0);
 	$self->add_color('white',         255, 255, 255);
 	$self->add_color('gray',          128, 128, 128);
+	$self->add_color('grey',          128, 128, 128);
 	$self->add_color('black',         0,   0,   0);
-	# Primary colors from the W3 red, yellow, blue color wheel.
-	$self->add_color('red',    254, 39,  18);
-	$self->add_color('yellow', 254, 254, 51);
-	$self->add_color('blue',   2,   71,  254);
-	$self->add_color('green',  102, 176, 50);
-	$self->add_color('orange', 251, 153, 2);
-	$self->add_color('purple', 134, 1,   175);
+	# Primary and secondary RGB colors (using HTML green instead of RGB green).
+	$self->add_color('red',     255, 0,   0);
+	$self->add_color('green',   0,   128, 0);
+	$self->add_color('blue',    0,   0,   255);
+	$self->add_color('yellow',  255, 255, 0);
+	$self->add_color('cyan',    0,   255, 255);
+	$self->add_color('magenta', 255, 0,   255);
+	# Additional RYB secondary colors.
+	$self->add_color('orange', 255, 128, 0);
+	$self->add_color('purple', 128, 0,   128);
 	return;
 }
 
 sub size {
-	my $self = shift;
-	return wantarray ? ($self->{width}, $self->{height}) : [ $self->{width}, $self->{height} ];
+	my $self   = shift;
+	my $axes   = $self->axes;
+	my $width  = $self->{width};
+	my $height = $self->{height};
+	unless ($height) {
+		if ($axes->style('aspect_ratio')) {
+			my $x_size = $axes->xaxis('max') - $axes->xaxis('min');
+			my $y_size = $axes->yaxis('max') - $axes->yaxis('min');
+			$height = int($axes->style('aspect_ratio') * $width * $y_size / $x_size);
+		} else {
+			$height = $width;
+		}
+	}
+	return wantarray ? ($width, $height) : [ $width, $height ];
 }
 
 sub data {
@@ -159,7 +172,7 @@ sub image_type {
 		@validExt = ('html');
 	} elsif ($type eq 'tikz') {
 		$self->{type} = 'Tikz';
-		@validExt = ('svg', 'png', 'pdf');
+		@validExt = ('svg', 'png', 'pdf', 'gif', 'tgz');
 	} elsif ($type eq 'gd') {
 		$self->{type} = 'GD';
 		@validExt = ('png', 'gif');
@@ -178,10 +191,13 @@ sub image_type {
 		$self->{ext} = $validExt[0];
 	}
 
-	# Hardcopy: Tikz needs to use the 'pdf' extension and fallback to Tikz output if ext is 'html'.
-	if ($self->{pg}{displayMode} eq 'TeX' && ($self->{ext} eq 'html' || $self->{type} eq 'Tikz')) {
+	# Hardcopy uses the Tikz 'pdf' extension and PTX uses the Tikz 'tgz' extension.
+	if ($self->{pg}{displayMode} eq 'TeX') {
 		$self->{type} = 'Tikz';
 		$self->{ext}  = 'pdf';
+	} elsif ($self->{pg}{displayMode} eq 'PTX') {
+		$self->{type} = 'Tikz';
+		$self->{ext}  = 'tgz';
 	}
 	return;
 }
@@ -278,6 +294,30 @@ sub add_function {
 	return ref($f) eq 'ARRAY' ? $self->_add_function($f->[0], $f->[1], @rest) : $self->_add_function(undef, $f, @rest);
 }
 
+sub add_multipath {
+	my ($self, $paths, $var, %options) = @_;
+	my $data  = Plots::Data->new(name => 'multipath');
+	my $steps = 500;                                     # Steps set high to help Tikz deal with boundaries of paths.
+	if ($options{steps}) {
+		$steps = $options{steps};
+		delete $options{steps};
+	}
+	$data->{context} = $self->context;
+	$data->{paths}   = [
+		map { {
+			Fx   => $data->get_math_object($_->[0], $var),
+			Fy   => $data->get_math_object($_->[1], $var),
+			tmin => $data->str_to_real($_->[2]),
+			tmax => $data->str_to_real($_->[3])
+		} } @$paths
+	];
+	$data->{function} = { var => $var, steps => $steps };
+	$data->style(color => 'default_color', width => 2, %options);
+
+	$self->add_data($data);
+	return $data;
+}
+
 # Add a dataset to the graph. A dataset is basically a function in which the data
 # is provided as a list of points, [$x1, $y1], [$x2, $y2], ..., [$xn, $yn].
 # Datasets can be used for points, arrows, lines, polygons, scatter plots, and so on.
@@ -304,6 +344,51 @@ sub add_dataset {
 		return [ map { $self->_add_dataset(@$_); } @data ];
 	}
 	return $self->_add_dataset(@data);
+}
+
+sub _add_circle {
+	my ($self, $point, $radius, @options) = @_;
+	my $data = Plots::Data->new(name => 'circle');
+	$data->add(@$point);
+	$data->style(
+		radius => $radius,
+		color  => 'default_color',
+		width  => 2,
+		@options
+	);
+
+	$self->add_data($data);
+	return $data;
+}
+
+sub add_circle {
+	my ($self, @data) = @_;
+	if (ref($data[0]) eq 'ARRAY' && ref($data[0][0]) eq 'ARRAY') {
+		return [ map { $self->_add_circle(@$_); } @data ];
+	}
+	return $self->_add_circle(@data);
+}
+
+sub _add_arc {
+	my ($self, $point1, $point2, $point3, @options) = @_;
+	my $data = Plots::Data->new(name => 'arc');
+	$data->add($point1, $point2, $point3);
+	$data->style(
+		color => 'default_color',
+		width => 2,
+		@options
+	);
+
+	$self->add_data($data);
+	return $data;
+}
+
+sub add_arc {
+	my ($self, @data) = @_;
+	if (ref($data[0]) eq 'ARRAY' && ref($data[0][0]) eq 'ARRAY') {
+		return [ map { $self->_add_arc(@$_); } @data ];
+	}
+	return $self->_add_arc(@data);
 }
 
 sub add_vectorfield {

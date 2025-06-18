@@ -162,7 +162,11 @@
 			let width = naturalWidth;
 			let height = naturalHeight;
 
-			if (imgType == 'div') this.dispatchEvent(new Event('shown.imageview'));
+			if (graphDiv) {
+				graphDiv.style.width = `${naturalWidth}px`;
+				graphDiv.style.height = `${naturalHeight}px`;
+				this.dispatchEvent(new Event('shown.imageview'));
+			}
 
 			// Dialog position
 			let left;

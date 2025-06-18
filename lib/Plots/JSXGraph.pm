@@ -40,21 +40,16 @@ sub HTML {
 			style="width: ${width}px; height: ${height}px;"></div>
 		<script>
 		(async () => {
-			const jsxPlotDiv = document.getElementById('jsxgraph-plot-$name');
-			if (!jsxPlotDiv) return;
-
 			const drawBoard = (id) => {
 				$self->{JS}
 				$self->{JSend}
 				board.unsuspendUpdate();
-				// This is a workaround for an issue when the magnified graph is drawn in the imageview dialog.
-				// In that case something is messing up the bounding box, so it needs to be reset.
-				board.setBoundingBox(board.attr.boundingbox, board.keepaspectratio, 'keep');
 				return board;
 			}
 
 			const drawPromise = (id) => new Promise((resolve) => {
-				if (jsxPlotDiv.offsetWidth === 0) {
+				const container = document.getElementById(id);
+				if (!container || container.offsetWidth === 0) {
 					setTimeout(async () => resolve(await drawPromise(id)), 100);
 					return;
 				}
@@ -66,6 +61,8 @@ sub HTML {
 					await drawPromise('jsxgraph-plot-$name')
 				});
 			else await drawPromise('jsxgraph-plot-$name');
+
+			const jsxPlotDiv = document.getElementById('jsxgraph-plot-$name');
 
 			let jsxBoard = null;
 			jsxPlotDiv?.addEventListener('shown.imageview', async () => {
@@ -86,67 +83,83 @@ sub HTML {
 
 sub get_color {
 	my ($self, $color) = @_;
+	$color = 'default_color' unless $color;
 	return sprintf("#%02x%02x%02x", @{ $self->plots->colors($color) });
+}
+
+sub get_linestyle {
+	my ($self, $data) = @_;
+	my $linestyle = $data->style('linestyle');
+	return 0 unless $linestyle;
+	$linestyle =~ s/ /_/g;
+	return {
+		solid              => 0,
+		dashed             => 3,
+		short_dashes       => 2,
+		long_dashes        => 4,
+		dotted             => $data->name eq 'dataset' || $data->name eq 'function' ? 7 : 1,
+		long_medium_dashes => 5,
+	}->{$linestyle}
+		|| 0;
+}
+
+sub get_options {
+	my ($self, $data, %extra_options) = @_;
+	my $options = Mojo::JSON::encode_json({
+		highlight   => 0,
+		strokeColor => $self->get_color($data->style('color')),
+		strokeWidth => $data->style('width'),
+		$data->style('start_mark') eq 'arrow'
+		? (firstArrow => { type => 4, size => $data->style('arrow_size') || 8 })
+		: (),
+		$data->style('end_mark') eq 'arrow' ? (lastArrow => { type => 4, size => $data->style('arrow_size') || 8 })
+		: (),
+		$data->style('fill') eq 'self'
+		? (
+			fillColor   => $self->get_color($data->style('fill_color') || $data->style('color')),
+			fillOpacity => $data->style('fill_opacity')
+				|| 0.5
+			)
+		: (),
+		dash => $self->get_linestyle($data),
+		%extra_options,
+	});
+	return $data->style('jsx_options')
+		? "JXG.merge($options, " . Mojo::JSON::encode_json($data->style('jsx_options')) . ')'
+		: $options;
 }
 
 sub add_curve {
 	my ($self, $data) = @_;
-	my $linestyle = $data->style('linestyle') || '';
-	return if $linestyle eq 'none';
+	return if $data->style('linestyle') eq 'none';
 
-	my %linestyles;
-	if ($linestyle eq 'densely dashed') {
-		$linestyles{dash}      = 4;
-		$linestyles{dashScale} = 1;
-	} elsif ($linestyle eq 'loosely dashed') {
-		$linestyles{dash}      = 3;
-		$linestyles{dashScale} = 1;
-	} elsif ($linestyle =~ /dashed/) {
-		$linestyles{dash}      = 1;
-		$linestyles{dashScale} = 1;
-	} elsif ($linestyle =~ /dotted/) {
-		$linestyles{dash} = 1;
-	}
-
-	my $start        = $data->style('start_mark') || '';
-	my $end          = $data->style('end_mark')   || '';
-	my $curve_name   = $data->style('name');
-	my $color        = $self->get_color($data->style('color') || 'default_color');
-	my $line_width   = $data->style('width') || 2;
-	my $fill         = $data->style('fill')  || 'none';
-	my $fill_color   = $self->get_color($data->style('fill_color') || 'default_color');
-	my $fill_opacity = $data->style('fill_opacity') || 0.5;
-	my $plotOptions  = Mojo::JSON::encode_json({
-		highlight   => 0,
-		strokeColor => $color,
-		strokeWidth => $line_width,
-		$start eq 'arrow' ? (firstArrow => { type => 4, size => $data->style('arrow_size') || 10 }) : (),
-		$end eq 'arrow'   ? (lastArrow  => { type => 4, size => $data->style('arrow_size') || 10 }) : (),
-		$fill eq 'self'   ? (fillColor  => $fill_color, fillOpacity => $fill_opacity)               : (),
-		%linestyles,
-	});
-	$plotOptions = "JXG.merge($plotOptions, " . Mojo::JSON::encode_json($data->style('jsx_options')) . ')'
-		if $data->style('jsx_options');
+	my $curve_name  = $data->style('name');
+	my $fill        = $data->style('fill') || 'none';
+	my $plotOptions = $self->get_options($data, $data->style('polar') ? (curveType => 'polar') : ());
 
 	my $type = 'curve';
 	my $data_points;
 	if ($data->name eq 'function') {
 		my $f = $data->{function};
 		if (ref($f->{Fx}) ne 'CODE' && $f->{xvar} eq $f->{Fx}->string) {
-			my $function = $data->function_string('y', 'js', 1);
+			my $function = $data->function_string($f->{Fy}, 'js', $f->{xvar});
 			if ($function ne '') {
+				$data->update_min_max;
 				my $min = $data->style('continue') || $data->style('continue_left')  ? '' : $f->{xmin};
 				my $max = $data->style('continue') || $data->style('continue_right') ? '' : $f->{xmax};
-				$data->update_min_max;
-				$type        = 'functiongraph';
-				$data_points = "[t => $function, $min, $max]";
+				if ($data->style('polar')) {
+					$data_points = "[x => $function, [0, 0], $min, $max]";
+				} else {
+					$type        = 'functiongraph';
+					$data_points = "[x => $function, $min, $max]";
+				}
 			}
 		} else {
-			my $xfunction = $data->function_string('x', 'js', 1);
-			my $yfunction = $data->function_string('y', 'js', 1);
+			my $xfunction = $data->function_string($f->{Fx}, 'js', $f->{xvar});
+			my $yfunction = $data->function_string($f->{Fy}, 'js', $f->{xvar});
 			if ($xfunction ne '' && $yfunction ne '') {
 				$data->update_min_max;
-				$data_points = "[t => $xfunction, t => $yfunction, $f->{xmin}, $f->{xmax}]";
+				$data_points = "[x => $xfunction, x => $yfunction, $f->{xmin}, $f->{xmax}]";
 			}
 		}
 	}
@@ -155,71 +168,112 @@ sub add_curve {
 		$data_points = '[[' . join(',', $data->x) . '],[' . join(',', $data->y) . ']]';
 	}
 
-	if ($curve_name) {
-		$self->{JS} .= "const curve_${curve_name} = ";
-	}
+	$self->{JS} .= "const curve_${curve_name} = " if $curve_name;
 	$self->{JS} .= "board.create('$type', $data_points, $plotOptions);";
-	$self->add_point($data, $data->get_start_point, $line_width, $start, $color) if $start =~ /circle/;
-	$self->add_point($data, $data->get_end_point,   $line_width, $end,   $color) if $end   =~ /circle/;
-	if ($curve_name && $fill ne 'none' && $fill ne 'self') {
-		my $fill_min    = $data->str_to_real($data->style('fill_min'));
-		my $fill_max    = $data->str_to_real($data->style('fill_max'));
-		my $fillOptions = Mojo::JSON::encode_json({
-			strokeColor => $color,
-			strokeWidth => 0,
-			fillColor   => $fill_color,
-			fillOpacity => $fill_opacity,
-			highlight   => 0,
-		});
+	$self->add_point($data, $data->get_start_point, $data->style('width'), $data->style('start_mark'))
+		if $data->style('start_mark') =~ /circle/;
+	$self->add_point($data, $data->get_end_point, $data->style('width'), $data->style('end_mark'))
+		if $data->style('end_mark') =~ /circle/;
 
-		if ($fill eq 'xaxis') {
-			$self->{JSend} .=
-				"const fill_${curve_name} = board.create('curve', [[], []], $fillOptions);"
-				. "fill_${curve_name}.updateDataArray = function () {"
-				. "const points = curve_${curve_name}.points";
-			if (defined $fill_min && defined $fill_max) {
+	if ($fill ne 'none' && $fill ne 'self') {
+		if ($curve_name) {
+			my $fill_min    = $data->str_to_real($data->style('fill_min'));
+			my $fill_max    = $data->str_to_real($data->style('fill_max'));
+			my $fillOptions = Mojo::JSON::encode_json({
+				strokeWidth => 0,
+				fillColor   => $self->get_color($data->style('fill_color') || $data->style('color')),
+				fillOpacity => $data->style('fill_opacity') || 0.5,
+				highlight   => 0,
+			});
+
+			if ($fill eq 'xaxis') {
 				$self->{JSend} .=
-					".filter(p => {"
-					. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
+					"const fill_${curve_name} = board.create('curve', [[], []], $fillOptions);"
+					. "fill_${curve_name}.updateDataArray = function () {"
+					. "const points = curve_${curve_name}.points";
+				if ($fill_min ne '' && $fill_max ne '') {
+					$self->{JSend} .=
+						".filter(p => {"
+						. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
+				}
+				$self->{JSend} .=
+					";this.dataX = points.map( p => p.usrCoords[1] );"
+					. "this.dataY = points.map( p => p.usrCoords[2] );"
+					. "this.dataX.push(points[points.length - 1].usrCoords[1], "
+					. "points[0].usrCoords[1], points[0].usrCoords[1]);"
+					. "this.dataY.push(0, 0, points[0].usrCoords[2]);" . "};"
+					. "board.update();";
+			} else {
+				$self->{JSend} .=
+					"const fill_${curve_name} = board.create('curve', [[], []], $fillOptions);"
+					. "fill_${curve_name}.updateDataArray = function () {"
+					. "const points1 = curve_${curve_name}.points";
+				if ($fill_min ne '' && $fill_max ne '') {
+					$self->{JSend} .=
+						".filter(p => {"
+						. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
+				}
+				$self->{JSend} .= ";const points2 = curve_${fill}.points";
+				if ($fill_min ne '' && $fill_max ne '') {
+					$self->{JSend} .=
+						".filter(p => {"
+						. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
+				}
+				$self->{JSend} .=
+					";this.dataX = points1.map( p => p.usrCoords[1] ).concat("
+					. "points2.map( p => p.usrCoords[1] ).reverse());"
+					. "this.dataY = points1.map( p => p.usrCoords[2] ).concat("
+					. "points2.map( p => p.usrCoords[2] ).reverse());"
+					. "this.dataX.push(points1[0].usrCoords[1]);"
+					. "this.dataY.push(points1[0].usrCoords[2]);" . "};"
+					. "board.update();";
 			}
-			$self->{JSend} .=
-				";this.dataX = points.map( p => p.usrCoords[1] );"
-				. "this.dataY = points.map( p => p.usrCoords[2] );"
-				. "this.dataX.push(points[points.length - 1].usrCoords[1], "
-				. "points[0].usrCoords[1], points[0].usrCoords[1]);"
-				. "this.dataY.push(0, 0, points[0].usrCoords[2]);" . "};"
-				. "board.update();";
 		} else {
-			$self->{JSend} .=
-				"const fill_${curve_name} = board.create('curve', [[], []], $fillOptions);"
-				. "fill_${curve_name}.updateDataArray = function () {"
-				. "const points1 = curve_${curve_name}.points";
-			if (defined $fill_min && defined $fill_max) {
-				$self->{JSend} .=
-					".filter(p => {"
-					. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
-			}
-			$self->{JSend} .= ";const points2 = curve_${fill}.points";
-			if (defined $fill_min && defined $fill_max) {
-				$self->{JSend} .=
-					".filter(p => {"
-					. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
-			}
-			$self->{JSend} .=
-				";this.dataX = points1.map( p => p.usrCoords[1] ).concat("
-				. "points2.map( p => p.usrCoords[1] ).reverse());"
-				. "this.dataY = points1.map( p => p.usrCoords[2] ).concat("
-				. "points2.map( p => p.usrCoords[2] ).reverse());"
-				. "this.dataX.push(points1[0].usrCoords[1]);"
-				. "this.dataY.push(points1[0].usrCoords[2]);" . "};"
-				. "board.update();";
+			warn "Unable to create fill. Missing 'name' attribute.";
 		}
 	}
+	return;
+}
+
+sub add_multipath {
+	my ($self, $data) = @_;
+	return if $data->style('linestyle') eq 'none';
+
+	my @paths       = @{ $data->{paths} };
+	my $n           = scalar(@paths);
+	my $var         = $data->{function}{var};
+	my $curve_name  = $data->style('name');
+	my $plotOptions = $self->get_options($data);
+	my $jsFunctionx = 'function (x){';
+	my $jsFunctiony = 'function (x){';
+
+	for (0 .. $#paths) {
+		my $path = $paths[$_];
+		my $a    = $_ / $n;
+		my $b    = ($_ + 1) / $n;
+		my $tmin = $path->{tmin};
+		my $tmax = $path->{tmax};
+		my $m    = ($tmax - $tmin) / ($b - $a);
+		my $tmp  = $a < 0 ? 'x+' . (-$a)       : "x-$a";
+		my $t    = $m < 0 ? "($tmin$m*($tmp))" : "($tmin+$m*($tmp))";
+
+		my $xfunction = $data->function_string($path->{Fx}, 'js', $var, undef, $t);
+		my $yfunction = $data->function_string($path->{Fy}, 'js', $var, undef, $t);
+		$jsFunctionx .= "if(x<=$b){return $xfunction;}";
+		$jsFunctiony .= "if(x<=$b){return $yfunction;}";
+	}
+	$jsFunctionx .= 'return 0;}';
+	$jsFunctiony .= 'return 0;}';
+
+	$self->{JS} .= "const curve_${curve_name} = " if $curve_name;
+	$self->{JS} .= "board.create('curve', [$jsFunctionx, $jsFunctiony, 0, 1], $plotOptions);";
+	return;
 }
 
 sub add_point {
-	my ($self, $data, $x, $y, $size, $mark, $color) = @_;
-	my $fill = $color;
+	my ($self, $data, $x, $y, $size, $mark) = @_;
+	my $color = $self->get_color($data->style('color'));
+	my $fill  = $color;
 
 	if ($mark eq 'circle' || $mark eq 'closed_circle') {
 		$mark = 'o';
@@ -267,6 +321,7 @@ sub add_point {
 		if $data->style('jsx_options');
 
 	$self->{JS} .= "board.create('point', [$x, $y], $pointOptions);";
+	return;
 }
 
 sub add_points {
@@ -274,12 +329,41 @@ sub add_points {
 	my $mark = $data->style('marks');
 	return if !$mark || $mark eq 'none';
 
-	my $size  = $data->style('mark_size') || $data->style('width') || 3;
-	my $color = $self->get_color($data->style('color') || 'default_color');
+	# Need to generate points for functions.
+	$data->gen_data if $data->name eq 'function';
 
 	for (0 .. $data->size - 1) {
-		$self->add_point($data, $data->x($_), $data->y($_), $size, $mark, $color);
+		$self->add_point($data, $data->x($_), $data->y($_), $data->style('mark_size') || $data->style('width'), $mark);
 	}
+	return;
+}
+
+sub add_circle {
+	my ($self, $data) = @_;
+	my $x             = $data->x(0);
+	my $y             = $data->y(0);
+	my $r             = $data->style('radius');
+	my $linestyle     = $self->get_linestyle($data);
+	my $circleOptions = $self->get_options($data);
+
+	$self->{JS} .= "board.create('circle', [[$x, $y], $r], $circleOptions);";
+	return;
+}
+
+sub add_arc {
+	my ($self, $data) = @_;
+	my ($x1, $y1)     = ($data->x(0), $data->y(0));
+	my ($x2, $y2)     = ($data->x(1), $data->y(1));
+	my ($x3, $y3)     = ($data->x(2), $data->y(2));
+	my $arcOptions = $self->get_options(
+		$data,
+		anglePoint  => { visible => 0 },
+		center      => { visible => 0 },
+		radiusPoint => { visible => 0 },
+	);
+
+	$self->{JS} .= "board.create('arc', [[$x1, $y1], [$x2, $y2], [$x3, $y3]], $arcOptions);";
+	return;
 }
 
 sub init_graph {
@@ -315,8 +399,8 @@ sub init_graph {
 	$ymax += 0.11 * ($ymax - $ymin) if $xaxis_loc eq 'top'    || $ymax == $xaxis_pos;
 
 	my $JSXOptions = Mojo::JSON::encode_json({
-		title          => $axes->style('title') || 'Graph',
-		description    => $plots->{ariaDescription},
+		title          => $axes->style('ariaLabel'),
+		description    => $axes->style('ariaDescription'),
 		boundingBox    => [ $xmin, $ymax, $xmax, $ymin ],
 		axis           => 0,
 		showNavigation => $allow_navigation,
@@ -330,14 +414,14 @@ sub init_graph {
 	my $XAxisOptions = Mojo::JSON::encode_json({
 		name          => $axes->xaxis('label'),
 		withLabel     => 1,
-		position      => $xaxis_loc eq 'middle'  ? 'sticky' : 'fixed',
-		anchor        => $xaxis_loc eq 'top'     ? 'left'   : $xaxis_loc eq 'bottom' ? 'right' : 'right left',
-		visible       => $axes->xaxis('visible') ? 1        : 0,
+		position      => $xaxis_loc eq 'middle'  ? ($allow_navigation ? 'sticky' : 'static') : 'fixed',
+		anchor        => $xaxis_loc eq 'top'     ? 'left' : $xaxis_loc eq 'bottom' ? 'right' : 'right left',
+		visible       => $axes->xaxis('visible') ? 1      : 0,
 		highlight     => 0,
 		firstArrow    => 0,
 		lastArrow     => { size => 7 },
-		straightFirst => 0,
-		straightLast  => 0,
+		straightFirst => $allow_navigation,
+		straightLast  => $allow_navigation,
 		label         => {
 			anchorX    => 'middle',
 			anchorY    => 'middle',
@@ -349,11 +433,13 @@ sub init_graph {
 		ticks => {
 			drawLabels    => $axes->xaxis('tick_labels') && $axes->xaxis('show_ticks') ? 1 : 0,
 			drawZero      => $x_draw_zero,
+			strokeColor   => $self->get_color($axes->style('grid_color')),
+			strokeOpacity => $axes->style('grid_alpha') / 200,
 			insertTicks   => 0,
 			ticksDistance => $axes->xaxis('tick_delta'),
 			majorHeight   => $axes->xaxis('show_ticks') ? ($show_grid && $axes->xaxis('major') ? -1 : 10) : 0,
-			minorTicks    => $axes->xaxis('major')      ? $axes->xaxis('minor')                           : 0,
-			minorHeight   => $axes->xaxis('show_ticks') ? ($show_grid ? -1 : 7)                           : 0,
+			minorTicks    => $axes->xaxis('minor'),
+			minorHeight   => $axes->xaxis('show_ticks') ? ($show_grid && $axes->xaxis('major') ? -1 : 7) : 0,
 			label         => {
 				highlight => 0,
 				anchorX   => 'middle',
@@ -367,14 +453,14 @@ sub init_graph {
 	my $YAxisOptions = Mojo::JSON::encode_json({
 		name          => $axes->yaxis('label'),
 		withLabel     => 1,
-		position      => $yaxis_loc eq 'center'  ? 'sticky'     : 'fixed',
-		anchor        => $yaxis_loc eq 'center'  ? 'right left' : $yaxis_loc,
-		visible       => $axes->yaxis('visible') ? 1            : 0,
+		position      => $yaxis_loc eq 'center'  ? ($allow_navigation ? 'sticky' : 'static') : 'fixed',
+		anchor        => $yaxis_loc eq 'center'  ? 'right left'                              : $yaxis_loc,
+		visible       => $axes->yaxis('visible') ? 1                                         : 0,
 		highlight     => 0,
 		firstArrow    => 0,
 		lastArrow     => { size => 7 },
-		straightFirst => 0,
-		straightLast  => 0,
+		straightFirst => $allow_navigation,
+		straightLast  => $allow_navigation,
 		label         => {
 			anchorX    => 'middle',
 			anchorY    => 'middle',
@@ -386,11 +472,13 @@ sub init_graph {
 		ticks => {
 			drawLabels    => $axes->yaxis('tick_labels') && $axes->yaxis('show_ticks') ? 1 : 0,
 			drawZero      => $y_draw_zero,
+			strokeColor   => $self->get_color($axes->style('grid_color')),
+			strokeOpacity => $axes->style('grid_alpha') / 200,
 			insertTicks   => 0,
 			ticksDistance => $axes->yaxis('tick_delta'),
 			majorHeight   => $axes->yaxis('show_ticks') ? ($show_grid && $axes->yaxis('major') ? -1 : 10) : 0,
-			minorTicks    => $axes->yaxis('major')      ? $axes->yaxis('minor')                           : 0,
-			minorHeight   => $axes->yaxis('show_ticks') ? ($show_grid ? -1 : 7)                           : 0,
+			minorTicks    => $axes->yaxis('minor'),
+			minorHeight   => $axes->yaxis('show_ticks') ? ($show_grid && $axes->yaxis('major') ? -1 : 7) : 0,
 			label         => {
 				highlight => 0,
 				anchorX   => $yaxis_loc eq 'right' ? 'left' : 'right',
@@ -419,28 +507,32 @@ sub draw {
 	$self->init_graph;
 
 	# Plot Data
-	for my $data ($plots->data('function', 'dataset')) {
-		$self->add_curve($data);
-		$self->add_points($data);
+	for my $data ($plots->data('function', 'dataset', 'circle', 'arc', 'multipath')) {
+		if ($data->name eq 'circle') {
+			$self->add_circle($data);
+		} elsif ($data->name eq 'arc') {
+			$self->add_arc($data);
+		} elsif ($data->name eq 'multipath') {
+			$self->add_multipath($data);
+		} else {
+			$self->add_curve($data);
+			$self->add_points($data);
+		}
 	}
 
 	# Vector/Slope Fields
 	for my $data ($plots->data('vectorfield')) {
-		my $xfunction = $data->function_string('x', 'js', 2);
-		my $yfunction = $data->function_string('y', 'js', 2);
+		my $f         = $data->{function};
+		my $xfunction = $data->function_string($f->{Fx}, 'js', $f->{xvar}, $f->{yvar});
+		my $yfunction = $data->function_string($f->{Fy}, 'js', $f->{xvar}, $f->{yvar});
 
 		if ($xfunction ne '' && $yfunction ne '') {
-			my $f       = $data->{function};
-			my $options = Mojo::JSON::encode_json({
-				highlight   => 0,
-				strokeColor => $self->get_color($data->style('color')),
-				strokeWidth => $data->style('width'),
-				scale       => $data->style('scale') || 1,
+			my $options = $self->get_options(
+				$data,
+				scale => $data->style('scale') || 1,
 				($data->style('slopefield') ? (arrowhead => { enabled => 0 }) : ()),
-			});
+			);
 			$data->update_min_max;
-			$options = "JXG.merge($options, " . Mojo::JSON::encode_json($data->style('jsx_options')) . ')'
-				if $data->style('jsx_option');
 
 			if ($data->style('normalize') || $data->style('slopefield')) {
 				my $xtmp = "($xfunction)/Math.sqrt(($xfunction)**2 + ($yfunction)**2)";
@@ -460,12 +552,12 @@ sub draw {
 		my $mark = $stamp->style('symbol');
 		next unless $mark;
 
-		my $color = $self->get_color($stamp->style('color') || 'default_color');
+		my $color = $self->get_color($stamp->style('color'));
 		my $x     = $stamp->x(0);
 		my $y     = $stamp->y(0);
 		my $size  = $stamp->style('radius') || 4;
 
-		$self->add_point($stamp, $x, $y, $size, $mark, $color);
+		$self->add_point($stamp, $x, $y, $size, $mark);
 	}
 
 	# Labels
@@ -473,17 +565,15 @@ sub draw {
 		my $str         = $label->style('label');
 		my $x           = $label->x(0);
 		my $y           = $label->y(0);
-		my $color       = $self->get_color($label->style('color') || 'default_color');
-		my $fontsize    = $label->style('fontsize')    || 'medium';
-		my $orientation = $label->style('orientation') || 'horizontal';
-		my $h_align     = $label->style('h_align')     || 'center';
-		my $v_align     = $label->style('v_align')     || 'middle';
+		my $fontsize    = $label->style('fontsize') || 'medium';
+		my $h_align     = $label->style('h_align')  || 'center';
+		my $v_align     = $label->style('v_align')  || 'middle';
 		my $anchor      = $v_align eq 'top' ? 'north' : $v_align eq 'bottom' ? 'south' : '';
 		my $textOptions = Mojo::JSON::encode_json({
 			highlight   => 0,
 			fontSize    => { tiny => 8, small => 10, medium => 12, large => 14, giant => 16 }->{$fontsize},
-			rotate      => $orientation eq 'vertical' ? 90 : 0,
-			strokeColor => $color,
+			rotate      => $label->style('rotate') || 0,
+			strokeColor => $self->get_color($label->style('color')),
 			anchorX     => $h_align eq 'center' ? 'middle' : $h_align,
 			anchorY     => $v_align,
 			cssStyle    => 'padding: 3px;',

@@ -110,15 +110,17 @@ to add / change the styles.
 
     $data->style(color => 'blue', width => 3);
 
-=item C<< $str = $data->function_string($coord, $type, $nvars); >>
+=item C<< $str = $data->function_string($formula, $type, $xvar, $yvar); >>
 
-Takes a MathObject function string and replaces the function with either
+Takes a MathObject C<$formula> and replaces the function with either
 a JavaScript or PGF function string. If the function contains any function
 tokens not supported, a warning and empty string is returned.
 
-    $coord   'x' or 'y' coordinate function.
-    $type    'js' or 'PGF' (falls back to js for any input except 'PGF').
-    $nvars   1 (single variable functions) or 2 (used for slope/vector fields).
+    $formula   The mathobject formula object, either $self->{function}{Fx} or $self->{function}{Fy}.
+    $type      'js' or 'PGF' (falls back to js for any input except 'PGF').
+    $xvar      The x-variable name, $self->{function}{xvar}.
+    $yvar      The y-variable name, $self->{function}{yvar}, for vector fields.
+               Leave undefined for single variable functions.
 
 =item C<< $data->update_min_max >>
 
@@ -185,7 +187,7 @@ sub style {
 		map { $self->{styles}{$_} = $style_hash{$_} } keys %style_hash;
 		return;
 	}
-	return $self->{styles}{ $styles[0] };
+	return $self->{styles}{ $styles[0] } // '';
 }
 
 sub get_math_object {
@@ -249,22 +251,22 @@ sub update_min_max {
 }
 
 sub function_string {
-	my ($self, $coord, $type, $nvars) = @_;
-	my $f  = $self->{function};
-	my $MO = $coord eq 'y' ? $f->{Fy} : $f->{Fx};
-	return '' if ref($MO) eq 'CODE';
+	my ($self, $formula, $type, $xvar, $yvar, $xtransform) = @_;
+	return '' unless Value::isFormula($formula);
+	my %vars = ($xvar => $xtransform || 'x', $yvar ? ($yvar => 'y') : ());
 
 	# Ensure -x^2 gets print as -(x^2), since JavaScript finds this ambiguous.
-	my $extraParens = $MO->context->flag('showExtraParens');
-	$MO->context->flags->set(showExtraParens => 2);
-	my $func = $MO->string;
+	my $extraParens = $formula->context->flag('showExtraParens');
+	my $format      = $formula->context->{format}{number};
+	$formula->context->flags->set(showExtraParens => 2);
+	$formula->context->{format}{number} = "%f#";
+	my $func = $formula->string;
 	$func =~ s/\s//g;
-	$MO->context->flags->set(showExtraParens => $extraParens);
+	$formula->context->flags->set(showExtraParens => $extraParens);
+	$formula->context->{format}{number} = $format;
 
-	$nvars = 1 unless $nvars;
 	my %tokens;
 	if ($type eq 'PGF') {
-		my %vars = ($nvars == 2 ? ($f->{xvar} => 'x', $f->{yvar} => 'y') : ($f->{xvar} => 'x'));
 		%tokens = (
 			sqrt   => 'sqrt',
 			pow    => 'pow',
@@ -302,7 +304,6 @@ sub function_string {
 			%vars
 		);
 	} else {
-		my %vars = ($nvars == 2 ? ($f->{xvar} => 'x', $f->{yvar} => 'y') : ($f->{xvar} => 't'));
 		%tokens = (
 			sqrt    => 'Math.sqrt',
 			cbrt    => 'Math.cbrt',
@@ -367,6 +368,8 @@ sub function_string {
 		}
 	}
 
+	$out =~ s/\[/(/g;
+	$out =~ s/\]/)/g;
 	return $out;
 }
 

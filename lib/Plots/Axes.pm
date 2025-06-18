@@ -31,7 +31,7 @@ Each axis and styles can be configured individually, such as:
 
     $plot->axes->xaxis(min => -10, max => 10,  tick_delta => 4);
     $plot->axes->yaxis(min => 0,   max => 100, tick_delta => 20);
-    $plot->axes->style(title => 'Graph of function y = f(x).', show_grid => 0);
+    $plot->axes->style(ariaLabel => 'Graph of function y = f(x).', show_grid => 0);
 
 This can be combined using the set method by prepending either C<x> or C<y> in front
 of each key of the axes to configure (note keys that do not start with C<x> or C<y>
@@ -44,7 +44,7 @@ sent to C<< $plot->axes->style >>):
         ymin        => 0,
         ymax        => 100,
         ytick_delta => 20,
-        title       => 'Graph of function y = f(x).',
+        ariaLabel   => 'Graph of function y = f(x).',
         show_grid   => 0,
     );
 
@@ -151,9 +151,20 @@ The following styles configure aspects about the axes.
 
 =over 5
 
-=item title
+=item aspect_ratio
 
-The title of the graph used as the ARIA label in JSX graph output. Default is ''.
+If this style is set, then the height of the graph will be computed using
+this aspect_ratio for the size of the image unless explicitly set.
+Default: ''
+
+=item ariaLabel
+
+The ARIA label in JSX graph output. Default is 'Graph'.
+
+=item ariaDescription
+
+The ARIA description in JSX graph output. This will be set to the images alt tag.
+Default is 'Generated graph'.
 
 =item show_grid
 
@@ -163,11 +174,6 @@ Either draw (1) or don't draw (0) the grid lines for the axis. Default is 1.
 
 The color of the grid lines. Default is 'gray'.
 
-=item grid_style
-
-The line style of grid lines. This can be 'dashed', 'dotted', 'solid', etc.
-Default is 'solid'.
-
 =item grid_alpha
 
 The alpha value to use to draw the grid lines in Tikz. This is a number from
@@ -175,7 +181,7 @@ The alpha value to use to draw the grid lines in Tikz. This is a number from
 
 =item axis_on_top
 
-Configures if the axis should be drawn on top of the graph (1) or below the graph (0).
+Configures if the Tikz axis should be drawn on top of the graph (1) or below the graph (0).
 Useful when filling a region that covers an axis, if the axis are on top they will still
 be visible after the fill, otherwise the fill will cover the axis. Default: 0
 
@@ -205,11 +211,11 @@ sub new {
 		xaxis  => {},
 		yaxis  => {},
 		styles => {
-			title      => '',
-			grid_color => 'gray',
-			grid_style => 'solid',
-			grid_alpha => 40,
-			show_grid  => 1,
+			ariaLabel       => 'Graph',
+			ariaDescription => 'Generated graph',
+			grid_color      => 'gray',
+			grid_alpha      => 40,
+			show_grid       => 1,
 		},
 		@_
 	}, $class;

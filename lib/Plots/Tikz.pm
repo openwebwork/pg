@@ -116,20 +116,21 @@ sub configure_axes {
 	my ($xmin, $ymin, $xmax, $ymax) = $axes->bounds;
 	my ($axes_width, $axes_height) = $plots->size;
 	my $show_grid    = $axes->style('show_grid');
-	my $xmajor       = $show_grid && $grid->{xmajor} ? 'true' : 'false';
+	my $xvisible     = $axes->xaxis('visible');
+	my $yvisible     = $axes->yaxis('visible');
+	my $xmajor       = $show_grid && $xvisible && $grid->{xmajor} && $axes->xaxis('show_ticks') ? 'true' : 'false';
 	my $xminor_num   = $grid->{xminor};
-	my $xminor       = $show_grid && $xminor_num > 0 ? 'true' : 'false';
-	my $ymajor       = $show_grid && $grid->{ymajor} ? 'true' : 'false';
+	my $xminor       = $show_grid && $xvisible && $xmajor eq 'true' && $xminor_num > 0            ? 'true' : 'false';
+	my $ymajor       = $show_grid && $yvisible && $grid->{ymajor}   && $axes->yaxis('show_ticks') ? 'true' : 'false';
 	my $yminor_num   = $grid->{yminor};
-	my $yminor       = $show_grid && $yminor_num > 0 ? 'true'                                : 'false';
-	my $xticks       = $axes->xaxis('show_ticks')    ? "xtick distance=$grid->{xtick_delta}" : 'xticks=none';
-	my $yticks       = $axes->yaxis('show_ticks')    ? "ytick distance=$grid->{ytick_delta}" : 'yticks=none';
-	my $xtick_labels = $axes->xaxis('tick_labels')   ? ''                                    : "\nxticklabel=\\empty,";
-	my $ytick_labels = $axes->yaxis('tick_labels')   ? ''                                    : "\nyticklabel=\\empty,";
+	my $yminor       = $show_grid && $yvisible && $ymajor eq 'true' && $yminor_num > 0 ? 'true' : 'false';
+	my $xticks       = $axes->xaxis('show_ticks')  ? "xtick distance=$grid->{xtick_delta}" : 'xtick=\empty';
+	my $yticks       = $axes->yaxis('show_ticks')  ? "ytick distance=$grid->{ytick_delta}" : 'ytick=\empty';
+	my $xtick_labels = $axes->xaxis('tick_labels') ? ''                                    : "\nxticklabel=\\empty,";
+	my $ytick_labels = $axes->yaxis('tick_labels') ? ''                                    : "\nyticklabel=\\empty,";
 	my $grid_color   = $axes->style('grid_color');
 	my $grid_color2  = $self->get_color($grid_color);
 	my $grid_alpha   = $axes->style('grid_alpha');
-	my $grid_style   = $axes->style('grid_style');
 	my $xlabel       = $axes->xaxis('label');
 	my $axis_x_line  = $axes->xaxis('location');
 	my $axis_x_pos   = $axes->xaxis('position');
@@ -143,11 +144,11 @@ sub configure_axes {
 	$axis_x_pos = $axis_x_pos ? ",\naxis x line shift=" . (-$axis_x_pos) : '';
 	$axis_y_pos = $axis_y_pos ? ",\naxis y line shift=" . (-$axis_y_pos) : '';
 
-	unless ($axes->xaxis('visible')) {
+	unless ($xvisible) {
 		$xlabel      = '';
 		$hide_x_axis = "\nx axis line style={draw=none},\n" . "x tick style={draw=none},\n" . "xticklabel=\\empty,";
 	}
-	unless ($axes->yaxis('visible')) {
+	unless ($yvisible) {
 		$ylabel      = '';
 		$hide_y_axis = "\ny axis line style={draw=none},\n" . "y tick style={draw=none},\n" . "yticklabel=\\empty,";
 	}
@@ -156,6 +157,7 @@ sub configure_axes {
 		[
 			trig format plots=rad,
 			view={0}{90},
+			scale only axis,
 			height=$axes_height,
 			width=$axes_width,
 			${axis_on_top}axis x line=$axis_x_line$axis_x_pos,
@@ -170,7 +172,7 @@ sub configure_axes {
 			ymajorgrids=$ymajor,
 			yminorgrids=$yminor,
 			minor y tick num=$yminor_num,
-			grid style={$grid_color!$grid_alpha, $grid_style},
+			grid style={$grid_color!$grid_alpha},
 			xmin=$xmin,
 			xmax=$xmax,
 			ymin=$ymin,
@@ -185,16 +187,16 @@ sub configure_axes {
 
 sub get_plot_opts {
 	my ($self, $data) = @_;
-	my $color        = $data->style('color')        || 'default_color';
-	my $width        = $data->style('width')        || 1;
-	my $linestyle    = $data->style('linestyle')    || 'solid';
-	my $marks        = $data->style('marks')        || 'none';
-	my $mark_size    = $data->style('mark_size')    || 0;
-	my $start        = $data->style('start_mark')   || 'none';
-	my $end          = $data->style('end_mark')     || 'none';
-	my $name         = $data->style('name')         || '';
+	my $color        = $data->style('color') || 'default_color';
+	my $width        = $data->style('width');
+	my $linestyle    = $data->style('linestyle')  || 'solid';
+	my $marks        = $data->style('marks')      || 'none';
+	my $mark_size    = $data->style('mark_size')  || 0;
+	my $start        = $data->style('start_mark') || 'none';
+	my $end          = $data->style('end_mark')   || 'none';
+	my $name         = $data->style('name');
 	my $fill         = $data->style('fill')         || 'none';
-	my $fill_color   = $data->style('fill_color')   || 'default_color';
+	my $fill_color   = $data->style('fill_color')   || $data->style('color') || 'default_color';
 	my $fill_opacity = $data->style('fill_opacity') || 0.5;
 	my $tikz_options = $data->style('tikz_options') ? ', ' . $data->style('tikz_options') : '';
 	my $smooth       = $data->style('tikz_smooth')  ? 'smooth, '                          : '';
@@ -218,9 +220,21 @@ sub get_plot_opts {
 		$end = '';
 	}
 	my $end_markers = ($start || $end) ? ", $start-$end" : '';
-	$marks     = $self->get_mark($marks);
-	$marks     = $marks ? $mark_size ? ", mark=$marks, mark size=${mark_size}px" : ", mark=$marks" : '';
-	$linestyle = $linestyle eq 'none' ? ', only marks' : ', ' . ($linestyle =~ s/_/ /gr);
+	$marks = $self->get_mark($marks);
+	$marks = $marks ? $mark_size ? ", mark=$marks, mark size=${mark_size}px" : ", mark=$marks" : '';
+
+	$linestyle =~ s/ /_/g;
+	$linestyle = {
+		none               => ', only marks',
+		solid              => ', solid',
+		dashed             => ', dash={on 11pt off 8pt phase 6pt}',
+		short_dashes       => ', dash pattern={on 6pt off 3pt}',
+		long_dashes        => ', dash={on 20pt off 15pt phase 10pt}',
+		dotted             => ', dotted',
+		long_medium_dashes => ', dash={on 20pt off 7pt on 11pt off 7pt phase 10pt}',
+	}->{$linestyle}
+		|| ', solid';
+
 	if ($fill eq 'self') {
 		$fill = ", fill=$fill_color, fill opacity=$fill_opacity";
 	} else {
@@ -243,32 +257,80 @@ sub draw {
 	my $tikzCode = $self->configure_axes;
 
 	# Plot Data
-	for my $data ($plots->data('function', 'dataset')) {
+	for my $data ($plots->data('function', 'dataset', 'circle', 'arc', 'multipath')) {
 		my $n            = $data->size;
 		my $color        = $data->style('color')      || 'default_color';
 		my $fill         = $data->style('fill')       || 'none';
-		my $fill_color   = $data->style('fill_color') || 'default_color';
+		my $fill_color   = $data->style('fill_color') || $data->style('color') || 'default_color';
 		my $tikz_options = $self->get_plot_opts($data);
 		$tikzCode .= $self->get_color($color);
+		$tikzCode .= $self->get_color($fill_color) unless $fill eq 'none';
+
+		if ($data->name eq 'circle') {
+			my $x = $data->x(0);
+			my $y = $data->y(0);
+			my $r = $data->style('radius');
+			$tikzCode .= "\\draw[$tikz_options] (axis cs:$x,$y) circle [radius=$r];\n";
+			next;
+		}
+		if ($data->name eq 'arc') {
+			my ($x1, $y1) = ($data->x(0), $data->y(0));
+			my ($x2, $y2) = ($data->x(1), $data->y(1));
+			my ($x3, $y3) = ($data->x(2), $data->y(2));
+			my $r      = sqrt(($x2 - $x1)**2 + ($y2 - $y1)**2);
+			my $theta1 = 180 * atan2($y2 - $y1, $x2 - $x1) / 3.14159265358979;
+			my $theta2 = 180 * atan2($y3 - $y1, $x3 - $x1) / 3.14159265358979;
+			$theta1 += 360 if $theta1 < 0;
+			$theta2 += 360 if $theta2 < 0;
+			$tikzCode .= "\\draw[$tikz_options] (axis cs:$x2,$y2) arc ($theta1:$theta2:$r);\n";
+			next;
+		}
+
 		my $plot;
 		if ($data->name eq 'function') {
 			my $f = $data->{function};
 			if (ref($f->{Fx}) ne 'CODE' && $f->{xvar} eq $f->{Fx}->string) {
-				my $function = $data->function_string('y', 'PGF', 1);
+				my $function = $data->function_string($f->{Fy}, 'PGF', $f->{xvar});
 				if ($function ne '') {
 					$data->update_min_max;
+					$tikz_options .= ", data cs=polar" if $data->style('polar');
 					$tikz_options .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
 					$plot = "{$function}";
 				}
 			} else {
-				my $xfunction = $data->function_string('x', 'PGF', 1);
-				my $yfunction = $data->function_string('y', 'PGF', 1);
+				my $xfunction = $data->function_string($f->{Fx}, 'PGF', $f->{xvar});
+				my $yfunction = $data->function_string($f->{Fy}, 'PGF', $f->{xvar});
 				if ($xfunction ne '' && $yfunction ne '') {
 					$data->update_min_max;
 					$tikz_options .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
 					$plot = "({$xfunction}, {$yfunction})";
 				}
 			}
+		}
+		if ($data->name eq 'multipath') {
+			my $var   = $data->{function}{var};
+			my @paths = @{ $data->{paths} };
+			my $n     = scalar(@paths);
+			my @tikzFunctionx;
+			my @tikzFunctiony;
+			for (0 .. $#paths) {
+				my $path = $paths[$_];
+				my $a    = $_ / $n;
+				my $b    = ($_ + 1) / $n;
+				my $tmin = $path->{tmin};
+				my $tmax = $path->{tmax};
+				my $m    = ($tmax - $tmin) / ($b - $a);
+				my $tmp  = $a < 0 ? 'x+' . (-$a)       : "x-$a";
+				my $t    = $m < 0 ? "($tmin$m*($tmp))" : "($tmin+$m*($tmp))";
+
+				my $xfunction = $data->function_string($path->{Fx}, 'PGF', $var, undef, $t);
+				my $yfunction = $data->function_string($path->{Fy}, 'PGF', $var, undef, $t);
+				my $last      = $_ == $#paths ? '=' : '';
+				push(@tikzFunctionx, "(x>=$a)*(x<$last$b)*($xfunction)");
+				push(@tikzFunctiony, "(x>=$a)*(x<$last$b)*($yfunction)");
+			}
+			$tikz_options .= ", domain=0:1, samples=$data->{function}{steps}";
+			$plot = "\n({" . join("\n+", @tikzFunctionx) . "},\n{" . join("\n+", @tikzFunctiony) . '})';
 		}
 		unless ($plot) {
 			$data->gen_data;
@@ -277,15 +339,18 @@ sub draw {
 		}
 		$tikzCode .= "\\addplot[$tikz_options] $plot;\n";
 
-		$tikzCode .= $self->get_color($fill_color) unless $fill eq 'none';
 		unless ($fill eq 'none' || $fill eq 'self') {
-			my $name       = $data->style('name')         || '';
-			my $opacity    = $data->style('fill_opacity') || 0.5;
-			my $fill_min   = $data->style('fill_min');
-			my $fill_max   = $data->style('fill_max');
-			my $fill_range = defined $fill_min && defined $fill_max ? ", soft clip={domain=$fill_min:$fill_max}" : '';
-			$opacity *= 100;
-			$tikzFill .= "\\addplot[$fill_color!$opacity] fill between[of=$name and $fill$fill_range];\n";
+			my $name = $data->style('name');
+			if ($name) {
+				my $opacity    = $data->style('fill_opacity') || 0.5;
+				my $fill_min   = $data->style('fill_min');
+				my $fill_max   = $data->style('fill_max');
+				my $fill_range = $fill_min ne '' && $fill_max ne '' ? ", soft clip={domain=$fill_min:$fill_max}" : '';
+				$opacity *= 100;
+				$tikzFill .= "\\addplot[$fill_color!$opacity] fill between[of=$name and $fill$fill_range];\n";
+			} else {
+				warn "Unable to create fill. Missing 'name' attribute.";
+			}
 		}
 	}
 	# Add fills last to ensure all named graphs have been plotted first.
@@ -293,11 +358,11 @@ sub draw {
 
 	# Vector/Slope Fields
 	for my $data ($plots->data('vectorfield')) {
-		my $xfunction = $data->function_string('x', 'PGF', 2);
-		my $yfunction = $data->function_string('y', 'PGF', 2);
+		my $f         = $data->{function};
+		my $xfunction = $data->function_string($f->{Fx}, 'PGF', $f->{xvar}, $f->{yvar});
+		my $yfunction = $data->function_string($f->{Fy}, 'PGF', $f->{xvar}, $f->{yvar});
 		my $arrows    = $data->style('slopefield') ? '' : ', -stealth';
 		if ($xfunction ne '' && $yfunction ne '') {
-			my $f            = $data->{function};
 			my $color        = $data->style('color');
 			my $width        = $data->style('width');
 			my $scale        = $data->style('scale');
@@ -338,12 +403,12 @@ sub draw {
 		my $str          = $label->style('label');
 		my $x            = $label->x(0);
 		my $y            = $label->y(0);
-		my $color        = $label->style('color')        || 'default_color';
-		my $fontsize     = $label->style('fontsize')     || 'medium';
-		my $orientation  = $label->style('orientation')  || 'horizontal';
-		my $tikz_options = $label->style('tikz_options') || '';
-		my $h_align      = $label->style('h_align')      || 'center';
-		my $v_align      = $label->style('v_align')      || 'middle';
+		my $color        = $label->style('color')    || 'default_color';
+		my $fontsize     = $label->style('fontsize') || 'medium';
+		my $rotate       = $label->style('rotate');
+		my $tikz_options = $label->style('tikz_options');
+		my $h_align      = $label->style('h_align') || 'center';
+		my $v_align      = $label->style('v_align') || 'middle';
 		my $anchor       = $v_align eq 'top' ? 'north' : $v_align eq 'bottom' ? 'south' : '';
 		$str = {
 			tiny   => '\tiny ',
@@ -356,7 +421,7 @@ sub draw {
 		$anchor .= $h_align eq 'left' ? ' west' : $h_align eq 'right' ? ' east' : '';
 		$tikz_options = $tikz_options ? "$color, $tikz_options" : $color;
 		$tikz_options = "anchor=$anchor, $tikz_options" if $anchor;
-		$tikz_options = "rotate=90, $tikz_options"      if $orientation eq 'vertical';
+		$tikz_options = "rotate=$rotate, $tikz_options" if $rotate;
 		$tikzCode .= $self->get_color($color) . "\\node[$tikz_options] at (axis cs: $x,$y) {$str};\n";
 	}
 	$tikzCode .= '\end{axis}';
