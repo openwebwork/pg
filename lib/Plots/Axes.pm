@@ -31,7 +31,7 @@ Each axis and styles can be configured individually, such as:
 
     $plot->axes->xaxis(min => -10, max => 10,  tick_delta => 4);
     $plot->axes->yaxis(min => 0,   max => 100, tick_delta => 20);
-    $plot->axes->style(title => 'Graph of function y = f(x).', show_grid => 0);
+    $plot->axes->style(ariaLabel => 'Graph of function y = f(x).', show_grid => 0);
 
 This can be combined using the set method by prepending either C<x> or C<y> in front
 of each key of the axes to configure (note keys that do not start with C<x> or C<y>
@@ -44,7 +44,7 @@ sent to C<< $plot->axes->style >>):
         ymin        => 0,
         ymax        => 100,
         ytick_delta => 20,
-        title       => 'Graph of function y = f(x).',
+        ariaLabel   => 'Graph of function y = f(x).',
         show_grid   => 0,
     );
 
@@ -151,9 +151,14 @@ The following styles configure aspects about the axes.
 
 =over 5
 
-=item title
+=item ariaLabel
 
-The title of the graph used as the ARIA label in JSX graph output. Default is ''.
+The ARIA label in JSX graph output. Default is 'Graph'.
+
+=item ariaDescription
+
+The ARIA description in JSX graph output. This will be set to the images alt tag.
+Default is 'Generated graph'.
 
 =item show_grid
 
@@ -200,10 +205,11 @@ sub new {
 		xaxis  => {},
 		yaxis  => {},
 		styles => {
-			title      => '',
-			grid_color => 'gray',
-			grid_alpha => 40,
-			show_grid  => 1,
+			ariaLabel       => 'Graph',
+			ariaDescription => 'Generated graph',
+			grid_color      => 'gray',
+			grid_alpha      => 40,
+			show_grid       => 1,
 		},
 		@_
 	}, $class;
