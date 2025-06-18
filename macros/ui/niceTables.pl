@@ -970,7 +970,7 @@ sub Row {
 				} elsif (!$cellOpts->{halign}) {
 					$columntype .= getLaTeXcolumnWidth($cellAlign->{right});
 				}
-				$cell = latexCommand('multicolumn', [ $cellOpts->{colspan}, $columntype, $cell ]);
+				$cell = "\\multicolumn{$cellOpts->{colspan}}{$columntype}{$cell}";
 			}
 			$cell = suffix($cell, '&', ' ') unless ($i == $#$rowArray);
 			push(@cells, $cell);
@@ -1453,16 +1453,6 @@ sub latexEnvironment {
 	}
 	$return .= "$separator$inside$separator";
 	$return .= "\\end{$environment}";
-	return $return;
-}
-
-sub latexCommand {
-	my ($command, $arguments) = @_;
-	my $return = "\\$command";
-	for my $x (@$arguments) {
-		$return .= "{$x}" if ($x ne '');
-	}
-	$return .= " ";
 	return $return;
 }
 
