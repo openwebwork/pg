@@ -324,8 +324,9 @@ sub draw {
 
 				my $xfunction = $data->function_string($path->{Fx}, 'PGF', $var, undef, $t);
 				my $yfunction = $data->function_string($path->{Fy}, 'PGF', $var, undef, $t);
-				push(@tikzFunctionx, "(x>=$a)*(x<$b)*($xfunction)");
-				push(@tikzFunctiony, "(x>=$a)*(x<$b)*($yfunction)");
+				my $last      = $_ == $#paths ? '=' : '';
+				push(@tikzFunctionx, "(x>=$a)*(x<$last$b)*($xfunction)");
+				push(@tikzFunctiony, "(x>=$a)*(x<$last$b)*($yfunction)");
 			}
 			$tikz_options .= ", domain=0:1, samples=$data->{function}{steps}";
 			$plot = "\n({" . join("\n+", @tikzFunctionx) . "},\n{" . join("\n+", @tikzFunctiony) . '})';

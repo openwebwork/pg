@@ -255,8 +255,8 @@ sub add_multipath {
 
 		my $xfunction = $data->function_string($path->{Fx}, 'js', $var, undef, $t);
 		my $yfunction = $data->function_string($path->{Fy}, 'js', $var, undef, $t);
-		$jsFunctionx .= "if(x<$b){return $xfunction;}";
-		$jsFunctiony .= "if(x<$b){return $yfunction;}";
+		$jsFunctionx .= "if(x<=$b){return $xfunction;}";
+		$jsFunctiony .= "if(x<=$b){return $yfunction;}";
 	}
 	$jsFunctionx .= 'return 0;}';
 	$jsFunctiony .= 'return 0;}';
