@@ -157,6 +157,7 @@ sub configure_axes {
 		[
 			trig format plots=rad,
 			view={0}{90},
+			scale only axis,
 			height=$axes_height,
 			width=$axes_width,
 			${axis_on_top}axis x line=$axis_x_line$axis_x_pos,

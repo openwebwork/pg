@@ -151,6 +151,12 @@ The following styles configure aspects about the axes.
 
 =over 5
 
+=item aspect_ratio
+
+If this style is set, then the height of the graph will be computed using
+this aspect_ratio for the size of the image unless explicitly set.
+Default: ''
+
 =item ariaLabel
 
 The ARIA label in JSX graph output. Default is 'Graph'.
