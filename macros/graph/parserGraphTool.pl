@@ -555,6 +555,11 @@ numberLine is set. Note that this option is only used in HTML output.
 An aria description that will be added to the graph. The default value is 'graph of solution'. Note
 that this option is only used in HTML output.
 
+=item C<longDescription>
+
+A long description that will be added below the graph and is shown for all users. This is not set by
+default. Note that this option is only used in HTML output.
+
 =item C<objects>
 
 Additional objects to display in the graph. The default value is the empty string.
@@ -1146,38 +1151,48 @@ sub generateHTMLAnswerGraph {
 			"<style>#${ans_name}_$idSuffix .graphtool-graph{width:${width}px;height:${height}px;}</style>");
 	}
 
-	return << "END_SCRIPT";
-<div id="${ans_name}_$idSuffix" class="$cssClass"></div>
-<script>
-(() => {
-	const initialize = () => {
-		graphTool('${ans_name}_$idSuffix', {
-			staticObjects: '${\(join(',', $self->{staticObjects}->value))}',
-			answerObjects: '$answerObjects',
-			isStatic: true,
-			snapSizeX: $self->{snapSizeX},
-			snapSizeY: $self->{snapSizeY},
-			xAxisLabel: '$self->{xAxisLabel}',
-			yAxisLabel: '$self->{yAxisLabel}',
-			numberLine: $self->{numberLine},
-			useBracketEnds: $self->{useBracketEnds},
-			useFloodFill: $self->{useFloodFill},
-			customGraphObjects: [ $customGraphObjects ],
-			JSXGraphOptions: $self->{JSXGraphOptions},
-			ariaDescription: '$ariaDescription'
-		});
-	};
-	if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
-	else {
-		const trampoline = () => {
-			if (typeof window.graphTool === 'undefined') setTimeout(trampoline, 100);
-			else initialize();
-		}
-		setTimeout(trampoline);
-	}
-})();
-</script>
-END_SCRIPT
+	my $html = main::tag(
+		'div',
+		id    => "${ans_name}_$idSuffix",
+		class => $cssClass,
+		$options{longDescription} ? (aria_details => "${ans_name}_${idSuffix}_details") : ()
+	);
+
+	$html = main::tag(
+		'div',
+		class => 'image-container',
+		$html . ($options{longDescription} =~ s/LONG-DESCRIPTION-ID/${ans_name}_${idSuffix}_details/r)
+	) if $options{longDescription};
+
+	return $html . main::tag('script', <<~ "END_SCRIPT");
+		(() => {
+			const initialize = () => {
+				graphTool('${ans_name}_$idSuffix', {
+					staticObjects: '${\(join(',', $self->{staticObjects}->value))}',
+					answerObjects: '$answerObjects',
+					isStatic: true,
+					snapSizeX: $self->{snapSizeX},
+					snapSizeY: $self->{snapSizeY},
+					xAxisLabel: '$self->{xAxisLabel}',
+					yAxisLabel: '$self->{yAxisLabel}',
+					numberLine: $self->{numberLine},
+					useBracketEnds: $self->{useBracketEnds},
+					useFloodFill: $self->{useFloodFill},
+					customGraphObjects: [ $customGraphObjects ],
+					JSXGraphOptions: $self->{JSXGraphOptions},
+					ariaDescription: '$ariaDescription'
+				});
+			};
+			if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initialize);
+			else {
+				const trampoline = () => {
+					if (typeof window.graphTool === 'undefined') setTimeout(trampoline, 100);
+					else initialize();
+				}
+				setTimeout(trampoline);
+			}
+		})();
+		END_SCRIPT
 }
 
 sub generateTeXGraph {
