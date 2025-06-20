@@ -2780,6 +2780,11 @@ an image. This may include a table (for example to describe complex data in a gr
 It may be helpful to generate blocks of text and tables and store them in a variable,
 and pass that variable to C<long_description>.
 
+C<long_description_width> defaults to 1. This should be a positive number at most 1.
+In hardcopy output, this portion of the line width will be used to cap the width
+of the long description (if there is one). This is useful for example when the image
+is inside a table.
+
 C<extra_html_tags> [DEPRECATED] can be a string will directly be placed into the
 HTML img element. For example, C<< extra_html_tags => 'style="border:solid black 1pt"' >>.
 
@@ -2811,9 +2816,10 @@ sub image {
 		tex_size => '',
 		valign   => 'middle',
 		# default value for alt is undef, since an empty string is the explicit indicator of a decorative image
-		alt              => undef,
-		long_description => undef,
-		extra_html_tags  => '',
+		alt                    => undef,
+		long_description       => undef,
+		long_description_width => 1,
+		extra_html_tags        => '',
 	);
 	# handle options
 	my %out_options = %known_options;
@@ -2837,7 +2843,8 @@ sub image {
 
 	my $alt         = $out_options{alt};
 	my $desc        = $out_options{long_description};
-	my $width_ratio = $tex_size * (.001);
+	my $ldw         = $out_options{long_description_width};
+	my $width_ratio = $tex_size * 0.001;
 	my @image_list  = ();
 	my @alt_list    = ();
 	my @desc_list   = ();
@@ -2950,7 +2957,10 @@ sub image {
 			# We're going to create PDF files with our TeX (using LaTeX), so
 			# alias should have given us the path to a PNG image.
 			if ($imagePath) {
-				$out = "\\parbox{\\linewidth}{" if $desc;
+				if ($desc) {
+					$out .= "\\parbox{$ldw\\linewidth}{";
+					$width_ratio = $width_ratio / $ldw;
+				}
 				if ($valign eq 'top') {
 					$out .= '\settoheight{\strutheight}{\strut}\raisebox{-\height + \strutheight}'
 						. "{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
@@ -2962,9 +2972,11 @@ sub image {
 				}
 				if ($desc) {
 					$out .=
-						'\\\\ '
+						"\\newline\\par\\parbox{\\linewidth}{{\\scshape\\underline{"
 						. maketext('image description')
-						. "\\footnotemark}\\footnotetext{$description_details}\n";
+						. "}}\\newline{}$description_details\\par\\hfill\\(\\overline{\\mbox{\\scshape "
+						. maketext('end image description')
+						. "}}\\)}}\\par\n";
 				}
 			}
 		} elsif ($displayMode eq 'HTML_MathJax'
