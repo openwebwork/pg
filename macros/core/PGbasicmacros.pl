@@ -2867,7 +2867,7 @@ sub image {
 					title => 'details',
 					tag(
 						'span',
-						class         => 'badge badge-info bg-secondary',
+						class         => 'image-details-btn btn btn-sm btn-secondary fw-bold',
 						'aria-hidden' => 'true',
 						maketext('image description')
 					)
@@ -2877,13 +2877,15 @@ sub image {
 						id    => 'LONG-DESCRIPTION-ID',
 						class => 'image-details-content bg-white py-2 px-3 my-2 border',
 						shift(@desc_list)
-						. tag('br')
 						. tag(
-							'button',
-							class   => 'image-details-dismiss badge badge-info bg-secondary',
-							type    => 'button',
-							onclick => "this.parentElement.parentElement.removeAttribute('open')",
-							maketext('Close image description')
+							'div',
+							class => 'd-flex justify-content-end mt-2',
+							tag(
+								'button',
+								class   => 'image-details-dismiss btn btn-sm btn-secondary',
+								type    => 'button',
+								maketext('Close image description')
+							)
 						)
 					)
 			);

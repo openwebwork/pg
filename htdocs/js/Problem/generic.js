@@ -1,4 +1,6 @@
 (() => {
+	// Details accordions
+
 	const setupAccordion = (accordion) => {
 		const collapseEl = accordion.querySelector('.collapse');
 		const button = accordion.querySelector('summary.accordion-button');
@@ -38,4 +40,11 @@
 		});
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
+
+	// Image long description dismiss buttons
+	for (const dismissButton of document.querySelectorAll('.image-details-dismiss')) {
+		dismissButton.addEventListener('click', () =>
+			dismissButton.parentElement?.parentElement?.parentElement?.removeAttribute('open')
+		);
+	}
 })();
