@@ -2854,8 +2854,8 @@ sub image {
 	my @output_list = ();
 	while (@image_list) {
 		my $image_item          = shift @image_list;
-		my $description_details = '';
-		if ($desc) {
+		my $description_details = $desc ? shift(@desc_list) : '';
+		if ($desc && $displayMode ne 'PTX' && $displayMode ne 'TeX') {
 			$description_details = tag(
 				'details',
 				'aria-live' => 'polite',
@@ -2876,7 +2876,7 @@ sub image {
 						'div',
 						id    => 'LONG-DESCRIPTION-ID',
 						class => 'image-details-content bg-white py-2 px-3 my-2 border',
-						shift(@desc_list)
+						$description_details
 						. tag(
 							'div',
 							class => 'd-flex justify-content-end mt-2',
@@ -2928,7 +2928,7 @@ sub image {
 		my $imageURL = alias($image_item) // '';
 		$imageURL = ($envir{use_site_prefix}) ? $envir{use_site_prefix} . $imageURL : $imageURL;
 		my $id  = $main::PG->getUniqueName('img');
-		my $out = "";
+		my $out = '';
 
 		if ($displayMode eq 'TeX') {
 			my $imagePath = $imageURL;    # in TeX mode, alias gives us a path, not a URL
@@ -2936,17 +2936,22 @@ sub image {
 			# We're going to create PDF files with our TeX (using LaTeX), so
 			# alias should have given us the path to a PNG image.
 			if ($imagePath) {
+				$out = "\\parbox{\\linewidth}{" if $desc;
 				if ($valign eq 'top') {
-					$out = '\settoheight{\strutheight}{\strut}'
-						. "\\raisebox{-\\height + \\strutheight}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+					$out .= '\settoheight{\strutheight}{\strut}\raisebox{-\height + \strutheight}'
+						. "{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
 				} elsif ($valign eq 'bottom') {
-					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+					$out .= "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
 				} else {
-					$out = '\settoheight{\strutheight}{\strut}'
-						. "\\raisebox{-0.5\\height + 0.5\\strutheight}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+					$out .= '\settoheight{\strutheight}{\strut}\raisebox{-0.5\height + 0.5\strutheight}'
+						. "{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
 				}
-			} else {
-				$out = "";
+				if ($desc) {
+					$out .=
+						'\\\\ '
+						. maketext('image description')
+						. "\\footnotemark}\\footnotetext{$description_details}\n";
+				}
 			}
 		} elsif ($displayMode eq 'HTML_MathJax'
 			|| $displayMode eq 'HTML_dpng'
@@ -2974,7 +2979,7 @@ sub image {
 				$out .= "\n<shortdescription>$alt</shortdescription>";
 			}
 			if (defined $desc) {
-				$out .= "\n<description>\n" . PTX_cleanup($desc) . "\n</description>";
+				$out .= "\n<description>\n" . PTX_cleanup($description_details) . "\n</description>";
 			}
 			if (defined $alt || defined $desc) {
 				$out .= "\n";
