@@ -31,7 +31,7 @@ Each axis and styles can be configured individually, such as:
 
     $plot->axes->xaxis(min => -10, max => 10,  tick_delta => 4);
     $plot->axes->yaxis(min => 0,   max => 100, tick_delta => 20);
-    $plot->axes->style(ariaLabel => 'Graph of function y = f(x).', show_grid => 0);
+    $plot->axes->style(aria_label => 'Graph of function y = f(x).', show_grid => 0);
 
 This can be combined using the set method by prepending either C<x> or C<y> in front
 of each key of the axes to configure (note keys that do not start with C<x> or C<y>
@@ -44,7 +44,7 @@ sent to C<< $plot->axes->style >>):
         ymin        => 0,
         ymax        => 100,
         ytick_delta => 20,
-        ariaLabel   => 'Graph of function y = f(x).',
+        aria_label  => 'Graph of function y = f(x).',
         show_grid   => 0,
     );
 
@@ -157,11 +157,11 @@ If this style is set, then the height of the graph will be computed using
 this aspect_ratio for the size of the image unless explicitly set.
 Default: ''
 
-=item ariaLabel
+=item aria_label
 
 The ARIA label in JSX graph output. Default is 'Graph'.
 
-=item ariaDescription
+=item aria_description
 
 The ARIA description in JSX graph output. This will be set to the images alt tag.
 Default is 'Generated graph'.
@@ -211,11 +211,11 @@ sub new {
 		xaxis  => {},
 		yaxis  => {},
 		styles => {
-			ariaLabel       => 'Graph',
-			ariaDescription => 'Generated graph',
-			grid_color      => 'gray',
-			grid_alpha      => 40,
-			show_grid       => 1,
+			aria_label       => 'Graph',
+			aria_description => 'Generated graph',
+			grid_color       => 'gray',
+			grid_alpha       => 40,
+			show_grid        => 1,
 		},
 		@_
 	}, $class;
