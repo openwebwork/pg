@@ -1,15 +1,3 @@
-package WeBWorK::PG::PGProblemCritic;
-use parent qw(Exporter);
-
-use strict;
-use warnings;
-use experimental 'signatures';
-use feature 'say';
-
-use Mojo::File qw(curfile);
-use Data::Dumper;
-
-our @EXPORT_OK = qw(analyzePGfile analyzePGcode getDeprecatedMacros);
 
 =head1 NAME
 
@@ -74,6 +62,19 @@ folder.
 
 
 =cut
+
+package WeBWorK::PG::PGProblemCritic;
+use parent qw(Exporter);
+
+use strict;
+use warnings;
+use experimental 'signatures';
+use feature 'say';
+
+use Mojo::File qw(curfile);
+use Mojo::Util qw(dumper);
+
+our @EXPORT_OK = qw(analyzePGfile analyzePGcode getDeprecatedMacros);
 
 sub analyzePGcode ($code) {
 	# default flags for presence of features in a PG problem
@@ -144,9 +145,17 @@ sub analyzePGcode ($code) {
 				$line =~ s/(.*)#.*/$1/;
 				$macros .= $line;
 			}
-			# Split by commas and pull out the quotes.
-			# TODO: handle cases with loadMacros(qw/macro1.pl macro2.pl/);
-			my @macros = map {s/['"\s]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
+
+			$macros =~ s/^\s*loadMacros\(\s*(.*)\s*\);\s*$/$1/;
+			my @macros;
+			# if the arguments of loadMacros is q[qw] form, handle this.
+			if ($macros =~ /^q[qw]?[\(\[\{\/](.*)[\)\]\/\}]$/) {
+				$macros =~ s/^q[qw]?[\(\[\{\/](.*)[\)\]\/\}]$/$1/;
+				@macros = grep { $_ ne '' } split(/\s+/, $macros);
+			} else {    # arguments are strings separated by commas.
+				@macros = map {s/['"\s]//gr} split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
+			}
+
 			$features->{macros} = \@macros;
 			for my $macro (@macros) {
 				push(@{ $features->{deprecated_macros} }, $macro) if (grep { $macro eq $_ } @$all_deprecated_macros);

@@ -31,7 +31,7 @@ use feature 'say';
 
 use Mojo::File qw(curfile);
 use Getopt::Long;
-use Data::Dumper;
+use Mojo::Util qw(dumper);
 
 use lib curfile->dirname->dirname . '/lib';
 
@@ -88,9 +88,9 @@ sub scoreProblem ($prob) {
 for (grep { $_ =~ /\.pg$/ } @ARGV) {
 	say $_ if $verbose;
 	my $features = analyzePGfile($_);
-	# print Dumper $features if $verbose;
+	say dumper $features if $verbose;
 	if ($score) {
-		print Dumper scoreProblem($features) if $verbose;
+		say dumper scoreProblem($features) if $verbose;
 	}
 }
 
