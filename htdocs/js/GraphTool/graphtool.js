@@ -640,9 +640,10 @@ window.graphTool = (containerId, options) => {
 		return x > 0 ? 1 : -1;
 	};
 
-	// These return true if the given x coordinate is off the board or within epsilon of the edge of the board.
-	gt.isPosInfX = (x) => x >= gt.board.getBoundingBox()[2] - JXG.Math.eps;
-	gt.isNegInfX = (x) => x <= gt.board.getBoundingBox()[0] + JXG.Math.eps;
+	// These return true if the given x coordinate is off the board or within twice epsilon of the edge of the board.
+	// Note that twice epsilon is used since the board is extended by epsilon in each direction.
+	gt.isPosInfX = (x) => x >= gt.board.getBoundingBox()[2] - 2 * JXG.Math.eps;
+	gt.isNegInfX = (x) => x <= gt.board.getBoundingBox()[0] + 2 * JXG.Math.eps;
 
 	// Use this instead of gt.board.hasPoint.  That method uses strict inequality.
 	// Using inequality with equality allows points on the edge of the board.
