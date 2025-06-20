@@ -14,7 +14,7 @@
 #:% name = Periodic Answers
 #:% type = Sample
 #:% subject = [trigonometry, precalculus]
-#:% categories = [periodic]
+#:% categories = [answers, trigonometry]
 
 #:% section = preamble
 DOCUMENT();

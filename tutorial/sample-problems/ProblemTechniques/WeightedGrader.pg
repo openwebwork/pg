@@ -15,7 +15,7 @@
 
 #:% name = Weighted Grader
 #:% type = [technique]
-#:% categories = [grader]
+#:% categories = [grader, answers]
 
 #:% section = preamble
 DOCUMENT();

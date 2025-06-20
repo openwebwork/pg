@@ -15,7 +15,7 @@
 #:% name = Answer is an Equation
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories = [equations, functions, answers]
+#:% categories = [equations, function, answers]
 
 #:% section = preamble
 #: The macro file PODLINK('parserAssignment.pl') needs to be included.

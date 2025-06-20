@@ -14,7 +14,7 @@
 #:% name = Disabling Functions
 #:% type = [Sample, technique]
 #:% subject = [trigonometry, precalculus]
-#:% categories = [functions, exact]
+#:% categories = [function, trigonometry]
 
 #:% section = preamble
 #: The PODLINK('contextFraction.pl') is loaded for the `Fraction-NoDecimals`

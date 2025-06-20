@@ -11,10 +11,10 @@
 ## MO(1)
 ## KEYWORDS('interval')
 
-# created as a full problem by Peter Staab  2023.06.02
 
 #:% name = Knowls
 #:% type = [technique, snippet]
+#:% categories = [knowls]
 
 #:% section = preamble
 DOCUMENT();

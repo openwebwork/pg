@@ -14,7 +14,7 @@
 #:% name = Draggable Trigonometry Identity
 #:% type = Sample
 #:% subject = [proof, trigonometry]
-#:% categories = [draggable]
+#:% categories = [proof, draggable, trigonometry]
 
 #:% section = preamble
 #: This problem uses the PODLINK('draggableProof.pl`) macro to display "buckets"

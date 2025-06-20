@@ -13,6 +13,7 @@
 
 #:% name = Percent Context
 #:% type = [technique]
+#:% categories = [percent]
 
 #:% section = preamble
 #: The PODLINK('contextPercent.pl') macro must be loaded.

@@ -14,7 +14,7 @@
 #:% name = Function Plot
 #:% type = Sample
 #:% subject = [algebra, precalculus, plot]
-#:% categories = [plot]
+#:% categories = [plots]
 
 #:% section = preamble
 DOCUMENT();
@@ -22,7 +22,7 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: For this problem, a plot of \(y = ax^2\) for a random value of \(a\) is
+#: For this problem, a plot of $y = ax^2$ for a random value of $a$ is
 #: generated. Create a Plot object with the given plotting window and other
 #: axis properties.
 #:

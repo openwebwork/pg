@@ -11,8 +11,6 @@
 ## MO(1)
 ## KEYWORDS('formatting decimals', 'logarithm')
 
-# updated to full problem by Peter Staab (06/01/2023)
-
 #:% name = Formatting Decimals
 #:% type = technique
 #:% categories = [formatting decimals, logarithm]

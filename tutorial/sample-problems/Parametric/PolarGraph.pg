@@ -14,6 +14,7 @@
 #:% name = Polar Graph (tikz)
 #:% type = [sample, technique]
 #:% subject = [parametric]
+#:% categories = [plots, parametric]
 
 #:% section = preamble
 #: The PODLINK('PGtikz.pl') macro is used to generate the graph.
@@ -55,7 +56,7 @@ BEGIN_PGML
 Find the area enclosed by one petal of the rose curve
 [`r = f(\theta) = \cos(5\theta)`].
 
->>[!a rose curve!]{$graph}{300}<<  
+>>[!a rose curve!]{$graph}{300}<<
 >>Graph of [`r = \cos(5\theta)`]<<
 
 Area = [_____]{'pi / 20'}

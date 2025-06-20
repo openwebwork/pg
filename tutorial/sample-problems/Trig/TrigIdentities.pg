@@ -14,7 +14,7 @@
 #:% name = Trigonometric Identities
 #:% type = Sample
 #:% subject = [trigonometry, precalculus]
-#:% categories = [custom]
+#:% categories = [custom checker]
 
 #:% section = preamble
 DOCUMENT();

@@ -11,8 +11,6 @@
 ## MO(1)
 ## KEYWORDS('variables')
 
-# updated to full problem by Peter Staab (06/01/2023)
-
 #:% name = Adding Variables to the Context
 #:% type = technique
 #:% categories = [variables]

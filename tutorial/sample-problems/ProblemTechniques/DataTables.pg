@@ -13,7 +13,7 @@
 
 #:% name = Data Table
 #:% type = [technique]
-#:% categories = table
+#:% categories = [table]
 
 #:% section = preamble
 #: This shows how to use the `DataTable` function in PODLINK('niceTables.pl').

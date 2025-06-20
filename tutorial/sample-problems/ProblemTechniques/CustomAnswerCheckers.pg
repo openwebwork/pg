@@ -11,11 +11,9 @@
 ## MO(1)
 ## KEYWORDS('answer', 'custom')
 
-# updated to full problem by Peter Staab (06/01/2023)
-
 #:% name = Custom Answer Checker
 #:% type = technique
-#:% categories = [answers, custom]
+#:% categories = [answers, custom checker]
 
 #:% section = preamble
 DOCUMENT();

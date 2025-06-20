@@ -15,7 +15,7 @@
 #:% name = Proving Identities
 #:% type = Sample
 #:% subject = [trigonometry, precalculus]
-#:% categories = [proof]
+#:% categories = [proof, trigonometry]
 
 #:% section = preamble
 #: This is a scaffolded problem, so load PODLINK('scaffold.pl').

@@ -15,7 +15,7 @@
 #:% name = General Solution to a Differential Equation
 #:% type = Sample
 #:% subject = differential equations
-#:% categories = [answers, custom]
+#:% categories = [answers, custom checker]
 
 #:% section = preamble
 #: We load `parserAssignment.pl` to require student answers to be of the

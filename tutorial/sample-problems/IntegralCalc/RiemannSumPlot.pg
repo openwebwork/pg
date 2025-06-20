@@ -23,13 +23,13 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: For this problem, we make a Riemann Sum plot by plotting the function \(y=x^3+3\)
+#: For this problem, we make a Riemann Sum plot by plotting the function $y=x^3+3$
 #: and the midpoint rectangles.  Each of these objects is created separately and added
 #: to the the plot.
 #:
 #: Create a Plot object with the given plotting window and other axis properties. The
 #: function is made in this case as a MathObject.  With `$plot->add_function`, the function
-#: is added and filled toward the \(x\)-axis.
+#: is added and filled toward the $x$-axis.
 #:
 #: The for loop creates the rectangles and added as the `add_dataset` with the
 #: four points (and the first point again to make a closed path). The fill color

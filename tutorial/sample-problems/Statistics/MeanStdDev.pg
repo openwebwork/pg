@@ -11,6 +11,7 @@
 #:% name = Mean and Standard Deviation
 #:% subject = [statistics]
 #:% type = sample
+#:% categories = [statistics]
 
 #:% section = preamble
 #: The PODLINK('PGstatisticsmacros.pl') macro provides the `stats_mean`,

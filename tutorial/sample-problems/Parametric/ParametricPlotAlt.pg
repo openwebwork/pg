@@ -14,6 +14,7 @@
 #:% name = Parametric Curve Graph (plots)
 #:% types = [Sample, technique]
 #:% subject = parametric
+#:% categories = [plots, parametric]
 
 #:% section = preamble
 #: The PODLINK('plots.pl') macro is used to generate the graph.

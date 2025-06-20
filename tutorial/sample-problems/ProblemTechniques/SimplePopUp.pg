@@ -13,6 +13,7 @@
 
 #:% name = Simple Popup
 #:% type = technique
+#:% categories = [popup, html]
 
 #:% section = preamble
 #: Load PODLINK('parserPopUp.pl') for pop up (or drop down) menu answers.

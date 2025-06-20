@@ -11,8 +11,6 @@
 ## MO(1)
 ## KEYWORDS('composition')
 
-# updated to full problem by Peter Staab (06/01/2023)
-
 #:% name = Composing Functions
 #:% type = technique
 #:% categories = [composition]
