@@ -13,6 +13,7 @@
 
 #:% name = Graphs in a Table
 #:% types = [Sample, technique]
+#:% categories = [graph, table]
 
 #:% section = preamble
 #: The PODLINK('PGtikz.pl') macro is used to generate the graph,
@@ -128,7 +129,7 @@ Which graph below most closely matches the graph you drew? [_]{$popup}
             [.[![$alt_text[3]]!]{$graph[3]}.]
         #]*{ padding => [ 0, 0.1 ] }
     .]
-#]*{ align => 'cc' }  
+#]*{ align => 'cc' }
 >>(Click on a graph to enlarge it.)<<
 END_PGML
 

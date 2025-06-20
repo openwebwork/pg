@@ -13,7 +13,7 @@
 
 #:% name = Custom Answer List Checker
 #:% type = technique
-#:% categories = [answers, custom, list]
+#:% categories = [answers, custom checker, list]
 
 #:% section = preamble
 DOCUMENT();

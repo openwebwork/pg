@@ -13,6 +13,7 @@
 
 #:% name = HTML Links
 #:% type = [snippet, technique]
+#:% categories = [html]
 
 #:% section = preamble
 #: An example below uses units, so the PODLINK('parserNumberWithUnits.pl') is

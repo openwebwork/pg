@@ -12,6 +12,7 @@
 #:% name = Bar Graph
 #:% subject = [statistics]
 #:% type = sample
+#:% categories = [graph, statistics]
 
 #:% section = preamble
 #: The PODLINK('PGtikz.pl') macro provides the graphing methods we will use

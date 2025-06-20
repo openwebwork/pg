@@ -14,7 +14,7 @@
 #:% name = Degrees in Trigonometric Functions
 #:% type = [technique, sample]
 #:% subject = [trigonometry, precalculus]
-#:% categories = [degrees]
+#:% categories = [degrees, trigonometry]
 
 #:% section = preamble
 #: Load the PODLINK('contextTrigDegrees.pl') macro for the `TrigDegrees`

@@ -13,6 +13,7 @@
 
 #:% name = Graphic Images, Static
 #:% types = technique
+#:% categories = [images]
 
 #:% section = preamble
 DOCUMENT();

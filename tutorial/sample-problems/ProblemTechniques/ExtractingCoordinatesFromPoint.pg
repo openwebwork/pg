@@ -11,8 +11,6 @@
 ## MO(1)
 ## KEYWORDS('point', 'coordinates')
 
-# updated to full problem by Peter Staab (06/01/2023)
-
 #:% name = Extracting Coordinates from a Point
 #:% type = technique
 #:% categories = [point]

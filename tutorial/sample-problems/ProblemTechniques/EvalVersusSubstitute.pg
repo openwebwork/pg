@@ -11,8 +11,6 @@
 ## MO(1)
 ## KEYWORDS('formula', 'eval', 'substitute')
 
-# updated to full problem by Peter Staab (06/01/2023)
-
 #:% name = Eval Versus Substitute
 #:% type = technique
 #:% categories = [formula]

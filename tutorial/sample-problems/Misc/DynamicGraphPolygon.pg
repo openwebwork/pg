@@ -13,6 +13,7 @@
 
 #:% name = Shaded Polygon Graph
 #:% type = technique
+#:% categories = [graph]
 #:% see_also = [DynamicGraph.pg]
 
 #:% section = preamble

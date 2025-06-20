@@ -12,8 +12,6 @@
 ## MO(1)
 ## KEYWORDS('answer', 'tolerance')
 
-# updated to full problem by Peter Staab (06/01/2023)
-
 #:% name = Number of Digits and Tolerance in Answers
 #:% type = technique
 #:% categories = [answers, tolerance]
