@@ -2882,8 +2882,8 @@ sub image {
 							class => 'd-flex justify-content-end mt-2',
 							tag(
 								'button',
-								class   => 'image-details-dismiss btn btn-sm btn-secondary',
-								type    => 'button',
+								class => 'image-details-dismiss btn btn-sm btn-secondary',
+								type  => 'button',
 								maketext('Close image description')
 							)
 						)
