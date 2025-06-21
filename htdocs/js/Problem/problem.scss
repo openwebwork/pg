@@ -329,6 +329,20 @@
 					&:not(:last-child) {
 						border-bottom: 1px solid black;
 					}
+					&.arnie {
+						aspect-ratio: 177 / 254;
+						background-repeat: no-repeat;
+						background-size: cover;
+						background-image: url('/pg_files/images/apizer.jpg');
+						color: white;
+					}
+					&.mike {
+						aspect-ratio: 237 / 237;
+						background-repeat: no-repeat;
+						background-size: cover;
+						background-image: url('/pg_files/images/gage.jpg');
+						color: white;
+					}
 					&:last-child {
 						border-bottom-left-radius: var(--bs-card-inner-border-radius);
 						border-bottom-right-radius: var(--bs-card-inner-border-radius);
