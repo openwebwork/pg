@@ -69,10 +69,11 @@ sub new {
 	my $envir = shift;    #pointer to environment hash
 	warn "PGloadmacros must be called with an environment" unless ref($envir) eq 'HASH';
 	my $self = {
-		envir         => $envir,
-		macroFileList => {},       # records macros used in compilation
-		macrosPath    => '',
-		pwd           => '',       # current directory -- defined in initialize
+		envir             => $envir,
+		macroFileList     => {},       # records macros used in compilation
+		macrosPath        => '',
+		pwd               => '',       # current directory -- defined in initialize
+		deprecated_macros => [],
 	};
 	bless $self, $class;
 	$self->initialize;
@@ -145,11 +146,8 @@ sub loadMacros {
 		unless ($macro_file_loaded) {
 			warn "loadMacros: loading macro file $fileName" if $debugON;
 			my $filePath = $self->findMacroFile($fileName);
-			my @dirs     = split(/\//, $filePath);
-			warn "This problem uses the deprecated macro $filePath.  It will continue to work but this macro "
-				. 'will be removed in a future version.  This problem should be updated to remove this macro '
-				. 'to work.'
-				if $dirs[ $#dirs - 1 ] eq 'deprecated' && $self->{envir}{isInstructor};
+			my @dirs     = split('/', $filePath);
+			push(@{ $self->{deprecated_macros} }, $dirs[$#dirs]) if $dirs[ $#dirs - 1 ] eq 'deprecated';
 
 			#### (check for renamed files here?) ####
 			warn "loadMacros:  look for $fileName at |$filePath|" if $debugON;
