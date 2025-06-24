@@ -19,7 +19,7 @@ String answer evaluators compare a student string to the correct string.
 BEGIN { strict->import; }
 sub _PGstringevaluators_init { }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 str_filters
 

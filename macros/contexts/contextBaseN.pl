@@ -112,7 +112,7 @@ sub Init {
 	$context->parens->undefine('|', '{', '[');
 }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 convertBase
 

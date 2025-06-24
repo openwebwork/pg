@@ -15,7 +15,7 @@ correctly.
 A subroutine C<IsAnswerCorrect()> that returns 0 or 1 is also
 provided.
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 ConditionalHint
 

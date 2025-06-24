@@ -8,7 +8,7 @@ a problem to the database. This is useful for using data common to multiple prob
 
 sub _externalData_init { }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 store_number_list
 

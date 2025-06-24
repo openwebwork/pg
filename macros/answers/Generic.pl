@@ -75,7 +75,7 @@ length is entered.
 
     ENDDOCUMENT();
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =cut
 

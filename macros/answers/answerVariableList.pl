@@ -7,7 +7,7 @@ answerVariableList.pl - answer checker for list of variables
 
 Creates answer checkers that compare the student's answer to a list of variable names.
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 variable_cmp
 

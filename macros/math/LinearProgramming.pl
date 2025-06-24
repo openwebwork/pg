@@ -33,7 +33,7 @@ Tableaus are expected to be legal for the simplex method, such as
 
 or something similar which arises after pivoting.
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 lp_pivot
 

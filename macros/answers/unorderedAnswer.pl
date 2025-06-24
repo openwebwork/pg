@@ -19,7 +19,7 @@ loadMacros("answerUtils.pl");
 
 sub _unorderedAnswer_init { };    # don't reload this file
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 UNORDERED_ANS
 

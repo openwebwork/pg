@@ -13,7 +13,7 @@ Currently contains answer evaluators for radio buttons and checkboxes.
 BEGIN { strict->import; }
 sub _PGmiscevaluators_init { }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 checkbox_cmp
 

@@ -667,7 +667,7 @@ sub surePathToTmpFile {
 	return $path;
 }
 
-=head1 Macros from IO.pm
+=head1 FUNCTIONS from IO.pm
 
 		includePGtext
 		read_whole_problem_file

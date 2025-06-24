@@ -63,7 +63,7 @@ input fields that correspond to the same answer evaluator.
 
 =back
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 This file is automatically loaded into the namespace of every PG problem. The
 macros within can then be called to define the structure of the problem.

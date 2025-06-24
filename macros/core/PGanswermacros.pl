@@ -156,7 +156,7 @@ sub _PGanswermacros_init {
 	$useBaseTenLog      = PG_restricted_eval(q/$envir{useBaseTenLog}/);
 }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 Answer evaluator macros
 

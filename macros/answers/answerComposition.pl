@@ -15,7 +15,7 @@ neither of which is allowed to be the identity function.
 
 sub _answerComposition_init { };    # don't reload this file
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 COMPOSITION_ANS
 

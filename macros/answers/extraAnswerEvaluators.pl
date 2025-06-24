@@ -243,7 +243,7 @@ sub mode2context {
 	return ($context);
 }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 interval_cmp
 

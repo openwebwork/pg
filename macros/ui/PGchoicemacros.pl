@@ -83,7 +83,7 @@ loadMacros('PGauxiliaryFunctions.pl');
 package main;
 sub _PGchoicemacros_init { }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 new_match_list
 

@@ -30,7 +30,7 @@ loadMacros("PGcommonFunctions.pl");
 
 sub _PGauxiliaryFunctions_init { }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 step
 

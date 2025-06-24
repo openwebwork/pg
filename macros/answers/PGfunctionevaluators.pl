@@ -69,7 +69,8 @@ sub _PGfunctionevaluators_init {
 	}
 }
 
-=head1 MACROS
+=head1 FUNCTIONS
+
 =head2 fun_cmp
 
     ANS(fun_cmp($answer_or_answer_array_ref, %options));

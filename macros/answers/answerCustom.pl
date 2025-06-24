@@ -17,7 +17,7 @@ loadMacros('MathObjects.pl');
 
 sub _answerCustom_init { };    # don't reload this file
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 custom_cmp
 

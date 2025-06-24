@@ -7,7 +7,7 @@ PGasu.pl -- A set of macros for old school answer checkers.
 
 A set of macros for old school answer checkers.
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 auto_right()
 

@@ -10,7 +10,7 @@ additional error messages for incorrect answers.  You can trigger
 a message for a single answer, a collection of answers, or via a
 subroutine that determines the condition for the message.
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 AnswerHints()
 
