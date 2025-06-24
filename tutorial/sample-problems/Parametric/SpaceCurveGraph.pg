@@ -13,7 +13,7 @@
 
 #:% name = Space Curve Graph
 #:% type = Sample
-#:% category = [graph]
+#:% categories = [graph, parametric]
 #:% subject = [parametric, vector calculus]
 
 #:% section = preamble

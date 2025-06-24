@@ -14,6 +14,7 @@
 #:% name = Using Special Trig Values on the Unit Circle
 #:% type = Sample
 #:% subject = trigonometry
+#:% categories = [trigonometry]
 
 #:% section = preamble
 #: Load the PODLINK('specialTrigValues.pl') macro for the `specialRadical` and

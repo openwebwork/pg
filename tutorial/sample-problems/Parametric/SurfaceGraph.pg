@@ -13,7 +13,8 @@
 
 #:% name = Surface Graph
 #:% type = Sample
-#:% subject = parametric
+#:% subject = Multivariable Calculus
+#:% categories = [graph, parametric]
 
 #:% section = preamble
 #: The macro PODLINK('plotly3D.pl') is used to produce the graph.

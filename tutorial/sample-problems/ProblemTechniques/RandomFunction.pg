@@ -13,6 +13,7 @@
 
 #:% name = Random Function
 #:% type = [technique]
+#:% categories = [random, function]
 
 #:% section = preamble
 DOCUMENT();

@@ -13,6 +13,7 @@
 
 #:% name = Inserting Images in PGML
 #:% type = [technique]
+#:% categories = [images]
 
 #:% section = preamble
 #: The PODLINK('PGgraphmacros.pl'), PODLINK('PGtikz.pl'),

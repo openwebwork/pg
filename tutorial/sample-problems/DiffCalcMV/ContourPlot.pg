@@ -13,7 +13,7 @@
 
 #:% name = Contour Plot
 #:% type = [Sample, technique]
-#:% subject = multivariate calculus
+#:% subject = Multivariable Calculus
 #:% categories = [plots]
 
 #:% section = preamble

@@ -13,7 +13,7 @@
 
 #:% name = Restrict Answers to a Constant
 #:% type = [technique, sample]
-#:% category = [answer]
+#:% category = [answers]
 #:% subject = [trigonometry]
 #:% see_also = [RestrictAnswerToFraction.pg]
 

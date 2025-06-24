@@ -11,8 +11,6 @@
 ## MO(1)
 ## KEYWORDS('interval')
 
-# created as a full problem by Peter Staab  2023.06.02
-
 #:% name = Interval Evaluator
 #:% type = [technique]
 #:% categories = interval

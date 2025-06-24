@@ -11,6 +11,7 @@
 #:% name = Linear Regression
 #:% subject = [statistics]
 #:% type = sample
+#:% categories = [graph, statistics]
 
 #:% section = preamble
 #: The PODLINK('PGstatisticsmacros.pl') macro provides the `sample_correlation`

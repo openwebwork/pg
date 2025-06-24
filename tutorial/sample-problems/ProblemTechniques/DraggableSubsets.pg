@@ -11,8 +11,6 @@
 ## MO(1)
 ## KEYWORDS('draggable')
 
-# updated to full problem by Peter Staab (06/01/2023)
-
 #:% name = Draggable Subsets
 #:% type = technique
 #:% categories = [draggable]

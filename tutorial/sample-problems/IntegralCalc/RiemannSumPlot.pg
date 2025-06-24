@@ -1,0 +1,96 @@
+## DESCRIPTION
+## Plot of a function with its Rieman Sum rectangles
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(07/01/2025)
+## Institution(Boise State University)
+## Author(Jaimos Skriletz)
+## MO(1)
+## KEYWORDS('riemann sum', 'plot')
+
+#:% name = Riemann Sum Plot
+#:% type = Sample
+#:% subject = [integral calculus, plot]
+#:% categories = [plots]
+
+#:% section = preamble
+#: Make sure that PODLINK('plots.pl') is loaded.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: For this problem, we make a Riemann Sum plot by plotting the function $y=x^3+3$
+#: and the midpoint rectangles.  Each of these objects is created separately and added
+#: to the the plot.
+#:
+#: Create a Plot object with the given plotting window and other axis properties. The
+#: function is made in this case as a MathObject.  With `$plot->add_function`, the function
+#: is added and filled toward the $x$-axis.
+#:
+#: The for loop creates the rectangles and added as the `add_dataset` with the
+#: four points (and the first point again to make a closed path). The fill color
+#: and opacity is also set. Note that the height of each rectangle is calculated
+#: with `$f->eval(x => $x0 + $dx / 2)` which gives the midpoint rule.  The
+#: left and right endpoints could be created with `$x0` and `$x1` respectively.
+$plot = Plot(
+    xmin       => 0,
+    xmax       => 5,
+    ymin       => 0,
+    ymax       => 20,
+    aria_label => 'Riemann Sum plot of y=x^3+3',
+);
+
+$f = Formula('x^2 + 3');
+$plot->add_function(
+    $f,
+    'x',
+    0,
+    5,
+    color        => 'blue',
+    name         => 'A',
+    fill         => 'xaxis',
+    fill_min     => 0,
+    fill_max     => 4,
+    fill_color   => 'green',
+    fill_opacity => 0.2
+);
+
+$dx = 0.5;
+for $i (0 .. 7) {
+    my $x0 = $i * $dx;
+    my $x1 = $x0 + $dx;
+    my $y  = $f->eval(x => $x0 + $dx / 2);
+    $plot->add_dataset(
+        [ $x0, 0 ],
+        [ $x0, $y ],
+        [ $x1, $y ],
+        [ $x1, 0 ],
+        [ $x0, 0 ],
+        fill         => 'self',
+        fill_color   => 'blue',
+        fill_opacity => 0.2,
+    );
+}
+
+$image = image($plot);
+
+#:% section = statement
+#: The `[! !]{}{}` is a PGML format for inserting an image.
+BEGIN_PGML
+The following is a graph of the function [`y=[$f]`] and the midpoint Riemann
+sum rectangles.
+
+>>[! Plot of y=x^2+3 and the Reimann sums !]{$plot}{500} <<
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

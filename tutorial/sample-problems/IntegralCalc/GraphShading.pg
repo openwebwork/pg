@@ -11,13 +11,13 @@
 ## MO(1)
 ## KEYWORDS('calculus', 'dynamic graph with shading')
 
-#:% name = Graph Shading
+#:% name = Graph Shading (tikz)
 #:% type = Sample
 #:% subject = integral calculus
 #:% categories = [plots]
 
 #:% section = preamble
-#: The macro PODLINK('PGikz.pl') is used to create the plot.
+#: The macro PODLINK('PGtikz.pl') is used to create the plot.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
@@ -26,17 +26,15 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 #: A randomly transformed version of `sqrt(x)` is created as the function with a
 #: reasonably straightforward answer.
 #:
-#: The `nicestring` function is useful for printing polynomials in a nice way.
-#:
 #: The graph is created with PODLINK('PGtikz.pl'), a robust plotting package.
 #: The shading in done with the `\filldraw` command with the
 #: `fill opacity = 0.5`. Also note that one of the sides of the filled area is
 #: the square root function.
 
-$a   = random(-4, 2);
-$b   = random( 1, 4);
-$g   = Compute("$b + sqrt(x - $a)")->reduce;
-$ans = Compute("3*$b + 14/3");
+$a    = random(-4, 2);
+$b    = random( 1, 4);
+$g    = Compute("$b + sqrt(x - $a)")->reduce;
+$area = Compute("3*$b + 14/3");
 
 $graph = createTikZImage();
 $graph->tikzLibraries('arrows.meta');
@@ -83,7 +81,7 @@ Use the graph to find the area of the shaded region under [`f(x) = [$g]`].
 
 >>Graph of [`y = f(x)`].<<
 
-Area: [_]{$ans}{15}
+Area: [_]{$area}{15}
 END_PGML
 
 #:% section = solution

@@ -11,8 +11,6 @@
 ## MO(1)
 ## KEYWORDS('context', 'string')
 
-# updated to full problem by Peter Staab (06/01/2023)
-
 #:% name = Adding Strings to a Context
 #:% type = technique
 #:% categories = [context, strings]

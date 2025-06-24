@@ -11,8 +11,6 @@
 ## MO(1)
 ## KEYWORDS('tolerance')
 
-# updated to full problem by Peter Staab (06/01/2023)
-
 #:% name = Defining Functions in a Context
 #:% type = technique
 #:% categories = [numbers, tolerance]
