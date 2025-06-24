@@ -67,7 +67,6 @@ package PGloadfiles;
 use strict;
 #use Encode(qw(encode decode));
 use Exporter;
-
 use PGcore;
 use WeBWorK::PG::Translator;
 use WeBWorK::PG::IO;
@@ -83,11 +82,10 @@ sub new {
 	my $envir = shift;    #pointer to environment hash
 	warn "PGloadmacros must be called with an environment" unless ref($envir) eq 'HASH';
 	my $self = {
-		envir             => $envir,
-		macroFileList     => {},       # records macros used in compilation
-		macrosPath        => '',
-		pwd               => '',       # current directory -- defined in initialize
-		deprecated_macros => [],
+		envir         => $envir,
+		macroFileList => {},       # records macros used in compilation
+		macrosPath    => '',
+		pwd           => '',       # current directory -- defined in initialize
 	};
 	bless $self, $class;
 	$self->initialize;
@@ -133,6 +131,7 @@ sub loadMacros {
 	# At this point the directories have been defined from %envir and we can define
 	# the directories for this file
 	###############################################################################
+
 	while (@files) {
 		$fileName = shift @files;
 
@@ -160,9 +159,6 @@ sub loadMacros {
 		unless ($macro_file_loaded) {
 			warn "loadMacros: loading macro file $fileName" if $debugON;
 			my $filePath = $self->findMacroFile($fileName);
-			my @dirs     = split('/', $filePath);
-			push(@{ $self->{deprecated_macros} }, $dirs[$#dirs]) if $dirs[ $#dirs - 1 ] eq 'deprecated';
-
 			#### (check for renamed files here?) ####
 			warn "loadMacros:  look for $fileName at |$filePath|" if $debugON;
 			if ($filePath) {
