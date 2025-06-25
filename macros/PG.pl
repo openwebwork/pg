@@ -381,12 +381,12 @@ sub ADD_JS_FILE {
 # although those problems should also be rewritten to not use jquery-ui.
 sub load_js() {
 
-	ADD_JS_FILE('js/Feedback/feedback.js',         0, { defer => undef });
-	ADD_JS_FILE('js/Base64/Base64.js',             0, { defer => undef });
-	ADD_JS_FILE('js/Knowls/knowl.js',              0, { defer => undef });
-	ADD_JS_FILE('js/Problem/details-accordion.js', 0, { defer => undef });
-	ADD_JS_FILE('js/ImageView/imageview.js',       0, { defer => undef });
-	ADD_JS_FILE('js/Essay/essay.js',               0, { defer => undef });
+	ADD_JS_FILE('js/Feedback/feedback.js',   0, { defer => undef });
+	ADD_JS_FILE('js/Base64/Base64.js',       0, { defer => undef });
+	ADD_JS_FILE('js/Knowls/knowl.js',        0, { defer => undef });
+	ADD_JS_FILE('js/Problem/generic.js',     0, { defer => undef });
+	ADD_JS_FILE('js/ImageView/imageview.js', 0, { defer => undef });
+	ADD_JS_FILE('js/Essay/essay.js',         0, { defer => undef });
 
 	if ($envir{useMathQuill}) {
 		ADD_JS_FILE('node_modules/@openwebwork/mathquill/dist/mathquill.js', 0, { defer => undef });

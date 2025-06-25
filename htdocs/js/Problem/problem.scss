@@ -203,6 +203,27 @@
 	}
 }
 
+.image-container {
+	.image-details-content {
+		position: fixed;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: max-content;
+		max-width: 90%;
+		box-shadow: 0 0 100px black;
+		border-radius: 4px;
+		z-index: 10;
+	}
+
+	.image-details-btn {
+		--bs-btn-padding-y: 0.1rem;
+		--bs-btn-padding-x: 0.35rem;
+		--bs-btn-font-size: 0.65rem;
+		--bs-btn-border-radius: 0.375rem;
+	}
+}
+
 /* rtl:raw:
 .problem-content[dir=ltr] input[type=radio] {
 	margin-right: 0.25rem;

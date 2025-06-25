@@ -1,4 +1,6 @@
 (() => {
+	// Details accordions
+
 	const setupAccordion = (accordion) => {
 		const collapseEl = accordion.querySelector('.collapse');
 		const button = accordion.querySelector('summary.accordion-button');
@@ -38,4 +40,30 @@
 		});
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
+
+	// Image long descriptions
+
+	for (const dismissButton of document.querySelectorAll('.image-details-dismiss')) {
+		dismissButton.addEventListener('click', () =>
+			dismissButton.parentElement?.parentElement?.parentElement?.removeAttribute('open')
+		);
+	}
+
+	for (const imageDescription of document.querySelectorAll('.image-details')) {
+		const escapeCloseDetails = (e) => {
+			if (e.key === 'Escape') imageDescription.removeAttribute('open');
+		};
+		const clickCloseDetails = (e) => {
+			if (e.target.closest('.image-details') !== imageDescription) imageDescription.removeAttribute('open');
+		};
+		imageDescription.addEventListener('toggle', () => {
+			if (imageDescription.open) {
+				document.addEventListener('keydown', escapeCloseDetails);
+				document.addEventListener('pointerdown', clickCloseDetails);
+			} else {
+				document.removeEventListener('keydown', escapeCloseDetails);
+				document.removeEventListener('pointerdown', clickCloseDetails);
+			}
+		});
+	}
 })();

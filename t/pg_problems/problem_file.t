@@ -104,12 +104,12 @@ is(
 			{ file => 'js/MathQuill/mqeditor.css',                              external => undef }
 		],
 		extra_js_files => [
-			{ file => 'js/Feedback/feedback.js',         external => 0, attributes => { defer => undef } },
-			{ file => 'js/Base64/Base64.js',             external => 0, attributes => { defer => undef } },
-			{ file => 'js/Knowls/knowl.js',              external => 0, attributes => { defer => undef } },
-			{ file => 'js/Problem/details-accordion.js', external => 0, attributes => { defer => undef } },
-			{ file => 'js/ImageView/imageview.js',       external => 0, attributes => { defer => undef } },
-			{ file => 'js/Essay/essay.js',               external => 0, attributes => { defer => undef } },
+			{ file => 'js/Feedback/feedback.js',   external => 0, attributes => { defer => undef } },
+			{ file => 'js/Base64/Base64.js',       external => 0, attributes => { defer => undef } },
+			{ file => 'js/Knowls/knowl.js',        external => 0, attributes => { defer => undef } },
+			{ file => 'js/Problem/generic.js',     external => 0, attributes => { defer => undef } },
+			{ file => 'js/ImageView/imageview.js', external => 0, attributes => { defer => undef } },
+			{ file => 'js/Essay/essay.js',         external => 0, attributes => { defer => undef } },
 			{
 				file       => 'node_modules/@openwebwork/mathquill/dist/mathquill.js',
 				external   => 0,

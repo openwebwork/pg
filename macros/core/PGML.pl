@@ -687,7 +687,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		terminator         => qr/!\]/,
 		terminateMethod    => 'terminateGetString',
 		cancelNL           => 1,
-		options            => [ "source", "width", "height", "image_options" ]
+		options => [ "source", "width", "height", "image_options", "long_description", "long_description_width" ]
 	},
 	"[<" => {
 		type        => 'tag',
@@ -1484,12 +1484,22 @@ sub Text {
 
 sub Image {
 	my ($self, $item) = @_;
-	my $text          = $item->{text};
-	my $source        = $item->{source};
-	my $width         = $item->{width}         || '';
-	my $height        = $item->{height}        || '';
-	my $image_options = $item->{image_options} || {};
-	return (main::image($source, alt => $text, width => $width, height => $height, %$image_options));
+	my $text                   = $item->{text};
+	my $source                 = $item->{source};
+	my $width                  = $item->{width}                  || '';
+	my $height                 = $item->{height}                 || '';
+	my $image_options          = $item->{image_options}          || {};
+	my $long_description       = $item->{long_description}       || '';
+	my $long_description_width = $item->{long_description_width} || 1;
+	return (main::image(
+		$source,
+		alt                    => $text,
+		width                  => $width,
+		height                 => $height,
+		long_description       => $long_description,
+		long_description_width => $long_description_width,
+		%$image_options
+	));
 }
 
 ######################################################################
