@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGProblemCritic - Parse a PG program and analyze the contents for good and bad features.
+PGProblemCritic - Parse a PG program and analyze the contents for positive and negative features.
 
 =head1 DESCRIPTION
 
@@ -80,17 +80,27 @@ sub analyzePGcode ($code) {
 	# default flags for presence of features in a PG problem
 	my $features = {
 		metadata => { DBsubject => 0, DBchapter => 0, DBsection => 0, KEYWORDS => 0 },
-		good     => {
+		positive => {
 			PGML           => 0,
 			solution       => 0,
 			hint           => 0,
-			scaffold       => 0,
 			custom_checker => 0,
 			multianswer    => 0,
-			answer_hints   => 0,
-			nicetable      => 0,
+			nicetables     => 0,
+			contexts       => { BaseN => 0, Units => 0, Boolean => 0, Reaction => 0 },
+			parsers        =>
+				{ dropdown => 0, RadioButtons => 0, CheckboxList => 0, RadioMultianswer => 0, GraphTool => 0 },
+			macros => {
+				randomPerson => 0,
+				Plots        => 0,
+				PGtikz       => 0,
+				Plotly3D     => 0,
+				PGlateximage => 0,
+				Scaffold     => 0,
+				AnswerHints  => 0,
+			}
 		},
-		bad => {
+		negative => {
 			BEGIN_TEXT              => 0,
 			beginproblem            => 0,
 			oldtable                => 0,
@@ -100,8 +110,8 @@ sub analyzePGcode ($code) {
 			context_texstrings      => 0,
 			multiple_loadmacros     => 0,
 			showPartialCorrect      => 0,
-			old_multiple_choice     => 0,
 			lines_below_enddocument => 0,
+			macros                  => { PGgraphmacros => 0, PGchoicemacros => 0 }
 		},
 		deprecated_macros => [],
 		macros            => []
@@ -129,12 +139,12 @@ sub analyzePGcode ($code) {
 		# Skip any full-line comments.
 		next if $line =~ /^\s*#/;
 
-		$features->{good}{solution} = 1 if $line =~ /BEGIN_(PGML_)?SOLUTION/;
-		$features->{good}{hint}     = 1 if $line =~ /BEGIN_(PGML_)?HINT/;
+		$features->{positive}{solution} = 1 if $line =~ /BEGIN_(PGML_)?SOLUTION/;
+		$features->{positive}{hint}     = 1 if $line =~ /BEGIN_(PGML_)?HINT/;
 
 		# Analyze the loadMacros info.
 		if ($line =~ /loadMacros\(/) {
-			$features->{bad}{multiple_loadmacros} = 1 if $loadmacros_parsed == 1;
+			$features->{negative}{multiple_loadmacros} = 1 if $loadmacros_parsed == 1;
 			$loadmacros_parsed = 1;
 			# Parse the macros, which may be on multiple rows.
 			my $macros = $line;
@@ -161,7 +171,7 @@ sub analyzePGcode ($code) {
 				push(@{ $features->{deprecated_macros} }, $macro) if (grep { $macro eq $_ } @$all_deprecated_macros);
 			}
 		} elsif ($line =~ /BEGIN_PGML(_SOLUTION|_HINT)?/) {
-			$features->{good}{PGML} = 1;
+			$features->{positive}{PGML} = 1;
 			my @pgml_lines;
 			while (1) {
 				$line = shift @pglines;
@@ -170,7 +180,7 @@ sub analyzePGcode ($code) {
 			}
 
 			my $pgml_features = analyzePGMLBlock(@pgml_lines);
-			$features->{bad}{missing_alt_tag} = 1 if $pgml_features->{missing_alt_tag};
+			$features->{negative}{missing_alt_tag} = 1 if $pgml_features->{missing_alt_tag};
 		}
 
 		if ($line =~ /ENDDOCUMENT/) {    # scan if there are any lines below the ENDDOCUMENT
@@ -178,32 +188,54 @@ sub analyzePGcode ($code) {
 			do {
 				$line = shift @pglines;
 				last unless defined($line);
-				$features->{bad}{lines_below_enddocument} = 1 if $line !~ /^\s*$/;
+				$features->{negative}{lines_below_enddocument} = 1 if $line !~ /^\s*$/;
 			} while (defined($line));
 		}
 
-		# Check for bad features.
-		$features->{bad}{beginproblem}       = 1 if $line =~ /beginproblem\(\)/;
-		$features->{bad}{BEGIN_TEXT}         = 1 if $line =~ /(BEGIN_(TEXT|HINT|SOLUTION))|EV[23]/;
-		$features->{bad}{context_texstrings} = 1 if $line =~ /->(texStrings|normalStrings)/;
+		# Check for negative features.
+		$features->{negative}{beginproblem}       = 1 if $line =~ /beginproblem\(\)/;
+		$features->{negative}{BEGIN_TEXT}         = 1 if $line =~ /(BEGIN_(TEXT|HINT|SOLUTION))|EV[23]/;
+		$features->{negative}{context_texstrings} = 1 if $line =~ /->(texStrings|normalStrings)/;
 		for (qw(num str fun)) {
-			$features->{bad}{ $_ . '_cmp' } = 1 if $line =~ /${_}_cmp\(/;
+			$features->{negative}{ $_ . '_cmp' } = 1 if $line =~ /${_}_cmp\(/;
 		}
-		$features->{bad}{oldtable}            = 1 if $line =~ /BeginTable/i;
-		$features->{bad}{showPartialCorrect}  = 1 if $line =~ /\$showPartialCorrectAnswers\s=\s1/;
-		$features->{bad}{old_multiple_choice} = 1
+		$features->{negative}{oldtable}               = 1 if $line =~ /BeginTable/i;
+		$features->{negative}{showPartialCorrect}     = 1 if $line =~ /\$showPartialCorrectAnswers\s=\s1/;
+		$features->{negative}{macros}{PGgraphmacros}  = 1 if $line =~ /init_graph\(/;
+		$features->{negative}{macros}{PGchoicemacros} = 1
 			if $line =~ /new_checkbox_multiple_choice/
 			|| $line =~ /new_match_list/
 			|| $line =~ /new_select_list/
 			|| $line =~ /new_multiple_choice/
 			|| $line =~ /qa\s\(/;
 
-		# check for good features
-		$features->{good}{scaffold}       = 1 if $line =~ /Scaffold::Begin/;
-		$features->{good}{answer_hints}   = 1 if $line =~ /AnswerHints/;
-		$features->{good}{multianswer}    = 1 if $line =~ /MultiAnswer/;
-		$features->{good}{custom_checker} = 1 if $line =~ /checker =>/;
-		$features->{good}{nicetables}     = 1 if $line =~ /DataTable|LayoutTable/;
+		# check for positive features
+		# macros:
+		$features->{positive}{macros}{Scaffold}     = 1 if $line =~ /Scaffold::Begin/;
+		$features->{positive}{macros}{Plots}        = 1 if $line =~ /Plot\(/;
+		$features->{positive}{macros}{Plotly3D}     = 1 if $line =~ /Graph3D\(/;
+		$features->{positive}{macros}{PGtikz}       = 1 if $line =~ /createTikZImage\(/;
+		$features->{positive}{macros}{AnswerHints}  = 1 if $line =~ /AnswerHints/;
+		$features->{positive}{macros}{randomPerson} = 1 if $line =~ /randomPerson\(/ || $line =~ /randomLastName\(/;
+		$features->{positive}{macros}{PGlateximage} = 1 if $line =~ /createLaTeXImage\(/;
+
+		# contexts:
+
+		$features->{positive}{contexts}{Units}    = 1 if $line =~ /Context\(['"]Units['"]\)/;
+		$features->{positive}{contexts}{BaseN}    = 1 if $line =~ /Context\(['"](Limited)?BaseN['"]\)/;
+		$features->{positive}{contexts}{Boolean}  = 1 if $line =~ /Context\(['"]Boolean['"]\)/;
+		$features->{positive}{contexts}{Reaction} = 1 if $line =~ /Context\(['"]Reaction['"]\)/;
+
+		# parsers:
+		$features->{positive}{parsers}{PopUp}        = 1 if $line =~ /DropDown\(/;
+		$features->{positive}{parsers}{RadioButtons} = 1 if $line =~ /RadioButtons\(/;
+		$features->{positive}{parsers}{CheckboxList} = 1 if $line =~ /CheckboxList\(/;
+		$features->{positive}{parsers}{GraphTool}    = 1 if $line =~ /GraphTool\(/;
+
+		# other:
+		$features->{positive}{multianswer}    = 1 if $line =~ /MultiAnswer/;
+		$features->{positive}{custom_checker} = 1 if $line =~ /checker\s*=>/;
+		$features->{positive}{nicetables}     = 1 if $line =~ /DataTable|LayoutTable/;
 
 	}
 	return $features;
