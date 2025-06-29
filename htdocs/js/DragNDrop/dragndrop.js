@@ -9,7 +9,7 @@
 			this.answerName = el.dataset.answerName ?? '';
 			this.buckets = [];
 			this.removeButtonText = el.dataset.removeButtonText ?? 'Remove';
-			this.allowReusingItems=el.dataset.allowReusingItems;
+			this.allowReusingItems = el.dataset.allowReusingItems;
 
 			this.answerInput = el.parentElement.querySelector(`input[name="${this.answerName}"]`);
 			if (!this.answerInput) {
@@ -95,45 +95,53 @@
 			if (window.MathJax) {
 				MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise([this.el]));
 			}
-			this.allowReusingItems=this.bucketPool.allowReusingItems;
+			this.allowReusingItems = this.bucketPool.allowReusingItems;
 
-			if(this.allowReusingItems==false){
+			if (this.allowReusingItems == false) {
 				this.sortable = Sortable.create(this.ddList, {
 					group: bucketPool.answerName,
 					animation: 150,
 					onEnd: () => this.bucketPool.updateAnswerInput()
 				});
-			}
-			else if(id==0){  
-   			this.sortable=Sortable.create(this.ddList, {
-					animation:150, 
+			} else if (id == 0) {
+				this.sortable = Sortable.create(this.ddList, {
+					animation: 150,
 					sort: false,
- 					onEnd:()=>this.bucketPool.updateAnswerInput(),
-					group:{
-						name:bucketPool.answerName,
-						pull:'clone',
-            put: false,
+					onEnd: () => this.bucketPool.updateAnswerInput(),
+					group: {
+						name: bucketPool.answerName,
+						pull: 'clone',
+						put: false
+					}
+				});
+			} else {
+				this.sortable = Sortable.create(this.ddList, {
+					animation: 150,
+					onEnd: () => this.bucketPool.updateAnswerInput(),
+					removeOnSpill: true,
+					group: {
+						name: bucketPool.answerName,
+						put: (
+							to,
+							from,
+							dragEl,
+							event //Prevents buckets from storing multiple clones
+						) => {
+							this.flag = 0;
+							Array.from(to.el.children).some((child) => {
+								if (child.dataset.id === dragEl.dataset.id) {
+									this.flag = 1;
+								}
+							});
+							if (this.flag == 1) {
+								return false;
+							}
+							return true;
+						}
 					}
 				});
 			}
-			else{
-				this.sortable=Sortable.create(this.ddList, {
-					animation:150, 
-					onEnd:()=>this.bucketPool.updateAnswerInput(),
-        	removeOnSpill: true,
-        	group:{
-						name:bucketPool.answerName,
-            put: (to, from, dragEl, event) =>  //Prevents buckets from storing multiple clones
-            { 
-							this.flag=0;
-							Array.from(to.el.children).some(child=> 
-								{if(child.dataset.id === dragEl.dataset.id){this.flag=1;}}
-							);
-							if(this.flag==1){return false} return true
-						} 
-				} });
-			}
-	}
+		}
 
 		htmlBucket(label, removable, indices = []) {
 			const bucketElement = document.createElement('div');

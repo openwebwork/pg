@@ -155,7 +155,7 @@ sub HTML {
 	my $self = shift;
 
 	my $out = qq{<div class="dd-bucket-pool" data-answer-name="$self->{answerName}"};
-  $out .= " data-allow-reusing-items = $self->{allowReusingItems}";
+	$out .= " data-allow-reusing-items = $self->{allowReusingItems}";
 	$out .= ' data-item-list="' . PGcore::encode_pg_and_html(JSON->new->encode($self->{itemList})) . '"';
 	$out .= ' data-default-state="' . PGcore::encode_pg_and_html(JSON->new->encode($self->{defaultBuckets})) . '"';
 	$out .= qq{ data-remove-button-text="$self->{removeButtonText}"};
