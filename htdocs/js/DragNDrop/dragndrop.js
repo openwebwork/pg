@@ -9,6 +9,7 @@
 			this.answerName = el.dataset.answerName ?? '';
 			this.buckets = [];
 			this.removeButtonText = el.dataset.removeButtonText ?? 'Remove';
+			this.allowReusingItems = el.dataset.allowReusingItems;
 
 			this.answerInput = el.parentElement.querySelector(`input[name="${this.answerName}"]`);
 			if (!this.answerInput) {
@@ -97,12 +98,39 @@
 			if (window.MathJax) {
 				MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise([this.el]));
 			}
+			this.allowReusingItems = this.bucketPool.allowReusingItems;
 
-			this.sortable = Sortable.create(this.ddList, {
-				group: bucketPool.answerName,
-				animation: 150,
-				onEnd: () => this.bucketPool.updateAnswerInput()
-			});
+			if (this.allowReusingItems) {
+				if (id === 0) {
+					this.sortable = Sortable.create(this.ddList, {
+						animation: 150,
+						sort: false,
+						onEnd: () => this.bucketPool.updateAnswerInput(),
+						group: {
+							name: bucketPool.answerName,
+							pull: 'clone',
+							put: false
+						}
+					});
+				} else {
+					this.sortable = Sortable.create(this.ddList, {
+						animation: 150,
+						onEnd: () => this.bucketPool.updateAnswerInput(),
+						removeOnSpill: true,
+						group: {
+							name: bucketPool.answerName,
+							put: (to, _from, dragEl) =>
+								!Array.from(to.el.children).some((child) => child.dataset.id === dragEl.dataset.id)
+						}
+					});
+				}
+			} else {
+				this.sortable = Sortable.create(this.ddList, {
+					group: bucketPool.answerName,
+					animation: 150,
+					onEnd: () => this.bucketPool.updateAnswerInput()
+				});
+			}
 		}
 
 		htmlBucket(label, removable, indices = []) {

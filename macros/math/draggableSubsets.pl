@@ -69,6 +69,7 @@ Available Options:
     DefaultSubsets    => <array reference>
     OrderedSubsets    => 0 or 1
     AllowNewBuckets   => 0 or 1
+    AllowReusingItems => 0 or 1
     BucketLabelFormat => <string>
     ResetButtonText   => <string>
     AddButtonText     => <string>
@@ -133,6 +134,12 @@ Their usage is demonstrated in the example below.
         # 0 means no new buckets may be added by student. 1 means otherwise.
         # The default value if not given is 1.
         AllowNewBuckets => 1,
+
+        # 0 is the conventional approach, by which the repository bucket is 
+        # depleted if an item an item is dragged from that bucket. 
+        # 1 means that items are replenished in the repository bucket once 
+        # dragged. The default value if not given is 0.
+        AllowReusingItems => 0,
 
         # If this option is defined then labels for buckets for which a specific
         # label is not provided will be created by replacing %s with the bucket
@@ -214,9 +221,14 @@ sub new {
 		ResetButtonText   => 'Reset',
 		AddButtonText     => 'Add Bucket',
 		RemoveButtonText  => 'Remove',
+		AllowReusingItems => 0,
 		%options
 		},
 		ref($invocant) || $invocant;
+
+	#If AllowReusingItem is set, bucket 0 should contain the full set of elements for grading
+	my $maxindex = scalar @{ $base->{set} } - 1;    #Number of elements -1
+	if ($base->{AllowReusingItems}) { $subsets->[0] = [ 0 .. $maxindex ]; }
 
 	$base->{order} = do {
 		my @indices = 0 .. $#{ $base->{set} };
@@ -231,6 +243,7 @@ sub new {
 		'(' => { close => ')', type => 'List', formList => 1, formMatrix => 0, removable => 0 },
 		'{' => { close => '}', type => 'Set',  formList => 0, formMatrix => 0, removable => 0, emptyOK => 1 }
 	);
+
 	$context->lists->set(
 		'DraggableSubsets' => {
 			class       => 'Parser::List::List',
@@ -290,7 +303,8 @@ sub ans_rule {
 		bucketLabelFormat => $self->{BucketLabelFormat},
 		resetButtonText   => $self->{ResetButtonText},
 		addButtonText     => $self->{AddButtonText},
-		removeButtonText  => $self->{RemoveButtonText}
+		removeButtonText  => $self->{RemoveButtonText},
+		allowReusingItems => $self->{AllowReusingItems},
 	);
 
 	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($self->ANS_NAME);
@@ -319,7 +333,18 @@ sub cmp_defaults {
 
 sub cmp {
 	my ($self, %options) = @_;
-	return $self->SUPER::cmp(%{ $self->{cmpOptions} }, %options);
+	my $nbuc = scalar @{ $self->{set} };    #number of buckets
+	if ($self->{AllowReusingItems}) {
+		$tmp = $self->SUPER::cmp(%{ $self->{cmpOptions} }, %options)->withPostFilter(sub {
+			$ansHash          = shift;
+			$ncor             = $ansHash->{score} * $nbuc;    #number of buckets correct
+			$ansHash->{score} = ($ncor - 1) / ($nbuc - 1);
+			return $ansHash;
+		});
+		return $tmp;
+	} else {
+		return $self->SUPER::cmp(%{ $self->{cmpOptions} }, %options);
+	}
 }
 
 sub TeX {

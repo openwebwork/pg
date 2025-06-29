@@ -138,6 +138,7 @@ sub new {
 		addButtonText     => 'Add Bucket',
 		removeButtonText  => 'Remove',
 		multicolsWidth    => '300pt',
+		allowReusingItems => 0,
 		%options,
 		},
 		ref($self) || $self;
@@ -147,6 +148,7 @@ sub HTML {
 	my $self = shift;
 
 	my $out = qq{<div class="dd-bucket-pool" data-answer-name="$self->{answerName}"};
+	$out .= " data-allow-reusing-items = 1" if $self->{allowReusingItems};
 	$out .= ' data-item-list="' . PGcore::encode_pg_and_html(encode_json($self->{itemList})) . '"';
 	$out .= ' data-default-state="' . PGcore::encode_pg_and_html(encode_json($self->{defaultBuckets})) . '"';
 	$out .= qq{ data-remove-button-text="$self->{removeButtonText}"};
