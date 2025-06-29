@@ -228,9 +228,14 @@ sub new {
 		ResetButtonText   => 'Reset',
 		AddButtonText     => 'Add Bucket',
 		RemoveButtonText  => 'Remove',
+		AllowReusingItems => 0,
 		%options
 		},
 		ref($invocant) || $invocant;
+
+		#If AllowReusingItem is set, bucket 0 should contain the full set of elements for grading
+		my $maxindex=scalar @{$base->{set}}-1;  #Number of elements -1
+		if($base->{AllowReusingItems}){ $subsets->[0]=[0 .. $maxindex]; }
 
 	$base->{order} = do {
 		my @indices = 0 .. $#{ $base->{set} };
@@ -245,6 +250,7 @@ sub new {
 		'(' => { close => ')', type => 'List', formList => 1, formMatrix => 0, removable => 0 },
 		'{' => { close => '}', type => 'Set',  formList => 0, formMatrix => 0, removable => 0, emptyOK => 1 }
 	);
+
 	$context->lists->set(
 		'DraggableSubsets' => {
 			class       => 'Parser::List::List',
@@ -304,7 +310,8 @@ sub ans_rule {
 		bucketLabelFormat => $self->{BucketLabelFormat},
 		resetButtonText   => $self->{ResetButtonText},
 		addButtonText     => $self->{AddButtonText},
-		removeButtonText  => $self->{RemoveButtonText}
+		removeButtonText  => $self->{RemoveButtonText},
+	  allowReusingItems => $self->{AllowReusingItems},
 	);
 
 	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($self->ANS_NAME);
@@ -348,6 +355,7 @@ sub TeX {
 	);
 }
 
+
 sub cmp_preprocess {
 	my ($self, $ans) = @_;
 
@@ -359,7 +367,8 @@ sub cmp_preprocess {
 		$ans->{preview_latex_string} = join(
 			',',
 			map {
-				"\\{\\text{" . join(',', map { $self->{shuffledSet}[$_] } grep { $_ >= 0 } @{ $_->{data} }) . "}\\}"
+				"\\{\\text{"
+					. join(',', map { $self->{shuffledSet}[$_] } grep { $_ >= 0 } @{ $_->{data} }) . "}\\}"
 			} @{ $ans->{student_value}{data} }
 		);
 	}

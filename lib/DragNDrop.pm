@@ -91,16 +91,10 @@ This is the text label for the reset button.
 This is the text label for the button shown that adds new buckets.  The button
 is only shown if AllowNewBuckets is 1.
 
-=item removeButtonText (Default: C<< 'Remove' >>)
+=item removeButtonText (Default: C<< 'Remove' >>
 
 This is the text label for any remove buttons that are added to removable
 buckets.
-
-=item multicolsWidth (Default: C<< '300pt' >>)
-
-This sets the size for which the TeX output for hardcopy uses two columns or not.
-If the current C<\linewidth> is greater than or equal to this size then two columns
-will be used, otherwise only single column is used.
 
 =back
 
@@ -132,7 +126,7 @@ package DragNDrop;
 use strict;
 use warnings;
 
-use Mojo::JSON qw(encode_json);
+use JSON;
 
 use PGcore;
 
@@ -151,7 +145,7 @@ sub new {
 		resetButtonText   => 'Reset',
 		addButtonText     => 'Add Bucket',
 		removeButtonText  => 'Remove',
-		multicolsWidth    => '300pt',
+		allowReusingItems => 0,
 		%options,
 		},
 		ref($self) || $self;
@@ -161,8 +155,9 @@ sub HTML {
 	my $self = shift;
 
 	my $out = qq{<div class="dd-bucket-pool" data-answer-name="$self->{answerName}"};
-	$out .= ' data-item-list="' . PGcore::encode_pg_and_html(encode_json($self->{itemList})) . '"';
-	$out .= ' data-default-state="' . PGcore::encode_pg_and_html(encode_json($self->{defaultBuckets})) . '"';
+  $out .= " data-allow-reusing-items = $self->{allowReusingItems}";
+	$out .= ' data-item-list="' . PGcore::encode_pg_and_html(JSON->new->encode($self->{itemList})) . '"';
+	$out .= ' data-default-state="' . PGcore::encode_pg_and_html(JSON->new->encode($self->{defaultBuckets})) . '"';
 	$out .= qq{ data-remove-button-text="$self->{removeButtonText}"};
 	$out .= qq{ data-label-format="$self->{bucketLabelFormat}"} if $self->{bucketLabelFormat};
 	$out .= '>';
@@ -180,20 +175,18 @@ sub HTML {
 sub TeX {
 	my $self = shift;
 
-	my $out =
-		"\n\\hrule\n\\vspace{0.5\\baselineskip}\n\\newif\\ifdndcolumns\n"
-		. "\\ifdim\\linewidth<$self->{multicolsWidth}\\relax\\dndcolumnsfalse\\else\\dndcolumnstrue\\fi\n";
+	my $out = "\n\\hrule\n\\vspace{0.5\\baselineskip}\n";
 
 	for my $i (0 .. $#{ $self->{defaultBuckets} }) {
 		my $bucket = $self->{defaultBuckets}[$i];
 		if ($i != 0) {
-			if   ($i % 2 == 0) { $out .= "\n\\hrule\n\\vspace{0.5\\baselineskip}\n"; }
-			else               { $out .= "\n\\ifdndcolumns\\else\\hrule\n\\vspace{0.5\\baselineskip}\\fi\n"; }
+			if   ($i % 2 == 0) { $out .= "\n\\hrule\n\\vspace{0.5\\baselineskip}\n" }
+			else               { $out .= "\n\\ifdefined\\nocolumns\\else\\hrule\n\\vspace{0.5\\baselineskip}\n\\fi" }
 		}
 
 		$out .=
 			"\n\\begin{minipage}{\\linewidth}\n\\setlength{\\columnseprule}{0.2pt}\n"
-			. "\\ifdndcolumns\\begin{multicols}{2}\\fi\n"
+			. "\\ifdefined\\nocolumns\\begin{multicols}{2}\\else\\fi\n"
 			if $i % 2 == 0 && $i != $#{ $self->{defaultBuckets} };
 
 		$out .= "\\parbox{0.9\\linewidth}{\n";
@@ -210,11 +203,8 @@ sub TeX {
 		}
 		$out .= "}";
 
-		if ($i % 2 == 0) {
-			$out .= "\\ifdndcolumns\\columnbreak\\fi\n\n" if $i != $#{ $self->{defaultBuckets} };
-		} else {
-			$out .= "\\ifdndcolumns\\end{multicols}\\fi\n\\end{minipage}\n";
-		}
+		if ($i % 2 == 0) { $out .= "\\columnbreak\n\n" if $i != $#{ $self->{defaultBuckets} } }
+		else             { $out .= "\\ifdefined\\nocolumns\\end{multicols}\\else\\fi\n\\end{minipage}\n" }
 		$out .= "\\vspace{0.75\\baselineskip}\n";
 	}
 	$out .= "\n\\hrule\n\\vspace{0.25\\baselineskip}\n";

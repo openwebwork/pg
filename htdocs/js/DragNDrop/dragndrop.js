@@ -9,6 +9,7 @@
 			this.answerName = el.dataset.answerName ?? '';
 			this.buckets = [];
 			this.removeButtonText = el.dataset.removeButtonText ?? 'Remove';
+			this.allowReusingItems=el.dataset.allowReusingItems;
 
 			this.answerInput = el.parentElement.querySelector(`input[name="${this.answerName}"]`);
 			if (!this.answerInput) {
@@ -89,21 +90,50 @@
 		constructor(bucketPool, id, bucketData) {
 			this.id = id;
 			this.bucketPool = bucketPool;
-
 			this.el = this.htmlBucket(bucketData.label, bucketData.removable, bucketData.indices);
 			bucketPool.bucketContainer.append(this.el);
-
-			// Typeset any math content that may be in the added html.
 			if (window.MathJax) {
 				MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise([this.el]));
 			}
+			this.allowReusingItems=this.bucketPool.allowReusingItems;
 
-			this.sortable = Sortable.create(this.ddList, {
-				group: bucketPool.answerName,
-				animation: 150,
-				onEnd: () => this.bucketPool.updateAnswerInput()
-			});
-		}
+			if(this.allowReusingItems==false){
+				this.sortable = Sortable.create(this.ddList, {
+					group: bucketPool.answerName,
+					animation: 150,
+					onEnd: () => this.bucketPool.updateAnswerInput()
+				});
+			}
+			else if(id==0){  
+   			this.sortable=Sortable.create(this.ddList, {
+					animation:150, 
+					sort: false,
+ 					onEnd:()=>this.bucketPool.updateAnswerInput(),
+					group:{
+						name:bucketPool.answerName,
+						pull:'clone',
+            put: false,
+					}
+				});
+			}
+			else{
+				this.sortable=Sortable.create(this.ddList, {
+					animation:150, 
+					onEnd:()=>this.bucketPool.updateAnswerInput(),
+        	removeOnSpill: true,
+        	group:{
+						name:bucketPool.answerName,
+            put: (to, from, dragEl, event) =>  //Prevents buckets from storing multiple clones
+            { 
+							this.flag=0;
+							Array.from(to.el.children).some(child=> 
+								{if(child.dataset.id === dragEl.dataset.id){this.flag=1;}}
+							);
+							if(this.flag==1){return false} return true
+						} 
+				} });
+			}
+	}
 
 		htmlBucket(label, removable, indices = []) {
 			const bucketElement = document.createElement('div');
@@ -182,4 +212,7 @@
 		}
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
+
+	// Stop the mutation observer when the window is closed.
+	window.addEventListener('unload', () => observer.disconnect());
 })();
