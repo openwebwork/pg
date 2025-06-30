@@ -1,4 +1,6 @@
 
+=encoding utf8
+
 =head1 NAME
 
 contextLinearRelation.pl - Implement linear relations.

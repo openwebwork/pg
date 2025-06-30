@@ -1,5 +1,8 @@
 
+=encoding utf8
+
 =head1 NAME
+
 contextCongruence.pl - Provides contexts that allow the entry of congruence solutions
 
 =head1 DESCRIPTION

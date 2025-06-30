@@ -73,7 +73,7 @@ A few strings can be passed to the C<setBase> method with preset meanings:
 
 The last two digits for C<base64> are nonstandard. We want to avoid '+' and '/' here as they have arithmetic meaning.
 
-=head3 Sample PG problem
+=head1 Sample PG problem
 
 A simple PG problem that asks a student to convert a number into base-5:
 

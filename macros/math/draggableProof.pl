@@ -1,4 +1,6 @@
 
+=encoding utf8
+
 =head1 NAME
 
 draggableProof.pl - Allows the contructions of problems with draggable statements for proofs.

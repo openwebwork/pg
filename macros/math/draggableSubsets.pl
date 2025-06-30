@@ -1,4 +1,6 @@
 
+=encoding utf8
+
 =head1 NAME
 
 draggableSubsets.pl - Creates visual items that can be dragged into various buckets.

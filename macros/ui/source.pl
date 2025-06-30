@@ -1,4 +1,3 @@
-# Note: this probably no longer works using CGI unless specifically set up.  Deprecate?
 
 if ($displayMode =~ m/HTML/ && !defined($_slides_loaded)) {
 	TEXT('<DIV ID="source_button" STYLE="float:right; margin-right:2em">'

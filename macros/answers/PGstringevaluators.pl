@@ -186,8 +186,6 @@ sub ignore_order {
 	return $rh_ans;
 }
 
-=back
-
 =head2 str_cmp
 
     ANS(str_cmp($answer_or_answer_array_ref, @filters));

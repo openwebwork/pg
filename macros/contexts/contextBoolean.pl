@@ -17,7 +17,7 @@ and then select the context:
 
     Context('Boolean');
 
-=head3 CONSTANTS
+=head1 CONSTANTS
 
 This constant recognizes two constants by default, C<T> and C<F>. The following are all equivalent:
 
@@ -26,14 +26,14 @@ This constant recognizes two constants by default, C<T> and C<F>. The following 
     $T = Context()->T;
     $T = context::Boolean->T;
 
-=head3 VARIABLES
+=head1 VARIABLES
 
 By default, this context has two variables, C<p> and C<q>. More variables can be added through the usual
 means of modifying context:
 
     Context->variables->add( r => 'Boolean' );
 
-=head3 OPERATORS
+=head1 OPERATORS
 
 Changing the LaTeX representations of the boolean operators is handled through the operators C<or>, C<and>,
 C<xor>, and C<not>. Note the extra space following the LaTeX command.
@@ -41,7 +41,7 @@ C<xor>, and C<not>. Note the extra space following the LaTeX command.
     Context->operators->set( not => { TeX => '\neg ' } );
 
 
-=head3 Aliases and Alternatives
+=head1 Aliases and Alternatives
 
 Modifications to the operators should be applied to the string versions of each operator: 'or', 'xor', 'and',
 and 'not'; rather than to any of the following aliases or alternatives.
@@ -70,7 +70,7 @@ to be negated.
 
 =back
 
-=head3 OPERATOR PRECEDENCE
+=head1 OPERATOR PRECEDENCE
 
 =over
 
@@ -90,7 +90,7 @@ The C<oxan> setting priortizes C<or> < C<xor> < C<and> < C<not>.
 
 =back
 
-=head3 REDUCTION
+=head1 REDUCTION
 
 The context also handles C<reduceConstants> with the following reduction rules:
 
@@ -118,7 +118,7 @@ The context also handles C<reduceConstants> with the following reduction rules:
 
 =back
 
-=head3 COMPARISON
+=head1 COMPARISON
 
 Boolean Formula objects are considered equal whenever the two expressions generate the same truth table.
 

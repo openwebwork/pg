@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-tableau_main_subroutines.pl -
+tableau_main_subroutines.pl
 
 =cut
 

@@ -76,7 +76,7 @@ would allow students to enter decimals in either format, but all
 numebrs would be displayed in standard form.
 
 
-=head3 LISTS IN ALTERNATE FORMAT
+=head1 LISTS IN ALTERNATE FORMAT
 
 Because the alternate format allows numbers to be entered using commas
 rather than periods, this makes the formation of lists harder.  For
@@ -101,7 +101,7 @@ use C<3, 2,1> since the comma in C<3,> is not part of the number, so
 must be a list separator.
 
 
-=head3 SETTING THE ALTERNATE FORM AS THE DEFAULT
+=head1 SETTING THE ALTERNATE FORM AS THE DEFAULT
 
 If you want to force existing problems to allow (or force, or warn about)
 the alternate format instead, then create a file named

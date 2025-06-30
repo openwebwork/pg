@@ -65,7 +65,7 @@ would allow students to enter complex numbers in either format, but
 all numebrs would be displayed in standard form.
 
 
-=head3 SETTING THE ALTERNATE FORM AS THE DEFAULT
+=head1 SETTING THE ALTERNATE FORM AS THE DEFAULT
 
 If you want to force existing problems to allow (or force, or warn
 about) the j notation, then create a file named

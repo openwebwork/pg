@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-contextCopmlesExtras.pl - Add conjugation to Complex contexts, and
+contextComplexExtras.pl - Add conjugation to Complex contexts, and
 transpose, conjugate transpose, trace, and determinant to Complex-Matrix context.
 
 =head1 DESCRIPTION
