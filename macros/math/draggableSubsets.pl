@@ -83,7 +83,7 @@ Available Options:
     DefaultSubsets    => <array reference>
     OrderedSubsets    => 0 or 1
     AllowNewBuckets   => 0 or 1
-		AllowReusingItems => 0 or 1
+    AllowReusingItems => 0 or 1
     BucketLabelFormat => <string>
     ResetButtonText   => <string>
     AddButtonText     => <string>
@@ -149,12 +149,12 @@ Their usage is demonstrated in the example below.
         # The default value if not given is 1.
         AllowNewBuckets => 1,
 
-				# 0 is the conventional approach, by which the repository bucket is 
-				# depleted if an item an item is dragged from that bucket. 
+        # 0 is the conventional approach, by which the repository bucket is 
+        # depleted if an item an item is dragged from that bucket. 
         # 1 means that items are replenished in the repository bucket once 
-				# dragged. This option is designed to be used in conjunction with 
-				# $showPartialCorrectAnswers = 0 in the problem code.
-				# The default value if not given is 0.
+        # dragged. This option is designed to be used in conjunction with 
+        # $showPartialCorrectAnswers = 0 in the problem code.
+        # The default value if not given is 0.
         AllowReusingItems => 0,
 
         # If this option is defined then labels for buckets for which a specific
