@@ -101,7 +101,7 @@
 			this.allowReusingItems = this.bucketPool.allowReusingItems;
 
 			if (this.allowReusingItems) {
-				if (id == 0) {
+				if (id === 0) {
 					this.sortable = Sortable.create(this.ddList, {
 						animation: 150,
 						sort: false,
@@ -119,23 +119,8 @@
 						removeOnSpill: true,
 						group: {
 							name: bucketPool.answerName,
-							put: (
-								to,
-								from,
-								dragEl,
-								event //Prevents buckets from storing multiple clones
-							) => {
-								this.flag = 0;
-								Array.from(to.el.children).some((child) => {
-									if (child.dataset.id === dragEl.dataset.id) {
-										this.flag = 1;
-									}
-								});
-								if (this.flag == 1) {
-									return false;
-								}
-								return true;
-							}
+							put: (to, _from, dragEl) =>
+								!Array.from(to.el.children).some((child) => child.dataset.id === dragEl.dataset.id)
 						}
 					});
 				}
