@@ -60,9 +60,11 @@
 			if (imageDescription.open) {
 				document.addEventListener('keydown', escapeCloseDetails);
 				document.addEventListener('pointerdown', clickCloseDetails);
+				document.addEventListener('touch', clickCloseDetails);
 			} else {
 				document.removeEventListener('keydown', escapeCloseDetails);
 				document.removeEventListener('pointerdown', clickCloseDetails);
+				document.removeEventListener('touch', clickCloseDetails);
 			}
 		});
 	}
