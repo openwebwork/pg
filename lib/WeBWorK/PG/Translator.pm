@@ -1092,7 +1092,8 @@ sub avg_problem_grader {
 
 	my %problem_result = (score => 0, errors => '', type => 'avg_problem_grader', msg => '');
 
-	$problem_result{msg} = maketext('You can earn partial credit on this problem.') if keys %$answers > 1;
+	$problem_result{msg} = eval('main::maketext("You can earn partial credit on this problem.")')
+		if keys %$answers > 1;
 
 	# Return unless answers have been submitted.
 	return (\%problem_result, $problem_state) unless $form_options{answers_submitted} == 1;
@@ -1124,7 +1125,7 @@ sub avg_problem_grader {
 				{
 					$answers->{$credit_name}{score} = 1;
 					$answers->{$credit_name}{ans_message} =
-						maketext('This answer was marked correct because the primary answer is correct.');
+						eval('main::maketext("This answer was marked correct because the primary answer is correct.")');
 					$credit{$credit_name} = 1;
 				}
 			}
