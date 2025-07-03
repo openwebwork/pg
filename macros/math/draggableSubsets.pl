@@ -152,9 +152,7 @@ Their usage is demonstrated in the example below.
         # 0 is the conventional approach, by which the repository bucket is 
         # depleted if an item an item is dragged from that bucket. 
         # 1 means that items are replenished in the repository bucket once 
-        # dragged. This option is designed to be used in conjunction with 
-        # $showPartialCorrectAnswers = 0 in the problem code.
-        # The default value if not given is 0.
+        # dragged. The default value if not given is 0.
         AllowReusingItems => 0,
 
         # If this option is defined then labels for buckets for which a specific
@@ -349,7 +347,18 @@ sub cmp_defaults {
 
 sub cmp {
 	my ($self, %options) = @_;
-	return $self->SUPER::cmp(%{ $self->{cmpOptions} }, %options);
+	my $nbuc = scalar @{ $self->{set} };    #number of buckets
+	if ($self->{AllowReusingItems}) {
+		$tmp = $self->SUPER::cmp(%{ $self->{cmpOptions} }, %options)->withPostFilter(sub {
+			$ansHash          = shift;
+			$ncor             = $ansHash->{score} * $nbuc;    #number of buckets correct
+			$ansHash->{score} = ($ncor - 1) / ($nbuc - 1);
+			return $ansHash;
+		});
+		return $tmp;
+	} else {
+		return $self->SUPER::cmp(%{ $self->{cmpOptions} }, %options);
+	}
 }
 
 sub TeX {
