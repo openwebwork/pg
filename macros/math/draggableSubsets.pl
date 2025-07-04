@@ -83,11 +83,12 @@ Available Options:
     DefaultSubsets    => <array reference>
     OrderedSubsets    => 0 or 1
     AllowNewBuckets   => 0 or 1
-    AllowReusingItems => 0 or 1
     BucketLabelFormat => <string>
     ResetButtonText   => <string>
     AddButtonText     => <string>
     RemoveButtonText  => <string>
+    ShowUniversalSet  => 0 or 1
+    UniversalSetLabel => <string>
 
 Their usage is demonstrated in the example below.
 
@@ -149,12 +150,6 @@ Their usage is demonstrated in the example below.
         # The default value if not given is 1.
         AllowNewBuckets => 1,
 
-        # 0 is the conventional approach, by which the repository bucket is 
-        # depleted if an item an item is dragged from that bucket. 
-        # 1 means that items are replenished in the repository bucket once 
-        # dragged. The default value if not given is 0.
-        AllowReusingItems => 0,
-
         # If this option is defined then labels for buckets for which a specific
         # label is not provided will be created by replacing %s with the bucket
         # number to this prefix.  These labels will also be used for buckets
@@ -176,6 +171,16 @@ Their usage is demonstrated in the example below.
         # This is the text label for the remove button that is added to any
         # removable buckets.  The default value if not given is "Remove".
         RemoveButtonText => 'Delete'
+
+        # If this is true then a separate bucket containing the full set passed
+        # as the first argument above (the universal set) will be shown, and the
+        # elements of the set can be distributed to the other subsets (or
+        # buckets) that are shown.  The default value if not given is 0.
+        ShowUniversalSet => 1,
+
+        # Label for the bucket representing the universal set.
+        #  The default value if not given is "Universal Set".
+        UniversalSetLabel => 'Universal Set',
 
         # These are options that will be passed to the $draggable->cmp method.
         cmpOptions => { checker => sub { ... } }
@@ -235,14 +240,43 @@ sub new {
 		ResetButtonText   => 'Reset',
 		AddButtonText     => 'Add Bucket',
 		RemoveButtonText  => 'Remove',
-		AllowReusingItems => 0,
+		ShowUniversalSet  => 0,
+		UniversalSetLabel => '',
 		%options
 		},
 		ref($invocant) || $invocant;
 
-	#If AllowReusingItem is set, bucket 0 should contain the full set of elements for grading
-	my $maxindex = scalar @{ $base->{set} } - 1;    #Number of elements -1
-	if ($base->{AllowReusingItems}) { $subsets->[0] = [ 0 .. $maxindex ]; }
+	Value::Error('Answer subsets must be an array reference.') unless ref($subsets) eq 'ARRAY';
+
+	my %seenIndices;
+	for my $subset (@$subsets) {
+		Value::Error('Each answer subset must be a reference to an array of indices.')
+			unless ref($subset) eq 'ARRAY';
+		for (@$subset) {
+			Value::Error('An index in an answer subset is out of range.') unless $_ < @$set;
+			Value::Error('An index is repeated in multiple answer subsets. '
+					. 'This can only be the case if ShowUniversalSet is 1.')
+				if !$base->{ShowUniversalSet} && $seenIndices{$_};
+			$seenIndices{$_} = 1;
+		}
+	}
+
+	Value::Error('Default subsets must be an array reference.')
+		unless ref($base->{DefaultSubsets}) eq 'ARRAY';
+
+	%seenIndices = ();
+	for my $subset (@{ $base->{DefaultSubsets} }) {
+		Value::Error('Each default subset must be a hash reference.') unless ref($subset) eq 'HASH';
+		Value::Error('Each default subset must have "indices" which must be a reference to an array of indices.')
+			unless ref($subset->{indices}) eq 'ARRAY';
+		for (@{ $subset->{indices} }) {
+			Value::Error('An index in a default subset is out of range.') unless $_ < @$set;
+			Value::Error('An index is repeated in multiple default subsets.'
+					. 'This can only be the case if ShowUniversalSet is 1.')
+				if !$base->{ShowUniversalSet} && $seenIndices{$_};
+			$seenIndices{$_} = 1;
+		}
+	}
 
 	$base->{order} = do {
 		my @indices = 0 .. $#{ $base->{set} };
@@ -257,7 +291,6 @@ sub new {
 		'(' => { close => ')', type => 'List', formList => 1, formMatrix => 0, removable => 0 },
 		'{' => { close => '}', type => 'Set',  formList => 0, formMatrix => 0, removable => 0, emptyOK => 1 }
 	);
-
 	$context->lists->set(
 		'DraggableSubsets' => {
 			class       => 'Parser::List::List',
@@ -318,7 +351,8 @@ sub ans_rule {
 		resetButtonText   => $self->{ResetButtonText},
 		addButtonText     => $self->{AddButtonText},
 		removeButtonText  => $self->{RemoveButtonText},
-		allowReusingItems => $self->{AllowReusingItems},
+		showUniversalSet  => $self->{ShowUniversalSet},
+		universalSetLabel => $self->{UniversalSetLabel},
 	);
 
 	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($self->ANS_NAME);
@@ -347,18 +381,7 @@ sub cmp_defaults {
 
 sub cmp {
 	my ($self, %options) = @_;
-	my $nbuc = scalar @{ $self->{set} };    #number of buckets
-	if ($self->{AllowReusingItems}) {
-		$tmp = $self->SUPER::cmp(%{ $self->{cmpOptions} }, %options)->withPostFilter(sub {
-			$ansHash          = shift;
-			$ncor             = $ansHash->{score} * $nbuc;    #number of buckets correct
-			$ansHash->{score} = ($ncor - 1) / ($nbuc - 1);
-			return $ansHash;
-		});
-		return $tmp;
-	} else {
-		return $self->SUPER::cmp(%{ $self->{cmpOptions} }, %options);
-	}
+	return $self->SUPER::cmp(%{ $self->{cmpOptions} }, %options);
 }
 
 sub TeX {

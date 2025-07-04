@@ -102,6 +102,16 @@ This sets the size for which the TeX output for hardcopy uses two columns or not
 If the current C<\linewidth> is greater than or equal to this size then two columns
 will be used, otherwise only single column is used.
 
+=item showUniversalSet (Default: C<0>)
+
+If 1 then the set of all elements passed in the C<$itemList> will be shown
+in a separate bucket.  Elements can be dragged from this set and into other
+buckets, but not into it.
+
+=item universalSetLabel (Default: C<< 'Universal Set' >>)
+
+Label shown for the universal set bucket if C<showUniversalSet> is 1.
+
 =back
 
 =head2 METHODS
@@ -152,7 +162,8 @@ sub new {
 		addButtonText     => 'Add Bucket',
 		removeButtonText  => 'Remove',
 		multicolsWidth    => '300pt',
-		allowReusingItems => 0,
+		showUniversalSet  => 0,
+		universalSetLabel => 'Universal Set',
 		%options,
 		},
 		ref($self) || $self;
@@ -162,11 +173,12 @@ sub HTML {
 	my $self = shift;
 
 	my $out = qq{<div class="dd-bucket-pool" data-answer-name="$self->{answerName}"};
-	$out .= " data-allow-reusing-items = 1" if $self->{allowReusingItems};
 	$out .= ' data-item-list="' . PGcore::encode_pg_and_html(encode_json($self->{itemList})) . '"';
 	$out .= ' data-default-state="' . PGcore::encode_pg_and_html(encode_json($self->{defaultBuckets})) . '"';
 	$out .= qq{ data-remove-button-text="$self->{removeButtonText}"};
 	$out .= qq{ data-label-format="$self->{bucketLabelFormat}"} if $self->{bucketLabelFormat};
+	$out .= " data-show-universal-set"                          if $self->{showUniversalSet};
+	$out .= qq{ data-universal-set-label="$self->{universalSetLabel}"};
 	$out .= '>';
 
 	$out .= '<div class="dd-buttons"';
@@ -182,7 +194,19 @@ sub HTML {
 sub TeX {
 	my $self = shift;
 
-	my $out =
+	my $out = '';
+
+	if ($self->{showUniversalSet}) {
+		$out .= "\n\\hrule\n\\vspace{0.5\\baselineskip}\n";
+		$out .= "\\parbox{0.9\\linewidth}{\n";
+		$out .= "$self->{universalSetLabel}\n";
+		$out .= "\\begin{itemize}\n";
+		$out .= "\\item $_\n" for (@{ $self->{itemList} });
+		$out .= "\\end{itemize}\n";
+		$out .= "}\n";
+	}
+
+	$out .=
 		"\n\\hrule\n\\vspace{0.5\\baselineskip}\n\\newif\\ifdndcolumns\n"
 		. "\\ifdim\\linewidth<$self->{multicolsWidth}\\relax\\dndcolumnsfalse\\else\\dndcolumnstrue\\fi\n";
 
