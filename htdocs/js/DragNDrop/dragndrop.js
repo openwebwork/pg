@@ -9,7 +9,6 @@
 			this.answerName = el.dataset.answerName ?? '';
 			this.buckets = [];
 			this.removeButtonText = el.dataset.removeButtonText ?? 'Remove';
-			this.allowReusingItems = el.dataset.allowReusingItems;
 
 			this.answerInput = el.parentElement.querySelector(`input[name="${this.answerName}"]`);
 			if (!this.answerInput) {
@@ -25,6 +24,8 @@
 			this.itemList = JSON.parse(el.dataset.itemList ?? '[]');
 			this.defaultState = JSON.parse(el.dataset.defaultState ?? '[]');
 			this.labelFormat = el.dataset.labelFormat;
+
+			this.showUniversalSet = 'showUniversalSet' in el.dataset;
 
 			if (this.answerInput.value) {
 				// Need to check for things like (3,2,1) for backwards compatibility.  Now it will be {3,2,1}.
@@ -47,6 +48,19 @@
 				}
 			}
 			this.updateAnswerInput();
+
+			if (this.showUniversalSet) {
+				this.universalSetContainer = document.createElement('div');
+				this.universalSetContainer.classList.add('dd-pool-bucket-container');
+				el.prepend(this.universalSetContainer);
+
+				this.universalSetBucket = new Bucket(this, this.buckets.length, {
+					isUniversalSet: true,
+					removable: false,
+					label: el.dataset.universalSetLabel ?? 'Universal Set',
+					indices: this.itemList.map((_el, i) => i)
+				});
+			}
 
 			el.querySelector('.dd-add-bucket')?.addEventListener('click', () => {
 				// When buckets are removed and added the id's may not be sequential anymore.  So the bucket count
@@ -92,45 +106,33 @@
 			this.bucketPool = bucketPool;
 
 			this.el = this.htmlBucket(bucketData.label, bucketData.removable, bucketData.indices);
-			bucketPool.bucketContainer.append(this.el);
+
+			if (bucketData.isUniversalSet) bucketPool.universalSetContainer.append(this.el);
+			else bucketPool.bucketContainer.append(this.el);
 
 			// Typeset any math content that may be in the added html.
 			if (window.MathJax) {
 				MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise([this.el]));
 			}
-			this.allowReusingItems = this.bucketPool.allowReusingItems;
 
-			if (this.allowReusingItems) {
-				if (id === 0) {
-					this.sortable = Sortable.create(this.ddList, {
-						animation: 150,
-						sort: false,
-						onEnd: () => this.bucketPool.updateAnswerInput(),
-						group: {
-							name: bucketPool.answerName,
-							pull: 'clone',
-							put: false
-						}
-					});
+			const options = {
+				group: { name: bucketPool.answerName },
+				animation: 150,
+				onEnd: () => this.bucketPool.updateAnswerInput()
+			};
+
+			if (bucketPool.showUniversalSet) {
+				if (bucketData.isUniversalSet) {
+					options.group.pull = 'clone';
+					options.group.put = false;
 				} else {
-					this.sortable = Sortable.create(this.ddList, {
-						animation: 150,
-						onEnd: () => this.bucketPool.updateAnswerInput(),
-						removeOnSpill: true,
-						group: {
-							name: bucketPool.answerName,
-							put: (to, _from, dragEl) =>
-								!Array.from(to.el.children).some((child) => child.dataset.id === dragEl.dataset.id)
-						}
-					});
+					options.removeOnSpill = true;
+					options.group.put = (to, _from, dragEl) =>
+						!Array.from(to.el.children).some((child) => child.dataset.id === dragEl.dataset.id);
 				}
-			} else {
-				this.sortable = Sortable.create(this.ddList, {
-					group: bucketPool.answerName,
-					animation: 150,
-					onEnd: () => this.bucketPool.updateAnswerInput()
-				});
 			}
+
+			this.sortable = Sortable.create(this.ddList, options);
 		}
 
 		htmlBucket(label, removable, indices = []) {
@@ -170,8 +172,11 @@
 
 				removeButton.addEventListener('click', () => {
 					const firstBucketList = this.bucketPool.buckets[0].ddList;
+					const firstBucketListItems = Array.from(firstBucketList.querySelectorAll('.dd-item')).map(
+						(item) => item.dataset.id
+					);
 					for (const item of this.ddList.querySelectorAll('.dd-item')) {
-						firstBucketList.append(item);
+						if (!firstBucketListItems.includes(item.dataset.id)) firstBucketList.append(item);
 					}
 
 					bucketElement.remove();
