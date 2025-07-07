@@ -164,7 +164,7 @@ sub HTML {
 	$out .= qq{ data-remove-button-text="$self->{removeButtonText}"};
 	$out .= qq{ data-label-format="$self->{bucketLabelFormat}"} if $self->{bucketLabelFormat};
 	$out .= " data-show-universal-set"                          if $self->{showUniversalSet};
-	$out .= qq{ data-universal-set-label="$self->{universalSetLabel}"};
+	$out .= ' data-universal-set-label="' . PGcore::encode_pg_and_html($self->{universalSetLabel}) . '"';
 	$out .= '>';
 
 	$out .= '<div class="dd-buttons"';
