@@ -241,7 +241,7 @@ sub new {
 		AddButtonText     => 'Add Bucket',
 		RemoveButtonText  => 'Remove',
 		ShowUniversalSet  => 0,
-		UniversalSetLabel => '',
+		UniversalSetLabel => 'Universal Set',
 		%options
 		},
 		ref($invocant) || $invocant;

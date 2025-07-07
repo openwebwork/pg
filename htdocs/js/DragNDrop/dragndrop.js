@@ -123,6 +123,7 @@
 
 			if (bucketPool.showUniversalSet) {
 				if (bucketData.isUniversalSet) {
+					options.sort = false;
 					options.group.pull = 'clone';
 					options.group.put = false;
 				} else {
