@@ -3,7 +3,7 @@
 
 PGgraphmacros.pl - provides functionality for plotting functions, points and adding labels.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
     use Fun;
     use Label;
@@ -402,7 +402,9 @@ sub closed_circle {
 	new Circle($cx, $cy, 4, $color, $color);
 }
 
-=head2 tring_to_sub, my_math_constants
+=head2 tring_to_sub
+
+=head2 my_math_constants
 
 These are internal macros which govern the interpretation of equations.
 

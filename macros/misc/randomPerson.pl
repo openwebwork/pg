@@ -3,11 +3,11 @@
 
 randomPerson.pl - Load macros for getting a random person with corresponding pronouns.
 
-=head2 SYNOPSIS
+=head1 SYNOPSIS
 
     loadMacros('randomPerson.pl');
 
-=head2 DESCRIPTION
+=head1 DESCRIPTION
 
 C<randomPerson.pl> provides a C<randomPerson> function that generates
 a random name that comes with corresponding pronouns and verb conjugation.
@@ -27,7 +27,7 @@ States in 2020, according to babynames.com, which used the 2020 US Census.
 That list was still lacking in representation of Asian, South Asian, and
 African surnames, so 12 popular names from these regions were added.
 
-=head2 USAGE
+=head2 Usage
 
 First load the C<randomPerson> macro with
 
@@ -320,11 +320,13 @@ loadMacros('PGbasicmacros.pl', 'PGauxiliaryFunctions.pl');
 	Vu           Warner    Warren     Webb       Yakubu    Yang      Zakaria    Zamora
 );
 
+=head1 FUNCTIONS
+
 =head2 randomPerson
 
 Returns a person as a Person object from a list in the macro.
 
-=head3 Examples and options
+=head3 Examples and Options
 
 =over
 
@@ -401,7 +403,7 @@ sub randomPerson {
 	return wantarray ? @names : $names[0];
 }
 
-=head3 randomLastName
+=head2 randomLastName
 
 This returns a random last name based on popular last names in the United States.  Example
 
@@ -424,7 +426,7 @@ sub randomLastName {
 	return wantarray ? @names : $names[0];
 }
 
-=head2 CONSTRUCTOR Person
+=head1 CONSTRUCTOR (Person object)
 
 This makes a Person object to handle name and pronouns of a Person.
 
@@ -471,6 +473,8 @@ sub TeX {
 	return '\text{' . shift->{name} . '}';
 }
 
+=head1 METHODS (Person object)
+
 =head2 name
 
 This returns the name of the person.
@@ -487,6 +491,8 @@ sub name {
 }
 
 =head2 subject
+
+=head2 they
 
 These return the subject pronoun in lowercase. The second option is syntactic sugar.
 
@@ -507,6 +513,8 @@ sub they {
 
 =head2 Subject
 
+=head2 They
+
 These return the subject pronoun, capitalized. The second option is syntactic sugar.
 
     $p->Subject
@@ -525,6 +533,8 @@ sub They {
 }
 
 =head2 possessive
+
+=head2 their
 
 These return the possessive adjective in lowercase. The second option is syntactic sugar.
 
@@ -546,6 +556,8 @@ sub their {
 
 =head2 Possessive
 
+=head2 Their
+
 These return the possessive adjective, capitalized. The second option is syntactic sugar.
 
     $p->Possessive
@@ -564,6 +576,8 @@ sub Their {
 }
 
 =head2 possession
+
+=head2 theirs
 
 These return the possessive pronoun in lowercase. The second option is syntactic sugar.
 
@@ -585,6 +599,8 @@ sub theirs {
 
 =head2 Possession
 
+=head2 Theirs
+
 These return the possessive pronoun, capitalized. The second option is syntactic sugar.
 
     $p->Possession
@@ -604,6 +620,8 @@ sub Theirs {
 
 =head2 object
 
+=head2 them
+
 These return the object pronoun in lowercase. The second option is syntactic sugar.
 
     $p->object
@@ -622,7 +640,9 @@ sub them {
 	return shift->object();
 }
 
-=head2 one of Object
+=head2 Object
+
+=head2 Them
 
 These return the object pronoun, capitalized. The second option is syntactic sugar.
 
@@ -641,7 +661,7 @@ sub Them {
 	return shift->Object();
 }
 
-=head2 C<verb> or C<Verb>
+=head2 verb/Verb
 
 Returns the correct conjugation of the verb. If only one argument is passed in, it should
 be a regular verb in the third person plural conjugation (the "they" version). For example:
@@ -696,7 +716,7 @@ sub verb {
 	}
 }
 
-=head3 C<do> or C<Do>
+=head2 do/Do
 
 Returns the correct conjugation of to do with captilization. For example
 
@@ -716,7 +736,7 @@ sub Do {
 	return shift->verb('Do', 'Does');
 }
 
-=head3 C<are> or C<Are>
+=head2 are/Are
 
 Returns the correct conjugation of to be with captilization.  For example
 
@@ -736,7 +756,7 @@ sub Are {
 	return shift->verb('Are', 'Is');
 }
 
-=head3 C<go> or C<Go>
+=head2 go/Go
 
 Returns the correct conjugation of to go with captilization.  For example
 
@@ -756,7 +776,7 @@ sub Go {
 	return shift->verb('Go', 'Goes');
 }
 
-=head3 C<have> or C<Have>
+=head2 have/Have
 
 Returns the correct conjugation of to have with captilization.  For example
 
@@ -776,7 +796,7 @@ sub Have {
 	return shift->verb('Have', 'Has');
 }
 
-=head3 C<were> or C<Were>
+=head2 were/Were
 
 Returns the correct conjugation of past tense of to be with captilization.  For example
 
@@ -796,7 +816,7 @@ sub Were {
 	return shift->verb('Were', 'Was');
 }
 
-=head3 C<theyre> or C<Theyre>
+=head2 theyre/Theyre
 
 Returns the correct contraction for the pronoun with to be, with captilization.  For example
 
@@ -818,7 +838,7 @@ sub Theyre {
 	return $self->They . "'" . $self->verb('re', 's');
 }
 
-=head3 C<theyve> or C<Theyve>
+=head2 theyve/Theyve
 
 Returns the correct contraction for the pronoun with to have, with captilization.  For example
 

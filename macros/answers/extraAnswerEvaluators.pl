@@ -9,7 +9,7 @@ and lists of points.
 This is a list of macros that create "answer evaluators" for checking student
 answers of various "exotic" types.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 	interval_cmp() -- checks answers which are unions of intervals. It can also
 					  be used for checking an ordered pair or list of ordered

@@ -65,6 +65,7 @@ The structure of the tableau is:
     z(...x^i...) = c_i* x^i  (Einstein summation convention)
     FIXME: ?? allow c to be a 2 by n matrix so that you can do phase1 calculations easily
 
+=head1 FUNCTIONS
 
 =head2 tableauEquivalence
 
@@ -114,15 +115,9 @@ Usage:
 Replaces commas with line breaks in the latex presentations of the answer checker.
 Used most often when $constraints is a LinearInequality math object.
 
-=head1 REFERENCES
+=head1 CONSTRUCTOR
 
-MathObject Matrix methods: L<http://webwork.maa.org/wiki/Matrix_(MathObject_Class)>
-MathObject Contexts: L<http://webwork.maa.org/wiki/Common_Contexts>
-CPAN RealMatrix docs: L<http://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
-
-More references: L<Matrix>
-
-=head2 Tableau
+=head2 new
 
     Tableau->new(A=>Matrix, b=>Vector or Matrix, c=>Vector or Matrix)
 
@@ -159,6 +154,14 @@ flag indicating the column (1 or n+m+1) for the objective value
 
 
     ANS( $tableau->cmp(checker=>tableauEquivalence()) );
+
+=head1 REFERENCES
+
+MathObject Matrix methods: L<http://webwork.maa.org/wiki/Matrix_(MathObject_Class)>
+MathObject Contexts: L<http://webwork.maa.org/wiki/Common_Contexts>
+CPAN RealMatrix docs: L<http://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
+
+More references: L<Matrix>
 
 =cut
 

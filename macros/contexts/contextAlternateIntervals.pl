@@ -78,7 +78,7 @@ different values.  For example.
 would allow students to enter intervals in either format, but all
 intervals would be displayed in standard form.
 
-=head1 Setting the alternate form as the default
+=head2 Setting the alternate form as the default
 
 If you want to force existing problems that use the Interval context
 to use one of the alternate contexts instead, then create a file named

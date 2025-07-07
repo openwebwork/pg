@@ -9,9 +9,11 @@ A set of macros for old school answer checkers.
 
 =head1 FUNCTIONS
 
-=head2 auto_right()
+=head2 auto_right
 
-Usage: C<ANS(auto_right());>
+Usage:
+
+    ANS(auto_right());
 
 or
 
@@ -442,7 +444,7 @@ sub pc_evaluator {
 	$ans_evaluator;
 }
 
-=head2 weighted_partial_grader
+=head2 weighted_partial_grader [DEPRECATED]
 
 This is a grader which weights the different parts of the problem
 differently.  The weights passed to it through the environment.  In

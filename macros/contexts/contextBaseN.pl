@@ -73,7 +73,7 @@ A few strings can be passed to the C<setBase> method with preset meanings:
 
 The last two digits for C<base64> are nonstandard. We want to avoid '+' and '/' here as they have arithmetic meaning.
 
-=head1 Sample PG problem
+=head2 Sample PG problem
 
 A simple PG problem that asks a student to convert a number into base-5:
 
@@ -119,7 +119,7 @@ sub Init {
 The function C<convertBase(value, opts)> converts the value from or to other bases depending on the options
 in C<opts>.  The input C<value> is a positive number or string version of a positive number in some base.
 
-=head3 options
+=head3 Options
 
 =over
 

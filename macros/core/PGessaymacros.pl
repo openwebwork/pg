@@ -3,7 +3,7 @@
 
 PGessaymacros.pl - Macros for building answer evaluators.
 
-=head2 SYNPOSIS
+=head2 SYNOPSIS
 
 Answer Evaluators:
 

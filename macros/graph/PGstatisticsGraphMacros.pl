@@ -3,7 +3,7 @@
 
 PGstatisticsGraphMacros.pl - Provides statistic graphs using the WWPlot macros.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
     use Fun;
     use Label;

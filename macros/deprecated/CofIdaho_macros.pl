@@ -3,7 +3,7 @@
 
 CofIdaho.pl - extra macros for Intermediate Algebra problems at The College of Idaho
 
-=head1 Synposis
+=head1 SYNOPSIS
 
 macros by R Cruz -- The College of Idaho
 

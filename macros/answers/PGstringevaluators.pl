@@ -14,6 +14,12 @@ PGstringevaluators.pl - Macros that generate string answer evaluators.
 
 String answer evaluators compare a student string to the correct string.
 
+=head2 MathObjects and answer evaluators
+
+The MathObjects system provides a String->cmp() method that produce answer
+evaluators for string comparisons. It is recommended that you use the String
+object's cmp() method directly if possible.
+
 =cut
 
 BEGIN { strict->import; }
@@ -226,7 +232,7 @@ list of filter names. Hence, the following two forms are equivalent:
 	ANS(str_cmp($ans, 'remove_whitespace', 'ignore_order'));
 	ANS(str_cmp($ans, filters=>['remove_whitespace', 'ignore_order']));
 
-=head3 Examples
+=head2 Examples
 
 	# same as std_str_cmp() -- matches "Hello", "  hello", etc.
 	str_cmp("Hello")

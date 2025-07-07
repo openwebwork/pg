@@ -7,7 +7,7 @@
 
 PGanswermacros.pl - Macros for building answer evaluators.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 Number Answer Evaluators:
 

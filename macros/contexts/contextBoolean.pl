@@ -41,7 +41,7 @@ C<xor>, and C<not>. Note the extra space following the LaTeX command.
     Context->operators->set( not => { TeX => '\neg ' } );
 
 
-=head1 Aliases and Alternatives
+=head2 Aliases and Alternatives
 
 Modifications to the operators should be applied to the string versions of each operator: 'or', 'xor', 'and',
 and 'not'; rather than to any of the following aliases or alternatives.
@@ -70,7 +70,7 @@ to be negated.
 
 =back
 
-=head1 OPERATOR PRECEDENCE
+=head2 Operator Precedence
 
 =over
 
@@ -90,7 +90,7 @@ The C<oxan> setting priortizes C<or> < C<xor> < C<and> < C<not>.
 
 =back
 
-=head1 REDUCTION
+=head2 Reduction Rules
 
 The context also handles C<reduceConstants> with the following reduction rules:
 
@@ -118,7 +118,7 @@ The context also handles C<reduceConstants> with the following reduction rules:
 
 =back
 
-=head1 COMPARISON
+=head2 Comparison
 
 Boolean Formula objects are considered equal whenever the two expressions generate the same truth table.
 

@@ -11,7 +11,7 @@ This provides some common input forms for a finite solution set.
 Load the macro and set the Context:
 
     loadMacros('contextFiniteSolutionSets.pl');
-	Context('FiniteSolutionSets');
+    Context('FiniteSolutionSets');
 
 Then create answers such as:
 

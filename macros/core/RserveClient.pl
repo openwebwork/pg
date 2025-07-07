@@ -38,7 +38,9 @@ about the missing configuration and return.
 The methods in this file set up a connection to the R server and pass a string
 parameter to R for evaluation.  The result is returned as a Perl object.
 
-=head2 rserve_start, rserve_finish
+=head2 rserve_start
+
+=head2 rserve_finish
 
 Start up and close the current connection to the Rserve server. In normal use,
 these functions are not needed because a call to any of the other methods will

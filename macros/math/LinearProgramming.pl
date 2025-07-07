@@ -4,7 +4,7 @@
 LinearProgramming.pl - Macros for the simplex tableau for linear programming
 problems.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 Macros related to the simplex method for Linear Programming.
 

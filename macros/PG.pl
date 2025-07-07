@@ -3,7 +3,7 @@
 
 PG.pl - Provides core Program Generation Language functionality.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 In a PG problem:
 

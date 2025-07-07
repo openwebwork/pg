@@ -19,12 +19,12 @@ package CommonFunction;
 =head2 NOTE
 
 
-#  Either call Parser (if it has been loaded) or
-#  the functions below.  (If it's ever the case
-#  that both the Parser and PGauxiliaryFunctions.pl are
-#  both preloaded, then there will be no need for
-#  this, as you can always use the Parser versions.
-#  We only need this because Parser might not be loaded.)
+Either call Parser (if it has been loaded) or
+the functions below.  (If it's ever the case
+that both the Parser and PGauxiliaryFunctions.pl are
+both preloaded, then there will be no need for
+this, as you can always use the Parser versions.
+We only need this because Parser might not be loaded.)
 
 
 =cut

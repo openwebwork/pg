@@ -29,7 +29,7 @@ rules will be used.  It is beter to use named rules and C<UNORDERED_NAMED_ANS>
 below.  Otherwise, be sure to use C<UNORDERED_ANS> right after the answer
 rules for the answers you want to compare.
 
-Format:
+Usage:
 
     UNORDERED_ANS(checker1, checker2, ...);
 
@@ -64,9 +64,9 @@ sub UNORDERED_ANS {
 Collect a group of answer checkers for use with named answers that
 can be given in any order.
 
-Format:
+Usage:
 
-UNORDERED_NAMED_ANS(name1 => checker1, name2 => checker2, ...);
+    UNORDERED_NAMED_ANS(name1 => checker1, name2 => checker2, ...);
 
 Example:
 
