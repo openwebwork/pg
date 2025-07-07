@@ -10,7 +10,7 @@
 
 	Macros for complex numbers for the PG language
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 
 

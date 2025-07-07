@@ -1,10 +1,10 @@
 
 =head1 NAME
 
-	Label
+Label
 
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 	use Carp;
 	use GD;
@@ -19,8 +19,8 @@ This module defines labels for the graph objects (WWPlot).
 
 =head2 Usage
 
-	$label1 = new Label($x_value, $y_value, $label_string, $label_color, @options)
-	$options is an array with (*'d defaults)
+    $label1 = new Label($x_value, $y_value, $label_string, $label_color, @options)
+    $options is an array with (*'d defaults)
         - one of 'left'*, 'center', 'right' (horizontal alignment)
         - one of 'bottom', 'center', 'top'* (verical alignment)
         - one of 'horizontal'*, 'vertical' (orientation)

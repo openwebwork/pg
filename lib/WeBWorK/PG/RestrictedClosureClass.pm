@@ -20,7 +20,7 @@ package WeBWorK::PG::RestrictedClosureClass;
 WeBWorK::PG::RestrictedClosureClass - Protect instance data and only allow
 calling of specified methods.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
     package MyScaryClass;
     

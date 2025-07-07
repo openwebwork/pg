@@ -1,14 +1,14 @@
 
 =head1 NAME
 
-	Circle
+Circle
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
     use Carp;
-	use GD;
-	use WWPlot;
-	use Fun;
+    use GD;
+    use WWPlot;
+    use Fun;
 
 
 =head1 DESCRIPTION
@@ -17,29 +17,28 @@ This module defines a circle which can be inserted as a stamp in a graph (WWPlot
 
 =head2 Command:
 
-	$circle_object = new Circle( $center_pos_x, $center_pos_y, $radius, $border_color, $fill_color);
-
+    $circle_object = new Circle( $center_pos_x, $center_pos_y, $radius, $border_color, $fill_color);
 
 =head2 Examples:
 
-	Here is the code used to define the subroutines open_circle
-	and closed_circle in PGgraphmacros.pl
+Here is the code used to define the subroutines open_circle
+and closed_circle in PGgraphmacros.pl
 
-		sub open_circle {
-		    my ($cx,$cy,$color) = @_;
-			new Circle ($cx, $cy, 4,$color,'nearwhite');
-		}
+    sub open_circle {
+        my ($cx,$cy,$color) = @_;
+    	new Circle ($cx, $cy, 4,$color,'nearwhite');
+    }
 
-		sub closed_circle {
-		    my ($cx,$cy, $color) = @_;
-		    $color = 'black' unless defined $color;
-			new Circle ($cx, $cy, 4,$color, $color);
-		}
+    sub closed_circle {
+        my ($cx,$cy, $color) = @_;
+        $color = 'black' unless defined $color;
+    	new Circle ($cx, $cy, 4,$color, $color);
+    }
 
-	$circle_object2 = closed_circle( $x_position, $y_position, $color );
+    $circle_object2 = closed_circle( $x_position, $y_position, $color );
 
-	@circle_objects = $graph -> stamps($circle_object2);
-	# puts a filled dot at ($x_position, $y_position) on the graph -- using real world coordinates.
+    @circle_objects = $graph -> stamps($circle_object2);
+    # puts a filled dot at ($x_position, $y_position) on the graph -- using real world coordinates.
 
 =cut
 

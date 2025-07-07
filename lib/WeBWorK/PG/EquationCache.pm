@@ -19,7 +19,7 @@ package WeBWorK::PG::EquationCache;
 
 WeBWorK::PG::EquationCache - create and cache images of TeX equations.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
  my $cache = WeBWorK::PG::EquationCache->new(cacheDB => "/path/to/equationcache.db");
  my $imageName = $cache->lookup('\[3x^2\]');

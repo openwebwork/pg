@@ -18,44 +18,40 @@ like equality are "fuzzy", meaning that two items are equal when they are "close
 
 =cut
 
-=head3 Value context
+=head1 Value context
 
- #############################################################
- #
- #  Initialize the context-- flags set
- #
-	The following are list objects, meaning that they involve delimiters (parentheses)
-	of some type.  They get overridden in lib/Parser/Context.pm
+The following are list objects, meaning that they involve delimiters (parentheses)
+of some type.  They get overridden in lib/Parser/Context.pm
 
-	lists => {
-		'Point'  => {open => '(', close => ')'},
-		'Vector' => {open => '<', close => '>'},
-		'Matrix' => {open => '[', close => ']'},
-		'List'   => {open => '(', close => ')'},
-		'Set'    => {open => '{', close => '}'},
-  	},
+    lists => {
+        'Point'  => {open => '(', close => ')'},
+        'Vector' => {open => '<', close => '>'},
+        'Matrix' => {open => '[', close => ']'},
+        'List'   => {open => '(', close => ')'},
+        'Set'    => {open => '{', close => '}'},
+    };
 
-	The following context flags are set:
+The following context flags are set:
 
-    #  For vectors:
-    #
+For vectors:
+
     ijk => 0,  # print vectors as <...>
-    #
-    #  For strings:
-    #
+
+For strings:
+
     allowEmptyStrings => 1,
     infiniteWord => 'infinity',
-    #
-    #  For intervals and unions:
-    #
+
+For intervals and unions:
+
     ignoreEndpointTypes => 0,
     reduceSets => 1,
     reduceSetsForComparison => 1,
     reduceUnions => 1,
     reduceUnionsForComparison => 1,
-    #
-    #  For fuzzy reals:
-    #
+
+    For fuzzy reals:
+
     useFuzzyReals => 1,
     tolerance    => 1E-4,
     tolType      => 'relative',
@@ -63,9 +59,9 @@ like equality are "fuzzy", meaning that two items are equal when they are "close
     zeroLevelTol => 1E-12,
     tolTruncation => 1,
     tolExtraDigits => 1,
-    #
-    #  For Formulas:
-    #
+
+For Formulas:
+
     limits       => [-2,2],
     num_points   => 5,
     granularity  => 1000,
@@ -73,8 +69,6 @@ like equality are "fuzzy", meaning that two items are equal when they are "close
     max_adapt    => 1E8,
     checkUndefinedPoints => 0,
     max_undefined => undef,
-  },
-
 
 =cut
 
@@ -135,27 +129,25 @@ BEGIN {
 
 }
 
-=head3 Implemented MathObject types and their precedence
+=head1 MathObject types and their precedence
 
- #
- #  Precedence of the various types
- #    (They will be promoted upward automatically when needed)
- #
+Precedence of the various types
+(They will be promoted upward automatically when needed)
 
-  'Number'   =>  0,
-   'Real'     =>  1,
-   'Infinity' =>  2,
-   'Complex'  =>  3,
-   'Point'    =>  4,
-   'Vector'   =>  5,
-   'Matrix'   =>  6,
-   'List'     =>  7,
-   'Interval' =>  8,
-   'Set'      =>  9,
-   'Union'    => 10,
-   'String'   => 11,
-   'Formula'  => 12,
-   'special'  => 20,
+    'Number'   =>  0,
+    'Real'     =>  1,
+    'Infinity' =>  2,
+    'Complex'  =>  3,
+    'Point'    =>  4,
+    'Vector'   =>  5,
+    'Matrix'   =>  6,
+    'List'     =>  7,
+    'Interval' =>  8,
+    'Set'      =>  9,
+    'Union'    => 10,
+    'String'   => 11,
+    'Formula'  => 12,
+    'special'  => 20,
 
 =cut
 
@@ -176,9 +168,8 @@ $$context->{precedence} = {
 	'special'  => 20,
 };
 
-#
 #  Binding of perl operator to class method
-#
+
 $$context->{method} = {
 	'+'   => 'add',
 	'-'   => 'sub',
@@ -198,9 +189,8 @@ $$context->{pattern}{-infinity} = '-inf(?:inity)?';
 
 push(@{ $$context->{data}{values} }, 'method', 'precedence');
 
-#
 #  Copy an item and its data
-#
+
 sub copy {
 	my $self = shift;
 	my $copy = { %{$self} };
@@ -209,18 +199,17 @@ sub copy {
 	return bless $copy, ref($self);
 }
 
-=head3 getFlag
+=head2 getFlag
 
-#
-#  Get the value of a flag from the object itself, or from the
-#  equation that created the object (if any), or from the AnswerHash
-#  for the object (if it is being used as the source for an answer
-#  checker), or from the object's context, or from the current
-#  context, or use the given default, whichever is found first.
-#
+Get the value of a flag from the object itself, or from the
+equation that created the object (if any), or from the AnswerHash
+for the object (if it is being used as the source for an answer
+checker), or from the object's context, or from the current
+context, or use the given default, whichever is found first.
 
-	Usage:   $mathObj->getFlag("showTypeWarnings");
-	         $mathObj->getFlag("showTypeWarnings",1); # default is second parameter
+Usage:
+    $mathObj->getFlag("showTypeWarnings");
+    $mathObj->getFlag("showTypeWarnings",1); # default is second parameter
 
 =cut
 
@@ -242,9 +231,8 @@ sub getFlag {
 	return shift;
 }
 
-#
 #  Get or set the context of an object
-#
+
 sub context {
 	my $self    = shift;
 	my $context = shift;
@@ -260,18 +248,14 @@ sub context {
 	return $$Value::context;
 }
 
-#
 #  Set context but return object
-#
+
 sub inContext { my $self = shift; $self->context(@_); $self }
 
-#############################################################
-
-#
 #  The address of a Value object (actually ANY perl value).
 #  Use this to compare two objects to see of they are
 #  the same object (avoids automatic stringification).
-#
+
 sub address { Scalar::Util::refaddr(shift) }
 
 sub isBlessed    { (Scalar::Util::blessed(shift) // '') ne "" }
@@ -290,9 +274,16 @@ sub isHash {
 
 }
 
-# example: return Boolean:  Value->subclassed($self,"classMatch")
-# if $self has the method 'classMath' and 'Value' has the method 'classMatch'
-# and  the reference to these methods don't agree then the method 'classMatch' has been subclassed.
+=head2 subclassed
+
+Usage:
+    Value->subclassed($self,"classMatch")
+
+if $self has the method 'classMath' and 'Value' has the method 'classMatch'
+and  the reference to these methods don't agree then the method 'classMatch' has been subclassed.
+
+=cut
+
 sub subclassed {
 	my $self   = shift;
 	my $obj    = shift;
@@ -354,14 +345,17 @@ sub canBeInUnion {
 		&& $close =~ m/^[\)\]]$/;
 }
 
-######################################################################
+=head2 Package
 
-#
-#  Value->Package(name[,noerror]])
-#
-#  Returns the package name for the specificied Value object class
-#  (as specified by the context's {value} hash, or "Value::name").
-#
+Usage:
+
+    Value->Package(name[,noerror]])
+
+Returns the package name for the specificied Value object class
+(as specified by the context's {value} hash, or "Value::name").
+
+=cut
+
 sub Package { (shift)->context->Package(@_) }
 
 #  Check if the object class matches one of a list of classes
@@ -386,14 +380,13 @@ sub classMatch {
 	return 0;
 }
 
-=head3 makeValue
+=head2 makeValue
 
-	Usage:  Value::makeValue(45);
+Usage:
 
-	Will create a Real mathObject.
- #
- #  Convert non-Value objects to Values, if possible
- #
+    Value::makeValue(45);
+
+This will create a Real mathObject and convert non-Value objects to Values, if possible
 
 =cut
 
@@ -425,16 +418,13 @@ sub makeValue {
 	return $x;
 }
 
-=head3 showClass
+=head2 showClass
 
-	Usage:   TEXT( $mathObj -> showClass() );
+Usage:
 
-		Will print the class of the MathObject
+    $mathObj->showClass();
 
- #
- #  Get a printable version of the class of an object
- #  (used primarily in error messages)
- #
+This returns a printable version of the class of an object (used primarily in error messages)
 
 =cut
 
@@ -455,17 +445,15 @@ sub showClass {
 	return 'a ' . $class;
 }
 
-=head3 showType
+=head2 showType
 
-	Usage:   TEXT( $mathObj -> showType() );
+Usage:
 
-		Will print the class of the MathObject
+    $mathObj->showType();
 
- #
- #  Get a printable version of the type of an object
- #  (the class and type are not the same.  For example
- #  a Formula-class object can be of type Number)
- #
+This will return a printable version of the type of an object
+(the class and type are not the same.  For example
+a Formula-class object can be of type Number)
 
 =cut
 
@@ -487,9 +475,12 @@ sub showType {
 	return 'a ' . $type;
 }
 
-#
-#  Return a string describing a value's type
-#
+=head2 getType
+
+Return a string describing a value's type
+
+=cut
+
 sub getType {
 	my $equation = shift;
 	my $value    = shift;
@@ -522,10 +513,12 @@ sub getType {
 	return 'unknown';
 }
 
-#
-#  Get a string describing a value's type,
-#    and convert the value to a Value object (if needed)
-#
+=head2 getValueType
+
+Get a string describing a value's type, and convert the value to a Value object (if needed)
+
+=cut
+
 sub getValueType {
 	my $equation = shift;
 	my $value    = shift;
@@ -545,9 +538,12 @@ sub getValueType {
 	return ($value, $type);
 }
 
-#
-#  Convert a list of values to a list of formulas (called by Parser::Value)
-#
+=head2 toFormula
+
+Convert a list of values to a list of formulas (called by Parser::Value)
+
+=cut
+
 sub toFormula {
 	my $formula   = shift;
 	my $processed = 0;
@@ -565,11 +561,14 @@ sub toFormula {
 	return (@f);
 }
 
-#
-#  Convert a list of values (and open and close parens)
-#    to a formula whose type is the list type associated with
-#    the parens.
-#
+=head2 formula
+
+Convert a list of values (and open and close parens)
+to a formula whose type is the list type associated with
+the parens.
+
+=cut
+
 sub formula {
 	my $self    = shift;
 	my $values  = shift;
@@ -587,11 +586,14 @@ sub formula {
 	return $formula;
 }
 
-#
-#  A shortcut for new() that creates an instance of the object,
-#    but doesn't do the error checking.  We assume the data are already
-#    known to be good.
-#
+=head2 make
+
+A shortcut for C<new()> that creates an instance of the object,
+but doesn't do the error checking.  We assume the data are already
+known to be good.
+
+=cut
+
 sub make {
 	my $self    = shift;
 	my $class   = ref($self) || $self;
@@ -599,19 +601,25 @@ sub make {
 	bless { $self->hashNoInherit, data => [@_], context => $context }, $class;
 }
 
-#
-#  Easy method for setting parameters of an object
-#  (returns a copy with the new values set, but the copy
-#  is not a deep copy.)
-#
+=head2 with
+
+Easy method for setting parameters of an object
+(returns a copy with the new values set, but the copy
+is not a deep copy.)
+
+=cut
+
 sub with {
 	my $self = shift;
 	bless { %{$self}, @_ }, ref($self);
 }
 
-#
-#  Return a copy with the specified fields removed
-#
+=head2 without
+
+Return a copy with the specified fields removed
+
+=cut
+
 sub without {
 	my $self = shift;
 	$self = bless { %{$self} }, ref($self);
@@ -619,11 +627,12 @@ sub without {
 	return $self;
 }
 
-######################################################################
+=head2 hash
 
-#
-#  Return the hash data as an array of key=>value pairs
-#
+Return the hash data as an array of key=>value pairs
+
+=cut
+
 sub hash {
 	my $self = shift;
 	return %$self if isHash($self);
@@ -637,11 +646,14 @@ sub hashNoInherit {
 	return %hash;
 }
 
-#
-#  Copy attributes that are not already in the current object
-#  from the given objects.  (Used by binary operators to make sure
-#  the result inherits the values from the two terms.)
-#
+=head2 inherit
+
+Copy attributes that are not already in the current object
+from the given objects.  (Used by binary operators to make sure
+the result inherits the values from the two terms.)
+
+=cut
+
 sub inherit {
 	my $self = shift;
 	my %copy = (map {%$_} @_, $self);    # copy values from given objects
@@ -650,22 +662,25 @@ sub inherit {
 	return $self;
 }
 
-#
-#  The list of fields NOT to inherit.
-#  Use the default list plus any specified explicitly in the object itself.
-#  Subclasses can override and return additional fields, if necessary.
-#
+=head2 noinherit
+
+The list of fields NOT to inherit.
+Use the default list plus any specified explicitly in the object itself.
+Subclasses can override and return additional fields, if necessary.
+
+=cut
+
 sub noinherit {
 	my $self = shift;
 	("correct_ans", "correct_ans_latex_string", "original_formula", "equation", @{ $self->{noinherit} || [] });
 }
 
-######################################################################
+=head2 Type
 
-#
-#  Return a type structure for the item
-#    (includes name, length of vectors, and so on)
-#
+Return a type structure for the item (includes name, length of vectors, and so on)
+
+=cut
+
 sub Type {
 	my $name      = shift;
 	my $length    = shift;
@@ -723,9 +738,12 @@ sub class {
 	return $class;
 }
 
-#
-#  Get an element from a point, vector, matrix, or list
-#
+=head2 extract
+
+Get an element from a point, vector, matrix, or list
+
+=cut
+
 sub extract {
 	my $M = shift;
 	my $i;
@@ -744,8 +762,6 @@ sub extract {
 	}
 	return $M;
 }
-
-######################################################################
 
 use overload
 	'+'        => '_add',
@@ -770,9 +786,12 @@ use overload
 	'nomethod' => 'nomethod',
 	'""'       => 'stringify';
 
-#
-#  Promote an operand to the same precedence as the current object
-#
+=head2 promotePrecedence
+
+Promote an operand to the same precedence as the current object
+
+=cut
+
 sub promotePrecedence {
 	my $self    = shift;
 	my $other   = shift;
@@ -794,19 +813,24 @@ sub promote {
 	return $self->new($context, $x, @_);
 }
 
-#
-#  Return the operators in the correct order
-#
+=head2 checkOpOrder
+
+Return the operators in the correct order
+
+=cut
+
 sub checkOpOrder {
 	my ($l, $r, $flag) = @_;
 	if   ($flag) { return ($l, $r, $l, $r) }
 	else         { return ($l, $l, $r, $r) }
 }
 
-#
-#  Return the operators in the correct order, and promote the
-#  other value, if needed.
-#
+=head2 checkOpOrderWithPromote
+
+Return the operators in the correct order, and promote the other value, if needed.
+
+=cut
+
 sub checkOpOrderWithPromote {
 	my ($l, $r, $flag) = @_;
 	$r = $l->promote($r);
@@ -814,10 +838,13 @@ sub checkOpOrderWithPromote {
 	else         { return ($l, $l, $r, $r) }
 }
 
-#
-#  Handle a binary operator, promoting the object types
-#  as needed, and then calling the main method
-#
+=head2 binOp
+
+Handle a binary operator, promoting the object types
+as needed, and then calling the main method
+
+=cut
+
 sub binOp {
 	my ($l, $r, $flag, $call) = @_;
 	if   ($l->promotePrecedence($r)) { return $r->$call($l, !$flag) }
@@ -928,18 +955,25 @@ sub dot {
 #
 sub pdot { shift->stringify }
 
-#
-#  Compare the values of the objects
+=head2 compare
+
+Compare the values of the objects
+
+=cut
+
 #    (list classes should replace this)
-#
+
 sub compare {
 	my ($self, $l, $r) = Value::checkOpOrder(@_);
 	return $l->value <=> $r->value;
 }
 
-#
-#  Compare the values as strings
-#
+=head2 compare_string
+
+Compare the values as strings
+
+=cut
+
 sub compare_string {
 	my ($l, $r, $flag) = @_;
 	$l = $l->string;
@@ -949,9 +983,12 @@ sub compare_string {
 	return $l cmp $r;
 }
 
-#
-#  Copy flags from the parent object to its children (recursively).
-#
+=head2 transferFlags
+
+Copy flags from the parent object to its children (recursively).
+
+=cut
+
 sub transferFlags {
 	my $self = shift;
 	foreach my $flag (@_) {
@@ -971,24 +1008,15 @@ sub transferTolerances {
 	$other->transferFlags("tolerance", "tolType", "zeroLevel", "zeroLevelTol") if Value::isValue($other);
 }
 
-=head3 output methods for MathObjects
+=head1 MathObjects output methods
 
- #
- #  Generate the various output formats
- #  (can be replaced by sub-classes)
- #
+=head2 stringify
 
-=cut
+Usage:
 
-=head4 stringify
+    $mathObj->stringify();
 
-	Usage:   TEXT($mathObj); or TEXT( $mathObj->stringify() ) ;
-
-		Produces text string or TeX output depending on context
-			Context()->texStrings;
-			Context()->normalStrings;
-
-		called automatically when object is called in a string context.
+Produces text string or TeX output depending on context.
 
 =cut
 
@@ -998,12 +1026,13 @@ sub stringify {
 	return $self->string;
 }
 
-=head4 ->string
+=head2 string
 
-	Usage: $mathObj->string()
+Usage:
 
-	---produce a string representation of the object
-           (as opposed to stringify, which can produce TeX or string versions)
+    $mathObj->string()
+
+produce a string representation of the object (as opposed to stringify, which can produce TeX or string versions)
 
 =cut
 
@@ -1038,11 +1067,13 @@ sub TO_JSON {
 	return shift->string;
 }
 
-=head4 ->TeX
+=head2 TeX
 
-	Usage: $mathObj->TeX()
+Usage:
 
-	---produce TeX prepresentation of the object
+    $mathObj->TeX()
+
+produce TeX prepresentation of the object
 
 =cut
 
@@ -1118,16 +1149,19 @@ sub ijk {
 	Value::Error("Can't use method 'ijk' with objects of type '%s'", (shift)->class);
 }
 
-=head3 Error
+=head2 Error
 
-	Usage: Value->Error("We're sorry...");
-           or  $mathObject->Error("We're still sorry...");
+Usage:
 
- #
- #  Report an error and die.  This can be used within custom answer checkers
- #  to report errors during the check, or when sub-classing a MathObject to
- #  report error conditions.
- #
+    Value->Error("We're sorry...");
+
+OR
+
+    $mathObject->Error("We're still sorry...");
+
+Report an error and die.  This can be used within custom answer checkers
+to report errors during the check, or when sub-classing a MathObject to
+report error conditions.
 
 =cut
 
@@ -1142,9 +1176,12 @@ sub Error {
 	die $message . getCaller();
 }
 
-#
-#  Try to locate the line and file where the error occurred
-#
+=head2 getCaller
+
+Try to locate the line and file where the error occurred
+
+=cut
+
 sub getCaller {
 	my $frame = 2;
 	while (my ($pkg, $file, $line, $subname) = caller($frame++)) {
@@ -1188,10 +1225,6 @@ END {
 	use Value::WeBWorK;    # stuff specific to WeBWorK
 }
 
-###########################################################################
-
 our $installed = 1;
-
-###########################################################################
 
 1;

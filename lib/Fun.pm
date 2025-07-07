@@ -31,9 +31,9 @@
 
 =head1 NAME
 
-	Fun
+Fun
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 	use Carp;
 	use GD;
