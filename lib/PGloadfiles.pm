@@ -1,7 +1,13 @@
 
-=head2 loadMacros
+=head1 NAME
 
-	loadMacros(@macroFiles)
+loadMacros - load macros within a PG problem.
+
+=head1 DESCRIPTION
+
+Usage:
+
+    loadMacros(@macroFiles)
 
 loadMacros takes a list of file names and evaluates the contents of each file.
 This is used to load macros which define and augment the PG language. The macro
@@ -17,7 +23,7 @@ if $macrosPath contains the path to a problem library macros directory which
 contains a PG.pl file, this file will be loaded and allowed to engage in
 privileged behavior.
 
-=head3 Overloading macro files
+=head2 Overloading macro files
 
 An individual course can modify the PG language, for that course only, by
 duplicating one of the macro files in the system-wide macros directory and
@@ -28,7 +34,7 @@ system-wide macros directory.
 The new file in the course macros directory can by modified by adding macros or
 modifying existing macros.
 
-=head3 Modifying existing macros
+=head2 Modifying existing macros
 
 I<Modifying macros is for users with some experience.>
 

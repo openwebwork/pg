@@ -4,7 +4,7 @@ package WeBWorK::PG::Translator;
 
 WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
     my $pt = WeBWorK::PG::Translator->new;   # create a translator
     $pt->environment(\%envir);               # provide the environment variable for the problem

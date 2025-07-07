@@ -5,9 +5,9 @@
 
 =head1 NAME
 
-	Select.pm -- sub-class of ChoiceList that implements a select list.
+Select.pm - sub-class of ChoiceList that implements a select list.
 
-	All items accessed by $out = $sl -> item( $in );
+All items accessed by $out = $sl -> item( $in );
 
 =head1 SYNOPSIS
 

@@ -7,46 +7,45 @@
 # numerator/denominator.
 # VS 7/20/2000
 
-=head3 Fraction
+=head1 NAME
 
-  This object is designed to ease the use of fractions
+Fraction - This object is designed to ease the use of fractions
 
-=head4 Variables and Methods
+=head1 VARIABLES
 
-	Variables
+    numerator	# numerator of fraction
+    denominator	# denominator of fraction
 
-		numerator	#numerator of fraction
-		denominator	#denominator of fraction
+=head1 METHODS
 
-	Arithmetic Methods	#these will all accept a scalar value or
-				#another fraction as an argument
+Arithmetic Methods	#these will all accept a scalar value or
+	#another fraction as an argument
 
-		plus		#returns the sum of the fraction and argument
-		minus		#returns fraction minus argument
-		subtractFrom	#returns argument minus fraction
-		divBy		#returns fraction divided by argument
-		divInto		#returns argument divided by fraction
-		times		#returns fraction times argument
-		compare		#returns <, =, or > for the relation of fraction to argument
+	plus		#returns the sum of the fraction and argument
+	minus		#returns fraction minus argument
+	subtractFrom	#returns argument minus fraction
+	divBy		#returns fraction divided by argument
+	divInto		#returns argument divided by fraction
+	times		#returns fraction times argument
+	compare		#returns <, =, or > for the relation of fraction to argument
 
-			pow		#returns fraction raised to argument, a given integer power
-
-
-	Other methods
-
-		reduce		#reduces to lowest terms, and makes sure denominator is positive
-		scalar		#returns the scalar value numerator/denominator
-		print		#prints the fraction
-		print_mixed	#prints the fractionas a mixed number
-		print_inline	#prints the fraction like this 2/3
+	pow		#returns fraction raised to argument, a given integer power
 
 
-=head4 Synopsis
+Other methods
 
-	The fraction object stores two variables, numerator and denominator.  The basic
+	reduce		#reduces to lowest terms, and makes sure denominator is positive
+	scalar		#returns the scalar value numerator/denominator
+	print		#prints the fraction
+	print_mixed	#prints the fractionas a mixed number
+	print_inline	#prints the fraction like this 2/3
+
+
+=head1 SYNOPSIS
+
+The fraction object stores two variables, numerator and denominator.  The basic
 arithmatic methods listed above can be performed on a fraction, and it can return its own
 scalar value for use with functions expecting a scalar (ie, sqrt($frac->scalar) ).
-
 
 =cut
 

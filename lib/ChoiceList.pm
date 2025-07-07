@@ -6,7 +6,7 @@
 
 =head1 NAME
 
-	ChoiceList.pm  -- super-class for all ChoiceList structures
+ChoiceList.pm  - super-class for all ChoiceList structures
 
 =head1 SYNOPSIS
 

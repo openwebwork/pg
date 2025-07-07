@@ -1,9 +1,9 @@
 
 =head1 NAME
 
-	VectorField
+VectorField - Produce a vector field plot.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 	use Carp;
 	use GD;

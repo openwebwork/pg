@@ -5,7 +5,7 @@ package WeBWorK::PG::ImageGenerator;
 WeBWorK::PG::ImageGenerator - create an object for holding bits of math for
 LaTeX, and then to process them all at once.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
     my $image_generator = WeBWorK::PG::ImageGenerator->new(
         tempDir         => $pg_envir->{directories}{tmp},
