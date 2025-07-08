@@ -9,52 +9,54 @@ Analyze a pg file for use of old and current methods.
 
 =over
 
-=item  C<deprecated_macros>: a list of the macros that the problem uses that is in the C<macros/deprecated>
+=item  * C<deprecated_macros>: a list of the macros that the problem uses that is in the C<macros/deprecated>
 folder.
 
-=item  Positive features:
+=item  * Positive features:
 
-=over 10
+=over
 
-=item Uses PGML
+=item * Uses PGML
 
-=item Provides a solution
+=item * Provides a solution
 
-=item Provides a hint
+=item * Provides a hint
 
-=item Uses Scaffolds
+=item * Uses Scaffolds
 
-=item Uses a custom checker
+=item * Uses a custom checker
 
-=item Uses a multianswer
+=item * Uses a multianswer
 
-=item Uses answer hints
+=item * Uses answer hints
 
-=item Uses nicetables
+=item * Uses nicetables
+
+=item * Uses randomness
 
 =back
 
 =item Old and deprecated features
 
-=over 10
+=over
 
-=item Use of BEGIN_TEXT/END_TEXT
+=item * Use of BEGIN_TEXT/END_TEXT
 
-=item Include the C<TEXT(beginproblem)>
+=item * Include the C<TEXT(beginproblem)>
 
-=item Include old tables (for example from C<unionTables.pl>)
+=item * Include old tables (for example from C<unionTables.pl>)
 
-=item The use of C<num_cmp>, C<str_cmp> and C<fun_cmp> in lieu of using MathObjects
+=item * The use of C<num_cmp>, C<str_cmp> and C<fun_cmp> in lieu of using MathObjects
 
-=item Including C<< Context()->TeXStrings >>
+=item * Including C<< Context()->TeXStrings >>
 
-=item Calling C<loadMacros> more than once.
+=item * Calling C<loadMacros> more than once.
 
-=item Using the line C< $showPartialCorrectAnswers = 1 > which is the default behavior and thus unnecessary.
+=item * Using the line C< $showPartialCorrectAnswers = 1 > which is the default behavior and thus unnecessary.
 
-=item Using methods from C<PGchoicemacros.pl>
+=item * Using methods from C<PGchoicemacros.pl>
 
-=item Inlcuding code or other text below the C<ENDDOCUMENT();> line indicating the end of the problem.
+=item * Inlcuding code or other text below the C<ENDDOCUMENT();> line indicating the end of the problem.
 
 =back
 
@@ -87,6 +89,7 @@ sub analyzePGcode ($code) {
 			custom_checker => 0,
 			multianswer    => 0,
 			nicetables     => 0,
+			randomness     => 0,
 			contexts       => { BaseN => 0, Units => 0, Boolean => 0, Reaction => 0 },
 			parsers        =>
 				{ dropdown => 0, RadioButtons => 0, CheckboxList => 0, RadioMultianswer => 0, GraphTool => 0 },
@@ -236,6 +239,7 @@ sub analyzePGcode ($code) {
 		$features->{positive}{multianswer}    = 1 if $line =~ /MultiAnswer/;
 		$features->{positive}{custom_checker} = 1 if $line =~ /checker\s*=>/;
 		$features->{positive}{nicetables}     = 1 if $line =~ /DataTable|LayoutTable/;
+		$features->{positive}{randomness}     = 1 if $line =~ /random\(|random_(\w+)\(|list_random\(/;
 
 	}
 	return $features;
