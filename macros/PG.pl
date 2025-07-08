@@ -1260,8 +1260,19 @@ sub ENDDOCUMENT {
 										(
 											$rh_envir->{showMessages} && $ansHash->{ans_message} =~ /\S/
 											? $feedbackLine->(
-												'', $ansHash->{ans_message} =~ s/\n/<br>/gr,
+												'',
+												$ansHash->{ans_message} =~ s/\n/<br>/gr,
 												'feedback-message'
+													. (
+														($ansHash->{original_student_ans} eq 'Arnie Pizer')
+														? ' arnie'
+														: ''
+													)
+													. (
+														($ansHash->{original_student_ans} eq 'Mike Gage')
+														? ' mike'
+														: ''
+													)
 												)
 											: ''
 											)
