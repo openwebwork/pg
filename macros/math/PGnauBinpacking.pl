@@ -1,9 +1,7 @@
 
-# Note: deprecate or update POD.
-
 =head1 NAME
 
-PGnauBinpacking.pl -
+PGnauBinpacking.pl
 
 =cut
 

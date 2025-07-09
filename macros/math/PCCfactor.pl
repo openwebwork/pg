@@ -1,35 +1,47 @@
 
 =head1 NAME
 
-PCCfactor.pl - provide some convience routines for factoring qudartics.
+PCCfactor.pl - provide some convenience routines for factoring quadratics.
 
 =head1 DESCRIPTION
 
-The subroutine factoringMethodsis takes arguments
-($a[0], $a[1], $b[0], $b[1], $var[0], $var[1])
+The subroutine C<factoringMethods> takes arguments
+C<($a[0], $a[1], $b[0], $b[1], $var[0], $var[1])>
 corresponding to a factored polynomial
-(a[0] $var[0]+b[0] $var[1])(a[1] $var[0]+b[1] $var[1])
-@a and @b should be integers, and doctored in the problem code so
-that gcd(@a) and gcd(@b) equal 1.
-@var should be variables that have been added to the context.
-$var[1] is optional.
+C<(a[0] $var[0]+b[0] $var[1])(a[1] $var[0]+b[1] $var[1])>.
+The terms C<@a> and C<@b> should be integers, and doctored in the problem code so
+that C<gcd(@a)> and C<gcd(@b)> equal 1.
+C<@var> should be variables that have been added to the context.
+C<$var[1]> is optional.
 
- The output includes various methods to factor the polynomial,
- including:
- * number sense method
- * formula method (perfect squares and difference of squares)
- * ac method
- * guess-and-check with generic rectangles method
+The output includes various methods to factor the polynomial,
+including:
 
-If $var[1] is omitted and $var[0] is something like 'xy', then both
+=over
+
+=item * number sense method
+
+=item * formula method (perfect squares and difference of squares)
+
+=item * ac method
+
+=item * guess-and-check with generic rectangles method
+
+=back
+
+If C<$var[1]> is omitted and C<$var[0]> is something like 'xy', then both
 letters should be variables added to the context, and the expanded
 (unfactored) versions of polynomials will be shown like
-Ax^2y^2 + Bxy + C
+
+    Ax^2y^2 + Bxy + C
+
 instead of
-A(xy)^2 + Bxy + C
+
+    A(xy)^2 + Bxy + C
+
 and the factorization is
-(a[0] $var[2] $var[3] + b[0])(a[1] $var[2] $var[3] + b[1])
-where $var[2] and $var[3] are the individual letters form the given $var[0]
+C<(a[0] $var[2] $var[3] + b[0])(a[1] $var[2] $var[3] + b[1])>
+where C<$var[2]> and C<$var[3]> are the individual letters form the given C<$var[0]>.
 
 =cut
 

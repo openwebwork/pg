@@ -1,9 +1,7 @@
 
-# Note: deprecate or update POD.
-
 =head1 NAME
 
-SI_property_tables.pl -
+SI_property_tables.pl
 
 =cut
 

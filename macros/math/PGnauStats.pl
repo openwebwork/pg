@@ -1,9 +1,7 @@
 
-# Note: deprecate or update POD.
-
 =head1 NAME
 
-PGnauStats.pl -
+PGnauStats.pl
 
 =cut
 

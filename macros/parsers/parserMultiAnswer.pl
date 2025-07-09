@@ -1,4 +1,3 @@
-# Note: documentation is at the bottom of the file
 
 loadMacros('MathObjects.pl', 'PGbasicmacros.pl');
 

@@ -1,4 +1,3 @@
-# Note: move this functionality into the Matrix MathObject.
 
 =head1 NAME
 
@@ -688,8 +687,6 @@ sub ans_array_filter {
 	$rh_ans;
 
 }
-
-# The following was in POD and shouldn't be in the documentation.  Switching to perl comments.
 
 # The following subroutines, meant to be used with MatrixReal1 type matrices, are
 # deprecated.  In general you should use the MathObject Matrix type and the

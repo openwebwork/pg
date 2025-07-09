@@ -1,4 +1,3 @@
-#  Note: Should we deprecate this?
 
 =head1 NAME
 

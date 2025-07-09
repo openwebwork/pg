@@ -1,4 +1,3 @@
-#Note: this doesn't appear to be a context--rather just a list of additional functions.
 
 =head1 NAME
 

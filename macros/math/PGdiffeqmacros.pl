@@ -1,6 +1,4 @@
 
-# Note: this needs to be deprecated.  But in a lot problems.
-
 =head1 NAME
 
 PGdiffeqmacros.pl - Macros for Prills 163 problems

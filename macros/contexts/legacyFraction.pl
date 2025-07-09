@@ -1,7 +1,4 @@
 
-# Note: should we strip the POD from this, since it is duplicated in the contextFraction.pl
-# macro?
-
 =head1 NAME
 
 contextFraction.pl - Implements a MathObject class for Fractions.

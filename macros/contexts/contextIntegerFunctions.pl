@@ -1,5 +1,3 @@
-# Note: the way this is used, it appears that want to allow P and C to be used by
-# authors but not students, so why is this a context?
 
 =head1 NAME
 

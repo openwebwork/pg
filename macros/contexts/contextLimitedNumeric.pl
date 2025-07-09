@@ -1,5 +1,3 @@
-# Is this duplicated by Parser::Legacy::LimitedNumeric?
-# If so, remove?
 
 =head1 NAME
 

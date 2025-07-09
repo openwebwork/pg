@@ -1,4 +1,3 @@
-# Note: this is in the Matrix MathObject now, deprecate?
 
 =head1 NAME
 

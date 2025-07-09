@@ -1,9 +1,7 @@
 
-# Note: update POD.
-
 =head1 NAME
 
-SolveLinearEquationPCC.pl -
+SolveLinearEquationPCC.pl
 
 =cut
 

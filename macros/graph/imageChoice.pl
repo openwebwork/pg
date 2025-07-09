@@ -1,4 +1,3 @@
-# Note: this depends on deprecated macros, so should be deprecated.  However, there are OPL problems with this
 
 loadMacros('PGchoicemacros.pl', 'unionUtils.pl', 'choiceUtils.pl');
 

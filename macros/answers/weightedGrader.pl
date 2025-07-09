@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-weightedGrader.pl -
+weightedGrader.pl - This provides weights for each answer.
 
 =head1 DESCRIPTION
 

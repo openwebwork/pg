@@ -1,4 +1,3 @@
-# Note: should be deprecated.  Built-in to Matrix MathObjects.
 
 =head1 NAME
 
@@ -540,6 +539,7 @@ sub side_labels {
 =head2  mbox
 
 Usage:
+
     \{ mbox(thing1, thing2, thing3) \}
     \{ mbox([thing1, thing2, thing3], valign=>'top') \}
 
@@ -598,6 +598,7 @@ Usage:
     ra_flatten_matrix($A)
 
 returns:
+
     [a11, a12,a21,a22]
 
 where C<$A> is a matrix object. The output is a reference to an array.  The matrix is placed in the array by iterating
@@ -710,7 +711,7 @@ a reference to an array (e.g [[4,6],[3,2]]).
 This adaptor allows all of the LinearProgramming.pl subroutines to be used with
 MathObject arrays.
 
-C<$mathobject_matrix->value> outputs an array (usually an array of array references) so placing it inside
+C<< $mathobject_matrix->value >> outputs an array (usually an array of array references) so placing it inside
 square bracket produces and array reference (of array references) which is what lp_display_mm() is
 seeking.
 

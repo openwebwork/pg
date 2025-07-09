@@ -12,7 +12,7 @@ subroutine that determines the condition for the message.
 
 =head1 FUNCTIONS
 
-=head2 AnswerHints()
+=head2 AnswerHints
 
 The answer hints are given as a pair using C<< => >> with the right-hand
 side being the answer message and the left-hand side being one of

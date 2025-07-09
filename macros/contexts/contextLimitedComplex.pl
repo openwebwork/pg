@@ -6,10 +6,7 @@ contextLimitedComplex.pl - Allow complex numbers but not complex operations.
 =head1 DESCRIPTION
 
 Implements a context in which complex numbers can be entered,
-but no complex operations are permitted.
-
-Implements a context in which complex numbers can be entered,
-but no complex operations are permitted. So students will
+but no complex operations are permitted.  So students will
 be able to perform operations within the real and imaginary
 parts of the complex numbers, but not between complex numbers.
 

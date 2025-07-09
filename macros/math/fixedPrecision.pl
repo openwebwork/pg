@@ -1,4 +1,3 @@
-# Note: perhaps move into the Numeric context and set a flag?
 
 =head1 NAME
 

@@ -1,5 +1,3 @@
-# Note: perhaps deprecate.  This appears to be used for typesets math objects, which
-# should be done within the MathObject code itself.
 
 loadMacros("Parser.pl");
 sub _contextTypeset_init { }

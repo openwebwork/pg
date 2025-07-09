@@ -1,4 +1,3 @@
-# Note: does this need to be a separate context?  Perhaps a flag in the LimitedNumeric context?
 
 =head1 NAME
 

@@ -1,4 +1,3 @@
-# Note: Much of this is duplicated by LinearProgramming.pl. Deprecate.
 
 =head1 NAME
 

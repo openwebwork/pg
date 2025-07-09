@@ -1,4 +1,3 @@
-# Note: this should be deprecated.
 
 =head1 NAME
 
@@ -366,7 +365,7 @@ Filters: remove_whitespace, ignore_case
 
 Filters: remove_whitespace
 
-=head3 Examples
+=head1 Examples
 
 	# Accepts "W. Mozart", "W. MOZarT", and so forth. Case insensitive. All
 	# internal spaces treated as single spaces.

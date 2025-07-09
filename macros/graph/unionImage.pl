@@ -1,4 +1,3 @@
-# Note: this should be deprecated, but many OPL problems depend on it.
 
 loadMacros("unionMacros.pl");
 

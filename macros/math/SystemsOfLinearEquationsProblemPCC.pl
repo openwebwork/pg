@@ -1,8 +1,6 @@
 
 =encoding utf8
 
-# Note: deprecate or update POD.
-
 =head1 NAME
 
 SystemOfLinearEquationsProblemPCC.pl - Gives feedback to users about solving linear systems.

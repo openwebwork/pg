@@ -1,4 +1,3 @@
-# Note: deprecate this?  In a lot of problems, but maybe add to numericMacros.pl ?
 
 =head1 NAME
 

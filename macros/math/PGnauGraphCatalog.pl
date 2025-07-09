@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-PGnauGraphCatalog.pl -
+PGnauGraphCatalog.pl
 
 =cut
 

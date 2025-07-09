@@ -1,7 +1,4 @@
 
-# Note: there are two nearly identical macros.  this and contextPermutationUBC.
-# We need to select the better one and deprecate/delete the other.
-
 =head1 NAME
 
 contextPermutation - Provides contexts that allow the entry of cycles and permutations.

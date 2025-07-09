@@ -1,4 +1,3 @@
-# Note: deprecate
 
 sub _unionProblem_init { }
 

@@ -402,7 +402,7 @@ sub closed_circle {
 	new Circle($cx, $cy, 4, $color, $color);
 }
 
-=head2 tring_to_sub
+=head2 string_to_sub
 
 =head2 my_math_constants
 
@@ -410,7 +410,7 @@ These are internal macros which govern the interpretation of equations.
 
 Usage: C<$string = my_math_constants($string)>
 
-    $subroutine_reference = my_string_to_sub($string)
+    $subroutine_reference = string_to_sub($string)
 
 C<my_math_constants>
 interprets pi, e  as mathematical constants 3.1415926... and 2.71828... respectively. (Case is important).

@@ -1,6 +1,4 @@
 
-# Note: deprecate or update POD.
-
 =head1 NAME
 
 PGnauGraphics.pl - create matrices based on classes of graphs.

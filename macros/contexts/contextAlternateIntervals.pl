@@ -1,8 +1,9 @@
 
 =head1 NAME
 
-contextAlternateIntervals - Provides a context that allows the
-entry of intervals using reversed bracket notation
+contextAlternateIntervals.pl - Provides a context that allows the
+entry of intervals using reversed bracket notation for open endpoints
+(e.g., C<]a,b[> rather than C<(a,b)> for an open interval).
 
 =head1 DESCRIPTION
 

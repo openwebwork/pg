@@ -1,4 +1,3 @@
-# Note: isn't this a MathObject now?  Deprecate?
 
 =head1 NAME
 

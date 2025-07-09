@@ -1,6 +1,4 @@
 
-# Note: this should be deprecated.
-
 =head1 NAME
 
 contextABCD.pl - Contexts for matching problems.

@@ -1,4 +1,3 @@
-# Note: documentation at the bottom of the file
 
 loadMacros('MathObjects.pl');
 

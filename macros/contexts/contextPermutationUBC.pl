@@ -1,5 +1,3 @@
-# Note: there are two nearly identical macros.  this and contextPermutation.pl
-# We need to select the better one and deprecate/delete the other.
 
 =head1 NAME
 

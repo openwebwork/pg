@@ -1,4 +1,3 @@
-# Note: this should be deprecated.  Can be recreated with niceTables
 
 sub _choiceUtils_init { };    # don't reload this file
 

@@ -1,7 +1,9 @@
 
 =head1 NAME
 
-contextAlternateDecimal.pl - allow the entry of decimal numbers with other decimal character
+contextAlternateDecimal.pl - Provides a context that allows the
+entry of decimal numbers using a comma for the decimal indicator
+rather than a dot (e.g., C<3,14159> rather than C<3.14159>).
 
 =head1 DESCRIPTION
 

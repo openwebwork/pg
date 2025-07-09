@@ -1,4 +1,3 @@
-# Note: is this built-in to the Complex MathObjects?
 
 # This file     is PGcomplexmacros2.pl
 # This includes the subroutines for the ANS macros, that

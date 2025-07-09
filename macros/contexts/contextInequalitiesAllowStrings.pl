@@ -1,4 +1,3 @@
-# Note: perhaps deprecate or add to inequalities as a flag.
 
 =head1 NAME
 

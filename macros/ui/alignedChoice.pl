@@ -1,4 +1,3 @@
-# Note: this should be deprecated.  Can be recreated with niceTables
 
 loadMacros('PGchoicemacros.pl', 'unionUtils.pl', 'choiceUtils.pl',);
 
