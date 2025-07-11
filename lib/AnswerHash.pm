@@ -113,7 +113,7 @@ my %fields = (
 
 Usage
 
-    $rh_anshash = new AnswerHash;
+    $rh_anshash = AnswerHash->new;
 
 returns an object of type AnswerHash.
 
