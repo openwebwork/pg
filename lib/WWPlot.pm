@@ -8,9 +8,9 @@
 
 =head1 NAME
 
-	WWPlot
+WWPlot - methods to create plots.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 
 	$graph = new WWPlot(400,400); # creates a graph 400 pixels by 400 pixels

@@ -6,7 +6,7 @@
 
 =head1 NAME
 
-	List.pm  -- super-class for all list structures
+List.pm - super-class for all list structures
 
 =head1 SYNOPSIS
 

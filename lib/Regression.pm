@@ -13,7 +13,7 @@ use constant DEBUGGING => 0;
 
 =head1 NAME
 
-  Regression.pm - 		weighted linear regression package (line+plane fitting)
+Regression.pm -	weighted linear regression package (line+plane fitting)
 
 =head1 DESCRIPTION
 

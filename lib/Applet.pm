@@ -3,7 +3,7 @@
 
 Applet.pl - Provides code for inserting GeogebraWebApplets into webwork problems
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
     ###################################
     # Create the applet object

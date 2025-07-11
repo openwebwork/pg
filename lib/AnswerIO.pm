@@ -1,9 +1,9 @@
 
 =head1 NAME
 
-	AnswerIO.pm
+AnswerIO.pm
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 This is not really an object, but it gives us a place to IO used by answer
 macros.

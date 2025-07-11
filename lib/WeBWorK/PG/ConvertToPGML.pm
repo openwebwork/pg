@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-WeBWorK::PG::ConvertToPGML
+WeBWorK::PG::ConvertToPGML - convert a file in original PG format to PGML
 
 =head1 DESCRIPTION
 
@@ -10,19 +10,44 @@ Converts a pg file to PGML format.
 This script does a number of conversions:
 
 =over
-=item  Update the loadMacros call to include PGML.pl, eliminate MathObject.pl (since it is loaded by PGML.pl)
-and adds PGcourse.pl to the end of the list.
-=item  Coverts BEGIN_TEXT/END_TEXT (and older versions of this), BEGIN_SOLUTION/END_SOLUTION, BEGIN_HINT/END_HINT
-to their newer BEGIN_PGML blocks.
-=item  Convert math mode in these blocks to PGML style math mode.
-=item  Convert other styling (bold, italics) to PGML style.
-=item Convert variables to the interpolated [$var] PGML style.
-=item  Convert some of the answer rules to newer PGML style.
-=item Remove some outdated code.
-=item A few other minor things.
+
+=item *
+
+Update the loadMacros call to include C<PGML.pl>, eliminate C<MathObject.pl> (since it is loaded by C<PGML.pl>)
+and adds C<PGcourse.pl> to the end of the list.
+
+=item *
+
+Coverts C<BEGIN_TEXT>/C<END_TEXT> (and older versions of this), C<BEGIN_SOLUTION>/C<END_SOLUTION>,
+C<BEGIN_HINT>/C<END_HINT> to their newer C<BEGIN_PGML> blocks.
+
+=item *
+
+Convert math mode in these blocks to PGML style math mode.
+
+=item *
+
+Convert other styling (bold, italics) to PGML style.
+
+=item *
+
+Convert variables to the interpolated C<[$var]> PGML style.
+
+=item *
+
+Convert some of the answer rules to newer PGML style.
+
+=item *
+
+Remove some outdated code.
+
+=item *
+
+A few other minor things.
+
 =back
 
-=head1 OPTIONS
+=head1 FUNCTIONS
 
 =cut
 
@@ -34,15 +59,16 @@ use warnings;
 
 our @EXPORT = qw(convertToPGML);
 
-# This subroutine converts the file that is passed in as a multi-line string and
-# assumed to be an older-style PG file with BEGIN_TEXT/END_TEXT, BEGIN_SOLUTION/END_SOLUTION,
-# and BEGIN_HINT/END_HINT blocks.
+=head2 convertToPGML
 
-# * parses the loadMacros line(s) to include PGML.pl (and eliminate MathObjects.pl, which)
-#    is imported by PGML.pl.  This also adds PGcourse.pl to the end of the list.
+This subroutine converts the file that is passed in as a multi-line string and
+assumed to be an older-style PG file with BEGIN_TEXT/END_TEXT, BEGIN_SOLUTION/END_SOLUTION,
+and BEGIN_HINT/END_HINT blocks.
 
-# input is a string containing the source of the pg file to be converted.
-# returns a string that is the converted input string.
+The input is expected to be a string containing the source of the pg file to be converted.
+This returns a string that is the converted input string.
+
+=cut
 
 # This stores the answers inside of ANS and related functions.
 my @ans_list;
