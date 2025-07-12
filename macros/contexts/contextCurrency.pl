@@ -153,16 +153,13 @@ so that this $m will print as $50 rather than $50.00.
 =cut
 
 loadMacros("MathObjects.pl");
-#loadMacros("problemPreserveAnswers.pl");  # obsolete
 
 sub _contextCurrency_init { Currency::Init() }
 
 package Currency;
 
-#
-#  Initialization creates a Currency context object
-#  and sets up a Currency() constructor.
-#
+#  Initialization creates a Currency context object and sets up a Currency() constructor.
+
 sub Init {
 	my $context = $main::context{Currency} = new Currency::Context();
 	$context->{name} = "Currency";
@@ -170,20 +167,17 @@ sub Init {
 	main::PG_restricted_eval('sub Currency {Value->Package("Currency")->new(@_)}');
 }
 
-#
 #  Quote characters that are special in regular expressions
-#
+
 sub quoteRE {
 	my $s = shift;
 	$s =~ s/([-\\^\$+*?.\[\](){}])/\\$1/g;
 	return $s;
 }
 
-#
-#  Quote common TeX special characters, and put
-#  the result in {\rm ... } if there are alphabetic
+#  Quote common TeX special characters, and put  the result in {\rm ... } if there are alphabetic
 #  characters included.
-#
+
 sub quoteTeX {
 	my $s      = shift;
 	my $isText = ($s =~ m/[a-z]/i);
@@ -196,21 +190,14 @@ sub quoteTeX {
 	return $s;
 }
 
-######################################################################
-######################################################################
+#  The Currency context has an extra "currency" data type (like flags, variables, etc.)
 #
-#  The Currency context has an extra "currency" data
-#  type (like flags, variables, etc.)
-#
-#  It also creates some patterns needed for handling
-#  currency values, and sets the Parser and Value
+#  It also creates some patterns needed for handling currency values, and sets the Parser and Value
 #  hashes to activate the Currency objects.
 #
-#  The tolerance is set to .005 absolute so that
-#  answers must be correct to the penny.  You can
-#  change this in the context, or for individual
-#  currency values.
-#
+#  The tolerance is set to .005 absolute so that answers must be correct to the penny.  You can
+#  change this in the context, or for individual currency values.
+
 package Currency::Context;
 our @ISA = ('Parser::Context');
 
@@ -262,12 +249,8 @@ sub new {
 
 sub currency { (shift)->{_currency} }    # access to currency data
 
-##################################################
-#
-#  This is the context data for currency.
-#  A special pattern is maintained for the
-#  comma form of numbers (using the specified
-#  comma and decimal-place characters).
+#  This is the context data for currency.  A special pattern is maintained for the
+#  comma form of numbers (using the specified comma and decimal-place characters).
 #
 #  You specify the currency symbol via
 #
@@ -312,9 +295,8 @@ sub init {
 sub addToken    { }    # no tokens are needed (only uses fixed pattern)
 sub removeToken { }
 
-#
 #  Create, set and remove extra currency symbols
-#
+
 sub addSymbol {
 	my $self      = shift;
 	my $operators = $self->{context}->operators;
@@ -335,11 +317,10 @@ sub addSymbol {
 sub setSymbol    { (shift)->{context}->operators->set(@_) }
 sub removeSymbol { (shift)->{context}->operators->remove(@_) }
 
-#
 #  Update the currency patterns in case the characters have changed,
 #  and if the symbol has changed, remove the old operator(s) and
 #  create a new one for the given symbol.
-#
+
 sub update {
 	my $self      = shift;
 	my $context   = $self->{context};
@@ -378,13 +359,10 @@ sub symbolString {
 	return $associativity eq 'left' ? "$symbol " : " $symbol";
 }
 
-######################################################################
-######################################################################
-#
 #  When creating Number objects in the Parser, we need to remove the
 #  comma (and currency) characters and replace the decimal character
 #  with an actual decimal point.
-#
+
 package Currency::Number;
 our @ISA = ('Parser::Number');
 
@@ -401,10 +379,10 @@ sub new {
 		$value =~ s/$pattern->{currencyChars}//g;      # get rid of currency characters
 		$value =~ s/$pattern->{currencyDecimal}/./;    # convert decimal to .
 	} elsif (Value::classMatch($value, "Currency")) {
-		#
+
 		#  Put it back into a Value object, but must unmark it
 		#  as a Real temporarily to avoid an infinite loop.
-		#
+
 		$value->{isReal}        = 0;
 		$value                  = $self->Item("Value")->new($equation, [$value]);
 		$value->{value}{isReal} = 1;
@@ -415,13 +393,9 @@ sub new {
 	return $self;
 }
 
-##################################################
-#
-#  This class implements the currency symbol.
-#  It checks that its operand is a numeric constant
-#  in the correct format, and produces
-#  a Currency object when evaluated.
-#
+#  This class implements the currency symbol.  It checks that its operand is a numeric constant
+#  in the correct format, and produces a Currency object when evaluated.
+
 package Currency::UOP::currency;
 our @ISA = ('Parser::UOP');
 
@@ -446,30 +420,23 @@ sub _check {
 
 sub _eval { my $self = shift; Value->Package("Currency")->make($self->context, @_) }
 
-#
 #  Use the Currency MathObject to produce the output formats
-#
+
 sub string { (shift)->eval->string }
 sub TeX    { (shift)->eval->TeX }
 sub perl   { (shift)->eval->perl }
 
-######################################################################
-######################################################################
-#
 #  This is the MathObject class for currency objects.
 #  It is basically a Real(), but one that stringifies
 #  and texifies itself to include the currency symbol
 #  and commas every three digits.
-#
+
 package Currency::Currency;
 our @ISA = ('Value::Real');
 
-#
-#  We need to override the new() and make() methods
-#  so that the Currency object will be counted as
-#  a Value object.  If we aren't promoting Reals,
-#  produce an error message.
-#
+#  We need to override the new() and make() methods so that the Currency object will be counted as
+#  a Value object.  If we aren't promoting Reals,  produce an error message.
+
 sub new {
 	my $self    = shift;
 	my $class   = ref($self) || $self;
@@ -504,13 +471,12 @@ sub truncate {
 	return $self->make($n + 0);
 }
 
-#
 #  Look up the currency symbols either from the object of the context
 #  and format the output as a currency value (use 2 decimals and
 #  insert commas every three digits).  Put the currency symbol
 #  on the correct end for the associativity and remove leading
 #  and trailing spaces.
-#
+
 sub format {
 	my $self     = shift;
 	my $type     = shift;
@@ -546,14 +512,12 @@ sub stringify {
 sub string { (shift)->format("string") }
 sub TeX    { (shift)->format("TeX") }
 
-#
 #  Override the class name to get better error messages
-#
+
 sub cmp_class {"a Monetary Value"}
 
-#
 #  Add promoteReals option to allow Reals with no dollars
-#
+
 sub cmp_defaults { ((shift)->SUPER::cmp_defaults, promoteReals => 0,) }
 
 sub typeMatch {
@@ -563,7 +527,5 @@ sub typeMatch {
 	return $self->SUPER::typeMatch($other, $ans, @_) if $self->getFlag("promoteReals");
 	return Value::classMatch($other, 'Currency');
 }
-
-######################################################################
 
 1;

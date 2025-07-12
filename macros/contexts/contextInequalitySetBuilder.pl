@@ -1,21 +1,10 @@
 
 =head1 NAME
 
-C<Context("InequalitySetBuilder")>, C<Context("InequalitySetBuilder-Only")> - Provides
-contexts that allow sets to be specified using set-builder notation and inequalities.
+contextInequalitySetBuilder.pl - Provides contexts that allow sets to be specified using
+set-builder notation and inequalities.
 
-=head1 DESCRIPTION
-
-Implements contexts that provides for sets described using set-builder
-notation with inequalities.  (This actually is a special way of
-creating Intervals, Sets, and Unions, and they can be used together
-with standard interval notation.)  There are two such contexts:
-C<Context("InequalitySetBuilder")>, in which both intervals and sets
-formed by inequalities are defined, and
-C<Context("InequalitySetBuilder-Only")>, which allows only set-builder
-notation (not intervals or point sets).
-
-=head1 USAGE
+=head1 SYNOPSIS
 
     loadMacros("contextInequalitySetBuilder.pl");
 
@@ -31,6 +20,17 @@ notation (not intervals or point sets).
     $S4 = Compute("{ x : x > 2 and x <= 4 }"); # forms the Interval (2,4]
     $S5 = Compute("{ x : x = 1 }");            # forms the Set {1}
     $S6 = Compute("{ x : x != 1 }");           # forms the Union (-inf,1) U (1,inf)
+
+=head1 DESCRIPTION
+
+Implements contexts that provides for sets described using set-builder
+notation with inequalities.  (This actually is a special way of
+creating Intervals, Sets, and Unions, and they can be used together
+with standard interval notation.)  There are two such contexts:
+C<Context("InequalitySetBuilder")>, in which both intervals and sets
+formed by inequalities are defined, and
+C<Context("InequalitySetBuilder-Only")>, which allows only set-builder
+notation (not intervals or point sets).
 
 The C<InequalitySetBuilder> contexts accept the flags for the
 Inequalities contexts from the C<contextInequalities.pl> file (see its
@@ -84,9 +84,9 @@ sub _contextInequalitySetBuilder_init { InequalitySetBuilder::Init() }
 package InequalitySetBuilder;
 
 sub Init {
-	#
+
 	#  Make a new context from an old one and add SetBuilder notation
-	#
+
 	my $addSetBuilder = sub {
 		my ($new, $old) = @_;
 		my $context = $main::context{$new} = Parser::Context->getCopy($old);
@@ -118,15 +118,13 @@ sub Init {
 		return $context;
 	};
 
-	#
 	#  Make the two new contexts
-	#
+
 	&{$addSetBuilder}("InequalitySetBuilder",      "Inequalities");
 	&{$addSetBuilder}("InequalitySetBuilder-Only", "Inequalities-Only")->flags->set(noSets => 1);
 
-	#
 	#  Define the SetBuilder() constructor
-	#
+
 	main::PG_restricted_eval('sub SetBuilder {Value->Package("SetBuilder")->new(@_)}');
 }
 
@@ -152,10 +150,8 @@ sub UseVerticalSuchThat {
 	&{$adjust}("InequalitySetBuilder-Only");
 }
 
-##################################################
-#
 #  A class for making set-builder sets by hand
-#
+
 package InequalitySetBuilder::SetBuilder;
 our @ISA = ('Value');
 
@@ -178,12 +174,9 @@ sub new {
 	return $S;
 }
 
-##################################################
-##################################################
-#
 #  The Parser object that holds the set-builder notation
 #  (and also allows point-set notation)
-#
+
 package InequalitySetBuilder::List::Set;
 our @ISA = ('Parser::List::Set');
 
@@ -216,11 +209,8 @@ sub eval {
 
 sub canBeInUnion {1}
 
-##################################################
-##################################################
-#
 #  The such-that operator
-#
+
 package InequalitySetBuilder::BOP::suchthat;
 our @ISA = ('Parser::BOP');
 
@@ -238,18 +228,15 @@ sub _check {
 	$self->{lop} = Inequalities::DummyVariable->new($self->{equation}, $self->{lop}{name}, $self->{lop}{ref});
 }
 
-#
 #  Make sure it is only used in set braces
-#
+
 sub eval {
 	my $self = shift;
 	$self->Error("'%s' can only appear within set-builder notation (did you forget braces?)", $self->{bop});
 }
 
-##################################################
-#
 #  Give a warning about adding sets
-#
+
 package InequalitySetBuilder::BOP::add;
 our @ISA = ('Inequalities::BOP::add');
 
@@ -260,10 +247,8 @@ sub _check {
 		if $self->{lop}{isSetBuilder} || $self->{rop}{isSetBuilder};
 }
 
-##################################################
-#
 #  Handle subtraction of sets
-#
+
 package InequalitySetBuilder::BOP::subtract;
 our @ISA = ("Inequalities::BOP::subtract");
 
@@ -273,10 +258,8 @@ sub _check {
 	else                                                          { $self->SUPER::_check(@_) }
 }
 
-##################################################
-#
 #  Handle unions of sets
-#
+
 package InequalitySetBuilder::BOP::union;
 our @ISA = ("Parser::BOP::union");
 
@@ -286,11 +269,7 @@ sub _check {
 	else                                                          { $self->SUPER::_check(@_) }
 }
 
-##################################################
-##################################################
-#
 #  Common function for the classes below
-#
 
 package InequalitySetBuilder::common;
 our @ISA = ();
@@ -336,11 +315,9 @@ sub class     {"InequalitySetBuilder"}
 sub cmp_class {"a Set in Set-Builder Notation"}
 sub showClass {"a Set in Set-Builder Notation"}
 
-##################################################
-#
 #  Special Inequalities::Interval subclass that
 #  prints using set-builder notation.
-#
+
 package InequalitySetBuilder::Interval;
 our @ISA = ('InequalitySetBuilder::common', 'Inequalities::Interval');
 
@@ -355,11 +332,8 @@ sub typeMatch {
 	$self->_typeMatch($other, $self->SUPER::typeMatch($other));
 }
 
-##################################################
-#
 #  Special Inequalities::Union subclass that
 #  prints using set-builder notation.
-#
 
 package InequalitySetBuilder::Union;
 our @ISA = ('InequalitySetBuilder::common', 'Inequalities::Union');
@@ -375,11 +349,8 @@ sub typeMatch {
 	$self->_typeMatch($other, $self->SUPER::typeMatch($other));
 }
 
-##################################################
-#
 #  Special Inequalities::Set subclass that
 #  prints using set-builder notation.
-#
 
 package InequalitySetBuilder::Set;
 our @ISA = ('InequalitySetBuilder::common', 'Inequalities::Set');
@@ -394,7 +365,5 @@ sub typeMatch {
 	my $other = Value::makeValue(shift);
 	$self->_typeMatch($other, $self->SUPER::typeMatch($other));
 }
-
-##################################################
 
 1;

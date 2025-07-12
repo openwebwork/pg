@@ -1,28 +1,24 @@
 
 =head1 NAME
 
-contextLimitedFactor.pl - Context file to check that the students answer agrees in form 
+contextLimitedFactor.pl - Context file to check that the students answer agrees in form
 with a factored polynomial
 
 =head1 DESCRIPTION
 
-Answers are first compared as usual, and if they agree, then bizarroArithmetic.pl turns 
+Answers are first compared as usual, and if they agree, then bizarroArithmetic.pl turns
 on bizarro addition, subtraction, and division. This, for example,  will cause (x+2)(x+1)
 to evaluate differently than x^2+2x+1.
 
-The flag factorableObject defaults to 'polynomial', but it could be set to say, 
+The flag factorableObject defaults to 'polynomial', but it could be set to say,
 'rational expression', etc. It is used in error messages.
 
 =cut
 
-loadMacros(
-	"bizarroArithmetic.pl",
+loadMacros("bizarroArithmetic.pl");
 
-);
-
-#
 #  Set up the LimitedFactor context
-#
+
 sub _contextLimitedFactor_init {
 	my $context = $main::context{LimitedFactor} = Parser::Context->getCopy("Numeric");
 	$context->operators->set(

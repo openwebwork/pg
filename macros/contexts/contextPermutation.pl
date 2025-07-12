@@ -1,27 +1,9 @@
 
 =head1 NAME
 
-C<Context("Permutation")> - Provides contexts that allow the
-entry of cycles and permutations.
+contextPermutation - Provides contexts that allow the entry of cycles and permutations.
 
-
-=head1 DESCRIPTION
-
-These contexts allow you to enter permutations using cycle notation.
-The entries in a cycle are separated by spaces and enclosed in
-parentheses.  Cycles are multiplied by juxtaposition.  A permutation
-can be multiplied on the left by a number in order to obtain the
-result of that number under the action of the permutation.
-Exponentiation is also allowed (as described below).
-
-There are three contexts included here: C<Context("Permutation")>, which
-allows permutations in any form, C<Context("Permutation-Strict")>, which
-only allows permutations that use disjoint cycles, and
-C<Context("Permutation-Canonical")>, which only allows permutations that
-are written in canonical form (as described below).
-
-
-=head1 USAGE
+=head1 SYNOPSIS
 
     loadMacros("contextPermutation.pl");
 
@@ -47,6 +29,21 @@ are written in canonical form (as described below).
     $P1 = Compute("(1 2 3)(4 5)");
     $P2 = Compute("(5 4)(3 1 2)");
     $P1 == $P2;                        # is true
+
+=head1 DESCRIPTION
+
+These contexts allow you to enter permutations using cycle notation.
+The entries in a cycle are separated by spaces and enclosed in
+parentheses.  Cycles are multiplied by juxtaposition.  A permutation
+can be multiplied on the left by a number in order to obtain the
+result of that number under the action of the permutation.
+Exponentiation is also allowed (as described below).
+
+There are three contexts included here: C<Context("Permutation")>, which
+allows permutations in any form, C<Context("Permutation-Strict")>, which
+only allows permutations that use disjoint cycles, and
+C<Context("Permutation-Canonical")>, which only allows permutations that
+are written in canonical form (as described below).
 
 Cycles and permutations can be multiplied to obtain the permutation
 that consists of one followed by the other, or multiplied on the left

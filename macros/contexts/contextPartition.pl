@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-C<Context("Partition")> - Provides a context that allows the
+contextPartition.pl - Provides a context that allows the
 entry of a partition of an integer as a sum of positive integers.
 
 
@@ -14,7 +14,7 @@ partitions, and provides the answer checker to determine if partitions
 are equal.
 
 
-=head1 USAGE
+=head1 SYNOPSIS
 
     loadMacros("contextPartition.pl");
 
@@ -34,10 +34,7 @@ are equal.
 
 =cut
 
-###########################################################
-#
 #  Create the contexts and add the constructor functions
-#
 
 sub _contextPartition_init {
 	my $context = $main::context{Partition} = Parser::Context->getCopy("Numeric");
@@ -62,16 +59,13 @@ sub _contextPartition_init {
 	PG_restricted_eval("sub Partition {context::Partition->new(\@_)}");
 }
 
-###########################################################
-#
 #  The Partition object
-#
+
 package context::Partition;
 our @ISA = ("Value");
 
-#
 #  Check the data and create the object
-#
+
 sub new {
 	my $self    = shift;
 	my $class   = ref($self) || $self;
@@ -90,17 +84,15 @@ sub new {
 	return bless { data => $p, context => $context }, $class;
 }
 
-#
 #  Add a number to a partition, or add two partitions
-#
+
 sub add {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
 	$self->make(@{ $self->{data} }, @{ $other->{data} });
 }
 
-#
 #  Produce the sum for a partition
-#
+
 sub sum {
 	my $self = shift;
 	my $n    = 0;
@@ -108,26 +100,23 @@ sub sum {
 	return $n;
 }
 
-#
 #  Compare two partitions (numbers are promoted)
-#
+
 sub compare {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
 	return $l->canonical cmp $r->canonical;
 }
 
-#
 #  Produce a canonical representation (numbers sorted)
-#
+
 sub canonical {
 	my $self = shift;
 	$self->make(main::num_sort(@{ $self->{data} }));
 }
 
-#
 #  Promote a number to a Real (since we can add a number to a
 #  partition), and promote others to partitions, if possible.
-#
+
 sub promote {
 	my $self  = shift;
 	my $other = shift;
@@ -136,9 +125,8 @@ sub promote {
 	$self->SUPER::promote($other);
 }
 
-#
 #  Check if types are compatible
-#
+
 sub typeMatch {
 	my ($self, $other) = @_;
 	return
@@ -147,34 +135,29 @@ sub typeMatch {
 		|| ref($other) eq 'ARRAY';
 }
 
-#
 #  Produce a string version
-#
+
 sub string {
 	my $self = shift;
 	join(" + ", @{ $self->{data} });
 }
 
-#
 #  Produce a TeX version
-#
+
 sub TeX {
 	my $self = shift;
 	join(" + ", @{ $self->{data} });
 }
 
-###########################################################
-#
 #  Implement special + operator that produces
 #  partitions rather than sums
-#
+
 package context::Partition::BOP::add;
 our @ISA = ("Parser::BOP");
 
-#
 #  Check that the operands are appropriate, and return
 #  the proper type reference, or give an error.
-#
+
 sub _check {
 	my $self = shift;
 	my ($ltype, $rtype) = ($self->{lop}->typeRef, $self->{rop}->typeRef);
@@ -183,28 +166,24 @@ sub _check {
 	$self->{type} = Value::Type("Partition", $ltype->{length} + $rtype->{length}, $Value::Type{number});
 }
 
-#
 #  Check that the type of an operand is OK
 #  (It must be a partiation or a number)
-#
+
 sub checkOp {
 	my $self = shift;
 	my $op   = shift;
 	return $op->{name} eq "Partition" || ($op->{name} eq "Number" && $op->{length} == 1);
 }
 
-#
 #  Evaluate two numbers by forming a partition,
 #   otherwise use addition (Value object will take over)
-#
+
 sub _eval {
 	my $self = shift;
 	my ($a, $b) = @_;
 	return Value->Package($self->type)->new($a, $b) if !ref($a) && !ref($b);
 	return $a + $b;
 }
-
-###########################################################
 
 1;
 

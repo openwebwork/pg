@@ -31,18 +31,15 @@ loadMacros("MathObjects.pl");
 
 sub _contextLimitedVector_init { LimitedVector::Init() };    # don't load it again
 
-##################################################
-#
 #  Handle common checking for BOPs
-#
+
 package LimitedVector::BOP;
 
-#
 #  Do original check and then if the operands are numbers, its OK.
 #  Otherwise, check if there is a duplicate constant from either term
 #  Otherwise, do an operator-specific check for if vectors are OK.
 #  Otherwise report an error.
-#
+
 sub _check {
 	my $self  = shift;
 	my $super = ref($self);
@@ -60,15 +57,13 @@ sub _check {
 	$self->Error("In this context, '%s' can only be used with Numbers or i,j and k", $bop);
 }
 
-#
 #  filled in by subclasses
-#
+
 sub checkVectors { return 0 }
 
-#
 #  Check if a constant has been repeated
 #  (we maintain a hash that lists if one is below us in the parse tree)
-#
+
 sub checkConstants {
 	my $self      = shift;
 	my $op        = shift;
@@ -87,13 +82,10 @@ sub checkConstants {
 		if $duplicate;
 }
 
-##############################################
-#
 #  Now we get the individual replacements for the operators
 #  that we don't want to allow.  We inherit everything from
 #  the original Parser::BOP class, and just add the
 #  vector checks here.
-#
 
 package LimitedVector::BOP::add;
 our @ISA = qw(LimitedVector::BOP Parser::BOP::add);
@@ -104,8 +96,6 @@ sub checkVectors {
 			&& ($self->{rop}->class eq 'Constant' || $self->{rop}->class =~ m/[BU]OP/));
 }
 
-##############################################
-
 package LimitedVector::BOP::subtract;
 our @ISA = qw(LimitedVector::BOP Parser::BOP::subtract);
 
@@ -114,8 +104,6 @@ sub checkVectors {
 	return (($self->{lop}->class eq 'Constant' || $self->{lop}->class =~ m/[BU]OP/)
 			&& ($self->{rop}->class eq 'Constant' || $self->{rop}->class =~ m/[BU]OP/));
 }
-
-##############################################
 
 package LimitedVector::BOP::multiply;
 our @ISA = qw(LimitedVector::BOP Parser::BOP::multiply);
@@ -126,8 +114,6 @@ sub checkVectors {
 			&& ($self->{rop}->class eq 'Constant' || $self->{rop}->type eq 'Number'));
 }
 
-##############################################
-
 package LimitedVector::BOP::divide;
 our @ISA = qw(LimitedVector::BOP Parser::BOP::divide);
 
@@ -137,11 +123,7 @@ sub checkVectors {
 	$self->Error("In this context, '%s' can only be used with Numbers", $bop);
 }
 
-##############################################
-##############################################
-#
 #  Now we do the same for the unary operators
-#
 
 package LimitedVector::UOP;
 
@@ -163,26 +145,18 @@ sub _check {
 
 sub checkVector { return 0 }
 
-##############################################
-
 package LimitedVector::UOP::plus;
 our @ISA = qw(LimitedVector::UOP Parser::UOP::plus);
 
 sub checkVector { return shift->{op}->class eq 'Constant' }
-
-##############################################
 
 package LimitedVector::UOP::minus;
 our @ISA = qw(LimitedVector::UOP Parser::UOP::minus);
 
 sub checkVector { return shift->{op}->class eq 'Constant' }
 
-##############################################
-##############################################
-#
 #  Absolute value does vector norm, so we
 #  trap that as well.
-#
 
 package LimitedVector::List::AbsoluteValue;
 our @ISA = qw(Parser::List::AbsoluteValue);
@@ -194,8 +168,6 @@ sub _check {
 	$self->Error("Vector norm is not allowed in this context");
 }
 
-##############################################
-
 package LimitedVector::List::Vector;
 our @ISA = qw(Parser::List::Vector);
 
@@ -206,16 +178,12 @@ sub _check {
 	$self->Error("Vectors must be given in the form 'ai+bj+ck' in this context");
 }
 
-##############################################
-##############################################
-
 package LimitedVector;
 
 sub Init {
-	#
+
 	#  Build the new context that calls the
 	#  above classes rather than the usual ones
-	#
 
 	my $context = $main::context{LimitedVector} = Parser::Context->getCopy("Vector");
 	$context->{name} = "LimitedVector";
@@ -232,32 +200,26 @@ sub Init {
 		'u+' => { class => 'LimitedVector::UOP::plus' },
 		'u-' => { class => 'LimitedVector::UOP::minus' },
 	);
-	#
+
 	#  Remove these operators and functions
-	#
+
 	$context->operators->undefine('_', 'U', '><', '.');
 	$context->functions->undefine('norm', 'unit');
 	$context->lists->set(
 		AbsoluteValue => { class => 'LimitedVector::List::AbsoluteValue' },
 		Vector        => { class => 'LimitedVector::List::Vector' },
 	);
-	#
-	#  Format can be 'coordinate', 'ijk', or 'either'
-	#
-	$context->flags->set(vector_format => 'either');
 
-	#########################
+	#  Format can be 'coordinate', 'ijk', or 'either'
+
+	$context->flags->set(vector_format => 'either');
 
 	$context = $main::context{'LimitedVector-ijk'} = $main::context{LimitedVector}->copy;
 	$context->flags->set(vector_format => 'ijk');
 
-	#########################
-
 	$context = $main::context{'LimitedVector-coordinate'} = $main::context{LimitedVector}->copy;
 	$context->flags->set(vector_format => 'coordinate');
 	$context->constants->undefine('i', 'j', 'k');
-
-	#########################
 
 	main::Context("LimitedVector");    ### FIXME:  probably should require author to set this explicitly
 }

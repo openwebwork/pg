@@ -81,18 +81,14 @@ loadMacros("MathObjects.pl");
 
 sub _contextOrdering_init { context::Ordering::Init() }
 
-###########################################
-#
 #  The main Ordering routines
-#
 
 package context::Ordering;
 
-#
 #  Here we set up the prototype contexts and define the needed
 #  functions in the main:: namespace.  Some error messages are
 #  modified to read better for these contexts.
-#
+
 sub Init {
 	my $context = $main::context{Ordering} = Parser::Context->getCopy("Numeric");
 	$context->{name} = "Ordering";
@@ -127,11 +123,10 @@ sub Init {
 	main::PG_restricted_eval('sub Ordering {context::Ordering::Ordering(@_)}');
 }
 
-#
 #  A routine to set the letters allowed in this context.
 #  (Old letters are cleared, and > and = are allowed, but hidden,
 #   since they are used in the List() objects that implement the context).
-#
+
 sub Letters {
 	my $context = (Value::isContext($_[0]) ? shift : main::Context());
 	my @strings;
@@ -140,12 +135,11 @@ sub Letters {
 	$context->strings->add('=' => { hidden => 1 }, '>' => { hidden => 1 });
 }
 
-#
 #  Create orderings from strings or lists of letter => value pairs.
 #  A copy of the current context is created that contains the proper
 #  letters, and the correct string is created and parsed into an
 #  Ordering object.
-#
+
 sub Ordering {
 	my $context = main::Context()->copy;
 	my $string;
@@ -176,15 +170,12 @@ sub Ordering {
 	return main::Formula($context, $string)->eval;
 }
 
-#############################################################
-#
 #  This is a Parser BOP used to create the Ordering objects
 #  used internally.  They are actually lists with the operator
 #  and the two operands, and the comparisons is based on the
 #  standard list comparisons.  The operands are either the strings
 #  for individual letters, or another Ordering object as a
 #  nested List.
-#
 
 package context::Ordering::BOP::ordering;
 our @ISA = ('Parser::BOP');
@@ -229,8 +220,6 @@ sub TeX {
 	return $self->{lop}->TeX . " " . $self->{bop} . " " . $self->{rop}->TeX;
 }
 
-#############################################################
-#
 #  This is the Value object used to implement the list That represents
 #  one ordering operation.  It is simply a normal Value::List with the
 #  operator as the first entry and the two operands as the remaing
@@ -240,14 +229,12 @@ sub TeX {
 #  operators.  The cmp_equal method is overriden to make sure the that
 #  the lists are treated as a unit during answer checking.  There is
 #  also a routine for adding letters to the object's context.
-#
 
 package context::Ordering::Value::Ordering;
 our @ISA = ('Value::List');
 
-#
 #  Put all equal letters into one list and sort them
-#
+
 sub new {
 	my $self    = shift;
 	my $context = (Value::isContext($_[0]) ? shift : $self->context);
@@ -277,11 +264,10 @@ sub TeX {
 	return join(" $bop ", @rest);
 }
 
-#
 #  Make sure we do comparison as a list of lists (rather than as the
 #  individual entries in the underlying Value::List that encodes
 #  the ordering)
-#
+
 sub cmp_equal {
 	my $self = shift;
 	my $ans  = $_[0];
@@ -308,10 +294,9 @@ sub cmp_postprocess {
 		scalar(keys %{ $ans->{student_formula}{tree}{letters} });
 }
 
-#
 #  Add more letters to the ordering's context (so student answers
 #  can include them even if they aren't in the correct answer).
-#
+
 sub AddLetters {
 	my $self    = shift;
 	my $context = $self->context;
@@ -323,28 +308,21 @@ sub AddLetters {
 	$context->strings->add(@strings) if scalar(@strings);
 }
 
-#############################################################
-#
 #  This overrides the TeX method of the letters
 #  so that they don't print using the \rm font.
-#
 
 package context::Ordering::Value::String;
 our @ISA = ('Value::String');
 
 sub TeX { shift->value }
 
-#############################################################
-#
 #  Override Parser classes so that we can check for repeated letters
-#
 
 package context::Ordering::Parser::String;
 our @ISA = ('Parser::String');
 
-#
 #  Save the letters positional reference
-#
+
 sub new {
 	my $self = shift;
 	$self = $self->SUPER::new(@_);
@@ -352,14 +330,11 @@ sub new {
 	return $self;
 }
 
-#########################
-
 package context::Ordering::Parser::Value;
 our @ISA = ('Parser::Value');
 
-#
 #  Move letters to Value object
-#
+
 sub new {
 	my $self = shift;
 	$self = $self->SUPER::new(@_);
@@ -367,23 +342,19 @@ sub new {
 	return $self;
 }
 
-#
 #  Return Ordering class if the object is one
-#
+
 sub class {
 	my $self = shift;
 	return "Ordering" if $self->{value}->classMatch('Ordering');
 	return $self->SUPER::class;
 }
 
-#############################################################
-#
 #  This overrides the cmp_equal method to make sure that
 #  Ordering lists are put into nested lists (since the
 #  underlying ordering is a list, we don't want the
 #  list checker to test the individual parts of the list,
 #  but rather the list as a whole).
-#
 
 package context::Ordering::Value::List;
 our @ISA = ('Value::List');
@@ -395,7 +366,5 @@ sub cmp_equal {
 		if Value::classMatch($ans->{student_value}, 'Ordering');
 	return $self->SUPER::cmp_equal(@_);
 }
-
-#############################################################
 
 1;

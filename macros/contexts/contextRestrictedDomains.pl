@@ -1,9 +1,11 @@
 
 =head1 NAME
 
-Describe this context here.
+contextRestrictedDomains.pl - provide a way for students to enter formulas with a restricted domain.
 
 =head1 DESCRIPTION
+
+
 
 =cut
 
@@ -20,7 +22,9 @@ sub _contextRestrictedDomains_init {
 		checkRoot               => 0,
 		setSqrt                 => exp(1) / main::ln(2),
 		wrongFormMessage        =>
-			'Your answer is algebraically equivalent to the correct answer, but not in the expected form. Maybe it is not fully simplified. Maybe something is not completely factored. Maybe it is not in the expected form for some other reason.',
+			'Your answer is algebraically equivalent to the correct answer, but not in the expected form. '
+			. 'Maybe it is not fully simplified. Maybe something is not completely factored. '
+			. 'Maybe it is not in the expected form for some other reason.',
 		useBizarro       => 1,
 		expressionWeight => 0.9,
 	);
@@ -180,16 +184,13 @@ sub _contextRestrictedDomains_init {
 	};
 }
 
-###########################
-#
 #  Subclass the numeric functions
-#
+
 package restrictedDomains::Function::numeric;
 our @ISA = ('Parser::Function::numeric');
 
-#
 #  Override sqrt() to return a special value times x when evaluated
-#
+
 sub sqrt {
 	my $self  = shift;
 	my $x     = shift;

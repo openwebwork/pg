@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-F<contextCopmlesExtras.pl> - Add conjugation to Complex contexts, and
+contextComplexExtras.pl - Add conjugation to Complex contexts, and
 transpose, conjugate transpose, trace, and determinant to Complex-Matrix context.
 
 =head1 DESCRIPTION
@@ -10,6 +10,8 @@ The F<contextComplexExtras.pl> file adds the ability to include matrix
 transpose, conjugate transpose, trace, and determinants in student
 answers in the Complex-Matrix context, and adds conjugation to all
 Complex contexts.
+
+=head1 SYNOPSIS
 
 Conjugation is represented by C<~>, as in C<~z> or C<~M> to conjugate
 a complex number or complex matrix.  This can be used in both PG code
@@ -95,27 +97,22 @@ sub _contextComplexExtras_init {
 	);
 }
 
-####################################################
-#
 #  Base UOP class that checks for matrix arguments
-#
+
 package context::ComplexExtras::UOP;
 our @ISA = ("Parser::UOP");
 
-#
 #  Check that the operand is a Matrix
-#
+
 sub _check {
 	my $self = shift;
 	$self->Error("'%s' is only defined for Matrices", $self->{def}{string})
 		unless $self->{op}->type eq "Matrix";
 }
 
-####################################################
-#
 #  Implements the ~ operation on matrices and complex numbers
 #    (as a left-associative unary operator)
-#
+
 package context::ComplexExtras::UOP::conjugate;
 our @ISA = ("context::ComplexExtras::UOP");
 
@@ -127,11 +124,9 @@ sub _check {
 
 sub _eval { shift; $_[0]->conj }
 
-####################################################
-#
 #  Implements the ^T operation on matrices and complex numbers
 #    (as a right-associative unary operator)
-#
+
 package context::ComplexExtras::UOP::transpose;
 our @ISA = ("context::ComplexExtras::UOP");
 
@@ -142,11 +137,9 @@ sub perl {
 	return '(' . $self->{op}->perl . '->transpose)';
 }
 
-####################################################
-#
 #  Implements the ^* operation on matrices and complex numbers
 #    (as a right-associative unary operator)
-#
+
 package context::ComplexExtras::UOP::conjtrans;
 our @ISA = ("context::ComplexExtras::UOP");
 
@@ -157,34 +150,27 @@ sub perl {
 	return '(' . $self->{op}->perl . '->transpose->conj)';
 }
 
-####################################################
-#
 #  Implement functions with one matrix input and complex output
-#
+
 package context::ComplexExtras::Function::matrix;
 our @ISA = ("Parser::Function");
 
-#
 #  Check for a single Matrix-valued input
-#
+
 sub _check { (shift)->checkMatrix("complex") }
 
-#
 #  Evaluate by promoting to a Matrix
 #    and then calling the routine from the Value package
-#
+
 sub _eval {
 	my $self = shift;
 	my $name = $self->{def}{method} || $self->{name};
 	$self->Package("Matrix")->promote($self->context, $_[0])->$name;
 }
 
-#
-#  Check for a single Matrix-valued argument
-#  Then promote it to a Matrix (does error checking)
-#    and call the routine from Value package (after
-#    converting "tr" to "trace")
-#
+#  Check for a single Matrix-valued argument. Then promote it to a Matrix (does error checking)
+#    and call the routine from Value package (after converting "tr" to "trace")
+
 sub _call {
 	my $self = shift;
 	my $name = shift;
@@ -195,3 +181,5 @@ sub _call {
 	$name = "trace" if $name eq "tr";    # method of Matrix is trace not tr
 	$self->Package("Matrix")->promote($context, $M)->$name;
 }
+
+1;

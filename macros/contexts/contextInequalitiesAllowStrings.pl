@@ -1,16 +1,11 @@
 
 =head1 NAME
 
-contextInequalitiesAllowStrings.pl -- extra macros for Intermediate Algebra problems at CofI
+contextInequalitiesAllowStrings.pl -- allows use of R, the set of real numbers, in intervals.
 
-=head1 Synposis
+=head1 DESCRIPTION
 
-macros by R Cruz -- The College of Idaho
-
-=head2 Allows string answers for the set of real numbers and the empty set
-
-Adds the string "All real numbers" to the Inequalities context
-NOT WORKING: Adds the string "No solution" to the Inequalities context
+Allows string answers for the set of real numbers and the empty set
 
 =cut
 
@@ -38,13 +33,13 @@ sub _contextInequalitiesAllowStrings_init {
 	#-----Add variations of "No solution" = NONE
 	#************This part does not work. Can't get it to "take" the empty set
 	# Tried Set(), NONE and DNE
-	#
+
 	#    $context->constants->redefine("No solution"",from=>"Interval",using=>"{}");
 	#    $context->constants->set("No solution"=>{TeX=>"\\mbox{No solution}"});
-	#
+
 	#    $context->constants->redefine("no solution"",from=>"Interval",using=>"{}");
 	#    $context->constants->set("no solution"=>{TeX=>"\\mbox{no solution}"});
-	#
+
 	#    $context->constants->redefine("NO SOLUTION"",from=>"Interval",using=>"{}");
 	#    $context->constants->set("NO SOLUTION"=>{TeX=>"\\mbox{NO SOLUTION}"});
 
