@@ -1,7 +1,12 @@
 
-=head1 niceTables.pl
+=head1 NAME
 
-Subroutines for creating tables that:
+niceTables.pl - Subroutines for creating tables that are accessible, more uniform
+styling, can include CSS or LaTeX.
+
+=head1 DESCRIPTION
+
+This macro allows tables that can be made that
 
 =over
 
@@ -24,7 +29,7 @@ for space-saving purposes. Ask yourself if there is any meaningful
 relation between content cells within a column or within a row. If the
 answer is no in both cases, it is likely a case for C<LayoutTable()>.
 
-=head2 Description
+
 
 Command for a typical table:
 
@@ -93,7 +98,7 @@ The width can be an absolute width or (unlike in LaTeX) a positive decimal numbe
 If it is a decimal, it will be interpreted as a portion of the available width.
 
 C<X> for a column that expands to fill (see C<Xratio> below),
-and will have left-aligned paragraphs 
+and will have left-aligned paragraphs
 
 C<|> for a vertical rule (n adjacent pipes make one rule that is n times as thick)
 

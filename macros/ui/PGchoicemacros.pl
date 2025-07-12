@@ -68,6 +68,11 @@ choice question.
 
 =back
 
+=head1 SEE ALSO
+
+Much of the functionality can also be recreated with newer macros:  L<parserPopUp.pl>,
+L<parserCheckboxList.pl>, L<parserRadioButtons.pl>, L<parserRadioMultiAnswer.pl>
+
 =cut
 
 BEGIN { strict->import; }
@@ -75,23 +80,13 @@ BEGIN { strict->import; }
 loadMacros('PGauxiliaryFunctions.pl');
 
 package main;
+sub _PGchoicemacros_init { }
 
-# ^function _PGchoicemacros_init
+=head1 FUNCTIONS
 
-sub _PGchoicemacros_init {
-}
+=head2 new_match_list
 
-=head1 MACROS
-
-=cut
-
-################################################################################
-
-=head2 Match lists
-
-=over
-
-=item new_match_list
+Usage:
 
     $ml = new_match_list();
 
@@ -117,14 +112,7 @@ sub new_match_list {
 	new Match(random(1, 2000, 1), \&std_print_q, \&std_print_a);
 }
 
-=back
-
-
-=head2 Select lists
-
-=over
-
-=item new_select_list
+=head2 new_select_list
 
     $sl = new_select_list();
 
@@ -153,7 +141,9 @@ sub new_select_list {
 	new Select(random(1, 2000, 1), \&std_print_q, \&std_print_a);
 }
 
-=item C<new_pop_up_select_list()>
+=head2 new_pop_up_select_list
+
+Usage:
 
     $sl = new_pop_up_select_list();
 
@@ -173,17 +163,7 @@ sub new_pop_up_select_list {
 	new Select(random(1, 2000, 1), \&pop_up_list_print_q, \&std_print_a);
 }
 
-=back
-
-=cut
-
-################################################################################
-
-=head2 Multiple choice questions
-
-=over
-
-=item C<new_multiple_choice()>
+=head2 new_multiple_choice
 
     $mc = new_multiple_choice();
 
@@ -206,7 +186,7 @@ sub new_multiple_choice {
 	new Multiple(random(1, 2000, 1), \&std_print_q, \&radio_print_a);
 }
 
-=item C<new_checkbox_multiple_choice()>
+=head2 new_checkbox_multiple_choice
 
     $mc = new_checkbox_multiple_choice();
 
@@ -226,13 +206,7 @@ sub new_checkbox_multiple_choice {
 	new Multiple(random(1, 2000, 1), \&std_print_q, \&checkbox_print_a);
 }
 
-=back
-
-=head2 Question printing subroutines
-
-=over
-
-=item C<std_print_q()>
+=head2 std_print_q
 
 C<$list> can be a matching list, a select list, or a multiple choice list
 
@@ -282,7 +256,7 @@ sub std_print_q {
 
 }
 
-=item C<pop_up_list_print_q()>
+=head2 pop_up_list_print_q
 
     $sl->rf_print_q(~~&pop_up_list_print_q);
     $sl->ra_pop_up_list([T => 'True', F => 'False']);
@@ -339,7 +313,7 @@ sub pop_up_list_print_q {
 
 }
 
-=item C<quest_first_pop_up_list_print_q()>
+=head2 quest_first_pop_up_list_print_q
 
     $sl->rf_print_q(~~&quest_first_pop_up_list_print_q);
     $sl->ra_pop_up_list([T => 'True', F => 'False']);
@@ -394,7 +368,7 @@ sub quest_first_pop_up_list_print_q {
 
 }
 
-=item C<ans_in_middle_pop_up_list_print_q()>
+=head2 ans_in_middle_pop_up_list_print_q
 
     $sl->rf_print_q(~~&ans_in_middle_pop_up_list_print_q);
     $sl->ra_pop_up_list([T => 'True', F => 'False']);
@@ -450,7 +424,7 @@ sub ans_in_middle_pop_up_list_print_q {
 
 }
 
-=item C<units_list_print_q()>
+=head2 units_list_print_q
 
 A simple popup question printer. No question text is printed, instead the
 pop_up_list contents only are printed as a popup menu.
@@ -474,17 +448,7 @@ sub units_list_print_q {
 	$out;
 }
 
-=back
-
-=cut
-
-################################################################################
-
-=head2 Answer printing subroutines
-
-=over
-
-=item C<std_print_a()>
+=head2 std_print_a
 
  # $list can be a matching list, a select list, or a multiple choice list
  $list->rf_print_a(~~&std_print_a);
@@ -527,7 +491,7 @@ sub std_print_a {
 
 }
 
-=item C<radio_print_a()>
+=head2 radio_print_a
 
 C<$list> can be a matching list, a select list, or a multiple choice list
 
@@ -583,7 +547,7 @@ sub radio_print_a {
 
 }
 
-=item C<checkbox_print_a()>
+=head2 checkbox_print_a
 
 C<$list> can be a matching list, a select list, or a multiple choice list
 
@@ -636,22 +600,15 @@ sub checkbox_print_a {
 
 }
 
-=back
-
-=cut
-
-################################################################################
-
-=head2 Legacy macros
+=head1 Legacy macros [DEPRECATED]
 
 These are maintained for backward compatibility. They can still be useful in
 constructing non-standard lists that don't fit the various list objects. In
 general the using the list objects is likely to give better results and is
 preferred.
 
-=over
 
-=item [DEPRECATED] qa()
+=head2 qa() [DEPRECATED]
 
  qa($questions, $answers, @new_qa);
 
@@ -661,7 +618,7 @@ questions and answers to add to the $questions and $answers arrays.
 =cut
 
 # ^function qa   [DEPRECATED]
-#
+
 sub qa {
 	my ($questionsRef, $answersRef, @questANDanswer) = @_;
 	while (@questANDanswer) {
@@ -671,7 +628,7 @@ sub qa {
 	}
 }
 
-=item [DEPRECATED] invert()
+=head2 invert() [DEPRECATED]
 
  @b = invert(@a);
 
@@ -691,7 +648,7 @@ sub invert {
 	@out;
 }
 
-=item [DEPRECATED] NchooseK()
+=head2  NchooseK() [DEPRECATED]
 
  @b = NchooseK($N, $K);
 
@@ -709,11 +666,15 @@ sub NchooseK {
 	return @return;
 }
 
-=item [DEPRECATED] shuffle()
+=head2  shuffle() [DEPRECATED]
 
  @b = shuffle($i);
 
 Returns the integers from 0 to $i-1 in random order.
+
+Note: this can be reproduced with the function
+
+   @b = random_subset($n, 0..$n-1);
 
 =cut
 
@@ -726,7 +687,7 @@ sub shuffle {
 	return @return;
 }
 
-=item [DEPRECATED] match_questions_list()
+=head2  match_questions_list() [DEPRECATED]
 
 =cut
 
@@ -759,7 +720,7 @@ sub match_questions_list {
 	$out;
 }
 
-=item [DEPRECATED] match_questions_list_varbox()
+=head2 [DEPRECATED] match_questions_list_varbox()
 
 =cut
 
@@ -791,9 +752,5 @@ sub match_questions_list_varbox {
 	}
 	$out;
 }
-
-=back
-
-=cut
 
 1;
