@@ -1,13 +1,10 @@
 
 =head1 NAME
 
-PGsequentialmacros.pl
-
-Provides support for writing sequential problems, where certain parts
+PGsequentialmacros.pl - Provides support for writing sequential problems, where certain parts
 of the problem are hidden until earlier questions are answered correctly.
 
-
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 The basic sequential problem structure:
 

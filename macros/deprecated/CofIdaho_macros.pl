@@ -1,17 +1,14 @@
 
-=pod
-
 =head1 NAME
 
-    extra macros for Intermediate Algebra problems at The College of Idaho
+CofIdaho_macros.pl - extra macros for Intermediate Algebra problems at The College of Idaho
 
-=head1 Synposis
-    macros by R Cruz -- The College of Idaho
-=cut
+=head1 SYNOPSIS
 
-=head3 Format the instuctor answer
+macros by R Cruz -- The College of Idaho
 
-=pod
+=head1 Format the instuctor answer
+
 
 1) SimplifyExponents: Formats an expression without negative exponents
    To use: SimplifyExponents(num, den,~~@var,@exp);
@@ -23,47 +20,47 @@
 2) num_and_unit_checker: Checks for units like "apples" or "oranges"
    To use: ANS (num_and_units_checker($correct_answer, "units");
 
-3) strict_percent_cmp: Checks percentages have been rounded as required. 
-    To use: ANS(strict_percent_cmp($answer,"%",roundto));  
+3) strict_percent_cmp: Checks percentages have been rounded as required.
+    To use: ANS(strict_percent_cmp($answer,"%",roundto));
            where $answer is in percent form: xx.x
                 roundto = "tenths" or "hundredths"
 
-4) Picky_equation_cmp: Checks both sides of an equation model the word problem. 
+4) Picky_equation_cmp: Checks both sides of an equation model the word problem.
    To use:  Picky_equation_cmp("2x+1=5");
    Note:  This one allows only the variables that have been used in the CofIdaho
           problems.  It should be changed so that it is more flexible, or better,
           convert it to a MathObject.
 
-5) SlopeIntercept_equation_cmp: Checks both sides of an equation for the 
+5) SlopeIntercept_equation_cmp: Checks both sides of an equation for the
    slope-intercept form of a line.
    To use: ANS(SlopeIntercept_equation_cmp($answer));
            where $answer = "y = $m x + $b";  (Use only y and x for variables.)
 
 6) functionNotation_cmp: Checks for "f(x)= ***" notation
-   To use: 
+   To use:
      ANS(functionNotation_cmp("f(x)=2x",["x","f"]));
 
 7) Checks factors of polynomials.
-   To use: The answer must be submitted in this form: 
+   To use: The answer must be submitted in this form:
               ANS(FactorEvaluator($answer,[variable array]));
-   If the polynomial is prime: 
+   If the polynomial is prime:
               ANS(FactorEvaluator("Does not factor",polynomial,[variable array]));
 
   Note: Answers must be in the form: monomial(poly)...(poly) with
     or without parentheses about the monomial.  The polynomial factors must
     not contain any other grouping symbols and, in any case, only parenthesis
-    may be used.  This needs to be in the instructions for any set that uses 
+    may be used.  This needs to be in the instructions for any set that uses
     this macro (in the screenHeader.pg file).
 
   Note: "StrictFactoringEvaluator" requires leading negatives to be factored out.
     This not may not work with all situations.  BE SURE TO CHANGE THIS FILE IF THE
     FactoringEvaluator IS CHANGED!!
 
-8) RationalExpEvaluator: Checks for simplified rational expressions. 
+8) RationalExpEvaluator: Checks for simplified rational expressions.
    To use: ANS(RationalExpEvaluation($answer,[variable array]));
-      or something like:  ANS(RationalExpEvaluator($answer,["x","y"])); 
+      or something like:  ANS(RationalExpEvaluator($answer,["x","y"]));
 
-   Note: Answers must be of the form: (poly)/(poly) 
+   Note: Answers must be of the form: (poly)/(poly)
 
 9) ReduceFraction: Returns a string that represents a reduced fraction.
    To use: $a = SimplifyFraction(numerator expression,denominator espression);
@@ -457,8 +454,8 @@ sub FactoringEvaluator {
 			if ($CorrectFactors != $#factors + 1) {
 				$ans_hash->{score} = 0;
 				$ans_hash->setKeys(
-					'ans_message' => "Check that your answer is factored 
-                                                     completely and is entered in the 
+					'ans_message' => "Check that your answer is factored
+                                                     completely and is entered in the
                                                      required format."
 				);
 			}

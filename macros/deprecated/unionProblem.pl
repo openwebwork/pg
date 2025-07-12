@@ -1,4 +1,3 @@
-#!/usr/local/bin/perl
 
 sub _unionProblem_init { }
 
