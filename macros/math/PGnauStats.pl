@@ -1,3 +1,10 @@
+
+=head1 NAME
+
+PGnauStats.pl
+
+=cut
+
 loadMacros("PGnauGraphics.pl",);
 
 ################################

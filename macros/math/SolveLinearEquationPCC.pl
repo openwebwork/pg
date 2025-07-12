@@ -1,3 +1,10 @@
+
+=head1 NAME
+
+SolveLinearEquationPCC.pl
+
+=cut
+
 #These three subroutines uniformize how all our "solve this equation" problems are handled.
 
 loadMacros('PCCmacros.pl');

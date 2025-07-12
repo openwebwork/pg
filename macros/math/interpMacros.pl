@@ -1,5 +1,9 @@
-# interpMacros.pl
-# Rename this file (with .pl extension) and place it in your course macros directory,
+
+=head1 NAME
+
+interpMacros.pl - provide a interpolation for a set of data.
+
+=cut
 
 sub interpVals {
 	$arrayLength  = ($#_) / 2;
@@ -30,4 +34,4 @@ sub interpVals {
 	return $B_VAL;
 }
 
-1;    #required at end of file - a perl thing
+1;

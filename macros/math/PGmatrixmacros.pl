@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-Matrix macros for the PG language
+PGmatrixmacros.pl - Matrix macros for the PG language
 
 =head1 DESCRIPTION
 
@@ -28,7 +28,7 @@ BEGIN { strict->import; }
 sub _PGmatrixmacros_init {
 }
 
-############
+=head1 FUNCTIONS
 
 =head2  display_matrix
 
@@ -538,18 +538,20 @@ sub side_labels {
 
 =head2  mbox
 
-                Usage        \{ mbox(thing1, thing2, thing3) \}
-          \{ mbox([thing1, thing2, thing3], valign=>'top') \}
+Usage:
 
-    mbox takes a list of constructs, such as strings, or outputs of
-          display_matrix, and puts them together on a line.  Without mbox, the
-          output of display_matrix would always start a new line.
+    \{ mbox(thing1, thing2, thing3) \}
+    \{ mbox([thing1, thing2, thing3], valign=>'top') \}
 
-          The inputs can be just listed, or given as a reference to an array.
-          With the latter, optional arguments can be given.
+mbox takes a list of constructs, such as strings, or outputs of
+display_matrix, and puts them together on a line.  Without mbox, the
+output of display_matrix would always start a new line.
 
-          Optional arguments are allowbreaks=>'yes' to allow line breaks in TeX
-          output; and valign which sets vertical alignment on web page output.
+The inputs can be just listed, or given as a reference to an array.
+With the latter, optional arguments can be given.
+
+Optional arguments are allowbreaks=>'yes' to allow line breaks in TeX
+output; and valign which sets vertical alignment on web page output.
 
 =cut
 
@@ -591,14 +593,16 @@ sub mbox {
 
 =head2   ra_flatten_matrix
 
-                Usage:   ra_flatten_matrix($A)
-                        returns:  [a11, a12,a21,a22]
+Usage:
 
-                        where $A is a matrix object
-                        The output is a reference to an array.  The matrix is placed in the array by iterating
-                        over  columns on the inside
-                        loop, then over the rows. (e.g right to left and then down, as one reads text)
+    ra_flatten_matrix($A)
 
+returns:
+
+    [a11, a12,a21,a22]
+
+where C<$A> is a matrix object. The output is a reference to an array.  The matrix is placed in the array by iterating
+over columns on the inside loop, then over the rows. (e.g right to left and then down, as one reads text)
 
 =cut
 
@@ -615,13 +619,11 @@ sub ra_flatten_matrix {
 	\@array;
 }
 
-=head2 apl_matrix_mult()
+=head2 apl_matrix_mult
 
-	# This subroutine is probably obsolete and not generally useful.
-	# It was patterned after the APL
-	# constructs for multiplying matrices. It might come in handy
-	# for non-standard multiplication of
-	# of matrices (e.g. mod 2) for indice matrices.
+This subroutine is probably obsolete and not generally useful.
+It was patterned after the APL constructs for multiplying matrices. It might come in handy
+for non-standard multiplication of of matrices (e.g. mod 2) for indice matrices.
 
 =cut
 
@@ -679,12 +681,14 @@ sub make_matrix {
 This can be a useful method for quickly entering small matrices by hand.
  --MEG
 
-	create2d_matrix("1 2 4, 5 6 8"); or
-	create2d_matrix("1 2 4; 5 6 8");
-	produces the anonymous array
-	[[1,2,4],[5,6,8] ]
+    create2d_matrix("1 2 4, 5 6 8");
+    create2d_matrix("1 2 4; 5 6 8");
 
-	Matrix(create2d_matrix($string));
+produces the anonymous array
+
+    [[1,2,4],[5,6,8] ]
+
+     Matrix(create2d_matrix($string));
 
 =cut
 
@@ -695,9 +699,11 @@ sub create2d_matrix {
 	[@rows];
 }
 
-=head2 convert_to_array_ref {
+=head2 convert_to_array_ref
 
-	$output_matrix = convert_to_array_ref($input_matrix)
+Usage:
+
+    $output_matrix = convert_to_array_ref($input_matrix)
 
 Converts a MathObject matrix (ref($input_matrix) eq 'Value::Matrix')
 or a MatrixReal1 matrix (ref($input_matrix) eq 'Matrix') to
@@ -705,7 +711,7 @@ a reference to an array (e.g [[4,6],[3,2]]).
 This adaptor allows all of the LinearProgramming.pl subroutines to be used with
 MathObject arrays.
 
-$mathobject_matrix->value outputs an array (usually an array of array references) so placing it inside
+C<< $mathobject_matrix->value >> outputs an array (usually an array of array references) so placing it inside
 square bracket produces and array reference (of array references) which is what lp_display_mm() is
 seeking.
 
@@ -731,8 +737,8 @@ An answer checker factory built on create2d_matrix.  This still needs
 work.  It is not feature complete, particularly with regard to error messages
 for incorrect input. --MEG
 
-	$matrix = Matrix("[[1,4],[2,3]");
-	ANS( check_matrix_from_ans_box($matrix) );
+    $matrix = Matrix("[[1,4],[2,3]");
+    ANS( check_matrix_from_ans_box($matrix) );
 
 =cut
 
@@ -759,11 +765,13 @@ sub check_matrix_from_ans_box_cmp {
 	$string_matrix_cmp;
 }
 
-=head2 zero_check (deprecated -- use MathObjects matrices and vectors)
+=head2 zero_check [DEPRECATED]
 
-	# this subroutine zero_check is not very well designed below -- if it is used much it should receive
-	# more work -- particularly for checking relative tolerance.  More work needs to be done if this is
-	# actually used.
+(use MathObjects matrices and vectors)
+
+this subroutine zero_check is not very well designed below -- if it is used much it should receive
+more work -- particularly for checking relative tolerance.  More work needs to be done if this is
+actually used.
 
 =cut
 
@@ -784,7 +792,9 @@ sub zero_check {
 	($max < $tol) ? 1 : 0;    # 1 if the array is close to zero;
 }
 
-=head2 vec_dot() (deprecated -- use MathObjects vectors and matrices)
+=head2 vec_dot [DEPRECATED]
+
+(use MathObjects matrices and vectors)
 
 =cut
 
@@ -802,7 +812,9 @@ sub vec_dot {
 	$sum;
 }
 
-=head2 proj_vect (deprecated -- use MathObjects vectors and matrices)
+=head2 proj_vect [DEPRECATED]
+
+(use MathObjects matrices and vectors)
 
 =cut
 
@@ -816,7 +828,9 @@ sub proj_vec {
 	$matrix * transpose($matrix) * $vec;
 }
 
-=head2 vec_cmp (deprecated -- use MathObjects vectors and matrices)
+=head2 vec_cmp [DEPRECATED]
+
+(use MathObjects matrices and vectors)
 
 =cut
 
