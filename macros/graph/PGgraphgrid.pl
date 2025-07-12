@@ -1,10 +1,7 @@
-sub _PGgraphgrid_init { };    # don't reload this file
-
-=pod
 
 =head1 NAME
 
-PGgraphgrid.pl
+PGgraphgrid.pl - provides functionality for plotting a grid on a graph.
 
 =head1 SYNOPSIS
 
@@ -47,7 +44,7 @@ Paul Pearson, Hope College, Department of Mathematics
 
 =cut
 
-################################################
+sub _PGgraphgrid_init { };    # don't reload this file
 
 loadMacros("MathObjects.pl", "PGgraphmacros.pl",);
 

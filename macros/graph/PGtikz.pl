@@ -26,8 +26,6 @@ Then insert the image into the problem with
 
     image(insertGraph($image));
 
-=head1 DETAILED USAGE
-
 There are several LaTeXImage parameters that may need to be set for the
 LaTeXImage object return by createTikZImage to generate the desired image.
 
