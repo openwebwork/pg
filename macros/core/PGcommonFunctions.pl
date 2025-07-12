@@ -1,31 +1,31 @@
 
+=head1 NAME
+
+PGcommonFunctions.pl - common mathematical functions used in PG problems.
+
 =head1 DESCRIPTION
 
-##############################################
-#
-#  Implements functions that are common to
-#  the new Parser.pm and the old PGauxiliaryFunctions.pl
-#
+This macro provides common mathematics functions (exponential, log, trig and
+combinatoric).
 
 =cut
 
 sub _PGcommonFunctions_init { }
 
-#
 #  Make these interact nicely with Parser.pm
-#
+
 package CommonFunction;
 
 =head2 NOTE
 
-#
-#  Either call Parser (if it has been loaded) or
-#  the functions below.  (If it's ever the case
-#  that both the Parser and PGauxiliaryFunctions.pl are
-#  both preloaded, then there will be no need for
-#  this, as you can always use the Parser versions.
-#  We only need this because Parser might not be loaded.)
-#
+
+Either call Parser (if it has been loaded) or
+the functions below.  (If it's ever the case
+that both the Parser and PGauxiliaryFunctions.pl are
+both preloaded, then there will be no need for
+this, as you can always use the Parser versions.
+We only need this because Parser might not be loaded.)
+
 
 =cut
 
@@ -91,15 +91,12 @@ sub P {
 	return $P;
 }
 
-#
 #  Back to main package
-#
+
 package main;
 
-#
 #  Make main versions call the checker to see
 #  which package-specific version to call
-#
 
 ParserDefineLog();
 

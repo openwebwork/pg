@@ -1,3 +1,4 @@
+
 # FIXME TODO:
 # Document and maybe split out: filters, graders, utilities
 
@@ -5,7 +6,7 @@
 
 PGanswermacros.pl - Macros for building answer evaluators.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 Number Answer Evaluators:
 
@@ -154,7 +155,7 @@ sub _PGanswermacros_init {
 	$useBaseTenLog      = PG_restricted_eval(q/$envir{useBaseTenLog}/);
 }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 Answer evaluator macros
 

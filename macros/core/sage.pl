@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-sage.pl -- connect to a sage server.
+sage.pl - connect to a sage server.
 
 =cut
 

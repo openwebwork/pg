@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGbasicmacros.pl --- located in the courseScripts directory
+PGbasicmacros.pl - set of basic functions and constants for PG problems.
 
 =head1 DESCRIPTION
 
@@ -2573,8 +2573,8 @@ sub sspf {
 Because of the way sort is optimized in Perl, the symbols $a and $b
 have special significance.
 
-C<sort {$a<=>$b} @list>
-C<sort {$a cmp $b} @list>
+    sort {$a<=>$b} @list
+    sort {$a cmp $b} @list
 
 sorts the list numerically and lexically respectively.
 
@@ -2638,7 +2638,9 @@ sub num_sort {
 
 =head2 Macros for handling tables
 
-    Usage:
+B<< Note: that these are deprecated.  See L<nicetables.pl> for a replacement. >>
+
+Usage:
     begintable( number_of_columns_in_table)
     row(@dataelements)
     endtable()

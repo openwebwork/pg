@@ -1,12 +1,14 @@
 
 =head1 NAME
 
-C<externalData.pl> - Macro that provides some parsing and way to send data from
+externalData.pl - Macro that provides some parsing and way to send data from
 a problem to the database. This is useful for using data common to multiple problems.
 
 =cut
 
 sub _externalData_init { }
+
+=head1 FUNCTIONS
 
 =head2 store_number_list
 

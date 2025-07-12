@@ -1,5 +1,12 @@
-######################################################################
-######################################################################
+
+=head1 NAME
+
+PGML.pl - Provides the functional for PGML (PG markup language).
+
+=head1 DESCRIPTION
+
+
+=cut
 
 package PGML;
 
@@ -32,8 +39,6 @@ sub isRegexp {
 	my $ref = shift;
 	return $ref && ref($ref) =~ m/Regexp$/;
 }
-
-######################################################################
 
 package PGML::Parse;
 
@@ -589,8 +594,6 @@ sub NOOP {
 	$self->Text("", 1);
 }
 
-######################################################################
-
 my $balanceAll = qr/[\{\[\'\"]/;
 
 %BlockDefs = (
@@ -774,8 +777,6 @@ my $balanceAll = qr/[\{\[\'\"]/;
 	"list"   => { type => 'list',    parseAll => 1, combine => { list => "bullet", par => 1 }, noIndent => -1 },
 );
 
-######################################################################
-
 sub terminateGetString {
 	my $self  = shift;
 	my $token = shift;
@@ -953,9 +954,6 @@ sub replaceCommand {
 	return $result;
 }
 
-######################################################################
-######################################################################
-
 package PGML::Item;
 
 sub new {
@@ -1006,8 +1004,6 @@ sub quote {
 	$string =~ s/\t/\\t/g;
 	return $string;
 }
-
-######################################################################
 
 package PGML::Block;
 our @ISA = ('PGML::Item');
@@ -1093,9 +1089,9 @@ sub combineTopItems {
 			)
 			)
 		{
-			#
+
 			#  Combine identical blocks
-			#
+
 			$prev = $prev->topItem if $inside;
 			splice(@{ $self->{stack} }, $i, 1);
 			if ($par) { splice(@{ $self->{stack} }, $i, 1); $prev->pushItem($par) }
@@ -1108,9 +1104,9 @@ sub combineTopItems {
 			&& $top->{indent} > $prev->{indent}
 			&& $prev->{indent} > 0)
 		{
-			#
+
 			#  Move larger indentations into smaller ones
-			#
+
 			splice(@{ $self->{stack} }, $i, 1);
 			if ($par) { splice(@{ $self->{stack} }, $i, 1); $prev->pushItem($par) }
 			$top->{indent} -= $prev->{indent};
@@ -1129,9 +1125,9 @@ sub combineTopItems {
 		}
 	}
 	return;
-	#
+
 	#  Remove unneeded zero indents
-	#
+
 	if ($top->{type} eq 'indent' && $top->{indent} == 0) {
 		splice(@{ $self->{stack} }, $i, 1, @{ $top->{stack} });
 		$top = $self->topItem($i);
@@ -1159,8 +1155,6 @@ sub show {
 	}
 	return join("\n", @strings);
 }
-
-######################################################################
 
 package PGML::Root;
 our @ISA = ('PGML::Block');
@@ -1194,8 +1188,6 @@ sub pushItem {
 	}
 }
 
-######################################################################
-
 package PGML::Block::Table;
 our @ISA = ('PGML::Block');
 
@@ -1214,9 +1206,6 @@ sub pushItem {
 		}
 	}
 }
-
-######################################################################
-######################################################################
 
 package PGML::Text;
 our @ISA = ('PGML::Item');
@@ -1247,9 +1236,6 @@ sub show {
 	push(@strings, $indent . "stack: ['" . join("', '", map { $self->quote($_) } @{ $self->{stack} }) . "']");
 	return join("\n", @strings);
 }
-
-######################################################################
-######################################################################
 
 package PGML::Format;
 
@@ -1502,9 +1488,6 @@ sub Image {
 	));
 }
 
-######################################################################
-######################################################################
-
 package PGML::Format::html;
 our @ISA = ('PGML::Format');
 
@@ -1697,9 +1680,6 @@ sub Tag {
 	return main::tag($tag, @attributes, $self->string($item));
 }
 
-######################################################################
-######################################################################
-
 package PGML::Format::tex;
 our @ISA = ('PGML::Format');
 
@@ -1851,9 +1831,6 @@ sub Tag {
 	}
 	return ($tex_begin // '') . $self->string($item) . ($tex_end // '');
 }
-
-######################################################################
-######################################################################
 
 package PGML::Format::ptx;
 our @ISA = ('PGML::Format');
@@ -2008,9 +1985,6 @@ sub Tag {
 	return $self->string($item);
 }
 
-######################################################################
-######################################################################
-
 package PGML;
 
 sub Format {
@@ -2051,8 +2025,6 @@ sub LaTeX {
 	);
 }
 
-######################################################################
-
 package main;
 
 sub _PGML_init {
@@ -2062,7 +2034,5 @@ sub _PGML_init {
 	loadMacros("contextTypeset.pl");
 	Context($context);
 }
-
-######################################################################
 
 1;

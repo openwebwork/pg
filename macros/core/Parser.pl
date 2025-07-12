@@ -31,7 +31,7 @@ if (!$Value::installed) {
 loadMacros("Value.pl");
 loadMacros("PGcommonFunctions.pl");
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 Formula
 
