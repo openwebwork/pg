@@ -43,9 +43,8 @@ loadMacros('MathObjects.pl');
 
 sub _parserParametricLine_init { ParametricLine::Init() };    # don't reload this file
 
-#
 #  Define the subclass of Formula
-#
+
 package ParametricLine;
 our @ISA = qw(Value::Formula);
 
@@ -96,16 +95,10 @@ sub new {
 	return bless $line, $class;
 }
 
-=head2 $lhs == $rhs
-
- #
- #  Two parametric lines are equal if they have
- #  parallel direction vectors and either the same
- #  points or the vector between the points is
- #  parallel to the (common) direction vector.
- #
-
-=cut
+#  Two parametric lines are equal if they have
+#  parallel direction vectors and either the same
+#  points or the vector between the points is
+#  parallel to the (common) direction vector.
 
 sub compare {
 	my ($self, $l, $r) = Value::checkOpOrderWithPromote(@_);
@@ -125,9 +118,8 @@ sub cmp_defaults { (
 	ignoreInfinity  => 0,    # report infinity as an error
 ) }
 
-#
 #  Report some errors that were stopped by the showEqualErrors=>0 above.
-#
+
 sub cmp_postprocess {
 	my $self  = shift;
 	my $ans   = shift;

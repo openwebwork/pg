@@ -47,6 +47,10 @@ In this case both 3 apple and 3 apples would be considered correct.
 Note:  English pluralization is suprisingly hard, so WeBWorK will make no
 attempt to display a grammerically correct result.
 
+=head1 SEE ALSO
+
+There is now a context for handling units:  L<contextUnits.pl>
+
 =cut
 
 loadMacros('MathObjects.pl');
@@ -55,9 +59,9 @@ our %fundamental_units = %Units::fundamental_units;
 our %known_units       = %Units::known_units;
 
 sub _parserNumberWithUnits_init {
-# We make copies of these hashes here because these copies will be unique to  # the problem.  The hashes in Units are shared between problems.  We pass
-# the hashes for these local copies to the NumberWithUnits package to use
-# for all of its stuff.
+	# We make copies of these hashes here because these copies will be unique to  # the problem.
+	# The hashes in Units are shared between problems.  We pass the hashes for these local copies
+	# to the NumberWithUnits package to use for all of its stuff.
 
 	Parser::Legacy::ObjectWithUnits::initializeUnits(\%fundamental_units, \%known_units);
 	# main::PG_restricted_eval('sub NumberWithUnits {Parser::Legacy::NumberWithUnits->new(@_)}');
