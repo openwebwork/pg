@@ -1,9 +1,7 @@
 
-sub _weightedGrader_init { };    # don't reload this file
-
 =head1 NAME
 
-weightedGrader.pl
+weightedGrader.pl - This provides weights for each answer.
 
 =head1 DESCRIPTION
 
@@ -155,6 +153,8 @@ install the weighted grader.  Do this using the command
     install_weighted_grader();
 
 =cut
+
+sub _weightedGrader_init { };    # don't reload this file
 
 ##################################################
 #

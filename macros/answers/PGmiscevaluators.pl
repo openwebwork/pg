@@ -7,18 +7,14 @@ PGmiscevaluators.pl - Some miscellaneous answer macros.
 
 Currently contains answer evaluators for radio buttons and checkboxes.
 
-=head2 MathObjects and answer evaluators
-
-The MathObjects system provides a parserRadioButtons.pl file that manages
-display and checking of radio-button based answers. It is recommended that you
-use this method directly if possible.
-
 =cut
 
 BEGIN { strict->import; }
 sub _PGmiscevaluators_init { }
 
-=head1 checkbox_cmp
+=head1 FUNCTIONS
+
+=head2 checkbox_cmp
 
 	ANS(checkbox_cmp($correctAnswer))
 
@@ -83,7 +79,7 @@ sub checkbox_cmp {
 	return $answer_evaluator;
 }
 
-=head1 radio_cmp
+=head2 radio_cmp
 
 	ANS(radio_cmp($correctAnswer))
 
@@ -107,7 +103,7 @@ sub radio_cmp {
 	str_cmp($response);
 }
 
-=head1 SEE ALSO
+=head3 SEE ALSO
 
 L<PGanswermacros.pl>, L<UsingMathObjects>.
 

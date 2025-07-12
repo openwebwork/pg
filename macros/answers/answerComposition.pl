@@ -6,7 +6,7 @@ compose to form a given function.
 
 =head1 DESCRIPTION
 
-answerComposition.pl provides an answer checker that determines if two functions
+This macro provides an answer checker that determines if two functions
 compose to form a given function. This can be used in problems where you ask a
 student to break a given function into a composition of two simpler functions,
 neither of which is allowed to be the identity function.
@@ -15,7 +15,7 @@ neither of which is allowed to be the identity function.
 
 sub _answerComposition_init { };    # don't reload this file
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 COMPOSITION_ANS
 

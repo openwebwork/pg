@@ -1,14 +1,20 @@
 
-=head1 AnswerHints()
+=head1 NAME
 
-This is an answer-checker post-filter that allows you to produce
+answerHints.pl - provides methods for answer hints
+
+=head1 DESCRIPTION
+
+This macro provides an answer-checker post-filter that allows you to produce
 additional error messages for incorrect answers.  You can trigger
 a message for a single answer, a collection of answers, or via a
 subroutine that determines the condition for the message.
 
-Note that this filter only works for MathObjects answer checkers.
+=head1 FUNCTIONS
 
-The answer hints are given as a pair using => with the right-hand
+=head2 AnswerHints
+
+The answer hints are given as a pair using C<< => >> with the right-hand
 side being the answer message and the left-hand side being one of
 three possibilities:  1) the value that triggers the message,
 2) a reference to an array of values that trigger the message, or
