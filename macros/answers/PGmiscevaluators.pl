@@ -22,6 +22,8 @@ $correctAnswer is a string containing the names of the correct boxes, e.g.
 "ACD". Note that this means that individual checkbox names can only be one
 character. Internally, this is largely the same as unordered_cs_str_cmp().
 
+Note: see L<parserCheckboxList.pl> for an alternative to this.
+
 =cut
 
 # added 6/14/2000 by David Etlinger
@@ -87,6 +89,8 @@ $correctAnswer	is a string containing the name of the correct radio button,
 e.g. "Choice1". This is case sensitive and whitespace sensitive, so the correct
 answer must match the name of the radio button exactly.
 
+Note: see L<parserRadioButtons.pl> for an alternative to this.
+
 =cut
 
 #added 6/28/2000 by David Etlinger
@@ -103,7 +107,7 @@ sub radio_cmp {
 	str_cmp($response);
 }
 
-=head3 SEE ALSO
+=head1 SEE ALSO
 
 L<PGanswermacros.pl>, L<UsingMathObjects>.
 
