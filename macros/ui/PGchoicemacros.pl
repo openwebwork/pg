@@ -608,7 +608,7 @@ general the using the list objects is likely to give better results and is
 preferred.
 
 
-=head2 qa() [DEPRECATED]
+=head2 qa [DEPRECATED]
 
  qa($questions, $answers, @new_qa);
 
@@ -628,7 +628,7 @@ sub qa {
 	}
 }
 
-=head2 invert() [DEPRECATED]
+=head2 invert [DEPRECATED]
 
  @b = invert(@a);
 
@@ -648,7 +648,7 @@ sub invert {
 	@out;
 }
 
-=head2  NchooseK() [DEPRECATED]
+=head2  NchooseK [DEPRECATED]
 
  @b = NchooseK($N, $K);
 
@@ -666,7 +666,7 @@ sub NchooseK {
 	return @return;
 }
 
-=head2  shuffle() [DEPRECATED]
+=head2  shuffle [DEPRECATED]
 
  @b = shuffle($i);
 
@@ -687,7 +687,7 @@ sub shuffle {
 	return @return;
 }
 
-=head2  match_questions_list() [DEPRECATED]
+=head2  match_questions_list [DEPRECATED]
 
 =cut
 
@@ -720,7 +720,7 @@ sub match_questions_list {
 	$out;
 }
 
-=head2 [DEPRECATED] match_questions_list_varbox()
+=head2 [DEPRECATED] match_questions_list_varbox
 
 =cut
 
