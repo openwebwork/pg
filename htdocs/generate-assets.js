@@ -2,7 +2,8 @@
 
 /* eslint-env node */
 
-const yargs = require('yargs');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 const chokidar = require('chokidar');
 const path = require('path');
 const { minify } = require('terser');
@@ -14,7 +15,7 @@ const postcss = require('postcss');
 const rtlcss = require('rtlcss');
 const cssMinify = require('cssnano');
 
-const argv = yargs
+const argv = yargs(hideBin(process.argv))
 	.usage('$0 Options')
 	.version(false)
 	.alias('help', 'h')
