@@ -14,7 +14,7 @@ B<Note:> by default, webwork problems do not permit students to use
 C(n,r) and P(n,r) functions.  Problems which do permit this
 should alert the student in their text.
 
-=head1 SYNOPSISS
+=head1 SYNOPSIS
 
     Context("IntegerFunctions")
 
