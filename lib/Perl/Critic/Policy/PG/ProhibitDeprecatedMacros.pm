@@ -7,7 +7,7 @@ use WeBWorK::PG::Critic::Utils qw(getDeprecatedMacros);
 
 use constant DESCRIPTION => 'The deprecated macro %s is loaded';
 use constant EXPLANATION => 'Remove this macro and replace methods used from this macro with modern alternatives.';
-use constant SCORE       => -10;
+use constant SCORE       => 10;
 
 sub supported_parameters ($) {return}
 sub default_severity ($)     { return $SEVERITY_HIGHEST }
