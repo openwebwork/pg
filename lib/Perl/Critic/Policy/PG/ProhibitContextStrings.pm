@@ -7,7 +7,7 @@ use WeBWorK::PG::Critic::Utils qw(getDeprecatedMacros);
 
 use constant DESCRIPTION => 'Context()->%s is called';
 use constant EXPLANATION => 'Context()->%s no longer necessary and should be removed.';
-use constant SCORE       => -5;
+use constant SCORE       => 5;
 
 sub supported_parameters ($) {return}
 sub default_severity ($)     { return $SEVERITY_HIGHEST }

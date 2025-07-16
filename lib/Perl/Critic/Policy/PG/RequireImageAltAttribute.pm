@@ -7,7 +7,7 @@ use WeBWorK::PG::Critic::Utils qw(parsePGMLBlock parseTextBlock);
 
 use constant DESCRIPTION => 'An image is missing the alt attribute';
 use constant EXPLANATION => 'Add an alt attribute that describes the image content.';
-use constant SCORE       => -10;
+use constant SCORE       => 10;
 
 sub supported_parameters ($) {return}
 sub default_severity ($)     { return $SEVERITY_HIGHEST }

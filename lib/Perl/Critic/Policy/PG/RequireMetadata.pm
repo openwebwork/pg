@@ -5,7 +5,7 @@ use Perl::Critic::Utils qw(:severities :classification :ppi);
 
 use constant DESCRIPTION       => 'The %s metadata tag is required';
 use constant EXPLANATION       => 'Include the required metadata tags at the beginning of the problem file.';
-use constant SCORE             => -5;
+use constant SCORE             => 5;
 use constant REQUIRED_METADATA => [ 'DBsubject', 'DBchapter', 'DBsection', 'KEYWORDS' ];
 
 sub supported_parameters ($) {return}
