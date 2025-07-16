@@ -5,7 +5,7 @@ use Perl::Critic::Utils qw(:severities :classification :ppi);
 
 use constant DESCRIPTION => 'The deprecated %s method is called';
 use constant EXPLANATION => 'Convert the answer into a MathObject and use the cmp method of the object.';
-use constant SCORE       => -55;
+use constant SCORE       => 55;
 
 use constant CMP_METHODS => {
 	str_cmp                         => 1,

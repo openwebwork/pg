@@ -7,7 +7,7 @@ use WeBWorK::PG::Critic::Utils qw(getDeprecatedMacros);
 
 use constant DESCRIPTION => 'The init_graph function from PGgraphmacros.pl is called';
 use constant EXPLANATION => 'PGgraphmacros.pl generates poor quality graphics. Consider using a modern alternative.';
-use constant SCORE       => -20;
+use constant SCORE       => 20;
 use constant SAMPLE_PROBLEMS => [
 	[ 'TikZ Graph Images'        => 'ProblemTechniques/TikZImages' ],
 	[ 'Inserting Images in PGML' => 'ProblemTechniques/Images' ],

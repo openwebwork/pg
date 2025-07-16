@@ -5,7 +5,7 @@ use Perl::Critic::Utils qw(:severities :classification :ppi);
 
 use constant DESCRIPTION => 'A solution is not included in this problem';
 use constant EXPLANATION => 'A solution should be included in all problems.';
-use constant SCORE       => -15;
+use constant SCORE       => 25;
 
 sub supported_parameters ($) {return}
 sub default_severity ($)     { return $SEVERITY_HIGHEST }

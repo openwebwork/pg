@@ -8,7 +8,7 @@ use WeBWorK::PG::Critic::Utils qw(getDeprecatedMacros);
 use constant DESCRIPTION => '$showPartialCorrectAnswers is set to 1';
 use constant EXPLANATION => 'The value of $showPartialCorrectAnswers is 1 by default, '
 	. 'so it should only ever be set to 0 to change the value.';
-use constant SCORE => -5;
+use constant SCORE => 5;
 
 sub supported_parameters ($) {return}
 sub default_severity ($)     { return $SEVERITY_HIGHEST }

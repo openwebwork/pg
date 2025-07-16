@@ -11,24 +11,22 @@ Analyze a pg file for use of old and current methods.
 
 =head2 critiquePGCode
 
-    my $results = critiquePGCode($code, $force = 0);
+    my @violations = critiquePGCode($code, $force = 0);
 
 Parses and critiques the given PG problem source provided in C<$code>. An array
-of "violations" that are found is returned.  Note that the elements of this
-return array are L<Perl::Critic::Violation> objects.  However, not all of these
-"violations" are bad.  Some are actually noting good things that are used in the
-source code for the problem. The C<explanation> method can be called for each
-element, and that will either return a string or a reference to a hash.  The
-string return type will occur for a violation of a default L<Perl::Critic::Policy>
-policy.  The last return type will occur with a C<Perl::Critic::Policy::PG>
-policy, and the hash will contain a C<score> key and an C<explanation> key
-containing the actual explanation.  If the C<score> is positive, then it is not
-actually a violation, but something good. In some cases the C<explanation>
-return hash will also contain the key C<sampleProblems> which will be a
-reference to an array each of whose entries will be a reference to a two element
-array whose first element is the title of a sample problem and whose second
-element is the path for that sample problem where the sample problem
-demonstrates a way to fix the policy violation.
+of violations that are found is returned.  Note that the elements of this return
+array are L<Perl::Critic::Violation> objects.  The C<explanation> method can be
+called for each element, and that will either return a string or a reference to
+a hash.  The string return type will occur for a violation of a default
+L<Perl::Critic::Policy> policy.  The last return type will occur with a
+C<Perl::Critic::Policy::PG> policy, and the hash will contain a C<score> key and
+an C<explanation> key containing the actual explanation. Note that the greater
+the score, the worse the violation is.  In some cases the C<explanation> return
+hash will also contain the key C<sampleProblems> which will be a reference to an
+array each of whose entries will be a reference to a two element array whose
+first element is the title of a sample problem and whose second element is the
+path for that sample problem where the sample problem demonstrates a way to fix
+the policy violation.
 
 Note that C<## no critic> annotations can be used in the code to disable a
 violation for a line or the entire file.  See L<"BENDING THE
@@ -38,10 +36,10 @@ policies are enforced regardless.
 
 =head2 critiquePGFile
 
-    my $results = critiquePGFile($file, $force);
+    my @violations = critiquePGFile($file, $force);
 
 This just executes C<critiquePGCode> on the contents of C<$file> and returns
-the result.
+the violations found.
 =cut
 
 package WeBWorK::PG::Critic;

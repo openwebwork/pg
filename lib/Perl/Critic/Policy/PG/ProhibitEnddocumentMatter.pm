@@ -5,7 +5,7 @@ use Perl::Critic::Utils qw(:severities :classification :ppi);
 
 use constant DESCRIPTION => 'There is content after the ENDDOCUMENT call';
 use constant EXPLANATION => 'Remove this content. The ENDDOCUMENT call should be at the end of the problem.';
-use constant SCORE       => -5;
+use constant SCORE       => 5;
 
 sub supported_parameters ($) {return}
 sub default_severity ($)     { return $SEVERITY_HIGHEST }
