@@ -49,6 +49,8 @@ use Mojo::File qw(path);
 use PPI;
 use Perl::Critic;
 
+require WeBWorK::PG::Translator;
+
 our @EXPORT_OK = qw(critiquePGFile critiquePGCode);
 
 sub critiquePGCode ($code, $force = 0) {
