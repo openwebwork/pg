@@ -20,6 +20,9 @@ Options:
                         include the details in the output for each file.
     -s|--strict         Disable "## no critic" annotations and force all
                         policies to be enforced.
+    -p|--pg-only        Only include PG critic policy violations and ignore
+                        general Perl critic policy violations (both for the
+                        score and display).
     -h|--help           Show the help message.
 
 =head1 DESCRIPTION
@@ -47,6 +50,7 @@ GetOptions(
 	'o|output-file=s' => \my $filename,
 	'n|no-details'    => \my $noDetails,
 	's|strict'        => \my $force,
+	'p|pg-only'       => \my $pgOnly,
 	'h|help'          => \my $show_help
 );
 pod2usage(2) if $show_help;
@@ -82,6 +86,7 @@ my @results;
 
 for (@ARGV) {
 	my @violations = critiquePGFile($_, $force);
+	@violations = grep { $_->policy =~ /^Perl::Critic::Policy::PG::/ } @violations if $pgOnly;
 
 	my (@pgCriticViolations, @perlCriticViolations);
 	if (!$noDetails) {
@@ -96,7 +101,10 @@ for (@ARGV) {
 			score => scoreProblem(@violations),
 			$noDetails
 			? ()
-			: (pgCriticViolations => \@pgCriticViolations, perlCriticViolations => \@perlCriticViolations)
+			: (
+				@pgCriticViolations   ? (pgCriticViolations   => \@pgCriticViolations)   : (),
+				@perlCriticViolations ? (perlCriticViolations => \@perlCriticViolations) : ()
+			)
 		}
 	);
 }
