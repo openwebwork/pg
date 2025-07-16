@@ -7,7 +7,7 @@ use WeBWorK::PG::Critic::Utils qw(getDeprecatedMacros);
 
 use constant DESCRIPTION => 'The deprecated %s function is called';
 use constant EXPLANATION => 'The deprecated %s function should be replaced with a modern alternative.';
-use constant SCORE       => -20;
+use constant SCORE       => 20;
 use constant SAMPLE_PROBLEMS => [
 	[ 'Multiple Choice with Checkbox'      => 'Misc/MultipleChoiceCheckbox' ],
 	[ 'Multiple Choice with Popup'         => 'Misc/MultipleChoicePopup' ],

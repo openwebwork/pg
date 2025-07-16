@@ -16,8 +16,8 @@ Options:
                         JavaScript Object Notation.
     -o|--output-file    Filename to write output to. If not provided output will
                         be printed to STDOUT.
-    -n|--no-details     Only show the filename and score and do not include the
-                        details in the output for each file.
+    -n|--no-details     Only show the filename and badness score and do not
+                        include the details in the output for each file.
     -s|--strict         Disable "## no critic" annotations and force all
                         policies to be enforced.
     -h|--help           Show the help message.
@@ -25,9 +25,9 @@ Options:
 =head1 DESCRIPTION
 
 C<pg-critic.pl> is a PG problem source code analyzer.  It is the executable
-front-end to the L<WeBWorK::PG::Critic> module, which attempts to identify
-usage of old or deprecated PG features, as well as usage of newer features and
-current best practices in coding a problem.
+front-end to the L<WeBWorK::PG::Critic> module, which attempts to identify usage
+of old or deprecated PG features and code that does not conform to current
+best-practices.
 
 =cut
 
@@ -70,9 +70,9 @@ sub scoreProblem (@violations) {
 		if ($_->policy =~ /^Perl::Critic::Policy::PG::/) {
 			$score += $_->explanation->{score} // 0;
 		} else {
-			# Deduct 5 points for any of the default Perl::Critic::Policy violations.
+			# Add 5 points for any of the default Perl::Critic::Policy violations.
 			# These will not have a score in the explanation.
-			$score -= 5;
+			$score += 5;
 		}
 	}
 	return $score;
@@ -83,13 +83,10 @@ my @results;
 for (@ARGV) {
 	my @violations = critiquePGFile($_, $force);
 
-	my (@positivePGResults, @negativePGResults, @perlCriticResults);
+	my (@pgCriticViolations, @perlCriticViolations);
 	if (!$noDetails) {
-		@positivePGResults =
-			grep { $_->policy =~ /^Perl::Critic::Policy::PG::/ && $_->explanation->{score} > 0 } @violations;
-		@negativePGResults =
-			grep { $_->policy =~ /^Perl::Critic::Policy::PG::/ && $_->explanation->{score} < 0 } @violations;
-		@perlCriticResults = grep { $_->policy !~ /^Perl::Critic::Policy::PG::/ } @violations;
+		@pgCriticViolations   = grep { $_->policy =~ /^Perl::Critic::Policy::PG::/ } @violations;
+		@perlCriticViolations = grep { $_->policy !~ /^Perl::Critic::Policy::PG::/ } @violations;
 	}
 
 	push(
@@ -99,11 +96,7 @@ for (@ARGV) {
 			score => scoreProblem(@violations),
 			$noDetails
 			? ()
-			: (
-				positivePGResults => \@positivePGResults,
-				negativePGResults => \@negativePGResults,
-				perlCriticResults => \@perlCriticResults
-			)
+			: (pgCriticViolations => \@pgCriticViolations, perlCriticViolations => \@perlCriticViolations)
 		}
 	);
 }
@@ -116,16 +109,13 @@ my $outputMethod = $format eq 'json' ? \&encode_json : sub {
 	return join(
 		"\n",
 		map { (
-			"filename: $_->{file}",
-			"score: $_->{score}",
-			@{ $_->{positivePGResults} // [] }
-			? ('positive pg critic results:', map { "\t" . $_->to_string } @{ $_->{positivePGResults} })
+			"Filename: $_->{file}",
+			"Score: $_->{score}",
+			@{ $_->{pgCriticViolations} // [] }
+			? ('PG critic violations:', map { "\t" . $_->to_string } @{ $_->{pgCriticViolations} })
 			: (),
-			@{ $_->{negativePGResults} // [] }
-			? ('negative pg critic results:', map { "\t" . $_->to_string } @{ $_->{negativePGResults} })
-			: (),
-			@{ $_->{perlCriticResults} // [] }
-			? ('perl critic results:', map { "\t" . $_->to_string } @{ $_->{perlCriticResults} })
+			@{ $_->{perlCriticViolations} // [] }
+			? ('Perl critic violations:', map { "\t" . $_->to_string } @{ $_->{perlCriticViolations} })
 			: ()
 		) } @$results
 	);

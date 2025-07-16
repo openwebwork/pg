@@ -6,7 +6,7 @@ use Perl::Critic::Utils qw(:severities :classification :ppi);
 use constant DESCRIPTION => 'A BEGIN_%1$s/END_%1$s block is used for problem text';
 use constant EXPLANATION => 'Load the macro PGML.pl and replace the BEGIN_%1$s/END_%1$s '
 	. 'block with a BEGIN_PGML%2$s/END_PGML%2$s block.';
-use constant SCORE => -10;
+use constant SCORE => 20;
 
 sub supported_parameters ($) {return}
 sub default_severity ($)     { return $SEVERITY_HIGHEST }
