@@ -61,7 +61,7 @@ use Env                 qw(PG_ROOT);
 
 use lib curfile->dirname->dirname->dirname->dirname->dirname->child('lib');
 
-require WeBWorK::PG::Translator;
+require Value;
 
 our @EXPORT_OK = qw(getDeprecatedMacros parsePGMLBlock parseTextBlock);
 
@@ -74,7 +74,12 @@ sub getDeprecatedMacros () {
 		{ map { $_->basename => 1 } @{ path($PG_ROOT)->child('macros', 'deprecated')->list } };
 }
 
+# Mock methods used by PGML.
 sub main::PG_restricted_eval ($code) { return $code; }
+sub main::loadMacros(@macros)        { return; }
+sub main::Context()                  { return; }
+
+do "$PG_ROOT/macros/core/PGML.pl";
 
 sub walkPGMLTree ($block, $results //= {}) {
 	for my $item (@{ $block->{stack} }) {
@@ -103,22 +108,7 @@ sub parsePGMLBlock (@lines) {
 	my $sourceHash = md5_sum(encode('UTF-8', $source));
 	return $processedBlocks{$sourceHash} if defined $processedBlocks{$sourceHash};
 
-	package main;    ## no critic (Modules::ProhibitMultiplePackages)
-
-	require WeBWorK::PG::Environment;
-	require WeBWorK::PG;
-	require PGcore;
-	require Parser;
-
-	$WeBWorK::PG::IO::pg_envir = WeBWorK::PG::Environment->new;
-	%main::envir               = %{ WeBWorK::PG::defineProblemEnvironment($WeBWorK::PG::IO::pg_envir) };
-
-	do "$ENV{PG_ROOT}/macros/PG.pl";
-
-	$main::PG = $main::PG = PGcore->new(\%main::envir);
-	loadMacros('PGML.pl');
-
-	$PGML::warningsFatal = $PGML::warningsFatal = 1;
+	PGML::ClearWarnings();
 	my $parser = eval { PGML::Parse->new($source =~ s/\\\\/\\/gr) };
 	return { errors => [$@] } if $@;
 
