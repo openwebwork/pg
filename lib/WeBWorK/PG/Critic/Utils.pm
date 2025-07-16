@@ -31,6 +31,9 @@ blocks found.
 If the PGML content or a block within fails to parse, then the return hash will
 contain the key C<errors> with a reference to an array of errors that occurred.
 
+Also if there are any warnings that occur in the parsing, those will be in the
+C<warnings> key of the return hash.
+
 =head2 parseTextBlock
 
     my $textElements = parseTextBlock(@lines);
@@ -110,9 +113,10 @@ sub parsePGMLBlock (@lines) {
 
 	PGML::ClearWarnings();
 	my $parser = eval { PGML::Parse->new($source =~ s/\\\\/\\/gr) };
-	return { errors => [$@] } if $@;
+	return { errors => [$@], warnings => \@PGML::warnings } if $@;
 
-	return $processedBlocks{$sourceHash} = WeBWorK::PG::Critic::Utils::walkPGMLTree($parser->{root});
+	return $processedBlocks{$sourceHash} =
+		WeBWorK::PG::Critic::Utils::walkPGMLTree($parser->{root}, { warnings => \@PGML::warnings });
 }
 
 # For now, only contents of \{ .. \} blocks are returned. Add other text elements as needed.
