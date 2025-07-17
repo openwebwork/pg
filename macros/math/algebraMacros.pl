@@ -11,9 +11,11 @@ sub _algebraMacros_init { }
 
 =head2 fyshuffle
 
- fisher-yates shuffle
- argument: reference to a list shuffles list in-place
- returns: nothing
+fisher-yates shuffle
+
+argument: reference to a list shuffles list in-place
+
+returns: nothing
 
 =cut
 

@@ -1,10 +1,3 @@
-
-=head1 NAME
-
-PGnauGraphics.pl - create matrices based on classes of graphs.
-
-=cut
-
 loadMacros("PGnauGraphics.pl",);
 
 ##################################################### Nandor
@@ -701,8 +694,6 @@ sub GReulertrail_size {
 
 	my ($i, @deg, $pic, $comp, $diff, $temp, $graph, @index, @lowdeg);
 
-	# Note: this was commented out using =pod.  Switching to comments.
-
 	#   for ($i = 0; $i < $size; $i++){
 	#     push @lowdeg, 2;
 	#   }
@@ -758,8 +749,6 @@ sub GRnoneuler_size {
 	}
 
 	@ans = (1, '');
-
-	# Again, the block below was commented out using =pod.  Switching to regular comments.
 
 	#   while ($graph eq 'DNE' || $ans == 1){
 	#     @deg = ();

@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGpolynomialmacros.pl - this macro contains routines use to create and manipulate polynomials.
+PGpolynomialmacros.pl - This macro contains routines use to create and manipulate polynomials.
 
 =head1 DESCRIPTION
 

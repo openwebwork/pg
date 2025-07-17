@@ -1,10 +1,3 @@
-
-=head1 NAME
-
-tableau_main_subroutines.pl
-
-=cut
-
 # subroutines included into the main:: package.
 
 package main;
