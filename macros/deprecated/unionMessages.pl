@@ -1,4 +1,3 @@
-
 sub _unionMessages_init { }
 
 loadMacros("unionMacros.pl");

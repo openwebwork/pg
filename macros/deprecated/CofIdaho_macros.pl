@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-CofIdaho_macros.pl - extra macros for Intermediate Algebra problems at The College of Idaho
+CofIdaho_macros.pl - Extra macros for Intermediate Algebra problems at The College of Idaho.
 
 =head1 SYNOPSIS
 
