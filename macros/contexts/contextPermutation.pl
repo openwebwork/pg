@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-contextPermutation - Provides contexts that allow the entry of cycles and permutations.
+contextPermutation.pl - Provides contexts that allow the entry of cycles and permutations.
 
 =head1 SYNOPSIS
 

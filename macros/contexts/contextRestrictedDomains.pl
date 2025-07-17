@@ -1,11 +1,9 @@
 
 =head1 NAME
 
-contextRestrictedDomains.pl - provide a way for students to enter formulas with a restricted domain.
+contextRestrictedDomains.pl - Provide a way for students to enter formulas with a restricted domain.
 
 =head1 DESCRIPTION
-
-
 
 =cut
 
