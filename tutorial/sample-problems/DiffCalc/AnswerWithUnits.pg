@@ -25,13 +25,15 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: First, set the variable for the functions in the problem to be t,
-#: and assign the units "seconds" to it.
+#: First select the "Units" context, allow units for  "length" and "time" in the
+#: context, and set the variable for functions in the context to be `t`.
+#:
+#: Then, assign the unit "seconds" to the variable `t`.
 #:
 #: Use the differentiation operator `->D('t')` to compute the derivated, and the
 #: evaluation method `->eval()` to evaluate it as a function. All of these will
 #: now have the expect units.
-Context()->variables->are(t => 'Real');
+Context('Units')->withUnitsFor('length', 'time')->variables->are(t => 'Real');
 Context()->assignUnits(t => 's');
 
 $v0 = random(16, 96, 16);
