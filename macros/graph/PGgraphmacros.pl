@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGgraphmacros.pl - provides functionality for plotting functions, points and adding labels.
+PGgraphmacros.pl - Provides functionality for plotting functions, points and adding labels.
 
 =head1 SYNOPSIS
 
@@ -250,8 +250,13 @@ sub init_graph_no_labels {
 
 =head2 plot_functions
 
-	Usage:  ($f1, $f2, $f3) = plot_functions($graph, $f1, $f2, $f3);
-	Synonym: add_functions($graph,$f1,$f2,$f3);
+Usage:
+
+    ($f1, $f2, $f3) = plot_functions($graph, $f1, $f2, $f3);
+
+Synonym:
+
+    ($f1, $f2, $f3) = add_functions($graph, $f1, $f2, $f3);
 
 Where $f1 is a string of the form
 
@@ -381,8 +386,10 @@ See the documentation in F<PGcore.pl> for the latest details.
 
 =head2  'Circle' lables
 
-	Usage: $circle_object = open_circle( $x_position, $y_position, $color );
-	        $circle_object2 = closed_circle( $x_position, $y_position, $color );
+Usage:
+
+    $circle_object = open_circle( $x_position, $y_position, $color );
+    $circle_object2 = closed_circle( $x_position, $y_position, $color );
 
 Creates a small open (resp. filled in or closed) circle for use as a stamp in marking graphs.
 For example
@@ -408,8 +415,9 @@ sub closed_circle {
 
 These are internal macros which govern the interpretation of equations.
 
-Usage: C<$string = my_math_constants($string)>
+Usage:
 
+    $string = my_math_constants($string)
     $subroutine_reference = string_to_sub($string)
 
 C<my_math_constants>
