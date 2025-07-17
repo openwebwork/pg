@@ -1,10 +1,3 @@
-
-=head1 NAME
-
-interpMacros.pl - provide a interpolation for a set of data.
-
-=cut
-
 sub interpVals {
 	$arrayLength  = ($#_) / 2;
 	@A_ARRAY      = @_[ 0 .. ($arrayLength - 1) ];

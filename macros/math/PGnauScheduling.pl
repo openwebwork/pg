@@ -1,10 +1,4 @@
 
-=head1 NAME
-
-PGnauScheduling.pl
-
-=cut
-
 #####################################################################
 #
 # Name : ListProcEval  (answer evaluator for the scheduling .pg files)

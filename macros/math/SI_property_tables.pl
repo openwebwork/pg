@@ -1,10 +1,3 @@
-
-=head1 NAME
-
-SI_property_tables.pl
-
-=cut
-
 # SI_property_tables.pl
 # Rename this file (with .pl extension) and place it in your course macros directory,
 

@@ -32,7 +32,8 @@ sub _PGmatrixmacros_init {
 
 =head2  display_matrix
 
-	Usage
+Usage:
+
 	       \{ display_matrix( [ [1, '\(\sin x\)'], [ans_rule(5), 6] ]) \}
 	       \{ display_matrix($A, align=>'crvl') \}
 	       \[ \{   display_matrix_mm($A)  \} \]

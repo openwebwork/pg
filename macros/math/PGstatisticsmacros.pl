@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGstatisticsmacros.pl - functions for calculating statistics measures.
+PGstatisticsmacros.pl - Functions for calculating statistics measures.
 
 =head1 FUNCTIONS
 
@@ -9,7 +9,9 @@ PGstatisticsmacros.pl - functions for calculating statistics measures.
 
 =pod
 
-	Usage: normal_prob(a, b, mean=>0, deviation=>1);
+Usage:
+
+    normal_prob(a, b, mean=>0, deviation=>1);
 
 Computes the probability of x being in the interval (a,b) for normal distribution.
 The first two arguments are required. Use '-infty' for negative infinity, and 'infty' or '+infty' for positive infinity.
@@ -78,7 +80,9 @@ sub normal_prob {
 "Inverse" of normal distribution
 
 
-	Usage: normal_distr(prob, mean=>0, deviation=>1);
+Usage:
+
+    normal_distr(prob, mean=>0, deviation=>1);
 
 Computes the positive number b such that the probability of x being in the interval (0,b)
 is equal to the given probability (first argument). The mean and deviation are
@@ -116,7 +120,9 @@ sub normal_distr {
 
 Mean function
 
-	Usage: stats_mean(@data);
+Usage:
+
+    stats_mean(@data);
 
 Computes the artihmetic mean of a list of numbers, data. You may also pass the numbers individually.
 
@@ -140,7 +146,9 @@ sub stats_mean {
 
 Standard Deviation function
 
-    Usage: stats_sd(@data);
+Usage:
+
+    stats_sd(@data);
 
 Computes the sample standard deviation of a list of numbers, data. You may also pass the numbers individually.
 
@@ -162,7 +170,9 @@ sub stats_sd {
 
 Sum and Sum of Squares
 
-    Usage: stats_SX_SXX(@data);
+Usage:
+
+    stats_SX_SXX(@data);
 
 Computes the sum of the numbers and the sum of the numbers squared.
 
@@ -215,7 +225,7 @@ sub significant_decimals {
 
 Function to generate normally distributed random numbers
 
-Usage
+Usage:
 
     urand(mean,sd,N,digits)
 
@@ -350,7 +360,7 @@ sub poissonrand {    # generate random, Poisson dist. numbers  Pois(lambda)
 
 Function to generate Binomial distributed random numbers
 
-Usage
+Usage:
 
     binomrand(p,N,num)
 
@@ -640,6 +650,7 @@ sub chisqrTable {    # Given a two-way frequency table calculates the chi-square
 Calc the results of a t-test.
 
 Usage:
+
     ($t,$df,$p) = t_test(t_test(mu,@data);                       # Perform a two-sided t-test.
     ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'right'});     # Perform a right sided t-test
     ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'left'});      # Perform a left sided t-test
@@ -718,9 +729,8 @@ sub t_test {
 
 Calc the results of a two sample t-test.
 
-
-
 Usage:
+
     ($t,$df,$p) = two_sample_t_test(\@data1,\@data2);                       # Perform a two-sided t-test.
     ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'right'});     # Perform a right sided t-test
     ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'left'});      # Perform a left sided t-test
@@ -818,7 +828,9 @@ sub two_sample_t_test {
 
 Create a CSV data file and make a link to it.
 
-Usage: C<insertDataLink($linkText, @dataRefs, $linkAttributes)>
+Usage:
+
+    insertDataLink($linkText, @dataRefs, $linkAttributes)
 
 Writes the given data to a CSV file and returns a link to the file.
 
@@ -875,6 +887,7 @@ sub insertDataLink {
 Five Point Summary function
 
 Usage:
+
     five_point_summary(@data);
     five_point_summary(@data,{method=>'includeMedian'});
     five_point_summary(@data,{method=>'proper'});
@@ -1124,7 +1137,7 @@ sub linear_regression {
 
 Function to calculate the frequencies for the factors in a given data set.
 
-Usage
+Usage:
 
     %freq = frequencies(@theData)
 

@@ -1,11 +1,14 @@
 
 =head1 NAME
 
-MatrixReduce.pl - reduced row echelon form, row operations, and elementary matrices.
+MatrixReduce.pl - Provides subroutines for elementary matrix computations using
+MathObjects matrices.
 
 =head1 DESCRIPTION
 
-Provides subroutines for elementary matrix computations using MathObjects matrices.
+Provides subroutines for elementary matrix computations using MathObjects
+matrices, such as finding the reduced row echelon form, performing row
+operations, and constructing elementary matrices.
 
 =over 12
 

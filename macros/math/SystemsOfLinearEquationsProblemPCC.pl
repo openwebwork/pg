@@ -1,12 +1,4 @@
 
-=encoding utf8
-
-=head1 NAME
-
-SystemOfLinearEquationsProblemPCC.pl - Gives feedback to users about solving linear systems.
-
-=cut
-
 loadMacros('PCCmacros.pl', 'contextFraction.pl');
 
 sub SystemOfLinearEquationsProblemSetup {

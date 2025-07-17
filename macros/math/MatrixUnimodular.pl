@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-MatrixUnimodular.pl - functions and checkers for Unimodular matrices.
+MatrixUnimodular.pl - Functions and checkers for Unimodular matrices.
 
 =cut
 
@@ -97,7 +97,7 @@ sub unimodular_SL2Z {
 	return ($a11, $a21, -($w[2]), $w[1]);
 }
 
-=head1 unimodular_GL2Z
+=head2 unimodular_GL2Z
 
 Unimodular 2x2 matrix in GL_2(Z)
 

@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PCCfactor.pl - provide some convenience routines for factoring quadratics.
+PCCfactor.pl - Provide some convenience routines for factoring quadratics.
 
 =head1 DESCRIPTION
 
