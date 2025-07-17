@@ -44,19 +44,19 @@ For example:
     $a = random(-2,2,.1);
 
     BEGIN_PGML
-    If [`f(x)=[$f]`] then [`f($a)`] =  [_]{$f->eval(x => $a)}
+    If [`f(x) = [$f]`] then [`f($a)`] = [_]{$f->eval(x => $a)}
     END_PGML
 
 Normally when you use a piecewise function at the end of a sentence,
 the period is placed at the end of the last case.  Since
 
-    [` f(x) = $f `].
+    [`f(x) = $f`].
 
 would put the period centered at the right-hand side of the function,
 this is not what is desired.  To get a period at the end of the last
 case, use
 
-    [` f(x) = [@ $f->with(final_period=>1) @] `]
+    [`f(x) = [@ $f->with(final_period => 1) @]`]
 
 instead.
 

@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-contextLimitedRadical.pl - defines a root(n,x) function for n-th root of x, and
+contextLimitedRadical.pl - Defines a root(n,x) function for n-th root of x, and
 allows for specification of forms of radical answers, like simplified radicals or
 with rational denominators
 

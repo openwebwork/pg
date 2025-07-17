@@ -5,8 +5,8 @@ contextFunctionAssign.pl - allow an answer to have an function or variable assig
 
 =head1 DESCRIPTION
 
-This allows a answer to be a function or variable assignment change the error
-message to be more specific for a function.
+This allows an answer to be a function or variable assignment, and changes the
+error message to be more specific for a function.
 
 =cut
 

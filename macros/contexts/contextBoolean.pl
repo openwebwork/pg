@@ -5,7 +5,7 @@ contextBoolean.pl - Implements a MathObject class for Boolean expressions
 
 =head1 DESCRIPTION
 
-This macro provides functionality to handle boolean expression
+This macro provides functionality for handling boolean expressions.
 
 =head1 SYNOPSIS
 
@@ -70,7 +70,7 @@ to be negated.
 
 =back
 
-=head2 Operator Precedence
+=head1 OPERATOR PRECEDENCE
 
 =over
 
@@ -90,7 +90,7 @@ The C<oxan> setting priortizes C<or> < C<xor> < C<and> < C<not>.
 
 =back
 
-=head2 Reduction Rules
+=head1 REDUCTION RULES
 
 The context also handles C<reduceConstants> with the following reduction rules:
 
@@ -118,7 +118,7 @@ The context also handles C<reduceConstants> with the following reduction rules:
 
 =back
 
-=head2 Comparison
+=head1 COMPARISON
 
 Boolean Formula objects are considered equal whenever the two expressions generate the same truth table.
 

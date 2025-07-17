@@ -1,11 +1,11 @@
 
 =head1 NAME
 
-contextInequalitiesAllowStrings.pl -- allows use of R, the set of real numbers, in intervals.
+contextInequalitiesAllowStrings.pl - Allows use of R, the set of real numbers, in intervals.
 
 =head1 DESCRIPTION
 
-Allows string answers for the set of real numbers and the empty set
+Allows string answers for the set of real numbers and the empty set.
 
 =cut
 

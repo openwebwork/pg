@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-contextRationalExponent.pl - allows the requirement of simplified rational exponent answers.
+contextRationalExponent.pl - Allows the requirement of simplified rational exponent answers.
 May be a misnomer since nothing requires exponents to be rational.
 
 =head1 DESCRIPTION
