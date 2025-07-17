@@ -18,7 +18,7 @@ sub NoSourceButton {
 
 =head1 NAME
 
-source.pl - allow the source of the problem to be shown.
+source.pl - Allow the source of the problem to be shown.
 
 =head1 DESCRIPTION
 

@@ -29,8 +29,6 @@ for space-saving purposes. Ask yourself if there is any meaningful
 relation between content cells within a column or within a row. If the
 answer is no in both cases, it is likely a case for C<LayoutTable()>.
 
-
-
 Command for a typical table:
 
     DataTable(

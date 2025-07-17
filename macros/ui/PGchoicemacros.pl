@@ -71,7 +71,7 @@ choice question.
 =head1 SEE ALSO
 
 Much of the functionality can also be recreated with newer macros:  L<parserPopUp.pl>,
-L<parserCheckboxList.pl>, L<parserRadioButtons.pl>, L<parserRadioMultiAnswer.pl>
+L<parserCheckboxList.pl>, L<parserRadioButtons.pl>
 
 =cut
 
@@ -79,14 +79,11 @@ BEGIN { strict->import; }
 
 loadMacros('PGauxiliaryFunctions.pl');
 
-package main;
 sub _PGchoicemacros_init { }
 
 =head1 FUNCTIONS
 
 =head2 new_match_list
-
-Usage:
 
     $ml = new_match_list();
 
@@ -142,8 +139,6 @@ sub new_select_list {
 }
 
 =head2 new_pop_up_select_list
-
-Usage:
 
     $sl = new_pop_up_select_list();
 
@@ -648,7 +643,7 @@ sub invert {
 	@out;
 }
 
-=head2  NchooseK [DEPRECATED]
+=head2 NchooseK [DEPRECATED]
 
  @b = NchooseK($N, $K);
 
@@ -666,7 +661,7 @@ sub NchooseK {
 	return @return;
 }
 
-=head2  shuffle [DEPRECATED]
+=head2 shuffle [DEPRECATED]
 
  @b = shuffle($i);
 
@@ -687,7 +682,7 @@ sub shuffle {
 	return @return;
 }
 
-=head2  match_questions_list [DEPRECATED]
+=head2 match_questions_list [DEPRECATED]
 
 =cut
 
