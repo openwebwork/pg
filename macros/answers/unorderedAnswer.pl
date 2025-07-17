@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-unorderedAnswer.pl - allow the answers to be checked independent of order
+unorderedAnswer.pl - Allow the answers to be checked independent of order.
 
 =head1 SYNOPSIS
 

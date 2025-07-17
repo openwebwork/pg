@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-answerHints.pl - provides methods for answer hints
+answerHints.pl - Provides methods for answer hints.
 
 =head1 DESCRIPTION
 

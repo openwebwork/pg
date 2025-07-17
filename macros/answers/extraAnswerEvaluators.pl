@@ -6,7 +6,7 @@ and lists of points.
 
 =head1 DESCRIPTION
 
-This is a list of macros that create "answer evaluators" for checking student
+This is a list of functions that create "answer evaluators" for checking student
 answers of various "exotic" types.
 
 =head1 SYNOPSIS

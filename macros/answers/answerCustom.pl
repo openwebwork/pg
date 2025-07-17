@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-answerCustom.pl - provides custom answer checkers
+answerCustom.pl - Provides custom answer checkers.
 
 =cut
 

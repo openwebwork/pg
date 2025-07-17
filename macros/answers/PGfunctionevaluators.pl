@@ -1,6 +1,4 @@
 
-## Note: this should be decprecated
-
 =head1 NAME
 
 PGfunctionevaluators.pl - Macros that generate function answer evaluators.
