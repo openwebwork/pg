@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGgraphgrid.pl - provides functionality for plotting a grid on a graph.
+PGgraphgrid.pl - Provides functionality for plotting a grid on a graph.
 
 =head1 SYNOPSIS
 
