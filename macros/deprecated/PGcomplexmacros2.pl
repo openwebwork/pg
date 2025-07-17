@@ -1,11 +1,10 @@
-
 # This file     is PGcomplexmacros2.pl
 # This includes the subroutines for the ANS macros, that
 # is, macros allowing a more flexible answer checking
 
 =head1 NAME
 
-PGcomplexmacros2.pl - More macros for handling multivalued functions of a complex variable
+PGcomplexmacros2.pl - More macros for handling multivalued functions of a complex variable.
 
 =cut
 

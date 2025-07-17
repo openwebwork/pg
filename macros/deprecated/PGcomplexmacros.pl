@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGcomplexmacros.pl - Macros for complex numbers for the PG language
+PGcomplexmacros.pl - Macros for complex numbers for the PG language.
 
 =cut
 
