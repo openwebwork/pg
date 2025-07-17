@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGcommonFunctions.pl - common mathematical functions used in PG problems.
+PGcommonFunctions.pl - Common mathematical functions used in PG problems.
 
 =head1 DESCRIPTION
 

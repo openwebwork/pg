@@ -1,4 +1,3 @@
-
 # FIXME TODO:
 # Document and maybe split out: filters, graders, utilities
 
@@ -1706,8 +1705,9 @@ sub avg_problem_grader {
 
 =head3 C<pretty_print>
 
-Usage: C<warn pretty_print( $rh_hash_input)>
+Usage:
 
+    warn pretty_print($rh_hash_input);
     TEXT(pretty_print($ans_hash));
     TEXT(~~%envir);
 
