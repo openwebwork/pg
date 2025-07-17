@@ -325,7 +325,7 @@ sub _plotly3D_init {
 package plotly3D;
 
 sub new {
-	my $self  = shift;
+	my ($self, @options) = @_;
 	my $class = ref($self) || $self;
 
 	$self = bless {
@@ -340,7 +340,7 @@ sub new {
 		image      => '',
 		tex_size   => 500,
 		tex_border => 1,
-		@_,
+		@options,
 	}, $class;
 
 	return $self;
@@ -350,11 +350,7 @@ sub addSurface { push(@{ shift->{plots} }, plotly3D::Plot::Surface->new(@_)); }
 sub addCurve   { push(@{ shift->{plots} }, plotly3D::Plot::Curve->new(@_)); }
 
 sub addFunction {
-	my $self = shift;
-	my $func = shift;
-	my $b1   = shift;
-	my $b2   = shift;
-	my %opts = @_;
+	my ($self, $func, $b1, $b2, %opts) = @_;
 	my @vars = ($opts{variables}) ? @{ $opts{variables} } : ('x', 'y');
 	my $type = $opts{funcType} || '';
 	if ($type eq 'perl') {
@@ -390,7 +386,7 @@ sub HTML {
 	my $plots = '';
 	my $scene = ($self->{scene}) ? "scene: { $self->{scene} }," : '';
 
-	foreach (@{ $self->{plots} }) {
+	for (@{ $self->{plots} }) {
 		$plots .= $_->HTML;
 	}
 	$plots =~ s/^\t//;
@@ -446,21 +442,19 @@ sub Print {
 package plotly3D::Plot;
 
 sub cmpBounds {
-	my $self   = shift;
-	my $bounds = shift;
+	my ($self, $bounds, $count) = @_;
 	Value::Error('Bounds must be an array with two or three items.')
 		unless (ref($bounds) eq 'ARRAY' && scalar(@$bounds) > 1);
 
-	my ($min, $max, $count) = @$bounds;
-	$count = shift unless $count;
+	my ($min, $max, $count2) = @$bounds;
+	$count = $count2 if $count2;
 	my $step = ($max - $min) / $count;
 	$max += $step / 2;    # Fudge factor to deal with rounding issues.
 	return ($min, $max, $step);
 }
 
 sub parseFunc {
-	my $self = shift;
-	my $func = shift;
+	my ($self, $func, $bounds1, $bounds2) = @_;
 	Value::Error('First input must be an array with three items.')
 		unless (ref($func) eq 'ARRAY' && scalar(@$func) == 3);
 
@@ -469,10 +463,10 @@ sub parseFunc {
 	} else {
 		($self->{xFunc}, $self->{yFunc}, $self->{zFunc}) = @$func;
 		if ($self->{nVars} == 2) {
-			($self->{uMin}, $self->{uMax}, $self->{uStep}) = $self->cmpBounds(shift, 20);
-			($self->{vMin}, $self->{vMax}, $self->{vStep}) = $self->cmpBounds(shift, 20);
+			($self->{uMin}, $self->{uMax}, $self->{uStep}) = $self->cmpBounds($bounds1, 20);
+			($self->{vMin}, $self->{vMax}, $self->{vStep}) = $self->cmpBounds($bounds2, 20);
 		} else {
-			($self->{tMin}, $self->{tMax}, $self->{tStep}) = $self->cmpBounds(shift, 100);
+			($self->{tMin}, $self->{tMax}, $self->{tStep}) = $self->cmpBounds($bounds1, 100);
 		}
 	}
 }
@@ -485,7 +479,7 @@ sub genPoints {
 		# Manual data plot, nothing to do.
 	} elsif ($type eq 'jsmd' || $type eq 'js') {
 		if ($type eq 'jsmd') {
-			foreach ('xFunc', 'yFunc', 'zFunc') {
+			for ('xFunc', 'yFunc', 'zFunc') {
 				$self->{$_} = $self->funcToJS($self->{$_});
 			}
 		}
@@ -501,8 +495,7 @@ sub genPoints {
 
 # Takes a pseudo function string and replaces with JavaScript functions.
 sub funcToJS {
-	my $self   = shift;
-	my $func   = shift;
+	my ($self, $func) = @_;
 	my %vars   = map { $_ => $_ } @{ $self->{variables} };
 	my %tokens = (
 		sqrt    => 'Math.sqrt',
@@ -653,10 +646,9 @@ package plotly3D::Plot::Surface;
 our @ISA = ('plotly3D::Plot');
 
 sub new {
-	my $self    = shift;
-	my $data    = shift;
-	my $uBounds = (ref($_[0]) eq 'ARRAY') ? shift : '';
-	my $vBounds = (ref($_[0]) eq 'ARRAY') ? shift : '';
+	my ($self, $data, @options) = @_;
+	my $uBounds = (ref($options[0]) eq 'ARRAY') ? shift @options : '';
+	my $vBounds = (ref($options[0]) eq 'ARRAY') ? shift @options : '';
 	my $class   = ref($self) || $self;
 
 	$self = bless {
@@ -666,7 +658,7 @@ sub new {
 		opacity    => 1,
 		variables  => [ 'u', 'v' ],
 		nVars      => 2,
-		@_,
+		@options,
 	}, $class;
 	$self->parseFunc($data, $uBounds, $vBounds);
 
@@ -697,9 +689,8 @@ package plotly3D::Plot::Curve;
 our @ISA = ('plotly3D::Plot');
 
 sub new {
-	my $self    = shift;
-	my $data    = shift;
-	my $tBounds = (ref($_[0]) eq 'ARRAY') ? shift : '';
+	my ($self, $data, @options) = @_;
+	my $tBounds = (ref($options[0]) eq 'ARRAY') ? shift @options : '';
 	my $class   = ref($self) || $self;
 
 	$self = bless {
@@ -710,7 +701,7 @@ sub new {
 		opacity    => 1,
 		variables  => ['t'],
 		nVars      => 1,
-		@_,
+		@options,
 	}, $class;
 	$self->parseFunc($data, $tBounds);
 
