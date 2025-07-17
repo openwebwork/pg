@@ -5,9 +5,7 @@ Value.pl - Declares constructors for MathObjects
 
 =head1 DESCRIPTION
 
-Declares constructors for MathObjects
-
-=head2 DESCRIPTION
+Declares constructors for various MathObject types.
 
 MathObjects are objects which behave much like you would expect
 their true mathematical counterparts to behave.

@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGbasicmacros.pl - set of basic functions and constants for PG problems.
+PGbasicmacros.pl - A set of basic functions and constants for PG problems.
 
 =head1 DESCRIPTION
 
@@ -782,19 +782,21 @@ sub pop_up_list {
 
 =head2  answer_matrix
 
-    Usage   \[ \{ answer_matrix(rows, columns, width_of_ans_rule, @options) \} \]
+Usage:
 
-    Creates an array of answer blanks and passes it to display_matrix which returns
-    text which represents the matrix in TeX format used in math display mode. Answers
-    are then passed back to whatever answer evaluators you write at the end of the problem.
-    (note, if you have an m x n matrix, you will need mn answer evaluators, and they will be
-    returned to the evaluaters starting in the top left hand corner and proceed to the left
-    and then at the end moving down one row, just as you would read them.)
+    \[ \{ answer_matrix(rows, columns, width_of_ans_rule, @options) \} \]
 
-    The options are passed on to display_matrix.
+Creates an array of answer blanks and passes it to display_matrix which returns
+text which represents the matrix in TeX format used in math display mode. Answers
+are then passed back to whatever answer evaluators you write at the end of the problem.
+(note, if you have an m x n matrix, you will need mn answer evaluators, and they will be
+returned to the evaluaters starting in the top left hand corner and proceed to the left
+and then at the end moving down one row, just as you would read them.)
 
-    Note (7/21/2017) The above usage does not work. Omitting the \[ \] works, but also must
-    load PGmatrixmacros.pl to get display_matrix used below
+The options are passed on to display_matrix.
+
+Note (7/21/2017) The above usage does not work. Omitting the \[ \] works, but also must
+load PGmatrixmacros.pl to get display_matrix used below
 
 =cut
 
@@ -1062,7 +1064,8 @@ sub COMMENT {
 
 =head2 Pseudo-random number generator
 
-    Usage:
+Usage:
+
     random(0, 5, .1)          # produces a random number between 0 and 5 in increments of .1
     non_zero_random(0, 5, .1) # gives a non-zero random number
 
@@ -1383,46 +1386,49 @@ sub APOS    { MODES(TeX => "'",       HTML => "'",                     PTX => "\
 ###############################################################
 
 =head2 SPAN and DIV macros
-        These are functions primarly meant to add
-            HTML block level DIV or inline SPAN
-        tags and the relevant closing tags for HTML output.
 
-        At present, these macros require the user to provide TeX and
-        preTeXt strings which will be used in those modes instead of the
-        HTML block level DIV or inline SPAN tag.
+These are functions primarly meant to add
+HTML block level DIV or inline SPAN
+tags and the relevant closing tags for HTML output.
 
-        If they are missing, they will default to the empty string.
-        If only one string is given, it will be assumed to be the TeX string.
+At present, these macros require the user to provide TeX and
+preTeXt strings which will be used in those modes instead of the
+HTML block level DIV or inline SPAN tag.
 
-        At present only the following 4 HTML attributes can be set:
-                         lang, dir, class, style.
-        Using the style option requires creating valid CSS text.
-        For safety some parsing/cleanup is done and various sorts of
-        (apparently) invalid values may be dropped. See the code for
-        details of what input sanitation is done.
+If they are missing, they will default to the empty string.
+If only one string is given, it will be assumed to be the TeX string.
 
-        Since the use of style is particularly dangerous, in order to
-        enable its use you must set allowStyle to 1 in the hash. It is
-        possible to prevent the use of some of the other options by
-        setting certain control like allowLang to 0.
+At present only the following 4 HTML attributes can be set:
+                 lang, dir, class, style.
+Using the style option requires creating valid CSS text.
+For safety some parsing/cleanup is done and various sorts of
+(apparently) invalid values may be dropped. See the code for
+details of what input sanitation is done.
 
-    Usage:
-          openSpan( options_hash,  "tex code", "ptx code" );
-          closeSpan("tex code", "ptx code");
+Since the use of style is particularly dangerous, in order to
+enable its use you must set allowStyle to 1 in the hash. It is
+possible to prevent the use of some of the other options by
+setting certain control like allowLang to 0.
 
-        Usage where TeX and PTX output will be empty by default.
-          openSpan( options_hash );
-          closeSpan();
+Usage:
 
-        Sample options hashes
+    openSpan( options_hash,  "tex code", "ptx code" );
+    closeSpan("tex code", "ptx code");
 
-            { "lang" => "he",
-              "dir" => "rtl",
-              "class" => "largeText class123" }
+Usage where TeX and PTX output will be empty by default:
 
-            { "lang" => "he",
-              "allowStyle" => 1,
-               "style" => "background-color: \"#afafaf; float: left;\t height: 12px;" }
+    openSpan( options_hash );
+    closeSpan();
+
+Sample options hashes
+
+    { "lang" => "he",
+      "dir" => "rtl",
+      "class" => "largeText class123" }
+
+    { "lang" => "he",
+      "allowStyle" => 1,
+       "style" => "background-color: \"#afafaf; float: left;\t height: 12px;" }
 
 =cut
 
@@ -1625,14 +1631,16 @@ sub closeDiv {
 
 =head2 TEXT macros
 
-    Usage:
+Usage:
+
         TEXT(@text);
 
 This is the simplest way to print text from a problem.  The strings in the array C<@text> are concatenated
 with spaces between them and printed out in the text of the problem.  The text is not processed in any other way.
 C<TEXT> is defined in PG.pl.
 
-    Usage:
+Usage:
+
         BEGIN_TEXT
             text.....
         END_TEXT
@@ -1755,7 +1763,7 @@ of the formula.
 
 The resulting string is output (and usually fed into TEXT to be printed in the problem).
 
-    Usage:
+Usage:
 
         $string2 = FEQ($string1);
 
@@ -2345,7 +2353,9 @@ sub OL {
 
 =head2 htmlLink
 
-Usage: C<htmlLink($url, $text, @attributes)>
+Usage:
+
+    htmlLink($url, $text, @attributes)
 
 Places an HTML link to C<$url> with the specified C<$text> in the problem. The
 C<@attributes> are optional.  They should be provided as attribute/value pairs,
@@ -2376,7 +2386,9 @@ sub htmlLink {
 Inserts a knowl link into the problem.  Usually you should not call this method
 directly.  Instead use C<helpLink> below.
 
-Usage: C<knowlLink($displayText, %options)>
+Usage:
+
+    knowlLink($displayText, %options)
 
 C<$display_text> is the text that will be shown for the link.
 
@@ -2456,7 +2468,9 @@ sub iframe {
 
 =head2 helpLink
 
-Usage: C<helpLink($type, $display_text, $helpurl)>
+Usage:
+
+    helpLink($type, $display_text, $helpurl)
 
 Creates links for students to help documentation on formatting answers and
 allows for custom help links.
@@ -2607,7 +2621,8 @@ sub PGsort {
 
 =head2  Sorting and other list macros
 
-    Usage:
+Usage:
+
     lex_sort(@list);   # outputs list in lexigraphic (alphabetical) order
     num_sort(@list);   # outputs list in numerical order
     uniq( @list);      # outputs a list with no duplicates.  Order is unspecified.
@@ -2641,6 +2656,7 @@ sub num_sort {
 B<< Note: that these are deprecated.  See L<nicetables.pl> for a replacement. >>
 
 Usage:
+
     begintable( number_of_columns_in_table)
     row(@dataelements)
     endtable()

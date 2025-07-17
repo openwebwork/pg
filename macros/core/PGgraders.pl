@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGgraders.pl - provides a set of basic graders.
+PGgraders.pl - Provides a set of basic graders.
 
 =head1 DESCRIPTION
 
