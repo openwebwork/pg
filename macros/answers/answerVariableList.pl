@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-answerVariableList.pl - answer checker for list of variables
+answerVariableList.pl - Answer checker for a list of variables.
 
 =head1 DESCRIPTION
 

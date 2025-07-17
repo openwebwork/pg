@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-Generic.pl - provide some generic answer checkers.
+Generic.pl - Provide some generic answer checkers.
 
 =head1 DESCRIPTION
 

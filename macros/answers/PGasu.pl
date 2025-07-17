@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGasu.pl -- A set of macros for old school answer checkers.
+PGasu.pl - A set of macros for old school answer checkers.
 
 =head1 DESCRIPTION
 
