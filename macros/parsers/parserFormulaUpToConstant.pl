@@ -91,44 +91,45 @@ sub Init {
 	main::PG_restricted_eval('sub FormulaUpToConstant {FormulaUpToConstant->new(@_)}');
 }
 
+#
 #  Create an instance of a FormulaUpToConstant.  If no constant
 #  is supplied, we add C ourselves.
-
+#
 sub new {
 	my $self  = shift;
 	my $class = ref($self) || $self;
-
+	#
 	#  Copy the context (so we can modify it) and
 	#  replace the usual Variable object with our own.
-
+	#
 	my $context = (Value::isContext($_[0]) ? shift : $self->context)->copy;
 	$context->{parser}{Variable} = 'FormulaUpToConstant::Variable';
-
+	#
 	#  Create a formula from the user's input.
-
+	#
 	my $f = main::Formula($context, @_);
-
+	#
 	#  If it doesn't have a constant already, add one.
 	#  (should check that C isn't already in use, and look
 	#   up the first free name, but we'll cross our fingers
 	#   for now.  Could look through the defined variables
 	#   to see if there is already an arbitraryConstant
 	#   and use that.)
-
+	#
 	unless ($f->{constant}) { $f = $f + "C", $f->{constant} = "C" }
-
+	#
 	#  Check that the formula is linear in C.
-
+	#
 	my $n = $f->D($f->{constant});
 	Value->Error("Your formula isn't linear in the arbitrary constant '%s'", $f->{constant})
 		unless $n->isConstant;
-
+	#
 	#  Make a version with adaptive parameters for use in the
 	#  comparison later on.  We would like n00*C, but already have $n
 	#  copies of C, so remove them.  That way, n00 will be 0 when there
 	#  are no C's in the student answer during the adaptive comparison.
 	#  (Again, should really check that n00 is not in use already)
-
+	#
 	my $n00 = $context->variables->get("n00");
 	$context->variables->add(n00 => 'Parameter') unless $n00 and $n00->{parameter};
 	my $n01 = $context->variables->get("n01");
@@ -138,30 +139,33 @@ sub new {
 	return bless $f, $class;
 }
 
+##################################################
+#
 #  Remember that compare implements the overloaded perl <=> operator,
 #  and $a <=> $b is -1 when $a < $b, 0 when $a == $b and 1 when $a > $b.
 #  In our case, we only care about equality, so we will return 0 when
 #  equal and other numbers to indicate the reason they are not equal
 #  (this can be used by the answer checker to print helpful messages)
-
+#
 sub compare {
 	my ($l, $r) = @_;
 	my $self    = $l;
 	my $context = $self->context;
 	$r = Value::makeValue($r, context => $context) unless Value::isValue($r);
-
+	#
 	#  Not equal if the student value is constant or has no + C
-
+	#
 	return 2 if !Value::isFormula($r);
 	return 3 if !defined($r->{constant});
-
+	#
 	#  If constants aren't the same, substitute the professor's in the student answer.
-
+	#
 	$r = $r->substitute($r->{constant} => $l->{constant}) unless $r->{constant} eq $l->{constant};
 	$r->context($context)                                 unless $r->context == $context;
 
+	#
 	#  Compare with adaptive parameters to see if $l + n00 C = $r for some n0.
-
+	#
 	my $adapt = $l->adapt;
 	my $equal = ($adapt == $r);
 	$self->{adapt}              = $self->{adapt}->inherit($adapt);    # save the adapted value's flags
@@ -169,23 +173,25 @@ sub compare {
 	$self->{adapt}{test_adapt}  = $adapt->{test_adapt};
 	$_[1]->{test_values}        = $r->{test_values};                  # save these in student answer for diagnostics
 	return -1 unless $equal;
-
+	#
 	#  Check that n00 is non-zero (i.e., there is a multiple of C in the student answer)
 	#  (remember: return value of 0 is equal, and non-zero is unequal)
-
+	#
 	return (abs($context->variables->get("n00")->{value}) < $context->flag("zeroLevelTol") ? 1 : 0);
 }
 
+#
 #  Return the {adapt} formula with test points adjusted
-
+#
 sub adapt {
 	my $self = shift;
 	return $self->adjustInherit($self->{adapt});
 }
 
+#
 #  Inherit from the main FormulaUpToConstant, but
 #  adjust the test points to include the constants
-
+#
 sub adjustInherit {
 	my $self = shift;
 	my $f    = shift->inherit($self);
@@ -203,9 +209,10 @@ sub adjustInherit {
 	return $f;
 }
 
+#
 #  Insert dummy values for the constants for the test points
 #  (These are supposed to be +C, so the value shouldn't matter?)
-
+#
 sub addConstants {
 	my $self      = shift;
 	my $points    = shift;
@@ -230,18 +237,23 @@ sub addConstants {
 	return $Points;
 }
 
+##################################################
+#
 #  Here we override part of the answer comparison
 #  routines in order to be able to generate
 #  helpful error messages for students when
 #  they leave off the + C.
+#
 
+#
 #  Show hints by default
-
+#
 sub cmp_defaults { ((shift)->SUPER::cmp_defaults, showHints => 1, showLinearityHints => 1) }
 
+#
 #  Provide diagnostics based on the adapted function used to check
 #  the student's answer
-
+#
 sub cmp_diagnostics {
 	my $self  = shift;
 	my $adapt = $self->inherit($self->{adapt});
@@ -250,9 +262,10 @@ sub cmp_diagnostics {
 	$adapt->SUPER::cmp_diagnostics(@_);
 }
 
+#
 #  Make it possible to graph single-variable formulas by setting
 #  the arbitrary constants to 0 first.
-
+#
 sub cmp_graph {
 	my $self        = shift;
 	my $diagnostics = shift;
@@ -269,8 +282,9 @@ sub cmp_graph {
 	$self->SUPER::cmp_graph($diagnostics, [ $F1, $F2 ]);
 }
 
+#
 #  Add useful messages, if the author requested them
-
+#
 sub cmp_postprocess {
 	my $self = shift;
 	my $ans  = shift;
@@ -296,39 +310,46 @@ sub cmp_postprocess {
 		if $result == -1 && $self->getFlag("showLinearityHints") && !$student->D($student->{constant})->isConstant;
 }
 
+#
 #  Don't perform equivalence check
-
+#
 sub cmp_postfilter {
 	my $self = shift;
 	return shift;
 }
 
+##################################################
+#
 #  Get the name of the constant
-
+#
 sub constant { (shift)->{constant} }
 
+#
 #  Remove the constant and return a Formula object
-
+#
 sub removeConstant {
 	my $self = shift;
 	return $self->adjustInherit(main::Formula($self->substitute($self->{constant} => 0))->reduce);
 }
 
+#
 #  Override the differentiation so that we always return
 #  a Formula, not a FormulaUpToConstant (we don't want to
 #  add the C in again).
-
+#
 sub D {
 	my $self = shift;
 	$self->removeConstant->D(@_);
 }
 
+######################################################################
+#
 #  This class replaces the Parser::Variable class, and its job
 #  is to look for new constants that aren't in the context,
 #  and add them in.  This allows students to use ANY constant
 #  they want, and a different one from the professor.  We check
 #  that the student only used ONE arbitrary constant, however.
-
+#
 package FormulaUpToConstant::Variable;
 our @ISA = ('Parser::Variable');
 
@@ -339,28 +360,28 @@ sub new {
 	my $variables = $equation->{context}{variables};
 	my ($name, $ref) = @_;
 	my $def = $variables->{$name};
-
+	#
 	#  If the variable is not already in the context, add it
 	#    and mark it as an arbitrary constant (for later reference)
-
+	#
 	if (!defined($def) && length($name) eq 1) {
 		$equation->{context}->variables->add($name => 'Real');
 		$equation->{context}->variables->set($name => { arbitraryConstant => 1 });
 		$def = $variables->{$name};
 	}
-
+	#
 	#  If the variable is an arbitrary constant
 	#    Error if we already have a constant and it's not this one.
 	#    Save the constant so we can check with it later.
-
+	#
 	if ($def && $def->{arbitraryConstant}) {
 		$equation->Error(["Your formula shouldn't have two arbitrary constants"], $ref)
 			if $equation->{constant} and $name ne $equation->{constant};
 		$equation->{constant} = $name;
 	}
-
+	#
 	#  Do the usual Variable stuff.
-
+	#
 	$self->SUPER::new($equation, $name, $ref);
 }
 
