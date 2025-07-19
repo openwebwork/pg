@@ -78,7 +78,10 @@ loadMacros('MathObjects.pl');
 
 sub _parserLinearRelation_init { LinearRelation::Init() };    # don't reload this file
 
+##################################################
+#
 #  Initialize the contexts and make the creator function.
+#
 
 package LinearRelation;
 our @ISA = qw(Value::Formula);
@@ -221,9 +224,10 @@ sub new {
 	return bless $plane, $class;
 }
 
+#
 #  If the vectors are zero, check if true or false
 #  If the vectors are non-zero, check if the equations are multiples of each other.
-
+#
 sub compare {
 	my ($self, $l, $r) = Value::checkOpOrder(@_);
 	$l = LinearRelation->new($l) unless ref($l) eq ref($self);
@@ -231,8 +235,9 @@ sub compare {
 	my ($lN, $ld, $ltype, $lrev) = ($l->{N}, $l->{d}, $l->{tree}{def}{kind}, $l->{tree}{def}{reverse});
 	my ($rN, $rd, $rtype, $rrev) = ($r->{N}, $r->{d}, $r->{tree}{def}{kind}, $r->{tree}{def}{reverse});
 
+	#
 	#  Outright true or false relations have no type yet, so give them one
-
+	#
 	my $zero = 0 * $lN;
 	if (!$ltype) {
 		$ltype = $l->check_at($zero) ? 'eq' : 'ne';
@@ -241,18 +246,21 @@ sub compare {
 		$rtype = $r->check_at($zero) ? 'eq' : 'ne';
 	}
 
+	#
 	#  Reverse inequalities to favor lt, le over gt, ge
-
+	#
 	($lN, $ld, $ltype) = (-$lN, -$ld, $lrev) if $lrev;
 	($rN, $rd, $rtype) = (-$rN, -$rd, $rrev) if $rrev;
 
+	#
 	#  First, check if the type of inequality is the same.
 	#  Then check if the dividing (hyper)plane is the right one.
-
+	#
 	return 1 unless $ltype eq $rtype;
 
+	#
 	#  Are both 0?
-
+	#
 	if ($lN == $zero && $rN == $zero) {
 		my $ltruth = $l->check_at($zero);
 		my $rtruth = $r->check_at($zero);
@@ -275,8 +283,9 @@ sub cmp_defaults { (
 	ignoreInfinity => 0,    # report infinity as an error
 ) }
 
+#
 #  Only compare two relations
-
+#
 sub typeMatch {
 	my ($self, $other, $ans) = @_;
 	return ref($other) && $other->type eq 'Relation' unless ref($self);
@@ -324,8 +333,10 @@ sub isConstant {
 	return $self->SUPER::isConstant;
 }
 
+#
 #  We subclass BOP::equality so that we can assign a type using _check and
 #  override the _eval method for relation operators
+#
 
 package LinearRelation::inequality;
 our @ISA = qw(Parser::BOP::equality);
@@ -343,9 +354,11 @@ sub _eval {
 	return $context->Package("Real")->new($context, &{ $self->{def}{eval} }(@_) ? 1 : 0);
 }
 
+#
 #  We use a special formula object to check if the formula is a
 #  LinearRelation or not, and return the proper class.  This allows
 #  lists of linear relations, for example.
+#
 
 package LinearRelation::formula;
 our @ISA = ('Value::Formula');

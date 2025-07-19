@@ -1,4 +1,3 @@
-
 loadMacros('MathObjects.pl');
 
 sub _parserWordCompletion_init {

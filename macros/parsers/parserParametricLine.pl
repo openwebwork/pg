@@ -43,8 +43,9 @@ loadMacros('MathObjects.pl');
 
 sub _parserParametricLine_init { ParametricLine::Init() };    # don't reload this file
 
+#
 #  Define the subclass of Formula
-
+#
 package ParametricLine;
 our @ISA = qw(Value::Formula);
 
@@ -118,8 +119,9 @@ sub cmp_defaults { (
 	ignoreInfinity  => 0,    # report infinity as an error
 ) }
 
+#
 #  Report some errors that were stopped by the showEqualErrors=>0 above.
-
+#
 sub cmp_postprocess {
 	my $self  = shift;
 	my $ans   = shift;
