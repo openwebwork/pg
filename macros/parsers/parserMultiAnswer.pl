@@ -1,3 +1,4 @@
+
 loadMacros('MathObjects.pl', 'PGbasicmacros.pl');
 
 sub _parserMultiAnswer_init {
@@ -60,9 +61,8 @@ sub new {
 	}, $class;
 }
 
-#
 #  Set flags to be passed to individual answer checkers
-#
+
 sub setCmpFlags {
 	my ($self, $cmp_number, %flags) = @_;
 	die "Answer $cmp_number is not defined." unless defined($self->{cmp}[ $cmp_number - 1 ]);
@@ -70,11 +70,10 @@ sub setCmpFlags {
 	return $self;
 }
 
-#
 #  Creates an answer checker (or array of same) to be passed
 #  to ANS() or NAMED_ANS().  Any parameters are passed to
 #  the individual answer checkers.
-#
+
 sub cmp {
 	my ($self, %options) = @_;
 
@@ -129,7 +128,6 @@ sub cmp {
 }
 
 ######################################################################
-
 #
 #  Get the answer checker used for when all the answers are treated
 #  as a single result.

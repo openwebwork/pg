@@ -144,7 +144,7 @@ __END__
 
 =head1 NAME
 
-parserWordCompletion.pl
+parserWordCompletion.pl - provide a popup with list of allowable answers.
 
 =head1 DESCRIPTION
 

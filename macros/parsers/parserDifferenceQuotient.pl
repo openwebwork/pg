@@ -25,7 +25,7 @@ number to be substituted into the variable named in the second
 argument.  The third argument is optional and the default value
 0 is used when the third argument is omitted.
 
-=head1 USAGE
+=head1 SYNOPSIS
 
 simplify (f(x+dx)-f(x)) / dx for f(x)=x^2
 

@@ -96,16 +96,10 @@ sub new {
 	return bless $line, $class;
 }
 
-=head2 $lhs == $rhs
-
- #
- #  Two parametric lines are equal if they have
- #  parallel direction vectors and either the same
- #  points or the vector between the points is
- #  parallel to the (common) direction vector.
- #
-
-=cut
+#  Two parametric lines are equal if they have
+#  parallel direction vectors and either the same
+#  points or the vector between the points is
+#  parallel to the (common) direction vector.
 
 sub compare {
 	my ($self, $l, $r) = Value::checkOpOrderWithPromote(@_);

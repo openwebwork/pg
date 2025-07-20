@@ -11,7 +11,7 @@ Some utility routines that are useful in vector problems
 
 sub _parserVectorUtils_init { };    # don't reload this file
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 Overline
 
