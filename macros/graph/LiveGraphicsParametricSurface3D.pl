@@ -12,7 +12,7 @@ applet.  The method takes three C<MathObject> Formulas in two variables as input
 and returns a string of plot data that can be displayed using the C<Live3Ddata>
 routine of the L<LiveGraphics3D.pl> macro.
 
-=head1 Methods
+=head1 METHODS
 
 =head2 ParametricSurface3D
 

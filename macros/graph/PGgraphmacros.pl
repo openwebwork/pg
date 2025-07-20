@@ -1,9 +1,9 @@
 
 =head1 NAME
 
-PGgraphmacros -- in courseScripts directory
+PGgraphmacros.pl - Provides functionality for plotting functions, points and adding labels.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
     use Fun;
     use Label;
@@ -21,68 +21,35 @@ These macros provide an easy ability to graph simple functions.  More complicate
 may require direct access to the underlying modules.  If these complicated projects are common
 then it may be desirable to create additional macros.  (See numericalmacros.pl for one example.)
 
-
-=cut
-
-=head2 Other constructs
-
 See F<PGbasicmacros> for definitions of C<image> and C<caption>
 
-=cut
-
-#my $User = $main::studentLogin;
-#my $psvn = $main::psvn; #$main::in{'probSetKey'};  #in{'probSetNumber'}; #$main::probSetNumber;
-#my $setNumber     = $main::setNumber;
-#my $probNum       = $main::probNum;
-
-#########################################################
-# this initializes a graph object
-#########################################################
-# graphObject = init_graph(xmin,ymin,xmax,ymax,options)
-# options include  'grid' =>[8,8] or
-#				   'ticks'=>[8,8] and/or
-#                  'axes'
-#########################################################
-
-#loadMacros("MathObjects.pl");   # avoid loading the entire package
-# of MathObjects since that can mess up
-# problems that don't use MathObjects but use Matrices.
+=head1 FUNCTIONS
 
 =head2 init_graph
 
-=pod
 
-		$graphObject = init_graph(xmin,ymin,xmax,ymax,'ticks'=>[4,4],'axes'=>[0,0])
-		options are
-			'grid' =>[8,8] or
-			# there are 8 evenly spaced lines intersecting the horizontal axis
-			'ticks'=>[8,8] and/or
-			# there are 8 ticks on the horizontal axis, 8 on the vertical
-			'axes' => [0,0]
-			# axes pass through the point (0,0) in real coordinates
-			'size' => [200,200]
-			# dimensions of the graph in pixels.
-			'pixels' =>[200,200]  # synonym for size
+    $graphObject = init_graph(xmin,ymin,xmax,ymax,'ticks'=>[4,4],'axes'=>[0,0])
+
+options are
+
+    'grid' =>[8,8] or
+    # there are 8 evenly spaced lines intersecting the horizontal axis
+    'ticks'=>[8,8] and/or
+    # there are 8 ticks on the horizontal axis, 8 on the vertical
+    'axes' => [0,0]
+    # axes pass through the point (0,0) in real coordinates
+    'size' => [200,200]
+    # dimensions of the graph in pixels.
+    'pixels' =>[200,200]  # synonym for size
 
 Creates a graph object with the default size 200 by 200 pixels.
 If you want axes or grids you need to specify them in options. But the default values can be selected for you.
-
 
 =cut
 
 BEGIN { strict->import; }
 
-sub _PGgraphmacros_init {
-
-}
-#sub _PGgraphmacros_export {
-#
-#	my @EXPORT = (
-#		'&init_graph', '&add_functions', '&plot_functions', '&open_circle',
-#		'&closed_circle', '&my_math_constants', '&string_to_sub',
-#    );
-#    @EXPORT;
-#}
+sub _PGgraphmacros_init { }
 
 sub init_graph {
 	my ($xmin, $ymin, $xmax, $ymax, %options) = @_;
@@ -281,12 +248,15 @@ sub init_graph_no_labels {
 	$graphRef;
 }
 
-=head2  plot_functions
+=head2 plot_functions
 
-=pod
+Usage:
 
-	Usage:  ($f1, $f2, $f3) = plot_functions($graph, $f1, $f2, $f3);
-	Synonym: add_functions($graph,$f1,$f2,$f3);
+    ($f1, $f2, $f3) = plot_functions($graph, $f1, $f2, $f3);
+
+Synonym:
+
+    ($f1, $f2, $f3) = add_functions($graph, $f1, $f2, $f3);
 
 Where $f1 is a string of the form
 
@@ -397,7 +367,8 @@ The most common use of C,insertGraph> is
 
 	TEXT(image(insertGraph($graph)) );
 
-where C<image> takes care of creating the proper URL for accessing the graph and for creating the HTML code to display the image.
+where C<image> takes care of creating the proper URL for accessing the graph and for
+creating the HTML code to display the image.
 
 Another common usage is:
 
@@ -415,8 +386,10 @@ See the documentation in F<PGcore.pl> for the latest details.
 
 =head2  'Circle' lables
 
-	Usage: $circle_object = open_circle( $x_position, $y_position, $color );
-	        $circle_object2 = closed_circle( $x_position, $y_position, $color );
+Usage:
+
+    $circle_object = open_circle( $x_position, $y_position, $color );
+    $circle_object2 = closed_circle( $x_position, $y_position, $color );
 
 Creates a small open (resp. filled in or closed) circle for use as a stamp in marking graphs.
 For example
@@ -425,7 +398,6 @@ For example
 
 =cut
 
-#########################################################
 sub open_circle {
 	my ($cx, $cy, $color) = @_;
 	new Circle($cx, $cy, 4, $color, 'nearwhite');
@@ -437,16 +409,16 @@ sub closed_circle {
 	new Circle($cx, $cy, 4, $color, $color);
 }
 
-=head2 Auxiliary macros
+=head2 string_to_sub
 
-=head3  string_to_sub and my_math_constants
-
+=head2 my_math_constants
 
 These are internal macros which govern the interpretation of equations.
 
+Usage:
 
-	Usage: $string = my_math_constants($string)
-	       $subroutine_reference = my_string_to_sub($string)
+    $string = my_math_constants($string)
+    $subroutine_reference = string_to_sub($string)
 
 C<my_math_constants>
 interprets pi, e  as mathematical constants 3.1415926... and 2.71828... respectively. (Case is important).
@@ -491,8 +463,8 @@ sub string_to_sub {
 		my ($subRef, $PG_eval_errors, $PG_full_error_report) =
 			PG_restricted_eval(" sub { my \$XVAR = shift; my \$out = $in; \$out; } ");
 		if ($PG_eval_errors) {
-			die
-				" ERROR while defining a function from the string:\n\n$main::BR $main::BR $str_in $main::BR $main::BR\n\n  $PG_eval_errors";
+			die " ERROR while defining a function from the string:\n\n$main::BR $main::BR "
+				. "$str_in $main::BR $main::BR\n\n  $PG_eval_errors";
 		} else {
 			$out = $subRef;
 		}
@@ -500,7 +472,5 @@ sub string_to_sub {
 	}
 	$out;
 }
-
-#########################################################
 
 1;

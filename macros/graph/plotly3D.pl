@@ -3,7 +3,6 @@
 
 plotly3D.pl - Adds Graph3D, an object for creating 3D parametric curves
 and 3D parametric surface plots using the plotly JavaScript library.
-L<https://plotly.com/javascript/>
 
 =head1 DESCRIPTION
 
@@ -314,6 +313,10 @@ or L<https://plotly.com/javascript/reference/layout/scene/#layout-scene>
 for the API reference.
 
 =back
+
+=head1 SEE ALSO
+
+L<https://plotly.com/javascript/>
 
 =cut
 

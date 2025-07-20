@@ -1,12 +1,7 @@
-sub _PGanalyzeGraph_init { }
-
-################################################################
-# subroutines
-################################################################
 
 =head1 NAME
 
-PGanalyzeGraph.pl
+PGanalyzeGraph.pl - These routines support the analysis of  graphical input from students.
 
 =head1 DESCRIPTION
 
@@ -27,6 +22,8 @@ return: C<(\@combined_intervals, \@values)>
     successive intervals will have different slopes.
 
 =cut
+
+sub _PGanalyzeGraph_init { }
 
 sub detect_intervals {
 	my $pointDisplayString = shift;

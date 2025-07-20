@@ -79,7 +79,7 @@ Add multiple arrows by setting the C<end_mark> (or C<start_mark>) of the dataset
         [[0, 0], [4, -1], color => 'red',   start_mark => 'arrow'],
     );
 
-If needed, the C<< $plot->add_dataset >> method returns the L<Data|/"DATA OBJECT"> object
+If needed, the C<< $plot->add_dataset >> method returns the L<Data|Data.pm/"DATA OBJECT"> object
 (or array of Data objects) which can be manipulated directly.
 
     $data = $plot->add_dataset(...);
