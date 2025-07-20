@@ -170,7 +170,7 @@ the first section, you might want the first section to be closed, and
 have the student open it by hand before anwering the questions.  In
 this case, set this value to 0 (it is 1 by default).
 
-=item C<S<< preview_can_change_state => 0 or 1 >>
+=item C<< preview_can_change_state => 0 or 1 >>
 
 This determines if scaffold state can be changed when a preview occurs
 (i.e., when the "Preview My Answers" button is used).  If this is 0,

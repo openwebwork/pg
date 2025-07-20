@@ -31,11 +31,13 @@ if (!$Value::installed) {
 loadMacros("Value.pl");
 loadMacros("PGcommonFunctions.pl");
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 Formula
 
-Usage: C<Formula("formula");>
+Usage:
+
+    Formula("formula");
 
 The main way to get a MathObject Formula object (an equation that depends on one
 or more variables).
