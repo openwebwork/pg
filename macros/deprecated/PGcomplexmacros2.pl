@@ -4,7 +4,7 @@
 
 =head1 NAME
 
-More macros for handling multivalued functions of a complex variable
+PGcomplexmacros2.pl - More macros for handling multivalued functions of a complex variable.
 
 =cut
 
