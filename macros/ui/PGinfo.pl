@@ -1,16 +1,16 @@
 
 =head1 NAME
 
-PGinfo.pl
-
-Provides macros for determining the values of the current context in which the problem
+PGinfo.pl - Provides macros for determining the values of the current context in which the problem
 is being written.
 
 =cut
 
 loadMacros("MathObjects.pl");
 
-=head2  listVariables
+=head1 FUNCTIONS
+
+=head2 listVariables
 
 Usage: 	listVariables();
 
@@ -30,7 +30,7 @@ sub listVariables {
 	listContextFlags();
 }
 
-=head3 listFormVariables()
+=head2 listFormVariables
 
 Called by C<listVariables> to print out the input form variables.
 
@@ -43,7 +43,7 @@ sub listFormVariables {
 
 }
 
-=head3 listEnvironmentVariables()
+=head2 listEnvironmentVariables
 
 	Called by C<listVariables> to print out the environment variables (in %envir).
 
@@ -54,7 +54,7 @@ sub listEnvironmentVariables {
 	TEXT(pretty_print(\%envir));
 }
 
-=head3 listContextFlags()
+=head2 listContextFlags
 
 	Called by listVariables to print out context flags for Math Objects.
 
@@ -65,7 +65,7 @@ sub listContextFlags {
 	TEXT(pretty_print($context));
 }
 
-=head2 listContext()
+=head2 listContext
 
 	Usage:  listContext(Context())
 
@@ -84,11 +84,10 @@ sub listContext {    # include
 	}
 }
 
-=head2 pp()
+=head2 pp
 
 	Usage:  pp(Hash );
 	        pp(Object);
-
 
 	Prints out the contents of Hash or the instance variables of Object
 
