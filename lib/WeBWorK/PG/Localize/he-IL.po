@@ -21,268 +21,292 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2;\n"
 
 #. ($numManuallyGraded)
-#: /opt/webwork/pg/macros/PG.pl:1398
+#: /opt/webwork/pg/macros/PG.pl:1455
 msgid "%1 of the answers %plural(%1,has,have) been graded."
 msgstr "%1 מהתשובות %plural(%1,נבדק,נבדקו)."
 
 #. (@answerNames - $numBlank - $numCorrect - $numManuallyGraded)
-#: /opt/webwork/pg/macros/PG.pl:1370
+#: /opt/webwork/pg/macros/PG.pl:1427
 msgid "%1 of the answers %plural(%1,is,are) NOT correct."
 msgstr "%1 מהתשובות %plural(%1,אינה נכונה,אינן נכונות)."
 
 #. ($numManuallyGraded)
-#: /opt/webwork/pg/macros/PG.pl:1394
+#: /opt/webwork/pg/macros/PG.pl:1451
 msgid "%1 of the answers will be graded later."
 msgstr "%1 מהתשובות ייבדקו בעתיד."
 
 #. ($options{resultTitle})
-#: /opt/webwork/pg/macros/PG.pl:1195
+#: /opt/webwork/pg/macros/PG.pl:1224
 msgid "%1 with message"
 msgstr "%1 עם הודעה"
 
 #. (round($answerScore * 100)
-#: /opt/webwork/pg/macros/PG.pl:1088
+#: /opt/webwork/pg/macros/PG.pl:1117
 msgid "%1% correct"
 msgstr "%1% נכון"
 
 #. ($numBlank)
-#: /opt/webwork/pg/macros/PG.pl:1383
+#: /opt/webwork/pg/macros/PG.pl:1440
 msgid ""
 "%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr "%quant(%1, מהשאלות לא נענתה, מהשאלות לא נענו)."
 
-#: /opt/webwork/pg/macros/PG.pl:1357
+#: /opt/webwork/pg/macros/PG.pl:1414
 msgid "All of the answers are correct."
 msgstr "כל התשובות הן נכונות."
 
-#: /opt/webwork/pg/macros/PG.pl:1348
+#: /opt/webwork/pg/macros/PG.pl:1405
 msgid "All of the computer gradable answers are correct."
 msgstr "כל התשובות הניתנות לבדיקה אוטומטית הן נכונות."
 
-#: /opt/webwork/pg/macros/PG.pl:1037
+#: /opt/webwork/pg/macros/PG.pl:1060
 msgid "Answer Preview"
 msgstr "תצוגה מקדימה של התשובות"
 
-#: /opt/webwork/pg/macros/PG.pl:1210
+#: /opt/webwork/pg/macros/PG.pl:1240 /opt/webwork/pg/macros/PG.pl:1316
 msgid "Close"
 msgstr "סגור"
 
-#: /opt/webwork/pg/macros/PG.pl:1080
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2894
+msgid "Close image description"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1109
 msgid "Correct"
 msgstr "נכון"
 
-#: /opt/webwork/pg/macros/PG.pl:1261
+#: /opt/webwork/pg/macros/PG.pl:1322
 msgid "Correct Answer"
 msgstr "תשובה נכונה"
 
-#: /opt/webwork/pg/macros/parsers/parserPopUp.pl:495
+#: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
 msgid "False"
 msgstr " לא נכון"
 
-#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:186
-#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:187
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:172
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:173
 msgid "Get a new version of this problem"
 msgstr "קבל גרסה חדשה של שאלה זו."
 
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:483
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:483
 msgid "Go back to Part 1"
 msgstr "חזור לחלק 1"
 
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:293
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:498
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:512
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:293
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:498
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:512
 msgid "Go on to next part"
 msgstr "המשך לחלק הבא"
 
-#: /opt/webwork/pg/macros/core/PGessaymacros.pl:70
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:57
 msgid "Graded"
 msgstr "נבדק"
 
-#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:427
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:413
 msgid "Hardcopy will always print the original version of the problem."
 msgstr "בקבצי הדפסה תמיד יודפס הגרסה המקורית של השאלה."
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1327
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1302
 msgid "Hint"
 msgstr "רמז"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1326
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1301
 msgid "Hint:"
 msgstr "רמז:"
 
-#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:425
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:411
 msgid "If you come back to it later, it may revert to its original version."
 msgstr "אם תחזור לשאלה בהמשך, ייתכן שהשאלה תחזור לגרסה המקורית."
 
-#: /opt/webwork/pg/macros/PG.pl:1084
+#: /opt/webwork/pg/macros/PG.pl:1113
 msgid "Incorrect"
 msgstr "לא נכון"
 
-#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:396
-#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:422
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:382
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:408
 msgid "Note:"
 msgstr "הערה:"
 
-#: /opt/webwork/pg/macros/core/PGessaymacros.pl:144
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:131
 msgid "Preview"
 msgstr "תצוגה מקדימה"
 
-#: /opt/webwork/pg/macros/PG.pl:1242
+#: /opt/webwork/pg/macros/PG.pl:1285
 msgid "Preview of Your Answer"
 msgstr "תצוגה מקדימה של התשובה שלך"
 
-#: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:100
-#: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:59
+#: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:44
+#: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:85
 msgid "Quick Entry"
 msgstr "הזנה מהירה"
 
-#: /opt/webwork/pg/macros/PG.pl:1268
+#: /opt/webwork/pg/macros/PG.pl:1328
 msgid "Reveal"
 msgstr "הצג"
 
-#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:188
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:174
 msgid "Set random seed to:"
 msgstr "החלף את זרע ההגרלות אל:"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1319
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1294
 msgid "Solution"
 msgstr "פתרון"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1318
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1293
 msgid "Solution:"
 msgstr "פתרון:"
 
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:525
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:525
 msgid "Submit your answers again to go on to the next part."
 msgstr "שלח את התשובות שוב כדי להתקדם לחלק הבא."
 
-#: /opt/webwork/pg/macros/PG.pl:1318
+#: /opt/webwork/pg/macros/PG.pl:1375
 msgid "The answer has been graded."
 msgstr "התשובה נבדקה"
 
-#: /opt/webwork/pg/macros/PG.pl:1336
+#: /opt/webwork/pg/macros/PG.pl:1393
 msgid "The answer is NOT correct."
 msgstr "התשובה איננה נכונה"
 
-#: /opt/webwork/pg/macros/PG.pl:1307
+#: /opt/webwork/pg/macros/PG.pl:1364
 msgid "The answer is correct."
 msgstr "התשובה נכונה"
 
-#: /opt/webwork/pg/macros/PG.pl:1317
+#: /opt/webwork/pg/macros/PG.pl:1374
 msgid "The answer will be graded later."
 msgstr "התשובה תבדק בהמשך"
 
-#: /opt/webwork/pg/macros/PG.pl:1327
+#: /opt/webwork/pg/macros/PG.pl:1384
 msgid "The question has not been answered."
 msgstr " השאלה לא נענתה"
 
-#: /opt/webwork/pg/macros/core/PGessaymacros.pl:91
+#: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1113
+#: /opt/webwork/pg/macros/core/PGanswermacros.pl:1673
+msgid "This answer was marked correct because the primary answer is correct."
+msgstr ""
+
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:78
 msgid "This answer will be graded at a later time."
 msgstr "התשובה הזאת תבדק בעתיד"
 
-#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:423
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:409
 msgid "This is a new (re-randomized) version of the problem."
 msgstr "הנה גרסה חדשה של השאלה.  (הוגרלו מספרים חדשים)"
 
-#: /opt/webwork/pg/macros/core/PGessaymacros.pl:158
-msgid ""
-"This is an essay answer text box. You can type your answer in here and, "
-"after you hit submit, it will be saved so that your instructor can grade it "
-"at a later date. If your instructor makes any comments on your answer those "
-"comments will appear on this page after the question has been graded. You "
-"can use LaTeX to make your math equations look pretty. LaTeX expressions "
-"should be enclosed using the parenthesis notation and not dollar signs."
-msgstr ""
-"זהו תיבת קלט לתשובה מפורטת ומומקת. ניתן להקליד כאן את התשובה שלך. לאחר "
-"ההגשה, התשובה תשמר לבדיקה על ידי סגל ההוראה בעתיד. במידה וסגל ההוראה יזינו "
-"הערות על התשובה שלך, הן תופיעו בדף זה לאחר בדיקת התשובות. ניתן להשמש בלאטך "
-"LaTeX כדי להזין נוסחות מתמטיות יפות. יש לעטוף ביטויים מתמטיים בתחביר לאקך "
-"בעזרת סימון המבוסס על סוגריים ולא על ידי סימני דולר.  לפני הביטוי יש לרשום "
-"backslash ואז פתח סוגריים, ואחריו backslash ואז סגור סוגריים."
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3026
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3086
 msgid "This problem contains a video which must be viewed online."
 msgstr "השאלה מכילה וידיאו שיש לראות באופן מקוון."
 
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:631
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:631
 msgid "This problem has more than one part."
 msgstr "לשאלה זו יש יותר מחלק אחד."
 
-#: /opt/webwork/pg/macros/parsers/parserPopUp.pl:494
+#: /opt/webwork/pg/macros/parsers/parserPopUp.pl:560
 msgid "True"
 msgstr "נכון"
 
-#: /opt/webwork/pg/macros/core/PGessaymacros.pl:68
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:55
 msgid "Ungraded"
 msgstr "טרם נבדק"
 
-#: /opt/webwork/pg/macros/PG.pl:1237
+#: /opt/webwork/pg/macros/PG.pl:1280
 msgid "You Entered"
 msgstr "הזנת"
 
-#: /opt/webwork/pg/macros/core/PGanswermacros.pl:1615
+#: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1080
+#: /opt/webwork/pg/macros/core/PGanswermacros.pl:1641
 msgid "You can earn partial credit on this problem."
 msgstr "ניתן לקבל ניקוד חלקי בשאלה זו"
 
-#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:397
+#: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:383
 msgid "You can get a new version of this problem after the due date."
 msgstr "אתה יכול לבקש גרסה שונה של שאלה זו לאחר מועד ההגשה."
 
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:646
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:646
 msgid "You may not change your answers when going on to the next part!"
 msgstr "לא ניתן לשנות תשובות כאשר אתה מתקדם לחלק הבא!"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3019
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3079
 msgid "Your browser does not support the video tag."
 msgstr "הדפדפן שלך לא תומך ב-video tag."
 
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:634
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:634
 msgid "Your score for this attempt is for this part only;"
 msgstr "הציון שקבלת בהגשה זו הוא רק לחקל זה;"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:556
-msgid "answer"
-msgstr "תשובה"
+#. ($name)
+#. ($1)
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:539
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:623
+msgid "answer %1 "
+msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:568
-msgid "column"
-msgstr "עמודה"
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2964
+msgid "end image description"
+msgstr ""
 
 #. ('j', 'k', '_0')
 #. ('j', 'k')
 # does not need to be translated
 #: /opt/webwork/pg/lib/Parser/List/Vector.pm:41
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
-#: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:95
+#: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
 msgid "i"
 msgstr "i"
 
-#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:840
+#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:826
 msgid "if"
 msgstr "כאשר"
 
-#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:843
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2879
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2962
+msgid "image description"
+msgstr ""
+
+#. (1)
+#. ($count)
+#. ($i + 1)
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:665
+#: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:556
+#: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:565
+msgid "option %1 "
+msgstr ""
+
+#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:829
 msgid "otherwise"
 msgstr "אחרת"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:562
-msgid "part"
-msgstr "חלק"
+#. ($2 + 1)
+#. ($radioIndex)
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:625
+msgid "part %1 "
+msgstr ""
 
+#. ($1)
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:618
+msgid "problem %1 "
+msgstr ""
+
+#. ($1 + 1, $2 + 1)
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551
-msgid "problem"
-msgstr "שאלה"
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:631
+msgid "row %1 column %2 "
+msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:568
-msgid "row"
-msgstr "שורה"
+#. ($partIndex)
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:626
+msgid "subpart %1 "
+msgstr ""
 
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:485
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:500
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:485
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:500
 msgid "when you submit your answers"
 msgstr "כאשר אתה מגיש את תשובותיך"
 
-#: /opt/webwork/pg/macros/core/compoundProblem.pl:638
+#: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:638
 msgid "your overall score is for all the parts combined."
 msgstr "הציון הכולל הוא על בסיס כל החלקים."
