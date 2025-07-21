@@ -1,10 +1,13 @@
 
 =head1 NAME
 
-answerVariableList.pl - Creates answer checkers that compare the student's
-answer to a list of variable names.
+answerVariableList.pl - Answer checker for a list of variables.
 
-=head1 MACROS
+=head1 DESCRIPTION
+
+Creates answer checkers that compare the student's answer to a list of variable names.
+
+=head1 FUNCTIONS
 
 =head2 variable_cmp
 
@@ -78,7 +81,7 @@ sub variable_cmp {
 
 =head2 addVariables
 
- addVariables(@vars)
+    addVariables(@vars)
 
 Adds each string in @vars as a varible to the current context.
 

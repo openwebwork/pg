@@ -4,7 +4,12 @@
 extraAnswerEvaluators.pl - Answer evaluators for intervals, lists of numbers,
 and lists of points.
 
-=head1 SYNPOSIS
+=head1 DESCRIPTION
+
+This is a list of functions that create "answer evaluators" for checking student
+answers of various "exotic" types.
+
+=head1 SYNOPSIS
 
 	interval_cmp() -- checks answers which are unions of intervals. It can also
 					  be used for checking an ordered pair or list of ordered
@@ -22,10 +27,7 @@ and lists of points.
 	                  instructor's equation.  The student's equation must be of
 	                  the same general type as the instructors to get credit.
 
-=head1 DESCRIPTION
 
-This file adds subroutines which create "answer evaluators" for checking student
-answers of various "exotic" types.
 
 =cut
 
@@ -241,7 +243,7 @@ sub mode2context {
 	return ($context);
 }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 interval_cmp
 
