@@ -33,13 +33,13 @@ sub _contextInequalitiesAllowStrings_init {
 	#-----Add variations of "No solution" = NONE
 	#************This part does not work. Can't get it to "take" the empty set
 	# Tried Set(), NONE and DNE
-
+	#
 	#    $context->constants->redefine("No solution"",from=>"Interval",using=>"{}");
 	#    $context->constants->set("No solution"=>{TeX=>"\\mbox{No solution}"});
-
+	#
 	#    $context->constants->redefine("no solution"",from=>"Interval",using=>"{}");
 	#    $context->constants->set("no solution"=>{TeX=>"\\mbox{no solution}"});
-
+	#
 	#    $context->constants->redefine("NO SOLUTION"",from=>"Interval",using=>"{}");
 	#    $context->constants->set("NO SOLUTION"=>{TeX=>"\\mbox{NO SOLUTION}"});
 

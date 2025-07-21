@@ -145,9 +145,13 @@ rewrite them.
 
 =cut
 
+###########################################################
+
 loadMacros("MathObjects.pl");
 
 sub _contextAlternateDecimal_init { context::AlternateDecimal->Init }
+
+###########################################################
 
 package context::AlternateDecimal;
 

@@ -15,10 +15,14 @@ The flag factorableObject defaults to 'polynomial', but it could be set to say,
 
 =cut
 
-loadMacros("bizarroArithmetic.pl");
+loadMacros(
+	"bizarroArithmetic.pl",
 
+);
+
+#
 #  Set up the LimitedFactor context
-
+#
 sub _contextLimitedFactor_init {
 	my $context = $main::context{LimitedFactor} = Parser::Context->getCopy("Numeric");
 	$context->operators->set(

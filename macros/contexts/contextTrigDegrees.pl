@@ -28,13 +28,16 @@ loadMacros('MathObjects.pl');
 
 sub _contextTrigDegrees_init { context::TrigDegrees::Init() };    # don't reload this file
 
+#######################################
+
 package context::TrigDegrees::common;
 
 our $deg = $main::PI / 180;
 
+#
 #  Check the number of arguments, and call the proper method with the
 #  the proper factor involved.
-
+#
 sub _call {
 	my $self = shift;
 	my $name = shift;
@@ -52,8 +55,9 @@ sub _call {
 	}
 }
 
+#
 #  Call the proper method with the correct factor
-
+#
 sub _eval {
 	my $self = shift;
 	my $name = $self->{name};
@@ -65,8 +69,9 @@ sub _eval {
 	}
 }
 
+#
 #  Do chain rule derivative, taking the $deg factor into account
-
+#
 sub D {
 	my $self     = shift;
 	my $x        = $self->{params}[0];
@@ -83,13 +88,19 @@ sub D {
 	return $self->reduce;
 }
 
+#######################################
+
+#
 #  Hook the common functions into these classes
+#
 
 package context::TrigDegrees::trig;
 our @ISA = ('context::TrigDegrees::common', 'Parser::Function::trig');
 
 package context::TrigDegrees::hyperbolic;
 our @ISA = ('context::TrigDegrees::common', 'Parser::Function::hyperbolic');
+
+#######################################
 
 package context::TrigDegrees::numeric2;
 our @ISA = ('Parser::Function::numeric2');
@@ -98,15 +109,18 @@ our $deg = $main::PI / 180;
 
 sub atan2 { CORE::atan2($_[1], $_[2]) / $deg }
 
+#######################################
+
 package context::TrigDegrees;
 
+#
 #  Change the classes for the trig functions to be our classes above,
 #  and mark the inverses so that the degrees can be applied in the
 #  proper location.
-
+#
 #  Define the sin, cos, and atan2 functions so that they will call our
 #  methods even if their arguments are Perl reals.
-
+#
 sub Init {
 	my $context = $main::context{TrigDegrees} = Parser::Context->getCopy("Numeric");
 	$context->{name} = "TrigDegrees";

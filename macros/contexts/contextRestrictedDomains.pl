@@ -182,13 +182,16 @@ sub _contextRestrictedDomains_init {
 	};
 }
 
+###########################
+#
 #  Subclass the numeric functions
-
+#
 package restrictedDomains::Function::numeric;
 our @ISA = ('Parser::Function::numeric');
 
+#
 #  Override sqrt() to return a special value times x when evaluated
-
+#
 sub sqrt {
 	my $self  = shift;
 	my $x     = shift;

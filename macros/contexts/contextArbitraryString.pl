@@ -81,14 +81,16 @@ sub _contextArbitraryString_init {
 	$context->update;
 }
 
+#
 #  Handle creating String() constants
-
+#
 package context::ArbitraryString;
 sub new { shift; main::Compute(@_) }
 
+#
 #  Replacement for Parser::String that uses the original string verbatim
 #  (but replaces \r and \r\n by \n to handle different browser multiline input)
-
+#
 package context::ArbitraryString::Parser::String;
 our @ISA = ('Parser::String');
 
@@ -100,14 +102,16 @@ sub new {
 	$self->SUPER::new($equation, $value, $ref);
 }
 
+#
 #  Replacement for Value::String that creates preview strings
 #  that work for multiline input
-
+#
 package context::ArbitraryString::Value::String;
 our @ISA = ("Value::String");
 
+#
 #  Mark a multi-line string to be displayed verbatim in TeX
-
+#
 sub quoteTeX {
 	my $self = shift;
 	my $s    = shift;
@@ -117,8 +121,9 @@ sub quoteTeX {
 	"\\begin{array}{l}" . join("\\\\ ", @tex) . "\\end{array}";
 }
 
+#
 #  Quote HTML special characters
-
+#
 sub quoteHTML {
 	my $self = shift;
 	my $s    = $self->SUPER::quoteHTML(shift);
@@ -127,8 +132,9 @@ sub quoteHTML {
 	return $s;
 }
 
+#
 #  Adjust preview and strings so they display multiline answers properly.
-
+#
 sub cmp_preprocess {
 	my $self = shift;
 	my $ans  = shift;

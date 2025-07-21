@@ -103,6 +103,8 @@ to rewrite them.
 
 =cut
 
+##########################################################################
+
 loadMacros("MathObjects.pl");
 
 sub _contextComplexJ_init {
@@ -110,10 +112,13 @@ sub _contextComplexJ_init {
 	context::ComplexJ->Enable($context);
 }
 
+###############################################################
+
 package context::ComplexJ;
 
+#
 #  Enables complex j notation in the given context
-
+#
 sub Enable {
 	my $self    = shift;
 	my $context = shift || main::Context();
@@ -136,12 +141,13 @@ sub Enable {
 	$context->update;
 }
 
+#
 #  Sets all the complex-based default contexts to use ComplexJ
 #  notation.  The two arguments determine the values for the
 #  enterComplex and displayComplex flags.  If enterComplex is "j",
 #  then student answers must use the j notation (though
 #  professors can use either).
-
+#
 sub Default {
 	my $self    = shift;
 	my $enter   = shift || "either";
@@ -162,7 +168,11 @@ sub Default {
 	main::Context(main::Context()->{name});
 }
 
-#  Handle Complex numbers so that they are displayed with the proper i or j value.
+###############################################################
+#
+#  Handle Complex numbers so that they are displayed
+#  with the proper i or j value.
+#
 
 package context::ComplexJ::Value::Complex;
 our @ISA = ('Value::Complex');
@@ -183,7 +193,11 @@ sub TeX {
 	return $z;
 }
 
-#  Make Parser Value object maintain the indicator for which notation was used for a complex number.
+###############################################################
+#
+#  Make Parser Value object maintain the indicator for
+#  which notation was used for a complex number.
+#
 
 package context::ComplexJ::Parser::Value;
 our @ISA = ('Parser::Value');
@@ -201,7 +215,11 @@ sub new {
 
 sub class {'Value'}
 
-#  Make sure complex numbers maintain their flag for which format was used to create them.
+###############################################################
+#
+#  Make sure complex numbers maintain their flag for
+#  which format was used to create them.
+#
 
 package context::ComplexJ::Parser::Complex;
 our @ISA = ('Parser::Complex');
@@ -215,9 +233,14 @@ sub eval {
 
 sub class {'Complex'}
 
-#  Produce error messages when the wrong notation is used for complex numbers.
-
-#  Swap i and j when required by the displayComplex flag in the output of constants.
+###############################################################
+#
+#  Produce error messages when the wrong notation
+#  is used for complex numbers.
+#
+#  Swap i and j when required by the displayComplex flag
+#  in the output of constants.
+#
 
 package context::ComplexJ::Parser::Constant;
 our @ISA = ('Parser::Constant');
@@ -258,5 +281,7 @@ sub TeX {
 }
 
 sub class {'Constant'}
+
+###############################################################
 
 1;
