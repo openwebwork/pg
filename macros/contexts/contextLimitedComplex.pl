@@ -49,14 +49,17 @@ loadMacros("MathObjects.pl");
 
 sub _contextLimitedComplex_init { LimitedComplex::Init() };    # don't load it again
 
+##################################################
+#
 #  Handle common checking for BOPs
-
+#
 package LimitedComplex::BOP;
 
+#
 #  Do original check and then if the operands are numbers, its OK.
 #  Otherwise, do an operator-specific check for if complex numbers are OK.
 #  Otherwise report an error.
-
+#
 sub _check {
 	my $self  = shift;
 	my $super = ref($self);
@@ -74,12 +77,14 @@ sub _check {
 	$self->Error("Your answer should be of the form %s", $self->theForm);
 }
 
+#
 #  filled in by subclasses
-
+#
 sub checkComplex { return 0 }
 
+#
 #  Get the form for use in error messages
-
+#
 sub theForm {
 	my $self   = shift;
 	my $format = $self->context->{flags}{complex_format};
@@ -88,12 +93,15 @@ sub theForm {
 	return 'a+bi or a*e^(bi)';
 }
 
+##############################################
+#
 #  Now we get the individual replacements for the operators
 #  that we don't want to allow.  We inherit everything from
 #  the original Parser::BOP class, and just add the
 #  complex checks here.  Note that checkComplex only
 #  gets called if exactly one of the terms is complex
 #  and the other is real.
+#
 
 package LimitedComplex::BOP::add;
 our @ISA = qw(LimitedComplex::BOP Parser::BOP::add);
@@ -109,6 +117,8 @@ sub checkComplex {
 		|| ($r->class eq 'Complex' && $r->{value}[0] == 0);
 }
 
+##############################################
+
 package LimitedComplex::BOP::subtract;
 our @ISA = qw(LimitedComplex::BOP Parser::BOP::subtract);
 
@@ -123,6 +133,8 @@ sub checkComplex {
 		|| ($r->class eq 'Complex' && $r->{value}[0] == 0);
 }
 
+##############################################
+
 package LimitedComplex::BOP::multiply;
 our @ISA = qw(LimitedComplex::BOP Parser::BOP::multiply);
 
@@ -134,15 +146,20 @@ sub checkComplex {
 			&& ($r->class eq 'Constant' || $r->isRealNumber || $r->{isPower}));
 }
 
+##############################################
+
 package LimitedComplex::BOP::divide;
 our @ISA = qw(LimitedComplex::BOP Parser::BOP::divide);
+
+##############################################
 
 package LimitedComplex::BOP::power;
 our @ISA = qw(LimitedComplex::BOP Parser::BOP::power);
 
+#
 #  Base must be 'e' (then we know the other is the complex
 #  since we only get here if exactly one term is complex)
-
+#
 sub checkComplex {
 	my $self = shift;
 	return 0 if $self->context->{flags}{complex_format} eq 'cartesian';
@@ -160,7 +177,11 @@ sub checkComplex {
 	$self->Error("Exponentials can only be of the form 'e^(ai)' in this context");
 }
 
+##############################################
+##############################################
+#
 #  Now we do the same for the unary operators
+#
 
 package LimitedComplex::UOP;
 
@@ -185,14 +206,22 @@ sub checkComplex { return 0 }
 
 sub theForm { LimitedComplex::BOP::theForm(@_) }
 
+##############################################
+
 package LimitedComplex::UOP::plus;
 our @ISA = qw(LimitedComplex::UOP Parser::UOP::plus);
+
+##############################################
 
 package LimitedComplex::UOP::minus;
 our @ISA = qw(LimitedComplex::UOP Parser::UOP::minus);
 
+##############################################
+##############################################
+#
 #  Absolute value does complex norm, so we
 #  trap that as well.
+#
 
 package LimitedComplex::List::AbsoluteValue;
 our @ISA = qw(Parser::List::AbsoluteValue);
@@ -204,12 +233,17 @@ sub _check {
 	$self->Error("Can't take absolute value of Complex Numbers in this context");
 }
 
+##############################################
+##############################################
+
 package LimitedComplex;
 
 sub Init {
 
+	#
 	#  Build the new context that calls the
 	#  above classes rather than the usual ones
+	#
 
 	my $context = $main::context{LimitedComplex} = Parser::Context->getCopy("Complex");
 	$context->{name} = "LimitedComplex";
@@ -228,35 +262,47 @@ sub Init {
 		'u+' => { class => 'LimitedComplex::UOP::plus' },
 		'u-' => { class => 'LimitedComplex::UOP::minus' },
 	);
-
+	#
 	#  Remove these operators and functions
-
+	#
 	$context->lists->set(AbsoluteValue => { class => 'LimitedComplex::List::AbsoluteValue' },);
 	$context->operators->undefine('_', 'U');
 	$context->functions->disable('Complex');
 	foreach my $fn ($context->functions->names) { $context->{functions}{$fn}{nocomplex} = 1 }
-
+	#
 	#  Format can be 'cartesian', 'polar', or 'either'
-
+	#
 	$context->flags->set(complex_format => 'either');
+
+	#########################
 
 	$context = $main::context{'LimitedComplex-cartesian'} = $main::context{LimitedComplex}->copy;
 	$context->flags->set(complex_format => 'cartesian');
 
+	#########################
+
 	$context = $main::context{'LimitedComplex-polar'} = $main::context{LimitedComplex}->copy;
 	$context->flags->set(complex_format => 'polar');
+
+	#########################
 
 	$context = $main::context{'LimitedComplex-cartesian-strict'} = $main::context{'LimitedComplex-cartesian'}->copy;
 	$context->flags->set(strict_numeric => 1);
 	$context->functions->disable('All');
 
+	#########################
+
 	$context = $main::context{'LimitedComplex-polar-strict'} = $main::context{'LimitedComplex-polar'}->copy;
 	$context->flags->set(strict_numeric => 1);
 	$context->functions->disable('All');
 
+	#########################
+
 	$context = $main::context{'LimitedComplex-strict'} = $main::context{'LimitedComplex'}->copy;
 	$context->flags->set(strict_numeric => 1);
 	$context->functions->disable('All');
+
+	#########################
 
 	main::Context("LimitedComplex");    ### FIXME:  probably should require the author to set this explicitly
 }

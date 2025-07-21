@@ -67,11 +67,14 @@ loadMacros('MathObjects.pl', 'contextInteger.pl');
 
 sub _contextCongruence_init { context::Congruence::Init() }
 
+###########################################################################
+
 package context::Congruence;
 our @ISA = ('Value::Formula');
 
+#
 #  Initialize the contexts and make the creator function.
-
+#
 sub Init {
 	my $context = $main::context{Congruence} = Parser::Context->getCopy("Numeric");
 	$context->{name} = "Congruence";
@@ -92,8 +95,9 @@ sub Init {
 			0    # default display only general solution. switch to 1 to display all possible solutions
 	);
 
+	#
 	#  Only allow general solution for answer and output
-
+	#
 	$context = $main::context{"Congruence-General-Solution"} = $context->copy;
 	$context->{name} = "Congruence-General-Solution";
 	$context->flags->set(
@@ -102,8 +106,9 @@ sub Init {
 		outputAllSolutions     => 0
 	);
 
+	#
 	#  Only allow all solutions for answer and output
-
+	#
 	$context = $main::context{"Congruence-All-Solutions"} = $context->copy;
 	$context->{name} = "Congruence-All-Solutions";
 	$context->flags->set(
@@ -185,8 +190,9 @@ sub allSolutions {
 	return Value::Formula->new($self->context, join(",", @solutions));
 }
 
+#
 #  Produce a string version
-
+#
 sub string {
 	my $self               = shift;
 	my $outputAllSolutions = $self->getFlag("outputAllSolutions");
@@ -198,8 +204,9 @@ sub string {
 	}
 }
 
+#
 #  Produce a TeX version
-
+#
 sub TeX {
 	my $self               = shift;
 	my $outputAllSolutions = $self->getFlag("outputAllSolutions");
@@ -220,8 +227,9 @@ sub typeMatch {
 package context::Congruence::Function::Numeric3;    # checks for 3 numeric inputs
 our @ISA = qw(Parser::Function);
 
+#
 #  Check for two real-valued arguments
-
+#
 sub _check {
 	my $self = shift;
 	return if ($self->checkArgCount(3));
@@ -243,8 +251,9 @@ sub _check {
 	}
 }
 
+#
 #  Check that the inputs are OK
-
+#
 sub _call {
 	my $self = shift;
 	my $name = shift;
@@ -255,19 +264,20 @@ sub _call {
 	return $self->$name(@_);
 }
 
+#
 #  Call the appropriate routine
-
+#
 sub _eval {
 	my $self = shift;
 	my $name = $self->{name};
 	$self->$name(@_);
 }
 
+#
 #  Congruence Class
 #  ax ≡ b (mod m)
 #
 # returns gcd, residue, divisor
-
 sub _getCongruenceData {
 	my $a = shift;
 	my $b = shift;

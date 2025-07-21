@@ -66,8 +66,9 @@ loadMacros(
 
 );
 
+#
 #  Set up the LimitedRadical context
-
+#
 sub _contextLimitedRadicalComplex_init {
 	my $context = $main::context{LimitedRadicalComplex} = Parser::Context->getCopy("Complex");
 	Parser::Number::NoDecimals($context);
@@ -127,7 +128,10 @@ sub _contextLimitedRadicalComplex_init {
 	};
 }
 
+###########################
+#
 #  Create root(n, x)
+#
 
 package my::Function::numeric2;
 our @ISA = ('Parser::Function::numeric2');
@@ -153,13 +157,16 @@ sub TeX {
 	return '\sqrt[' . $n->TeX . "]{" . $x->TeX . "}";
 }
 
+###########################
+#
 #  Subclass the numeric functions
-
+#
 package my::Function::numeric;
 our @ISA = ('Parser::Function::numeric');
 
+#
 #  Override sqrt() to return a special value times x when evaluated
-
+#
 sub sqrt {
 	my $self  = shift;
 	my $x     = shift;

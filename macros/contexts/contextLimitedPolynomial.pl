@@ -34,14 +34,18 @@ loadMacros("MathObjects.pl");
 
 sub _contextLimitedPolynomial_init { LimitedPolynomial::Init() };    # don't load it again
 
+##################################################
+#
 #  Handle common checking for BOPs
+#
 
 package LimitedPolynomial;
 
+#
 #  Mark a variable as having power 1
 #  Mark a number as being present (when strict coefficients are used)
 #  Mark a monomial as having its given powers
-
+#
 sub markPowers {
 	my $self = shift;
 	if ($self->class eq 'Variable') {
@@ -59,9 +63,10 @@ sub markPowers {
 	}
 }
 
+#
 #  Get a hash of variable names that point to indices
 #  within the array of powers for a monomial
-
+#
 sub getVarIndex {
 	my $self     = shift;
 	my $equation = $self->{equation};
@@ -73,22 +78,28 @@ sub getVarIndex {
 	return $equation->{varIndex};
 }
 
+#
 #  Check for a constant expression
-
+#
 sub isConstant {
 	my $self = shift;
 	return 1 if $self->{isConstant} || $self->class eq 'Constant';
 	return scalar(keys(%{ $self->getVariables })) == 0;
 }
 
+##################################################
+#
 #  Handle common checking for BOPs
+#
 
 package LimitedPolynomial::BOP;
 our @ISA = ();
 
+#
 #  Do original check and then if the operands are numbers, its OK.
 #  Otherwise, do an operator-specific check for if the polynomial is OK.
 #  Otherwise report an error.
+#
 
 sub _check {
 	my $self  = shift;
@@ -106,13 +117,15 @@ sub _check {
 	$self->Error("Your answer doesn't look like a simplified polynomial");
 }
 
+#
 #  filled in by subclasses
-
+#
 sub checkPolynomial { return 0 }
 
+#
 #  Check that the exponents of a monomial are OK
 #  and record the new exponent array
-
+#
 sub checkExponents {
 	my $self = shift;
 	my ($l, $r) = ($self->{lop}, $self->{rop});
@@ -136,9 +149,10 @@ sub checkExponents {
 	return 1;
 }
 
+#
 #  Check that the powers of combined monomials are OK
 #  and record the new power list
-
+#
 sub checkPowers {
 	my $self = shift;
 	my ($l, $r) = ($self->{lop}, $self->{rop});
@@ -159,20 +173,24 @@ sub checkPowers {
 	return 1;
 }
 
+#
 #  Report an error when both operands are constants
 #  and strictCoefficients is in effect.
-
+#
 sub checkStrict {
 	my $self = shift;
 	$self->Error("Can't use '%s' between constants", $self->{bop});
 }
 
+##############################################
+#
 #  Now we get the individual replacements for the operators
 #  that we don't want to allow.  We inherit everything from
 #  the original Parser::BOP class, and just add the
 #  polynomial checks here.  Note that checkPolynomial
 #  only gets called if at least one of the terms is not
 #  a number.
+#
 
 package LimitedPolynomial::BOP::add;
 our @ISA = qw(LimitedPolynomial::BOP Parser::BOP::add);
@@ -184,6 +202,8 @@ sub checkPolynomial {
 	$self->checkPowers;
 }
 
+##############################################
+
 package LimitedPolynomial::BOP::subtract;
 our @ISA = qw(LimitedPolynomial::BOP Parser::BOP::subtract);
 
@@ -193,6 +213,8 @@ sub checkPolynomial {
 	$self->Error("Subtraction is allowed only between monomials") if $r->{isPoly};
 	$self->checkPowers;
 }
+
+##############################################
 
 package LimitedPolynomial::BOP::multiply;
 our @ISA = qw(LimitedPolynomial::BOP Parser::BOP::multiply);
@@ -217,6 +239,8 @@ sub checkStrict {
 	$self->Error("You can only use '%s' between coefficents and variables in a simplified polynomial", $self->{bop});
 }
 
+##############################################
+
 package LimitedPolynomial::BOP::divide;
 our @ISA = qw(LimitedPolynomial::BOP Parser::BOP::divide);
 
@@ -240,6 +264,8 @@ sub checkStrict {
 	my $self = shift;
 	$self->Error("You can only use '%s' to form numeric fractions", $self->{bop}) if $self->{lop}->class eq 'BOP';
 }
+
+##############################################
 
 package LimitedPolynomial::BOP::power;
 our @ISA = qw(LimitedPolynomial::BOP Parser::BOP::power);
@@ -269,7 +295,11 @@ sub checkStrict {
 	$self->Error("You can only use powers of a variable in a simplified polynomial");
 }
 
+##############################################
+##############################################
+#
 #  Now we do the same for the unary operators
+#
 
 package LimitedPolynomial::UOP;
 
@@ -293,13 +323,21 @@ sub _check {
 
 sub checkPolynomial { return !(shift)->{op}{isPoly} }
 
+##############################################
+
 package LimitedPolynomial::UOP::plus;
 our @ISA = qw(LimitedPolynomial::UOP Parser::UOP::plus);
+
+##############################################
 
 package LimitedPolynomial::UOP::minus;
 our @ISA = qw(LimitedPolynomial::UOP Parser::UOP::minus);
 
+##############################################
+##############################################
+#
 #  Don't allow absolute values
+#
 
 package LimitedPolynomial::List::AbsoluteValue;
 our @ISA = qw(Parser::List::AbsoluteValue);
@@ -311,7 +349,11 @@ sub _check {
 	$self->Error("Can't use absolute values in polynomials");
 }
 
+##############################################
+##############################################
+#
 #  Only allow numeric function calls
+#
 
 package LimitedPolynomial::Function;
 
@@ -334,12 +376,16 @@ our @ISA = qw(LimitedPolynomial::Function Parser::Function::trig);
 package LimitedPolynomial::Function::hyperbolic;
 our @ISA = qw(LimitedPolynomial::Function Parser::Function::hyperbolic);
 
+##############################################
+##############################################
+
 package LimitedPolynomial;
 
 sub Init {
-
+	#
 	#  Build the new context that calls the
 	#  above classes rather than the usual ones
+	#
 
 	my $context = $main::context{LimitedPolynomial} = Parser::Context->getCopy("Numeric");
 	$context->{name} = "LimitedPolynomial";
@@ -358,15 +404,15 @@ sub Init {
 		'u+' => { class => 'LimitedPolynomial::UOP::plus' },
 		'u-' => { class => 'LimitedPolynomial::UOP::minus' },
 	);
-
+	#
 	#  Remove these operators and functions
-
+	#
 	$context->lists->set(AbsoluteValue => { class => 'LimitedPolynomial::List::AbsoluteValue' },);
 	$context->operators->undefine('_', '!', 'U');
 	$context->functions->disable("atan2");
-
+	#
 	#  Hook into the numeric, trig, and hyperbolic functions
-
+	#
 	foreach ('ln', 'log', 'log10', 'exp', 'sqrt', 'abs', 'int', 'sgn') {
 		$context->functions->set("$_" => { class => 'LimitedPolynomial::Function::numeric' });
 	}
@@ -376,13 +422,14 @@ sub Init {
 			"${_}h" => { class => 'LimitedPolynomial::Function::hyperbolic' }
 		);
 	}
-
+	#
 	#  Don't convert -ax-b to -(ax+b), or -ax+b to b-ax, etc.
-
+	#
 	$context->reduction->set("(-x)-y" => 0, "(-x)+y" => 0);
 
+	#
 	#  A context where coefficients can't include operations
-
+	#
 	$context = $main::context{"LimitedPolynomial-Strict"} = $context->copy;
 	$context->flags->set(strictCoefficients => 1, singlePowers => 1, reduceConstants => 0);
 	$context->functions->disable("All");    # can be re-enabled if needed

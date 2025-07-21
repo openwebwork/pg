@@ -19,8 +19,9 @@ This code is a copy of contextLimitedRadical.pl, with the following changes:
 
 loadMacros("bizarroArithmetic.pl");
 
+#
 #  Set up the RationalExponent context
-
+#
 sub _contextRationalExponent_init {
 	my $context = $main::context{RationalExponent} = Parser::Context->getCopy("Numeric");
 	Parser::Number::NoDecimals($context);
@@ -90,7 +91,10 @@ sub _contextRationalExponent_init {
 
 }
 
+###########################
+#
 #  Create root(n, x)
+#
 
 package my::Function::numeric2;
 our @ISA = ('Parser::Function::numeric2');
@@ -116,13 +120,16 @@ sub TeX {
 	return '\sqrt[' . $n->TeX . "]{" . $x->TeX . "}";
 }
 
+###########################
+#
 #  Subclass the numeric functions
-
+#
 package my::Function::numeric;
 our @ISA = ('Parser::Function::numeric');
 
+#
 #  Override sqrt() to return a special value times x when evaluated
-
+#
 sub sqrt {
 	my $self  = shift;
 	my $x     = shift;

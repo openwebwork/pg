@@ -99,8 +99,9 @@ sub _contextInequalities_init { Inequalities::Init() }
 
 package Inequalities;
 
+#
 #  Sets up the two inequality contexts
-
+#
 sub Init {
 	my $context = $main::context{Inequalities} = Parser::Context->getCopy("Interval");
 	$context->{name} = "Inequalities";
@@ -232,8 +233,9 @@ sub Init {
 	$context->{precedence}{Inequality}    = $context->{precedence}{special};
 	$context->lists->set(List => { class => 'Inequalities::List::List' });
 
+	#
 	#  Disable interval notation in "Inequalities-Only" context
-
+	#
 	$context = $main::context{"Inequalities-Only"} = $context->copy;
 	$context->lists->set(
 		Interval => { class => 'Inequalities::List::notAllowed' },
@@ -243,25 +245,29 @@ sub Init {
 	$context->operators->set('U' => { class => 'Inequalities::BOP::union' });
 	$context->constants->remove('R');
 
+	#
 	#  Define the Inequality() constructor
-
+	#
 	main::PG_restricted_eval('sub Inequality {Value->Package("Inequality")->new(@_)}');
 }
 
+##################################################
+#
 #  General BOP that handles the inequalities.
 #  The difference comes in the _eval() method,
 #  which tells what each computes.
-
+#
 package Inequalities::BOP::inequality;
 our @ISA = ("Parser::BOP");
 
+#
 #  Check that the inequality is formed between a variable and a number,
 #  or between a number and another compatible inequality.  Otherwise,
 #  give an error.
-
+#
 #  varPos and numPos tell which of lop or rop is the variable and which
 #  the number.  varName is the variable involved in the inequality.
-
+#
 sub _check {
 	my $self = shift;
 	$self->Error("'%s' should be written '%s'", $self->{bop}, $self->{def}{isSloppy})
@@ -294,10 +300,11 @@ sub _check {
 	$self->Error("'%s' can't be combined with '%s'", $v->{bop}, $self->{bop});
 }
 
+#
 #  Generate the interval for the given type of inequality.
 #  If it is a combined inequality, intersect with the other
 #  one to get the final set.
-
+#
 sub _eval {
 	my $self = shift;
 	my ($a, $b) = @_;
@@ -397,13 +404,15 @@ sub evalNotEqualTo {
 	)->with(notEqual => 1);
 }
 
+#
 #  Inequalities have dummy variables that are not really
 #  variables of a formula.
 
 sub getVariables { {} }
 
+#
 #  Avoid unwanted parentheses from the standard routines.
-
+#
 sub string {
 	my ($self, $precedence) = @_;
 	my $string;
@@ -427,8 +436,10 @@ sub TeX {
 	return $TeX;
 }
 
+##################################################
+#
 #  Implements the "and" operation as set intersection
-
+#
 package Inequalities::BOP::and;
 our @ISA = ("Parser::BOP");
 
@@ -445,8 +456,10 @@ sub _check {
 
 sub _eval { $_[1]->intersect($_[2]) }
 
+##################################################
+#
 #  Implements the "or" operation as set union
-
+#
 package Inequalities::BOP::or;
 our @ISA = ("Parser::BOP");
 
@@ -463,11 +476,13 @@ sub _check {
 
 sub _eval { $_[1] + $_[2] }
 
+##################################################
+#
 #  Subclass of Parser::Variable that records whether
 #  this variable has already been seen in the formula
 #  (so that it can be removed from the formula's
 #  variable list when used in an inequality.)
-
+#
 package Inequalities::Variable;
 our @ISA = ("Parser::Variable");
 
@@ -481,13 +496,15 @@ sub new {
 	return $n;
 }
 
+##################################################
+#
 #  A special class used for the variables in
 #  inequalities, since they are not really
 #  variables for the formula.  (They don't need
 #  to be substituted or given values when the
 #  formula is evaluated, and so on.)  These are
 #  really just placeholders, here.
-
+#
 package Inequalities::DummyVariable;
 our @ISA = ("Parser::Item");
 
@@ -517,8 +534,10 @@ sub perl {
 	return '$' . $self->{name};
 }
 
+##################################################
+#
 #  Give an error when U is used.
-
+#
 package Inequalities::BOP::union;
 our @ISA = ("Parser::BOP::union");
 
@@ -530,8 +549,10 @@ sub _check {
 	$self->Error("Unions are not allowed in this context");
 }
 
+##################################################
+#
 #  Don't allow sums and differences of inequalities
-
+#
 package Inequalities::BOP::add;
 our @ISA = ("Parser::BOP::add");
 
@@ -542,8 +563,10 @@ sub _check {
 		if $self->{lop}{isInequality} || $self->{rop}{isInequality};
 }
 
+##################################################
+#
 #  Don't allow sums and differences of inequalities
-
+#
 package Inequalities::BOP::subtract;
 our @ISA = ("Parser::BOP::subtract");
 
@@ -554,23 +577,31 @@ sub _check {
 		if $self->{lop}{isInequality} || $self->{rop}{isInequality};
 }
 
+##################################################
+#
 #  For the Inequalities-Only context, report
 #  an error for Intervals, Sets or Union notation.
-
+#
 package Inequalities::List::notAllowed;
 our @ISA = ("Parser::List::List");
 
 sub _check { (shift)->Error("You are not allowed to use intervals or sets in this context") }
 
+##################################################
+##################################################
+#
 #  Subclasses of the Interval, Set, and Union classes
 #  that stringify as inequalities
+#
 
+#
 #  Some common routines to all three classes
-
+#
 package Inequalities::common;
 
+#
 #  Turn the object back into its usual Value version
-
+#
 sub demote {
 	my $self    = shift;
 	my $context = $self->context;
@@ -580,19 +611,22 @@ sub demote {
 	$context->Package($other->type)->make($context, $other->makeData);
 }
 
+#
 #  Needed to get Interval data in the right order for make(),
 #  and demote all the items in a Union
-
+#
 sub makeData { (shift)->value }
 
+#
 #  Recursively mark Intervals and Sets in a Union as Inequalities
-
+#
 sub updateParts { }
 
+#
 #  Demote the operands to normal Value objects and
 #  perform the action, then remake the result into
 #  an Inequality again.
-
+#
 sub apply {
 	my $self    = shift;
 	my $context = $self->context;
@@ -614,8 +648,9 @@ sub compare {
 	return Value::_compare($self->demote, $self->demote($other), $flag);
 }
 
+#
 #  The name to use for error messages in answer checkers
-
+#
 sub class     {"Inequality"}
 sub cmp_class {"an Inequality"}
 sub showClass {"an Inequality"}
@@ -625,16 +660,18 @@ sub typeRef {
 	return Value::Type($self->type, $self->length, $Value::Type{number});
 }
 
+#
 #  Get the precedence based on the type rather than the class.
-
+#
 sub precedence {
 	my $self       = shift;
 	my $precedence = $self->context->{precedence};
 	return $precedence->{ $self->type } - $precedence->{Interval} + $precedence->{ $self->class };
 }
 
+#
 #  Produce better error messages for inequalities
-
+#
 sub cmp_checkUnionReduce {
 	my $self    = shift;
 	my $student = shift;
@@ -661,6 +698,8 @@ sub cmp_checkUnionReduce {
 		return Value::cmp_checkUnionReduce($self, $student, $ans, $nth, @_);
 	}
 }
+
+##################################################
 
 package Inequalities::Interval;
 our @ISA = ("Inequalities::common", "Value::Interval");
@@ -709,13 +748,16 @@ sub TeX {
 	}
 }
 
+##################################################
+
 package Inequalities::Union;
 our @ISA = ("Inequalities::common", "Value::Union");
 
 sub type {"Union"}
 
+#
 #  Mark all the parts of the union as inequalities
-
+#
 sub updateParts {
 	my $self = shift;
 	foreach my $I (@{ $self->{data} }) {
@@ -726,16 +768,18 @@ sub updateParts {
 	}
 }
 
+#
 #  Update the intervals and sets when a new union is made
-
+#
 sub make {
 	my $self = (shift)->SUPER::make(@_);
 	$self->updateParts;
 	return $self;
 }
 
+#
 #  Demote all the items in the union
-
+#
 sub makeData {
 	my $self = shift;
 	my @U    = ();
@@ -825,6 +869,8 @@ sub joinAnd {
 	return join($and, @_);
 }
 
+##################################################
+
 package Inequalities::Set;
 our @ISA = ("Inequalities::common", "Value::Set");
 
@@ -869,8 +915,10 @@ sub TeX {
 	return join('\hbox{ or }', @coords);
 }
 
+##################################################
+#
 #  A class for making inequalities by hand
-
+#
 package Inequalities::Inequality;
 our @ISA = ('Value');
 
@@ -893,8 +941,10 @@ sub new {
 	return $S;
 }
 
+##################################################
+#
 #  Allow Interval() to coerce types to Value::Interval
-
+#
 package Inequalities::MakeInterval;
 our @ISA = ("Value::Interval");
 
@@ -905,8 +955,10 @@ sub new {
 	return $self;
 }
 
+##################################################
+#
 #  Mark this as a list of inequalities (if it is)
-
+#
 package Inequalities::List;
 our @ISA = ("Value::List");
 
@@ -925,10 +977,10 @@ sub _check {
 	my $self = shift;
 	$self->SUPER::_check(@_);
 	if ($self->canBeInUnion) {
-
+		#
 		#  Convert lists that look like intervals into intervals
 		#  and then check if they are OK.
-
+		#
 		bless $self, $self->context->{lists}{Interval}{class};
 		$self->{type}   = $Value::Type{interval};
 		$self->{parens} = $self->context->{parens}{interval};
@@ -940,5 +992,7 @@ sub _check {
 		$self->typeRef->{entryType} = Value::Type("Inequality", $entryType->{length}, $entryType->{entryType});
 	}
 }
+
+##################################################
 
 1;

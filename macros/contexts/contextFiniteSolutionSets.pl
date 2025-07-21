@@ -180,14 +180,15 @@ sub _contextFiniteSolutionSets_init {
 		my @correctanswers = $ansHash->{correct_value}->value;
 		my $m              = scalar(@correctanswers);            # number of correct answers
 
+		#
 		#  Loop though the student answers
-
+		##
 		for ($i = 0; $i < $n; $i++) {
 			my $ith = ($n == 1) ? '' : Value::List->NameForNumber($i + 1);
 			my $p   = $studentanswers[$i];                                   # i-th student answer
-
-			#  Check that the student's answer is a number or assignment
-
+				#
+				#  Check that the student's answer is a number or assignment
+				#
 			if ($p->class ne "Formula" or $p->type ne "Number" and $p->type ne "Assignment") {
 				push(@errors, "Your $ith answer is not a number or assignment");
 				$score--;
@@ -200,13 +201,13 @@ sub _contextFiniteSolutionSets_init {
 					next;
 				}
 			}
-
+			#
 			#  For assignments, grab number
-
+			#
 			my $q = ($p->type eq "Assignment") ? Formula((split('=', $p))[1]) : $p;
-
+			#
 			#  Check that the number isn't an unreduced fraction
-
+			#
 			$mycontext = Context();
 			Context("Fraction");
 			Context()->flags->set(reduceFractions => 0);
@@ -218,9 +219,9 @@ sub _contextFiniteSolutionSets_init {
 					unless (($qfrac->value)[1] != 1);
 			}
 			Context($mycontext);
-
+			#
 			#  Check that the number hasn't been given before
-
+			#
 			for ($j = 0, $used = 0; $j < $i; $j++) {
 				my $r = $studentanswers[$j];
 				if ($r->class eq "Formula" and $r->type eq "Number" and $r == $q) {
@@ -240,11 +241,11 @@ sub _contextFiniteSolutionSets_init {
 					}
 				}
 			}
-
+			#
 			#  If not already used, compare to each of the correct answers
 			#    and increase the score if there is a match. If there is no
 			#    match, take note if the failure is because of form
-
+			#
 			if (!$used) {
 				my $qcmp;
 				for ($k = 0, $match = 0, $badform = 0; $k < $m; $k++) {
@@ -266,16 +267,16 @@ sub _contextFiniteSolutionSets_init {
 				}
 			}
 		}
-
+		#
 		#  Check that there are the right number of answers
-
+		#
 		if (!$ansHash->{isPreview}) {
 			push(@errors, "You need to provide more numbers") if $n < $m and $score == $n;
 			push(@errors, "You have given too many answers")  if $score > $m;
 		}
-
+		#
 		#  Express a preference for formatting
-
+		#
 		if ($studentFormula->type ne 'Set' and $m == $score and Context()->flags->get('preferSetNotation') == 1) {
 			push(@errors,
 				"The preferred notation for the solution set is${BR}\\(\\left\\{"
@@ -286,13 +287,16 @@ sub _contextFiniteSolutionSets_init {
 	};
 }
 
+###########################
+#
 #  Subclass the numeric functions
-
+#
 package finiteSolutionSets::Function::numeric;
 our @ISA = ('Parser::Function::numeric');
 
+#
 #  Override sqrt() to return a special value times x when evaluated
-
+#
 sub sqrt {
 	my $self  = shift;
 	my $x     = shift;
@@ -312,9 +316,9 @@ sub identity {
 
 package finiteSolutionSets::Function::numeric2;
 our @ISA = ('parser::Root::Function::numeric2');
-
+#
 #  Override root(n,) to return a special value times x when evaluated
-
+#
 sub root {
 	my $self = shift;
 	my ($n, $x) = @_;

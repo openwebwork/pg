@@ -186,9 +186,10 @@ sub _contextPercent_init { Percent::Init() }
 
 package Percent;
 
+#
 #  Initialization sets up a Perent() constructor and
 #  creates the percent contexts.
-
+#
 sub Init {
 	my $context = $main::context{Percent} = Parser::Context->getCopy("Numeric");
 	$context->{name} = "Percent";
@@ -260,8 +261,11 @@ sub Init {
 	main::PG_restricted_eval('sub Percent {Value->Package("Percent")->new(@_)}');
 }
 
+######################################################################
+######################################################################
+#
 #  When creating Number objects in the Parser, keep Percent objects.
-
+#
 package Percent::Number;
 our @ISA = ('Parser::Number');
 
@@ -271,10 +275,10 @@ sub new {
 	my $value    = shift;
 	my $context  = $equation->{context};
 	if (Value::classMatch($value, "Percent")) {
-
+		#
 		#  Put it back into a Value object, but must unmark it
 		#  as a Real temporarily to avoid an infinite loop.
-
+		#
 		$value->{isReal}        = 0;
 		$value                  = $self->Item("Value")->new($equation, [$value]);
 		$value->{value}{isReal} = 1;
@@ -284,11 +288,13 @@ sub new {
 	return $value;
 }
 
+##################################################
+#
 #  This class implements the percent symbol.
 #  It checks that its operand is a numeric constant
 #  in the correct format, and produces
 #  a Percent object when evaluated.
-
+#
 package Percent::UOP::percent;
 our @ISA = ('Parser::UOP');
 
@@ -319,25 +325,30 @@ sub _eval {
 	Value->Package("Percent")->make($self->context, $value, @_);
 }
 
+#
 #  Use the Percent MathObject to produce the output formats
-
+#
 sub string { (shift)->eval->string }
 sub TeX    { (shift)->eval->TeX }
 sub perl   { (shift)->eval->perl }
 
+######################################################################
+######################################################################
+#
 #  This is the MathObject class for Percent objects.
 #  It is basically a Real(), but one that stringifies
 #  and texifies itself to include the percent symbol,
 #  and evaluates to its value divided by 100.
-
+#
 package Percent::Percent;
 our @ISA = ('Value::Real');
 
+#
 #  We need to override the new() and make() methods
 #  so that the Percent object will be counted as
 #  a Value object.  If we aren't promoting Reals,
 #  produce an error message.
-
+#
 sub new {
 	my $self    = shift;
 	my $class   = ref($self) || $self;
@@ -374,8 +385,9 @@ sub truncate {
 	return $self->make(($n + 0) / 100);
 }
 
+#
 #  Format the output as a percent value.
-
+#
 sub format {
 	my $self   = shift;
 	my $type   = shift;
@@ -389,12 +401,14 @@ sub format {
 sub string { (shift)->format("string") }
 sub TeX    { (shift)->format("TeX") }
 
+#
 #  Override the class name to get better error messages
-
+#
 sub cmp_class {"a Percentage Value"}
 
+#
 #  Check for whether we want to work with reals as percents
-
+#
 sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
@@ -403,15 +417,22 @@ sub typeMatch {
 	return Value::classMatch($other, 'Percent');
 }
 
+######################################################################
+######################################################################
+#
 #  LimitedPercent contexts
+#
 
+##################################################
+#
 #  Handle common checking for BOPs
-
+#
 package LimitedPercent::BOP;
 
+#
 #  Do original check and then if the operands are numbers, its OK.
 #  Otherwise report an error.
-
+#
 sub _check {
 	my $self  = shift;
 	my $super = ref($self);
@@ -422,27 +443,42 @@ sub _check {
 	$self->Error("In this context, '%s' can only be used with Numbers", $bop);
 }
 
+##############################################
+#
 #  Now we get the individual replacements for the operators
 #  that we don't want to allow.  We inherit everything from
 #  the original Parser::BOP class, except the _check
 #  routine, which comes from LimitedPercent::BOP above.
+#
 
 package LimitedPercent::BOP::add;
 our @ISA = qw(LimitedPercent::BOP Parser::BOP::add);
 
+##############################################
+
 package LimitedPercent::BOP::subtract;
 our @ISA = qw(LimitedPercent::BOP Parser::BOP::subtract);
+
+##############################################
 
 package LimitedPercent::BOP::multiply;
 our @ISA = qw(LimitedPercent::BOP Parser::BOP::multiply);
 
+##############################################
+
 package LimitedPercent::BOP::divide;
 our @ISA = qw(LimitedPercent::BOP Parser::BOP::divide);
+
+##############################################
 
 package LimitedPercent::BOP::power;
 our @ISA = qw(LimitedPercent::BOP Parser::BOP::power);
 
+##############################################
+##############################################
+#
 #  Now we do the same for the unary operators
+#
 
 package LimitedPercent::UOP;
 
@@ -456,13 +492,22 @@ sub _check {
 	$self->Error("In this context, '%s' can only be used with Numbers", $uop);
 }
 
+##############################################
+
 package LimitedPercent::UOP::plus;
 our @ISA = qw(LimitedPercent::UOP Parser::UOP::plus);
+
+##############################################
 
 package LimitedPercent::UOP::minus;
 our @ISA = qw(LimitedPercent::UOP Parser::UOP::minus);
 
-#  Absolute value does vector norm, so we trap that as well.
+##############################################
+##############################################
+#
+#  Absolute value does vector norm, so we
+#  trap that as well.
+#
 
 package LimitedPercent::List::AbsoluteValue;
 our @ISA = qw(Parser::List::AbsoluteValue);

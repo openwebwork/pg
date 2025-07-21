@@ -40,7 +40,7 @@ a context reference, as in
 
 For the integer power functions, you can pass additional
 parameters that control the range of values that are allowed
-for the powers.  The oprtions include:
+for the powers.  The options include:
 
 =over
 
@@ -130,8 +130,9 @@ sub OnlyNonTrivialPositiveIntegers {
 	OnlyIntegers($context, minPower => 2, message => "integer constants bigger than 1", @_);
 }
 
+#
 #  Test for whether the power is an integer in the specified range
-
+#
 sub isInteger {
 	my $self = shift;
 	my $n    = shift;
@@ -141,8 +142,9 @@ sub isInteger {
 	return Value::Real->make($n - int($n)) == 0;
 }
 
+#
 #  Legacy code to accommodate older approach to setting the operators
-
+#
 our @NoBaseE = (
 	'^'  => { class => 'LimitedPowers::NoBaseE', isCommand => 1, perl => 'LimitedPowers::NoBaseE->_eval' },
 	'**' => { class => 'LimitedPowers::NoBaseE', isCommand => 1, perl => 'LimitedPowers::NoBaseE->_eval' },
@@ -164,6 +166,8 @@ our @OnlyNonTrivialPositiveIntegers = (
 	'**' => { class => 'LimitedPowers::OnlyIntegers', minPower => 2, message => "integer constants bigger than 1" },
 );
 
+##################################################
+
 package LimitedPowers::NoBaseE;
 @ISA = qw(Parser::BOP::power);
 
@@ -181,6 +185,8 @@ sub _eval {
 	$self->SUPER::_eval(@_);
 }
 
+##################################################
+
 package LimitedPowers::OnlyIntegers;
 @ISA = qw(Parser::BOP::power);
 
@@ -193,5 +199,7 @@ sub _check {
 	$self->Error("Powers must be $def->{message}")
 		if $p->type ne 'Number' || !$p->{isConstant} || !&{$checker}($self, $p->eval);
 }
+
+##################################################
 
 1;

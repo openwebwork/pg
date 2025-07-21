@@ -53,9 +53,13 @@ functions, though they can be re-enabled, if needed.
 
 =cut
 
+##################################################
+
 loadMacros("MathObjects.pl", "contextLimitedPolynomial.pl");
 
 sub _contextPolynomialFactors_init { PolynomialFactors::Init() }
+
+##############################################
 
 package PolynomialFactors::BOP::add;
 our @ISA = qw(LimitedPolynomial::BOP::add);
@@ -68,6 +72,8 @@ sub checkPolynomial {
 	$self->checkPowers;
 }
 
+##############################################
+
 package PolynomialFactors::BOP::subtract;
 our @ISA = qw(LimitedPolynomial::BOP::subtract);
 
@@ -78,6 +84,8 @@ sub checkPolynomial {
 		if $r->{isPoly} || ($l->{isPoly} && $l->{isPoly} > 2);
 	$self->checkPowers;
 }
+
+##############################################
 
 package PolynomialFactors::BOP::multiply;
 our @ISA = qw(LimitedPolynomial::BOP::multiply);
@@ -125,6 +133,8 @@ sub checkStrict {
 	$self->Error("You can only use '%s' between coefficents and variables or between factors", $self->{bop});
 }
 
+##############################################
+
 package PolynomialFactors::BOP::divide;
 our @ISA = qw(LimitedPolynomial::BOP::divide);
 
@@ -150,6 +160,8 @@ sub checkPolynomial {
 	}
 	return 1;
 }
+
+##############################################
 
 package PolynomialFactors::BOP::power;
 our @ISA = qw(LimitedPolynomial::BOP::power);
@@ -184,6 +196,8 @@ sub checkStrict {
 	$self->Error("You can only use powers of a variable or factor");
 }
 
+##############################################
+
 package PolynomialFactors::UOP::minus;
 our @ISA = qw(LimitedPolynomial::UOP::minus);
 
@@ -199,10 +213,14 @@ sub checkPolynomial {
 	return 1;
 }
 
+##############################################
+
 package PolynomialFactors::Formula;
 our @ISA = ('Value::Formula');
 
 sub cmp_postprocess { }
+
+##############################################
 
 package PolynomialFactors;
 our @ISA = ('LimitedPolynomal');
@@ -231,9 +249,10 @@ sub markOpFactor {
 }
 
 sub Init {
-
+	#
 	#  Build the new context that calls the
 	#  above classes rather than the usual ones
+	#
 
 	my $context = $main::context{PolynomialFactors} = Parser::Context->getCopy("LimitedPolynomial");
 	$context->{name} = "PolynomialFactors";
@@ -256,8 +275,9 @@ sub Init {
 	$context->{value}{'Formula'}   = "PolynomialFactors::Formula";
 	$context->{parser}{'Formula'}  = "PolynomialFactors::Formula";
 
+	#
 	#  A context where coefficients can't include operations
-
+	#
 	$context = $main::context{"PolynomialFactors-Strict"} = $context->copy;
 	$context->flags->set(
 		strictCoefficients => 1,

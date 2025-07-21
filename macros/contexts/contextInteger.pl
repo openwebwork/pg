@@ -78,10 +78,13 @@ loadMacros('MathObjects.pl');
 
 sub _contextInteger_init { context::Integer::Init() }
 
+###########################################################################
+
 package context::Integer;
 
+#
 #  Initialize the contexts and make the creator function.
-
+#
 sub Init {
 	my $context = $main::context{Integer} = Parser::Context->getCopy("Numeric");
 	$context->{name} = "Integer";
@@ -115,8 +118,9 @@ sub Init {
 	main::PG_restricted_eval("sub gcd {context::Integer::Function::Numeric2::gcd(\@_)}");
 }
 
+#
 # divisor function
-
+#
 sub _divisor {
 	my $power = abs(shift);
 	my $a     = abs(shift);
@@ -163,8 +167,9 @@ sub _getPrimesInRange {
 package context::Integer::Function::Numeric;
 our @ISA = qw(Parser::Function::numeric);    # checks for 2 numeric inputs
 
+#
 #  Prime Factorization
-
+#
 sub primeFactorization {
 	my $a = abs(shift);
 	$self->Error("Cannot factor Zero into primes.") if $a == 0;
@@ -190,8 +195,9 @@ sub primeFactorization {
 	return @results;
 }
 
+#
 # Euler's totient function phi(n)
-
+#
 sub phi {
 	my $a = abs(shift);
 	$self->Error("Cannot phi on Zero.") if $a == 0;
@@ -208,8 +214,9 @@ sub phi {
 	return $result;
 }
 
+#
 # number of divisors function tau(n)
-
+#
 sub tau {
 	my $a = shift;
 	return context::Integer::_divisor(0, $a);
@@ -236,8 +243,9 @@ sub randomPrime {
 package context::Integer::Function::Numeric2;
 our @ISA = qw(Parser::Function::numeric2);    # checks for 2 numeric inputs
 
+#
 #  Greatest Common Divisor
-
+#
 sub gcd {
 	my $a = abs(shift);
 	my $b = abs(shift);
@@ -250,8 +258,9 @@ sub gcd {
 	return $b;
 }
 
+#
 #  Extended Greatest Common Divisor
-
+#
 # return (g, x, y) a*x + b*y = gcd(x, y)
 sub egcd {
 	my $a = shift;
@@ -266,8 +275,9 @@ sub egcd {
 	}
 }
 
+#
 #  Modular inverse
-
+#
 # x = mulinv(b) mod n, (x * b) % n == 1
 sub mulularInverse {
 	my $b = shift;
@@ -280,8 +290,9 @@ sub mulularInverse {
 	}
 }
 
+#
 #  Least Common Multiple
-
+#
 sub lcm {
 	my $a = abs(shift);
 	my $b = abs(shift);

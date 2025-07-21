@@ -118,9 +118,13 @@ force alternate notation in problems without having to rewrite them.
 
 =cut
 
+##########################################################################
+
 loadMacros("MathObjects.pl");
 
 sub _contextAlternateIntervals_init { context::AlternateIntervals->Init }
+
+##########################################################################
 
 package context::AlternateIntervals;
 
@@ -168,22 +172,23 @@ sub Enable {
 	$context->lists->set("Interval" => { class => "context::AlternateIntervals::Parser::Interval" });
 }
 
+#
 #  Sets the default Interval context to use alternate decimals.  The
 #  two arguments determine the values for the enterIntervals and
 #  displayIntervals flags.  If enterIntervals is "alternate", then
 #  student answers must use the alternate format for entering
 #  intervals (though professors can use either).
-
+#
 sub Default {
 	my $self    = shift;
 	my $enter   = shift || "either";
 	my $display = shift || "either";
 	my $cmp     = ($enter eq "alternate");
 	$enter = "either" if $cmp;
-
+	#
 	#  This adds the names from InequalitySetBuilder, but we need a better way to
 	#  link into contexts as they are created and copied.
-
+	#
 	my @InequalitySetBuilder = (
 		"SetBuilder::",                   "InequalitySetBuilder::",
 		"InequalitySetBuilderInterval::", "InequalitySetBuilderUnion::",
@@ -201,6 +206,8 @@ sub Default {
 	}
 	main::Context(main::Context()->{name});
 }
+
+##########################################################################
 
 package context::AlternateIntervals::Formula;
 our @ISA = ('Value::Formula');
@@ -234,12 +241,13 @@ sub Open {
 	$self->push($item);
 }
 
+#
 #  We need to modify the test for formInterval to NOT check the number
 #  of entries so that better error messages are produced, and to handle
 #  multiple close delimiters.  These are both in teh "operand" branch,
 #  so do the original for all the choices, and copy that branch here,
 #  with our modifications.
-
+#
 sub Close {
 	my ($self, $type, $ref) = @_;
 	$self->{ref} = $ref;
@@ -293,6 +301,8 @@ sub Close {
 }
 
 sub class {'Formula'}
+
+##########################################################################
 
 package context::AlternateIntervals::Interval;
 our @ISA = ('Value::Interval');

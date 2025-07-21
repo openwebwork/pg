@@ -302,8 +302,9 @@ sub eval {
 package context::BaseN::BOP::modulo;
 our @ISA = ('Parser::BOP::divide');
 
+#
 #  Do the division.
-
+#
 sub _eval { $_[1] % $_[2] }
 
 #  A replacement for Value::Real that handles non-decimal integers
