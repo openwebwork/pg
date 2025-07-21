@@ -1,12 +1,11 @@
 
 =head1 NAME
 
-customizeLaTeX.pl - Defines default LaTeX constructs for certain mathematical
-                    ideas.
+customizeLaTeX.pl - Defines default LaTeX constructs for certain mathematical ideas.
 
 =head1 DESCRIPTION
 
-The functions are loaded by default.  Any/all can be overridden 
+The functions are loaded by default.  Any/all can be overridden
 in your course's PGcourse.pl
 =cut
 

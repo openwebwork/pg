@@ -1,7 +1,7 @@
 
-=head1 PGdiffeqmacros.pl DESCRIPTION
+=head1 NAME
 
-# Macros for Prills 163 problems
+PGdiffeqmacros.pl - Macros for Prills 163 problems
 
 =cut
 

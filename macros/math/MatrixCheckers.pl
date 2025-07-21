@@ -1,10 +1,8 @@
-sub _MatrixCheckers_init { };    # don't reload this file
-
-=pod
 
 =head1 NAME
 
-MatrixCheckers.pl
+MatrixCheckers.pl - Provides subroutines for answer checking using MathObjects
+matrices with real entries.
 
 =head1 SYNOPSIS
 
@@ -17,28 +15,22 @@ routines for using matrices to win at the game of checkers.)
 First, load the C<MatrixCheckers.pl> macro file.  If the basis has
 more than one vector, also load C<parserMultiAnswer.pl>.
 
-=over 12
-
-=item loadMacros("PGstandard.pl","MathObjects.pl","parserMultiAnswer.pl","MatrixCheckers.pl");
-
-=back
+    loadMacros("PGstandard.pl","MathObjects.pl","parserMultiAnswer.pl","MatrixCheckers.pl");
 
 For a matrix that has a single column or row, the way to use the
 answer checkers is the same as using a custom answer checker
-inside of C<cmp(checker=>~~&name_of_answer_checker_subroutine)>
+inside of C<< cmp(checker=>~~&name_of_answer_checker_subroutine) >>
 such as
 
-=over 12
+    ANS( Matrix([[1],[2],[3]])->cmp( checker=>~~&basis_checker_one_column ) );
+    ANS( Matrix([[1],[2],[3]])->cmp( checker=>~~&unit_basis_checker_one_column ) );
 
-=item C<ANS( Matrix([[1],[2],[3]])->cmp( checker=>~~&basis_checker_one_column ) );>
-
-=item C<ANS( Matrix([[1],[2],[3]])->cmp( checker=>~~&unit_basis_checker_one_column ) );>
-
-=back
 
 The "one column" at the end of the checker name refers to the
 fact that the student answer is a one-column matrix.  The "unit
 basis checker" ensures that the student answer has unit length.
+
+=head2 Checkers
 
 For answers that are a collection of column or row vectors, the
 way to use the answer checkers is inside of a MultiAnswer object.
@@ -46,27 +38,23 @@ The macro C<parserMultiAnswer.pl> should also be loaded.
 The answer checkers that should be used inside a MultiAnswer
 object are:
 
-=over 12
+=head3 basis_checker_columns
 
-=item C<basis_checker_columns>
+=head3 orthonormal_basis_checker_columns
 
-=item C<orthonormal_basis_checker_columns>
+=head3 basis_checker_rows
 
-=item C<basis_checker_rows>
+=head3 orthonormal_basis_checker_rows
 
-=item C<orthonormal_basis_checker_rows>
+=head3 parametric_plane_checker_columns
 
-=item C<parametric_plane_checker_columns>
-
-=back
+=head2 Examples
 
 Here is an example of how to use these answer checkers.
 In the setup section of the PG file we create two 3 x 1 MathObject
 matrices with real-entries that serve as basis vectors.  The object
 C<$multians> takes the basis vectors as input and passes them
 to the custom answer checker called by C<checker =<gt>...>.
-
-=over 12
 
     $basis1 = Matrix([1/sqrt(2), 0, 1/sqrt(2)])->transpose;
     $basis2 = Matrix([0,1,0])->transpose;
@@ -79,17 +67,12 @@ to the custom answer checker called by C<checker =<gt>...>.
         checker => ~~&orthonormal_basis_checker_columns,
     );
 
-=back
-
 In the main text portion of the PG file, we use C<\{ $multians-<gt>ans_array(15) \}>
 to create an array of text boxes that are 15 characters wide and have square
 brackets around them to look like a matrix.  The braces around the vectors, which
 are produced by C<\(\Bigg\lbrace\)> and C<\(\Bigg\rbrace\)>, are a matter of personal
 preference (since a basis is an ordered set, I like to include braces).
 
-
-
-    Context()->texStrings;
     BEGIN_TEXT
     Find an orthonormal basis for...
     $BR
@@ -101,17 +84,10 @@ preference (since a basis is an ordered set, I like to include braces).
     \(\Bigg\rbrace.\)
     $ECENTER
     END_TEXT
-    Context()->normalStrings;
-
-
 
 The answer evaluation section of the PG file is totally standard.
 
-=over 12
-
     ANS( $multians->cmp );
-
-=back
 
 The C<parametric_plane_checker_columns> should be used for
 solutions to non-homogeneous systems of linear equations for
@@ -122,17 +98,11 @@ on the hyperplane (i.e., the first vector input is always a
 particular solution), while the remaining vectors are a basis for
 the hyperplane (i.e., they span the homogeneous solution set).
 
-=head1 AUTHORS
-
-Paul Pearson, Hope College, Department of Mathematics
-
 =cut
 
-################################################
+sub _MatrixCheckers_init { };    # don't reload this file
 
-loadMacros("MathObjects.pl",);    # , will "parserMultiAnswer.pl" create an infinite loop?
-
-################################################
+loadMacros("MathObjects.pl",);   # , will "parserMultiAnswer.pl" create an infinite loop?
 
 sub concatenate_columns_into_matrix {
 
@@ -144,8 +114,6 @@ sub concatenate_columns_into_matrix {
 	return Matrix(\@temp)->transpose;
 
 }
-
-##########################################
 
 sub basis_checker_one_column {
 
@@ -167,8 +135,6 @@ sub basis_checker_one_column {
 	return $S->isParallel($C);
 
 }
-
-##########################################
 
 sub basis_checker_columns {
 
@@ -215,8 +181,6 @@ sub basis_checker_columns {
 
 }
 
-#############################################
-
 sub unit_basis_checker_one_column {
 
 	my ($correct, $student, $answerHash) = @_;
@@ -235,8 +199,6 @@ sub unit_basis_checker_one_column {
 	return ($S->isParallel($C) and norm($S) == 1);
 
 }
-
-###############################################
 
 sub orthonormal_basis_checker_columns {
 
@@ -290,8 +252,6 @@ sub orthonormal_basis_checker_columns {
 
 }
 
-##############################################
-
 sub basis_checker_rows {
 
 	my ($correct, $student, $answerHash) = @_;
@@ -337,8 +297,6 @@ sub basis_checker_rows {
 	return $S == $C * $X;
 
 }
-
-#############################################
 
 sub orthonormal_basis_checker_rows {
 
@@ -392,8 +350,6 @@ sub orthonormal_basis_checker_rows {
 	return $S == $C * $X;
 
 }
-
-##############################################
 
 sub parametric_plane_checker_columns {
 
@@ -456,7 +412,5 @@ sub parametric_plane_checker_columns {
 	return $S == $C * $X;
 
 }
-
-########################################################
 
 1;
