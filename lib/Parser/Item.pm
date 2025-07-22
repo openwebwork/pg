@@ -113,12 +113,12 @@ sub canBeInUnion {0}
 sub isSetOfReals { (shift)->type =~ m/^(Interval|Union|Set)$/ }
 
 #
-#  Add parens to an expression (alternating the type of paren)
+#  Add parens to an expression (alternating the type of paren unless stringifyNoBrackets is set)
 #
 sub addParens {
 	my $self   = shift;
 	my $string = shift;
-	if ($string =~ m/^[^\[]*\(/) { return '[' . $string . ']' }
+	return '[' . $string . ']' if $string =~ m/^[^\[]*\(/ && !$self->context->flag('stringifyNoBrackets');
 	return '(' . $string . ')';
 }
 

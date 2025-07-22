@@ -1,24 +1,13 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-answerVariableList.pl - Creates answer checkers that compare the student's
-answer to a list of variable names.
+answerVariableList.pl - Answer checker for a list of variables.
 
-=head1 MACROS
+=head1 DESCRIPTION
+
+Creates answer checkers that compare the student's answer to a list of variable names.
+
+=head1 FUNCTIONS
 
 =head2 variable_cmp
 
@@ -92,7 +81,7 @@ sub variable_cmp {
 
 =head2 addVariables
 
- addVariables(@vars)
+    addVariables(@vars)
 
 Adds each string in @vars as a varible to the current context.
 

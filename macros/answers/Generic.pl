@@ -1,30 +1,28 @@
-#R. Byerly, Texas Tech University, 2005
 
-sub _Generic { }    #Don't reload this file.
+=head1 NAME
 
-#Documentation:
+Generic.pl - Provide some generic answer checkers.
 
-=head1 Generic Answer Checker
+=head1 DESCRIPTION
 
-(Based on David Cervone's vector_cmp.  See
-doc/parser/extensions/8-answer.pg under the webwork2 directory.)
-Place in macros directory and load this file (Generic.pl) using the
-loadMacros command.  (To just copy it into a pg file, replace
-occurences of "\&" by "~~&".)
+This macro provides a set of functions that provide a generic answer checker.
 
- Usage:
+Usage:
 
-  ANS(  generic_cmp(<prof_answer>, <optional and mandatory arguments>) );
+    ANS(  generic_cmp(<prof_answer>, <optional and mandatory arguments>) );
+
 where <prof_answer> is a parser object or syntactically correct string
 for a parser object.
 
 Mandatory arguments:
 
-  type => <type>
+    type => <type>
+
 where <type> is a recognized parser type (e.g., Number, Point, Vector,
 Matrix, etc.)
 
-  checker => <checker>
+    checker => <checker>
+
 where <checker> is a reference to a subroutine that will be passed (in
 order) the parsed (and, if possible, evaluated) student answer, the
 parsed professor's answer, and a reference to the answer hash.  (The
@@ -33,62 +31,55 @@ evaluators, the last two are typically not used.
 
 Optional arguments:
 
- correct_ans => <answer_string>
+    correct_ans => <answer_string>
+
 where <answer_string> is a string that will show up as the correct
 answer when solutions are available.
 
- variables_allowed => 0 or 1 
+    variables_allowed => 0 or 1
+
 (default 0 (false).  Determines whether student's answer is allowed to
 contain variables.  In this case the checker must take care of
 evaluating it.)
 
- length => n
+    length => n
+
 where n is the number of elements in an expected answer of type list,
 vector, or points.  Returns error message to student if answer of wrong
 length is entered.
 
+=head1 SYNOPSIS
 
-####################Example:##########################
-DOCUMENT();        # This should be the first executable line in the problem.
+    DOCUMENT();
 
-loadMacros(
-"PG.pl",
-"PGbasicmacros.pl",
-"PGanswermacros.pl",
-"Parser.pl",
-"Generic.pl",
-);
+    loadMacros("PG.pl", "PGbasicmacros.pl", "PGanswermacros.pl", "Parser.pl", "Generic.pl");
 
-TEXT(&beginproblem);
+    Context("Vector");
+    $A=Vector(1,2,1);
+    $B=Vector(1,3,1);
+    $C=Vector(1,4,1);
 
-Context("Vector");
-$A=Vector(1,2,1);
-$B=Vector(1,3,1);
-$C=Vector(1,4,1);
+    BEGIN_TEXT
+    Show that the vectors \(\{$A->TeX\}, \{$B->TeX\}, \{$C->TeX\}\) do
+    not span \(R^3\) by giving a vector not in their span:
+    \{ans_rule()\}
+    END_TEXT
 
-BEGIN_TEXT
-Show that the vectors \(\{$A->TeX\}, \{$B->TeX\}, \{$C->TeX\}\) do
-not span \(R^3\) by giving a vector not in their span:
-\{ans_rule()\}
-END_TEXT
+    sub check {
+      my $stu=shift;
+      $x1=$stu->extract(1); $x3=$stu->extract(3);
+      $x1 != $x3; #any vectors with different 1st and 3rd coordinates
+    }
 
-#Easy to get by guessing!
+    ANS(generic_cmp("23",type => 'Vector', length => 3, checker => ~~&check));
 
-sub check{
-  my $stu=shift();
-  $x1=$stu->extract(1); $x3=$stu->extract(3);
-  $x1 != $x3; #any vectors with different 1st and 3rd coordinates
-}
+    ENDDOCUMENT();
 
-ANS(generic_cmp("23",type => 'Vector', length => 3, checker => ~~&check));
-
-ENDDOCUMENT(); # This should be the last executable line in the problem.
-
-####################End of Example########################
+=head1 FUNCTIONS
 
 =cut
 
-#End of Documentation
+sub _Generic_init { }    # don't reload this file.
 
 #From parserUtils.pl:
 sub protectHTML {
@@ -99,6 +90,10 @@ sub protectHTML {
 	$string;
 
 }
+
+=head2 generic_cmp
+
+=cut
 
 sub generic_cmp {
 	my $v    = shift;
@@ -119,6 +114,10 @@ sub generic_cmp {
 	$ans->install_evaluator(\&generic_cmp_check);
 	return $ans;
 }
+
+=head2 generic_cmp_check
+
+=cut
 
 sub generic_cmp_check {
 	my $ans  = shift;

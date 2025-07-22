@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 loadMacros('MathObjects.pl', 'PGbasicmacros.pl');
 
@@ -75,9 +61,8 @@ sub new {
 	}, $class;
 }
 
-#
 #  Set flags to be passed to individual answer checkers
-#
+
 sub setCmpFlags {
 	my ($self, $cmp_number, %flags) = @_;
 	die "Answer $cmp_number is not defined." unless defined($self->{cmp}[ $cmp_number - 1 ]);
@@ -85,11 +70,10 @@ sub setCmpFlags {
 	return $self;
 }
 
-#
 #  Creates an answer checker (or array of same) to be passed
 #  to ANS() or NAMED_ANS().  Any parameters are passed to
 #  the individual answer checkers.
-#
+
 sub cmp {
 	my ($self, %options) = @_;
 
@@ -144,7 +128,6 @@ sub cmp {
 }
 
 ######################################################################
-
 #
 #  Get the answer checker used for when all the answers are treated
 #  as a single result.

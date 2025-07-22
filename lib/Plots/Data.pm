@@ -260,7 +260,8 @@ sub function_string {
 	my $format      = $formula->context->{format}{number};
 	$formula->context->flags->set(showExtraParens => 2);
 	$formula->context->{format}{number} = "%f#";
-	my $func = $formula->string;
+	# Get no bracket string for $formula
+	my $func = $formula . "";
 	$func =~ s/\s//g;
 	$formula->context->flags->set(showExtraParens => $extraParens);
 	$formula->context->{format}{number} = $format;
@@ -368,8 +369,6 @@ sub function_string {
 		}
 	}
 
-	$out =~ s/\[/(/g;
-	$out =~ s/\]/)/g;
 	return $out;
 }
 

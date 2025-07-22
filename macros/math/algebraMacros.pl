@@ -1,21 +1,24 @@
-# algebraMacros.pl
 
-# define any custom subroutines you want and then use them in
-# problems by including the file in loadMacros() calls.
+=head1 NAME
 
-sub _algebraMacros_init {
+algebraMacros.pl - a set of functions that are useful in an algebra/number theory problems
 
-	#Possibly add initialization code here
-	#sub routine is not required, but prevents the macro from being re-loaded
+=cut
 
-}
+sub _algebraMacros_init { }
 
-######################## subroutines
+=head1 FUNCTIONS
 
-# fisher-yates shuffle
-# argument: reference to a list
-#			shuffles list in-place
-# returns: nothing
+=head2 fyshuffle
+
+fisher-yates shuffle
+
+argument: reference to a list shuffles list in-place
+
+returns: nothing
+
+=cut
+
 sub fyshuffle {
 	my $array = shift;
 	my $i     = @$array;
@@ -25,11 +28,18 @@ sub fyshuffle {
 	}
 }
 
-# extended euclidean algorithm
-# by Dick Lane
-# http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2286
-# arguments: a, b
-# returns: d, x, y, s, t where gcd( a, b ) = d = a( x + sk ) + b( y + tk ) for all k
+=head2 xgcd
+
+extended euclidean algorithm
+
+arguments: a, b
+
+returns: d, x, y, s, t where gcd( a, b ) = d = a( x + sk ) + b( y + tk ) for all k
+
+=cut
+
+# by Dick Lane  http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2286
+
 sub xgcd ($$) {
 	my ($a, $b, $x, $y, $s, $t) = (@_, 1, 0, 0, 1);
 
@@ -41,10 +51,17 @@ sub xgcd ($$) {
 	return [ $a, $x, $y, $s, $t ];
 }
 
-# subroutine to decompose a permutation into a product of disjoint cycles.
-# argument: reference to a list containing the permutation data
-#			that is, element 0 of the list is f(0), element 1 is f(1), etc
-# returns: mathObject list of lists representing the cycle decomposition of the permutation
+=head2 disjointCycles
+
+subroutine to decompose a permutation into a product of disjoint cycles.
+
+argument: reference to a list containing the permutation data that is,
+element 0 of the list is f(0), element 1 is f(1), etc
+
+returns: mathObject list of lists representing the cycle decomposition of the permutation
+
+=cut
+
 sub disjointCycles {
 	$p = shift;
 
@@ -81,9 +98,18 @@ sub disjointCycles {
 	return $result;
 }
 
-# subroutine to decompose a permutation into a product of transpositions ( 2-cycles ).
-# argument: mathObject list of lists representing the cycle decomposition of the 	permutation (i.e., the output of disjointCycles() )
-# returns: mathObject list of lists representing the permutation as a list of transpositions
+=head2 cyclesToTranspositions
+
+
+subroutine to decompose a permutation into a product of transpositions ( 2-cycles ).
+
+argument: mathObject list of lists representing the cycle decomposition of the
+permutation (i.e., the output of disjointCycles() )
+
+returns: mathObject list of lists representing the permutation as a list of transpositions
+
+=cut
+
 sub cyclesToTranspositions {
 	my $listOfCycles = shift;
 
@@ -97,13 +123,22 @@ sub cyclesToTranspositions {
 		}
 	}
 
-# unlike disjointCycles, this subroutine is only used in a problem where the permutation has order > 4, so there will always be more than one element. Therefore we don't have to do any weird stuff to format the list (make parentheses display correctly)
+	# unlike disjointCycles, this subroutine is only used in a problem where the permutation has
+	# order > 4, so there will always be more than one element. Therefore we don't have to do
+	# any weird stuff to format the list (make parentheses display correctly)
 	return List(@transpositions);
 }
 
-# subroutine to determine the order of a permutation
-# argument: a list of lists representing a permutation in the form of a product of disjoint cycles ( i.e., the output of disjointCycles() )
-# returns: mathObject integer representing the order of the permutation
+=head2 cycleOrder
+
+subroutine to determine the order of a permutation
+
+argument: a list of lists representing a permutation in the form of a product of disjoint cycles ( i.e., the output of disjointCycles() )
+
+returns: mathObject integer representing the order of the permutation
+
+=cut
+
 sub cycleOrder {
 	my $p = shift;    # list of lists
 
@@ -113,9 +148,16 @@ sub cycleOrder {
 	return Compute($order);
 }
 
-# subroutine to determine the parity of a permutation
-# argument: a list of lists representing a permutation in the form of a product of disjoint cycles (i.e., the output of disjointCycles() )
-# returns: TRUE if the permutation is even, FALSE if the permutation is odd
+=head2 isEven
+
+subroutine to determine the parity of a permutation
+
+argument: a list of lists representing a permutation in the form of a product of disjoint cycles (i.e., the output of disjointCycles() )
+
+returns: TRUE if the permutation is even, FALSE if the permutation is odd
+
+=cut
+
 sub isEven {
 	my $p = shift;
 
@@ -124,8 +166,6 @@ sub isEven {
 	return !($numberEvenCycles % 2);
 
 }
-
-######################## frequently-used custom checkers
 
 # you can call these when checking answers like this:
 #
@@ -153,6 +193,11 @@ sub isEven {
 #	Comment:	This checker is defined in algebraMacros.pl because it's used
 #				in so many problems
 ###############################################################################
+
+=head2 modChecker
+
+=cut
+
 sub modChecker {
 	my ($correct, $student, $ansHash) = @_;    # get correct and student MathObjects
 	return ($student % $modulus == $correct % $modulus ? 1 : 0);
@@ -173,6 +218,11 @@ sub modChecker {
 #	Comment:	This checker is defined in algebraMacros.pl because it's used
 #				in so many problems
 ###############################################################################
+
+=head2 checkCycles
+
+=cut
+
 sub checkCycles {
 	my ($correct, $student, $ansHash) = @_;
 
@@ -208,6 +258,11 @@ sub checkCycles {
 #	Comment:	This checker is defined in algebraMacros.pl because it's used
 #				in so many problems
 ###############################################################################
+
+=head2 checkListOfTranspositions
+
+=cut
+
 sub checkListOfTranspositions {
 	my ($correct, $student, $ansHash, $value) = @_;
 
@@ -243,8 +298,9 @@ sub checkListOfTranspositions {
 	# read the two hashes to make sure they're the same. if not, the answer is wrong
 	return scalar(grep { $studentPerm{$_} != $correctPerm{$_} } (1 .. @x)) ? (0) : (scalar(@$student));
 
-# an alternative way to do this would be to compute the permutation represented by the correct list of transpositions, then do the inverse of the student's list of transpositions (work left-to-right instead of right-to-left) on the same list, and see if it results in the identity.
+	# an alternative way to do this would be to compute the permutation represented by the correct
+	# list of transpositions, then do the inverse of the student's list of transpositions (work left-to-right
+	# instead of right-to-left) on the same list, and see if it results in the identity.
 }
-###############################################################################
 
-1;    #required at end of file - a perl thing
+1;

@@ -1,21 +1,7 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-C<Context("AlternateDecimal")> - Provides a context that allows the
+contextAlternateDecimal.pl - Provides a context that allows the
 entry of decimal numbers using a comma for the decimal indicator
 rather than a dot (e.g., C<3,14159> rather than C<3.14159>).
 
@@ -27,11 +13,7 @@ Both forms are always recognized, but you can determine whether one or
 the other form produces an error message when used.  You can also
 force the display of numbers to use one or the other form.
 
-=head1 USAGE
-
-To use this file, first load it into your problem, then select the
-context that you wish to use.  There are three pre-defined contexts,
-C<AlternateDecimal>, C<AlternateDecimal-Only>, and
+There are three pre-defined contexts, C<AlternateDecimal>, C<AlternateDecimal-Only>, and
 C<AlternateDecimal-Warning>.  The first allows both the standard and
 alternate forms to be used, the second allows only the alternate form,
 and the third allows only the standard form, but recognizes the
@@ -96,7 +78,7 @@ would allow students to enter decimals in either format, but all
 numebrs would be displayed in standard form.
 
 
-=head1 LISTS IN ALTERNATE FORMAT
+=head2 LISTS IN ALTERNATE FORMAT
 
 Because the alternate format allows numbers to be entered using commas
 rather than periods, this makes the formation of lists harder.  For
@@ -121,7 +103,7 @@ use C<3, 2,1> since the comma in C<3,> is not part of the number, so
 must be a list separator.
 
 
-=head1 SETTING THE ALTERNATE FORM AS THE DEFAULT
+=head2 SETTING THE ALTERNATE FORM AS THE DEFAULT
 
 If you want to force existing problems to allow (or force, or warn about)
 the alternate format instead, then create a file named
@@ -129,8 +111,8 @@ C<parserCustomization.pl> in your course's C<templates/macros>
 directory, and enter the following in it:
 
     loadMacros("contextAlternateDecimal.pl");
-        context::AlternateDecimal->Default("either","either");
-        Context("Numeric");
+    context::AlternateDecimal->Default("either","either");
+    Context("Numeric");
 
 This will alter all the standard contexts to allow students to enter
 numbers in either format, and will display them using the form that
@@ -139,8 +121,8 @@ was used to enter them.
 You could also do
 
     loadMacros("contextAlternateDecimal.pl");
-        context::AlternateDecimal->Default(".",".");
-        Context("Numeric");
+    context::AlternateDecimal->Default(".",".");
+    Context("Numeric");
 
 to cause a warning message to appear when students enter the alternate
 format.
@@ -148,8 +130,8 @@ format.
 If you want to force students to enter the alternate format, use
 
     loadMacros("contextAlternateDecimal.pl");
-        context::AlternateDecimal->Default(",",",");
-        Context("Numeric");
+    context::AlternateDecimal->Default(",",",");
+    Context("Numeric");
 
 This will force the display of all numbers into the alternate form (so
 even the ones created in the problem using standard form will show

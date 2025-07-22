@@ -1,24 +1,9 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
-=encoding UTF-8
+=encoding utf8
+
 =head1 NAME
 
-
-C<Context("Congruence")> - Provides contexts that allow the
-entry of congruence solutions
+contextCongruence.pl - Provides contexts that allow the entry of congruence solutions
 
 =head1 DESCRIPTION
 
@@ -32,9 +17,6 @@ requires the general solution, and C<Context("Congruence-All-Solutions")>, which
 requires all solutions to be entered.
 
 Congruences must be created with three paramters (a, b, m) from ax ≡ b (mod m).
-
-=head1 USAGE
-
 
     loadMacros("contextCongruence.pl");
 

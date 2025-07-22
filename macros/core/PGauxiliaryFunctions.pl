@@ -1,22 +1,7 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-A set of auxiliary functions that are often used in PG problems.
-
+PGauxialliaryFunctions.pl - A set of auxiliary functions that are often used in PG problems.
 
 =head1 DESCRIPTION
 
@@ -43,11 +28,11 @@ This macro creates the following functions that are available for PG:
 # ^uses loadMacros
 loadMacros("PGcommonFunctions.pl");
 
-sub _PGauxiliaryFunctions_init {
+sub _PGauxiliaryFunctions_init { }
 
-}
+=head1 FUNCTIONS
 
-=head2 step function
+=head2 step
 
 Usage: C<step(x);>
 
@@ -65,7 +50,7 @@ sub step {    # Heaviside function (1 or x>0)
 	($x > 0) ? 1 : 0;
 }
 
-=head2 ceil Function
+=head2 ceil
 
 Usage: C<ceil(x);>
 
@@ -83,7 +68,7 @@ sub ceil {
 	-floor(-$x);
 }
 
-=head2 floor Function
+=head2 floor
 
 Usage: C<floor(x);>
 
@@ -103,7 +88,7 @@ sub floor {
 	$out;
 }
 
-=head2 max function
+=head2 max
 
 Usage: C<max(@arr);>
 
@@ -128,9 +113,9 @@ sub max {
 
 }
 
-=head2 min function
+=head2 min
 
-=pod
+
 
 Usage: C<min(@arr);>
 
@@ -157,7 +142,7 @@ sub min {
 
 # round added 6/12/2000 by David Etlinger. Edited by AKP 3-6-03
 
-=head2 round function
+=head2 round
 
 Usage: C<round(x);>
 
@@ -176,7 +161,7 @@ sub round {
 	$out;
 }
 
-=head2 Round function
+=head2 Round
 
 Usage: C<Round(x);>
 
@@ -198,7 +183,7 @@ sub Round {
 	elsif (@_ == 2) { $_[0] > 0 ? Round($_[0] * 10**$_[1]) / 10**$_[1] : Round($_[0] * 10**$_[1]) / 10**$_[1] }
 }
 
-=head2 lcm function
+=head2 lcm
 
 Usage: C<lcm(@arr);>
 
@@ -222,9 +207,9 @@ sub lcm {
 	return lcm($a * $b / gcf($a, $b), @_);
 }
 
-=head2 gcf function
+=head2 gcf
 
-=pod
+
 
 Usage: C<gcf(@arr);>
 
@@ -255,9 +240,9 @@ sub gcf {
 	return gcf($b, @_);
 }
 
-=head2 gcd function
+=head2 gcd
 
-=pod
+
 
 C<Usage: gcd(@arr);>
 
@@ -275,9 +260,7 @@ sub gcd {
 	return gcf(@_);
 }
 
-=head2 random_coprime function
-
-=pod
+=head2 random_coprime
 
 Usage: C<random_coprime(array of array_refs);>
 
@@ -372,7 +355,7 @@ sub random_coprime {
 	}
 }
 
-=head2 random_pairwise_coprime function
+=head2 random_pairwise_coprime
 
 Usage: C<random_pairwise_coprime($arr);>
 
@@ -430,7 +413,7 @@ sub random_pairwise_coprime {
 	}
 }
 
-=head2 isPrime function
+=head2 isPrime
 
 Usage: C<isPrime(n);>
 
@@ -455,7 +438,7 @@ sub isPrime {
 	return 1;
 }
 
-=head2 reduce function
+=head2 reduce
 
 Usage: C<reduce(num,den);>
 
@@ -485,7 +468,7 @@ sub reduce {
 	@frac;
 }
 
-=head2 preFormat function
+=head2 preFormat
 
 Usage: C<preFormat($scalar, "quoted string");>
 
@@ -556,7 +539,7 @@ sub random_subset {
 	return wantarray ? @out : \@out;
 }
 
-=head2 repeated function
+=head2 repeated
 
 Usage: C<repeated(@list)>
 

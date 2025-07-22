@@ -1,11 +1,13 @@
 
-sub _weightedGrader_init { };    # don't reload this file
-
 =head1 NAME
 
-weightedGrader.pl
+weightedGrader.pl - This provides weights for each answer.
 
 =head1 DESCRIPTION
+
+Note: This macro should not be used anymore. The functionality of this macro is
+now integrated into the default C<avg_problem_grader>.  See
+L<PGanswermacros.pl/avg_problem_grader>.
 
 A weighted grader that allows you to assign arbitrary percentages
 to the various answers in a problem.  It also allows you to indicate
@@ -13,7 +15,6 @@ that answering one part correctly will give you credit for some
 other part(s).  This way, if there are several parts leading up to
 a "goal" answer, and the student produces the goal answer by
 some other means, he can be given full credit for the problem anyway.
-
 
 =head2 WEIGHTED ANSWERS:
 
@@ -155,6 +156,8 @@ install the weighted grader.  Do this using the command
     install_weighted_grader();
 
 =cut
+
+sub _weightedGrader_init { };    # don't reload this file
 
 ##################################################
 #

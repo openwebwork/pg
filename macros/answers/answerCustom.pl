@@ -1,22 +1,15 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-answerCustom.pl - An easy method for creating answer checkers with a custom
-subroutine that performs the check for correctness.
+answerCustom.pl - Provides custom answer checkers.
+
+=cut
+
+=head1 DESCRIPTION
+
+This macro provides methods for creating answer checkers with a custom
+subroutine that performs the check for correctness.  A similar method is provided
+for lists.
 
 =cut
 
@@ -24,7 +17,7 @@ loadMacros('MathObjects.pl');
 
 sub _answerCustom_init { };    # don't reload this file
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 custom_cmp
 
@@ -45,25 +38,17 @@ the following:
 
 =item S<C<< sameClass => 0 or 1 >>>
 
-If 1 (the default), only call the
-custom checker if the student answer
-is the same object class as the correct
-answer (e.g., both are points).
-If 0, the checker will be called
-whenever the student answer passes
-the typeMatch check for the correct
-answer.  For example, if the correct
-answer is a vector, and promotePoints
-has been set to 1, then the checker
-will be called when the student answer
-is a vector OR a point.
+If 1 (the default), only call the custom checker if the student answer
+is the same object class as the correct answer (e.g., both are points).
+If 0, the checker will be called whenever the student answer passes
+the typeMatch check for the correct answer.  For example, if the correct
+answer is a vector, and promotePoints has been set to 1, then the checker
+will be called when the student answer is a vector OR a point.
 
 =item S<C<< sameLength => 0 or 1 >>>
 
-If 1 (the default), only call the
-custom checker if the student answer
-has the same number of coordinates as
-the correct answer.
+If 1 (the default), only call the custom checker if the student answer
+has the same number of coordinates as the correct answer.
 
 =back
 
@@ -121,10 +106,9 @@ sub custom_cmp {
 	);
 }
 
-#
 #  Set this to include any default parameters you want
 #  to include in the custom answer checkers
-#
+
 @custom_cmp_defaults = ();
 
 =head2 custom_list_cmp
@@ -184,9 +168,8 @@ sub custom_list_cmp {
 	);
 }
 
-#
 #  Set this to include any default parameters you want
-#  to include in the custom answer checkers
-#
+#  to include in the custom answer checkers.
+
 @custom_list_cmp_defaults = ();
 

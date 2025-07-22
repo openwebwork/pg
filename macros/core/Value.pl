@@ -1,11 +1,11 @@
 
+=head1 NAME
+
+Value.pl - Declares constructors for MathObjects
+
 =head1 DESCRIPTION
 
- Declares constructors for MathObjects
-
-=cut
-
-=head2 Constructors for the various Mathobject types
+Declares constructors for various MathObject types.
 
 MathObjects are objects which behave much like you would expect
 their true mathematical counterparts to behave.
@@ -73,10 +73,10 @@ sub ColumnVector { Value->Package("Vector()")->new(@_)->with(ColumnVector => 1, 
 
 =head3 Closed($point)
 
- #
+
  #  Make a point or list a closed interval.
  #  (Obsolete: use $x->with(open=>'[',close=>']') instead.)
- #
+
 
 =cut
 
@@ -88,8 +88,8 @@ sub Closed {
 
 =head3 NOTE:
 
- ###########################################################################
- #
+
+
  #  Make it possible to use  1+3*i  in perl rather than  1+3*$i or 1+3*i()
  #  as well as 3*pi instead of 3*pi()
 
@@ -100,7 +100,5 @@ sub Closed {
 =cut
 
 sub _Value_init { };    # don't let loadMacros load it again
-
-###########################################################################
 
 1;

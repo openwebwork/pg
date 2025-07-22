@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -20,7 +6,7 @@ compose to form a given function.
 
 =head1 DESCRIPTION
 
-answerComposition.pl provides an answer checker that determines if two functions
+This macro provides an answer checker that determines if two functions
 compose to form a given function. This can be used in problems where you ask a
 student to break a given function into a composition of two simpler functions,
 neither of which is allowed to be the identity function.
@@ -29,7 +15,7 @@ neither of which is allowed to be the identity function.
 
 sub _answerComposition_init { };    # don't reload this file
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 COMPOSITION_ANS
 

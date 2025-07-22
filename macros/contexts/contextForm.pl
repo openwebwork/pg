@@ -1,26 +1,15 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-This context distinguishes between "forms" of an expression by using bizarro
+contextForm.pl - This context distinguishes between "forms" of an expression by using bizarro
 arithmetic.
 
-For example, the answer could be "(x+1)(x+2)". Bizarro arithmetic always has
+=head1 DESCRIPTION
+
+This context distinguishes between "forms" of an expression by using bizarro
+arithmetic.  For example, the answer could be "(x+1)(x+2)". Bizarro arithmetic always has
 commutative and associative addidition and multiplication, so it would be OK
-to anwer with "(2+x)(x+1)".
+to answer with "(2+x)(x+1)".
 
 But this context initally only uses bizarro with multiplication and division.
 So "x^2+3x+2" will not evaluate to the same as "(x+1)(x+2)".
@@ -29,17 +18,14 @@ The reverse works as well: the answer could be "x^2+3x+2" and "(x+1)(x+2)"
 will not be accepted.
 
 In general if you have a problem where "form" matters, try this context. It
-may not always work for you out of the box. But even then you may be able to 
+may not always work for you out of the box. But even then you may be able to
 adjust the bizarro details to make it work.
 
 For example if you wanted to factor x^2+2x+1 and you declare "(x+1)^2" to be
 the answer, at first it will not accept "(x+1)(x+1)". Because bizarro exponents
 are not activated. But you could activate them (or deactivate bizarro multiplication
-and division while activating bizarro addition and subtraction) and then 
+and division while activating bizarro addition and subtraction) and then
 "(x+1)^2" and "(x+1)(x+1)" would be equivalent, yet distinct from "x^2+2x+1".
-
-
-=head1 DESCRIPTION
 
 =cut
 
@@ -58,7 +44,9 @@ sub _contextForm_init {
 		setSqrt                 => exp(1) / main::ln(2),
 		setRoot                 => exp(2) / main::ln(3),
 		wrongFormMessage        =>
-			'Your answer is algebraically equivalent to the correct answer, but not in the expected form. Maybe it is not fully simplified. Maybe something is not completely factored or expanded. Maybe it is not in the expected form for some other reason.',
+			'Your answer is algebraically equivalent to the correct answer, but not in the expected form. '
+			. 'Maybe it is not fully simplified. Maybe something is not completely factored or expanded. '
+			. 'Maybe it is not in the expected form for some other reason.',
 
 	);
 	$context->noreduce('(-x)+y', '(-x)-y');

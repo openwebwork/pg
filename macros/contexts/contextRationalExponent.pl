@@ -1,7 +1,8 @@
 
 =head1 NAME
 
-contextRationalExponent.pl - allows the requirement of simplified rational exponent answers. May be a misnomer since nothing requires exponents to be rational.
+contextRationalExponent.pl - Allows the requirement of simplified rational exponent answers.
+May be a misnomer since nothing requires exponents to be rational.
 
 =head1 DESCRIPTION
 
@@ -16,10 +17,7 @@ This code is a copy of contextLimitedRadical.pl, with the following changes:
 
 =cut
 
-loadMacros(
-	"bizarroArithmetic.pl",
-
-);
+loadMacros("bizarroArithmetic.pl");
 
 #
 #  Set up the RationalExponent context

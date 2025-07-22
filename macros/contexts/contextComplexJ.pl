@@ -1,21 +1,7 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-C<contextComplexJ.pl> - Alters the Complex context to allow the
+contextComplexJ.pl - Alters the Complex context to allow the
 use of j-notation in addition to (or in place of) i-notation for
 complex numbers.
 
@@ -27,9 +13,6 @@ i and j notation for complex numbers.  There are flags that control
 which notation a student must use (a warning is given for the other
 type), and how complex numbers should be displayed (you can force
 either form to be used regardless of how they were entered).
-
-
-=head1 USAGE
 
 To use this file, first load it into your problem, then use the
 Complex context as usual.  Both i and j notation will be allowed,
@@ -82,7 +65,7 @@ would allow students to enter complex numbers in either format, but
 all numebrs would be displayed in standard form.
 
 
-=head1 SETTING THE ALTERNATE FORM AS THE DEFAULT
+=head2 SETTING THE ALTERNATE FORM AS THE DEFAULT
 
 If you want to force existing problems to allow (or force, or warn
 about) the j notation, then create a file named

@@ -1,23 +1,9 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =encoding utf8
 
 =head1 NAME
 
-draggableSubsets.pl
+draggableSubsets.pl - Creates visual items that can be dragged into various buckets.
 
 =head1 DESCRIPTION
 
@@ -25,7 +11,6 @@ This macro helps the instructor create a drag-and-drop environment in which a
 pre-specified set of elements may be dragged to different "buckets", effectively
 partitioning the original set into subsets.
 
-=head1 TERMINOLOGY
 
 An HTML element into or out of which other elements may be dragged will be
 called a "bucket".
@@ -33,7 +18,6 @@ called a "bucket".
 An HTML element which houses a collection of buckets will be called a "bucket
 pool".
 
-=head1 USAGE
 
 To initialize a C<DraggableSubset> bucket pool in a .pg problem, insert the line
 
@@ -92,13 +76,12 @@ Available Options:
 
 Their usage is demonstrated in the example below.
 
-=head1 EXAMPLE
+=head1 SYNOPSIS
 
     DOCUMENT();
     loadMacros(
         'PGstandard.pl',
         'PGML.pl',
-        'MathObjects.pl',
         'draggableSubsets.pl'
     );
 

@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -38,7 +24,9 @@ object's cmp() method directly if possible.
 BEGIN { strict->import; }
 sub _PGstringevaluators_init { }
 
-=head1 String Filters
+=head1 FUNCTIONS
+
+=head2 str_filters
 
 Different filters can be applied to allow various degrees of variation. Both the
 student and correct answers are subject to the same filters, to ensure that
@@ -85,14 +73,12 @@ sub str_filters {
 	return $rh_ans->{student_ans};
 }
 
-=over
-
-=item remove_whitespace
+=head2 remove_whitespace
 
 Removes all whitespace from the string. It applies the following substitution to
 the string:
 
-	$filteredAnswer =~ s/\s+//g;
+    $filteredAnswer =~ s/\s+//g;
 
 =cut
 
@@ -105,14 +91,14 @@ sub remove_whitespace {
 	return $rh_ans;
 }
 
-=item compress_whitespace
+=head2 compress_whitespace
 
 Removes leading and trailing whitespace, and replaces all other blocks of
 whitespace by a single space. Applies the following substitutions:
 
-	$filteredAnswer =~ s/^\s*//;
-	$filteredAnswer =~ s/\s*$//;
-	$filteredAnswer =~ s/\s+/ /g;
+    $filteredAnswer =~ s/^\s*//;
+    $filteredAnswer =~ s/\s*$//;
+    $filteredAnswer =~ s/\s+/ /g;
 
 =cut
 
@@ -130,12 +116,12 @@ sub compress_whitespace {
 	return $rh_ans;
 }
 
-=item trim_whitespace
+=head2 trim_whitespace
 
 Removes leading and trailing whitespace. Applies the following substitutions:
 
-	$filteredAnswer =~ s/^\s*//;
-	$filteredAnswer =~ s/\s*$//;
+    $filteredAnswer =~ s/^\s*//;
+    $filteredAnswer =~ s/\s*$//;
 
 =cut
 
@@ -151,7 +137,7 @@ sub trim_whitespace {
 	return $rh_ans;
 }
 
-=item nullify
+=head2 nullify
 
 Returns the null string.
 
@@ -166,12 +152,12 @@ sub nullify {
 	return $rh_ans;
 }
 
-=item ignore_case
+=head2 ignore_case
 
 Ignores the case of the string. More accurately, it converts the string to
 uppercase (by convention). Applies the following function:
 
-	$filteredAnswer = uc($filteredAnswer);
+    $filteredAnswer = uc($filteredAnswer);
 
 =cut
 
@@ -184,14 +170,14 @@ sub ignore_case {
 	return $rh_ans;
 }
 
-=item ignore_order
+=head2 ignore_order
 
 Ignores the order of the letters in the string. This is used for problems of the
 form "Choose all that apply." Specifically, it removes all whitespace and
 lexically sorts the letters in ascending alphabetical order. Applies the
 following functions:
 
-	$filteredAnswer = join("", lex_sort(split(/\s*/, $filteredAnswer)));
+    $filteredAnswer = join("", lex_sort(split(/\s*/, $filteredAnswer)));
 
 =cut
 
@@ -205,12 +191,10 @@ sub ignore_order {
 	return $rh_ans;
 }
 
-=back
+=head2 str_cmp
 
-=head1 str_cmp
-
-	ANS(str_cmp($answer_or_answer_array_ref, @filters));
-	ANS(str_cmp($answer_or_answer_array_ref, %options));
+    ANS(str_cmp($answer_or_answer_array_ref, @filters));
+    ANS(str_cmp($answer_or_answer_array_ref, %options));
 
 Compares a string or a list of strings, using a named hash of options to set
 parameters. This can make for more readable code than using the "mode"_str_cmp()
@@ -225,7 +209,7 @@ supported options in the list. Currently "filter", "filters", and "debug" are
 checked for. If these strings are found in the argument list, it is assumed that
 %options is present rather than @filters.
 
-%options can contain the following items:
+=head3 options
 
 =over
 
@@ -326,66 +310,62 @@ sub str_cmp {
 	return (wantarray) ? @output_list : $output_list[0];
 }
 
-=head1 "mode"_str_cmp functions
+=head2 std_str_cmp
 
 The functions of the form "mode"_str_cmp() use different functions to
 specify which filters to apply. They take no options except the correct string.
 There are also versions which accept a list of strings.
 
-=over
-
-=item standard
-
-	std_str_cmp($correctString)
-	std_str_cmp_list(@correctStringList)
+    std_str_cmp($correctString)
+    std_str_cmp_list(@correctStringList)
 
 Filters: compress_whitespace, ignore_case
 
-=item standard, case sensitive
+=head2 std_cs_str_cmp
 
-	std_cs_str_cmp($correctString)
-	std_cs_str_cmp_list(@correctStringList)
+standard, case sensitive
+
+    std_cs_str_cmp($correctString)
+    std_cs_str_cmp_list(@correctStringList)
 
 Filters: compress_whitespace
 
-=item strict
+=head2 strict_str_cmp
 
-	strict_str_cmp($correctString)
-	strict_str_cmp_list(@correctStringList)
+    strict_str_cmp($correctString)
+    strict_str_cmp_list(@correctStringList)
 
 Filters: trim_whitespace
 
-=item unordered
+=head2 unordered_str_cmp
 
-	unordered_str_cmp( $correctString )
-	unordered_str_cmp_list( @correctStringList )
+    unordered_str_cmp( $correctString )
+    unordered_str_cmp_list( @correctStringList )
 
 Filters: ignore_order, ignore_case
 
-=item unordered, case sensitive
+=head2 unordered_cs_str_cmp
 
-	unordered_cs_str_cmp( $correctString )
-	unordered_cs_str_cmp_list( @correctStringList )
+    unordered_cs_str_cmp( $correctString )
+    unordered_cs_str_cmp_list( @correctStringList )
 
 Filters: ignore_order
 
-=item ordered
+=head2 ordered_str_cmp, ordered_str_cmp_list
 
-	ordered_str_cmp( $correctString )
-	ordered_str_cmp_list( @correctStringList )
+    ordered_str_cmp( $correctString )
+    ordered_str_cmp_list( @correctStringList )
 
 Filters: remove_whitespace, ignore_case
 
-=item ordered, case sensitive
+=head2 ordered_cs_str_cmp, ordered_cs_str_cmp_list
 
-	ordered_cs_str_cmp( $correctString )
-	ordered_cs_str_cmp_list( @correctStringList )
+    ordered_cs_str_cmp( $correctString )
+    ordered_cs_str_cmp_list( @correctStringList )
 
 Filters: remove_whitespace
 
-=back
-
-=head2 Examples
+=head1 Examples
 
 	# Accepts "W. Mozart", "W. MOZarT", and so forth. Case insensitive. All
 	# internal spaces treated as single spaces.

@@ -1,23 +1,9 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
 PG.pl - Provides core Program Generation Language functionality.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 In a PG problem:
 
@@ -77,7 +63,7 @@ input fields that correspond to the same answer evaluator.
 
 =back
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 This file is automatically loaded into the namespace of every PG problem. The
 macros within can then be called to define the structure of the problem.

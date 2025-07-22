@@ -1,18 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 # FIXME TODO:
 # Document and maybe split out: filters, graders, utilities
 
@@ -20,7 +5,7 @@
 
 PGanswermacros.pl - Macros for building answer evaluators.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 Number Answer Evaluators:
 
@@ -169,7 +154,7 @@ sub _PGanswermacros_init {
 	$useBaseTenLog      = PG_restricted_eval(q/$envir{useBaseTenLog}/);
 }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 Answer evaluator macros
 
@@ -1720,8 +1705,9 @@ sub avg_problem_grader {
 
 =head3 C<pretty_print>
 
-Usage: C<warn pretty_print( $rh_hash_input)>
+Usage:
 
+    warn pretty_print($rh_hash_input);
     TEXT(pretty_print($ans_hash));
     TEXT(~~%envir);
 

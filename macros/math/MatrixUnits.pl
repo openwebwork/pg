@@ -1,25 +1,19 @@
 
-=pod
-
 =head1 NAME
 
-MatrixUnits.pl 
-
-=head1 SYNOPSIS
-
-Generates unimodular n x n (n=2,3,4) MathObject matrices with real entries.
+MatrixUnits.pl - Generates unimodular n x n (n=2,3,4) MathObject matrices with real entries.
 
 =head1 DESCRIPTION
 
-This macro provides some routines for generating n x n (n=2,3,4) 
-MathObject matrices with real entries that have determinant in the 
-group of units of the integers Z (i.e., are Z-invertible).  A matrix 
-C<$M = GLnZ();> (for det = +1 or -1) or <$M = SLnZ();> (for det = -1) 
+This macro provides some routines for generating n x n (n=2,3,4)
+MathObject matrices with real entries that have determinant in the
+group of units of the integers Z (i.e., are Z-invertible).  A matrix
+C<$M = GLnZ();> (for det = +1 or -1) or <$M = SLnZ();> (for det = -1)
 has all integer entries, is invertible, and its inverse has all integer entries.
 The matrix entries are intentionally chosen to be integers close to zero
 (so, if you want unimodular matrices with larger integer entries, you
 may want to copy the source code and modify it to suit your needs).
-The basic idea is to multiply several elementary matrices of 
+The basic idea is to multiply several elementary matrices of
 determinant +1 or -1 together to get a unimodular matrix (although the
 code below accomplishes this by elementary row operations rather
 than by multiplication of elementary matrices).
@@ -36,33 +30,26 @@ than by multiplication of elementary matrices).
 
 =back
 
-Note that the indexing on MathObject matrices starts at 1, while the indexing 
+Note that the indexing on MathObject matrices starts at 1, while the indexing
 on perl arrays starts at 0, so that C<$A-<gt>element(1,1);> corresponds to
 C<$a[0][0];>.  The perl arrays can be made into MathObject matrices by
 C<$A = Matrix(\@a);>, and this is, in fact, what the C<GLnZ()> and C<SLnZ()>
-subroutines do for you.  The perl versions C<@a = GLnZ_perl()> and 
-C<@a = SLnZ_perl()> are useful if you want to have quick access to the matrix 
-values (as perl reals stored in C<@a>) without having to pull them out of a 
+subroutines do for you.  The perl versions C<@a = GLnZ_perl()> and
+C<@a = SLnZ_perl()> are useful if you want to have quick access to the matrix
+values (as perl reals stored in C<@a>) without having to pull them out of a
 MathObject matrix via C<@b = $A-<gt>value;> (in which case C<@b> is an
 array of MathObject reals).
 
-Note: There is overlap between MatrixUnits.pl (written after MathObject 
+Note: There is overlap between MatrixUnits.pl (written after MathObject
 matrices were created) and MatrixUnimodular.pl (written before MathObject
 matrices were created).  MatrixUnimodular.pl was left unchanged to provide
 legacy support for existing PG files.
-
-=head1 AUTHORS
-
-Paul Pearson, Hope College, Department of Mathematics
 
 =cut
 
 sub _MatrixUnits_init { };    # don't reload this file
 
 loadMacros("MathObjects.pl",);
-
-################################################
-#
 
 sub GL2Z {
 	my @a = GL2Z_perl();
@@ -301,7 +288,5 @@ sub SL4Z_perl {
 	}
 
 }
-
-##################################################
 
 1;
