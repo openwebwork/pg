@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -22,7 +8,7 @@ contextInteger.pl - adds integer related functions primeFactorization, phi, tau,
 This is a Parser context that adds integer related functions.
 This forces students to only enter integers as their answers.
 
-=head1 USAGE
+=head1 SYNOPSIS
 
     Context("Integer")
 
@@ -59,6 +45,32 @@ Check if prime
 Get a random prime in a range
 
     $randomPrime = randomPrime(100, 1000);
+
+=head1 FUNCTIONS
+
+=head2 primeFactorization
+
+Find the prime factorization of an integer.
+
+=head2 gcd
+
+Find the greatest common divisor
+
+=head2 lcm
+
+Find the lowest common multiple.
+
+=head2 phi
+
+Find phi.
+
+=head2 tau
+
+Find tau.
+
+=head2 isPrime
+
+Determine if the given integer is prime.
 
 =cut
 

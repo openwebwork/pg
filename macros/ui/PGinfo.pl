@@ -1,31 +1,16 @@
 
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 =head1 NAME
 
-PGinfo.pl
-
-Provides macros for determining the values of the current context in which the problem
+PGinfo.pl - Provides macros for determining the values of the current context in which the problem
 is being written.
 
 =cut
 
 loadMacros("MathObjects.pl");
 
-=head2  listVariables
+=head1 FUNCTIONS
+
+=head2 listVariables
 
 Usage: 	listVariables();
 
@@ -45,7 +30,7 @@ sub listVariables {
 	listContextFlags();
 }
 
-=head3 listFormVariables()
+=head2 listFormVariables
 
 Called by C<listVariables> to print out the input form variables.
 
@@ -58,7 +43,7 @@ sub listFormVariables {
 
 }
 
-=head3 listEnvironmentVariables()
+=head2 listEnvironmentVariables
 
 	Called by C<listVariables> to print out the environment variables (in %envir).
 
@@ -69,7 +54,7 @@ sub listEnvironmentVariables {
 	TEXT(pretty_print(\%envir));
 }
 
-=head3 listContextFlags()
+=head2 listContextFlags
 
 	Called by listVariables to print out context flags for Math Objects.
 
@@ -80,7 +65,7 @@ sub listContextFlags {
 	TEXT(pretty_print($context));
 }
 
-=head2 listContext()
+=head2 listContext
 
 	Usage:  listContext(Context())
 
@@ -99,11 +84,10 @@ sub listContext {    # include
 	}
 }
 
-=head2 pp()
+=head2 pp
 
 	Usage:  pp(Hash );
 	        pp(Object);
-
 
 	Prints out the contents of Hash or the instance variables of Object
 

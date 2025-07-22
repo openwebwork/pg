@@ -434,6 +434,7 @@ $flags = {
 	reduceConstants            => 1,              # 1 = automatically combine constants
 	reduceConstantFunctions    => 1,              # 1 = compute function values of constants
 	showExtraParens            => 1,              # 1 = add useful parens, 2 = make things painfully unambiguous
+	stringifyNoBrackets        => 0,              # 1 = only use parentheses not brackets when stringifying
 	formatStudentAnswer        => 'evaluated',    # or 'parsed' or 'reduced'
 	allowMissingOperands       => 0,              # 1 is used by Typeset context
 	allowMissingFunctionInputs => 0,              # 1 is used by Typeset context
@@ -443,6 +444,7 @@ $flags = {
 	parseAlternatives          => 0,              # 1 = allow parsing of alternative tokens in the context
 	convertFullWidthCharacters => 0,              # 1 = convert Unicode full width characters to ASCII positions
 	useMathQuill               => 0,
+	mathQuillOpts              => {},
 };
 
 ############################################################################

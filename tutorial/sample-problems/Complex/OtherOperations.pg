@@ -14,6 +14,7 @@
 #:% name = Other Operations of Complex numbers
 #:% type = [technique]
 #:% subject = [complex]
+#:% categories = [complex variables]
 #:% see_also = [ComplexOperations.pg]
 
 #:% section = preamble
@@ -22,14 +23,16 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: To use complex numbers, we need to switch context with `Context('Complex')`.
-#: The problem PROBLINK('ComplexOperations.pg') showed different ways of
+#: To use complex numbers, switch to the `Complex` context with
+#: `Context('Complex')`.
+#:
+#: See the problem PROBLINK('ComplexOperations.pg') for different ways of
 #: creating complex numbers.
 #:
-#: This shows the functions `Re` (real part), `Im` (imaginary part), `abs`
-#: (absolute value or modulus -- distance from the origin), `arg` (the angle
-#: the point is from the positive real axis) and `conj`,
-#: (the complex conjugate)
+#: This shows the usage of the functions `Re` (real part), `Im` (imaginary
+#: part), `abs` (absolute value or modulus which gives the distance from the
+#: origin), `arg` (the angle with the positive real axis), and `conj` (the
+#: complex conjugate).
 Context('Complex');
 
 $z0 = Complex(non_zero_random(-5, 4), non_zero_random(-5, 5));
@@ -37,21 +40,18 @@ $z1 = Complex(non_zero_random(-5, 4), non_zero_random(-5, 5));
 $z2 = Complex(non_zero_random(-5, 4), non_zero_random(-5, 5));
 
 #:% section = statement
-#: All of the answers here are placed in the `{}` instead of making another
-#: variable.
 BEGIN_PGML
-Let [`z_0=[$z0]`], [`z_1=[$z1]`], and [`z_2=[$z2]`]. Find
+Let [`z_0 = [$z0]`], [`z_1 = [$z1]`], and [`z_2 = [$z2]`]. Find
 
-[`\text{Re}(z_0)=`] [___]{Re($z0)}
+[`\text{Re}(z_0) =`] [___]{Re($z0)}
 
-[`\text{Im}(z_0)=`] [_____]{Im($z0)}
+[`\text{Im}(z_0) =`] [_____]{Im($z0)}
 
-[`|z_1|=`] [___]{abs($z1)}
+[`|z_1| =`] [___]{abs($z1)}
 
-[`\text{arg}(z_1)=`] [___]{arg($z1)}
+[`\text{arg}(z_1) =`] [___]{arg($z1)}
 
-[`\text{conj}(z_2)=`] [___]{conj($z2)}
-
+[`\text{conj}(z_2) =`] [___]{conj($z2)}
 END_PGML
 
 #:% section = solution

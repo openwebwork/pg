@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -32,7 +18,7 @@ degree can be included in each factor polynomial:
 
     Context("PolynomialFactors")->flags->set(singlePowers=>1);
 
-If you set the "singleFactors" flag, then factors can not be repeated.
+If you set the "singleFactors" flag, then factors cannot be repeated.
 For example,
 
     Context("PolynomialFactors")->flags->set(singleFactors=>1);
@@ -49,7 +35,7 @@ make it very useful.
 
 There are two additional flags that control whether division by a
 constant or raising to a power are allowed to be performed on a
-product or factors or only on a single factor at at time.  These are
+product or factors or only on a single factor at a time.  These are
 strictDivision and strictPowers.  By default, strictDivisions is 0, so
 (x*(x+1))/3 is allowed, while strictPowers is 1, so (x*(x+1))^3 is not
 (it must be written x^3*(x+1)^3).

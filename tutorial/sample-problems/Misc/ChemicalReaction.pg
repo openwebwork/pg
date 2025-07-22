@@ -11,28 +11,25 @@
 ## MO(1)
 ## KEYWORDS('chemical reaction', 'template')
 
-# References:
-# http://webwork.maa.org/pod/pg_TRUNK/macros/contextReaction.pl.html
-# http://webwork.maa.org/moodle/mod/forum/discuss.php?d=449
-
 #:% name = Chemical Reaction
 #:% type = Sample
 #:% subject = chemistry
 #:% categories = [chemistry]
 
 #:% section = preamble
-#: Load `contextReaction.pl` to put chemical reactions/equations in a `Compute`
+#: Load PODLINK('contextReaction.pl') to be able to use chemical reaction
+#: equations in a `Compute` call.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'contextReaction.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We create a couple of arrays `@reactants` and `@products` and fill them with
-#: some examples of balanced chemical equations.  The second and third examples
-#: show that groupings, such as for `(OH)_2` are necessary.  The third example
-#: shows how you could randomize a chemical reaction question.  In particular, note
-#: that `${b}_2` is needed instead of `$b_2` so that Perl interprets the variable
-#: as `$b` with a subscript of 2 instead of a variable named `$b_2` with no subscript.
+#: Create two arrays, `@reactants` and `@products`, and fill them with examples
+#: of balanced chemical equations. The third example shows that groupings, such
+#: as for `(PO_4)_2` are necessary. The fourth example shows how you could
+#: randomize a chemical reaction question. In particular, note that `${b}_2` is
+#: needed instead of `$b_2` so that Perl interprets the variable as `$b` with a
+#: subscript of 2 instead of a variable named `$b_2` with no subscript.
 Context('Reaction');
 
 @reactants = ();
@@ -47,7 +44,7 @@ $products[1]  = Formula('C_6 H_12 O_6 + 6 O_2');
 $reactants[2] = Formula('3 Ca Cl_2 + 2 Na_3 PO_4');
 $products[2]  = Formula('Ca_3 (PO_4)_2 + 6 Na Cl');
 
-# variations on 2NaOH + MgCl_2 --> 2NaCl + Mg(OH)_2
+# Variations on 2NaOH + MgCl_2 --> 2NaCl + Mg(OH)_2
 $a = list_random('Li', 'Na', 'K');
 $b = list_random('F',  'Cl', 'Br');
 
@@ -62,13 +59,14 @@ $i = random(0, $#reactants, 1);
 #: This is a way to print out the four reactions in a for loop.
 for $i (0 .. 3) {
 BEGIN_PGML
-[`[$reactants[$i]] \longrightarrow `] [_]{$products[$i]}{10}
+[`[$reactants[$i]] \longrightarrow`] [_]{$products[$i]}{10}
 
 END_PGML
 }
 
 BEGIN_PGML
-Enter a subscript using an underscore, such as [|H_2 O|]* for [`\mathrm{H_2 O}`].
+Enter a subscript using an underscore, such as [|H_2 O|]* for
+[`\mathrm{H_2 O}`].
 END_PGML
 
 ENDDOCUMENT();

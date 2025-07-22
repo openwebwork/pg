@@ -1,0 +1,81 @@
+## DESCRIPTION
+## This shows how to setup a set of draggable items to sort.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('draggable')
+
+#:% name = Draggable Subsets
+#:% type = technique
+#:% categories = [draggable]
+
+#:% section = preamble
+#: The `draggableSubsets.pl` macro must be loaded.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The `DraggableSubsets` method creates a drag and drop object that when
+#: inserted into the problem text creates regions called buckets representing
+#: sets that contain draggable elements that can be dragged between the buckets
+#: (or sets). The syntax for calling it is
+#:
+#: ```{#draggable-subsets-usage .perl}
+#: $draggable = DraggableSubsets(
+#:     elements,
+#:     correct sets,
+#:     options
+#: );
+#: ```
+#:
+#: where `elements` is a reference to an array of strings which are textual
+#: representations of all elements contained in the sets and `correct sets` is a
+#: reference to an array of array references representing the correct subsets
+#: with the elements listed by 0-based index from the `elements` list. There are
+#: several options that can be passed. The `DefaultSubsets` option is used to
+#: label and initialize the buckets, and determine where elements are initially.
+#: If the `AllowNewBuckets` option is set to 1, then students can add new
+#: buckets. If the `OrderedSubsets` option is set to 1, then the subsets in the
+#: student answers are required to be the in the same order as the subsets in
+#: the correct answer.
+#:
+#: See PODLINK('draggableSubsets.pl') for other options and more details.
+$draggable = DraggableSubsets(
+    [
+        'mouse',        'ebola bacteria',
+        'flu virus',    'krill',
+        'house cat',    'emu',
+        'coyote',       'tapir',
+        'hippopotamus', 'elephant',
+        'blue whale',   'eagle'
+    ],
+    [ [], [ 0, 4, 6, 7, 8, 9, 10 ], [ 5, 11 ], [ 1, 2, 3 ] ],
+    DefaultSubsets => [
+        { label => 'Animals', indices => [ 0 .. 11 ] },
+        { label => 'Mammals', indices => [] },
+        { label => 'Birds',   indices => [] },
+        { label => 'Other',   indices => [] }
+    ],
+    AllowNewBuckets => 0,
+    OrderedSubsets  => 1
+);
+
+#:% section = statement
+BEGIN_PGML
+Move all animals from the "Animals" bucket into its appropriate bucket.
+
+[_]{$draggable}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

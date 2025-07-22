@@ -4,38 +4,31 @@ use Carp;
 
 =head1 NAME
 
-	Hermite.pm
+Hermite.pm
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
-      Usage:
-                $obj = new Hermit(\@x_values, \y_valuses \@yp_values);
+Usage:
 
-		#get and set methods
-                $ra_x_values = $obj -> ra_x(\@x_values);
-		$ra_y_values = $obj -> ra_y;
-		$ra_yp_values = $obj -> ra_yp;
+    $obj = new Hermit(\@x_values, \y_valuses \@yp_values);
 
-		$obj -> initialize;           # calculates the approximation
-
-		#get methods
-		$rf_function                  = $obj -> rf_f;
-		$rf_function_derivative       = $obj -> rf_fp;
-		$rf_function_2nd_derivative   = $obj -> rf_fpp;
-
-		$rh_critical_points           =$obj -> rh_critical_points
-		$rh_inflection_points         =$obj -> rh_inflection_points
-
-
-
+    #get and set methods
+                  $ra_x_values = $obj -> ra_x(\@x_values);
+    $ra_y_values = $obj -> ra_y;
+    $ra_yp_values = $obj -> ra_yp;
+    $obj -> initialize;           # calculates the approximation
+    #get methods
+    $rf_function                  = $obj -> rf_f;
+    $rf_function_derivative       = $obj -> rf_fp;
+    $rf_function_2nd_derivative   = $obj -> rf_fpp;
+    $rh_critical_points           =$obj -> rh_critical_points
+    $rh_inflection_points         =$obj -> rh_inflection_points
 
 =head1 DESCRIPTION
 
 This module defines an object containing a Hermite spline approximation to a function.
-  The approximation
-consists of a piecewise cubic polynomial which agrees with the original
-function and its first derivative at
-the node points.
+The approximation consists of a piecewise cubic polynomial which agrees with the original
+function and its first derivative at the node points.
 
 This is useful for creating on the fly graphics.  Care must be taken to use a small
 number of points spaced reasonably far apart, preferably
@@ -233,7 +226,7 @@ sub internal_critical_points {
 }
 
 sub internal_inflection_points {
-	my ($x0, $l, $lp,, $x1, $r, $rp, $rh_roots, $rf_function) = @_;
+	my ($x0, $l, $lp, $x1, $r, $rp, $rh_roots, $rf_function) = @_;
 	#data for one segment of the hermite spline
 
 	# coefficients for the approximating polynomial

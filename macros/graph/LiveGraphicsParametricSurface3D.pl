@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -26,7 +12,7 @@ applet.  The method takes three C<MathObject> Formulas in two variables as input
 and returns a string of plot data that can be displayed using the C<Live3Ddata>
 routine of the L<LiveGraphics3D.pl> macro.
 
-=head1 Methods
+=head1 METHODS
 
 =head2 ParametricSurface3D
 
@@ -86,7 +72,7 @@ C<vmin> to C<vmax> to use.
 
 =item C<< axesframed => 1 >>
 
-If set to 1 then the framed axes are displayed.  If set to 0, the the framed
+If set to 1 then the framed axes are displayed.  If set to 0, the framed
 axes are not shown. This is 1 by default.
 
 =item C<< xaxislabel => 'x' >>
@@ -116,7 +102,7 @@ The thickness of the edges if C<edges> is 1.
 
 =item C<< mesh => 0 >>
 
-If set to 1, then the the edge mesh is shown and the polygons for the surface
+If set to 1, then the edge mesh is shown and the polygons for the surface
 are not filled.  If set to 0, then the polygons for the surface are filled.  The
 edge mesh can also be shown in this case by setting C<edges> to 1. This is 0 by
 default.
@@ -176,12 +162,12 @@ sub ParametricSurface3D {
 		uvar          => 'u',
 		vvar          => 'v',
 		umin          => -3,
-		umax          => 3,
+		umax          =>  3,
 		vmin          => -3,
-		vmax          => 3,
-		usamples      => 20,
-		vsamples      => 20,
-		axesframed    => 1,
+		vmax          =>  3,
+		usamples      =>  20,
+		vsamples      =>  20,
+		axesframed    =>  1,
 		xaxislabel    => 'x',
 		yaxislabel    => 'y',
 		zaxislabel    => 'z',

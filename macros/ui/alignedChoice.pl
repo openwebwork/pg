@@ -33,19 +33,6 @@ sub aligned_print_q {
 			$out .= "<TR><TD HEIGHT=\"$rsep\"></TD></TR>\n" if ($rsep);
 		}
 		$out .= "</TABLE>\n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		$out = "\\par\n\\begin{rawhtml}" . "<TABLE BORDER=0 CELLSPACING=$sep CELLPADDING=0>\\end{rawhtml}\n";
-		foreach $quest (@questions) {
-			if (ref($quest) eq 'ARRAY') { ($quest, $rest) = @{$quest} }
-			else                        { $rest = '' }
-			$out .= "\\begin{rawhtml}<TR VALIGN=$valign>";
-			$out .= "<TD VALIGN=MIDDLE><B>" . $i++ . ".</B>&nbsp;</TD>" if ($numbered);
-			$out .= "<TD ALIGN=$align>\\end{rawhtml}$quest\\begin{rawhtml}</TD>";
-			$out .= "<TD>=</TD>" if ($equals);
-			$out .= "<TD>\\end{rawhtml}" . ans_rule($length) . $rest . "\\begin{rawhtml}</TD></TR>\\end{rawhtml}";
-			$out .= "\\begin{rawhtml}<TR><TD HEIGHT=\"$rsep\"></TD></TR>\\end{rawhtml}\n" if ($rsep);
-		}
-		$out .= "\\begin{rawhtml}</TABLE>\n\\end{rawhtml}";
 	} elsif ($main::displayMode eq 'TeX') {
 		my $num = '';
 		$num = 'r' if ($numbered);

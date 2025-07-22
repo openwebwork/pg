@@ -1,26 +1,11 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 ##### From gage_matrix_ops
 # 2014_HKUST_demo/templates/setSequentialWordProblem/bill_and_steve.pg:"gage_matrix_ops.pl",
 
 =head1 NAME
 
-macros/tableau.pl
+tableau.pl - Some functions used to solve Linear Programing/Simplex tableau problems.
 
-=head2 TODO
+=head1 TODO
 
 DONE: change find_next_basis_from_pivot  to next_basis_from_pivot
 DONE: add phase2  to some match phase1 for some of the pivots -- added as main:: subroutine
@@ -35,7 +20,7 @@ we probably need both -- need names for everything
 current tableau returns the complete tableau minus the objective function row.
 (do we need a second objective function row? -- think we can skip this for now.)
 
-=head2 DESCRIPTION
+=head1 DESCRIPTION
 
 We're going to have several types
 MathObject Matrices  Value::Matrix
@@ -80,12 +65,9 @@ The structure of the tableau is:
     z(...x^i...) = c_i* x^i  (Einstein summation convention)
     FIXME: ?? allow c to be a 2 by n matrix so that you can do phase1 calculations easily
 
+=head1 FUNCTIONS
 
-=head2 Package main
-
-=over
-
-=item tableauEquivalence
+=head2 tableauEquivalence
 
     ANS( $tableau->cmp(checker=>tableauEquivalence()) );
 
@@ -99,7 +81,7 @@ It is appropriate for comparing augmented matrices representing a system of equa
 since the order of the equations is unimportant.  This applies to tableaus for
 Linear Optimization Problems being solved using the simplex method.
 
-=item  get_tableau_variable_values
+=head2  get_tableau_variable_values [DEPRECATED]
 
 (DEPRECATED -- use Tableau->statevars method )
 
@@ -112,14 +94,14 @@ have been set to zero. It returns a list in
 array context and a reference to
 an array in scalar context.
 
-=item  lp_basis_pivot
+=head2  lp_basis_pivot
 
 (DEPRECATED -- preserved for legacy problems. Use Tableau->basis method)
 Parameters: ($old_tableau,$old_basis,$pivot)
 Returns: ($new_tableau, Set($new_basis),\@statevars)
 
 
-=item linebreak_at_commas
+=head2 linebreak_at_commas
 
 Parameters: ()
 Return:
@@ -133,21 +115,9 @@ Usage:
 Replaces commas with line breaks in the latex presentations of the answer checker.
 Used most often when $constraints is a LinearInequality math object.
 
-=back
+=head1 CONSTRUCTOR
 
-=head3 References:
-
-MathObject Matrix methods: L<http://webwork.maa.org/wiki/Matrix_(MathObject_Class)>
-MathObject Contexts: L<http://webwork.maa.org/wiki/Common_Contexts>
-CPAN RealMatrix docs: L<http://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
-
-More references: L<Matrix>
-
-=head2 Package tableau
-
-=over
-
-=item new
+=head2 new
 
     Tableau->new(A=>Matrix, b=>Vector or Matrix, c=>Vector or Matrix)
 
@@ -184,6 +154,14 @@ flag indicating the column (1 or n+m+1) for the objective value
 
 
     ANS( $tableau->cmp(checker=>tableauEquivalence()) );
+
+=head1 REFERENCES
+
+MathObject Matrix methods: L<http://webwork.maa.org/wiki/Matrix_(MathObject_Class)>
+MathObject Contexts: L<http://webwork.maa.org/wiki/Common_Contexts>
+CPAN RealMatrix docs: L<http://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
+
+More references: L<Matrix>
 
 =cut
 
@@ -245,9 +223,9 @@ sub linebreak_at_commas {
 # 	Pretty prints the output of a matrix as a LOP with separating labels and
 # 	variable labels.
 
-=item lop_display
+=head2 lop_display
 
-	Useage:
+Usage:
 
 	lop_display($tableau, align=>'cccc|cc|c|c', toplevel=>[qw(x1,x2,x3,x4,s1,s2,P,b)])
 
@@ -346,7 +324,7 @@ sub phase1_solve {
 	return ($tableau_copy, $state_flag, $steps);
 }
 
-=item primal_basis_to_dual dual_basis_to_primal
+=head2 primal_basis_to_dual dual_basis_to_primal
 
 	[complementary_basis_set] = $self->primal_basis_to_dual(primal_basis_set)
 	[complementary_basis_set] = $self->dual_basis_to_primal(dual_basis_set)
@@ -573,8 +551,6 @@ sub assemble_tableau {
 					 # the final row describing the objective function
 					 # is not in this part of the matrix
 }
-
-=back
 
 =head2 Accessors and mutators
 

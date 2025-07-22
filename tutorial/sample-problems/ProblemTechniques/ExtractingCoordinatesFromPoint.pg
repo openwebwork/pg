@@ -1,0 +1,83 @@
+## DESCRIPTION
+## This problem shows how to extract the coordinates from a point.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('point', 'coordinates')
+
+#:% name = Extracting Coordinates from a Point
+#:% type = technique
+#:% categories = [point]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Defined two `Point`s with randomly generated coordinates.
+#:
+#: To extract a particular coordinate of a `Point`, you can use the extract
+#: method. For example, `$point->extract(1)`. This returns the first coordinate
+#: of `$point`. This is demonstrated in the problem text.
+#:
+#: Next, the difference of the two points is computed. Note that this returns
+#: another `Point` object whose `x`-coordinate is the difference of the
+#: `x`-coordinates of the two points, and whose `y`-coordinate is the difference
+#: of the `y`-coordinates of the two points. The coordinates of the "difference"
+#: point that is returned are then extracted into the variables, `$d1` and `$d2`
+#: by calling the `value` method of the "difference" `Point`.
+#:
+#: Next, the length of the line segment between the two points is computed from
+#: the extracted difference coordinates. Note that the parentheses around `$d1`
+#: and `$d2` in this formula are necessary.  For if `$d1 = -6` then the string
+#: `"$d1^2"` would first interpolate to `'-6^2'`, and the `Compute` call would
+#: evaluate that to `-36`. However, the string `"($d1)^2"` would be interpolated
+#: to `'(-6)^2'` which of course would be correctly evaluated to `36` by the
+#: compute call.
+#:
+#: If it were desired to allow students to use vector computations in answers,
+#: then `Context('Vector')` could be used, and the length could be defined by
+#: `$length = norm($point1 - $point2)`. Then an answer like `|<5, 7> - <7, 8>|`
+#: would be allowed.
+#:
+#: Finally, the midpoint of the line segment joining the two points is computed.
+#: Note that an answer like `((2, -3) + (-7, 8)) / 2` would be allowed in the
+#: `Point` context. The addition operation could be disabled in the context to
+#: prevent this type of answer. Although, that would also prevent answers like
+#: `((2 + (-7)) / 2, (-3 + 8) / 2)` from being accepted.
+Context('Point');
+
+$point1 = Point(random(1,    5), random(-5, -1));
+$point2 = Point(random(-10, -6), random( 6, 10));
+
+($d1, $d2) = ($point1 - $point2)->value;
+
+$length = Compute("sqrt(($d1)^2 + ($d2)^2)");
+$mid    = ($point2 + $point1) / 2;
+
+BEGIN_PGML
+Consider the two points [`[$point1]`] and [`[$point2]`].
+
+The [`x`]-coordinate of the first point is [`[$point1->extract(1)]`], and the
+[`y`]-coordinate of the first point is [`[$point1->extract(2)]`].
+
+The [`x`]-coordinate of the second point is [`[$point2->extract(1)]`], and the
+[`y`]-coordinate of the second point is [`[$point2->extract(2)]`].
+
+The distance between the two points is: [___]{$length}
+
+The midpoint of the line segment that joins the two points is: [___]{$mid}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

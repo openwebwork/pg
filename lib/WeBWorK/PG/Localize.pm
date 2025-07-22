@@ -13,7 +13,6 @@ Locale::Maketext::Lexicon->import({
 	_decode     => 1,
 	_encoding   => undef,
 });
-*tense = sub { \$_[1] . ((\$_[2] eq 'present') ? 'ing' : 'ed') };
 
 # This subroutine is used to pass a language handle into the safe
 # compartment so that maketext can be used in problems and macros.

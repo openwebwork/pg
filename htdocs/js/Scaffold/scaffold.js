@@ -34,7 +34,4 @@
 		});
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
-
-	// Stop the mutation observer when the window is closed.
-	window.addEventListener('unload', () => observer.disconnect());
 })();

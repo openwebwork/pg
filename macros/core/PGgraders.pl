@@ -1,9 +1,13 @@
 
-=head1 PGgraders.pl DESCRIPTION
+=head1 NAME
 
-Grader Plug-ins
+PGgraders.pl - Provides a set of basic graders.
 
-=cut
+=head1 DESCRIPTION
+
+This macro provides some wasy to do partial credit as well as some weighting.
+
+=head1 FUNCTIONS
 
 =head2 full_partial_grader
 
@@ -59,90 +63,18 @@ sub full_partial_grader {
 	return ($rh_problem_result, $rh_problem_state);
 }
 
-=head2 custom_problem_grader_0_60_100
-
-We need a special problem grader on this problem, since we
-want the student to get full credit for all five answers correct,
-60% credit for four correct, and 0% for three or fewer correct.
-To change this scheme, look through the following mess of code
-for the place where the variable $numright appears, and change
-that part.
-Also change the long line beginning "msg ==>", to show what will
-appear on the screen for the student.
-
-To look at the problem itself, look for the boxed comment below
-announcing the problem itself.
-
-=cut
-
-sub custom_problem_grader_0_60_100 {
-	my ($rh_evaluated_answers, $rh_problem_state, %form_options) = @_;
-
-	my %evaluated_answers = %{$rh_evaluated_answers};
-
-	# By default the old problem state is simply passed back out again.
-	my %problem_state = %$rh_problem_state;
-
-	# Initial setup of the answer
-	my $total          = 0;
-	my %problem_result = (
-		score  => 0,
-		errors => '',
-		type   => 'custom_problem_grader',
-		msg    => 'To get full credit, all answers must be correct.  Having '
-			. 'all but one correct is worth 60%.  Two or more incorrect answers gives a score of 0%.',
-	);
-
-	# Return unless answers have been submitted
-	return (\%problem_result, \%problem_state) unless $form_options{answers_submitted} == 1;
-
-	# Answers have been submitted -- process them.
-
-	# Compute the score.  The variable $numright is the number of correct answers.
-	my $numright = 0;
-
-	$numright += $evaluated_answers{'AnSwEr0001'}{score};
-	$numright += $evaluated_answers{'AnSwEr0002'}{score};
-	$numright += $evaluated_answers{'AnSwEr0003'}{score};
-	$numright += $evaluated_answers{'AnSwEr0004'}{score};
-	$numright += $evaluated_answers{'AnSwEr0005'}{score};
-
-	if ($numright == 5) {
-		$total = 1;
-	} elsif ($numright == 4) {
-		$total = 0.6;
-	} else {
-		$total = 0;
-	}
-
-	$problem_result{score} = $total;
-	$problem_state{recorded_score} //= 0;
-
-	# Increase recorded score if the current score is greater.
-	$problem_state{recorded_score} = $problem_result{score} if $problem_result{score} > $problem_state{recorded_score};
-
-	++$problem_state{num_of_correct_ans}   if $total == 1;
-	++$problem_state{num_of_incorrect_ans} if $total < 1;
-
-	return (\%problem_result, \%problem_state);
-}
-
 =head2 custom_problem_grader_fluid
 
 This problem grader custom_problem_grader_fluid
 was contributed by Prof. Zig Fiedorowicz,
 Dept. of Mathematics, Ohio State University on 8/25/01.
-As written, the problem grader should be put in a separate macro file.
-If actually inserted into a problem, you need to replace a couple
-of backslashes by double tildes.
 
-This is a generalization of the previous custom grader.
 This grader expects two array references to be passed to it, eg.
-$ENV['grader_numright'] = [2,5,7,10];
-$ENV['grader_scores'] = [0.1,0.4,0.6,1]
+$ENV{'grader_numright'} = [2,5,7,10];
+$ENV{'grader_scores'} = [0.1,0.4,0.6,1]
 Both arrays should be of the same length, and in strictly
-increasing order. The first array is an array of possible
-raw scores, the number of parts of the problem the student might
+increasing order. The first array is an array of non-negative
+integers: the number of parts of the problem the student might
 get right. The second array is the corresponding array of scores
 the student would be credited with for getting that many parts
 right. The scores should be real numbers between 0 and 1.

@@ -8,9 +8,9 @@
 
 =head1 NAME
 
-	WWPlot
+WWPlot - methods to create plots.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 
 	$graph = new WWPlot(400,400); # creates a graph 400 pixels by 400 pixels
@@ -189,9 +189,9 @@ my $last_image_number = 0;    #class variable.  Keeps track of how many images h
 
 my %fields = (                # initialization only!!!
 	xmin      => -1,
-	xmax      => 1,
+	xmax      =>  1,
 	ymin      => -1,
-	ymax      => 1,
+	ymax      =>  1,
 	imageName => undef,
 	position  => undef,       #used internally in the draw routine lineTo
 );

@@ -1,22 +1,7 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-contextRationalFunction.pl - Only allow rational functions
-                             (and their products and powers)
+contextRationalFunction.pl - Only allow rational functions (and their products and powers)
 
 =head1 DESCRIPTION
 
@@ -66,7 +51,7 @@ sub checkFactors {
 	my ($l, $r) = @_;
 	$self->SUPER::checkFactors($l, $r);
 	if (($l->{isPoly} || 0) >= 6 || ($r->{isPoly} || 0) >= 6) {
-		$self->Error("You can not use multiplication with rational functions as operands "
+		$self->Error("You cannot use multiplication with rational functions as operands "
 				. "(do you need parentheses around the denominator?)")
 			if $self->context->flag("singleQuotients");
 		$self->{isPoly} = 7;    # product containing rational functions

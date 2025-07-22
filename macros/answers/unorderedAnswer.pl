@@ -1,21 +1,7 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-unorderedAnswer.pl - allow the answers to be checked independent of order.
+unorderedAnswer.pl - Allow the answers to be checked independent of order.
 
 =head1 SYNOPSIS
 
@@ -33,6 +19,8 @@ loadMacros("answerUtils.pl");
 
 sub _unorderedAnswer_init { };    # don't reload this file
 
+=head1 FUNCTIONS
+
 =head2 UNORDERED_ANS
 
 Collect a group of answer checkers for use with answers that can be given
@@ -41,7 +29,7 @@ rules will be used.  It is beter to use named rules and C<UNORDERED_NAMED_ANS>
 below.  Otherwise, be sure to use C<UNORDERED_ANS> right after the answer
 rules for the answers you want to compare.
 
-Format:
+Usage:
 
     UNORDERED_ANS(checker1, checker2, ...);
 
@@ -76,9 +64,9 @@ sub UNORDERED_ANS {
 Collect a group of answer checkers for use with named answers that
 can be given in any order.
 
-Format:
+Usage:
 
-UNORDERED_NAMED_ANS(name1 => checker1, name2 => checker2, ...);
+    UNORDERED_NAMED_ANS(name1 => checker1, name2 => checker2, ...);
 
 Example:
 

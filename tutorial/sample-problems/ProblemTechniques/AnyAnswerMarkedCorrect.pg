@@ -1,0 +1,41 @@
+## DESCRIPTION
+## Shows how to implement any answer marked correct.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('answer')
+
+#:% name = Any Answer is Marked Correct
+#:% type = technique
+#:% categories = [answers]
+
+#:% section = preamble
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Wrap the random command with `Compute` to make `$a` a MathObject.
+#:
+#: The checker simply returns 1 which will make any answer correct.
+$a = Compute(random(2, 9));
+
+$ans = $a->cmp(checker => sub { return 1; });
+
+#:% section = statement
+BEGIN_PGML
+Enter anything, e.g. [`[$a]`] and it will be marked correct: [__]{$ans}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

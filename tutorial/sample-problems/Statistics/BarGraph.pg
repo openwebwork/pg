@@ -1,0 +1,103 @@
+## DESCRIPTION
+##  Find the mean and standard deviation of a list of numbers.
+## ENDDESCRIPTION
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## Date(02/25/2025)
+## KEYWORDS('statistics', 'bar graph')
+
+#:% name = Bar Graph
+#:% subject = [statistics]
+#:% type = sample
+#:% categories = [graph, statistics]
+
+#:% section = preamble
+#: The PODLINK('PGtikz.pl') macro provides the graphing methods we will use
+#: in this problem and PODLINK('contextPercent.pl') will be to provide the
+#: Percent context.
+DOCUMENT();
+
+loadMacros(
+    "PGstandard.pl", "PGML.pl",
+    'PGtikz.pl',     'contextPercent.pl',
+    "PGcourse.pl"
+);
+
+#:% section = setup
+#: The 'Percent' context allow students to enter percents.
+
+#: The graph is created dynamically. The axes are created with the given labels.
+#: Extending the number of bars or the height of the bars should be similar to
+#: this code. The heights of the bars are the grades which are generated
+#: randomly with the perl `map` function. If you want a non uniform
+#: distribution, you can create a different range of random numbers for each
+#: grade level.
+#:
+#: Make sure that an alternate text is added to all graphs for accessibility. Be
+#: detailed.
+
+Context('Percent');
+
+@grades = map { random(1, 5) } (0 .. 3);
+
+$graph = createTikZImage();
+$graph->tikzLibraries('arrows.meta');
+$graph->BEGIN_TIKZ
+\tikzset{>={Stealth[scale = 1.5]}}
+\filldraw[
+    draw = LightBlue,
+    fill = white,
+    rounded corners = 10pt,
+    thick,
+    use as bounding box
+] (-1, -1) rectangle (11, 7);
+\draw[->, thick] (-1, 0) -- (10, 0);
+
+\foreach \x/\label in {2/A,4/B,6/C,8/D}
+    \draw(\x,0.25)--(\x,-0.25) node [below] {\label};
+\draw[-, thick] (0, -1) -- (0, 6);
+\foreach \y in {1, ..., 5}
+    \draw (5pt, \y) -- (-5pt, \y) node[left] {\(\y\)};
+
+\filldraw[fill=LightBlue, draw=black] (1.2,0) rectangle (2.8,$grades[0]);
+\filldraw[fill=LightSalmon, draw=black]  (3.2,0) rectangle (4.8,$grades[1]);
+\filldraw[fill=LightYellow, draw=black]  (5.2,0) rectangle (6.8,$grades[2]);
+\filldraw[fill=LightGreen, draw=black]  (7.2,0) rectangle (8.8,$grades[3]);
+
+END_TIKZ
+
+$alt_text =
+    "A bar graph with vertical bars.  The height of the bar labelled A "
+    . "is $grades[0]. The height of the bar labelled B is $grades[1].  "
+    . " The height of the bar labelled C is $grades[2] and finally the "
+    . "bar labelled D is $grades[3].";
+
+# This code adds up all the numbers in the @grades array.
+$num_students = 0;
+$num_students += $_ for @grades;
+
+$perA = Real($grades[0] / $num_students);
+
+#:% section = statement
+#: In this case, we plot the bar graph and ask a question.
+#: Since the context is 'Percent', the students can
+#: answer the question with either a fraction, decimal or percent.
+#: If only percent answers is desired, see the flags for the Percent context
+#: in the macro.
+BEGIN_PGML
+The following is a distribution of grades on a Statistics quiz.
+>>[! [$alt_text] !]{$graph}{400}<<
+
+What percentage of students earned an A? [_]{$perA}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+The total number of students that took the quiz is [$total] so the percentage is
+the number of A students or [`[$grades[0]]/[$num_students] = [$perA] `]
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

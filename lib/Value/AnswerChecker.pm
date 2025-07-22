@@ -1,42 +1,45 @@
 
+=head1 NAME
+
+AnswerChecker - Implements the compare method for Value objects.
+
 =head1 DESCRIPTION
 
- #############################################################
- #
- #  Implements the ->cmp method for Value objects.
- #  Otherwise known as MathObjects.  This produces
- #  an answer checker appropriate for the type of object.
- #  Additional options can be passed to the cmp method to
- #  modify its action.
- #
- #   Usage:  $num = Real(3.45); # Real can be replaced by any other MathObject
- #			 ANS($num->cmp(compareOptionName => compareOptionValue, ... ))
- #
- #  The individual Value packages are modified below to add the
- #  needed methods.
- #
- #############################################################
+Implements the ->cmp method for Value objects.
+Otherwise known as MathObjects.  This produces
+an answer checker appropriate for the type of object.
+Additional options can be passed to the cmp method to
+modify its action.
+
+Usage:
+
+    $num = Real(3.45); # Real can be replaced by any other MathObject
+    ANS($num->cmp(compareOptionName => compareOptionValue, ... ))
+
+The individual Value packages are modified below to add the
+needed methods.
+
+=head1 METHODS
 
 =cut
 
 package Value;
 use PGcore;
 
-#
 #  Context can add default values to the answer checkers by class;
-#
+
 $Value::defaultContext->{cmpDefaults} = {};
 
-=head4 $mathObject->cmp_defaults()
+=head2 cmp_defaults
 
-#  Internal use.
-#  Set default flags for the answer checker in this object
-#       showTypeWarnings         => 1
-#       showEqualErrors          => 1
-#       ignoreStrings            => 1
-#       studentsMustReduceUnions => 1
-#       showUnionReduceWarnings  => 1
-#
+Internal use.
+Set default flags for the answer checker in this object
+
+    showTypeWarnings         => 1
+    showEqualErrors          => 1
+    ignoreStrings            => 1
+    studentsMustReduceUnions => 1
+    showUnionReduceWarnings  => 1
 
 =cut
 
@@ -48,9 +51,7 @@ sub cmp_defaults { (
 	showUnionReduceWarnings  => 1,
 ) }
 
-#
 #  Special Context flags to be set for the student answer
-#
 
 sub cmp_contextFlags {
 	my $self = shift;
@@ -80,9 +81,7 @@ sub cmp_contextFlags {
 	);
 }
 
-#
 #  Create an answer checker for the given type of object
-#
 
 sub cmp {
 	my $self    = shift;
@@ -116,17 +115,15 @@ sub correct_ans       { preformat(shift->string) }
 sub correct_ans_latex { shift->TeX }
 sub cmp_diagnostics   { }
 
-#
 #  Parse the student answer and compute its value,
 #    produce the preview strings, and then compare the
 #    student and professor's answers for equality.
-#
+
 sub cmp_parse {
 	my $self = shift;
 	my $ans  = shift;
-	#
+
 	#  Do some setup
-	#
 	my $context = $ans->{correct_value}{context} || $current;
 	Parser::Context->current(undef, $context);                           # change to correct answser's context
 	my $flags  = contextSet($context, $self->cmp_contextFlags($ans));    # save old context flags
@@ -138,10 +135,8 @@ sub cmp_parse {
 	$context->clearError();
 	$context->{answerHash} = $ans;                                       # values here can override context flags
 
-	#
 	#  Parse and evaluate the student answer
-	#
-	$ans->score(0);    # assume failure
+	$ans->score(0);                                                      # assume failure
 	$context->flags->set(
 		parseMathQuill => $context->flag("useMathQuill") && (!defined $context->{answerHash}{mathQuillOpts}
 			|| $context->{answerHash}{mathQuillOpts} !~ /^\s*disabled\s*$/i)
@@ -151,26 +146,25 @@ sub cmp_parse {
 		if defined($ans->{student_formula}) && $ans->{student_formula}->isConstant;
 	$context->flags->set(parseMathQuill => 0);
 
-	#
 	#  If it parsed OK, save the output forms and check if it is correct
 	#   otherwise report an error
-	#
+
 	if (defined $ans->{student_value}) {
 		$ans->{student_value} = $self->Package("Formula")->new($ans->{student_value})
 			unless Value::isValue($ans->{student_value});
 		$ans->{student_value}{isStudent} = 1;
 		$ans->{preview_latex_string}     = $ans->{student_formula}->TeX;
 		$ans->{preview_text_string}      = preformat($ans->{student_formula}->string);
-		#
+
 		#  Get the string for the student answer
-		#
+
 		for ($self->getFlag('formatStudentAnswer')) {
 			/evaluated/i and do { $ans->{student_ans} = preformat($ans->{student_value}->string); last };
 			/parsed/i    and do { $ans->{student_ans} = $ans->{preview_text_string};              last };
 			/reduced/i   and do {
 				my $oldFlags = contextSet($context, reduceConstants => 1, reduceConstantFunctions => 0);
 				$ans->{student_ans} = preformat($ans->{student_formula}->substitute()->string);
-				contextSet($context, %{$oldFags});
+				contextSet($context, %{$oldFlags});
 				last;
 			};
 			warn "Unknown student answer format |$ans->{formatStudentAnswer}|";
@@ -191,10 +185,9 @@ sub cmp_parse {
 	return $ans;
 }
 
-#
 #  Check if the object has an answer array and collect the results
 #  Build the combined student answer and set the preview values
-#
+
 sub cmp_collect {
 	my $self = shift;
 	my $ans  = shift;
@@ -459,7 +452,7 @@ sub ans_matrix {
 		foreach my $j (0 .. $cols - 1) {
 			my $label;
 			if ($options{aria_label}) {
-				$label = $options{aria_label} . 'row ' . ($i + 1) . ' col ' . ($j + 1);
+				$label = $options{aria_label} . pgCall('maketext', 'row [_1] col [_2] ', $i + 1, $j + 1);
 			} else {
 				$label = pgCall('generate_aria_label', ANS_NAME($ename, $i, $j));
 			}
@@ -496,7 +489,7 @@ sub ans_matrix {
 		close         => $close,
 		sep           => $sep,
 		top_labels    => $toplabels,
-		ans_last_name => ANS_NAME($ename, $rows - 1, $cols - 1)
+		ans_last_name => $rows == 1 && $cols == 1 ? $name : ANS_NAME($ename, $rows - 1, $cols - 1)
 	);
 }
 
@@ -640,7 +633,6 @@ sub format_delimiter {
 		if $tth || $displayMode eq 'HTML_tth' || $displayMode !~ m/^HTML_/;
 	my $rule = '\vrule width 0pt height ' . $rows . 'em depth 0pt';
 	$rule  = '\Rule{0pt}{' . (1.2 * $rows) . 'em}{0pt}' if $displayMode eq 'HTML_MathJax';
-	$rule  = '\rule 0pt ' . (1.2 * $rows) . 'em 0pt'    if $displayMode eq 'HTML_jsMath';
 	$delim = '\\' . $delim                              if $delim eq '{' || $delim eq '}';
 	return '\(\left' . $delim . $rule . '\right.\)';
 }
@@ -832,17 +824,22 @@ sub getPG {
 	eval('package main; ' . shift);    # faster
 }
 
-#############################################################
-#############################################################
+=head2 Compare Details for Default MathObjects
 
 =head3 Value::Real
 
-	Usage ANS( Real(3.56)->cmp() )
-		Compares response to a real value using 'fuzzy' comparison
-		compareOptions and default values:
-			  showTypeWarnings => 1,
-			  showEqualErrors  => 1,
-			  ignoreStrings    => 1,
+Options for C<cmp> for C<Value::Real>:
+
+Usage:
+
+    ANS( Real(3.56)->cmp() )
+
+Compares response to a real value using 'fuzzy' comparison
+compareOptions and default values:
+
+    showTypeWarnings => 1,
+    showEqualErrors  => 1,
+    ignoreStrings    => 1,
 
 =cut
 
@@ -880,17 +877,23 @@ sub typeMatch {
 
 =head3 Value::String
 
-	Usage:  $s = String("pole");
-		ANS($s->cmp(typeMatch => Complex("4+i")));
-		    # compare to response 'pole', don't complain about complex number responses.
+Options for C<cmp> for C<Value::String>:
 
-		compareOptions and default values:
-		  showTypeWarnings => 1,
-		  showEqualErrors  => 1,
-		  ignoreStrings    => 1,  # don't complain about string-valued responses
-		  typeMatch        => 'Value::Real'
+Usage:
 
-	Initial and final spaces are ignored when comparing strings.
+    $s = String("pole");
+    ANS($s->cmp(typeMatch => Complex("4+i")));
+
+compare to response 'pole', don't complain about complex number responses.
+
+compareOptions and default values:
+
+    showTypeWarnings => 1,
+    showEqualErrors  => 1,
+    ignoreStrings    => 1,  # don't complain about string-valued responses
+    typeMatch        => 'Value::Real'
+
+Leading and trailing spaces are ignored when comparing strings.
 
 =cut
 
@@ -960,17 +963,23 @@ sub cmp_preprocess {
 
 =head3 Value::Point
 
-	Usage: $pt = Point("(3,6)"); # preferred
-	       or $pt = Point(3,6);
-	       or $pt = Point([3,6]);
-	       ANS($pt->cmp());
+Options for C<cmp> for C<Value::Point>:
 
-		compareOptions:
-		  showTypeWarnings => 1,   # warns if student response is of incorrect type
-		  showEqualErrors  => 1,
-		  ignoreStrings    => 1,
-		  showDimensionHints => 1, # reports incorrect number of coordinates
-		  showCoordinateHints =>1, # flags individual coordinates that are incorrect
+Usage:
+
+    $pt = Point("(3,6)"); # preferred
+    $pt = Point(3,6);
+    $pt = Point([3,6]);
+
+	ANS($pt->cmp());
+
+compareOptions and default values:
+
+    showTypeWarnings => 1,   # warns if student response is of incorrect type
+    showEqualErrors  => 1,
+    ignoreStrings    => 1,
+    showDimensionHints => 1, # reports incorrect number of coordinates
+    showCoordinateHints =>1, # flags individual coordinates that are incorrect
 
 =cut
 
@@ -1035,26 +1044,29 @@ sub ans_array                 { my $self = shift; $self->ANS_MATRIX(0, '', @_) }
 sub named_ans_array           { my $self = shift; $self->ANS_MATRIX(0, @_) }
 sub named_ans_array_extension { my $self = shift; $self->ANS_MATRIX(1, @_) }
 
-#############################################################
-
 =head3 Value::Vector
 
-	Usage:  $vec = Vector("<3,6,7>");
-	        or $vec = Vector(3,6,7);
-	        or $vec = Vector([3,6,7]);
-	        ANS($vec->cmp());
+Options for C<cmp> for C<Value::Vector>:
 
-		compareOptions:
-		  showTypeWarnings    => 1,   # warns if student response is of incorrect type
-		  showEqualErrors     => 1,
-		  ignoreStrings       => 1,
-		  showDimensionHints  => 1, # reports incorrect number of coordinates
-		  showCoordinateHints => 1, # flags individual coordinates which are incorrect
-		  promotePoints       => 0, # allow students to enter vectors as points (3,5,6)
-		  parallel            => 1, # response is correct if it is parallel to correct answer
-		  sameDirection       => 1, # response is correct if it has same orientation as correct answer
-		                            #  (only has an effect when parallel => 1 is specified)
+Usage:
 
+    $vec = Vector("<3,6,7>");
+    $vec = Vector(3,6,7);
+    $vec = Vector([3,6,7]);
+
+    ANS($vec->cmp());
+
+compareOptions and default values:
+
+    showTypeWarnings    => 1,   # warns if student response is of incorrect type
+    showEqualErrors     => 1,
+    ignoreStrings       => 1,
+    showDimensionHints  => 1, # reports incorrect number of coordinates
+    showCoordinateHints => 1, # flags individual coordinates which are incorrect
+    promotePoints       => 0, # allow students to enter vectors as points (3,5,6)
+    parallel            => 1, # response is correct if it is parallel to correct answer
+    sameDirection       => 1, # response is correct if it has same orientation as correct answer
+                              #  (only has an effect when parallel => 1 is specified)
 
 =cut
 
@@ -1156,7 +1168,7 @@ sub ANS_MATRIX {
 	$def   = $self->context->lists->get('Matrix');
 	$open  = $self->{open}  || $def->{open};
 	$close = $self->{close} || $def->{close};
-	return $self->ans_matrix($extend, $name, $self->length, 1, $size, $open, $close, '',, '', %options)
+	return $self->ans_matrix($extend, $name, $self->length, 1, $size, $open, $close, '', '', %options)
 		if ($self->{ColumnVector});
 	$def   = $self->context->lists->get('Vector');
 	$open  = $self->{open}  || $def->{open};
@@ -1168,21 +1180,24 @@ sub ans_array                 { my $self = shift; $self->ANS_MATRIX(0, '', @_) }
 sub named_ans_array           { my $self = shift; $self->ANS_MATRIX(0, @_) }
 sub named_ans_array_extension { my $self = shift; $self->ANS_MATRIX(1, @_) }
 
-#############################################################
-
 =head3 Value::Matrix
 
-	Usage   $ma = Matrix([[3,6],[2,5]]) or $ma =Matrix([3,6],[2,5])
-	        ANS($ma->cmp());
+Options for C<cmp> for C<Value::Matrix>:
 
-		compareOptions:
+Usage:
 
-		  showTypeWarnings    => 1, # warns if student response is of incorrect type
-		  showEqualErrors     => 1, # reports messages that occur during element comparisons
-		  ignoreStrings       => 1,
-		  showDimensionHints  => 1, # reports incorrect number of coordinates
-		  showCoordinateHints => 1, # flags individual coordinates which are incorrect
+    $ma = Matrix([[3,6],[2,5]])
+    $ma = Matrix([3,6],[2,5])
 
+    ANS($ma->cmp());
+
+compareOptions and default values:
+
+    showTypeWarnings    => 1, # warns if student response is of incorrect type
+    showEqualErrors     => 1, # reports messages that occur during element comparisons
+    ignoreStrings       => 1,
+    showDimensionHints  => 1, # reports incorrect number of coordinates
+    showCoordinateHints => 1, # flags individual coordinates which are incorrect
 
 =cut
 
@@ -1269,22 +1284,23 @@ sub ans_array                 { my $self = shift; $self->ANS_MATRIX(0, '', @_) }
 sub named_ans_array           { my $self = shift; $self->ANS_MATRIX(0, @_) }
 sub named_ans_array_extension { my $self = shift; $self->ANS_MATRIX(1, @_) }
 
-#############################################################
-
 =head3   Value::Interval
 
-	Usage:    $interval = Interval("(1,2]");
-	          or $interval = Interval('(',1,2,']');
-	          ANS($inteval->cmp);
+Usage:
 
-		  compareOptions and defaults:
-			showTypeWarnings  => 1,
-			showEqualErrors   => 1,
-			ignoreStrings     => 1,
-			showEndpointHints => 1, # show hints about which end point values are correct
-			showEndTypeHints  => 1, # show hints about endpoint types
-			requireParenMatch => 1,
+    $interval = Interval("(1,2]");
+    $interval = Interval('(',1,2,']');
 
+    ANS($inteval->cmp);
+
+compareOptions and default values:
+
+    showTypeWarnings  => 1,
+    showEqualErrors   => 1,
+    ignoreStrings     => 1,
+    showEndpointHints => 1, # show hints about which end point values are correct
+    showEndTypeHints  => 1, # show hints about endpoint types
+    requireParenMatch => 1,
 
 =cut
 
@@ -1340,18 +1356,22 @@ sub cmp_postprocess {
 	$self->cmp_Error($ans, @errors);
 }
 
-#############################################################
-
 =head3 Value::Set
 
-	Usage:   $set = Set(5,6,'a', 'b')
-	      or $set = Set("{5, 6, a, b}")
+Options for C<cmp> for C<Value::Set>:
 
-	      The object is a finite set of real numbers. It can be used with Union and
-	      Interval.
+Usage:
 
-	Examples:  Interval("(-inf,inf)") - Set(0)
-	           Compute("R-{0}")   # in Interval context: Context("Interval");
+    $set = Set(5,6,'a', 'b')
+    $set = Set("{5, 6, a, b}")
+
+The object is a finite set of real numbers. It can be used with Union and
+Interval.
+
+Examples:
+
+    Interval("(-inf,inf)") - Set(0)
+    Compute("R-{0}")   # in Interval context: Context("Interval");
 
 =cut
 
@@ -1404,14 +1424,13 @@ sub cmp_compare {
 	$self->SUPER::cmp_compare($student, $ans, @_);
 }
 
-#############################################################
-
 =head3 Value::Union
 
-	Usage: $union = Union("[4,5] U [6,7]");
-	       or $union = Union(Interval("[4,5]",Interval("[6,7]"));
-	       ANS($union->cmp());
+Usage:
 
+    $union = Union("[4,5] U [6,7]");
+    $union = Union(Interval("[4,5]",Interval("[6,7]"));
+    ANS($union->cmp());
 
 =cut
 
@@ -1471,30 +1490,34 @@ sub cmp_compare {
 
 =head3 Value::List
 
-	Usage:  $lst = List("1, x, <4,5,6>"); # list of a real, a formula and a vector.
-	        or $lst = List(Real(1), Formula("x"), Vector(4,5,6));
-	        ANS($lst->cmp(showHints=>1));
+Options for C<cmp> for C<Value::List>:
 
-		compareOptions and defaults:
-			showTypeWarnings => 1,
-			showEqualErrors  => 1,         # show errors produced when checking equality of entries
-			ignoreStrings    => 1,         # don't show type warnings for strings
-			studentsMustReduceUnions => 1,
-			showUnionReduceWarnings => 1,
-			showHints => undef,            # automatically set to 1 if $showPartialCorrectAnswers == 1
-			showLengthHints => undef,      # automatically set to 1 if $showPartialCorrectAnswers == 1
-			showParenHints => undef,       # automatically set to 1 if $showPartialCorrectAnswers == 1
-			partialCredit => undef,        # automatically set to 1 if $showPartialCorrectAnswers == 1
-			ordered => 0,                  # 1 = must be in same order as correct answer
-			entry_type => undef,           # determined from first entry
-			list_type => undef,            # determined automatically
-			typeMatch => $element,         # used for type checking the entries
-			firstElement => $element,
-			extra => undef,                # used to check syntax of incorrect answers
-			requireParenMatch => 1,        # student parens must match correct parens
-			removeParens => 1,             # remove outermost parens, if any
-			implicitList => 1,             # force single answers to be lists (even if they ARE lists)
+Usage:
 
+    $lst = List("1, x, <4,5,6>"); # list of a real, a formula and a vector.
+    $lst = List(Real(1), Formula("x"), Vector(4,5,6));
+    ANS($lst->cmp(showHints=>1));
+
+compareOptions and default values:
+
+    showTypeWarnings => 1,
+    showEqualErrors  => 1,         # show errors produced when checking equality of entries
+    ignoreStrings    => 1,         # don't show type warnings for strings
+    studentsMustReduceUnions => 1,
+    showUnionReduceWarnings => 1,
+    showHints => undef,            # automatically set to 1 if $showPartialCorrectAnswers == 1
+    showLengthHints => undef,      # automatically set to 1 if $showPartialCorrectAnswers == 1
+    showParenHints => undef,       # automatically set to 1 if $showPartialCorrectAnswers == 1
+    partialCredit => undef,        # automatically set to 1 if $showPartialCorrectAnswers == 1
+    ordered => 0,                  # 1 = must be in same order as correct answer
+    entry_type => undef,           # determined from first entry
+    list_type => undef,            # determined automatically
+    typeMatch => $element,         # used for type checking the entries
+    firstElement => $element,
+    extra => undef,                # used to check syntax of incorrect answers
+    requireParenMatch => 1,        # student parens must match correct parens
+    removeParens => 1,             # remove outermost parens, if any
+    implicitList => 1,             # force single answers to be lists (even if they ARE lists)
 
 =cut
 
@@ -1827,16 +1850,15 @@ sub getOption {
 	return $ans->{showPartialCorrectAnswers};
 }
 
-#############################################################
-
 =head3  Value::Formula
 
-	Usage: $fun = Formula("x^2-x+1");
-	       $set = Formula("[-1, x) U (x, 2]");
+Usage:
 
-	A formula can have any of the other math object types as its range.
-		Union, List, Number (Complex or Real),
+    $fun = Formula("x^2-x+1");
+     $set = Formula("[-1, x) U (x, 2]");
 
+A formula can have any of the other math object types as its range.
+Union, List, Number (Complex or Real),
 
 =cut
 

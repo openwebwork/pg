@@ -13,39 +13,45 @@
 
 # created as a full problem by Peter Staab  2023.06.02
 
-#:% name = Vector-valued Parametric Line Segment--Specific
+#:% name = Vector-valued Parametric Line Segment (Specific)
 #:% type = [technique, sample]
 #:% categories = vector
 #:% subject = Vector Calculus
+#:% see_also = [VectorParametricLine.pg, VectorLineSegment1.pg]
 
 #:% section = preamble
-#:  The macro `parseVectorUtils.pl` provides random points and vectors.
+#:  The PODLINK('parseVectorUtils.pl') macro is loaded for the
+#: `non_zero_point3D` and `non_zero_vector3D` methods.
 DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: In this case, there is only a single answer, so we can just enter the
-#: correct expression for the vector-valued function.
+#: A random point is generated with the `non_zero_point3D` method, a random
+#: displacement vector is generated with the `non_zero_vector3D` method, and a
+#: random speed is generated.
+#:
+#: Then the answer is computed from those values.
 Context("Vector");
 Context()->variables->are(t => "Real");
 
 $P     = non_zero_point3D();
 $disp  = non_zero_vector3D();
-$Q     = Point($P + $disp);
 $speed = random(3, 9, 1);
 
-$ans = Compute("$P + $speed *t * $disp/norm($disp)");
+$ans = Compute("$P + $speed * t * $disp / norm($disp)");
 
 #:% section = statement
 BEGIN_PGML
-A particle starts at the point [` P = [$P] `]
-when [` t = 0 `] and moves along a straight line
-toward [` Q = [$Q] `] at a speed of [` [$speed] `]
-cm/sec.  Assume that [`x, y,`] and [`z`] are measured
-in cm.  Do not enter units with your answers.
+A particle starts at the point [`P = [$P]`] when [`t = 0`] and moves along a
+straight line toward [`Q = [@ Point($P + $disp) @]`] at a speed of [`[$speed]`]
+centimeters per second.  Assume that [`x`], [`y`], and [`z`] are measured in
+centimeters.
 
-Find the vector parametric equation for the position of the object.
-[` \vec{r}(t) = `] [____]{$ans}
+Find a vector equation for the position of the object.
+
+[` \vec{r}(t) = `] [_]{$ans}{10}
+
+_Do not include units in your answer._
 END_PGML
 
 #:% section = solution

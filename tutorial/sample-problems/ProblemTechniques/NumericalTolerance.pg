@@ -1,0 +1,87 @@
+## DESCRIPTION
+## Explains the difference in tolerance type and numerical tolerance.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('tolerance')
+
+#:% name = Numerical Tolerance
+#:% type = technique
+#:% categories = [numbers, tolerance]
+#:% see_also = [DigitsTolType.pg]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This shows three different ways of setting the `toltype` and `tolerance` of
+#: the answer. The `tolType` can be `absolute` (specifying a decimal distance
+#: from the correct answer that will be allowed) or `relative` (specifying a
+#: percent error that will be allowed).
+#:
+#: Thus if the correct answer is 17, a tolerance of 0.01 will mean that the
+#: student answer must be in the interval `(16.99,17.01)` if the `tolType` is
+#: `absolute`, and in the interval `(16.83,17.17)` if `tolType` is `relative`
+#: (which is the default).
+#:
+#: 1. The `cmp` method is called directly on the MathObject returned by the
+#:    `Compute` call, and the `tolerance` and `tolType` are passed as options to
+#:    the `cmp` call. Note that this answer is in the current context which in
+#:    this case would be the default `Numeric` context since no other context
+#:    has been specified.
+#:
+#: 2. The `cmp` call is called on the MathObject returned by the `Compute` call,
+#:    expect that is done when the answer is specified in the `PGML` problem
+#:    statement. Note that this answer is also in the current default `Numeric`
+#:    context. Also note that this is really the same as the first case. It is
+#:    just a different time that the `cmp` call is made.
+#:
+#: 3. The `tolerance` and `toltype` context flags are set.  This is useful if
+#:    the desired `toltype` or `tolerance` are the same for many answers.
+#:    Typically this would be done at the beginning of the setup section.
+#:    However, note that calling `Context('Numeric')` as is done in this example
+#:    creates a new copy of the unmodified default `Numeric` context (not a
+#:    copy of any `Numeric` contexts previously created and used in the
+#:    problem). So the context flags specified here do not apply to any answers
+#:    created before this. Hence it is also useful to do this later in the setup
+#:    for unrelated answers.
+$ans1 = Compute('1.5708')->cmp(
+    tolType   => 'absolute',
+    tolerance => .0001,
+);
+
+$ans2 = Compute('1.5708');
+
+Context('Numeric')->flags->set(
+    tolerance => 0.0001,
+    tolType   => 'absolute',
+);
+
+$ans3 = Compute('1.5708');
+#:% section = statement
+BEGIN_PGML
+For each of the following Enter your answer accurate to four decimal places .
+
+1. Enter [``\frac{\pi}{2} =``] [____]{$ans1}
+
+2. Enter [``\frac{\pi}{2} =``] [____]{$ans2->cmp(
+	tolType   => 'absolute',
+	tolerance => .0001,
+)}
+
+3. Enter [``\frac{\pi}{2} =``] [____]{$ans3}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

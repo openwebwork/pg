@@ -1,24 +1,10 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
 LinearProgramming.pl - Macros for the simplex tableau for linear programming
 problems.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 Macros related to the simplex method for Linear Programming.
 
@@ -47,7 +33,7 @@ Tableaus are expected to be legal for the simplex method, such as
 
 or something similar which arises after pivoting.
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 lp_pivot
 
@@ -156,7 +142,7 @@ sub lp_pivot_element {
 			} else {    # Test to see if this is an improvement
 				if ($fracmode
 					? ($m[$prow][$ncols]->scalar()) / ($m[$prow][$pcol]->scalar()) >
-					($m[$j][$ncols]->scalar() / $m[$j][$pcol]->scalar())
+						($m[$j][$ncols]->scalar() / $m[$j][$pcol]->scalar())
 					: ($m[$prow][$ncols] / $m[$prow][$pcol] > $m[$j][$ncols] / $m[$j][$pcol]))
 				{
 					$prow = $j;

@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -37,9 +23,11 @@ the correct answer is a number, it is interpreted as an index, even
 if the array of choices are also numbers.  (See the C<noindex> below
 for more details.)
 
-Note that drop-down menus can not contain mathematical notation, only
+Note that drop-down menus cannot contain mathematical notation, only
 plain text. This is because the browser's native menus are used, and
-these can contain only text, not mathematics or graphics.
+these can contain only text, not mathematics or graphics. That is unless
+the C<useHTMLSelect> option is set to 0. See more about that option
+below.
 
 The difference between C<PopUp()> and C<DropDown() >is that in HTML,
 the latter will have an unselectable placeholder value.  This value
@@ -137,6 +125,25 @@ of answer options might make printing the answer option list
 unnecessary in a static output format.)  Default: 1, except 0 for
 DropDownTF.
 
+=item C<S<< inlineSize => number >>>
+
+In PDF output, this controls break point between printing the list of
+options as an inline list [A/B/C] or multiline bullet list. If the total
+number of characters (of all items combined) is greater than or equal to
+this setting, or an item contains a '[', '/', or ']' character, then the
+list of options is printed as a bullet list, otherwise an inline list is
+used. Default: 25
+
+=item C<S<< useHTMLSelect => 0 or 1 >>>
+
+If this is set to 1 (the default) then a native HTML select element will
+be used for the dropdown menu. However, if this is set to 0 then a
+Bootstrap Dropdown will be used instead. In this case, the answer labels
+must work directly in HTML, and must also work inside C<\text{...}> in
+LaTeX. Note that math mode (C<\(...\)> or C<\[...\]>) can be used in
+these labels. In HTML those will be typeset by MathJax, and in hard copy
+will be typeset by LaTeX.
+
 =back
 
 To insert the drop-down into the problem text when using PGML:
@@ -226,13 +233,15 @@ sub new {
 	$context->{parser}{String}          = "parser::PopUp::String";
 	$context->update;
 	$self = bless {
-		data         => [$value],
-		context      => $context,
-		choices      => $choices,
-		placeholder  => $options{placeholder}  // '',
-		showInStatic => $options{showInStatic} // 1,
-		values       => $options{values}       // [],
-		noindex      => $options{noindex}      // 0
+		data          => [$value],
+		context       => $context,
+		choices       => $choices,
+		placeholder   => $options{placeholder}   // '',
+		showInStatic  => $options{showInStatic}  // 1,
+		inlineSize    => $options{inlineSize}    // 25,
+		values        => $options{values}        // [],
+		noindex       => $options{noindex}       // 0,
+		useHTMLSelect => $options{useHTMLSelect} // 1
 	}, $class;
 	$self->getChoiceOrder;
 	$self->addLabelsValues;
@@ -269,7 +278,7 @@ sub addLabelsValues {
 	my $self    = shift;
 	my $choices = $self->{orderedChoices};
 	my $labels  = [];
-	my $values  = $self->{values};
+	my $values  = [];
 	my $n       = $self->{n};
 
 	foreach my $i (0 .. $n - 1) {
@@ -278,7 +287,7 @@ sub addLabelsValues {
 			$values->[$i] = $choices->[$i]{ $labels->[$i] };
 		} else {
 			$labels->[$i] = $choices->[$i];
-			$values->[$i] = $choices->[$i] unless (defined($values->[$i]) && $values->[$i] ne '');
+			$values->[$i] = $self->{values}[ $self->{order}[$i] ] // $choices->[$i];
 		}
 
 	}
@@ -302,7 +311,7 @@ sub getCorrectChoice {
 	my @choices = @{ $self->{orderedChoices} };
 	foreach my $i (0 .. $#choices) {
 		if ($label eq $self->{labels}[$i]) {
-			$self->{data} = [ $self->{labels}[$i] ];
+			$self->{data} = [ $self->{values}[$i] ];
 			return;
 		}
 	}
@@ -355,8 +364,19 @@ sub cmp_preprocess {
 	}
 }
 
-#  Allow users to convert the value string into a label
+sub quoteTeX {
+	my ($self, $s) = @_;
+	return "\\text{$s}" unless $self->{useHTMLSelect};
+	return $self->SUPER::quoteTeX($s);
+}
 
+sub quoteHTML {
+	my ($self, $s) = @_;
+	return $s unless $self->{useHTMLSelect};
+	return $self->SUPER::quoteHTML($s);
+}
+
+#  Allow users to convert the value string into a label
 sub answerLabel {
 	my ($self, $value) = @_;
 	my $index = $self->getIndexByValue($value);
@@ -385,46 +405,93 @@ sub MENU {
 	my $menu    = "";
 	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 	my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
-	my $aria_label   = main::generate_aria_label($name);
+	my $aria_label   = $options{aria_label} // main::generate_aria_label($name);
 
 	if ($main::displayMode =~ m/^HTML/) {
-		$menu = main::tag(
-			'span',
-			class                       => 'text-nowrap',
-			data_feedback_insert_elt    => $name,
-			data_feedback_insert_method => 'append_content',
-			main::tag(
-				'select',
-				class      => 'pg-select',
-				name       => $name,
-				id         => $name,
-				aria_label => $aria_label,
-				size       => 1,
-				(
-					$self->{placeholder}
-					? main::tag(
-						'option',
-						disabled => undef,
-						selected => undef,
-						value    => '',
-						class    => 'tex2jax_ignore',
+		if ($self->{useHTMLSelect}) {
+			$menu = main::tag(
+				'div',
+				class                        => 'd-inline text-nowrap',
+				data_feedback_insert_element => $name,
+				data_feedback_insert_method  => 'append_content',
+				main::tag(
+					'select',
+					class      => 'pg-select',
+					name       => $name,
+					id         => $name,
+					aria_label => $aria_label,
+					size       => 1,
+					(
 						$self->{placeholder}
-						)
-					: ''
-					)
-					. join(
-						'',
-						map {
-							main::tag(
-								'option', $self->{values}[$_] eq $answer_value ? (selected => undef) : (),
-								value => $self->{values}[$_],
-								class => 'tex2jax_ignore',
-								$self->quoteHTML($self->{labels}[$_], 1)
+						? main::tag(
+							'option',
+							disabled => undef,
+							selected => undef,
+							value    => '',
+							class    => 'tex2jax_ignore',
+							$self->{placeholder}
 							)
-						} (0 .. $#list)
+						: ''
+						)
+						. join(
+							'',
+							map {
+								main::tag(
+									'option', $self->{values}[$_] eq $answer_value ? (selected => undef) : (),
+									value => $self->{values}[$_],
+									class => 'tex2jax_ignore',
+									$self->quoteHTML($self->{labels}[$_], 1)
+								)
+							} (0 .. $#list)
+						)
+				)
+			);
+		} else {
+			main::ADD_CSS_FILE('js/DropDown/dropdown.css');
+			main::ADD_JS_FILE('js/DropDown/dropdown.js', 0, { defer => undef });
+
+			$menu = main::tag(
+				'div',
+				class                        => 'dropdown-center pg-dropdown d-inline',
+				data_feedback_insert_element => $name,
+				data_feedback_insert_method  => 'append_content',
+				join(
+					'',
+					main::tag('input', type  => 'hidden',          name => $name, value => $answer_value),
+					main::tag('span',  class => 'visually-hidden', $aria_label),
+					main::tag(
+						'button',
+						class          => 'btn dropdown-toggle text-nowrap ',
+						type           => 'button',
+						data_bs_toggle => 'dropdown',
+						aria_expanded  => 'false',
+						$answer_value ne '' ? $self->answerLabel($answer_value)  : defined $self->{placeholder}
+							&& $self->{placeholder} ne '' ? $self->{placeholder} : '?'
+					),
+					main::tag(
+						'ul',
+						class => 'dropdown-menu',
+						join(
+							'',
+							map {
+								main::tag(
+									'li',
+									main::tag(
+										'button',
+										class => 'dropdown-item'
+											. ($self->{values}[$_] eq $answer_value ? ' active' : ''),
+										type         => 'button',
+										data_value   => $self->{values}[$_],
+										data_content => $self->{labels}[$_],
+										$self->{labels}[$_]
+									)
+								)
+							} (0 .. $#list)
+						)
 					)
-			)
-		);
+				)
+			);
+		}
 	} elsif ($main::displayMode eq 'PTX') {
 		if ($self->{showInStatic}) {
 			$menu = main::tag(
@@ -437,15 +504,13 @@ sub MENU {
 			$menu = qq(<fillin name="$name"/>);
 		}
 	} elsif ($main::displayMode eq "TeX" && $self->{showInStatic}) {
-		# if the total number of characters is not more than
-		# 30 and not containing / or ] then we print out
+		# Unless the total number of characters is greater than or equal to the
+		# inlineSize setting (default 25), or contains [, ], or / then we print out
 		# the select as a string: [A/B/C]
-		if (length(join('', @list)) < 25
-			&& !grep(/(\/|\[|\])/, @list))
-		{
+		unless (length(join('', @list)) >= $self->{inlineSize} || grep(/(\/|\[|\])/, @list)) {
 			$menu = '[' . join('/', map { $self->quoteTeX($_) } @list) . ']';
 		} else {
-			#otherwise we print a bulleted list
+			# Otherwise we print a bulleted list.
 			$menu = '\par\vtop{\def\bitem{\hbox\bgroup\indent\strut\textbullet\ \ignorespaces}\let\eitem=\egroup';
 			$menu = "\n" . $menu . "\n";
 			foreach my $option (@list) {

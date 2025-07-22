@@ -1,25 +1,10 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 package WeBWorK::PG::Translator;
 
 =head1 NAME
 
 WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
     my $pt = WeBWorK::PG::Translator->new;   # create a translator
     $pt->environment(\%envir);               # provide the environment variable for the problem
@@ -69,7 +54,7 @@ use Carp;
 use Mojo::DOM;
 
 use WWSafe;
-use PGUtil qw(pretty_print);
+use PGUtil          qw(pretty_print);
 use WeBWorK::PG::IO qw(fileFromPath);
 
 BEGIN {
@@ -1088,46 +1073,72 @@ sub rf_avg_problem_grader {
 }
 
 sub avg_problem_grader {
-	my ($rh_evaluated_answers, $rh_problem_state, %form_options) = @_;
+	my ($answers, $problem_state, %form_options) = @_;
 
-	my %evaluated_answers = %{$rh_evaluated_answers};
+	my %problem_result = (score => 0, errors => '', type => 'avg_problem_grader', msg => '');
 
-	# By default the old problem state is simply passed back out again.
-	my %problem_state = %$rh_problem_state;
+	$problem_result{msg} = eval('main::maketext("You can earn partial credit on this problem.")')
+		if keys %$answers > 1;
 
-	# Initial setup of the answer
-	my $total          = 0;
-	my %problem_result = (
-		score  => 0,
-		errors => '',
-		type   => 'avg_problem_grader',
-		msg    => '',
-	);
+	# Return unless answers have been submitted.
+	return (\%problem_result, $problem_state) unless $form_options{answers_submitted} == 1;
 
-	my $count = keys %evaluated_answers;
-	$problem_result{msg} = 'You can earn partial credit on this problem.' if $count > 1;
+	my %credit;
 
-	return (\%problem_result, \%problem_state) unless $form_options{answers_submitted} == 1;
-
-	# Answers have been submitted -- process them.
-	for my $ans_name (keys %evaluated_answers) {
-		$total += $evaluated_answers{$ans_name}{score};
+	# Get the score for each answer (error if can't recognize the answer format).
+	for my $ans_name (keys %$answers) {
+		if (ref($answers->{$ans_name}) =~ m/^(HASH|AnswerHash)$/) {
+			$credit{$ans_name} = $answers->{$ans_name}{score} // 0;
+		} else {
+			$problem_result{error} = "Error: Answer $ans_name is not a hash: $answers->{$ans_name}";
+			die "Error: Answer |$ans_name| is not a hash reference\n"
+				. $answers->{$ans_name}
+				. "\nThis probably means that the answer evaluator for this answer is not working correctly.";
+		}
 	}
 
-	# Calculate score rounded to three places to avoid roundoff problems
-	$problem_result{score} = $count ? $total / $count : 0;
-	$problem_state{recorded_score} //= 0;
+	# Mark any optional answers as correct, if the goal answers are right and the optional answers are blank.
+	for my $ans_name (keys %$answers) {
+		if ($credit{$ans_name} == 1 && defined $answers->{$ans_name}{credit}) {
+			for my $credit_name (
+				ref($answers->{$ans_name}{credit}) eq 'ARRAY'
+				? @{ $answers->{$ans_name}{credit} }
+				: $answers->{$ans_name}{credit})
+			{
+				if (!defined $answers->{$credit_name}{student_ans}
+					|| $answers->{$credit_name}{student_ans} =~ m/^\s*$/)
+				{
+					$answers->{$credit_name}{score} = 1;
+					$answers->{$credit_name}{ans_message} =
+						eval('main::maketext("This answer was marked correct because the primary answer is correct.")');
+					$credit{$credit_name} = 1;
+				}
+			}
+		}
+	}
+
+	my ($score, $total) = (0, 0);
+
+	# Add up the weighted scores
+	for my $ans_name (keys %$answers) {
+		my $weight = $answers->{$ans_name}{weight} // 1;
+		$total += $weight;
+		$score += $weight * $credit{$ans_name};
+	}
+
+	$problem_result{score} = $total ? $score / $total : 0;
+
+	++$problem_state->{num_of_correct_ans}   if $score == $total;
+	++$problem_state->{num_of_incorrect_ans} if $score < $total;
+	$problem_state->{recorded_score} //= 0;
 
 	# Increase recorded score if the current score is greater.
-	$problem_state{recorded_score} = $problem_result{score}
-		if $problem_result{score} > $problem_state{recorded_score};
+	$problem_state->{recorded_score} = $problem_result{score}
+		if $problem_result{score} > $problem_state->{recorded_score};
 
-	++$problem_state{num_of_correct_ans}   if $total == $count;
-	++$problem_state{num_of_incorrect_ans} if $total < $count;
+	warn "Error in grading this problem: The score $score is larger than the total $total." if $score > $total;
 
-	warn "Error in grading this problem the total $total is larger than $count" if $total > $count;
-
-	return (\%problem_result, \%problem_state);
+	return (\%problem_result, $problem_state);
 }
 
 =head2 post_process_content
@@ -1174,9 +1185,12 @@ sub post_process_content {
 		$self->{safe}->share_from('main', [qw(%Mojo::Base:: %Mojo::Collection:: %Mojo::DOM::)]);
 		our $problemDOM =
 			Mojo::DOM->new->xml($self->{rh_pgcore}{displayMode} eq 'PTX')->parse(${ $self->{PG_PROBLEM_TEXT_REF} });
-		our $pageHeader = Mojo::DOM->new(${ $self->{PG_HEADER_TEXT_REF} });
-		$self->{safe}->share('$problemDOM', '$pageHeader');
-		$self->{safe}->reval('for (@{ $main::PG->{content_post_processors} }) { $_->($problemDOM, $pageHeader); }', 1);
+		our $pageHeader    = Mojo::DOM->new(${ $self->{PG_HEADER_TEXT_REF} });
+		our $problemResult = $self->rh_problem_result;
+		$self->{safe}->share('$problemDOM', '$pageHeader', '$problemResult');
+		$self->{safe}->reval(
+			'for (@{ $main::PG->{content_post_processors} }) { $_->($problemDOM, $pageHeader, $problemResult); }',
+			1);
 		warn "ERRORS from post processing PG text:\n$@\n" if $@;
 
 		$self->{PG_PROBLEM_TEXT_REF} = \($problemDOM->to_string);

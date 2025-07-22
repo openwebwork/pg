@@ -7,7 +7,7 @@ on:
 
 jobs:
   unit-tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout PG code
         uses: actions/checkout@v4
@@ -21,20 +21,20 @@ jobs:
             dvisvgm \
             imagemagick \
             libclass-accessor-perl \
-            libclass-tiny-perl \
             libdbi-perl \
             libencode-perl \
             libgd-perl \
             libhtml-parser-perl \
-            libjson-perl \
-            libjson-xs-perl \
             liblocale-maketext-lexicon-perl \
             libmojolicious-perl \
+            libtest-mockobject-perl \
             libtest2-suite-perl \
             libtie-ixhash-perl \
             libuuid-tiny-perl \
             libyaml-libyaml-perl \
             pdf2svg \
+            r-base-core \
+            r-cran-rserve \
             texlive \
             texlive-latex-extra \
             texlive-latex-recommended \
@@ -46,4 +46,5 @@ jobs:
       - name: Run Perl unit tests
         run: |
           export PG_ROOT=`pwd`
+          R_HOME=/usr/lib/R /usr/lib/R/site-library/Rserve/libs/Rserve --no-save
           prove -r t

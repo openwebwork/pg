@@ -1,12 +1,11 @@
 
 =head1 NAME
 
-customizeLaTeX.pl - Defines default LaTeX constructs for certain mathematical
-                    ideas.
+customizeLaTeX.pl - Defines default LaTeX constructs for certain mathematical ideas.
 
 =head1 DESCRIPTION
 
-The functions are loaded by default.  Any/all can be overridden 
+The functions are loaded by default.  Any/all can be overridden
 in your course's PGcourse.pl
 =cut
 
@@ -36,7 +35,7 @@ sub implies {
 sub vectorstyle {
 	my $v = shift;
 	return "\\vec{$v}"
-		#return "$v";
+	#return "$v";
 }
 
 sub polynomials_of_degree_up_to_degree_over_ring_in_variable {
@@ -121,10 +120,10 @@ sub quaternions {
 
 	return "Q_8"
 
-		# Alternatives
+	# Alternatives
 
-		# return "H_8"
-		# return "Q"
+	# return "H_8"
+	# return "Q"
 }
 
 1;

@@ -15,10 +15,9 @@ BEGIN {
 use lib "$pg_root/lib";
 
 use Mojo::Template;
-use File::Basename qw(fileparse basename);
+use File::Basename qw(basename);
 use Getopt::Long;
 use File::Copy qw(copy);
-use YAML::XS qw(DumpFile);
 use Pod::Simple::Search;
 
 use SampleProblemParser qw(parseSampleProblem generateMetadata);
@@ -155,8 +154,7 @@ sub writeIndex ($params, %options) {
 	return;
 }
 
-# Copy the PG.js file and CSS file into the output directory.
-copy("$pg_root/tutorial/js/PG.js",               $out_dir);
+# Copy the CSS file into the output directory.
 copy("$pg_root/tutorial/css/sample-problem.css", $out_dir);
 
 1;

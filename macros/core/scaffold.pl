@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -104,7 +90,7 @@ is passed a reference to the section object).  The default value is
 C<"when_previous_correct">, which means that all the correct sections
 and the first section incorrect or empty blanks would be able to be
 opened by the student.  The value C<"first_incorrect"> would mean that
-correct sections can not be reopened, and only the first one that is
+correct sections cannot be reopened, and only the first one that is
 not fully correct can be, while C<"incorrect"> means that only
 incorrect sections can be opened (so once a section is correct, it
 can't be reopened).  The value C<"always"> means the student can
@@ -183,6 +169,16 @@ but if you have material to read (or even answers to give) prior to
 the first section, you might want the first section to be closed, and
 have the student open it by hand before anwering the questions.  In
 this case, set this value to 0 (it is 1 by default).
+
+=item C<< preview_can_change_state => 0 or 1 >>
+
+This determines if scaffold state can be changed when a preview occurs
+(i.e., when the "Preview My Answers" button is used).  If this is 0,
+then when a preview occurs any scaffold sections that were open before
+the preview will remain open, and any scaffold sections that were closed
+before the preview will remain closed. If this is 1, then the rules
+described above will be applied using the scores of the answers in the
+parts.  This is 1 by default.
 
 =item C<S<< numbered => 0 or 1 >>>
 
@@ -353,6 +349,7 @@ sub new {
 		hardcopy_is_open          => "always",                  # open all possible sections in hardcopy
 		open_first_section        => 1,                         # 0 means don't open any sections initially
 		numbered                  => 0,                         # 1 means sections will be printed with their number
+		preview_can_change_state  => 1,
 		%options,
 		number     => ++$scaffold_no,                           # the number for this scaffold
 		depth      => $scaffold_depth,                          # the nesting depth for this scaffold
@@ -501,7 +498,7 @@ sub new {
 
 # Adds the necessary HTML around the content of the section.  Initially a temporary "scaffold-section" tag is added that
 # wraps the content, and that is replaced with the correct HTML in post processing.  The content is also removed in post
-# processing if the scaffold can not be opened and is not correct.  The $PG_OUTPUT variable holds just the contents of
+# processing if the scaffold cannot be opened and is not correct.  The $PG_OUTPUT variable holds just the contents of
 # this section, so unshift the opening tags onto the front, and push the closing tags onto the back.  (This is added to
 # the scaffold output when $scaffold->end_section() is called.)
 sub add_container {
@@ -536,15 +533,23 @@ sub add_container {
 		# Nothing needs to be done for the PTX display mode.
 		return if $Scaffold::isPTX;
 
+		my $scaffoldScores = main::persistent_data('_scaffold_scores') // {};
+
 		# Provide a "scaffold_force" option in the AnswerHash that can be used to force
 		# Scaffold to consider the score to be 1. This is used by PGessaymacros.pl.
+		# Also, if answers are being previewed and the preview_can_change_state option is 0, then use the scores saved
+		# in the persistent data hash form the last answer submission (if there is no data for an answer, then the
+		# anwser is considered blank).
 		for (@{ $self->{ans_names} }) {
 			next unless defined $PG_ANSWERS_HASH->{$_};
-			$scaffold->{scores}{$_} =
-				$PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{scaffold_force}
-				? 1
+			$scaffold->{scores}{$_} = $scaffoldScores->{$_} =
+				$PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{scaffold_force} ? 1
+				: !$scaffold->{preview_can_change_state} && $PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{isPreview}
+				? $scaffoldScores->{$_}
 				: $PG_ANSWERS_HASH->{$_}{ans_eval}{rh_ans}{score};
 		}
+
+		main::persistent_data(_scaffold_scores => $scaffoldScores);
 
 		# Set the active scaffold to the scaffold for this section so that is_correct, can_open,
 		# and is_open methods use the correct one.

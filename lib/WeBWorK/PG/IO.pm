@@ -1,18 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 package WeBWorK::PG::IO;
 use parent qw(Exporter);
 
@@ -31,13 +16,12 @@ use strict;
 use warnings;
 use utf8;
 
-use Encode qw(encode decode);
-use JSON qw(decode_json);
+use Encode                qw(encode decode);
+use Mojo::JSON            qw(decode_json);
 use File::Spec::Functions qw(canonpath);
-use File::Find qw(finddepth);
+use File::Find            qw(finddepth);
 
 use PGUtil qw(not_null);
-use WeBWorK::PG::Environment;
 
 our @EXPORT_OK = qw(
 	includePGtext
@@ -47,7 +31,8 @@ our @EXPORT_OK = qw(
 	directoryFromPath
 );
 
-my $pg_envir = WeBWorK::PG::Environment->new;
+# This is a WeBWorK::PG::Environment object.  It is set before the translator is initialized in WeBWorK::PG.
+our $pg_envir;
 
 =head1 FUNCTIONS
 
@@ -120,7 +105,8 @@ sub read_whole_file {
 		warn "Can't read file $filePath.";
 		return '';
 	}
-	die "File path $filePath is unsafe." unless path_is_readable_subdir($filePath);
+	die "File path $filePath is unsafe."
+		unless path_is_subdir($filePath, $pg_envir->{directories}{permitted_read_dir}, 1);
 
 	open(my $INPUT, "<:raw", $filePath) or die "$0: read_whole_file subroutine: Can't read file $filePath";
 	local $/ = undef;
@@ -181,7 +167,7 @@ Creates a file with the given name, permission bits, and group ID.
 sub createFile {
 	my ($fileName, $permission, $numgid) = @_;
 
-	die 'Path is unsafe' unless path_is_readable_subdir($fileName);
+	die "Write path $fileName is unsafe\n" unless path_is_subdir($fileName, $pg_envir->{directories}{html_temp}, 1);
 
 	open(my $TEMPCREATEFILE, ">:encoding(UTF-8)", $fileName) or die "Can't open $fileName: $!";
 	my @stat = stat $TEMPCREATEFILE;
@@ -199,6 +185,37 @@ sub createFile {
 	return;
 }
 
+=head2 saveDataToFile
+
+C<saveDataToFile($data, $filePath)>
+
+Saves C<$data> to the file specified by C<$filePath>.  The C<$filePath> may be
+an absolute path or may be specified relative to the html temporary directory
+specified in the PG environment.  If the C<$filePath> is not contained in the
+html temporary directory specified in the PG environment, then an exception is
+thrown and no file is written.
+
+Nothing that is shared to the safe compartment should directly write to a file.
+Instead it should call this method to save data to a file.
+
+=cut
+
+sub saveDataToFile {
+	my ($data, $filePath) = @_;
+
+	die "Write path $filePath is unsafe\n" unless path_is_subdir($filePath, $pg_envir->{directories}{html_temp}, 1);
+
+	if (open(my $fh, '>', $filePath)) {
+		chmod(0644, $filePath);
+		print $fh $data;
+		close($fh) or warn "Cannot close $filePath";
+	} else {
+		warn "Cannot open $filePath";
+	}
+
+	return;
+}
+
 =head2 createDirectory
 
 Usage: C<createDirectory($dirName, $permission, $numgid)>
@@ -209,6 +226,8 @@ Creates a directory with the given name, permission bits, and group ID.
 
 sub createDirectory {
 	my ($dirName, $permission, $numgid) = @_;
+
+	die "Write path $dirName is unsafe\n" unless path_is_subdir($dirName, $pg_envir->{directories}{html_temp}, 1);
 
 	$permission //= oct(770);
 
@@ -250,9 +269,6 @@ sub remove_tree {
 	}, $dir;
 }
 
-# This is needed for the subroutine below.  It is copied from WeBWorK::Utils.
-# Note: if a place for common code is ever created this should go there.
-
 sub path_is_subdir {
 	my ($path, $dir, $allow_relative) = @_;
 
@@ -273,19 +289,6 @@ sub path_is_subdir {
 	return 0 unless $path =~ m|^$dir|;
 
 	return 1;
-}
-
-=head2 path_is_readable_subdir
-
-Usage: C<path_is_readable_subdir($path)>
-
-Checks to see if the given path is a sub directory of the directory the caller
-says we are allowed to read from.
-
-=cut
-
-sub path_is_readable_subdir {
-	return path_is_subdir(shift, $pg_envir->{directories}{permitted_read_dir}, 1);
 }
 
 =head2 pg_tmp_dir

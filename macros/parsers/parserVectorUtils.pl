@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -25,7 +11,7 @@ Some utility routines that are useful in vector problems
 
 sub _parserVectorUtils_init { };    # don't reload this file
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 Overline
 
@@ -56,10 +42,9 @@ sub Overline {
     BoldMath($vectorName)
 
 This gets a bold letter in TeX as well as HTML modes.
-Although \boldsymbol{} works fine on screen in latex2html mode,
-the PDF file produces non-bold letters.  I haven't been able to
-track this down, so used \mathbf{} in TeX mode, which produces
-roman bold, not math-italic bold.
+Although \boldsymbol{} works fine on screen, the PDF file produces non-bold
+letters.  I haven't been able to track this down, so used \mathbf{} in TeX mode,
+which produces roman bold, not math-italic bold.
 
 =cut
 
@@ -67,12 +52,11 @@ sub BoldMath {
 	my $v    = shift;
 	my $HTML = '<B><I>' . $v . '</B></I>';
 	MODES(
-		TeX        => "\\boldsymbol{$v}",    #  doesn't seem to work in TeX mode
-											 #    TeX => "\\mathbf{$v}",      #  gives non-italic bold in TeX mode
-		Latex2HTML => "\\boldsymbol{$v}",
-		HTML       => $HTML,
-		HTML_tth   => '\begin{rawhtml}' . $HTML . '\end{rawhtml}',
-		HTML_dpng  => "\\boldsymbol{$v}",
+		TeX       => "\\boldsymbol{$v}",    #  doesn't seem to work in TeX mode
+											#    TeX => "\\mathbf{$v}",      #  gives non-italic bold in TeX mode
+		HTML      => $HTML,
+		HTML_tth  => '\begin{rawhtml}' . $HTML . '\end{rawhtml}',
+		HTML_dpng => "\\boldsymbol{$v}",
 	);
 }
 

@@ -1,32 +1,9 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-Context("Inequalities"), Context("Inequalities-Only") - Provides contexts that
-allow intervals to be specified as inequalities.
+contextInequalities.pl - Provides contexts that allow intervals to be specified as inequalities.
 
-=head1 DESCRIPTION
-
-Implements contexts that provides for inequalities that produce
-the cooresponding C<Interval>, C<Set> or C<Union> C<MathObjects>.  There are
-two such contexts:  C<Context("Inequalities")>, in which both
-intervals and inequalities are defined, and C<Context("Inequalities-Only")>,
-which allows only inequalities as a means of producing intervals.
-
-=head1 USAGE
+=head1 SYNOPSIS
 
     loadMacros("contextInequalities.pl");
 
@@ -42,6 +19,15 @@ which allows only inequalities as a means of producing intervals.
     $S4 = Compute("x > 2 and x <= 4"); # forms the Interval (2,4]
     $S5 = Compute("x = 1");            # forms the Set
     $S6 = Compute("x != 1");           # forms the Union (-inf,1) U (1,inf)
+
+
+=head1 DESCRIPTION
+
+Implements contexts that provides for inequalities that produce
+the cooresponding C<Interval>, C<Set> or C<Union> C<MathObjects>.  There are
+two such contexts:  C<Context("Inequalities")>, in which both
+intervals and inequalities are defined, and C<Context("Inequalities-Only")>,
+which allows only inequalities as a means of producing intervals.
 
 You can set the "noneWord" flag to specify the string to
 use when the inequalities specify the empty set.  By default,
@@ -148,6 +134,7 @@ sub Init {
 			TeX           => '\le ',
 			class         => 'Inequalities::BOP::inequality',
 			eval          => 'evalLessThanOrEqualTo',
+			alternatives  => ["\x{2264}"],
 			combine       => 1
 		},
 		'=<' => {
@@ -170,6 +157,7 @@ sub Init {
 			TeX           => '\ge ',
 			class         => 'Inequalities::BOP::inequality',
 			eval          => 'evalGreaterThanOrEqualTo',
+			alternatives  => ["\x{2265}"],
 			combine       => 1
 		},
 		'=>' => {
@@ -200,7 +188,8 @@ sub Init {
 			string        => ' != ',
 			TeX           => '\ne ',
 			class         => 'Inequalities::BOP::inequality',
-			eval          => 'evalNotEqualTo'
+			eval          => 'evalNotEqualTo',
+			alternatives  => ["\x{2260}"]
 		},
 
 		'and' => {
@@ -890,7 +879,8 @@ sub type {"Set"}
 sub string {
 	my $self     = shift;
 	my $equation = shift;
-	my $x        = $self->{varName} || ($self->context->variables->names)[0];
+	my $context  = $self->context;
+	my $x        = $self->{varName} || ($context->variables->names)[0];
 	$x = $context->{variables}{$x}{string} if defined $context->{variables}{$x}{string};
 	my @coords = ();
 	foreach my $a (@{ $self->data }) {
@@ -908,7 +898,8 @@ sub string {
 sub TeX {
 	my $self     = shift;
 	my $equation = shift;
-	my $x        = $self->{varName} || ($self->context->variables->names)[0];
+	my $context  = $self->context;
+	my $x        = $self->{varName} || ($context->variables->names)[0];
 	$x = $context->{variables}{$x}{TeX} if defined $context->{variables}{$x}{TeX};
 	$x =~ s/^([^_]+)_?(\d+)$/$1_{$2}/;
 	my @coords = ();

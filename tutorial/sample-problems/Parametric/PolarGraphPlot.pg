@@ -1,0 +1,69 @@
+## DESCRIPTION
+## Graphing a polar curve given by r = f(theta)
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2025)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('parametric', 'graph polar curve')
+
+#:% name = Polar Graph (plots)
+#:% type = [sample, technique]
+#:% subject = [parametric, integral calculus]
+#:% categories = [plots, parametric]
+
+#:% section = preamble
+#: The PODLINK('plots.pl') macro is used to generate the graph.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The plot is set up with the `Plot` object and the plotting window.
+#:
+#: The function is added with `add_function` and in this case the `polar => 1`
+#: is required to plot the function in polar coordinates.
+#: The first `add_function` does the shading of one of the petals.  The
+#: second one plots the remainder of the curve.
+
+$plot = Plot(
+    xmin        => -2.2,
+    xmax        =>  2.2,
+    ymin        => -2.2,
+    ymax        =>  2.2,
+    xtick_delta =>  0.5,
+    ytick_delta =>  0.5,
+    xlabel      => '\(x\)',
+    ylabel      => '\(y\)',
+);
+
+$plot->add_function(
+    '2cos(5t)', 't', '-pi/10', 'pi/10',
+    fill  => 'self',
+    polar => 1,
+    color => 'blue'
+);
+$plot->add_function('2cos(5t)', 't', 0, 'pi', polar => 1, color => 'blue');
+
+#:% section = statement
+BEGIN_PGML
+Find the area enclosed by one petal of the rose curve
+[`r = f(\theta) = \cos(5\theta)`].
+
+>>[!a rose curve with five petals!]{$plot}{400}<<
+
+>>Graph of [`r = 2\cos(5\theta)`]<<
+
+Area = [_____]{Compute('pi / 20')}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

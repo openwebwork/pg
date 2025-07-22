@@ -14,40 +14,47 @@
 #:% name = Degrees in Trigonometric Functions
 #:% type = [technique, sample]
 #:% subject = [trigonometry, precalculus]
-#:% categories = [trigonometry, degrees]
+#:% categories = [degrees, trigonometry]
 
 #:% section = preamble
-#: We load the `contextTrigDegrees.pl` macro to help with trig functions with degrees.
+#: Load the PODLINK('contextTrigDegrees.pl') macro for the `TrigDegrees`
+#: context. Also load the PODLINK('contextUnits.pl') which will require that the
+#: answer has units of degrees.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextTrigDegrees.pl', 'PGcourse.pl');
+loadMacros(
+    'PGstandard.pl',         'PGML.pl',
+    'contextTrigDegrees.pl', 'contextUnits.pl',
+    'PGcourse.pl'
+);
 
 #:% section = setup
-#: To override the WeBWorK default of evaluating trig functions in radians, use the `TrigDegrees` context,
-#: which redefines the standard trig functions to be in degrees, both in any formulas that appear
-#: later in the PG code and in any formulas that students enter in answer blanks.
+#: Select the `TrigDegrees` context to which evaluates trig functions in
+#: degrees. This applies to any formulas or student answers in this context.
 #:
-#: These redefined functions allow students to enter inverse functions using syntax such as
-#: `atan(x)`, or `arctan(x)`, or `tan^(-1)(x)`.
+#: The second answer is constructed with the `NumberWithUnits` method and the
+#: degree symbol is specified as the unit. Degree measures should always be
+#: given with the degree symbol.
 Context('TrigDegrees');
 
-$ans1 = Compute("sin(30)");
-$ans2 = Compute("arcsin(0.5)");
+$y = Compute('sin(30)');
+
+Context('Units')->withUnitsFor('angles');
+
+$ang = Compute('30 degrees');
 
 #:% section = statement
-#: Since this is in degrees, you should tell the students this.
+#: Inform the students to give angle measurements in degrees.
 BEGIN_PGML
-1. [`\sin(30^{\circ})=`] [___]{$ans1}
-2. [`\arcsin(1/2)=`] [___]{$ans2}
+Evaluate the following.  Give angles in degrees.
 
-Interpret arguments of the sine and arcsine in terms of degrees.
+1. [`\sin(30^{\circ}) =`] [_]{$y}
+2. [``\sin^{-1}\left(\frac{1}{2}\right) =``] [_]{$ang->with(sameUnits => 1)}
 END_PGML
 
-#:% section=solution
+#:% section = solution
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-COMMENT("Redefines trig functions to be in degrees (not radians).");
 
 ENDDOCUMENT();

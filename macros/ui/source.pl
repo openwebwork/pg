@@ -16,7 +16,11 @@ sub NoSourceButton {
 	#  }
 }
 
-=head1   sourceButton
+=head1 NAME
+
+source.pl - Allow the source of the problem to be shown.
+
+=head1 DESCRIPTION
 
 activating the source button
 

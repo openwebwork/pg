@@ -1,5 +1,3 @@
-# PGgraphtheory.pl
-
 loadMacros("PGnauGraphics.pl",);
 
 ##################################################### Nandor
@@ -696,28 +694,24 @@ sub GReulertrail_size {
 
 	my ($i, @deg, $pic, $comp, $diff, $temp, $graph, @index, @lowdeg);
 
-=pod
+	#   for ($i = 0; $i < $size; $i++){
+	#     push @lowdeg, 2;
+	#   }
 
-  for ($i = 0; $i < $size; $i++){
-    push @lowdeg, 2;
-  }
+	#   $comp = 2;
+	#   while ($graph eq 'DNE' || $comp > 1){
+	#     @deg = ();
+	#     for ($i = 0; $i < $size; $i++){
+	#       push @deg, random($lowdeg[$i],$size - 1,2);
+	#     }
+	#     $graph = GRgraph_degrees(@deg);
+	#     $comp = GRncomponents_graph($graph);
 
-  $comp = 2;
-  while ($graph eq 'DNE' || $comp > 1){
-    @deg = ();
-    for ($i = 0; $i < $size; $i++){
-      push @deg, random($lowdeg[$i],$size - 1,2);
-    }
-    $graph = GRgraph_degrees(@deg);
-    $comp = GRncomponents_graph($graph);
-
-    do {
-      $diff = random (0, $size - 1, 1);
-    } until ($lowdeg[$diff] < $size - 2);
-    $lowdeg[$diff] += 2;
-  }
-
-=cut
+	#     do {
+	#       $diff = random (0, $size - 1, 1);
+	#     } until ($lowdeg[$diff] < $size - 2);
+	#     $lowdeg[$diff] += 2;
+	#   }
 
 	if ($size <= 4) {
 		die "Incorrect size";
@@ -756,25 +750,21 @@ sub GRnoneuler_size {
 
 	@ans = (1, '');
 
-=pod
+	#   while ($graph eq 'DNE' || $ans == 1){
+	#     @deg = ();
+	#     for ($i = 0; $i < $size; $i++){
+	#       push @deg, random($lowdeg[$i],$size - 1,1);
+	#     }
+	#     $graph = GRgraph_degrees(@deg);
+	#     if ($graph ne 'DNE'){
+	#       @ans = GRiseulertrail_graph($graph);
+	#     }
 
-  while ($graph eq 'DNE' || $ans == 1){
-    @deg = ();
-    for ($i = 0; $i < $size; $i++){
-      push @deg, random($lowdeg[$i],$size - 1,1);
-    }
-    $graph = GRgraph_degrees(@deg);
-    if ($graph ne 'DNE'){
-      @ans = GRiseulertrail_graph($graph);
-    }
-
-    do {
-    $diff = random (0, $size - 1, 1);
-    } until ($lowdeg[$diff] < $size - 1);
-    $lowdeg[$diff]++;
-  }
-
-=cut
+	#     do {
+	#     $diff = random (0, $size - 1, 1);
+	#     } until ($lowdeg[$diff] < $size - 1);
+	#     $lowdeg[$diff]++;
+	#   }
 
 	do {
 		@deg = ();

@@ -1,9 +1,9 @@
 
 =head1 NAME
 
-	VectorField
+VectorField - Produce a vector field plot.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 	use Carp;
 	use GD;
@@ -159,11 +159,11 @@ my $VECTORFIELD_REFERENCE = "VectorField";
 
 my %fields = (
 	xmin            => -4,
-	xmax            => 4,
+	xmax            =>  4,
 	ymin            => -4,
-	ymax            => 4,
-	x_steps         => 10,
-	y_steps         => 10,
+	ymax            =>  4,
+	x_steps         =>  10,
+	y_steps         =>  10,
 	arrow_color     => 'blue',
 	arrow_weight    => 1,            #line thickness
 	dot_color       => 'red',

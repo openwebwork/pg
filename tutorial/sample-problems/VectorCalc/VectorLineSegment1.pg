@@ -13,16 +13,17 @@
 
 # created as a full problem by Peter Staab  2023.06.02
 
-#:% name = Vector-valued Parametric Line Segment--General
+#:% name = Vector-valued Parametric Line Segment (General)
 #:% type = [technique, sample]
 #:% categories = vector
 #:% subject = Vector Calculus
+#:% see_also = [VectorParametricLine.pg, VectorLineSegment2.pg]
 
 #:% section = preamble
-#: The macro
-#: `parseParametricLine.pl` provides the `ParametricLine` function which
-#: will be the answer.  The `parserMultiAnswer.pl` is needed since the
-#: answer blanks are interdependent.
+#: The PODLINK('parseParametricLine.pl') macro provides the `ParametricLine`
+#: function which us used to check the answer.  The
+#: PODLINK('parserMultiAnswer.pl') macro is needed since the answers are
+#: interdependent.
 DOCUMENT();
 loadMacros(
     'PGstandard.pl',           'PGML.pl',
@@ -31,41 +32,42 @@ loadMacros(
 );
 
 #:% section = setup
-#:  We create a MutiAnswer answer checker that will evaluate the students
-#: vector parametric equation at the starting  and ending times provided
-#: by the student. For example, both of the student answers `(4,0) + t<-4,2>`
-#: for `t` between `0` and `1`, and `(4,0) + t<-2,1>` for t between `0` and `2`
-#: will be marked correct.
-Context("Vector");
-Context()->variables->are(t => "Real");
+#: Create a `MutiAnswer` object that is used to evaluate the student's vector
+#: equation at the starting and ending times provided by the student. For
+#: example, both of the student answers `<4, 0> + t<-4, 2>` for `t` between `0`
+#: and `1`, and `<4,0> + t<-2,1>` for t between `0` and `2` will be marked
+#: correct.
+Context('Vector');
+Context()->variables->are(t => 'Real');
 
 $P = Point(4, 0);
 $Q = Point(0, 2);
 $V = Vector(-4, 2);
 
-$t    = Formula("t");
+$t    = Formula('t');
 $line = Vector("$P + $t * $V");
 
-$multians = MultiAnswer($line, Real("0"), Real("1"))->with(
+$multians = MultiAnswer($line, Real(0), Real(1))->with(
     singleResult => 0,
     checker      => sub {
         my ($correct, $student, $ansHash) = @_;
-        my ($linestu, $astu,    $bstu)    = @{$student};
-        my ($linecor, $acor,    $bcor)    = @{$correct};
+
+        my ($linecor, $acor, $bcor) = @$correct;
+        my ($linestu, $astu, $bstu) = @$student;
 
         if ((ParametricLine("$line") == $linestu)
-            && ($linestu->eval(t => $astu) == $line->eval(t => "0"))
-            && ($linestu->eval(t => $bstu) == $line->eval(t => "1")))
+            && ($linestu->eval(t => $astu) == $line->eval(t => 0))
+            && ($linestu->eval(t => $bstu) == $line->eval(t => 1)))
         {
             return [ 1, 1, 1 ];
 
         } elsif ((ParametricLine("$line") == $linestu)
-            && ($linestu->eval(t => $astu) == $line->eval(t => "0")))
+            && ($linestu->eval(t => $astu) == $line->eval(t => 0)))
         {
             return [ 1, 1, 0 ];
 
         } elsif ((ParametricLine("$line") == $linestu)
-            && ($linestu->eval(t => $bstu) == $line->eval(t => "1")))
+            && ($linestu->eval(t => $bstu) == $line->eval(t => 1)))
         {
             return [ 1, 0, 1 ];
 
@@ -80,19 +82,14 @@ $multians = MultiAnswer($line, Real("0"), Real("1"))->with(
 );
 
 #:% section = statement
-#: Since the three answer blanks depend on each other, we use `$multians`
-#: for each answer blank.
+#: Use `$multians` for each answer.
 BEGIN_PGML
-Find a vector parametric equation for the line
-segment from the point [`P = [$P]`]
-to [`Q = [$Q]`].
+Find a vector equation for the line segment from the point
+[`P = [$P]`] to [`Q = [$Q]`] .
 
-[` \vec{r}(t) = `] [__]{$multians}
+[`\vec{r}(t) =`] [__]{$multians}{15}
 
-for
-[__]{$multians}
-[` \leq t \leq `]
-[__]{$multians}
+for [_]{$multians}{4} [` \leq t \leq `] [_]{$multians}{4}
 END_PGML
 
 #:% section = solution

@@ -12,7 +12,7 @@
 	% }
 % } else {
 	% for (sort(keys %$list)) {
-		% my %topics = (categories => 'Catetory', subjects => 'Subject', macros => 'Macro');
+		% my %topics = (categories => 'Category', subjects => 'Subject', macros => 'Macro');
 		% my $id = $_ =~ s/\s/_/gr;
 		<div class="tab-pane fade" id="<%= $id %>" role="tabpanel" aria-labelledby="<%= $id %>-tab"
 			tabindex="0">

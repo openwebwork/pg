@@ -14,17 +14,17 @@
 #:% name = Solution for an Equation
 #:% type = Sample
 #:% subject = [algebra, precalculus]
-#:% categories = [algebra]
+#:% categories = [equations]
 
 #:% section = preamble
-#: The macro `parserSolutionFor.pl` must be loaded.
+#: Load the macro PODLINK('parserSolutionFor.pl') for the `SolutionFor` method.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserSolutionFor.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: We use `SolutionFor(equation, point)` to define this MathObject. For more
-#: details and options, see PODLINK('parserSolutionFor.pl').
+#: `SolutionFor(equation, point)` is used to define the MathObject answer. For
+#: more details and options, see PODLINK('parserSolutionFor.pl').
 Context('Vector');
 
 $r      = random(3, 6);

@@ -1,19 +1,5 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
-loadMacros("MathObjects.pl");
+loadMacros('MathObjects.pl', 'PGbasicmacros.pl');
 
 sub _parserMultiAnswer_init {
 	main::PG_restricted_eval('sub MultiAnswer {parser::MultiAnswer->new(@_)}');
@@ -62,6 +48,7 @@ sub new {
 		part                => 0,
 		singleResult        => 0,
 		namedRules          => 0,
+		cmpOpts             => undef,
 		checkTypes          => 1,
 		allowBlankAnswers   => 0,
 		tex_separator       => $separator . '\,',
@@ -70,12 +57,12 @@ sub new {
 		format              => undef,
 		context             => $context,
 		single_ans_messages => [],
+		partialCredit       => $main::showPartialCorrectAnswers,
 	}, $class;
 }
 
-#
 #  Set flags to be passed to individual answer checkers
-#
+
 sub setCmpFlags {
 	my ($self, $cmp_number, %flags) = @_;
 	die "Answer $cmp_number is not defined." unless defined($self->{cmp}[ $cmp_number - 1 ]);
@@ -83,21 +70,39 @@ sub setCmpFlags {
 	return $self;
 }
 
-#
 #  Creates an answer checker (or array of same) to be passed
 #  to ANS() or NAMED_ANS().  Any parameters are passed to
 #  the individual answer checkers.
-#
+
 sub cmp {
-	my $self    = shift;
-	my %options = @_;
+	my ($self, %options) = @_;
+
+	%options = (%options, %{ $self->{cmpOpts} }) if ref($self->{cmpOpts}) eq 'HASH';
+
 	foreach my $id ('checker', 'separator') {
 		if (defined($options{$id})) {
 			$self->{$id} = $options{$id};
 			delete $options{$id};
 		}
 	}
-	die "You must supply a checker subroutine" unless ref($self->{checker}) eq 'CODE';
+
+	unless (ref($self->{checker}) eq 'CODE') {
+		die "Your checker must be a subroutine." if defined($self->{checker});
+		$self->{checker} = sub {
+			my ($correct, $student, $self, $ans) = @_;
+			my @scores;
+
+			for (0 .. $self->length - 1) {
+				push(@scores, $correct->[$_] == $student->[$_] ? 1 : 0);
+			}
+			return \@scores if $self->{partialCredit};
+			for (@scores) {
+				return 0 unless $_;
+			}
+			return 1;
+		}
+	}
+
 	if ($self->{allowBlankAnswers}) {
 		foreach my $cmp (@{ $self->{cmp} }) {
 			$cmp->install_pre_filter('erase');
@@ -123,7 +128,6 @@ sub cmp {
 }
 
 ######################################################################
-
 #
 #  Get the answer checker used for when all the answers are treated
 #  as a single result.
@@ -175,7 +179,12 @@ sub single_check {
 	my $i        = 0;
 	my $nonblank = 0;
 	if ($self->perform_check($ans)) {
-		push(@errors, '<TR><TD STYLE="text-align:left" COLSPAN="2">' . $self->{ans}[0]{ans_message} . '</TD></TR>');
+		push(
+			@errors,
+			main::tag(
+				'tr', main::tag('td', style => 'text-align:center', colspan => '2', $self->{ans}[0]{ans_message})
+			)
+		);
 		$self->{ans}[0]{ans_message} = "";
 	}
 	foreach my $result (@{ $self->{ans} }) {
@@ -185,26 +194,34 @@ sub single_check {
 		push(@text,    check_string($result->{preview_text_string}, '__'));
 		push(@student, check_string($result->{student_ans},         '__'));
 		if ($result->{ans_message}) {
-			push(@errors,
-				'<TR VALIGN="TOP"><TD STYLE="text-align:right; border:0px" NOWRAP>'
-					. "<I>In answer $i</I>:&nbsp;</TD>"
-					. '<TD STYLE="text-align:left; border:0px">'
-					. $result->{ans_message}
-					. '</TD></TR>');
+			push(
+				@errors,
+				main::tag(
+					'tr',
+					main::tag(
+						'td',
+						style => 'text-align:right;white-space:nowrap;vertical-align:top',
+						main::tag('i', "In answer $i") . ':&nbsp;'
+						)
+						. main::tag('td', style => 'text-align:left', $result->{ans_message})
+				)
+			);
 		}
 		$score += $result->{score};
 	}
 	$ans->score($score / $self->length);
 	$ans->{ans_message} = $ans->{error_message} = "";
 	if (scalar(@errors)) {
-		$ans->{ans_message} = $ans->{error_message} =
-			'<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout">'
-			. join('<TR><TD HEIGHT="4"></TD></TR>', @errors)
-			. '</TABLE>';
+		$ans->{ans_message} = $ans->{error_message} = main::tag(
+			'table',
+			class => 'ArrayLayout',
+			style => 'margin-left:auto;margin-right:auto;',
+			join(main::tag('tr', style => 'height: 4px', main::tag('td')), @errors)
+		);
 	}
 	if (@{ $self->{single_ans_messages} }) {
 		$ans->{ans_message} = $ans->{error_message} =
-			'<DIV>' . join('</DIV><DIV>', @{ $self->{single_ans_messages} }) . '</DIV>' . $ans->{ans_message};
+			join('', map { main::tag('div', $_) } @{ $self->{single_ans_messages} });
 	}
 	if ($nonblank) {
 		$ans->{preview_latex_string} =
@@ -461,9 +478,9 @@ converted into C<MathObjects>).
 
 C<MultiAnswer> objects have the following attributes:
 
-=head2 checker (required)
+=head2 checker
 
-A coderef to be called to check student answers. This is the only required attribute.
+A coderef to be called to check student answers.
 
 The C<checker> routine receives four parameters: a reference to the array of correct answers,
 a reference to the array of student answers, a reference to the C<MultiAnswer> object itself,
@@ -477,6 +494,16 @@ reference to an array of scores (one for each answer).
 	}
 	$multianswer_obj = $multianswer_obj->with(checker=>~~&always_right);
 
+If a C<checker> is not provided, a default checker is used. The default checker checks if each
+answer is equal to its correct answer (using the overloaded C<==> operator). If C<< partialCredit => 1 >>,
+the checker returns an array of 0s and 1s listing which answers are correct giving partial credit.
+If C<< partialCredit => 0 >>, the checker only returns 1 if all answers are correct, otherwise returns 0.
+
+=head2 partialCredit
+
+This is used with the default checker to determine if the default checker should reward partial
+credit, based on the number of correct answers, or not. Default: C<$showPartialCorrectAnswers>.
+
 =head2 singleResult
 
 Indicates whether to show only one entry in the results table (C<< singleResult => 1 >>)
@@ -487,6 +514,12 @@ or one for each answer rule (C<< singleResult => 0 >>). Default: 0.
 Indicates whether to use named rules or default rule names. Use named rules (C<< namedRules => 1 >>)
 if you need to intersperse other rules with the ones for the C<MultiAnswer>. In this case, you must
 use C<NAMED_ANS> instead of C<ANS>. Default: 0.
+
+=head2 cmpOpts
+
+This is a hash of options that will be passed to the cmp method. For example,
+C<< cmpOpts => { weight => 0.5 } >>. This option is provided to make it more convenient to pass
+options to cmp when utilizing PGML. Default: undef (no options are sent).
 
 =head2 checkTypes
 

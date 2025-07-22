@@ -16,16 +16,19 @@
 #:% categories = [misc]
 
 #:% section = preamble
-#: Make sure that the `scaffold.pl` macro is loaded.
+#: Load the PODLINK('scaffold.pl') macro to use scaffolding.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'scaffold.pl', 'PGcourse.pl');
 
-#:% section = setup
-
 #:% section = statement
-#: Each `Section::Begin()` and `Section::End()` block can have its own context, etc.
-#: See the scaffold.pl macro file for Scaffold options.
+#: Call `Scaffold::Begin()` to start scaffolding, and `Scaffold::End()` to end
+#: the scaffold.
+#:
+#: Inside a scaffold block call `Section::Begin()` to start a scaffold section,
+#: and `Section::End()` to end it.
+#:
+#: See the PODLINK('scaffold.pl') macro file for more details.
 Scaffold::Begin();
 
 Section::Begin('Part 1: The first part');

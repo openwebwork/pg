@@ -12,13 +12,13 @@
 
 #:% name = Graph Tool, plotting a line
 #:% type = [Sample, technique]
-#:% subject = [algebra, precalculus]
-#:% categories = [graph]
+#:% subject = [algebra, precalculus, geometry]
+#:% categories = [graph, graphtool]
 
 #:% section = preamble
 #: This example shows how to get student input in the form of a graph (a line)
-#: by using interactive graphing tools. Load the parserGraphTool.pl macro for
-#: this.
+#: by using interactive graphing tools. Load the PODLINK('parserGraphTool.pl')
+#: macro for this.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
@@ -32,7 +32,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #: of the attributes of the object. The first attribute in each list is the
 #: type of object to be graphed, `line` in this case. What the remaining
 #: attributes are depend on the type. For a line the second attribute is
-#: whether the object is to be `solid` or `dashed`, and the remaining attibutes
+#: whether the object is to be `solid` or `dashed`, and the remaining attributes
 #: are two distinct points on the line.
 #:
 #: The `->with` method is then used to set options for the `GraphTool` object.
@@ -65,28 +65,26 @@ $gt = GraphTool("{line, solid, ($x0, 0), (0, $y0)}")->with(
 #:% section = statement.
 #: The code `[_]{$gt}` inserts the GraphTool.
 BEGIN_PGML
-On the graph below, plot the line [`[$line] = [$x0*$y0]`]
+On the graph below, plot the line [`[$line] = [$x0 * $y0]`].
 
 [_]{$gt}
-
 END_PGML
 
-#:% section=solution
-
+#:% section = solution
 BEGIN_PGML_SOLUTION
-Two points are needed off this line.  It could be put in slope-intercept form
-which would give a [`y`]-intercept and then a second point could be determined
+Two points on the line are needed.  It could be put in slope-intercept form
+which would give a [`y`]-intercept, and then a second point could be determined
 from the slope.
 
-Alternatively, the intercept form on the line is found by dividing the equation
-by the right hand side to
-[```\frac{x}{[$x0]}+ \frac{y}{[$y0]}=1```]
-and thus the [`x`]-intercept is number in the fraction under the [`x`] or
- [$x0] and the [`y`]-intercept is the number in the fraction under the [`y`]
- or [$y0].  The solution is
+Alternatively, the intercept form on the line is found by dividing both sides of
+the equation by [`[$x0 * $y0]`] to get
+[```\frac{x}{[$x0]} + \frac{y}{[$y0]} = 1.```]
+Thus the [`x`]-intercept is the denominator of the fraction involving [`x`] or
+[`[$x0]`] and the [`y`]-intercept is the denominator of the fraction involving
+[`y`] or [`[$y0]`].
 
-[@ $gt->generateAnswerGraph @]*
-
+The solution is
+[! the graph of the line through ([$x0],0) and (0,[$y0]) !]{$gt}
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

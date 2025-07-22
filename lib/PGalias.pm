@@ -1,18 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 package PGalias;
 use parent PGcore;    # This is so that a PGalias object can call the PGcore warning_message and debug_message methods.
 
@@ -31,7 +16,7 @@ sub new {
 	$self->{probFileName}      = $envir->{probFileName} // '';
 	$self->{htmlDirectory}     = $envir->{htmlDirectory};
 	$self->{htmlURL}           = $envir->{htmlURL};
-	$self->{tempDirectory}     = $envir->{tempDirectory};
+	$self->{tempDirectory}     = "$WeBWorK::PG::IO::pg_envir->{directories}{html_temp}/";
 	$self->{templateDirectory} = $envir->{templateDirectory};
 	$self->{tempURL}           = $envir->{tempURL};
 	$self->{displayMode}       = $envir->{displayMode};
@@ -45,7 +30,7 @@ sub new {
 	# caller to pass in a problemUUID that will provide the required uniqueness.  That could include a course name, a
 	# student login name, etc.
 	$self->{unique_id_stub} = create_uuid_as_string(UUID_V3, UUID_NS_URL,
-		join('-', $envir->{psvn} // (), $envir->{problemSeed}, $envir->{problemUUID} // ()));
+		join('-', $envir->{psvn} // (), $envir->{problemSeed} // (), $envir->{problemUUID} // ()));
 
 	# Check the parameters.
 	$self->warning_message('The displayMode is not defined')    unless $self->{displayMode};

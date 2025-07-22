@@ -11,7 +11,7 @@ All items accessed by $out = $ml -> item( $in );
 
 =head1 SYNOPSIS
 
-Match.pm is intended to be used to create standard matching questions in which the the student is given a list of questions and a list of answers and is asked to match the correct answers to those questions. Some answers may be used more than once while others are not used at all. The order of answers is usually random but some answers can be appended to the end of the list in a set order (i.e. 'None of the above', 'All of the above'). Answers are not directly typed in but are given a corresponding letter that is the answer that the system expects. (i.e. 'the answer to #1 is A' not 'the answer to #1 is the square root of 2').  Also, students can be given different sets of questions (to avoid students sharing answers) by entering many questions and then using choose with a number less than the total so that each student only receive a sub-set of those questions.
+Match.pm is intended to be used to create standard matching questions in which the student is given a list of questions and a list of answers and is asked to match the correct answers to those questions. Some answers may be used more than once while others are not used at all. The order of answers is usually random but some answers can be appended to the end of the list in a set order (i.e. 'None of the above', 'All of the above'). Answers are not directly typed in but are given a corresponding letter that is the answer that the system expects. (i.e. 'the answer to #1 is A' not 'the answer to #1 is the square root of 2').  Also, students can be given different sets of questions (to avoid students sharing answers) by entering many questions and then using choose with a number less than the total so that each student only receive a sub-set of those questions.
 
 =head1 DESCRIPTION
 
@@ -41,7 +41,7 @@ Match.pm is intended to be used to create standard matching questions in which t
 						# output the questions in a formatted string.
 						# If you want to change the way questions are
 						# printed, write your own print method and set
-						# this equal to a reference to to that method
+						# this equal to a reference to that method
 						# (i.e. $sl->rf_print_q(~~&printing_routine_q) )
 
 	rf_print_a			# reference to any subroutine which should
@@ -49,7 +49,7 @@ Match.pm is intended to be used to create standard matching questions in which t
 						# output the answers in a formatted string.
 						# If you want to change the way answers are
 						# printed, write your own print method and set
-						# this equal to a reference to to that method
+						# this equal to a reference to that method
 						# (i.e. $sl->rf_print_a = ~~&printing_routine_a)
 
 =head3 Methods

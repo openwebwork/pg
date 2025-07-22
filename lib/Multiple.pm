@@ -14,7 +14,7 @@ All items accessed by $out=$mc->item($in);
 Multiple.pm is intended to be used to create one of two types of multiple choice
 questions. The regular multiple choice question is one question followed by a
 list of answers, only one of which is correct, printed in a bulleted form with
-radio buttons to select the correct answer.  The second type of of multiple choice
+radio buttons to select the correct answer.  The second type of multiple choice
 question consists of one question followed by several answers bulleted with check
 boxes so that more than one answer can be selected if more than one answer exists.
 Each student will receive the same set of answers in a mostly random order (some
@@ -43,7 +43,7 @@ answers can be forced to be at the end of list of answers, see makeLast() below)
 						# output the questions in a formatted string.
 						# If you want to change the way questions are
 						# printed, write your own print method and set
-						# this equal to a reference to to that method
+						# this equal to a reference to that method
 						# (i.e. $sl->rf_print_q = ~~&printing_routine_q)
 
 	rf_print_a			# reference to any subroutine which should
@@ -51,7 +51,7 @@ answers can be forced to be at the end of list of answers, see makeLast() below)
 						# output the answers in a formatted string.
 						# If you want to change the way answers are
 						# printed, write your own print method and set
-						# this equal to a reference to to that method
+						# this equal to a reference to that method
 						# (i.e. $sl->rf_print_a = ~~&printing_routine_a)
 
 =head3 Methods

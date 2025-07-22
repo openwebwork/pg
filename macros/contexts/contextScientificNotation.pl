@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -272,7 +258,7 @@ our @ISA = qw(Parser::BOP::power);    # inherit from standard power (TeX method 
 sub _check {
 	my $self = shift;
 	my ($lop, $rop) = ($self->{lop}, $self->{rop});
-	$self->Error("The base can not have decimal places in scientific notation")
+	$self->Error("The base cannot have decimal places in scientific notation")
 		if $lop->{value} == 10 && $lop->{value_string} =~ m/\./;
 	$self->Error("You must use a power of 10 in scientific notation")
 		unless $lop->{value_string} eq "10";

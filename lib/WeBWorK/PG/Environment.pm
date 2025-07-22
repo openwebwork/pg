@@ -1,18 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 package WeBWorK::PG::Environment;
 
 use strict;
@@ -35,7 +20,7 @@ $ENV{PG_ROOT}/conf/pg_config.yml, and make changes in the copy.  The default
 values will be overriden with the changed values in the copy.  Note that invalid
 values added to the copy will cause a warning to be issued.
 
-If the the WeBWorK::CourseEnvironment module is found, then the configuration
+If the WeBWorK::CourseEnvironment module is found, then the configuration
 options are overridden with the values from a webwork2 course environment
 instance.  This is provided to maintain compatibility with webwork2, and should
 be removed at the end of life for webwork2.
@@ -89,7 +74,8 @@ sub new ($invocant, $courseName = '___') {
 		$pg_envir->{directories}{OPL}                = $ce->{problemLibrary}{root};
 		$pg_envir->{directories}{Contrib}            = $ce->{contribLibrary}{root};
 		$pg_envir->{directories}{tmp}                = $ce->{webworkDirs}{tmp};
-		$pg_envir->{directories}{permitted_read_dir} = $ce->{webwork_courses_dir};
+		$pg_envir->{directories}{html_temp}          = $ce->{courseDirs}{html_temp};
+		$pg_envir->{directories}{permitted_read_dir} = $ce->{courseDirs}{root};
 		$pg_envir->{directories}{equationCache}      = $ce->{webworkDirs}{equationCache};
 		$pg_envir->{externalPrograms}                = $ce->{externalPrograms};
 		$pg_envir->{URLs}{equationCache}             = $ce->{webworkURLs}{equationCache};
@@ -98,7 +84,7 @@ sub new ($invocant, $courseName = '___') {
 
 	# Note that placeholders used in $pg_envir->{URLs}{html}, $pg_envir->{directories}{OPL}, and
 	# $pg_envir->{directories}{Contrib} are set on the first iteration, and those carry over to anywhere those
-	# placeholders are are used in other settings on the second iteration.
+	# placeholders are used in other settings on the second iteration.
 	for (1 .. 2) {
 		$pg_envir = replacePlaceholders(
 			$pg_envir,

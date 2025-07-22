@@ -1,18 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 package WeBWorK::PG::RestrictedClosureClass;
 
 =head1 NAME
@@ -20,29 +5,29 @@ package WeBWorK::PG::RestrictedClosureClass;
 WeBWorK::PG::RestrictedClosureClass - Protect instance data and only allow
 calling of specified methods.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
     package MyScaryClass;
-    
+
     sub new { return bless { @_[1..$#_] }, ref $_[0] || $_[0] }
     sub get_secret { return $_[0]->{secret_data} }
     sub set_secret { $_[0]->{secret_data} = $_[1] }
     sub use_secret { print "Secret length is ".length($_[0]->get_secret) }
     sub call_for_help { print "HELP!!" }
-    
+
     package main;
     use WeBWorK::PG::RestrictedClosureClass;
-    
+
     my $unlocked = new MyScaryClass(secret_data => "pErL iS gReAt");
     my $locked = new WeBWorK::PG::RestrictedClosureClass($obj, qw/use_secret call_for_help/);
-    
+
     $unlocked->get_secret;                # OK
     $unlocked->set_secret("fOoBaR");      # OK
     $unlocked->use_secret;                # OK
     $unlocked->call_for_help;             # OK
     print $unlocked->{secret_data};       # OK
     $unlocked->{secret_data} = "WySiWyG"; # OK
-    
+
     $locked->get_secret;                  # NG (not in method list)
     $locked->set_secret("fOoBaR");        # NG (not in method list)
     $locked->use_secret;                  # OK

@@ -128,5 +128,4 @@
 		}
 	});
 	observer.observe(document.body, { childList: true, subtree: true });
-	window.addEventListener('unload', () => observer.disconnect());
 })();

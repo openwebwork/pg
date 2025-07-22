@@ -1,4 +1,24 @@
 
+=head1 NAME
+
+PGstatisticsmacros.pl - Functions for calculating statistics measures.
+
+=head1 FUNCTIONS
+
+=head2 normal_prob
+
+=pod
+
+Usage:
+
+    normal_prob(a, b, mean=>0, deviation=>1);
+
+Computes the probability of x being in the interval (a,b) for normal distribution.
+The first two arguments are required. Use '-infty' for negative infinity, and 'infty' or '+infty' for positive infinity.
+The mean and deviation are optional, and are 0 and 1 respectively by default.
+
+=cut
+
 sub _PGstatisticsmacros_init {
 	foreach my $t (@Distributions::EXPORT_OK) {
 		*{$t} = *{"Distributions::$t"};
@@ -10,20 +30,6 @@ sub _PGstatisticsmacros_init {
 		*{$t} = *{"Statistics::$t"};
 	}
 }
-
-=head1 Statistics Macros
-
-=head2 Normal distribution
-
-=pod
-
-	Usage: normal_prob(a, b, mean=>0, deviation=>1);
-
-Computes the probability of x being in the interval (a,b) for normal distribution.
-The first two arguments are required. Use '-infty' for negative infinity, and 'infty' or '+infty' for positive infinity.
-The mean and deviation are optional, and are 0 and 1 respectively by default.
-
-=cut
 
 sub normal_prob {
 	my $a       = shift;
@@ -69,11 +75,14 @@ sub normal_prob {
 	return $prob;
 }
 
-=head2 "Inverse" of normal distribution
+=head2 normal_distr
 
-=pod
+"Inverse" of normal distribution
 
-	Usage: normal_distr(prob, mean=>0, deviation=>1);
+
+Usage:
+
+    normal_distr(prob, mean=>0, deviation=>1);
 
 Computes the positive number b such that the probability of x being in the interval (0,b)
 is equal to the given probability (first argument). The mean and deviation are
@@ -107,11 +116,13 @@ sub normal_distr {
 	$b;
 }
 
-=head2 Mean function
+=head2 stats_mean
 
-=pod
+Mean function
 
-	Usage: stats_mean(@data);
+Usage:
+
+    stats_mean(@data);
 
 Computes the artihmetic mean of a list of numbers, data. You may also pass the numbers individually.
 
@@ -131,11 +142,13 @@ sub stats_mean {
 
 }
 
-=head2 Standard Deviation function
+=head2 stats_sd
 
-=pod
+Standard Deviation function
 
-	Usage: stats_sd(@data);
+Usage:
+
+    stats_sd(@data);
 
 Computes the sample standard deviation of a list of numbers, data. You may also pass the numbers individually.
 
@@ -153,11 +166,13 @@ sub stats_sd {
 
 }
 
-=head2 Sum and Sum of Squares
+=head2 stats_SX_SXX
 
-=pod
+Sum and Sum of Squares
 
-	Usage: stats_SX_SXX(@data);
+Usage:
+
+    stats_SX_SXX(@data);
 
 Computes the sum of the numbers and the sum of the numbers squared.
 
@@ -177,11 +192,13 @@ sub stats_SX_SXX {
 	($sum_x, $sum_squares);
 }
 
-=head2 Function to trim the decimal numbers in a floating point number.
+=head2 significant_decimals
 
-=pod
+Function to trim the decimal numbers in a floating point number.
 
-	Usage: significant_decimals(x,n)
+Usage:
+
+    significant_decimals(x,n)
 
 Trims the number x to have n decimal digit. ex: significant_decimals(0.12345678,4) = 0.1235
 
@@ -204,11 +221,13 @@ sub significant_decimals {
 	return (int($x * $power + 0.5) / $power);
 }
 
-=head2 Function to generate normally distributed random numbers
+=head2 urand
 
-=pod
+Function to generate normally distributed random numbers
 
-	Usage: urand(mean,sd,N,digits)
+Usage:
+
+    urand(mean,sd,N,digits)
 
 Generates N normally distributed random numbers with the given mean and standard deviation. The digits is the number of decimal digits to use.
 
@@ -251,13 +270,15 @@ sub urand {    # generate normally dist. random numbers
 	return @numbers;
 }
 
-=head2 Function to generate exponentially distributed random numbers
+=head2 exprand
 
-=pod
+Function to generate exponentially distributed random numbers
 
-	Usage: exprand(lambda,N,digits)
+Usage:
 
-Generates N  exponentially distributed random numbers with the given parameter, lambda. The digits is the number of decimal digits to use.
+    exprand(lambda,N,digits)
+
+Generates N exponentially distributed random numbers with the given parameter, lambda. The digits is the number of decimal digits to use.
 
 =cut
 
@@ -286,11 +307,13 @@ sub exprand {    # generate exponentially dist. numbers  Exp(x,lambda)
 
 }
 
-=head2 Function to generate Poisson distributed random numbers
+=head2 poissonrand
 
-=pod
+Function to generate Poisson distributed random numbers
 
-	Usage: poissonrand(lambda,N)
+Usage:
+
+    poissonrand(lambda,N)
 
 Generates N Poisson distributed random numbers with the given parameter, lambda.
 
@@ -333,11 +356,13 @@ sub poissonrand {    # generate random, Poisson dist. numbers  Pois(lambda)
 
 }
 
-=head2 Function to generate Binomial distributed random numbers
+=head2 binomrand
 
-=pod
+Function to generate Binomial distributed random numbers
 
-	Usage: binomrand(p,N,num)
+Usage:
+
+    binomrand(p,N,num)
 
 Generates num binomial distributed random numbers with  parameters p and N.
 
@@ -388,11 +413,13 @@ sub binomrand {    # generate random, binomial dist. numbers  Bin(n,p)
 
 }
 
-=head2 Function to generate Bernoulli distributed random numbers
+=head2 bernoullirand
 
-=pod
+Function to generate Bernoulli distributed random numbers
 
-	Usage: bernoullirand(p,num,{"success"=>"1","failure"=>"0"})
+Usage:
+
+    bernoullirand(p,num,{"success"=>"1","failure"=>"0"})
 
 Generates num Bernoulli distributed random numbers with  parameter p. The
 value for a success is given by the optional "success" parameter. The
@@ -447,28 +474,29 @@ sub bernoullirand {    # generate random, Bernoulli dist. numbers  B(p)
 
 }
 
-=head2 Generate random values from a discrete distribution.
+=head2 discreterand
 
-=pod
+Generate random values from a discrete distribution.
 
-	Usage: discreterand($n,@tableOfProbabilities)
+Usage:
+
+    discreterand($n,@tableOfProbabilities)
 
 
-  Example:
+Example:
 
-my $total = 10;
-my @probabilities = ( [0.1,"A"],
+    my $total = 10;
+    my @probabilities = ( [0.1,"A"],
                       [0.4,"B"],
                       [0.3,"C"],
                       [0.2,"D"]);
 
-@result = discreterand($total,@probabilities);
-$data = '';
-foreach $lupe (@result)
-{
-    $data .= $lupe . ", ";
-}
-$data =~ s/,$//;
+    @result = discreterand($total,@probabilities);
+    $data = '';
+    for $lupe (@result) {
+        $data .= $lupe . ", ";
+    }
+    $data =~ s/,$//;
 
 This routine will generate num random results. The distribution is in
 the given array.  Each element in the array is itself an array.  The
@@ -521,14 +549,17 @@ sub discreterand {    # generate random, values based on a given table
 	@result;
 }
 
-=head2 Chi Squared statistic for a two way table
+=head2 chisqrTable
 
-=pod
+Chi Squared statistic for a two way table
 
-	Usage: chisqrTable(@frequencies)
+Usage:
 
-  Example:
-		@row1 = (1,2,2,2);
+    chisqrTable(@frequencies)
+
+Example:
+
+    @row1 = (1,2,2,2);
     @row2 = (3,1,2,4);
     @row3 = (1,4,2,1);
     @row4 = (3,1,4,3);
@@ -540,7 +571,9 @@ sub discreterand {    # generate random, values based on a given table
     push(@table,~~@row5);
     ($chiSquared,$df) = chisqrTable(@table);
 
-Computes the Chi Squared test statistic for a two way frequency table. Returns the test statistic and the number of degrees of freedom. The array used in the argument is a list of references to arrays that have the frequencies for each row. If one of the rows has a different number of entries than the others the routine will throw an error.
+Computes the Chi Squared test statistic for a two way frequency table. Returns the test statistic and the number
+of degrees of freedom. The array used in the argument is a list of references to arrays that have the frequencies
+for each row. If one of the rows has a different number of entries than the others the routine will throw an error.
 
 =cut
 
@@ -612,14 +645,16 @@ sub chisqrTable {    # Given a two-way frequency table calculates the chi-square
 	($chiSquared, ($rows - 1) * ($columns - 1));
 }
 
-=head2 Calc the results of a t-test.
+=head2 t_test
 
-=pod
+Calc the results of a t-test.
 
-	Usage: ($t,$df,$p) = t_test(t_test(mu,@data);                       # Perform a two-sided t-test.
-  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'right'});     # Perform a right sided t-test
-  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'left'});      # Perform a left sided t-test
-  or:    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'two-sided'}); # Perform a left sided t-test
+Usage:
+
+    ($t,$df,$p) = t_test(t_test(mu,@data);                       # Perform a two-sided t-test.
+    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'right'});     # Perform a right sided t-test
+    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'left'});      # Perform a left sided t-test
+    ($t,$df,$p) = t_test(t_test(mu,@data,{'test'=>'two-sided'}); # Perform a left sided t-test
 
 Computes the t-statistic, the number of degrees of freedom, and the
 p-value after performing a t-test on the given data. the value of mu
@@ -690,14 +725,16 @@ sub t_test {
 	($t, $N - 1, $p);
 }
 
-=head2 Calc the results of a two sample t-test.
+=head2 two_sample_t_test
 
-=pod
+Calc the results of a two sample t-test.
 
-	Usage: ($t,$df,$p) = two_sample_t_test(\@data1,\@data2);                       # Perform a two-sided t-test.
-  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'right'});     # Perform a right sided t-test
-  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'left'});      # Perform a left sided t-test
-  or:    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'two-sided'}); # Perform a left sided t-test
+Usage:
+
+    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2);                       # Perform a two-sided t-test.
+    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'right'});     # Perform a right sided t-test
+    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'left'});      # Perform a left sided t-test
+    ($t,$df,$p) = two_sample_t_test(\@data1,\@data2,{'test'=>'two-sided'}); # Perform a left sided t-test
 
 Computes the t-statistic, the number of degrees of freedom, and the
 p-value after performing a two sample t-test on the given data.  The
@@ -787,63 +824,73 @@ sub two_sample_t_test {
 	($t, $df, $p);
 }
 
-=head2 Create a data file and make a link to it.
+=head2 insertDataLink
 
-=pod
-
-	Usage: insertDataLink($PG,linkText,@dataRefs)
-
-Writes the given data to a file and creates a link to the data file. The string headerTitle is the label used in the anchor link.
-		$PG is a ref to an instance of a PGcore object. (Generally just use $PG in a problem)
-    linkText is the text to appear in the anchor/link.
-    @dataRefs is a list of references. Each reference is assumed to be ref to an array.
-          All of the arrays must have the same length.
-          The last entry in the array is assumed to be the label to use in the first row of the csv file.
+Create a CSV data file and make a link to it.
 
 Usage:
-    # Generate random data
-    @data1 = urand(10.0,2.0,10,2);
-    @data2 = urand(12.0,2.0,10,2);
-    @data3 = urand(14.0,4.0,10,2);
-    @data4 = exprand(0.1,10,2);
 
-    # Append the labels for each data set
-    push(@data1,"w");
-    push(@data2,"x");
-    push(@data3,"y");
-    push(@data4,"z");
+    insertDataLink($linkText, @dataRefs, $linkAttributes)
 
-    BEGIN_TEXT
+Writes the given data to a CSV file and returns a link to the file.
 
-    blah blah
+C<$linkText> is the text to appear in the anchor/link.
 
-    $BR Data: \{ insertDataLink($PG,"the data",(~~@data1,~~@data2,~~@data3,~~@data4)); \} $BR
+C<@dataRefs> is a list of references. Each reference is assumed to be ref to an
+array.  All of the arrays must have the same length.  The last entry in the
+array is assumed to be the label to use in the first row of the csv file.
 
+C<linkAttributes> is optional.  If provided, this must be a reference to a hash
+containing additional attributes to add to the HTML C<a> tag. If this parameter
+is not provided or it is provided and a C<download> attributed is not specified
+in the hash, then a default C<download> attribute will be added with the value
+"data.csv".
+
+Usage:
+
+    # Generate random data with labels.
+    $data1 = [ urand(10.0, 2.0, 10, 2), 'w' ];
+    $data2 = [ urand(12.0, 2.0, 10, 2), 'x' ];
+    $data3 = [ urand(14.0, 4.0, 10, 2), 'y' ];
+    $data4 = [ exprand(0.1, 10, 2), 'z' ];
+
+    BEGIN_PGML
+    Data: [@ insertDataLink(
+		'the data', $data1, $data2, $data3, $data4,
+		{ download => 'problem-dataset.csv' }
+	) @]*
+    END_PGML
 
 =cut
 
 sub insertDataLink {
-	my $PG       = shift;
-	my $linkText = shift;
-	my @dataRefs = @_;
-	my $stat     = Statistics->new($PG);
+	my @args = @_;
 
-	# Create a file name and get the url as well.
-	my ($fileName, $url) = $stat->make_csv_alias($main::studentLogin, $main::problemSeed, $setName, $main::probNum);
+	# If the $PG object was given then just drop it. This is for backwards compatibility.
+	shift @args if ref($args[0]) eq 'PGcore';
 
-	# Now write the data
-	$stat->write_array_to_CSV($fileName, @dataRefs);
+	my ($linkText, @dataRefs) = @args;
 
-	"<a href=\"$url\">$linkText</a>";
+	my $linkAttributes = {};
+	$linkAttributes = pop @dataRefs if ref $dataRefs[-1] eq 'HASH';
+	$linkAttributes->{download} = 'data.csv' unless $linkAttributes->{download};
+
+	my $filePath = $PG->surePathToTmpFile('data/' . $PG->getUniqueName('csv') . '.csv');
+
+	Statistics::write_array_to_CSV($filePath, @dataRefs);
+
+	return main::tag('a', href => main::alias($filePath), %$linkAttributes, $linkText);
 }
 
-=head2 Five Point Summary function
+=head2 five_point_summary
 
-=pod
+Five Point Summary function
 
-	Usage: five_point_summary(@data);
-  or:    five_point_summary(@data,{method=>'includeMedian'});
-  or:    five_point_summary(@data,{method=>'proper'});
+Usage:
+
+    five_point_summary(@data);
+    five_point_summary(@data,{method=>'includeMedian'});
+    five_point_summary(@data,{method=>'proper'});
 
 Computes the five point summary of a list of numbers, data. You may
 also pass the numbers individually.  The optional parameter can be
@@ -988,11 +1035,13 @@ sub five_point_summary {
 
 }
 
-=head2 Function to calculate the Pearson's sample correlation
+=head2 sample_correlation
 
-=pod
+Function to calculate the Pearson's sample correlation
 
-	Usage:  $cor = sample_correlation(~~@xData,~~@yData);
+Usage:
+
+    $cor = sample_correlation(~~@xData,~~@yData);
 
 Calculates the Pearson's sample correlation for the given data. The
 arguments are references to two arrays where each array contains the
@@ -1028,11 +1077,13 @@ sub sample_correlation {
 	(($N * $sumXY - $sumX * $sumY) / sqrt(($N * $sumX2 - $sumX * $sumX) * ($N * $sumY2 - $sumY * $sumY)));
 }
 
-=head2 Function to calculate the linear least squares estimate for the linear relationship between two data sets
+=head2 linear_regression
 
-=pod
+Function to calculate the linear least squares estimate for the linear relationship between two data sets
 
-	Usage:  ($slope,$intercept,$var,$SXX) = linear_regression(~~@xdata,~~@ydata);
+Usage:
+
+    ($slope,$intercept,$var,$SXX) = linear_regression(~~@xdata,~~@ydata);
 
 Give the x data in @xdata and the t data in @ydata the least squares
 regression line is calculated. It also returns the variance in the
@@ -1042,9 +1093,9 @@ on the slope parameter such as the confidence interval or perform
 inference procedures.
 
 Example:
- @xdata = (-1,2,3,4,5,6,7);
- @ydata = (6,5,6,7,8,9,11);
- ($slope,$intercept,$var,$SXX) = linear_regression(~~@xdata,~~@ydata);
+    @xdata = (-1,2,3,4,5,6,7);
+    @ydata = (6,5,6,7,8,9,11);
+    ($slope,$intercept,$var,$SXX) = linear_regression(~~@xdata,~~@ydata);
 
 
 =cut
@@ -1082,13 +1133,16 @@ sub linear_regression {
 	($slope, $intercept, $var, $SXX);
 }
 
-=head2 Function to calculate the frequencies for the factors in a given data set.
+=head2 frequencies
 
-=pod
+Function to calculate the frequencies for the factors in a given data set.
 
-	Usage:  %freq = frequencies(@theData)
+Usage:
 
-Finds the factors in the data set and calculates the frequency of occurance for each factor. Returns a hash whose keys ar the factors and the associated values are the frequencies.
+    %freq = frequencies(@theData)
+
+Finds the factors in the data set and calculates the frequency of occurance for each factor.
+Returns a hash whose keys are the factors and the associated values are the frequencies.
 
 =cut
 
@@ -1111,7 +1165,4 @@ sub frequencies {
 	%frequency;
 }
 
-##########################################
-
 1;
-

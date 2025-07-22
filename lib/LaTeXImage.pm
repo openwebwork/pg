@@ -1,19 +1,3 @@
-#!/bin/perl
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 # This is a Perl module which simplifies and automates the process of generating
 # simple images using LaTeX, and converting them into a web-useable format.  Its
 # typical usage is via the PGlateximage.pl or PGtikz.pl macros and is documented
@@ -48,7 +32,7 @@ sub new {
 	return bless sub {
 		my ($field, $value) = @_;
 		if (defined $value) {
-			# The ext field is protected to ensure that unsafe commands can not
+			# The ext field is protected to ensure that unsafe commands cannot
 			# be passed to the command line in the system call it is used in.
 			if ($field eq 'ext') {
 				$data->{ext} = $value if $value && ($value =~ /^(png|gif|svg|pdf|tgz)$/);
@@ -155,7 +139,7 @@ sub header {
 				. (ref $_ eq "ARRAY"                             ? $_->[0]     : $_) . "}\n"
 		} grep { (ref $_ eq "ARRAY" && $_->[0] ne 'xcolor') || $_ ne 'xcolor' } @{ $self->texPackages }
 	);
-	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}") if ($self->tikzLibraries ne "");
+	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}\n") if ($self->tikzLibraries ne "");
 	push(@output, $self->addToPreamble);
 	push(@output, "\\begin{document}\n");
 	if ($self->environment->[0]) {
@@ -191,7 +175,7 @@ sub draw {
 		if (open(my $fh, ">", "$working_dir/image-dvisvgm.tex")) {
 			my @header = $self->header;
 			splice @header, 1, 0, "\\def\\pgfsysdriver{pgfsys-dvisvgm.def}\n";
-			chmod(0777, "$working_dir/image-dvisvgm.tex");
+			chmod(oct(664), "$working_dir/image-dvisvgm.tex");
 			print $fh @header;
 			print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 			print $fh $self->footer;
@@ -200,7 +184,7 @@ sub draw {
 				. WeBWorK::PG::IO::externalCommand('latex')
 				. " --interaction=nonstopmode image-dvisvgm.tex > latex.stdout 2> /dev/null";
 			move("$working_dir/image-dvisvgm.dvi", "$working_dir/image.dvi");
-			chmod(0777, "$working_dir/image.dvi");
+			chmod(oct(664), "$working_dir/image.dvi");
 		} else {
 			warn "Can't open $working_dir/image-dvisvgm.tex for writing.";
 			return '';
@@ -208,7 +192,7 @@ sub draw {
 	}
 	if ($ext ne 'svg' || ($ext eq 'svg' && $svgMethod ne 'dvisvgm')) {
 		if (open(my $fh, ">", "$working_dir/image.tex")) {
-			chmod(0777, "$working_dir/image.tex");
+			chmod(oct(664), "$working_dir/image.tex");
 			print $fh $self->header;
 			print $fh $self->tex =~ s/\\\\/\\/gr . "\n";
 			print $fh $self->footer;
@@ -216,7 +200,7 @@ sub draw {
 			system "cd $working_dir && "
 				. WeBWorK::PG::IO::externalCommand('latex2pdf')
 				. " --interaction=nonstopmode image.tex > latex.stdout 2> /dev/null";
-			chmod(0777, "$working_dir/image.pdf");
+			chmod(oct(664), "$working_dir/image.pdf");
 		} else {
 			warn "Can't open $working_dir/image.tex for writing.";
 			return '';

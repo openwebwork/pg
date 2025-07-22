@@ -1,22 +1,7 @@
 
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 =head1 NAME
 
-Matrix macros for the PG language
+PGmatrixmacros.pl - Matrix macros for the PG language
 
 =head1 DESCRIPTION
 
@@ -43,11 +28,12 @@ BEGIN { strict->import; }
 sub _PGmatrixmacros_init {
 }
 
-############
+=head1 FUNCTIONS
 
 =head2  display_matrix
 
-	Usage
+Usage:
+
 	       \{ display_matrix( [ [1, '\(\sin x\)'], [ans_rule(5), 6] ]) \}
 	       \{ display_matrix($A, align=>'crvl') \}
 	       \[ \{   display_matrix_mm($A)  \} \]
@@ -182,7 +168,7 @@ sub display_matrix {
 	# column labels for linear programming
 	$out .= dm_special_tops(%opts, 'alignList' => $alignList) if ($opts{'top_labels'});
 	$out .= dm_mat_left($numRows, %opts);
-	my $cnt = 1;    # we count rows in in case an element is boxed
+	my $cnt = 1;    # we count rows in case an element is boxed
 					# vertical lines put in with first row
 	$j = shift @myRows;
 	my $tag = $opts{side_labels}->[ $cnt - 1 ];
@@ -228,16 +214,10 @@ sub dm_begin_matrix {
 			$out .= '\begingroup\setbox3=\hbox{\ensuremath{';
 		}
 		$out .= '\displaystyle\left' . $opts{'left'} . "\\begin{array}{$aligns} \n";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml} <TABLE  BORDER=0>\n\\end{rawhtml}";
 	} elsif ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		$out .= qq!<TABLE class="matrix" BORDER="0" style="border-collapse: separate; border-spacing:10px 0px;">\n!;
 	} elsif ($main::displayMode eq 'PTX') {
@@ -255,10 +235,6 @@ sub dm_special_tops {
 	my @alignList  = @{ $opts{'alignList'} };
 	my ($j,   $k);
 	my ($brh, $erh) = ("", "");    # Start and end raw html
-	if ($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
 
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
 		for $j (@top_labels) {
@@ -274,11 +250,7 @@ sub dm_special_tops {
 	} elsif ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		$out .= "$brh<tr><td>$erh";    # Skip a column for the left brace
 		for $j (@top_labels) {
@@ -306,19 +278,11 @@ sub dm_mat_left {
 	my $out = '';
 	my $j;
 	my ($brh, $erh) = ("", "");    # Start and end raw html
-	if ($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
 
 	if ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		$out .= "$brh<tr valign=\"center\"><td nowrap=\"nowrap\" align=\"left\" rowspan=\"$numrows\">$erh";
 		$out .= dm_image_delimeter($numrows, $opts{'left'});
@@ -339,10 +303,6 @@ sub dm_mat_right {
 	my $out     = '';
 	my $j;
 	my ($brh, $erh) = ("", "");    # Start and end raw html
-	if ($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
 
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'} or $main::displayMode eq 'PTX') {
 		return "";
@@ -351,11 +311,7 @@ sub dm_mat_right {
 	if ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		$out .= "$brh<td nowrap=\"nowrap\" align=\"right\" rowspan=\"$numrows\">$erh";
 
@@ -380,16 +336,10 @@ sub dm_end_matrix {
 			$out .= '}} \dimen3=\ht3 \advance\dimen3 by 3ex \ht3=\dimen3' . "\n" . '\box3\endgroup';
 		}
 		$out .= $opts{'force_tex'} ? '' : "\\) ";
-	} elsif ($main::displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
 	} elsif ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		$out .= "</TABLE>\n";
 	} elsif ($main::displayMode eq 'PTX') {
@@ -478,10 +428,6 @@ sub dm_mat_row {
 	my ($brh, $erh) = ("", "");    # Start and end raw html
 	my $element;
 	my $colcount = 0;
-	if ($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
 	if ($main::displayMode eq 'TeX' or $opts{'force_tex'}) {
 		while (@elements) {
 			$colcount++;
@@ -508,11 +454,7 @@ sub dm_mat_row {
 	} elsif ($main::displayMode eq 'HTML_MathJax'
 		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
-		or $main::displayMode eq 'HTML_jsMath'
-		or $main::displayMode eq 'HTML_asciimath'
-		or $main::displayMode eq 'HTML_LaTeXMathML'
-		or $main::displayMode eq 'HTML'
-		or $main::displayMode eq 'HTML_img')
+		or $main::displayMode eq 'HTML')
 	{
 		if (not $opts{'isfirst'}) { $out .= "$brh\n<TR>\n$erh"; }
 		while (@elements) {
@@ -540,9 +482,6 @@ sub dm_mat_row {
 				$element = shift(@elements);
 				if (ref($element) eq 'Fraction') {
 					$element = $element->print_inline();
-#}elsif( $element =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ and $element != sprintf($opts{'num_format'},$element) and $element - sprintf($opts{'num_format'},$element) < $main::functZeroLevelTolDefault){
-#	$element = sprintf($opts{'num_format'},$element);
-#	$element = 0 if abs($element) < $main::functZeroLevelTolDefault;
 				}
 				$out .= "$brh<TD nowrap=\"nowrap\" align=\"$myalign\">$erh";
 				$out .= '<table border="1"><tr><td>'
@@ -600,18 +539,20 @@ sub side_labels {
 
 =head2  mbox
 
-                Usage        \{ mbox(thing1, thing2, thing3) \}
-          \{ mbox([thing1, thing2, thing3], valign=>'top') \}
+Usage:
 
-    mbox takes a list of constructs, such as strings, or outputs of
-          display_matrix, and puts them together on a line.  Without mbox, the
-          output of display_matrix would always start a new line.
+    \{ mbox(thing1, thing2, thing3) \}
+    \{ mbox([thing1, thing2, thing3], valign=>'top') \}
 
-          The inputs can be just listed, or given as a reference to an array.
-          With the latter, optional arguments can be given.
+mbox takes a list of constructs, such as strings, or outputs of
+display_matrix, and puts them together on a line.  Without mbox, the
+output of display_matrix would always start a new line.
 
-          Optional arguments are allowbreaks=>'yes' to allow line breaks in TeX
-          output; and valign which sets vertical alignment on web page output.
+The inputs can be just listed, or given as a reference to an array.
+With the latter, optional arguments can be given.
+
+Optional arguments are allowbreaks=>'yes' to allow line breaks in TeX
+output; and valign which sets vertical alignment on web page output.
 
 =cut
 
@@ -636,10 +577,6 @@ sub mbox {
 	my $out = "";
 	my $j;
 	my ($brh, $erh) = ("", "");    # Start and end raw html if needed
-	if ($main::displayMode eq 'Latex2HTML') {
-		$brh = "\\begin{rawhtml}";
-		$erh = "\\end{rawhtml}";
-	}
 	my @hlist = @{$inList};
 	if ($main::displayMode eq 'TeX') {
 		if ($opts{allowbreaks} ne 'no') { $out .= '\mbox{'; }
@@ -657,14 +594,16 @@ sub mbox {
 
 =head2   ra_flatten_matrix
 
-                Usage:   ra_flatten_matrix($A)
-                        returns:  [a11, a12,a21,a22]
+Usage:
 
-                        where $A is a matrix object
-                        The output is a reference to an array.  The matrix is placed in the array by iterating
-                        over  columns on the inside
-                        loop, then over the rows. (e.g right to left and then down, as one reads text)
+    ra_flatten_matrix($A)
 
+returns:
+
+    [a11, a12,a21,a22]
+
+where C<$A> is a matrix object. The output is a reference to an array.  The matrix is placed in the array by iterating
+over columns on the inside loop, then over the rows. (e.g right to left and then down, as one reads text)
 
 =cut
 
@@ -681,13 +620,11 @@ sub ra_flatten_matrix {
 	\@array;
 }
 
-=head2 apl_matrix_mult()
+=head2 apl_matrix_mult
 
-	# This subroutine is probably obsolete and not generally useful.
-	# It was patterned after the APL
-	# constructs for multiplying matrices. It might come in handy
-	# for non-standard multiplication of
-	# of matrices (e.g. mod 2) for indice matrices.
+This subroutine is probably obsolete and not generally useful.
+It was patterned after the APL constructs for multiplying matrices. It might come in handy
+for non-standard multiplication of of matrices (e.g. mod 2) for indice matrices.
 
 =cut
 
@@ -745,12 +682,14 @@ sub make_matrix {
 This can be a useful method for quickly entering small matrices by hand.
  --MEG
 
-	create2d_matrix("1 2 4, 5 6 8"); or
-	create2d_matrix("1 2 4; 5 6 8");
-	produces the anonymous array
-	[[1,2,4],[5,6,8] ]
+    create2d_matrix("1 2 4, 5 6 8");
+    create2d_matrix("1 2 4; 5 6 8");
 
-	Matrix(create2d_matrix($string));
+produces the anonymous array
+
+    [[1,2,4],[5,6,8] ]
+
+     Matrix(create2d_matrix($string));
 
 =cut
 
@@ -761,9 +700,11 @@ sub create2d_matrix {
 	[@rows];
 }
 
-=head2 convert_to_array_ref {
+=head2 convert_to_array_ref
 
-	$output_matrix = convert_to_array_ref($input_matrix)
+Usage:
+
+    $output_matrix = convert_to_array_ref($input_matrix)
 
 Converts a MathObject matrix (ref($input_matrix) eq 'Value::Matrix')
 or a MatrixReal1 matrix (ref($input_matrix) eq 'Matrix') to
@@ -771,7 +712,7 @@ a reference to an array (e.g [[4,6],[3,2]]).
 This adaptor allows all of the LinearProgramming.pl subroutines to be used with
 MathObject arrays.
 
-$mathobject_matrix->value outputs an array (usually an array of array references) so placing it inside
+C<< $mathobject_matrix->value >> outputs an array (usually an array of array references) so placing it inside
 square bracket produces and array reference (of array references) which is what lp_display_mm() is
 seeking.
 
@@ -797,15 +738,15 @@ An answer checker factory built on create2d_matrix.  This still needs
 work.  It is not feature complete, particularly with regard to error messages
 for incorrect input. --MEG
 
-	$matrix = Matrix("[[1,4],[2,3]");
-	ANS( check_matrix_from_ans_box($matrix) );
+    $matrix = Matrix("[[1,4],[2,3]");
+    ANS( check_matrix_from_ans_box($matrix) );
 
 =cut
 
 sub check_matrix_from_ans_box_cmp {
 	my $correctMatrix     = shift;
 	my $string_matrix_cmp = sub {
-		$string = shift @_;
+		my $string = shift;
 		my $studentMatrix;
 		$studentMatrix = Matrix(create2d_matrix($string));
 		die "I give up";
@@ -825,11 +766,13 @@ sub check_matrix_from_ans_box_cmp {
 	$string_matrix_cmp;
 }
 
-=head2 zero_check (deprecated -- use MathObjects matrices and vectors)
+=head2 zero_check [DEPRECATED]
 
-	# this subroutine zero_check is not very well designed below -- if it is used much it should receive
-	# more work -- particularly for checking relative tolerance.  More work needs to be done if this is
-	# actually used.
+(use MathObjects matrices and vectors)
+
+this subroutine zero_check is not very well designed below -- if it is used much it should receive
+more work -- particularly for checking relative tolerance.  More work needs to be done if this is
+actually used.
 
 =cut
 
@@ -850,23 +793,29 @@ sub zero_check {
 	($max < $tol) ? 1 : 0;    # 1 if the array is close to zero;
 }
 
-=head2 vec_dot() (deprecated -- use MathObjects vectors and matrices)
+=head2 vec_dot [DEPRECATED]
 
-sub vec_dot{
-        my $vec1 = shift;
-        my $vec2 = shift;
-        warn "vectors must have the same length" unless @$vec1 == @$vec2;  # the vectors must have the same length.
-        my @vec1=@$vec1;
-        my @vec2=@$vec2;
-        my $sum = 0;
+(use MathObjects matrices and vectors)
 
-        while(@vec1) {
-                $sum += shift(@vec1)*shift(@vec2);
-        }
-        $sum;
+=cut
+
+sub vec_dot {
+	my $vec1 = shift;
+	my $vec2 = shift;
+	warn "vectors must have the same length" unless @$vec1 == @$vec2;    # the vectors must have the same length.
+	my @vec1 = @$vec1;
+	my @vec2 = @$vec2;
+	my $sum  = 0;
+
+	while (@vec1) {
+		$sum += shift(@vec1) * shift(@vec2);
+	}
+	$sum;
 }
 
-=head2 proj_vect (deprecated -- use MathObjects vectors and matrices)
+=head2 proj_vect [DEPRECATED]
+
+(use MathObjects matrices and vectors)
 
 =cut
 
@@ -880,7 +829,9 @@ sub proj_vec {
 	$matrix * transpose($matrix) * $vec;
 }
 
-=head2 vec_cmp (deprecated -- use MathObjects vectors and matrices)
+=head2 vec_cmp [DEPRECATED]
+
+(use MathObjects matrices and vectors)
 
 =cut
 

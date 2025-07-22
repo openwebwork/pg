@@ -1565,7 +1565,7 @@ I<arg>, I<abs>, I<log>, I<csc>, I<cot>, I<acsc>, I<acot>, I<csch>,
 I<coth>, I<acosech>, I<acotanh>, have aliases I<rho>, I<theta>, I<ln>,
 I<cosec>, I<cotan>, I<acosec>, I<acotan>, I<cosech>, I<cotanh>,
 I<acosech>, I<acotanh>, respectively.  C<Re>, C<Im>, C<arg>, C<abs>,
-C<rho>, and C<theta> can be used also also mutators.  The C<cbrt>
+C<rho>, and C<theta> can also be used as mutators.  The C<cbrt>
 returns only one of the solutions: if you want all three, use the
 C<root> function.
 

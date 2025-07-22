@@ -1,21 +1,7 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-PGbasicmacros.pl --- located in the courseScripts directory
+PGbasicmacros.pl - A set of basic functions and constants for PG problems.
 
 =head1 DESCRIPTION
 
@@ -63,7 +49,7 @@ sub _PGbasicmacros_init {
 
 	# This is initializes the remaining variables in the runtime main:: compartment.
 
-	main::PG_restricted_eval( <<'EndOfFile');
+	main::PG_restricted_eval(<<'EndOfFile');
 	$displayMode            = $displayMode;
 
 	$main::PAR              = PAR();
@@ -467,11 +453,10 @@ sub NAMED_ANS_RADIO {
 			'label',
 			tag(
 				'input',
-				type       => 'radio',
-				name       => $name,
-				id         => $name,
-				aria_label => $options{aria_label} // generate_aria_label($name) . 'option 1 ',
-				value      => $value,
+				type  => 'radio',
+				name  => $name,
+				id    => $name,
+				value => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
 				)
@@ -499,11 +484,10 @@ sub NAMED_ANS_RADIO_EXTENSION {
 			'label',
 			tag(
 				'input',
-				type       => 'radio',
-				name       => $name,
-				id         => $options{id}         // "${name}_$value",
-				aria_label => $options{aria_label} // generate_aria_label($name),
-				value      => $value,
+				type  => 'radio',
+				name  => $name,
+				id    => $options{id} // "${name}_$value",
+				value => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
 				)
@@ -541,30 +525,30 @@ sub generate_aria_label {
 
 	# if we dont have an AnSwEr type name then we do the best we can
 	if ($name !~ /AnSwEr\d+/) {
-		return maketext('answer') . ' ' . $name;
+		return maketext('answer [_1] ', $name);
 	}
 
 	# check for quiz prefix
 	if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
 		$name =~ s/Q0*(\d+)_//;
-		$label .= maketext('problem') . ' ' . $1 . ' ';
+		$label .= maketext('problem [_1] ', $1);
 	}
 
 	# get answer number
 	$name =~ /AnSwEr0*(\d+)/;
-	$label .= maketext('answer') . ' ' . $1 . ' ';
+	$label .= maketext('answer [_1] ', $1);
 
 	# check for Multianswer
 	if ($name =~ /MuLtIaNsWeR_/) {
 		$name =~ s/MuLtIaNsWeR_//;
 		$name =~ /AnSwEr(\d+)_(\d+)/;
-		$label .= maketext('part') . ' ' . ($2 + 1) . ' ';
+		$label .= maketext('part [_1] ', $2 + 1);
 	}
 
 	# check for Matrix
 	if ($name =~ /^MaTrIx_/) {
 		$name =~ /_(\d+)_(\d+)$/;
-		$label .= maketext('row') . ' ' . ($1 + 1) . ' ' . maketext('column') . ' ' . ($2 + 1) . ' ';
+		$label .= maketext('row [_1] column [_2] ', $1 + 1, $2 + 1);
 	}
 
 	return $label;
@@ -624,7 +608,7 @@ sub NAMED_ANS_CHECKBOX {
 				type       => 'checkbox',
 				name       => $name,
 				id         => $name,
-				aria_label => generate_aria_label($name) . 'option 1 ',
+				aria_label => $options{aria_label} // (generate_aria_label($name) . maketext('option [_1] ', 1)),
 				value      => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
@@ -677,7 +661,9 @@ sub NAMED_ANS_CHECKBOX_BUTTONS {
 	while (@buttons) {
 		$value = shift @buttons;
 		$tag   = shift @buttons;
-		push(@out, NAMED_ANS_CHECKBOX_OPTION($name, $value, $tag, aria_label => $label . "option $count "));
+		push(@out,
+			NAMED_ANS_CHECKBOX_OPTION($name, $value, $tag, aria_label => $label . maketext('option [_1] ', $count))
+		);
 		$count++;
 	}
 
@@ -796,19 +782,21 @@ sub pop_up_list {
 
 =head2  answer_matrix
 
-    Usage   \[ \{ answer_matrix(rows, columns, width_of_ans_rule, @options) \} \]
+Usage:
 
-    Creates an array of answer blanks and passes it to display_matrix which returns
-    text which represents the matrix in TeX format used in math display mode. Answers
-    are then passed back to whatever answer evaluators you write at the end of the problem.
-    (note, if you have an m x n matrix, you will need mn answer evaluators, and they will be
-    returned to the evaluaters starting in the top left hand corner and proceed to the left
-    and then at the end moving down one row, just as you would read them.)
+    \[ \{ answer_matrix(rows, columns, width_of_ans_rule, @options) \} \]
 
-    The options are passed on to display_matrix.
+Creates an array of answer blanks and passes it to display_matrix which returns
+text which represents the matrix in TeX format used in math display mode. Answers
+are then passed back to whatever answer evaluators you write at the end of the problem.
+(note, if you have an m x n matrix, you will need mn answer evaluators, and they will be
+returned to the evaluaters starting in the top left hand corner and proceed to the left
+and then at the end moving down one row, just as you would read them.)
 
-    Note (7/21/2017) The above usage does not work. Omitting the \[ \] works, but also must
-    load PGmatrixmacros.pl to get display_matrix used below
+The options are passed on to display_matrix.
+
+Note (7/21/2017) The above usage does not work. Omitting the \[ \] works, but also must
+load PGmatrixmacros.pl to get display_matrix used below
 
 =cut
 
@@ -1076,7 +1064,8 @@ sub COMMENT {
 
 =head2 Pseudo-random number generator
 
-    Usage:
+Usage:
+
     random(0, 5, .1)          # produces a random number between 0 and 5 in increments of .1
     non_zero_random(0, 5, .1) # gives a non-zero random number
 
@@ -1130,34 +1119,26 @@ a hard copy output.
               HTML       => "output this in HTML mode",
               HTML_tth   => "output this in HTML_tth mode",
               HTML_dpng  => "output this in HTML_dpng mode",
-              Latex2HTML => "output this in Latex2HTML mode",
              )
 
     M3      (tex_version, latex2html_version, html_version) #obsolete
+            Note the LaTeX2HTML version remains for backward compatibility.
 
 =cut
 
 sub M3 {
 	my ($tex, $l2h, $html) = @_;
-	MODES(TeX => $tex, Latex2HTML => $l2h, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
+	MODES(TeX => $tex, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
 }
 
 # MODES() is now table driven
 our %DISPLAY_MODE_FAILOVER = (
-	TeX              => [],
-	HTML             => [],
-	PTX              => ["HTML"],
-	HTML_tth         => [ "HTML", ],
-	HTML_dpng        => [ "HTML_tth",  "HTML", ],
-	HTML_jsMath      => [ "HTML_dpng", "HTML_tth", "HTML", ],
-	HTML_MathJax     => [ "HTML_dpng", "HTML_tth", "HTML", ],
-	HTML_asciimath   => [ "HTML_dpng", "HTML_tth", "HTML", ],
-	HTML_LaTeXMathML => [ "HTML_dpng", "HTML_tth", "HTML", ],
-	# legacy modes -- these are not supported, but some problems might try to
-	# set the display mode to one of these values manually and some macros may
-	# provide rendered versions for these modes but not the one we want.
-	Latex2HTML => [ "TeX", "HTML", ],
-	HTML_img   => [ "HTML_dpng", "HTML_tth", "HTML", ],
+	TeX          => [],
+	HTML         => [],
+	PTX          => ["HTML"],
+	HTML_tth     => ["HTML"],
+	HTML_dpng    => [ "HTML_tth",  "HTML" ],
+	HTML_MathJax => [ "HTML_dpng", "HTML_tth", "HTML" ]
 );
 
 # This replaces M3.  You can add new modes at will to this one.
@@ -1246,63 +1227,60 @@ sub ALPHABET {
 
 ###############################################################
 # Some constants which are different in tex and in HTML
-# The order of arguments is TeX, Latex2HTML, HTML
+# The order of arguments is TeX, HTML
 # Adopted Davide Cervone's improvements to PAR, LTS, GTS, LTE, GTE, LBRACE, RBRACE, LB, RB. 7-14-03 AKP
 sub PAR {
 	MODES(
-		TeX        => '\\vskip\\baselineskip ',
-		Latex2HTML => '\\begin{rawhtml}<P>\\end{rawhtml}',
-		HTML       => '<div style="margin-top:1em"></div>',
-		PTX        => "\n\n"
+		TeX  => '\\vskip\\baselineskip ',
+		HTML => '<div style="margin-top:1em"></div>',
+		PTX  => "\n\n"
 	);
 }
-#sub BR { MODES( TeX => '\\par\\noindent ', Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}', HTML => '<BR>'); };
+#sub BR { MODES( TeX => '\\par\\noindent ', HTML => '<BR>'); };
 # Alternate definition of BR which is slightly more flexible and gives more white space in printed output
 # which looks better but kills more trees.
 sub BR {
 	MODES(
-		TeX        => '\\leavevmode\\\\\\relax ',
-		Latex2HTML => '\\begin{rawhtml}<BR>\\end{rawhtml}',
-		HTML       => '<BR>',
-		PTX        => "\n\n"
+		TeX  => '\\leavevmode\\\\\\relax ',
+		HTML => '<BR>',
+		PTX  => "\n\n"
 	);
 }
 
 sub BRBR {
 	MODES(
-		TeX        => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ',
-		Latex2HTML => '\\begin{rawhtml}<BR><BR>\\end{rawhtml}',
-		HTML       => '<P>',
-		PTX        => "\n"
+		TeX  => '\\leavevmode\\\\\\relax \\leavevmode\\\\\\relax ',
+		HTML => '<P>',
+		PTX  => "\n"
 	);
 }
-sub LQ { MODES(TeX => "\\lq\\lq{}", Latex2HTML => '"', HTML    => '&quot;', PTX => '<lq/>'); }
-sub RQ { MODES(TeX => "\\rq\\rq{}", Latex2HTML => '"', HTML    => '&quot;', PTX => '<rq/>'); }
-sub BM { MODES(TeX => '\\(', Latex2HTML => '\\(', HTML_MathJax => '\\(', HTML => '', PTX => '<m>'); }; # begin math mode
-sub EM { MODES(TeX => '\\)', Latex2HTML => '\\)', HTML_MathJax => '\\)', HTML => '', PTX => '</m>'); };  # end math mode
+sub LQ { MODES(TeX => "\\lq\\lq{}", HTML         => '&quot;', PTX  => '<lq/>'); }
+sub RQ { MODES(TeX => "\\rq\\rq{}", HTML         => '&quot;', PTX  => '<rq/>'); }
+sub BM { MODES(TeX => '\\(',        HTML_MathJax => '\\(',    HTML => '', PTX => '<m>'); };     # begin math mode
+sub EM { MODES(TeX => '\\)',        HTML_MathJax => '\\)',    HTML => '', PTX => '</m>'); };    # end math mode
 
 sub BDM {
-	MODES(TeX => '\\[', Latex2HTML => '\\[', HTML_MathJax => '\\[', HTML => '<P ALIGN=CENTER>', PTX => '<me>');
-};    #begin displayMath mode
+	MODES(TeX => '\\[', HTML_MathJax => '\\[', HTML => '<P ALIGN=CENTER>', PTX => '<me>');
+};                                                                                              #begin displayMath mode
 
 sub EDM {
-	MODES(TeX => '\\]', Latex2HTML => '\\]', HTML_MathJax => '\\]', HTML => '</P>', PTX => '</me>');
-};    #end displayMath mode
+	MODES(TeX => '\\]', HTML_MathJax => '\\]', HTML => '</P>', PTX => '</me>');
+};                                                                                              #end displayMath mode
 
 sub LTS {
-	MODES(TeX => '<', Latex2HTML => '\\lt ', HTML => '&lt;', HTML_tth => '<', PTX => '\lt');
+	MODES(TeX => '<', HTML => '&lt;', HTML_tth => '<', PTX => '\lt');
 };    #only for use in math mode
 
 sub GTS {
-	MODES(TeX => '>', Latex2HTML => '\\gt ', HTML => '&gt;', HTML_tth => '>', PTX => '\gt');
+	MODES(TeX => '>', HTML => '&gt;', HTML_tth => '>', PTX => '\gt');
 };    #only for use in math mode
 
 sub LTE {
-	MODES(TeX => '\\le ', Latex2HTML => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ', PTX => '\leq');
+	MODES(TeX => '\\le ', HTML => '<U>&lt;</U>', HTML_tth => '\\le ', PTX => '\leq');
 };    #only for use in math mode
 
 sub GTE {
-	MODES(TeX => '\\ge ', Latex2HTML => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ', PTX => '\geq');
+	MODES(TeX => '\\ge ', HTML => '<U>&gt;</U>', HTML_tth => '\\ge ', PTX => '\geq');
 };    #only for use in math mode
 
 sub BEGIN_ONE_COLUMN {    # deprecated
@@ -1328,80 +1306,77 @@ sub HINT_HEADING {
 		PTX  => ''
 	);
 }
-sub US { MODES(TeX => '\\_', Latex2HTML => '\\_', HTML => '_', PTX => '_'); };    # underscore, e.g. file${US}name
+sub US { MODES(TeX => '\\_', HTML => '_', PTX => '_'); };    # underscore, e.g. file${US}name
 
+# force a space in latex, doesn't force extra space in html
 sub SPACE {
-	MODES(TeX => '\\ ', Latex2HTML => '\\ ', HTML => '&nbsp;', PTX => ' ');
-};    # force a space in latex, doesn't force extra space in html
-sub NBSP    { MODES(TeX => '~',            Latex2HTML => '~',            HTML => '&nbsp;',    PTX => '<nbsp/>'); }
-sub NDASH   { MODES(TeX => '--',           Latex2HTML => '--',           HTML => '&ndash;',   PTX => '<ndash/>'); }
-sub MDASH   { MODES(TeX => '---',          Latex2HTML => '---',          HTML => '&mdash;',   PTX => '<mdash/>'); }
-sub BBOLD   { MODES(TeX => '{\\bf ',       Latex2HTML => '{\\bf ',       HTML => '<STRONG>',  PTX => '<alert>'); }
-sub EBOLD   { MODES(TeX => '}',            Latex2HTML => '}',            HTML => '</STRONG>', PTX => '</alert>'); }
-sub BLABEL  { MODES(TeX => '',             Latex2HTML => '',             HTML => '<LABEL>',   PTX => ''); }
-sub ELABEL  { MODES(TeX => '',             Latex2HTML => '',             HTML => '</LABEL>',  PTX => ''); }
-sub BITALIC { MODES(TeX => '{\\it ',       Latex2HTML => '{\\it ',       HTML => '<I>',       PTX => '<em>'); }
-sub EITALIC { MODES(TeX => '} ',           Latex2HTML => '} ',           HTML => '</I>',      PTX => '</em>'); }
-sub BUL     { MODES(TeX => '\\underline{', Latex2HTML => '\\underline{', HTML => '<U>',       PTX => '<em>'); }
-sub EUL     { MODES(TeX => '}',            Latex2HTML => '}',            HTML => '</U>',      PTX => '</em>'); }
+	MODES(TeX => '\\ ', HTML => '&nbsp;', PTX => ' ');
+}
+sub NBSP    { MODES(TeX => '~',            HTML => '&nbsp;',    PTX => '<nbsp/>'); }
+sub NDASH   { MODES(TeX => '--',           HTML => '&ndash;',   PTX => '<ndash/>'); }
+sub MDASH   { MODES(TeX => '---',          HTML => '&mdash;',   PTX => '<mdash/>'); }
+sub BBOLD   { MODES(TeX => '{\\bf ',       HTML => '<STRONG>',  PTX => '<alert>'); }
+sub EBOLD   { MODES(TeX => '}',            HTML => '</STRONG>', PTX => '</alert>'); }
+sub BLABEL  { MODES(TeX => '',             HTML => '<LABEL>',   PTX => ''); }
+sub ELABEL  { MODES(TeX => '',             HTML => '</LABEL>',  PTX => ''); }
+sub BITALIC { MODES(TeX => '{\\it ',       HTML => '<I>',       PTX => '<em>'); }
+sub EITALIC { MODES(TeX => '} ',           HTML => '</I>',      PTX => '</em>'); }
+sub BUL     { MODES(TeX => '\\underline{', HTML => '<U>',       PTX => '<em>'); }
+sub EUL     { MODES(TeX => '}',            HTML => '</U>',      PTX => '</em>'); }
 
 sub BCENTER {
 	MODES(
-		TeX        => '\\begin{center} ',
-		Latex2HTML => ' \\begin{rawhtml} <div align="center"> \\end{rawhtml} ',
-		HTML       => '<div align="center">',
-		PTX        => ''
+		TeX  => '\\begin{center} ',
+		HTML => '<div align="center">',
+		PTX  => ''
 	);
 }
 
 sub ECENTER {
 	MODES(
-		TeX        => '\\end{center} ',
-		Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ',
-		HTML       => '</div>',
-		PTX        => ''
+		TeX  => '\\end{center} ',
+		HTML => '</div>',
+		PTX  => ''
 	);
 }
 
 sub BLTR {
 	MODES(
-		TeX        => ' ',
-		Latex2HTML => ' \\begin{rawhtml} <div dir="ltr"> \\end{rawhtml} ',
-		HTML       => '<span dir="ltr">',
-		PTX        => ''
+		TeX  => ' ',
+		HTML => '<span dir="ltr">',
+		PTX  => ''
 	);
 }
-sub ELTR { MODES(TeX => ' ', Latex2HTML => ' \\begin{rawhtml} </div> \\end{rawhtml} ', HTML => '</span>', PTX => ''); }
-sub BKBD { MODES(TeX => '\\texttt{', Latex2HTML => '',                                 HTML => '<KBD>',   PTX => ''); }
-sub EKBD { MODES(TeX => '}',         Latex2HTML => '',                                 HTML => '</KBD>',  PTX => ''); }
+sub ELTR { MODES(TeX => ' ',         HTML => '</span>', PTX => ''); }
+sub BKBD { MODES(TeX => '\\texttt{', HTML => '<KBD>',   PTX => ''); }
+sub EKBD { MODES(TeX => '}',         HTML => '</KBD>',  PTX => ''); }
 
 sub HR {
 	MODES(
-		TeX        => '\\par\\hrulefill\\par ',
-		Latex2HTML => '\\begin{rawhtml} <HR> \\end{rawhtml}',
-		HTML       => '<HR>',
-		PTX        => ''
+		TeX  => '\\par\\hrulefill\\par ',
+		HTML => '<HR>',
+		PTX  => ''
 	);
 }
 
 sub LBRACE {
-	MODES(TeX => '\{', Latex2HTML => '\\lbrace', HTML => '{', HTML_tth => '\\lbrace', PTX => '{');
+	MODES(TeX => '\{', HTML => '{', HTML_tth => '\\lbrace', PTX => '{');
 };    #not for use in math mode
 
 sub RBRACE {
-	MODES(TeX => '\}', Latex2HTML => '\\rbrace', HTML => '}', HTML_tth => '\\rbrace', PTX => '}');
+	MODES(TeX => '\}', HTML => '}', HTML_tth => '\\rbrace', PTX => '}');
 };    #not for use in math mode
 
 sub LB {
-	MODES(TeX => '\{', Latex2HTML => '\\lbrace', HTML => '{', HTML_tth => '\\lbrace', PTX => '{');
+	MODES(TeX => '\{', HTML => '{', HTML_tth => '\\lbrace', PTX => '{');
 };    #not for use in math mode
 
 sub RB {
-	MODES(TeX => '\}', Latex2HTML => '\\rbrace', HTML => '}', HTML_tth => '\\rbrace', PTX => '}');
+	MODES(TeX => '\}', HTML => '}', HTML_tth => '\\rbrace', PTX => '}');
 };    #not for use in math mode
-sub DOLLAR  { MODES(TeX => '\\$',       Latex2HTML => '&#36;',     HTML => '&#36;', PTX => '$'); }
-sub PERCENT { MODES(TeX => '\\%',       Latex2HTML => '\\%',       HTML => '%',     PTX => '%'); }
-sub CARET   { MODES(TeX => '\\verb+^+', Latex2HTML => '\\verb+^+', HTML => '^',     PTX => '^'); }
+sub DOLLAR  { MODES(TeX => '\\$',       HTML => '&#36;', PTX => '$'); }
+sub PERCENT { MODES(TeX => '\\%',       HTML => '%',     PTX => '%'); }
+sub CARET   { MODES(TeX => '\\verb+^+', HTML => '^',     PTX => '^'); }
 sub PI      { 4 * atan2(1, 1); }
 sub E       { exp(1); }
 sub LATEX   { MODES(TeX => '\\LaTeX', HTML => '\\(\\mathrm\\LaTeX\\)', PTX => '<latex/>'); }
@@ -1411,46 +1386,49 @@ sub APOS    { MODES(TeX => "'",       HTML => "'",                     PTX => "\
 ###############################################################
 
 =head2 SPAN and DIV macros
-        These are functions primarly meant to add
-            HTML block level DIV or inline SPAN
-        tags and the relevant closing tags for HTML output.
 
-        At present, these macros require the user to provide TeX and
-        preTeXt strings which will be used in those modes instead of the
-        HTML block level DIV or inline SPAN tag.
+These are functions primarly meant to add
+HTML block level DIV or inline SPAN
+tags and the relevant closing tags for HTML output.
 
-        If they are missing, they will default to the empty string.
-        If only one string is given, it will be assumed to be the TeX string.
+At present, these macros require the user to provide TeX and
+preTeXt strings which will be used in those modes instead of the
+HTML block level DIV or inline SPAN tag.
 
-        At present only the following 4 HTML attributes can be set:
-                         lang, dir, class, style.
-        Using the style option requires creating valid CSS text.
-        For safety some parsing/cleanup is done and various sorts of
-        (apparently) invalid values may be dropped. See the code for
-        details of what input sanitation is done.
+If they are missing, they will default to the empty string.
+If only one string is given, it will be assumed to be the TeX string.
 
-        Since the use of style is particularly dangerous, in order to
-        enable its use you must set allowStyle to 1 in the hash. It is
-        possible to prevent the use of some of the other options by
-        setting certain control like allowLang to 0.
+At present only the following 4 HTML attributes can be set:
+                 lang, dir, class, style.
+Using the style option requires creating valid CSS text.
+For safety some parsing/cleanup is done and various sorts of
+(apparently) invalid values may be dropped. See the code for
+details of what input sanitation is done.
 
-    Usage:
-          openSpan( options_hash,  "tex code", "ptx code" );
-          closeSpan("tex code", "ptx code");
+Since the use of style is particularly dangerous, in order to
+enable its use you must set allowStyle to 1 in the hash. It is
+possible to prevent the use of some of the other options by
+setting certain control like allowLang to 0.
 
-        Usage where TeX and PTX output will be empty by default.
-          openSpan( options_hash );
-          closeSpan();
+Usage:
 
-        Sample options hashes
+    openSpan( options_hash,  "tex code", "ptx code" );
+    closeSpan("tex code", "ptx code");
 
-            { "lang" => "he",
-              "dir" => "rtl",
-              "class" => "largeText class123" }
+Usage where TeX and PTX output will be empty by default:
 
-            { "lang" => "he",
-              "allowStyle" => 1,
-               "style" => "background-color: \"#afafaf; float: left;\t height: 12px;" }
+    openSpan( options_hash );
+    closeSpan();
+
+Sample options hashes
+
+    { "lang" => "he",
+      "dir" => "rtl",
+      "class" => "largeText class123" }
+
+    { "lang" => "he",
+      "allowStyle" => 1,
+       "style" => "background-color: \"#afafaf; float: left;\t height: 12px;" }
 
 =cut
 
@@ -1558,7 +1536,7 @@ sub processDivSpanOptions {
 			# Did not seem safe
 			$StyleVal = "";
 			WARN_MESSAGE(
-				"processDivSpanOptions received some characters in the STYLE string which are are not permitted by PG. As a result the entire STYLE string was dropped"
+				"processDivSpanOptions received some characters in the STYLE string which are not permitted by PG. As a result the entire STYLE string was dropped"
 			);
 		}
 	}
@@ -1599,10 +1577,9 @@ sub openDivSpan {
 	# internalBalancingIncrement("open${type}");
 
 	MODES(
-		TeX        => "$tex_code",
-		Latex2HTML => qq!\\begin{rawhtml}<$type $html_attribs>\\end{rawhtml}!,
-		HTML       => qq!<$type $html_attribs>\n!,
-		PTX        => "$ptx_code",
+		TeX  => "$tex_code",
+		HTML => qq!<$type $html_attribs>\n!,
+		PTX  => "$ptx_code",
 	);
 }
 
@@ -1627,10 +1604,9 @@ sub closeDivSpan {
 	# internalBalancingDecrement("open${type}");
 
 	MODES(
-		TeX        => "$tex_code",
-		Latex2HTML => qq!\\begin{rawhtml}</$type>\\end{rawhtml}!,
-		HTML       => qq!</$type>\n!,
-		PTX        => "$ptx_code",
+		TeX  => "$tex_code",
+		HTML => qq!</$type>\n!,
+		PTX  => "$ptx_code",
 	);
 }
 
@@ -1655,14 +1631,16 @@ sub closeDiv {
 
 =head2 TEXT macros
 
-    Usage:
+Usage:
+
         TEXT(@text);
 
 This is the simplest way to print text from a problem.  The strings in the array C<@text> are concatenated
 with spaces between them and printed out in the text of the problem.  The text is not processed in any other way.
 C<TEXT> is defined in PG.pl.
 
-    Usage:
+Usage:
+
         BEGIN_TEXT
             text.....
         END_TEXT
@@ -1730,7 +1708,7 @@ In .pg files use single backslashes. This is in accordance with the usual rules 
 in PG.
 
 For the moment this change only works in image mode.  It does not work in
-jsMath or MathJax mode.  Stay tuned.
+MathJax mode.  Stay tuned.
 
 Adding this command
 
@@ -1755,7 +1733,7 @@ sub addToTeXPreamble {
 
 		# in TeX mode we are typically creating an entire homework set
 		# and typesetting that so w only want the TeXPreamble to
-		# appear once -- towards the beginning.
+		# appear once -- toward the beginning.
 		# This is potentially fragile -- if one starts
 		# typesetting problems separately this will fail.
 		# The reason for the multicols commands is baroque
@@ -1765,7 +1743,7 @@ sub addToTeXPreamble {
 		# when printing hardcopy.  --it's weird and there must be a better way.
 		TEXT("\\ifdefined\\nocolumns\\else \\end{multicols} \\fi\n",
 			$str, "\n", "\\ifdefined\\nocolumns\\else \\begin{multicols}{2}\\columnwidth=\\linewidth \\fi\n");
-	} else {    # for jsMath and MathJax mode
+	} else {    # for MathJax mode
 		my $mathstr = "\\(" . $str . "\\)";    #add math mode.
 		$mathstr =~ s/\\/\\\\/g;               # protect math modes ($str has a true TeX command,
 											   # with single backslashes.  The backslashes have not
@@ -1781,14 +1759,11 @@ sub addToTeXPreamble {
 The mathematical formulas are run through the macro C<FEQ> (Format EQuations) which performs
 several substitutions (see below).
 In C<HTML_tth> mode the resulting code is processed by tth to obtain an HTML version
-of the formula. (In the future processing by WebEQ may be added here as another option.)
-The Latex2HTML mode does nothing
-at this stage; it creates the entire problem before running it through
-TeX and creating the GIF images of the equations.
+of the formula.
 
 The resulting string is output (and usually fed into TEXT to be printed in the problem).
 
-    Usage:
+Usage:
 
         $string2 = FEQ($string1);
 
@@ -1956,18 +1931,6 @@ sub general_math_ev3 {
 		## remove leading and trailing spaces as per Davide Cervone.
 		$out =~ s/^\s+//;
 		$out =~ s/\s+$//;
-	} elsif ($displayMode eq "HTML_img") {
-		$out = math2img($in, $mode);
-	} elsif ($displayMode eq "HTML_jsMath") {
-		$in =~ s/&/&amp;/g;
-		$in =~ s/</&lt;/g;
-		$in =~ s/>/&gt;/g;
-		$out = '<SPAN CLASS="math">' . $in . '</SPAN>' if $mode eq "inline";
-		$out = '<DIV CLASS="math">' . $in . '</DIV>'   if $mode eq "display";
-	} elsif ($displayMode eq "HTML_asciimath") {
-		$in  = HTML::Entities::encode_entities($in);
-		$out = "`$in`"                                   if $mode eq "inline";
-		$out = '<DIV ALIGN="CENTER">`' . $in . '`</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "PTX") {
 		# protect XML control characters
 		$in =~ s/\&(?!([\w#]+;))/\\amp /g;
@@ -1989,12 +1952,6 @@ sub general_math_ev3 {
 		} elsif ($mode eq 'display') {
 			$out = "<me>$in</me>";
 		}
-	} elsif ($displayMode eq "HTML_LaTeXMathML") {
-		$in = HTML::Entities::encode_entities($in);
-		$in = '{' . $in . '}';
-		$in =~ s/\{\s*(\\(display|text|script|scriptscript)style)/$1\{/g;
-		$out = '$$' . $in . '$$'                                          if $mode eq "inline";
-		$out = '<DIV ALIGN="CENTER">$$\displaystyle{' . $in . '}$$</DIV>' if $mode eq "display";
 	} elsif ($displayMode eq "HTML") {
 		$in_delim = HTML::Entities::encode_entities($in_delim);
 		$out      = "<span class='tex2jax_ignore'>$in_delim</span>";
@@ -2268,11 +2225,6 @@ sub PTX_cleanup {
                     # The function should be called either with value specified (immediate reference) or
                     # with url specified in which case the revealed text is taken from the URL $url.
                     # The $display_text is always visible and is clicked to see the contents of the knowl.
-    htmlLink($url, $text)
-                    # Places a reference to the URL with the specified text in the problem.
-                    # A common usage is \{ htmlLink(alias('prob1_help.html') \}, 'for help')
-                    # where alias finds the full address of the prob1_help.html file in the same directory
-                    # as the problem file
     iframe($url, height=>'', width=>'', id=>'', name=>'' )
                     # insert the web page referenced by $url in a space defined by height and width
                     # if the webpage contains a form then this must be inserted between
@@ -2377,43 +2329,55 @@ sub OL {
 	my @alpha = ('A' .. 'Z', 'AA' .. 'ZZ');
 	my $letter;
 	my $out = MODES(
-		TeX        => "\\begin{enumerate}\n",
-		Latex2HTML => " \\begin{rawhtml} <OL TYPE=\"A\" VALUE=\"1\"> \\end{rawhtml} ",
-		HTML       => "<BLOCKQUOTE>\n",
-		PTX        => '<ol label="A.">' . "\n",
+		TeX  => "\\begin{enumerate}\n",
+		HTML => "<BLOCKQUOTE>\n",
+		PTX  => '<ol label="A.">' . "\n",
 	);
 	my $elem;
 	foreach $elem (@array) {
 		$letter = shift @alpha;
 		$out .= MODES(
-			TeX        => "\\item[$ALPHABET[$i].] $elem\n",
-			Latex2HTML => " \\begin{rawhtml} <LI> \\end{rawhtml} $elem  ",
-			HTML       => "<br /> <b>$letter.</b> $elem\n",
-			HTML_dpng  => "<br /> <b>$letter.</b> $elem \n",
-			PTX        => "<li><p>$elem</p></li>\n",
+			TeX       => "\\item[$ALPHABET[$i].] $elem\n",
+			HTML      => "<br /> <b>$letter.</b> $elem\n",
+			HTML_dpng => "<br /> <b>$letter.</b> $elem \n",
+			PTX       => "<li><p>$elem</p></li>\n",
 		);
 		$i++;
 	}
 	$out .= MODES(
-		TeX        => "\\end{enumerate}\n",
-		Latex2HTML => " \\begin{rawhtml} </OL>\n \\end{rawhtml} ",
-		HTML       => "</BLOCKQUOTE>\n",
-		PTX        => '</ol>' . "\n",
+		TeX  => "\\end{enumerate}\n",
+		HTML => "</BLOCKQUOTE>\n",
+		PTX  => '</ol>' . "\n",
 	);
 }
 
+=head2 htmlLink
+
+Usage:
+
+    htmlLink($url, $text, @attributes)
+
+Places an HTML link to C<$url> with the specified C<$text> in the problem. The
+C<@attributes> are optional.  They should be provided as attribute/value pairs,
+but a single text string argument can be given (although calling C<htmlLink> in
+that way is deprecated and should not be done in new problems).  For example,
+
+    BEGIN_PGML
+    Download the [@ htmlLink($url, 'dataset', download => 'dataset.csv') @]*
+    for this problem.
+
+=cut
+
 sub htmlLink {
-	my $url           = shift;
-	my $text          = shift;
-	my $options       = shift;
-	my $sanitized_url = $url;
-	$sanitized_url =~ s/&/&amp;/g;
-	$options = ""                                             unless defined($options);
-	return "$BBOLD [ the link to '$text'  is broken ] $EBOLD" unless defined($url) and $url;
+	my ($url, $text, @options) = @_;
+	return "$BBOLD [ the link to '$text'  is broken ] $EBOLD" unless $url;
+	my $attributes = @options == 1 ? $options[0] : {@options};
 	MODES(
 		TeX  => "{\\bf \\underline{$text}}",
-		HTML => "<A HREF=\"$url\" $options>$text</A>",
-		PTX  => "<url href=\"$sanitized_url\">$text</url>",
+		HTML => ref($attributes) eq 'HASH'
+		? tag('a', href => $url, %$attributes, $text)
+		: qq{<a href="$url" $attributes>$text</a>},
+		PTX => '<url href="' . ($url =~ s/&/&amp;/g) . qq{">$text</url>},
 	);
 }
 
@@ -2422,7 +2386,9 @@ sub htmlLink {
 Inserts a knowl link into the problem.  Usually you should not call this method
 directly.  Instead use C<helpLink> below.
 
-Usage: C<knowlLink($displayText, %options)>
+Usage:
+
+    knowlLink($displayText, %options)
 
 C<$display_text> is the text that will be shown for the link.
 
@@ -2502,7 +2468,9 @@ sub iframe {
 
 =head2 helpLink
 
-Usage: C<helpLink($type, $display_text, $helpurl)>
+Usage:
+
+    helpLink($type, $display_text, $helpurl)
 
 Creates links for students to help documentation on formatting answers and
 allows for custom help links.
@@ -2619,8 +2587,8 @@ sub sspf {
 Because of the way sort is optimized in Perl, the symbols $a and $b
 have special significance.
 
-C<sort {$a<=>$b} @list>
-C<sort {$a cmp $b} @list>
+    sort {$a<=>$b} @list
+    sort {$a cmp $b} @list
 
 sorts the list numerically and lexically respectively.
 
@@ -2653,7 +2621,8 @@ sub PGsort {
 
 =head2  Sorting and other list macros
 
-    Usage:
+Usage:
+
     lex_sort(@list);   # outputs list in lexigraphic (alphabetical) order
     num_sort(@list);   # outputs list in numerical order
     uniq( @list);      # outputs a list with no duplicates.  Order is unspecified.
@@ -2684,7 +2653,10 @@ sub num_sort {
 
 =head2 Macros for handling tables
 
-    Usage:
+B<< Note: that these are deprecated.  See L<nicetables.pl> for a replacement. >>
+
+Usage:
+
     begintable( number_of_columns_in_table)
     row(@dataelements)
     endtable()
@@ -2717,16 +2689,10 @@ sub begintable {
 		$out .= "\n\\par\\smallskip\\begin{center}\\begin{tabular}{" . "|c" x $number . "|} \\hline\n";
 	} elsif ($displayMode eq 'PTX') {
 		$out .= "\n" . '<tabular top="medium" bottom="medium" left="medium" right="medium">' . "\n";
-	} elsif ($displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml} <TABLE, BORDER=1>\n\\end{rawhtml}";
 	} elsif ($displayMode eq 'HTML_MathJax'
 		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
-		|| $displayMode eq 'HTML_tth'
-		|| $displayMode eq 'HTML_jsMath'
-		|| $displayMode eq 'HTML_asciimath'
-		|| $displayMode eq 'HTML_LaTeXMathML'
-		|| $displayMode eq 'HTML_img')
+		|| $displayMode eq 'HTML_tth')
 	{
 		$out .= '<table class="pg-table">';
 	} else {
@@ -2741,16 +2707,10 @@ sub endtable {
 		$out .= "\n\\end {tabular}\\end{center}\\par\\smallskip\n";
 	} elsif ($displayMode eq 'PTX') {
 		$out .= "\n" . '</tabular>' . "\n";
-	} elsif ($displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml} </TABLE >\n\\end{rawhtml}";
 	} elsif ($displayMode eq 'HTML_MathJax'
 		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
-		|| $displayMode eq 'HTML_tth'
-		|| $displayMode eq 'HTML_jsMath'
-		|| $displayMode eq 'HTML_asciimath'
-		|| $displayMode eq 'HTML_LaTeXMathML'
-		|| $displayMode eq 'HTML_img')
+		|| $displayMode eq 'HTML_tth')
 	{
 		$out .= '</table>';
 	} else {
@@ -2775,23 +2735,10 @@ sub row {
 			$out .= '<cell>' . shift(@elements) . '</cell>' . "\n";
 		}
 		$out .= '</row>' . "\n";
-	} elsif ($displayMode eq 'Latex2HTML') {
-		$out .= "\n\\begin{rawhtml}\n<TR>\n\\end{rawhtml}\n";
-		while (@elements) {
-			$out .=
-				" \n\\begin{rawhtml}\n<TD> \n\\end{rawhtml}\n"
-				. shift(@elements)
-				. " \n\\begin{rawhtml}\n</TD> \n\\end{rawhtml}\n";
-		}
-		$out .= " \n\\begin{rawhtml}\n</TR> \n\\end{rawhtml}\n";
 	} elsif ($displayMode eq 'HTML_MathJax'
 		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
-		|| $displayMode eq 'HTML_tth'
-		|| $displayMode eq 'HTML_jsMath'
-		|| $displayMode eq 'HTML_asciimath'
-		|| $displayMode eq 'HTML_LaTeXMathML'
-		|| $displayMode eq 'HTML_img')
+		|| $displayMode eq 'HTML_tth')
 	{
 		$out .= "<TR>\n";
 		while (@elements) {
@@ -2808,10 +2755,10 @@ sub row {
 
 Usage:
 
-    image($image, width => 200, height => 200, tex_size => 800, valign => 'middle', alt => 'alt text', extra_html_tags => 'style="border:solid black 1pt"');
+    image($image, width => ..., height => ..., tex_size => ..., valign => ..., alt => ..., long_description => ... );
 
 where C<$image> can be a local file path, URL, WWPlot object, PGlateximage object,
-PGtikz object, or parser::GraphTool object.
+PGtikz object, Plots::Plot object, or parser::GraphTool object.
 
 C<width> and C<height> are positive integer pixel counts for HTML display. If both
 are missing, C<width> will default to 200 and C<height> will remain undeclared,
@@ -2828,10 +2775,34 @@ is declared, we presume this is a wide image and then C<tex_size> defaults to 80
 C<valign> can be 'top', 'middle', or 'bottom'.  This aligns the image relative to
 the surrounding line of text.
 
-    image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => ['alt text 1','alt text 2'], extra_html_tags => 'style="border:solid black 1pt"');
-    image([$image1,$image2], width => 200, height => 200, tex_size => 800, alt => 'common alt text', extra_html_tags => 'style="border:solid black 1pt"');
+C<alt> should be a string, ideally with fewer than 125 characters, that describes the
+most important features of the image. This should always be used. If the image is
+decorative, C<< alt => '' >> should be used.
 
-this produces an array in array context and joins the elements with C<' '> in scalar context
+C<long_description> provides an optional way to give a more complete description of
+an image. This may include a table (for example to describe complex data in a graph).
+It may be helpful to generate blocks of text and tables and store them in a variable,
+and pass that variable to C<long_description>.
+
+C<long_description_width> defaults to 1. This should be a positive number at most 1.
+In hardcopy output, this portion of the line width will be used to cap the width
+of the long description (if there is one). This is useful for example when the image
+is inside a table.
+
+C<extra_html_tags> [DEPRECATED] can be a string will directly be placed into the
+HTML img element. For example, C<< extra_html_tags => 'style="border:solid black 1pt"' >>.
+
+The first argument to C<image()> can alternatively be an array of images:
+
+    image([$image1, $image2], ...);
+
+If so then if C<alt> or C<long_description> are not arrays, they will be used
+repeatedly for each image. Each of C<alt> and C<long_description> can instead be
+arrays of the same length and their entries will be used with the corresponding
+image.
+
+In array context, using C<image()> this way will produces an array in array context
+and join the elements with C<' '> in scalar context.
 
 =cut
 
@@ -2849,8 +2820,10 @@ sub image {
 		tex_size => '',
 		valign   => 'middle',
 		# default value for alt is undef, since an empty string is the explicit indicator of a decorative image
-		alt             => undef,
-		extra_html_tags => '',
+		alt                    => undef,
+		long_description       => undef,
+		long_description_width => 1,
+		extra_html_tags        => '',
 	);
 	# handle options
 	my %out_options = %known_options;
@@ -2873,14 +2846,17 @@ sub image {
 	$tex_size = 1000 if $tex_size > 1000;
 
 	my $alt         = $out_options{alt};
-	my $width_ratio = $tex_size * (.001);
+	my $desc        = $out_options{long_description};
+	my $ldw         = $out_options{long_description_width};
+	my $width_ratio = $tex_size * 0.001;
 	my @image_list  = ();
 	my @alt_list    = ();
+	my @desc_list   = ();
 	my $valign      = 'middle';
 	$valign = 'top'    if ($out_options{valign} eq 'top');
 	$valign = 'bottom' if ($out_options{valign} eq 'bottom');
 
-	# if width and/or height are explicit, create string for attribute to be used in HTML, LaTeX2HTML
+	# if width and/or height are explicit, create string for attribute to be used in HTML
 	my $width_attrib  = ($width)  ? qq{ width="$width"}   : '';
 	my $height_attrib = ($height) ? qq{ height="$height"} : '';
 
@@ -2894,26 +2870,90 @@ sub image {
 	} else {
 		for my $i (@image_list) { push(@alt_list, $alt) }
 	}
+	if (ref($desc) =~ /ARRAY/) {
+		@desc_list = @{$desc};
+	} else {
+		for my $i (@image_list) { push(@desc_list, $desc) }
+	}
 
 	my @output_list = ();
 	while (@image_list) {
-		my $image_item = shift @image_list;
+		my $image_item          = shift @image_list;
+		my $description_details = $desc ? shift(@desc_list) : '';
+		if ($desc && $displayMode ne 'PTX' && $displayMode ne 'TeX') {
+			$description_details = tag(
+				'details',
+				'aria-live' => 'polite',
+				class       => 'image-details',
+				name        => 'image-details',
+				tag(
+					'summary',
+					class => 'mt-1',
+					title => 'details',
+					tag(
+						'span',
+						class         => 'image-details-btn btn btn-sm btn-secondary fw-bold',
+						'aria-hidden' => 'true',
+						maketext('image description')
+					)
+					)
+					. tag(
+						'div',
+						id    => 'LONG-DESCRIPTION-ID',
+						class => 'image-details-content bg-white py-2 px-3 my-2 border',
+						$description_details
+						. tag(
+							'div',
+							class => 'd-flex justify-content-end mt-2',
+							tag(
+								'button',
+								class => 'image-details-dismiss btn btn-sm btn-secondary',
+								type  => 'button',
+								maketext('Close image description')
+							)
+						)
+					)
+			);
+		}
 		if (ref $image_item eq 'parser::GraphTool') {
 			push(
 				@output_list,
 				$image_item->generateAnswerGraph(
-					$out_options{width}    || $out_options{height} ? (width   => $width, height => $height) : (),
-					$out_options{tex_size} || $out_options{width}  ? (texSize => $tex_size)                 : (),
+					$out_options{width} || $out_options{height}   ? (width           => $width, height => $height) : (),
+					$out_options{tex_size} || $out_options{width} ? (texSize         => $tex_size)                 : (),
+					$desc                                         ? (longDescription => $description_details)      : (),
 					ariaDescription => shift @alt_list // ''
 				)
 			);
 			next;
 		}
+		if (ref $image_item eq 'Plots::Plot') {
+			# Update image attributes as needed.
+			$image_item->{width}    = $width    if $out_options{width};
+			$image_item->{height}   = $height   if $out_options{height};
+			$image_item->{tex_size} = $tex_size if $out_options{tex_size};
+			$image_item->axes->style(aria_description => shift @alt_list) if $out_options{alt};
+
+			if ($image_item->ext eq 'html') {
+				$image_item->{description_details} = $description_details;
+				push(@output_list, $image_item->draw);
+				next;
+			}
+
+			# Use Plots default size and not the 200 default size of image.
+			$width_attrib  = qq{ width="$image_item->{width}"}   if $width_attrib;
+			$height_attrib = qq{ height="$image_item->{height}"} if $height_attrib;
+			$width_ratio   = 0.001 * $image_item->{tex_size};
+		}
 		$image_item = insertGraph($image_item)
-			if (ref $image_item eq 'WWPlot' || ref $image_item eq 'PGlateximage' || ref $image_item eq 'PGtikz');
+			if (ref $image_item eq 'WWPlot'
+				|| ref $image_item eq 'Plots::Plot'
+				|| ref $image_item eq 'PGlateximage'
+				|| ref $image_item eq 'PGtikz');
 		my $imageURL = alias($image_item) // '';
 		$imageURL = ($envir{use_site_prefix}) ? $envir{use_site_prefix} . $imageURL : $imageURL;
-		my $out = "";
+		my $id  = $main::PG->getUniqueName('img');
+		my $out = '';
 
 		if ($displayMode eq 'TeX') {
 			my $imagePath = $imageURL;    # in TeX mode, alias gives us a path, not a URL
@@ -2921,43 +2961,60 @@ sub image {
 			# We're going to create PDF files with our TeX (using LaTeX), so
 			# alias should have given us the path to a PNG image.
 			if ($imagePath) {
-				if ($valign eq 'top') {
-					$out = '\settoheight{\strutheight}{\strut}'
-						. "\\raisebox{-\\height + \\strutheight}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
-				} elsif ($valign eq 'bottom') {
-					$out = "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
-				} else {
-					$out = '\settoheight{\strutheight}{\strut}'
-						. "\\raisebox{-0.5\\height + 0.5\\strutheight}{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+				if ($desc) {
+					$out .= "\\parbox{$ldw\\linewidth}{";
+					$width_ratio = $width_ratio / $ldw;
 				}
-			} else {
-				$out = "";
+				if ($valign eq 'top') {
+					$out .= '\settoheight{\strutheight}{\strut}\raisebox{-\height + \strutheight}'
+						. "{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+				} elsif ($valign eq 'bottom') {
+					$out .= "\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}\n";
+				} else {
+					$out .= '\settoheight{\strutheight}{\strut}\raisebox{-0.5\height + 0.5\strutheight}'
+						. "{\\includegraphics[width=$width_ratio\\linewidth]{$imagePath}}\n";
+				}
+				if ($desc) {
+					$out .=
+						"\\newline\\par\\parbox{\\linewidth}{{\\scshape\\underline{"
+						. maketext('image description')
+						. "}}\\newline{}$description_details\\par\\hfill\\(\\overline{\\mbox{\\scshape "
+						. maketext('end image description')
+						. "}}\\)}}\\par\n";
+				}
 			}
-		} elsif ($displayMode eq 'Latex2HTML') {
-			my $wid = ($envir->{onTheFlyImageSize} || 0) + 30;
-			$out =
-				qq!\\begin{rawhtml}\n<A HREF="$imageURL" TARGET="_blank" onclick="window.open(this.href, this.target, 'width=$wid, height=$wid, scrollbars=yes, resizable=on'); return false;"><IMG SRC="$imageURL"$width_attrib$height_attrib></A>\n
-			\\end{rawhtml}\n !
 		} elsif ($displayMode eq 'HTML_MathJax'
 			|| $displayMode eq 'HTML_dpng'
 			|| $displayMode eq 'HTML'
-			|| $displayMode eq 'HTML_tth'
-			|| $displayMode eq 'HTML_jsMath'
-			|| $displayMode eq 'HTML_asciimath'
-			|| $displayMode eq 'HTML_LaTeXMathML'
-			|| $displayMode eq 'HTML_img')
+			|| $displayMode eq 'HTML_tth')
 		{
 			my $altattrib = '';
 			if (defined $alt_list[0]) { $altattrib = 'alt="' . encode_pg_and_html(shift @alt_list) . '"' }
-			$out =
-				qq!<IMG SRC="$imageURL" class="image-view-elt $valign" tabindex="0" role="button"$width_attrib$height_attrib $out_options{extra_html_tags} $altattrib>!;
+			if ($desc) {
+				$out .= tag(
+					'div',
+					class => 'image-container pb-2',
+					qq!<img src="$imageURL" class="image-view-elt $valign" tabindex="0" role="button"!
+						. qq!$width_attrib$height_attrib aria-details="${id}_details" $out_options{extra_html_tags} $altattrib>!
+						. ($description_details =~ s/LONG-DESCRIPTION-ID/${id}_details/r)
+				);
+			} else {
+				$out .= qq!<img src="$imageURL" class="image-view-elt $valign" tabindex="0" role="button"!
+					. qq!$width_attrib$height_attrib $out_options{extra_html_tags} $altattrib>!;
+			}
 		} elsif ($displayMode eq 'PTX') {
 			my $ptxwidth = ($width ? int($width / 6) : 80);
+			$out = qq!<image width="$ptxwidth%" source="$imageURL">!;
 			if (defined $alt) {
-				$out = qq!<image width="$ptxwidth%" source="$imageURL"><description>$alt</description></image>!;
-			} else {
-				$out = qq!<image width="$ptxwidth%" source="$imageURL" />!;
+				$out .= "\n<shortdescription>$alt</shortdescription>";
 			}
+			if (defined $desc) {
+				$out .= "\n<description>\n" . PTX_cleanup($description_details) . "\n</description>";
+			}
+			if (defined $alt || defined $desc) {
+				$out .= "\n";
+			}
+			$out .= '</image>';
 		} else {
 			$out = "Error: PGbasicmacros: image: Unknown displayMode: $displayMode.\n";
 		}
@@ -3047,20 +3104,10 @@ sub video {
 				. maketext("This problem contains a video which must be viewed online.")
 				. "} \\end{center}";
 
-		} elsif ($displayMode eq 'Latex2HTML') {
-			$out = qq!\\begin{rawhtml}<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
-			<SOURCE SRC="$videoURL" TYPE="video/$type">\n
-			${htmlmessage}\n
-			</VIDEO>\n
-			\\end{rawhtml}\n !
 		} elsif ($displayMode eq 'HTML_MathJax'
 			|| $displayMode eq 'HTML_dpng'
 			|| $displayMode eq 'HTML'
-			|| $displayMode eq 'HTML_tth'
-			|| $displayMode eq 'HTML_jsMath'
-			|| $displayMode eq 'HTML_asciimath'
-			|| $displayMode eq 'HTML_LaTeXMathML'
-			|| $displayMode eq 'HTML_img')
+			|| $displayMode eq 'HTML_tth')
 		{
 			$out = qq!<VIDEO WIDTH="$width" HEIGHT="$height" CONTROLS>\n
 			<SOURCE SRC="$videoURL" TYPE="video/$type">\n
@@ -3094,11 +3141,6 @@ sub caption {
 	$out = " $out  "  if $displayMode eq 'HTML';
 	$out = " $out  "  if $displayMode eq 'HTML_tth';
 	$out = " $out  "  if $displayMode eq 'HTML_dpng';
-	$out = " $out  "  if $displayMode eq 'HTML_img';
-	$out = " $out  "  if $displayMode eq 'HTML_jsMath';
-	$out = " $out  "  if $displayMode eq 'HTML_asciimath';
-	$out = " $out  "  if $displayMode eq 'HTML_LaTeXMathML';
-	$out = " $out  "  if $displayMode eq 'Latex2HTML';
 	$out;
 }
 
@@ -3139,33 +3181,10 @@ sub imageRow {
 		}
 		chop($out);
 		$out .= "\\\\ \\hline \n\\end {tabular}\\end{center}\\par\\smallskip\n";
-	} elsif ($displayMode eq 'Latex2HTML') {
-
-		$out .= "\n\\begin{rawhtml} <TABLE  BORDER=1><TR>\n\\end{rawhtml}\n";
-		while (@images) {
-			$out .=
-				"\n\\begin{rawhtml} <TD>\n\\end{rawhtml}\n"
-				. &image(shift(@images), %options)
-				. "\n\\begin{rawhtml} </TD>\n\\end{rawhtml}\n";
-		}
-
-		$out .= "\n\\begin{rawhtml}</TR><TR>\\end{rawhtml}\n";
-		while (@captions) {
-			$out .=
-				"\n\\begin{rawhtml} <TH>\n\\end{rawhtml}\n"
-				. &caption(shift(@captions))
-				. "\n\\begin{rawhtml} </TH>\n\\end{rawhtml}\n";
-		}
-
-		$out .= "\n\\begin{rawhtml} </TR> </TABLE >\n\\end{rawhtml}";
 	} elsif ($displayMode eq 'HTML_MathJax'
 		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
-		|| $displayMode eq 'HTML_tth'
-		|| $displayMode eq 'HTML_jsMath'
-		|| $displayMode eq 'HTML_asciimath'
-		|| $displayMode eq 'HTML_LaTeXMathML'
-		|| $displayMode eq 'HTML_img')
+		|| $displayMode eq 'HTML_tth')
 	{
 		$out .= "<P>\n <TABLE BORDER=2 CELLPADDING=3 CELLSPACING=2><TR ALIGN=CENTER VALIGN=MIDDLE>\n";
 		while (@images) {

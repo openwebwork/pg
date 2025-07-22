@@ -1,35 +1,12 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
 contextPiecewiseFunction.pl - Allow usage of piecewise functions.
 
-=head1 DESCRIPTION
-
-This file implements a context in which piecewise-defined functions
-can be specified by students and problem authors.  To use it, add
+=head1 SYNOPSIS
 
     loadMacros("contextPiecewiseFunction.pl");
-
-and then use
-
     Context("PiecewiseFunction");
-
-to select the context for piecewise functions.  There are several
-ways to produce a piecewise function.  For example:
 
     $f = Compute("x if x >= 0 else -x");
     $f = Compute("x if x >= 0 else -x if x < 0");
@@ -38,6 +15,11 @@ ways to produce a piecewise function.  For example:
     $f = PiecewiseFunction("1 < x <= 2" => "x^2", "2x+1");
     $f = PiecewiseFunction("(1,2]" => "x^2", "2x+1");
     $f = PiecewiseFunction(Interval("(1,2]") => "x^2", "2x+1");
+
+=head1 DESCRIPTION
+
+This file implements a context in which piecewise-defined functions
+can be specified by students and problem authors.
 
 You can use either Compute() or Formula() interchangeably to
 convert a string containing "if" and "else" to the corresponding
@@ -61,24 +43,20 @@ For example:
     $f = Formula("1-x if x > 0 else 4 if x = 0 else 1+x if x < 0");
     $a = random(-2,2,.1);
 
-    Context()->texStrings;
-    BEGIN_TEXT
-    If \[f(x)=$f\] then \(f($a)\) = \{ans_rule(20)\}.
-    END_TEXT
-    Context()->normalStrings;
-
-    ANS($f->eval(x=>$a)->cmp);
+    BEGIN_PGML
+    If [`f(x) = [$f]`] then [`f($a)`] = [_]{$f->eval(x => $a)}
+    END_PGML
 
 Normally when you use a piecewise function at the end of a sentence,
 the period is placed at the end of the last case.  Since
 
-    \[ f(x) = $f \].
+    [`f(x) = $f`].
 
 would put the period centered at the right-hand side of the function,
 this is not what is desired.  To get a period at the end of the last
 case, use
 
-    \[ f(x) = \{$f->with(final_period=>1)\} \]
+    [`f(x) = [@ $f->with(final_period => 1) @]`]
 
 instead.
 

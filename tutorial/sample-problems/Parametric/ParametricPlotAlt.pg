@@ -1,0 +1,76 @@
+## DESCRIPTION
+## Graphing a parametric curve.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Hope College)
+## Author(Paul Pearson)
+## MO(1)
+## KEYWORDS('parametric', 'graph')
+
+#:% name = Parametric Curve Graph (plots)
+#:% types = [Sample, technique]
+#:% subject = parametric
+#:% categories = [plots, parametric]
+
+#:% section = preamble
+#: The PODLINK('plots.pl') macro is used to generate the graph.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: This problem asks the student to find the equation of a tangent line to a
+#: parametric curve at a random point.  There is an array of t-values as
+#: just a string and a tex string and a random index `$n`.  The parametric
+#: function is defined as the x and y parts as well as the derivatives which
+#: results in the slope.
+#:
+#: For the plot, the plotting  domain is listed, then the parametric function
+#: is added with the `add_function` and it is important to add the components
+#: as an array reference.
+Context()->variables->add(t => 'Real');
+@tvals     = ('pi/12',   'pi/6',   '5pi/12',   'pi/3',   '2pi/3',   '7pi/12');
+@tvals_tex = ('\pi/12', '\pi/6', '5\pi/12', '\pi/3', '2\pi/3', '7\pi/12');
+$n         = random(1, $#tvals);
+$x         = Compute('2sin(2t)');
+$x0        = $x->eval(t => $tvals[$n]);
+$y         = Compute('2sin(3t)');
+$y0        = $y->eval(t => $tvals[$n]);
+
+$m    = $y->D('t')->eval(t => $tvals[$n]) / $x->D('t')->eval(t => $tvals[$n]);
+$line = Compute("$m(x - $x0) + $y0");
+
+$plot = Plot(
+    xmin        => -2.5,
+    xmax        =>  2.5,
+    ymin        => -2.5,
+    ymax        =>  2.5,
+    xtick_delta =>  0.5,
+    ytick_delta => 0.5
+);
+
+$plot->add_function([ $x, $y ], 't', 0, '2pi', color => 'blue');
+
+#:% section = statement
+BEGIN_PGML
+Find the tangent line to the parametric curve
+
+>> [``x(t) = [$x], \quad y(t) = [$y]``] <<
+
+when [`t = [$tvals_tex[$n]]`].  The graph of the curve is
+
+>>[!a Lissajous curve!]{$plot}{500}<<
+
+Tangent line in slope-intercept form: [`y =`] [_____]{$line}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -223,7 +209,7 @@ sub new {
 	$F = $context->Package("Formula")->new($context, $F) unless Value::isFormula($F);
 	Value::Error("Your equation must be real-valued")    unless $F->isRealNumber;
 	Value::Error("Your equation should not be constant") if $F->isConstant;
-	Value::Error("Your equation can not contain adaptive parameters")
+	Value::Error("Your equation cannot contain adaptive parameters")
 		if ($F->usesOneOf($context->variables->parameters));
 	$F = bless $F, $class;
 	my %options = (@_);    # user can supply limits, tolerance, etc.

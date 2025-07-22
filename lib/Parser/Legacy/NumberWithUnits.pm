@@ -20,7 +20,7 @@ sub makeValue {
 	my $self    = shift;
 	my $value   = shift;
 	my %options = (context => $self->context, @_);
-	Value::makeValue($value, %options);
+	bless Value::makeValue($value, %options), $options{class};
 }
 
 sub initializeUnits {
@@ -63,10 +63,10 @@ sub new {
 	}
 
 	Value::Error("You must provide a " . $self->name)              unless defined($num);
-	($num, $units) = splitUnits($num)                              unless $units;
+	($num, $units) = splitUnits($num, $options->{mathquill})       unless $units;
 	Value::Error("You must provide units for your " . $self->name) unless $units;
 	Value::Error("Your units can only contain one division") if $units =~ m!/.*/!;
-	$num = $self->makeValue($num, context => $context);
+	$num = $self->makeValue($num, context => $context, class => $class);
 	my %Units = getUnits($units);
 	Value::Error($Units{ERROR}) if ($Units{ERROR});
 	$num->{units}     = $units;
@@ -74,7 +74,7 @@ sub new {
 	$num->{isValue}   = 1;
 	$num->{correct_ans}              .= ' ' . $units           if defined $num->{correct_ans};
 	$num->{correct_ans_latex_string} .= ' ' . TeXunits($units) if defined $num->{correct_ans_latex_string};
-	bless $num, $class;
+	return $num;
 }
 
 ##################################################
@@ -90,7 +90,7 @@ sub splitUnits {
 		$parseMathQuill
 		? '\(?\s*' . $aUnit . '(?:\s*[* ]\s*' . $aUnit . ')*\s*\)?'
 		: $aUnit . '(?:\s*[/* ]\s*' . $aUnit . ')*';
-	$unitPattern = $unitPattern . '(?:\/' . $unitPattern . ')?' if $parseMathQuill;
+	$unitPattern = $unitPattern . '(?:\/' . $unitPattern . ')*' if $parseMathQuill;
 	my $unitSpace = "($aUnit) +($aUnit)";
 	my ($num, $units) = $string =~ m!^(.*?(?:[)}\]0-9a-z]|\d\.))\s*($unitPattern)\s*$!;
 	if ($units) {
@@ -161,70 +161,148 @@ sub TeXunits {
 
 ##################################################
 
-#
-#  Replace the cmp_parse with one that removes the units
-#  from the student answer and checks them.  The answer
-#  value is adjusted by the factors, and then checked.
-#  Finally, the units themselves are checked.
-#
-sub cmp_parse {
+sub uPowers {
+	my $self  = shift;
+	my $ref   = $self->{units_ref};
+	my @units = grep { $ref->{$_} != 0 && $_ ne 'factor' } sort(keys %$ref);
+	return join(' ', map { $_ . '=' . $ref->{$_} } @units);
+}
+
+sub add {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	my ($lunits, $runits) = ($l->uPowers, $r->uPowers);
+	$self->Error("Can't add numbers with different units") unless $lunits eq $runits;
+	my $factor = $r->{units_ref}{factor} / $l->{units_ref}{factor};
+	return $self->new($l->value + $r->value * $factor, $l->{units});
+}
+
+sub sub {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	my ($lunits, $runits) = ($l->uPowers, $r->uPowers);
+	$self->Error("Can't subtract numbers with different units") unless $lunits eq $runits;
+	my $factor = $r->{units_ref}{factor} / $l->{units_ref}{factor};
+	return $self->new($l->value - $r->value * $factor, $l->{units});
+}
+
+sub mult {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	my ($ltop, $lbot)          = split(/\//, $l->{units});
+	my ($rtop, $rbot)          = split(/\//, $r->{units});
+	my $bot   = $lbot ? ($rbot ? "$lbot*$rbot" : $lbot) : $rbot;
+	my $units = "$ltop*$rtop" . ($bot ? '/' . $bot : '');
+	return $self->new($l->value * $r->value, $units);
+}
+
+sub div {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	my ($ltop, $lbot)          = split(/\//, $l->{units});
+	my ($rtop, $rbot)          = split(/\//, $r->{units});
+	my $units = ($ltop . ($rbot ? "*$rbot" : '')) . '/' . (($lbot ? "$lbot*" : '') . $rtop);
+	return $self->new($l->value / $r->value, $units);
+}
+
+sub power {
+	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
+	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
+	$self->Error("Can't raise %s to %s", $l->showClass, $r->showClass)
+		unless $r->type eq 'Number' && !$r->classMatch('NumberWithUnit');
+	my $n = $r->value;
+	$self->Error("The power for %s must be a non-zero integer value", $l->showClass)
+		if $n == 0 || CORE::int($n) != $n;
+	return $l->copy if $n == 1;
+	my @terms = split(/([*\/])/, $self->{units});
+	for (my $i = 0; $i < @terms; $i += 2) {
+		my ($b, $p) = split(/\^/, $terms[$i]);
+		$p = 1 unless defined $p;
+		$p *= $n;
+		$terms[$i] = "$b^$p";
+	}
+	return $self->new($self->value**$n, join('', @terms));
+}
+
+##################################################
+
+sub cmp {
+	my $self = shift;
+	my $meth = @{ ref($self) . '::ISA' }[-1] . '::cmp';
+	$meth = 'Value::cmp' unless defined &$meth;
+	my $ans = &$meth($self, @_);
+	$ans->install_pre_filter(sub { $self->unitsPreFilter(@_) });
+	return $ans;
+}
+
+sub unitsPreFilter {
 	my $self = shift;
 	my $ans  = shift;
-	#
-	#  Check that the units are defined and legal
-	#
-
 	my ($num, $units) = splitUnits($ans->{student_ans},
 		$ans->{correct_value}{context}
 			&& $ans->{correct_value}->context->flag('useMathQuill')
 			&& (!defined $ans->{mathQuillOpts} || $ans->{mathQuillOpts} !~ /^\s*disabled\s*$/i));
 	unless (defined($num) && defined($units) && $units ne '') {
 		$self->cmp_Error($ans, "Your answer doesn't look like " . lc($self->cmp_class));
+		$ans->{error_flag} = 'UNITS_NONE';
 		return $ans;
 	}
 	if ($units =~ m!/.*/!) {
 		$self->cmp_Error($ans, "Your units can only contain one division");
+		$ans->{error_flag} = 'UNITS_DIVISION';
 		return $ans;
 	}
-	my %Units = getUnits($units);
-	if ($Units{ERROR}) { $self->cmp_Error($ans, $Units{ERROR}); return $ans }
+	my $ref = { getUnits($units) };
+	if ($ref->{ERROR}) {
+		$self->cmp_Error($ans, $ref->{ERROR});
+		$ans->{error_flag} = 'UNITS_BAD';
+		return $ans;
+	}
+	$ans->{units}       = $units;
+	$ans->{student_ans} = $num;
+	return $ans;
+}
 
-	# Check the numeric part of the answer.
-	$ans->{student_ans}        = $num;
-	$self->{student_units_ref} = \%Units;
+sub cmp_preprocess {
+	my $self = shift;
+	my $ans  = shift;
 
-	$ans = $self->cmp_reparse($ans);
-
-	delete $self->{student_units_ref};
-
-	# Adjust the answer strings.
+	my $units = $ans->{units};
+	return $ans unless $units;
 	$ans->{student_ans}          .= " " . $units;
 	$ans->{preview_text_string}  .= " " . $units;
 	$ans->{preview_latex_string} .= '\ ' . TeXunits($units);
 
-	return $ans unless $ans->{ans_message} eq '';
-	#
-	#  Check that we have an actual number, and check the units
-	#
 	if (!defined($ans->{student_value}) || $self->checkStudentValue($ans->{student_value})) {
 		$ans->{student_value} = undef;
 		$ans->score(0);
-		$self->cmp_Error($ans, "Your answer doesn't look like a number with units");
-	} else {
-		$ans->{student_value} = $self->new($num, $units);
-		foreach my $funit (keys %{ $self->{units_ref} }) {
-			next if $funit eq 'factor';
-			next if $self->{units_ref}{$funit} == $Units{$funit};
-			$self->cmp_Error($ans, "The units for your answer are not correct")
-				unless $ans->{isPreview};
-			$ans->score(0);
-			last;
-		}
+		$ans->{error_flag} = 'UNITS_NO_NUMBER';
+		$self->cmp_Error($ans, "Units must follow a number");
+		return;
 	}
+
+	$ans->{student_formula} = Parser::Legacy::FormulaWithUnits->new($ans->{student_formula}->{tree}, $units);
+	$ans->{student_value}   = Parser::Legacy::NumberWithUnits->new($ans->{student_value}->value, $units);
+}
+
+sub cmp_equal {
+	my $self = shift;
+	my $ans  = shift;
+	if (!$ans->{error_flag}) {
+		my $meth = @{ ref($self) . '::ISA' }[-1] . '::cmp_equal';
+		$meth = 'Value::cmp_equal' unless defined &$meth;
+		&$meth($self, $ans, @_);
+	}
+}
+
+sub cmp_postprocess {
+	my $self = shift;
+	my $ans  = shift;
+	if ($ans->{units} && $ans->{score} == 0 && !$ans->{ans_message}) {
+		$self->cmp_Error($ans, "The units for your answer are not correct")
+			unless $ans->{correct_value}->uPowers eq $ans->{student_value}->uPowers;
+	}
+	$ans->{error_flag} = undef if $ans->{error_flag} =~ m/^UNITS_/;
 	return $ans;
 }
 
-sub cmp_reparse { Value::cmp_parse(@_) }
+##################################################
 
 sub add_fundamental_unit {
 	my $unit = shift;
@@ -265,14 +343,17 @@ our @ISA = qw(Parser::Legacy::ObjectWithUnits Value::Real);
 sub name      {'number'}
 sub cmp_class {'a Number with Units'}
 
+sub value { uc(shift->{data}[0]) }
+
 sub makeValue {
 	my $self    = shift;
 	my $value   = shift;
 	my %options = (context => $self->context, @_);
 	my $num     = Value::makeValue($value, %options);
+	return bless $num, 'Parser::Legacy::FormulaWithUnits' if $num->classMatch('Formula');
 	Value::Error("A number with units must be a constant, not %s", lc(Value::showClass($num)))
 		unless Value::isReal($num);
-	return $num;
+	bless $num, $options{class};
 }
 
 sub checkStudentValue {
@@ -290,26 +371,20 @@ sub promote {
 	return $self->new($context, $x, @_);
 }
 
-# This saves the current value of the student answer, and then compares the answers with the parent compare method.
-# Then the student value is put back to what it was.  The correct value will be the one that has the units refs.
+sub showClass {'a Number-with-Units'}
+
 sub compare {
 	my ($self, $other, $flag) = @_;
 
-	if (defined $self->{units_ref} && defined $self->{student_units_ref}) {
-		my $other_value = $other->value;
-		$other->{data}[0] = $other_value * $self->{student_units_ref}{factor} / $self->{units_ref}{factor};
-		my $ret = $self->SUPER::compare($other, $flag);
-		$other->{data}[0] = $other_value;
-		return $ret;
-	} elsif (defined $other->{units_ref} && defined $other->{student_units_ref}) {
-		my $self_value = $self->value;
-		$self->{data}[0] = $self_value * $other->{student_units_ref}{factor} / $other->{unit_ref}{factor};
-		my $ret = $self->SUPER::compare($other, $flag);
-		$self->{data}[0] = $self_value;
-		return $ret;
-	}
+	$other = $self->promote($other) unless Value::classMatch($other, 'NumberWithUnits');
+	return $other->compare($self, !$flag) if Value::isFormula($other);
 
-	return $self->SUPER::compare($other, $flag);
+	my $factor   = $other->{units_ref}{factor} / $self->{units_ref}{factor};
+	my $adjusted = Value::Real->new($other->value * $factor);
+	my $ret      = Value::Real->new($self->value)->compare($adjusted, $flag);
+	$ret = ($self->{units} cmp $other->{units}) * ($flag ? -1 : 1)
+		if $ret == 0 && $self->uPowers ne $other->uPowers;
+	return $ret;
 }
 
 sub string {
@@ -336,11 +411,16 @@ our @ISA = qw(Parser::Legacy::ObjectWithUnits Value::Formula);
 sub name      {'formula'}
 sub cmp_class {'a Formula with Units'}
 
+sub value {
+	my $self = shift;
+	return $self->Package("Formula")->new($self->context, $self->{tree});
+}
+
 sub makeValue {
 	my $self    = shift;
 	my $value   = shift;
 	my %options = (context => $self->context, @_);
-	$self->Package("Formula")->new($options{context}, $value);
+	bless $self->Package("Formula")->new($options{context}, $value), $options{class};
 }
 
 sub checkStudentValue {
@@ -349,47 +429,27 @@ sub checkStudentValue {
 	return $student->type ne 'Number';
 }
 
-# This does much the same as the compare method for a Parser::Legacy::NumberWithUnits object, except that it tries to
-# adjust the formula tree of the student answer.  If the student answer is not a formula, then it adjusts its value.
-# The comparison is made by the parent class method.  Then the adjustment is undone.
+sub promote {
+	my $self    = shift;
+	my $class   = ref($self) || $self;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $x       = (scalar(@_)              ? shift : $self);
+	return $x->inContext($context) if ref($x) eq $class && scalar(@_) == 0;
+	return $self->new($context, $x->value, $x->{units}) if Value::classMatch($x, 'NumberWithUnits');
+	return $self->new($context, $x, @_);
+}
+
+sub showClass {'a Formula returning a Number-with-Units'}
+
 sub compare {
 	my ($self, $other, $flag) = @_;
+	$other = $self->promote($other);
 
-	if (defined $self->{units_ref} && defined $self->{student_units_ref}) {
-		if (defined $other->{tree}) {
-			my $other_tree = $other->{tree};
-			$other->{tree} = $other->Item('BOP')->new($other, '*', $other_tree,
-				$other->Item('Value')->new($other, $self->{student_units_ref}{factor} / $self->{units_ref}{factor})
-			);
-			my $ret = $self->SUPER::compare($other, $flag);
-			$other->{tree} = $other_tree;
-			return $ret;
-		} else {
-			my $other_value = $other->value;
-			$other->{data}[0] = $other_value * $self->{student_units_ref}{factor} / $self->{units_ref}{factor};
-			$ret              = $self->SUPER::compare($other, $flag);
-			$other->{data}[0] = $other_value;
-			return $ret;
-		}
-	} elsif (defined $other->{units_ref} && defined $other->{student_units_ref}) {
-		if (defined $self->{tree}) {
-			my $self_tree = $self->{tree};
-			$self->{tree} = $self->Item('BOP')->new($self, '*', $self_tree,
-				$self->Item('Value')->new($self, $other->{student_units_ref}{factor} / $other->{units_ref}{factor})
-			);
-			my $ret = $self->SUPER::compare($other, $flag);
-			$self->{tree} = $self_tree;
-			return $ret;
-		} else {
-			my $self_value = $self->value;
-			$self->{data}[0] = $self_value * $other->{student_units_ref}{factor} / $other->{units_ref}{factor};
-			$ret             = $self->SUPER::compare($other, $flag);
-			$self->{data}[0] = $self_value;
-			return $ret;
-		}
-	}
-
-	return $self->SUPER::compare($other, $flag);
+	my $adjusted = $other->value * uc($other->{units_ref}{factor} / $self->{units_ref}{factor});
+	my $ret      = $self->value->compare($adjusted, $flag);
+	$ret = ($self->{units} cmp $other->{units}) * ($flag ? -1 : 1)
+		if $ret == 0 && $self->uPowers ne $other->uPowers;
+	return $ret;
 }
 
 sub string {

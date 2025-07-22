@@ -1,23 +1,9 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
 PG.pl - Provides core Program Generation Language functionality.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
 In a PG problem:
 
@@ -77,7 +63,7 @@ input fields that correspond to the same answer evaluator.
 
 =back
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 This file is automatically loaded into the namespace of every PG problem. The
 macros within can then be called to define the structure of the problem.
@@ -139,7 +125,6 @@ sub DOCUMENT {
 	$solutionExists            = $PG->{flags}->{solutionExists};
 	$hintExists                = $PG->{flags}->{hintExists};
 	$pgComment                 = '';
-	%external_refs             = %{ $PG->{external_refs} };
 
 	@KEPT_EXTRA_ANSWERS = ();    #temporary hack
 
@@ -356,7 +341,7 @@ sub load_css() {
 	ADD_CSS_FILE('js/ImageView/imageview.css');
 
 	if ($envir{useMathQuill}) {
-		ADD_CSS_FILE('node_modules/mathquill/dist/mathquill.css');
+		ADD_CSS_FILE('node_modules/@openwebwork/mathquill/dist/mathquill.css');
 		ADD_CSS_FILE('js/MathQuill/mqeditor.css');
 	} elsif ($envir{useMathView}) {
 		ADD_CSS_FILE('js/MathView/mathview.css');
@@ -396,16 +381,16 @@ sub ADD_JS_FILE {
 # although those problems should also be rewritten to not use jquery-ui.
 sub load_js() {
 
-	ADD_JS_FILE('js/Feedback/feedback.js',         0, { defer => undef });
-	ADD_JS_FILE('js/Base64/Base64.js',             0, { defer => undef });
-	ADD_JS_FILE('js/Knowls/knowl.js',              0, { defer => undef });
-	ADD_JS_FILE('js/Problem/details-accordion.js', 0, { defer => undef });
-	ADD_JS_FILE('js/ImageView/imageview.js',       0, { defer => undef });
-	ADD_JS_FILE('js/Essay/essay.js',               0, { defer => undef });
+	ADD_JS_FILE('js/Feedback/feedback.js',   0, { defer => undef });
+	ADD_JS_FILE('js/Base64/Base64.js',       0, { defer => undef });
+	ADD_JS_FILE('js/Knowls/knowl.js',        0, { defer => undef });
+	ADD_JS_FILE('js/Problem/generic.js',     0, { defer => undef });
+	ADD_JS_FILE('js/ImageView/imageview.js', 0, { defer => undef });
+	ADD_JS_FILE('js/Essay/essay.js',         0, { defer => undef });
 
 	if ($envir{useMathQuill}) {
-		ADD_JS_FILE('node_modules/mathquill/dist/mathquill.js', 0, { defer => undef });
-		ADD_JS_FILE('js/MathQuill/mqeditor.js',                 0, { defer => undef });
+		ADD_JS_FILE('node_modules/@openwebwork/mathquill/dist/mathquill.js', 0, { defer => undef });
+		ADD_JS_FILE('js/MathQuill/mqeditor.js',                              0, { defer => undef });
 	} elsif ($envir{useMathView}) {
 		ADD_JS_FILE("js/MathView/$envir{mathViewLocale}", 0, { defer => undef });
 		ADD_JS_FILE('js/MathView/mathview.js',            0, { defer => undef });
@@ -545,19 +530,47 @@ sub ANS_NUM_TO_NAME {
 	$PG->new_label(@_);
 }
 
+=head2 persistent_data
+
+Save to or retrieve data from the persistence hash. The persistence hash is data
+that will persist for this problem.  It is saved when answers are submitted, and
+can be retrieved and used within a problem.
+
+    persistent_data($label);
+    persistent_data($label, $value);
+
+The C<$label> parameter is the key in the persistence hash.  If the C<$value>
+parameter is not given then the value of the C<$label> key in the hash will be
+returned.  If the C<$value> parameter is given then the value of the C<$label>
+key in the hash will be saved or updated.  Note that if the C<$value> parameter
+is given but is undefined then the C<$label> key will be deleted from the hash.
+Anything that can be JSON encoded can be stored.
+
+=cut
+
+sub persistent_data {
+	my ($label, @value) = @_;
+	return $PG->persistent_data($label, @value);
+}
+
+# The store_persistent_data, update_persistent_data, and get_persistent_data methods are deprecated and are only still
+# here for backward compatability. Use the persistent_data method instead which can do everything these three methods
+# can do. Note that if you use the persistent_data method, then you will need to join the values as strings if you want
+# that. Even better pass the persistent_data method an array reference containing the values so you can avoid the hassle
+# of splitting the values when they are retrieved.
 sub store_persistent_data {
 	my ($label, @values) = @_;
-	$PG->store_persistent_data($label, @values);
+	return $PG->persistent_data($label, join('', @values));
 }
 
 sub update_persistent_data {
 	my ($label, @values) = @_;
-	$PG->update_persistent_data($label, @values);
+	return $PG->persistent_data($label, join('', @values));
 }
 
 sub get_persistent_data {
 	my ($label) = @_;
-	return $PG->get_persistent_data($label);
+	return $PG->persistent_data($label);
 }
 
 sub add_content_post_processor {
@@ -763,7 +776,7 @@ feedback button and other aspects of feedback.
 
 There are several options that can be modified, and a few different ways to make
 these modifications. Unfortunately, this is perhaps a little bit complicated to
-understand, and that really can not be helped. The reason for this is the
+understand, and that really cannot be helped. The reason for this is the
 extremely loose connection between answer rules, answer labels, and answer
 evaluators in PG.
 
@@ -979,9 +992,11 @@ sub ENDDOCUMENT {
 				my $mq_part_opts = $ansHash->{mathQuillOpts} // $mq_opts;
 				next if $mq_part_opts =~ /^\s*disabled\s*$/i;
 
-				my $context = $ansHash->{correct_value}->context if $ansHash->{correct_value};
-				$mq_part_opts->{rootsAreExponents} = 0
-					if $context && $context->functions->get('root') && !defined $mq_part_opts->{rootsAreExponents};
+				if ($ansHash->{correct_value}) {
+					for (keys %{ $ansHash->{correct_value}->context->flag('mathQuillOpts') }) {
+						$mq_part_opts->{$_} = 0 unless defined $mq_part_opts->{$_};
+					}
+				}
 
 				my $name = "MaThQuIlL_$response";
 				RECORD_EXTRA_ANSWERS($name);
@@ -999,7 +1014,7 @@ sub ENDDOCUMENT {
 							id    => $name,
 							value => $inputs_ref->{$name} // '',
 							scalar(keys %$mq_part_opts)
-							? (data => { mq_opts => JSON->new->encode($mq_part_opts) })
+							? (data => { mq_opts => Mojo::JSON::encode_json($mq_part_opts) })
 							: ''
 						)->to_string
 					);
@@ -1018,7 +1033,7 @@ sub ENDDOCUMENT {
 
 	if ($main::displayMode =~ /HTML/i && ($rh_envir->{showFeedback} || $rh_envir->{forceShowAttemptResults})) {
 		add_content_post_processor(sub {
-			my $problemContents = shift;
+			my ($problemContents, $pageHeader, $problemResult) = @_;
 
 			my $numCorrect        = 0;
 			my $numBlank          = 0;
@@ -1080,8 +1095,13 @@ sub ENDDOCUMENT {
 					push(@{ $options{feedbackElements} }, @$elements);
 				}
 
-				if (($rh_envir->{showAttemptResults} && $PG->{flags}{showPartialCorrectAnswers})
-					|| $rh_envir->{forceShowAttemptResults})
+				if (
+					(
+						$rh_envir->{showAttemptResults} && ($PG->{flags}{showPartialCorrectAnswers}
+							|| (defined $problemResult->{score} && $problemResult->{score} >= 1))
+					)
+					|| $rh_envir->{forceShowAttemptResults}
+					)
 				{
 					if ($showCorrectOnly) {
 						$options{resultClass} = 'correct-only';
@@ -1198,9 +1218,9 @@ sub ENDDOCUMENT {
 					'button',
 					type  => 'button',
 					class => "ww-feedback-btn btn btn-sm $options{btnClass} $options{btnAddClass}"
-						. ($rh_envir->{showMessages} && $ansHash->{ans_message} ? ' with-message' : ''),
+						. ($rh_envir->{showMessages} && $ansHash->{ans_message} =~ /\S/ ? ' with-message' : ''),
 					'aria-label' => (
-						$rh_envir->{showMessages} && $ansHash->{ans_message}
+						$rh_envir->{showMessages} && $ansHash->{ans_message} =~ /\S/
 						? maketext('[_1] with message', $options{resultTitle})
 						: $options{resultTitle}
 					),
@@ -1222,7 +1242,7 @@ sub ENDDOCUMENT {
 								}
 							)->to_string
 						),
-						answer_labels          => JSON->new->encode($response_obj->{response_order}),
+						answer_labels          => Mojo::JSON::encode_json($response_obj->{response_order}),
 						bs_toggle              => 'popover',
 						bs_trigger             => 'click',
 						bs_placement           => $showCorrectOnly ? 'right' : 'bottom',
@@ -1238,10 +1258,21 @@ sub ENDDOCUMENT {
 									class => 'card',
 									sub {
 										(
-											$rh_envir->{showMessages} && $ansHash->{ans_message}
+											$rh_envir->{showMessages} && $ansHash->{ans_message} =~ /\S/
 											? $feedbackLine->(
-												'', $ansHash->{ans_message} =~ s/\n/<br>/gr,
+												'',
+												$ansHash->{ans_message} =~ s/\n/<br>/gr,
 												'feedback-message'
+													. (
+														($ansHash->{original_student_ans} eq 'Arnie Pizer')
+														? ' arnie'
+														: ''
+													)
+													. (
+														($ansHash->{original_student_ans} eq 'Mike Gage')
+														? ' mike'
+														: ''
+													)
 												)
 											: ''
 											)
@@ -1320,9 +1351,6 @@ sub ENDDOCUMENT {
 			}
 
 			# Generate the result summary if results are being shown.
-			# FIXME: This is set up to occur when it did previously.  That is it ignores the value of
-			# $PG->{flags}{showPartialCorrectAnswers}. It seems that is incorrect, as it makes that setting rather
-			# pointless.  The summary still reveals if the answer is correct or not.
 			if ($rh_envir->{showAttemptResults} || $rh_envir->{forceShowAttemptResults}) {
 				my @summary;
 

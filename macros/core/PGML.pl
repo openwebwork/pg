@@ -687,7 +687,7 @@ my $balanceAll = qr/[\{\[\'\"]/;
 		terminator         => qr/!\]/,
 		terminateMethod    => 'terminateGetString',
 		cancelNL           => 1,
-		options            => [ "source", "width", "height", "image_options" ]
+		options => [ "source", "width", "height", "image_options", "long_description", "long_description_width" ]
 	},
 	"[<" => {
 		type        => 'tag',
@@ -966,6 +966,21 @@ sub new {
 	bless { type => $type, %$fields }, $class;
 }
 
+sub stringifyHash {
+	my ($self, $hash) = @_;
+	return '{ ' . join(
+		', ',
+		map {
+			"$_ => "
+				. (
+					ref($hash->{$_}) eq 'HASH'
+					? $self->stringifyHash($hash->{$_})
+					: ("'" . $self->quote($hash->{$_}) . "'"))
+		} PGML::Sort(keys %$hash)
+	) . ' }';
+
+}
+
 sub show {
 	my $self    = shift;
 	my $indent  = shift || "";
@@ -974,7 +989,9 @@ sub show {
 		next if $id eq "stack";
 		if (ref($self->{$id}) eq 'ARRAY') {
 			push(@strings,
-				$indent . $id . ": [" . join(',', map { "'" . $self->quote($_) . "'" } @{ $self->{$id} }) . "]");
+				$indent . $id . ": [" . join(', ', map { "'" . $self->quote($_) . "'" } @{ $self->{$id} }) . "]");
+		} elsif (ref($self->{$id}) eq 'HASH') {
+			push(@strings, $indent . $id . ": " . $self->stringifyHash($self->{$id}));
 		} else {
 			push(@strings, $indent . $id . ": '" . $self->quote($self->{$id}) . "'");
 		}
@@ -1227,7 +1244,7 @@ sub show {
 	my $self    = shift;
 	my $indent  = shift;
 	my @strings = ($self->SUPER::show($indent));
-	push(@strings, $indent . "stack: ['" . join("','", map { $self->quote($_) } @{ $self->{stack} }) . "']");
+	push(@strings, $indent . "stack: ['" . join("', '", map { $self->quote($_) } @{ $self->{stack} }) . "']");
 	return join("\n", @strings);
 }
 
@@ -1467,12 +1484,22 @@ sub Text {
 
 sub Image {
 	my ($self, $item) = @_;
-	my $text          = $item->{text};
-	my $source        = $item->{source};
-	my $width         = $item->{width}         || '';
-	my $height        = $item->{height}        || '';
-	my $image_options = $item->{image_options} || {};
-	return (main::image($source, alt => $text, width => $width, height => $height, %$image_options));
+	my $text                   = $item->{text};
+	my $source                 = $item->{source};
+	my $width                  = $item->{width}                  || '';
+	my $height                 = $item->{height}                 || '';
+	my $image_options          = $item->{image_options}          || {};
+	my $long_description       = $item->{long_description}       || '';
+	my $long_description_width = $item->{long_description_width} || 1;
+	return (main::image(
+		$source,
+		alt                    => $text,
+		width                  => $width,
+		height                 => $height,
+		long_description       => $long_description,
+		long_description_width => $long_description_width,
+		%$image_options
+	));
 }
 
 ######################################################################

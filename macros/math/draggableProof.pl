@@ -1,38 +1,20 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =encoding utf8
 
 =head1 NAME
 
-draggableProof.pl
+draggableProof.pl - Allows the contructions of problems with draggable statements for proofs.
 
 =head1 DESCRIPTION
 
 This macro helps the instructor create a drag-and-drop environment in which
 students are asked to arrange predefined statements into a correct sequence.
 
-=head1 TERMINOLOGY
-
 An HTML element into or out of which other elements may be dragged will be
 called a "bucket".
 
 An HTML element which houses a collection of buckets will be called a "bucket
 pool".
-
-=head1 USAGE
 
 To initialize a C<DraggableProof> bucket pool in a .pg problem, insert the line:
 
@@ -46,17 +28,11 @@ To initialize a C<DraggableProof> bucket pool in a .pg problem, insert the line:
 
 Then insert the draggable proof bucket pool into the problem text with
 
-    BEGIN_TEXT
-    \{$draggable->ans_rule\}
-    END_TEXT
-
-for basic PG, or
-
     BEGIN_PGML
     [_]{$draggable}
     END_PGML
 
-for PGLM.  Note the following also works, but is deprecated.  However, if you
+Note the following also works, but is deprecated.  However, if you
 want your problem to be compatible with previous versions of PG this must be
 used.  Call
 
@@ -94,7 +70,7 @@ Available Options:
 
 Their usage is explained in the example below.
 
-=head1 EXAMPLE
+=head1 SYNOPSIS
 
     DOCUMENT();
     loadMacros(
@@ -188,7 +164,7 @@ L<https://webwork.maa.org/wiki/Custom_Answer_Checkers>, and
 L<https://webwork.maa.org/wiki/Custom_Answer_Checkers_for_Lists> for details on
 how to use these.
 
-Note that if using a standard C<checker> the the correct and student answers
+Note that if using a standard C<checker> the correct and student answers
 will be the MathObject List of indices corresponding to the only bucket if
 C<NumBuckets> is 1, and will be the MathObject List of indices corresponding to
 the second bucket if C<NumBuckets> is 2.  The checker should return a number

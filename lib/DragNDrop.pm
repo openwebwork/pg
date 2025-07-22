@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -91,10 +77,26 @@ This is the text label for the reset button.
 This is the text label for the button shown that adds new buckets.  The button
 is only shown if AllowNewBuckets is 1.
 
-=item removeButtonText (Default: C<< 'Remove' >>
+=item removeButtonText (Default: C<< 'Remove' >>)
 
 This is the text label for any remove buttons that are added to removable
 buckets.
+
+=item multicolsWidth (Default: C<< '300pt' >>)
+
+This sets the size for which the TeX output for hardcopy uses two columns or not.
+If the current C<\linewidth> is greater than or equal to this size then two columns
+will be used, otherwise only single column is used.
+
+=item showUniversalSet (Default: C<0>)
+
+If 1 then the set of all elements passed in the C<$itemList> will be shown
+in a separate bucket.  Elements can be dragged from this set and into other
+buckets, but not into it.
+
+=item universalSetLabel (Default: C<< 'Universal Set' >>)
+
+Label shown for the universal set bucket if C<showUniversalSet> is 1.
 
 =back
 
@@ -126,7 +128,7 @@ package DragNDrop;
 use strict;
 use warnings;
 
-use JSON;
+use Mojo::JSON qw(encode_json);
 
 use PGcore;
 
@@ -145,6 +147,9 @@ sub new {
 		resetButtonText   => 'Reset',
 		addButtonText     => 'Add Bucket',
 		removeButtonText  => 'Remove',
+		multicolsWidth    => '300pt',
+		showUniversalSet  => 0,
+		universalSetLabel => 'Universal Set',
 		%options,
 		},
 		ref($self) || $self;
@@ -154,10 +159,12 @@ sub HTML {
 	my $self = shift;
 
 	my $out = qq{<div class="dd-bucket-pool" data-answer-name="$self->{answerName}"};
-	$out .= ' data-item-list="' . PGcore::encode_pg_and_html(JSON->new->encode($self->{itemList})) . '"';
-	$out .= ' data-default-state="' . PGcore::encode_pg_and_html(JSON->new->encode($self->{defaultBuckets})) . '"';
+	$out .= ' data-item-list="' . PGcore::encode_pg_and_html(encode_json($self->{itemList})) . '"';
+	$out .= ' data-default-state="' . PGcore::encode_pg_and_html(encode_json($self->{defaultBuckets})) . '"';
 	$out .= qq{ data-remove-button-text="$self->{removeButtonText}"};
 	$out .= qq{ data-label-format="$self->{bucketLabelFormat}"} if $self->{bucketLabelFormat};
+	$out .= " data-show-universal-set"                          if $self->{showUniversalSet};
+	$out .= ' data-universal-set-label="' . PGcore::encode_pg_and_html($self->{universalSetLabel}) . '"';
 	$out .= '>';
 
 	$out .= '<div class="dd-buttons"';
@@ -173,18 +180,32 @@ sub HTML {
 sub TeX {
 	my $self = shift;
 
-	my $out = "\n\\hrule\n\\vspace{0.5\\baselineskip}\n";
+	my $out = '';
+
+	if ($self->{showUniversalSet}) {
+		$out .= "\n\\hrule\n\\vspace{0.5\\baselineskip}\n";
+		$out .= "\\parbox{0.9\\linewidth}{\n";
+		$out .= "$self->{universalSetLabel}\n";
+		$out .= "\\begin{itemize}\n";
+		$out .= "\\item $_\n" for (@{ $self->{itemList} });
+		$out .= "\\end{itemize}\n";
+		$out .= "}\n";
+	}
+
+	$out .=
+		"\n\\hrule\n\\vspace{0.5\\baselineskip}\n\\newif\\ifdndcolumns\n"
+		. "\\ifdim\\linewidth<$self->{multicolsWidth}\\relax\\dndcolumnsfalse\\else\\dndcolumnstrue\\fi\n";
 
 	for my $i (0 .. $#{ $self->{defaultBuckets} }) {
 		my $bucket = $self->{defaultBuckets}[$i];
 		if ($i != 0) {
-			if   ($i % 2 == 0) { $out .= "\n\\hrule\n\\vspace{0.5\\baselineskip}\n" }
-			else               { $out .= "\n\\ifdefined\\nocolumns\\else\\hrule\n\\vspace{0.5\\baselineskip}\n\\fi" }
+			if   ($i % 2 == 0) { $out .= "\n\\hrule\n\\vspace{0.5\\baselineskip}\n"; }
+			else               { $out .= "\n\\ifdndcolumns\\else\\hrule\n\\vspace{0.5\\baselineskip}\\fi\n"; }
 		}
 
 		$out .=
 			"\n\\begin{minipage}{\\linewidth}\n\\setlength{\\columnseprule}{0.2pt}\n"
-			. "\\ifdefined\\nocolumns\\begin{multicols}{2}\\else\\fi\n"
+			. "\\ifdndcolumns\\begin{multicols}{2}\\fi\n"
 			if $i % 2 == 0 && $i != $#{ $self->{defaultBuckets} };
 
 		$out .= "\\parbox{0.9\\linewidth}{\n";
@@ -201,8 +222,11 @@ sub TeX {
 		}
 		$out .= "}";
 
-		if ($i % 2 == 0) { $out .= "\\columnbreak\n\n" if $i != $#{ $self->{defaultBuckets} } }
-		else             { $out .= "\\ifdefined\\nocolumns\\end{multicols}\\else\\fi\n\\end{minipage}\n" }
+		if ($i % 2 == 0) {
+			$out .= "\\ifdndcolumns\\columnbreak\\fi\n\n" if $i != $#{ $self->{defaultBuckets} };
+		} else {
+			$out .= "\\ifdndcolumns\\end{multicols}\\fi\n\\end{minipage}\n";
+		}
 		$out .= "\\vspace{0.75\\baselineskip}\n";
 	}
 	$out .= "\n\\hrule\n\\vspace{0.25\\baselineskip}\n";

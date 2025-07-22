@@ -1,0 +1,68 @@
+## DESCRIPTION
+## Perform calculations with Points.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('point')
+
+#:% name = Calculating with Points
+#:% type = technique
+#:% categories = [point]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Switch to the `Point` context, and generate two points with random
+#: coordinates.
+#:
+#: Compute the difference between the points and call the `Point` `value` method
+#: to retrieve an array of the coordinates of that difference. The coordinates
+#: are unpacked from that array into the variables `$d1` and `$d2`.
+#:
+#: Note that if you want only one of the coordinates of a `Point`, you can use
+#: the `extract` method, for example: `$x = $point->extract(1)` obtains the
+#: first coordinate of `$point` and assigns it to the variable `$x`.
+#:
+#: Note that if `Context('Vector')` and `norm($point[0] - $point[1])` were
+#: used then an answer like `|<5, 7> - <7, 8>|` would be accepted as correct,
+#: and that is not desired in this problem.
+#:
+#: Note that to compute the `$length`, the parentheses around `$d1` and `$d2`
+#: are needed in the `Compute` expression because if `$d1 = -6` and `$d2 = 1`,
+#: then the string `"sqrt($d1^2 + $d2^2)"` first interpolates to
+#: `"sqrt(-6^2 + 1^2)"` which will evaluate to `sqrt(-36 + 1)` instead of
+#: `sqrt(36 + 1)` as desired.
+Context('Point');
+$point1 = Point(random(1, 5,  1), random(-5, -1, 1));
+$point2 = Point(random(5, 10, 1), random( 6, 11, 1));
+
+# If $point1 = (x1,y1) and $point2 = (x2,y2),
+# then the following makes $d1 = x1 - x2, $d2 = y1 - y2
+($d1, $d2) = ($point1 - $point2)->value;
+
+$length = Compute("sqrt(($d1)^2 + ($d2)^2)");
+$mid    = ($point2 + $point1) / 2;
+
+#:% section = statement
+BEGIN_PGML
+Consider the two points [`[$point1]`] and [`[$point2]`].
+
+a. The distance between them is: [_]{$length}{6}
+
+b. The midpoint of the line segment that joins them is: [_]{$mid}{10}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

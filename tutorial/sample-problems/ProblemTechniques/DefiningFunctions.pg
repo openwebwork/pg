@@ -1,0 +1,48 @@
+## DESCRIPTION
+## Shows how to add a general function as an input option.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('tolerance')
+
+#:% name = Defining Functions in a Context
+#:% type = technique
+#:% categories = [numbers, tolerance]
+
+#:% section = preamble
+#: Load the PODLINK('parserFunction.pl') macro which is used to add a new
+#: function to the context.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Define a function `f(x,y)`.  The actual function doesn't matter but shouldn't
+#: be easily guessed, since a student could enter it and get the answer correct.
+#: This is a useful technique for any problem adking is about a generic function
+#: rather than a specific one.
+Context()->variables->are(x => 'Real', y => 'Real');
+parserFunction('f(x,y)' => 'sin(x * y) - exp(y)');
+$ans = Compute('f(x - 4, 3)');
+
+#:% section = statement
+BEGIN_PGML
+Given a surface defined by [`z = f(x, y)`], what is the equation for the
+[`z`]-coordinate of the surface along the line [`y = 3`], shifted four units to
+the right?
+
+[`z =`] [_____]{$ans}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

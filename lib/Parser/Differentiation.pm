@@ -12,28 +12,29 @@
 #
 sub Parser::D {
 	my $self = shift;
-	my $d;
-	my @x = @_;
-	my $x;
-	if (defined($x[0]) && $x[0] =~ m/^\d+$/) {
-		$d = shift(@x);
-		$self->Error("You can only specify one variable when you give a derivative count")
-			unless scalar(@x) <= 1;
-		return ($self) if $d == 0;
-	}
-	if (scalar(@x) == 0) {
-		my @vars = keys(%{ $self->{variables} });
-		my $n    = scalar(@vars);
-		if ($n == 0) {
-			return $self->new('0') if $self->{isNumber};
-			$x = 'x';
-		} else {
-			$self->Error("You must specify a variable to differentiate by") unless $n == 1;
-			$x = $vars[0];
+	my @vars = keys %{ $self->{variables} };
+	return $self->isNumber ? $self->new(0) : (0 * $self)->reduce('0*x' => 1) if @vars == 0;
+	my $X = @vars == 1 ? $vars[0] : undef;
+	CORE::push(@_, $X) if @_ == 0 && defined $X;
+	$self->Error("You must specify a variable to differentiate by") unless @_;
+
+	my @x;
+	while (@_) {
+		my $d = 1;
+		my $x = shift;
+		($d, $x) = ($x, shift) if $x =~ m/^\d+$/;
+		if (!defined $x) {
+			$self->Error([ "You must specify a variable to differentiate by following %s", $d ])
+				unless defined $X;
+			$x = $X;
 		}
-		CORE::push(@x, $x);
+		my $def = $self->context->variables->get($x);
+		$self->Error([ "Variable of differentiation not defined: %s",  $x ]) unless $def;
+		$self->Error([ "Can't differentiate by a variable of type %s", $def->{type}{name} ])
+			unless $def->{type}{name} eq 'Number';
+		CORE::push(@x, ($x) x $d) if $d;
 	}
-	@x = ($x[0]) x $d if $d;
+
 	my $f = $self->{tree};
 	foreach $x (@x) {
 		return (0 * $self)->reduce('0*x' => 1) unless defined $self->{variables}{$x};
@@ -779,10 +780,15 @@ sub Value::Union::D {
 #########################################################################
 
 sub Parser::Variable::D {
-	my $self = shift;
-	my $x    = shift;
-	my $d    = ($self->{name} eq $x) ? 1 : 0;
-	return $self->Item("Number")->new($self->{equation}, $d);
+	my $self     = shift;
+	my $x        = shift;
+	my $equation = $self->{equation};
+	if ($self->type eq 'Number') {
+		my $d = ($self->{name} eq $x) ? 1 : 0;
+		return $self->Item('Number')->new($equation, $d);
+	}
+	my $zero = $self->Item('Number')->new($equation, 0);
+	return $self->Item('BOP')->new($equation, '*', $zero, $self->copy)->reduce('0*x' => 1);
 }
 
 #########################################################################

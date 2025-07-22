@@ -1,90 +1,49 @@
-sub _VectorListCheckers_init { };    # don't reload this file
-
-=pod
 
 =head1 NAME
 
-VectorListCheckers.pl
-
-=head1 SYNOPSIS
-
-Provides subroutines for answer checking lists MathObjects
+VectorListCheckers.pl - Provides subroutines for answer checking lists MathObjects
 vectors with real entries.
 
 =head1 DESCRIPTION
 
 First, load the C<VectorListCheckers.pl> macro file.
 
-=over 12
-
-=item C<loadMacros("PGstandard.pl","MathObjects.pl","VectorListCheckers.pl");>
-
-=back
+    loadMacros("PGstandard.pl","MathObjects.pl","VectorListCheckers.pl");
 
 For a MathObject list of MathObject vectors, the way to use the
 answer checkers is the same as using a custom answer checker
-inside of C<cmp(checker=<gt>~~&name_of_answer_checker_subroutine)>
+inside of C<< cmp(checker => ~~&name_of_answer_checker_subroutine) >>
 such as
 
-=over 12
+    ANS( List(ColumnVector(1,0,0),ColumnVector(0,1,0))->cmp( checker => ~~&basis_checker_list_of_vectors ) );
+    ANS( Vector("<1,0,0> + s * <0,1,0> + t * <0,0,1>")->cmp( checker => ~~&affine_subspace_checker_vectors ) );
 
-=item C<ANS( List(ColumnVector(1,0,0),ColumnVector(0,1,0))-<gt>cmp( checker=<gt>~~&basis_checker_list_of_vectors ) );>
 
-=item C<ANS( Vector("<1,0,0> + s * <0,1,0> + t * <0,0,1>")-<gt>cmp( checker=<gt>~~&affine_subspace_checker_vectors ) );>
+The "list of vectors" at the end of the checker name refers to the fact that the student answer is a list of vectors.
 
-=back
-
-The "list of vectors" at the end of the checker name refers to the
-fact that the student answer is a list of vectors.
+=head2 Example
 
 Here is an example of how to use these answer checkers.
 
-=over 12
+    DOCUMENT();
+    loadMacros('PGstandard.pl', 'PGML.pl', 'VectorListCheckers.pl', 'PGcourse.pl');
 
-DOCUMENT();
-loadMacros(
-"PGstandard.pl",
-"MathObjects.pl",
-"VectorListCheckers.pl",
-"PGcourse.pl",
-);
-$showPartialCorrectAnswers = 1;
-TEXT(beginproblem());
+    Context('Vector');
 
-Context('Vector');
+    $B   = Matrix([ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 0 ] ]);
+    $ans = List(ColumnVector(1, 0, 0), ColumnVector(0, 1, 0));
+    $cmp = $ans->cmp(list_checker => ~~&basis_checker_list_of_vectors);
 
-$B = Matrix([[1,0,0],[0,1,0],[0,0,0]]);
+    BEGIN_PGML
+    A basis for the column space of [` B = [$B] `] is
 
-$answer = List(ColumnVector(1,0,0),ColumnVector(0,1,0));
+    [_]{$cmp}{60}
 
-Context()->texStrings;
-BEGIN_TEXT
-A basis for the column space of \( B = $B \) is
-$BR
-$BR
-\{ $answer->ans_rule(60) \}
-$BR
-$BR
-Enter your answer as a comma separated list of vectors, such as
-\( \verb+<1,2,3>,<4,5,6>+ \).
-END_TEXT
-Context()->normalStrings;
+    Enter your answer as a comma separated list of vectors, such as
+    [` \verb+<1,2,3>,<4,5,6>+ `].
+    END_PGML
 
-ANS( $answer->cmp(list_checker=>~~&basis_checker_list_of_vectors) );
-
-
-
-ENDDOCUMENT();
-
-=back
-
-The answer evaluation section of the PG file is totally standard.
-
-=over 12
-
-ANS( $multians->cmp );
-
-=back
+    ENDDOCUMENT();
 
 The C<parametric_plane_checker_columns> should be used for
 solutions to non-homogeneous systems of linear equations for
@@ -101,7 +60,7 @@ Paul Pearson, Hope College, Department of Mathematics
 
 =cut
 
-################################################
+sub _VectorListCheckers_init { };    # don't reload this file
 
 loadMacros("MathObjects.pl",);
 

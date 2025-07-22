@@ -452,7 +452,7 @@ sub SpecialData {
 sub PercentStemAndLeaf {
 	my (@dat) = @_;
 
-	my ($i, $j, $s1, $s2, $all, $low, $max, $num, $row, $cols, $high, @list, $sort, $var1, $var2,, $tex_table,
+	my ($i, $j, $s1, $s2, $all, $low, $max, $num, $row, $cols, $high, @list, $sort, $var1, $var2, $tex_table,
 		$html_table);
 
 	while (isstring($dat[0]) == 1) {

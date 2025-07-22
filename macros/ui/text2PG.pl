@@ -5,7 +5,7 @@
 #  mode.  Newlines and blank lines can be converted to $BR and
 #  $PAR automatically.
 #
-#  Format:  text2PG(stiring[,options]);
+#  Format:  text2PG(string [,options]);
 #
 #  where options are from among:
 #

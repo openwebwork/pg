@@ -1,20 +1,7 @@
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-More matrix macros for the PG language
+PGmorematrixmacros.pl - More matrix macros for the PG language
 
 =head1 DESCRIPTION
 
@@ -27,22 +14,17 @@ BEGIN { strict->import; }
 # set the prefix used for arrays.
 our $ArRaY = $main::PG->{ARRAY_PREFIX};
 
-=head2 NAME
-
-	macros/PGmorematrixmacros.pl
-
-=cut
-
 sub _PGmorematrixmacros_init { }
+
+=head1 FUNCTIONS
 
 =head2 random_inv_matrix
 
-## Builds and returns a random invertible \$row by \$col matrix.
+Builds and returns a random invertible $row by \$col matrix.
 
 =cut
 
 sub random_inv_matrix {
-## Builds and returns a random invertible \$row by \$col matrix.
 
 	warn "Usage: \$new_matrix = random_inv_matrix(\$rows,\$cols)"
 		if (@_ != 2);
@@ -89,13 +71,17 @@ sub random_diag_matrix {    ## Builds and returns a random diagonal \$n by \$n m
 	return $D;
 }
 
-=head2 swap_rows ($matrix, $row1, $row2)
+=head2 swap_rows  [DEPRECATED]
 
-	(deprecated use MathObject Matrix instead)
+(use MathObjects matrices and vectors)
+
+Usage:
+
+    swap_rows($matrix, $row1, $row2)
 
 $matrix is assumed to be a RealMatrix1 object.
 It is better to use MathObject Matrices and row swap mechanisms
-from MatrixReduce.pl instead.
+from L<MatrixReduce.pl> instead.
 
 =cut
 
@@ -120,9 +106,13 @@ sub swap_rows {
 	return $B;
 }
 
-=head2  row_mult ($matrix, $scaler, $row)
+=head2  row_mult   [DEPRECATED]
 
-	(deprecated use MathObject Matrix instead)
+(use MathObjects matrices and vectors)
+
+Usage:
+
+     row_mult($matrix, $scaler, $row)
 
 $matrix is assumed to be a RealMatrix1 object.
 It is better to use MathObject Matrices and row swap mechanisms
@@ -145,9 +135,13 @@ sub row_mult {
 	return $B;
 }
 
-=head2 linear_combo($matrix, $scalar, $row1, $row2)
+=head2 linear_combo [DEPRECATED]
 
-	(deprecated use MathObject Matrix instead)
+(use MathObjects matrices and vectors)
+
+Usage:
+
+    linear_combo($matrix, $scalar, $row1, $row2)
 
 Adds a multiple of row1 to row2.
 
@@ -175,15 +169,12 @@ sub linear_combo {
 	return $B;
 }
 
-=pod
+# These should be compared to similar subroutines made later in
+# MatrixCheckers.pl
 
-These should be compared to similar subroutines made later in
-MatrixCheckers.pl
+=head1 COMARISON FUNCTIONS
 
-
-=cut
-
-=head3 basis_cmp()
+=head2 basis_cmp
 
 Compares a list of vectors by finding the change of coordinate matrix
 from the Prof's vectors to the students, and then taking the determinant of
@@ -250,7 +241,7 @@ sub basis_cmp {
 	);
 }
 
-=head1 BASIS_CMP
+=head2 BASIS_CMP
 
 Made to keep the same format as num_cmp and fun_cmp.
 
@@ -440,14 +431,14 @@ sub compare_basis {
 
 }
 
-=head2 vec_list_string
+=head2 vec_list_string  [DEPRECATED]
 
-(this is mostly obsolete.  One should use MathObject Vectors instead. )
+(use MathObjects matrices and vectors)
 
 This is a check_syntax type method (in fact I borrowed some of that method's code) for vector input.
 The student needs to enter vectors like:        [1,0,0],[1,2,3],[0,9/sqrt(10),1/sqrt(10)]
 Each entry can contain functions and operations and the usual math constants (pi and e).
-The vectors, however can not be added or multiplied or scalar multiplied by the student.
+The vectors, however cannot be added or multiplied or scalar multiplied by the student.
 Most errors are handled well. Any error in an entry is caught by the PG_answer_eval like it is in num_cmp or fun_cmp.
 Right now the method basically ignores every thing outside the vectors. Also, an unmatched open parenthesis is caught,
 but a unmatched close parenthesis ends the vector, and since everything outside is ignored, no error is sent (other than the
@@ -697,20 +688,16 @@ sub ans_array_filter {
 
 }
 
-=pod
+# The following subroutines, meant to be used with MatrixReal1 type matrices, are
+# deprecated.  In general you should use the MathObject Matrix type and the
+# checking methods in MatrixCheckers.pl
 
-The following subroutines, meant to be used with MatrixReal1 type matrices, are
-deprecated.  In general you should use the MathObject Matrix type and the
-checking methods in MatrixCheckers.pl
-
-	are_orthogonal_vecs($vec_ref, %opts)
-	is_diagonal($matrix, %opts)
-	are_unit_vecs($vec_ref, %opts)
-	display_correct_vecs($vec_ref, %opts)
-	vec_solution_cmp($vec,%opts)
-		filter: compare_vec_solution($rh_ans,%opts);
-
-=cut
+# 	are_orthogonal_vecs($vec_ref, %opts)
+# 	is_diagonal($matrix, %opts)
+# 	are_unit_vecs($vec_ref, %opts)
+# 	display_correct_vecs($vec_ref, %opts)
+# 	vec_solution_cmp($vec,%opts)
+# 		filter: compare_vec_solution($rh_ans,%opts);
 
 sub are_orthogonal_vecs {
 	my ($vec_ref, %opts) = @_;

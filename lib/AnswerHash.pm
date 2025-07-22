@@ -3,55 +3,21 @@
 ##
 ## Provides a data structure for answer hashes. Currently just a wrapper
 ## for the hash, but that might change
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-#$Id$
 
 =head1 NAME
 
-	AnswerHash.pm -- located in the courseScripts directory
+AnswerHash.pm - a class to store student answers and the answer evaluator
 
-	This file contains the packages/classes:
-	AnswerHash   and AnswerEvaluator
+=head1 DESCRIPTION - AnswerHash
 
-=head1 SYNPOSIS
+This class stores information related to the student's answer.  It is little more than a standard perl hash with
+a special name, but it does have some access and manipulation methods.
 
-	AnswerHash  -- this class stores information related to the student's
-		       answer.  It is little more than a standard perl hash with
-		       a special name, but it does have some access and
-		       manipulation methods.  More of these may be added as it
-		       becomes necessary.
+Usage:
 
-	Usage:     $rh_ans = new AnswerHash;
+    $rh_ans = AnswerHash->new();
 
-	AnswerEvaluator -- this class organizes the construction of
-			   answer evaluator subroutines which check the
-			   student's answer.  By plugging filters into the
-			   answer evaluator class you can customize the way the
-			   student's answer is normalized and checked.  Our hope
-			   is that with properly designed filters, it will be
-			   possible to reuse the filters in different
-			   combinations to obtain different answer evaluators,
-			   thus greatly reducing the programming and maintenance
-			   required for constructing answer evaluators.
-
-	Usage:  	$ans_eval  = new AnswerEvaluator;
-
-=cut
-
-=head1 DESCRIPTION : AnswerHash
+=head2 SYNOPSIS
 
 The answer hash class is guaranteed to contain the following instance variables:
 
@@ -120,14 +86,14 @@ The answer hash class is guaranteed to contain the following instance variables:
 						'error_message'		    =>  '',
 
 
-=head3 AnswerHash Methods:
+=head2 METHODS
 
 =cut
 
 package AnswerHash;
 use Exporter;
-use PGUtil qw(not_null pretty_print);
-use JSON;
+use PGUtil     qw(not_null pretty_print);
+use Mojo::JSON qw(encode_json);
 
 # initialization fields
 my %fields = (
@@ -143,11 +109,13 @@ my %fields = (
 
 ## Initializing constructor
 
-=head4 new
+=head3 AnswerHash->new
 
-	Useage		$rh_anshash = new AnswerHash;
+Usage
 
-	returns an object of type AnswerHash.
+    $rh_anshash = AnswerHash->new;
+
+returns an object of type AnswerHash.
 
 =cut
 
@@ -179,17 +147,19 @@ sub new {
 ## Checks to make sure that the keys are valid,
 ## then sets their value
 
-=head4 	setKeys
+=head3 	setKeys
 
-			$rh_ans->setKeys(score=>1, student_answer => "yes");
-			Sets standard elements in the AnswerHash (the ones defined
-			above). Will give error if one attempts to set non-standard keys.
+Usage:
 
-			To set a non-standard element in a hash use
+    $rh_ans->setKeys(score=>1, student_answer => "yes");
 
-			$rh_ans->{non-standard-key} = newValue;
+Sets standard elements in the AnswerHash (the ones defined
+above). Will give error if one attempts to set non-standard key
+To set a non-standard element in a hash use
 
-			There are no safety checks when using this method.
+    $rh_ans->{non-standard-key} = newValue;
+
+There are no safety checks when using this method.
 
 =cut
 
@@ -207,40 +177,45 @@ sub setKeys {
 
 # access methods
 
-=head4 data
+=head3 data
 
-	Usage:      $rh_ans->data('foo');               set $rh_ans->{student_ans} = 'foo';
-	            $student_input = $rh_ans->data();   retrieve value of $rh_ans->{student_ans}
+Usage:
 
-	synonym for input
+    $rh_ans->data('foo');               # set $rh_ans->{student_ans} = 'foo';
+    $student_input = $rh_ans->data();   # retrieve value of $rh_ans->{student_ans}
 
-=head4  input
+synonym for C<input>
 
-	Usage:      $rh_ans->input('foo')    sets $rh_ans->{student_ans} = 'foo';
-				$student_input = $rh_ans->input();
+=head3  input
 
-	synonym for data
+Usage:
+
+    $rh_ans->input('foo')    # sets $rh_ans->{student_ans} = 'foo';
+    $student_input = $rh_ans->input();
+
+synonym for C<data>
 
 =cut
 
-sub data {    #$rh_ans->data('foo') is a synonym for $rh_ans->{student_ans}='foo'
+sub data {
 	my $self = shift;
 	$self->input(@_);
 }
 
-sub input {    #$rh_ans->input('foo') is a synonym for $rh_ans->{student_ans}='foo'
+sub input {
 	my $self  = shift;
 	my $input = shift;
 	$self->{student_ans} = $input if defined($input);
 	$self->{student_ans};
 }
 
-=head4  input
+=head3 score
 
-	Usage:      $rh_ans->score(1)
-				$score = $rh_ans->score();
+Usage:
+    $rh_ans->score(1)
+    $score = $rh_ans->score();
 
-	Retrieve or set $rh_ans->{score}, the student's score on the problem.
+Retrieve or set $rh_ans->{score}, the student's score on the problem.
 
 =cut
 
@@ -251,14 +226,14 @@ sub score {
 	$self->{score};
 }
 
-=head4  stringify_hash
+=head3 stringify_hash
 
-	Usage:      $rh_ans->stringify_hash;
+Usage:
 
-	Turns all values in the hash into strings (so they won't cause trouble outside
-	the safe compartment).
+    $rh_ans->stringify_hash;
 
-	Hashes and arrays are converted into a JSON string.
+Turns all values in the hash into strings (so they won't cause trouble outside
+the safe compartment). Hashes and arrays are converted into a JSON string.
 
 =cut
 
@@ -269,7 +244,7 @@ sub stringify_hash {
 		my $ref = ref($self->{$key});
 		next if !$ref;
 		if ($ref eq "HASH" or $ref eq "ARRAY") {
-			$self->{$key} = JSON->new->utf8->allow_unknown->convert_blessed->allow_blessed->encode($self->{$key});
+			$self->{$key} = encode_json($self->{$key});
 		} else {
 			$self->{$key} = "$self->{$key}";
 		}
@@ -278,46 +253,49 @@ sub stringify_hash {
 
 # error methods
 
-=head4 throw_error
+=head3 throw_error
 
-	Usage: 	$rh_ans->throw_error("FLAG", "message");
+Usage:
 
-	FLAG is a distinctive word that describes the type of error.
-	Examples are EVAL for an evaluation error or "SYNTAX" for a syntax error.
-	The entry $rh_ans->{error_flag} is set to "FLAG".
+    $rh_ans->throw_error("FLAG", "message");
 
-	The catch_error and clear_error methods use
-	this entry.
+FLAG is a distinctive word that describes the type of error.
+Examples are EVAL for an evaluation error or "SYNTAX" for a syntax error.
+The entry $rh_ans->{error_flag} is set to "FLAG".
 
-	message is a descriptive message for the end user, defining what error occured.
+The catch_error and clear_error methods use this entry.
 
-=head4 catch_error
+message is a descriptive message for the end user, defining what error occured.
 
-	Usage:  $rh_ans->catch_error("FLAG2");
+=head3 catch_error
 
-	Returns true (1) if  $rh_ans->{error_flag} equals "FLAG2", otherwise it returns
-	false (empty string).
+Usage:
 
+    $rh_ans->catch_error("FLAG2");
 
+Returns true (1) if  $rh_ans->{error_flag} equals "FLAG2", otherwise it returns
+false (empty string).
 
-=head4 clear_error
+=head3 clear_error
 
-	Usage:   $rh_ans->clear_error("FLAG2");
+Usage:
 
-	If $rh_ans->{error_flag} equals "FLAG2" then the {error_flag} entry is set to
-	the empty string as is the entry {error_message}
+    $rh_ans->clear_error("FLAG2");
 
-=head4 error_flag
+If $rh_ans->{error_flag} equals "FLAG2" then the {error_flag} entry is set to
+the empty string as is the entry {error_message}
 
-=head4 error_message
+=head3 error_flag, error_message
 
-	Usage:    $flag = $rh_ans -> error_flag();
+Usage:
 
-			  $message = $rh_ans -> error_message();
+    $flag = $rh_ans -> error_flag();
 
-	Retrieve or set the {error_flag} and {error_message} entries.
+    $message = $rh_ans -> error_message();
 
-	Use catch_error and throw_error where possible.
+Retrieve or set the {error_flag} and {error_message} entries.
+
+Use catch_error and throw_error where possible.
 
 =cut
 
@@ -410,29 +388,27 @@ sub error_message {
 
 # action methods
 
-=head4 OR
+=head3 OR
 
-	Usage:     $rh_ans->OR($rh_ans2);
+Usage:
 
-	Returns a new AnswerHash whose score is the maximum of the scores in $rh_ans and $rh_ans2.
-	The correct answers for the two hashes are combined with "OR".
-	The types are concatenated with "OR" as well.
-	Currently nothing is done with the error flags and messages.
+    $rh_ans->OR($rh_ans2);
 
+Returns a new AnswerHash whose score is the maximum of the scores in $rh_ans and $rh_ans2.
+The correct answers for the two hashes are combined with "OR".
+The types are concatenated with "OR" as well.
+Currently nothing is done with the error flags and messages.
 
+=head3 AND
 
-=head4 AND
+Usage:
 
+    $rh_ans->AND($rh_ans2);
 
-	Usage:     $rh_ans->AND($rh_ans2);
-
-	Returns a new AnswerHash whose score is the minimum of the scores in $rh_ans and $rh_ans2.
-	The correct answers for the two hashes are combined with "AND".
-	The types are concatenated with "AND" as well.
-	 Currently nothing is done with the error flags and messages.
-
-
-
+Returns a new AnswerHash whose score is the minimum of the scores in $rh_ans and $rh_ans2.
+The correct answers for the two hashes are combined with "AND".
+The types are concatenated with "AND" as well.
+Currently nothing is done with the error flags and messages.
 
 =cut
 
@@ -471,29 +447,31 @@ sub AND {
 	$out_hash;
 }
 
-=head1 Description:  AnswerEvaluator
-
-
-
-
-=cut
-
 package AnswerEvaluator;
 use Exporter;
 use PGUtil qw(not_null pretty_print);
 
-=head3 AnswerEvaluator Methods
+=head1 DESCRIPTION:  AnswerEvaluator
 
+This class organizes the construction of answer evaluator subroutines which check the
+student's answer.  By plugging filters into the answer evaluator class you can customize the way the
+student's answer is normalized and checked.  Our hope is that with properly designed filters, it will be
+possible to reuse the filters in different combinations to obtain different answer evaluators,
+thus greatly reducing the programming and maintenance required for constructing answer evaluators.
 
+Usage:
 
+    $ans_eval  = new AnswerEvaluator;
 
+=head2 METHODS
 
+=head3 new
 
+Create a new AnswerEvaluator
 
-=cut
+Usage:
 
-=head4 new
-
+    AnswerEvaluator->new();
 
 =cut
 
@@ -562,10 +540,11 @@ sub get_student_answer {
 	$input;
 }
 
-=head4  evaluate
+=head3  evaluate
 
-	$answer_evaluator->evaluate($student_answer_string)
+Usage:
 
+    $answer_evaluator->evaluate($student_answer_string)
 
 =cut
 
@@ -686,14 +665,11 @@ sub print_result_if_debug {
 # 	$rh_ans;
 # }
 
-=head4 install_pre_filter
+=head3 install_pre_filter
 
-=head4 install_evaluator
+=head3 install_evaluator
 
-
-=head4 install_post_filter
-
-
+=head3 install_post_filter
 
 =cut
 
@@ -770,18 +746,20 @@ sub install_correct_answer_post_filter {
 	@{ $self->{correct_answer_post_filters} };                          # return array of all post_filters
 }
 
-=head4 withPreFilter
+=head3 withPreFilter
+
+Usage:
 
     $answerHash->withPreFilter(filter[,options]);
 
-    Installs a prefilter (possibly with options), and returns the AnswerHash. This is so that you
-    can add a filter to a checker without having to save the checker in a variable, e.g.,
+Installs a prefilter (possibly with options), and returns the AnswerHash. This is so that you
+can add a filter to a checker without having to save the checker in a variable, e.g.,
 
-        ANS(Real(10)->cmp->withPreFilter(...));
+    ANS(Real(10)->cmp->withPreFilter(...));
 
-    or
+or
 
-        ANS(num_cmp(10)->withPreFilter(...));
+    ANS(num_cmp(10)->withPreFilter(...));
 
 =cut
 
@@ -791,18 +769,20 @@ sub withPreFilter {
 	return $self;
 }
 
-=head4 withPostFilter
+=head3 withPostFilter
+
+Usage:
 
     $answerHash->withPostFilter(filter[,options]);
 
-    Installs a postfilter (possibly with options), and returns the AnswerHash. This is so that you
-    can add a filter to a checker without having to save the checker in a variable, e.g.,
+Installs a postfilter (possibly with options), and returns the AnswerHash. This is so that you
+can add a filter to a checker without having to save the checker in a variable, e.g.,
 
-        ANS(Real(10)->cmp->withPostFilter(...));
+    ANS(Real(10)->cmp->withPostFilter(...));
 
-    or
+or
 
-        ANS(num_cmp(10)->withPostFilter(...));
+    ANS(num_cmp(10)->withPostFilter(...));
 
 =cut
 
@@ -826,12 +806,13 @@ sub rh_ans {
 	$self->{rh_ans};
 }
 
-=head1 Description: Filters
+=head1 DESCRIPTION - Filters
 
 A filter is a subroutine which takes one AnswerHash as an input, followed by
 a hash of options.
 
-		Usage:   filter($ans_hash, option1 =>value1, option2=> value2 );
+Usage:
+    filter($ans_hash, option1 =>value1, option2=> value2 );
 
 
 The filter performs some operations on the input AnswerHash and returns an
@@ -855,12 +836,9 @@ Setting the flag C<$rh_ans->{done} = 1> will skip
 the AnswerHash past the remaining post_filters.
 
 
-=head3 Built in filters
+=head2 blank_prefilter
 
-=head4 blank_prefilter
-
-
-=head4 blank_postfilter
+=head2 blank_postfilter
 
 =cut
 
@@ -904,5 +882,3 @@ sub blank_postfilter {
 }
 
 1;
-#package AnswerEvaluatorMaker;
-

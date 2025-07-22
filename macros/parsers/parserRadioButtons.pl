@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -627,7 +613,6 @@ sub BUTTONS {
 	my @choices = @{ $self->{orderedChoices} };
 	my @radio   = ();
 	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
-	my $label = main::generate_aria_label($name);
 
 	foreach my $i (0 .. $#choices) {
 		my $value = $self->{values}[$i];
@@ -639,8 +624,7 @@ sub BUTTONS {
 				@radio,
 				main::NAMED_ANS_RADIO_EXTENSION(
 					$name, $value, $tag,
-					aria_label => $label . "option " . ($i + 1) . " ",
-					id         => "${name}_$i",
+					id => "${name}_$i",
 					$self->{uncheckable}
 					? (
 						attributes => {

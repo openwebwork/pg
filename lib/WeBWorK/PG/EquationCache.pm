@@ -1,25 +1,10 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 package WeBWorK::PG::EquationCache;
 
 =head1 NAME
 
 WeBWorK::PG::EquationCache - create and cache images of TeX equations.
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
  my $cache = WeBWorK::PG::EquationCache->new(cacheDB => "/path/to/equationcache.db");
  my $imageName = $cache->lookup('\[3x^2\]');
@@ -48,8 +33,8 @@ use strict;
 use warnings;
 
 use Digest::MD5 qw(md5_hex);
-use Encode qw(encode_utf8 );
-use Fcntl qw(:DEFAULT :flock);
+use Encode      qw(encode_utf8 );
+use Fcntl       qw(:DEFAULT :flock);
 
 BEGIN { my @_junk = (O_RDWR, O_CREAT, LOCK_EX) }    # get rid of "subroutine redefined" warnings
 

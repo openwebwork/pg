@@ -1,23 +1,8 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
 C<Context("Permutation")> - Provides contexts that allow the
 entry of cycles and permutations.
-
 
 =head1 DESCRIPTION
 
@@ -33,7 +18,6 @@ allows permutations in any form, C<Context("Permutation-Strict")>, which
 only allows permutations that use disjoint cycles, and
 C<Context("Permutation-Canonical")>, which only allows permutations that
 are written in canonical form (as described below).
-
 
 =head1 USAGE
 
@@ -612,7 +596,7 @@ sub _check {
 		$rtype = $rtype->{name};
 		$ltype = (($ltype =~ m/^[aeiou]/i) ? "An " : "A ") . $ltype;
 		$rtype = (($rtype =~ m/^[aeiou]/i) ? "an " : "a ") . $rtype;
-		$self->{equation}->Error([ "%s can not be multiplied by %s", $ltype, $rtype ]);
+		$self->{equation}->Error([ "%s cannot be multiplied by %s", $ltype, $rtype ]);
 	}
 	$self->{type} = $type;
 }

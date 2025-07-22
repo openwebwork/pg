@@ -1,11 +1,26 @@
+
+=head1 NAME
+
+MatrixUnimodular.pl - Functions and checkers for Unimodular matrices.
+
+=cut
+
 sub _MatrixUnimodular_init { };    # don't reload this file
 
-sub xgcd ($$) {
+=head1 FUNCTIONS
 
-	# Extended greatest common divisor
-	# xgcd( a , b ) = ( d , x , y , s , t )
-	# where
-	# gcd(a,b) = d = a (x + s k) + b (y + t k)  for any integer k
+=head2 xgcd
+
+Extended greatest common divisor
+
+C<xgcd( a , b ) = ( d , x , y , s , t )>
+
+where  gcd(a,b) = d = a (x + s k) + b (y + t k)  for any integer k
+
+=cut
+
+# Note: this is in algebraMacros.pl.  Maybe put in a common place?
+sub xgcd ($$) {
 
 	my ($a, $x, $y) = (int(shift), 1, 0);
 	my ($b, $s, $t) = (int(shift), 0, 1);
@@ -24,46 +39,53 @@ sub xgcd ($$) {
 	}
 }
 
+=head2 unimodular_SL2Z_specific
+
+Unimodular 2x2 matrix in SL_2(Z)
+unimodular( a11, a21 )
+returns a determinant 1 matrix object
+
+    [ a11  a12 ]
+    [ a21  a22 ]
+
+The inputs a11 and a12 must be relatively prime
+integers, and could be thought of as an eigenvector.
+If they are not relatively prime, then the identity
+matrix will be returned.
+
+=cut
+
 sub unimodular_SL2Z_specific {
 
-	# Unimodular 2x2 matrix in SL_2(Z)
-	# unimodular( a11, a21 )
-	# returns a determinant 1 matrix object
-	# [ a11  a12 ]
-	# [ a21  a22 ]
-	# The inputs a11 and a12 must be relatively prime
-	# integers, and could be thought of as an eigenvector.
-	# If they are not relatively prime, then the identity
-	# matrix will be returned.
-
-	my $a11 = shift;
-	my $a21 = shift;
-
+	my ($a11, $a21) = @_;
 	my @w = xgcd($a11, $a21);    # "weights"
 
 	if ($w[0] != 1) { return (1, 0, 0, 1); }
-	#  my $a12 = -($w[2]);
-	#  my $a22 = $w[1];
 
-	@A = ($a11, $a21, -($w[2]), $w[1]);
-
-	return @A;
-
+	return ($a11, $a21, -($w[2]), $w[1]);
 }
 
-sub unimodular_SL2Z {
+=head2 unimodular_SL2Z
 
-	# Unimodular 2x2 matrix in SL_2(Z)
-	# unimodular ( A, B ) = ( a11, a21, a12, a22 )
-	# where
-	# [ a11  a12 ]
-	# [ a21  a22 ]
-	# is a determinant one matrix with integer entries
-	# and the inputs A < B are the limits of the size of the entries
-	# If they are not relatively prime, then the identity
-	# matrix will be returned.
-	# Note: it returns a matrix listed by columns (not rows)
-	# so that you can easily use the columns as eigenvectors
+Unimodular 2x2 matrix in SL_2(Z)
+
+unimodular ( A, B ) = ( a11, a21, a12, a22 )
+
+ where
+
+    [ a11  a12 ]
+    [ a21  a22 ]
+
+is a determinant one matrix with integer entries
+and the inputs A < B are the limits of the size of the entries
+If they are not relatively prime, then the identity
+matrix will be returned.
+Note: it returns a matrix listed by columns (not rows)
+so that you can easily use the columns as eigenvectors
+
+=cut
+
+sub unimodular_SL2Z {
 
 	my $a11 = list_random(-7, -5, -3, -2, 2, 3, 5, 7);
 	my $a21 = list_random(-7, -5, -3, -2, 2, 3, 5, 7);
@@ -72,29 +94,28 @@ sub unimodular_SL2Z {
 	}
 
 	my @w = xgcd($a11, $a21);
-
-	#  my $a12 = -($w[2]);
-	#  my $a22 = $w[1];
-
-	my @A = ($a11, $a21, -($w[2]), $w[1]);
-
-	return @A;
-
+	return ($a11, $a21, -($w[2]), $w[1]);
 }
 
-sub unimodular_GL2Z {
+=head2 unimodular_GL2Z
 
-	# Unimodular 2x2 matrix in GL_2(Z)
-	# unimodular ( A, B ) = ( a11, a21, a12, a22, det )
-	# where
-	# [ a11  a12 ]
-	# [ a21  a22 ]
-	# is a determinant 1 or -1 matrix with integer entries
-	# and det is the determinant.
-	# If they are not relatively prime, then the identity
-	# matrix will be returned.
-	# Note: it returns a matrix listed by columns (not rows)
-	# so that you can easily use the columns as eigenvectors.
+Unimodular 2x2 matrix in GL_2(Z)
+
+unimodular ( A, B ) = ( a11, a21, a12, a22, det ) where
+
+    [ a11  a12 ]
+    [ a21  a22 ]
+
+is a determinant 1 or -1 matrix with integer entries
+and det is the determinant.
+If they are not relatively prime, then the identity
+matrix will be returned.
+Note: it returns a matrix listed by columns (not rows)
+so that you can easily use the columns as eigenvectors.
+
+=cut
+
+sub unimodular_GL2Z {
 
 	my $a11 = list_random(-7, -5, -3, -2, 2, 3, 5, 7);
 	my $a21 = list_random(-7, -5, -3, -2, 2, 3, 5, 7);
@@ -109,23 +130,24 @@ sub unimodular_GL2Z {
 
 	my $s = random(-1, 1, 2);    # randomize the sign for the first column
 
-	my @A = ($s * $a11, $s * $a21, -($w[2]), $w[1]);
-
-	return @A;
-
+	return ($s * $a11, $s * $a21, -($w[2]), $w[1]);
 }
+
+=head2 unimodular_diagonalization_SL2Z
+
+input: two distinct integer eigenvalues (lambda1, lambda2)
+
+output: a single array with the following entries in order:
+
+2x2 matrix listed by columns (A11,A21,A12,A22),
+first eigenvalue lambda1, first eigenvector (P11,P21),
+second eigenvalue lambda2, second eigenvector (P12,P22)
+
+=cut
 
 sub unimodular_diagonalization_SL2Z {
 
-	# input: two distinct integer eigenvalues (lambda1, lambda2)
-	#
-	# output: a single array with the following entries in order:
-	# 2x2 matrix listed by columns (A11,A21,A12,A22),
-	# first eigenvalue lambda1, first eigenvector (P11,P21),
-	# second eigenvalue lambda2, second eigenvector (P12,P22)
-
-	my $lambda1 = shift;
-	my $lambda2 = shift;
+	my ($lambda1, $lambda2) = @_;
 
 	my @P = unimodular_SL2Z();
 
@@ -142,17 +164,20 @@ sub unimodular_diagonalization_SL2Z {
 
 }
 
+=head2 unimodular_diagonalization_GL2Z
+
+input: two distinct integer eigenvalues (lambda1, lambda2)
+
+output: a single array with the following entries in order:
+
+2x2 matrix listed by columns (M11,M21,M12,M22),
+first eigenvalue lambda1, first eigenvector (P11,P21),
+second eigenvalue lambda2, second eigenvector (P12,P22)
+
+=cut
+
 sub unimodular_diagonalization_GL2Z {
-
-	# input: two distinct integer eigenvalues (lambda1, lambda2)
-	#
-	# output: a single array with the following entries in order:
-	# 2x2 matrix listed by columns (M11,M21,M12,M22),
-	# first eigenvalue lambda1, first eigenvector (P11,P21),
-	# second eigenvalue lambda2, second eigenvector (P12,P22)
-
-	my $lambda1 = shift;
-	my $lambda2 = shift;
+	my ($lambda1, $lambda2) = @_;
 
 	my @P    = unimodular_GL2Z();
 	my $detP = $P[0] * $P[3] - $P[1] * $P[2];
@@ -166,25 +191,29 @@ sub unimodular_diagonalization_GL2Z {
 	);
 
 	return (@A, @P, $lambda1, $lambda2);
-
 }
 
-###############################################################
-#  Versions with small integer entries
+=head2 small_unimodular_GL2Z
+
+Unimodular 2x2 matrix in GL_2(Z)
+
+unimodular ( A, B ) = ( a11, a21, a12, a22, det )
+
+where
+
+    [ a11  a12 ]
+    [ a21  a22 ]
+
+is a determinant 1 or -1 matrix with integer entries
+and det is the determinant.
+If they are not relatively prime, then the identity
+matrix will be returned.
+Note: it returns a matrix listed by columns (not rows)
+so that you can easily use the columns as eigenvectors.
+
+=cut
 
 sub small_unimodular_GL2Z {
-
-	# Unimodular 2x2 matrix in GL_2(Z)
-	# unimodular ( A, B ) = ( a11, a21, a12, a22, det )
-	# where
-	# [ a11  a12 ]
-	# [ a21  a22 ]
-	# is a determinant 1 or -1 matrix with integer entries
-	# and det is the determinant.
-	# If they are not relatively prime, then the identity
-	# matrix will be returned.
-	# Note: it returns a matrix listed by columns (not rows)
-	# so that you can easily use the columns as eigenvectors.
 
 	my $a11 = list_random(-4, -3, -2, 2, 3, 4);
 	my $a21 = list_random(-4, -3, -2, 2, 3, 4);
@@ -194,28 +223,25 @@ sub small_unimodular_GL2Z {
 
 	my @w = xgcd($a11, $a21);
 
-	#  my $a12 = -($w[2]);
-	#  my $a22 = $w[1];
-
 	my $s = random(-1, 1, 2);    # randomize the sign for the first column
 
-	my @A = ($s * $a11, $s * $a21, -($w[2]), $w[1]);
-
-	return @A;
-
+	return ($s * $a11, $s * $a21, -($w[2]), $w[1]);
 }
 
+=head2 small_unimodular_diagonalization_GL2Z
+
+input: two distinct integer eigenvalues (lambda1, lambda2)
+
+output: a single array with the following entries in order:
+
+2x2 matrix listed by columns (M11,M21,M12,M22),
+first eigenvalue lambda1, first eigenvector (P11,P21),
+second eigenvalue lambda2, second eigenvector (P12,P22)
+
+=cut
+
 sub small_unimodular_diagonalization_GL2Z {
-
-	# input: two distinct integer eigenvalues (lambda1, lambda2)
-	#
-	# output: a single array with the following entries in order:
-	# 2x2 matrix listed by columns (M11,M21,M12,M22),
-	# first eigenvalue lambda1, first eigenvector (P11,P21),
-	# second eigenvalue lambda2, second eigenvector (P12,P22)
-
-	my $lambda1 = shift;
-	my $lambda2 = shift;
+	my ($lambda1, $lambda2) = @_;
 
 	my @P    = small_unimodular_GL2Z();
 	my $detP = $P[0] * $P[3] - $P[1] * $P[2];

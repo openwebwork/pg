@@ -93,11 +93,11 @@ sub VectorField2D {
 		xvar            => 'x',
 		yvar            => 'y',
 		xmin            => -5,
-		xmax            => 5,
+		xmax            =>  5,
 		ymin            => -5,
-		ymax            => 5,
-		xsamples        => 10,
-		ysamples        => 10,
+		ymax            =>  5,
+		xsamples        =>  10,
+		ysamples        =>  10,
 		vectorcolor     => 'blue',
 		vectorscale     => 0.25,
 		vectorthickness => 2,
@@ -109,13 +109,30 @@ sub VectorField2D {
 	);
 
 	my $gr = $options{graphobject};
-	unless (ref($gr) eq 'WWPlot') {
+	unless (ref($gr) eq 'WWPlot' || ref($gr) eq 'Plots::Plot') {
 		warn 'VectorField2D: Invalid graphobject provided.';
 		return;
 	}
 
 	my $Fx = $options{Fx};
 	my $Fy = $options{Fy};
+
+	return $gr->add_vectorfield(
+		Fx     => $Fx,
+		Fy     => $Fy,
+		xvar   => $options{xvar},
+		yvar   => $options{yvar},
+		xmin   => $options{xmin},
+		xmax   => $options{xmax},
+		ymin   => $options{ymin},
+		ymax   => $options{ymax},
+		xsteps => $options{xsamples},
+		ysteps => $options{ysamples},
+		width  => $options{vectorthickness},
+		color  => $options{vectorcolor},
+		scale  => $options{vectorscale},
+	) if ref($gr) eq 'Plots::Plot';
+
 	if (Value::isFormula($Fx)) {
 		$Fx = $Fx->perlFunction('', [ "$options{xvar}", "$options{yvar}" ]);
 	} elsif (ref($Fx) ne 'CODE') {

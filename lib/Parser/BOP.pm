@@ -265,18 +265,30 @@ sub matchError {
 #  Return a zero, or a list of zeros of the proper length.
 #
 sub makeZero {
-	my $self = shift;
-	my $op   = shift;
-	my $zero = shift;
-	return $zero if ($op->isNumber);
-	if ($zero->isNumber && $op->type =~ m/Point|Vector/) {
-		my $context = $op->{equation}{context};
-		my $value   = $context->Package($op->type)->new($context, ($zero->{value}) x $op->length);
-		$value = $self->Item("Value")->new($op->{equation}, $value);
-		$value->{value}{ijk} = 1 if $op->class eq "Constant" && $op->{def}{value}{ijk};
-		return $value;
+	my ($self, $lop, $rop) = @_;
+	$lop = $self->zeroValue($lop);
+	$rop = $self->zeroValue($rop);
+	return $self unless defined $lop && defined $rop;
+	return $self->Item('Value')->new($self->{equation}, $lop * $rop);
+}
+
+sub zeroValue {
+	my ($self, $op) = @_;
+	my $type = $op->type;
+	return $self->Package('Real')->new(0) if $type eq 'Number';
+	my $typeDef = $op->{type};
+	my @coords  = (0) x $typeDef->{length};
+	if ($typeDef->{entryType}{list}) {
+		return if $type ne 'Matrix';
+		my @len;
+		do {
+			unshift(@len, $typeDef->{length});
+			$typeDef = $typeDef->{entryType};
+		} while ($typeDef->{list});
+		@coords = (0);
+		@coords = [ (@coords) x $_ ] for (@len);
 	}
-	return $self;
+	return $self->Package($type)->new(@coords);
 }
 
 #

@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -55,7 +41,7 @@ The left-hand side of an assignment must be a single variable, so
 
     $f = Formula("3y = 2x");
 
-will produce an error.  The right-hand side can not include the
+will produce an error.  The right-hand side cannot include the
 variable being assigned on the left, so
 
     $f = Formula("x = 2x+1");
@@ -325,7 +311,7 @@ sub TeX {
 #
 sub cmp_defaults {
 	my $self = shift;
-	$self->SUPER::cmp_defaults(@_);
+	{ $self->SUPER::cmp_defaults(@_), showLengthHints => 0, partialCredit => 0 };
 }
 
 #
@@ -441,12 +427,12 @@ sub _check {
 
 sub eval {
 	my $self = shift;
-	$self->Error("Dummy function '%s' can not be evaluated", $self->{name});
+	$self->Error("Dummy function '%s' cannot be evaluated", $self->{name});
 }
 
 sub call {
 	my $self = shift;
-	$self->Error("Dummy function '%s' can not be called", $self->{name});
+	$self->Error("Dummy function '%s' cannot be called", $self->{name});
 }
 
 1;

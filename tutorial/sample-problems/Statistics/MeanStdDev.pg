@@ -1,0 +1,74 @@
+## DESCRIPTION
+## Find the mean and standard deviation of a list of numbers.
+## ENDDESCRIPTION
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## KEYWORDS('statistic', 'mean', 'standard deviation')
+
+#:% name = Mean and Standard Deviation
+#:% subject = [statistics]
+#:% type = sample
+#:% categories = [statistics]
+
+#:% section = preamble
+#: The PODLINK('PGstatisticsmacros.pl') macro provides the `stats_mean`,
+#: `stats_sd`, and `stats_SX_SXX` methods.
+DOCUMENT();
+
+loadMacros("PGstandard.pl", "PGML.pl", 'PGstatisticsmacros.pl', "PGcourse.pl");
+
+#:% section = setup
+#: Generate random numbers and then calculate the mean and standard deviation
+#: using the `stats_mean` and `stats_sd` methods from
+#: PODLINK('PGstatisticsmacros.pl').
+@x = map { random(1, 10) } 0 .. 7;
+
+$mean = stats_mean(@x);
+$sd   = stats_sd(@x);
+
+#:% section = statement
+BEGIN_PGML
+Find the mean and standard deviation of the following list of numbers:
+[@ join(', ', @x) @]
+
+a) Mean: [_]{$mean}{8}
+
+b) Standard Deviation: [_]{$sd}{8}
+END_PGML
+
+#:% section = solution
+#: The `stats_SX_SXX` method from `PGstatisticsmacros.pl` returns the sum and
+#: sum of squares which are used in the solution.
+#:
+#: Note that when a long list of equalities are strung together in an equation
+#: it is a good idea to use the `aligned` environment to break the equalities
+#: onto separate lines. If left on a single line, the equation may extend
+#: outside of the solution container and look quite bad. Particularly on narrow
+#: screens.
+($sum_x, $sum_sq) = stats_SX_SXX(@x);
+$var = $sum_sq - ($sum_x**2) / 8;
+
+BEGIN_PGML_SOLUTION
+The mean is
+
+[``\bar{x} = \frac{1}{n} \sum_{i = 1}^n x_i = \frac{[$sum_x]}{8} = [$mean]``]
+
+For the standard deviation, first, find the variance.
+
+[``
+	\begin{aligned}
+	s^2 &= \frac{1}{n - 1} \left(
+		\sum_{i = 1}^n x_i^2 - \frac{1}{n}\left(\sum_{i = 1}^n x_i\right)^2
+	\right) \\
+	&= \frac{1}{7} \left( [$sum_sq] - \frac{1}{8} ([$sum_x])^2\right) \\
+	&= \frac{[$var]}{7}
+	\end{aligned}
+``]
+
+Taking the square root gives [`s \approx [$sd]`]
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

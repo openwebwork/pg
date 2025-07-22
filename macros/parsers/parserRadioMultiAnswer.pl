@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -422,7 +408,7 @@ sub cmp {
 				$options->{insertElement} = $selected->first->parent;
 				my $contents = $selected->first->parent->at('div.radio-content[data-radio]');
 				if ($contents) {
-					my $partNames = JSON->new->decode($contents->attr('data-part-names'));
+					my $partNames = Mojo::JSON::decode_json($contents->attr('data-part-names'));
 					for (@$partNames) {
 						my $ansRules = $contents->find(qq{[name="$_"]});
 						if (@$ansRules > 1) {
@@ -486,19 +472,19 @@ sub answer_evaluator {
 				main::tag(
 					'tr',
 					style => 'vertical-align:top',
-					main::tag('td', style => 'text-align:left', $result->{ans_message})
+					main::tag('td', style => 'text-align:center', $result->{ans_message})
 				)
 			);
 		}
 	}
 	for (@{ $self->{errorMessages} }) {
-		push(@errors, main::tag('tr', style => 'vertical-align:top', main::tag('td', style => 'text-align:left', $_)));
+		push(@errors, main::tag('tr', style => 'vertical-align:top', main::tag('td', $_)));
 	}
 	$ans->{ans_message} = $ans->{error_message} = '';
 	if (@errors) {
 		$ans->{ans_message} = $ans->{error_message} = main::tag(
 			'table',
-			style => 'border-collapse:collapse',
+			style => 'border-collapse:collapse; margin-left: auto; margin-right: auto;',
 			class => 'ArrayLayout',
 			join(main::tag('tr', main::tag('td', style => 'height:4px')), @errors)
 		);
@@ -620,6 +606,34 @@ sub label {
 	return $self->{labels}[$i];
 }
 
+sub generate_aria_label {
+	my ($name, $radioIndex, $partIndex) = @_;
+	my $label = '';
+
+	$name =~ s/$answerPrefix//;
+
+	# Check for the quiz prefix.
+	if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
+		$name =~ s/Q0*(\d+)_//;
+		$label .= main::maketext('problem [_1] ', $1);
+	}
+
+	# Get the answer number.
+	$name =~ /AnSwEr0*(\d+)/;
+	$label .= main::maketext('answer [_1] ', $1);
+
+	$label .= main::maketext('part [_1] ',    $radioIndex);
+	$label .= main::maketext('subpart [_1] ', $partIndex);
+
+	# Check for a Matrix answer.
+	if ($name =~ /^MaTrIx_/) {
+		$name =~ /_(\d+)_(\d+)$/;
+		$label .= main::maketext('row [_1] column [_2] ', $1 + 1, $2 + 1);
+	}
+
+	return $label;
+}
+
 # Produce the answer rule.
 sub ans_rule {
 	my ($self, $size, @options) = @_;
@@ -648,6 +662,7 @@ sub ans_rule {
 							? (defined $size->[$i][ $_ - 1 ] ? $size->[$i][ $_ - 1 ] : 20)
 							: $size,
 							answer_group_name => $radio_name,
+							aria_label        => generate_aria_label($name, $i + 1, $_),
 							@options
 						)
 					)
@@ -663,6 +678,7 @@ sub ans_rule {
 							? (defined $size->[$i][ $_ - 1 ] ? $size->[$i][ $_ - 1 ] : 20)
 							: $size,
 							answer_group_name => $radio_name,
+							aria_label        => generate_aria_label($name, $i + 1, $_),
 							@options
 						)
 					)
@@ -679,7 +695,7 @@ sub ans_rule {
 				class           => 'radio-content',
 				data_radio      => $radio_name,
 				data_index      => $self->{values}[$i],
-				data_part_names => JSON->new->encode(\@part_names),
+				data_part_names => Mojo::JSON::encode_json(\@part_names),
 				sprintf($data[$i][0] =~ s/%s\*/%s/gr, @part_rules)
 			),
 			PTX => sprintf($data[$i][0] =~ s/%s\*/%s/gr, @part_rules)
@@ -724,11 +740,10 @@ sub begin_radio {
 		HTML => qq{<div class="radio-container">}
 			. main::tag(
 				'input',
-				type       => 'radio',
-				name       => $name,
-				id         => "$name$idSuffix",
-				aria_label => main::generate_aria_label("$answerPrefix${name}_0") . ' option ' . ($i + 1),
-				value      => $value,
+				type  => 'radio',
+				name  => $name,
+				id    => "$name$idSuffix",
+				value => $value,
 				$self->{uncheckable}
 				? (
 					data_uncheckable_radio => 1,

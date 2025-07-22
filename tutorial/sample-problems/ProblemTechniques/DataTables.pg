@@ -1,0 +1,117 @@
+## DESCRIPTION
+## This shows how to present and format a table for data.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2023)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('tutorial', 'table')
+
+#:% name = Data Table
+#:% type = [technique]
+#:% categories = [table]
+
+#:% section = preamble
+#: This shows how to use the `DataTable` function in PODLINK('niceTables.pl').
+#: Note that the PODLINK('niceTables.pl') macro is automatically loaded by
+#: `PGML.pl`, so it is not necessary to load it explicitly.
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: A `DataTable` is meant to display data in a table. It is not meant to be used
+#: for layout. If a layout is needed use `LayoutTable` instead. See
+#: PROBLINK('LayoutTable.pg') for an example of the usage of the `LayoutTable`
+#: method.
+#:
+#: Typically the `PGML` syntax for a `DataTable` should be used as is done in
+#: this example. However, the result of calling `DataTable` could also be used.
+#: It is called as follows.
+#:
+#: ```{#datatable .perl}
+#: $table = DataTable(
+#:     [
+#:         [row1],
+#:         [row2],
+#:         ...
+#:         [rowN]
+#:     ],
+#:     options
+#: );
+#: ```
+#:
+#: where the data goes in as an array reference of array references.  The first
+#: row can (and is often) used for a header row. Some of the `DataTable` options
+#: are demonstrated here, but the full list of options and explanation of there
+#: usage is in PODLINK('the niceTables.pl documentation','niceTables.pl')
+#:
+#: Then the table would be inserted into the problem text by adding `[$table]*`
+#: in the desired location inside the `BEGIN_PGML/END_PGML` block.
+#:
+#: The first table in this example will display randomly generated data stored
+#: in the `@rows` array that is generated in the setup.
+#:
+#: Note that a reference to the `@rows` array needs to be passed to the
+#: `DataTable` method, and `\@rows` is used to obtain the array reference.
+#: However, if this reference were not created inside the `BEGIN_PGML/END_PGML`
+#: block then `~~@rows` would need to be used instead to obtain this array
+#: reference due to PG translation.
+#:
+#: The second table in this example will ask the student to complete a table of
+#: values for the function that is defined at the end of the setup.
+@rows = map { [ $_, random(1, 10) ] } 1 .. 5;
+
+$a = non_zero_random(-4, 4);
+$f = Compute("x / (x - [$a])")->reduce;
+
+#:% section = statement
+#: The `PGML` syntax for inserting a `DataTable` is `[# ... #]{ options }`. In
+#: between `[#` and `#]` any number of cells can be added with `[. ... .]`. The
+#: end of a row is marked by adding a `*` to the end of the last cell in the
+#: row (the `*` can be omitted on the last row). Inside of a cell started with
+#: `[.` and ended with `.]` all of the usual `PGML` syntax can be used.
+#:
+#: Options can also be passed to a cell with `[. ... .]{ options }`.  Note that
+#: some cell options apply to the entire row that contains the cell. This is the
+#: case for the `headerrow => 1` option.
+#:
+#: One special cell option is the `rows` option used in the first table example.
+#: It can only be used with a cell that has no contents, and its option must be
+#: an array reference of array references (the same as the usual first argument
+#: for the `DataTable` method. In this case the rows defined in the array
+#: reference will be added to the table.
+BEGIN_PGML
+Here's some data:
+
+[#
+    [.[`x`].] [.[`y`].]*{ headerrow => 1 }
+    [. .]{ rows => \@rows }
+#]
+
+Complete the following table of values for [``f(x) = [$f]``].
+
+[$tab2]*
+[#
+    [.[`x`].]    [.[`f(x)`].]*{ headerrow => 1 }
+    [.[$a - 2].] [.[_]{$f->eval(x => $a - 2)}.]*
+    [.[$a - 1].] [.[_]{$f->eval(x => $a - 1)}.]*
+    [.[$a + 1].] [.[_]{$f->eval(x => $a + 1)}.]*
+    [.[$a + 2].] [.[_]{$f->eval(x => $a + 2)}.]
+#]{
+    align           => '|r|c|',
+    valign          => 'middle',
+    padding         => [ 0.5, 0.5 ],
+    horizontalrules => 1
+}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

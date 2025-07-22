@@ -17,53 +17,61 @@
 #:% categories = [heaviside-step]
 
 #:% section = preamble
-#: We load `parserFunction.pl` to make adding a named function to the context easier.
-#: Please see the POD documentation `parserFunction.pl`.
+#: Load PODLINK('parserFunction.pl') for adding a named function to the context.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 
-#:% section=setup
-#: We add the step function to the context with the name `step`. The function
-#: `step(t)` is the Heaviside function and takes the value 1 when $t > 0$, and the value
-#: 0 when $t \leq 0$. We will use the function `step` when evaluating the Heaviside function
-#: to obtain an answer that is a number.
+#:% section = setup
+#: Add the step function to the context with the name `step`. The function
+#: `step(t)` is the Heaviside function and takes the value 1 when $t > 0$, and
+#: the value 0 when $t \leq 0$. The `step` function will be used when evaluating
+#: the Heaviside function to obtain an answer that is a number.
 #:
-#: For more details on adding the Heaviside function to the context, see the forum
-#: discussion on the
+#: For more details on adding the Heaviside function to the context, see the
+#: forum discussion on the
 #: [Heaviside step function](https://webwork.maa.org/moodle/mod/forum/discuss.php?d=458).
 #:
-#: For the second question, since answers are checked numerically by comparing the student
-#: answer to the correct answer at several randomly points in the domain (the default is 5 points)
-#: in an interval (the default is `[-1,1]`), the function `step(t) = u(t)` is not very robust when
-#: checking answers using these defaults. For example, if a student types in the answer `u(t-0.1)` and
-#: the correct answer is u(t), there is a good chance that the student's answer will be marked correct,
-#: since the probability that a test point was chosen in the interval (0,0.1) is much less than 100%.
-#: Also, if the correct answer were u(t-5), then a student could enter the answer 0 and be marked correct
-#: because the correct answer is identically zero on the interval `[-1,1]`.
+#: For the second question, since answers are checked numerically by comparing
+#: the student answer to the correct answer at several random points in the
+#: domain (the default is 5 points) in an interval (the default is `[-1,1 ]`),
+#: the function `step(t) = u(t)` is not very robust when checking answers using
+#: these defaults. For example, if a student types in the answer `u(t - 0.1)`
+#: and the correct answer is u(t), there is a good chance that the student's
+#: answer will be marked correct, since the probability that a test point was
+#: chosen in the interval `(0, 0.1)` is much less than 100%. Also, if the
+#: correct answer were `u(t - 5)`, then a student could enter the answer 0 and
+#: be marked correct because the correct answer is identically zero on the
+#: interval `[-1, 1]`.
 #:
-#: To make the answer checking robust, in `$answer2` we specify a larger domain centered at `$a` using limits,
-#: we require four of the test points always be used, and that there should be 10 test points total (the
-#: four we specified and six others generated at random). Notice that we used the construction `$f->with(...)`
-#: to do this (using `$f->{test_at} = [[1],[2]]` would generate an error because the functions we added to the
-#: context aren't "blessed" with enough permissions to modify `$f` in that way).
+#: To make the answer checking robust, in `$answer2` a larger domain centered at
+#: `$a` is specified using limits, five test points are specified, and 10 test
+#: points are required to be used (the five that were specified and five others
+#: generated at random). Notice that the construction `$f->with(...)`
+#: is used to do this (using `$f->{test_at} = [ [1], [2] ]` would generate an
+#: error because the functions added to the context are not "blessed" with
+#: enough permissions to modify `$f` in that way).
 #:
-#: In part (b), since the students never actually see the values of the function u(t),
-#: we could have defined the function as
+#: In part (b), since the students never actually see the values of the function
+#: `u(t)`, the function could be defined as
 #:
-#:```{#parser-function-call .perl}
-#: parserFunction("u(t)" => "1.5 * sin(e*t) + 5*pi/3 + arctan(t)");
-#:```
+#: ```{#parser-function-call .perl}
+#: parserFunction("u(t)" => "1.5 * sin(e * t) + 5 * pi / 3 + arctan(t)");
+#: ```
 #:
-#: If we had defined `u(t)` this way, we would not have had to add the function `step(t)` to the context
-#: and we could have used the defaults for the answer checker. Notice that the function `u(t)` is never
-#: zero, is not constant, is differentiable, and takes moderately sized values, which makes its answer
-#: checking very robust using the defaults for the answer checker. Further, because of the arctangent,
-#: it is not periodic and so `u(t)-u(t-a)` should never be identically zero. Also, the formula for `u(t)` is
-#: not something students are likely to input as an answer out of nowhere. The function `u(t)` is great as a
-#: named function that stands in for the Heaviside function when the answer is a function. However, if the
-#: answer is a number obtained by evaluating the Heaviside function, then step(t) should be used or the function
-#: `u(t)` should be properly defined as the Heaviside function for obvious reasons.
+#: If `u(t)` had been defined in this way, the function `step(t)` would not need
+#: to be added to the context and the defaults for the answer checker could be
+#: used. Notice that the function `u(t)` is never zero, is not constant, is
+#: differentiable, and takes moderately sized values, which makes its answer
+#: checking very robust using the defaults for the answer checker. Further,
+#: because of the arctangent, it is not periodic and so `u(t) - u(t - a)` should
+#: never be identically zero. Also, the formula for `u(t)` is not something
+#: students are likely to input as an answer out of nowhere. The function `u(t)`
+#: is great as a named function that stands in for the Heaviside function when
+#: the answer is a function. However, if the answer is a number obtained by
+#: evaluating the Heaviside function, then step(t) should be used or the
+#: function `u(t)` should be properly defined as the Heaviside function for
+#: obvious reasons.
 Context()->variables->are(t => 'Real');
 Context()->functions->add(
     step => {

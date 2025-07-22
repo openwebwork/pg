@@ -1,0 +1,133 @@
+## DESCRIPTION
+## This shows how to check an arbitrary list of student answers.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(Fitchburg State University)
+## Author(Peter)
+## MO(1)
+## KEYWORDS('answer', 'custom', 'list')
+
+#:% name = Custom Answer List Checker
+#:% type = technique
+#:% categories = [answers, custom checker, list]
+
+#:% section = preamble
+DOCUMENT();
+loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The answer to this problem will be a list of points, so select the 'Point'
+#: context.
+#:
+#: Then create a list of 3 points that will be shown as the correct answer.
+#:
+#: Since the given correct answer is a `List`, in order to check the answers in
+#: the list the student enters as a whole (instead of a separate check for each
+#: entry) a `list_checker` needs to be used instead of a `checker`. To set up
+#: the custom list checker pass the custom checker subroutine for the
+#: `list_checker` option to the `cmp` method.
+#:
+#: This custom list checker loops over the list of answers that the student has
+#: entered, and checks that each answer is a point, is not the same as a
+#: previous point already checked, and finally that the point satisfies the
+#: requested constraint. A message is added to the `@error` array if the answer
+#: is not correct. Otherwise the score is incremented.
+#:
+#: In this example, the `showLengthHints => 1` and `showHints => 0` options are
+#: also passed to the `cmp` method. This means that if the correct answer is a
+#: MathObject `List` of `Point`s, and a student does not give as many answers as
+#: there are in the correct answer, then the message "There should be more
+#: points in your list" will be shown. Also if the correct answer is a
+#: MathObject `List` of `Point`s, and a student gives more answers than are in
+#: the correct answer that are not all correct, then the message "There should
+#: be fewer points in your list" will be shown. If it is desired to give your
+#: own messages for those cases, then add code to the custom checker to look for
+#: those cases and add appropriate messages, and to prevent the default messages
+#: from being shown as well as the messages added by the custom list checker,
+#: pass `showLengthHints => 0` to the `cmp` method instead. Note that by default
+#: the values for both of those options are set to the value of
+#: `$showPartialCorrectAnswers` (`$showPartialCorrectAnswers` is 1 by
+#: default).
+#:
+#: The return value of a `list_checker` should be a list consisting of the
+#: numeric score followed by any messages. Any messages returned after the score
+#: will be displayed in feedback to the student. The score that will be given
+#: for the list answer is the numeric score returned divided by the maximum of
+#: the number of entries in the correct answer list and the number of entries in
+#: the student answer. So for this problem if a student gives four distinct
+#: points that satisfy constraint, then the score will be 1 even though more
+#: entries were given than were asked for. However, if `partialCredit => 0` is
+#: passed to the `cmp` method, then the score for the list answer will be 1 if
+#: the numeric score returned is equal to the maximum of of entries in the
+#: correct answer list and the number of entries in the student answer, and 0
+#: otherwise. Note that the default value for the `partialCredit` option is the
+#: value of `$showPartialCorrectAnswers`.
+Context('Point');
+
+$c   = random(4, 8);
+$ans = List("(0, $c), ($c, 0), ($c - 1, 1)")->cmp(
+    list_checker => sub {
+        my ($correct, $student, $ansHash, $value) = @_;
+        return 0 if $ansHash->{isPreview};
+
+        my $n     = scalar(@$student);    # number of student answers
+        my $score = 0;                    # number of correct student answers
+        my @errors;                       # stores error messages
+
+        # Loop though the student answers.
+    STUDENT_ANS:
+        for my $i (0 .. $n - 1) {
+            my $ith = Value::List->NameForNumber($i + 1);
+            my $p   = $student->[$i];                       # ith student answer
+
+            # Check that the student's answer is a point.
+            if ($p->type ne 'Point') {
+                push(@errors, "Your $ith entry is not a point.");
+                next;
+            }
+
+            # Check that the point hasn't been given before.  If it is the same
+            # as a previous answer, then skip to the next student answer.
+            for (my $j = 0; $j < $i; ++$j) {
+                if ($student->[$j]->type eq 'Point' && $student->[$j] == $p)
+                {
+                    push(@errors,
+                        "Your $ith point is the same as a previous one.");
+                    next STUDENT_ANS;
+                }
+            }
+
+            # Check that it satisfies the equation and increase the score if so.
+            my ($a, $b) = $p->value;
+            if ($a + $b == $c) {
+                ++$score;
+            } else {
+                push(@errors, "Your $ith point is not correct.");
+            }
+        }
+
+        return ($score, @errors);
+    },
+    showLengthHints => 1,
+    showHints       => 0
+);
+
+#:% section = statement
+BEGIN_PGML
+Enter three distinct points [`(x, y)`] that satisfy the equation
+[`x + y = [$c]`].
+
+[_]{$ans}{15}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Any three points who's coordinates sum to [`[$c]`] are valid.  For example,
+[`([$c], 0), (0, [$c]), (1, [$c - 1])`].
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

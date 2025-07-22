@@ -1,0 +1,84 @@
+## DESCRIPTION
+## Restricting answers that should reduce to a fraction.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2015)
+## Date(06/01/2015)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## MO(1)
+## KEYWORDS('answer', 'fraction')
+
+#:% name = Restrict Answers to a Fraction
+#:% type = [technique, sample]
+#:% category = [answers]
+#:% subject = [algebra, precalculus]
+#:% see_also = [RestrictingFunctions.pg]
+
+#:% section = preamble
+#: Load the PODLINK('contextFraction.pl') for the fraction contexts that it
+#: provides.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: The `Fractions-NoDecimals` context is selected which requires that answers
+#: be fractions and not decimals.
+#:
+#: To ensure that students simplify answers, the operators other than division
+#: are undefined. Note that since these operators have been undefined for all
+#: MathObjects, the answer can not be defined as
+#: `$frac = Compute("$b / ($c + $a^2)")`. The operators `+` and `^` are
+#: undefined, so they are not available for the problem author either. So
+#: do the calculation of the denominator using Perl first, and then use the
+#: MathObject to create the answer.
+#:
+#: Also note that by default a Fraction will be reduced to lowest terms. This
+#: can be changed by setting the context flag `reduceFractions => 0`.
+#:
+#: The option `studentsMustReduceFractions => 1` that is passed to the `cmp`
+#: method means that fractions entered by students must be reduced in order to
+#: be accepted.
+#:
+#: The option `strictFractions => 1` that is passed to the `cmp` method means
+#: that division is only allowed between integers. Note that the options
+#: `strictMinus => 1` and `strictMultiplication => 1` are also needed to make
+#: the `strictFractions` option really work.
+#:
+#: See PODLINK('contextFraction.pl') for more details.
+Context("Fraction-NoDecimals");
+Context()->operators->undefine('+', '-', '*', '*', '**', '^');
+
+$a    = random(2, 4);
+$b    = random(1, 9);
+$c    = random(1, 9);
+$den  = $c + $a * $a;
+$frac = Compute("$b / $den");
+
+$ans = $frac->cmp(
+    studentsMustReduceFractions => 1,
+    strictFractions             => 1,
+    strictMinus                 => 1,
+    strictMultiplication        => 1
+);
+
+#:% section = statement
+BEGIN_PGML
+Find and simplify the value of [`f([$a])`] if
+[`` f(x) = \frac{[$b]}{[$c] + x^2}. ``]
+
+[`f([$a]) = `] [__]{$ans}
+
+_(Simplify your answer as much as possible, and enter a fraction instead of a
+decimal.)_
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

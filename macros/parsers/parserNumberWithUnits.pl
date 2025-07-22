@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -61,6 +47,10 @@ In this case both 3 apple and 3 apples would be considered correct.
 Note:  English pluralization is suprisingly hard, so WeBWorK will make no
 attempt to display a grammerically correct result.
 
+=head1 SEE ALSO
+
+There is now a context for handling units:  L<contextUnits.pl>
+
 =cut
 
 loadMacros('MathObjects.pl');
@@ -69,9 +59,9 @@ our %fundamental_units = %Units::fundamental_units;
 our %known_units       = %Units::known_units;
 
 sub _parserNumberWithUnits_init {
-# We make copies of these hashes here because these copies will be unique to  # the problem.  The hashes in Units are shared between problems.  We pass
-# the hashes for these local copies to the NumberWithUnits package to use
-# for all of its stuff.
+	# We make copies of these hashes here because these copies will be unique to  # the problem.
+	# The hashes in Units are shared between problems.  We pass the hashes for these local copies
+	# to the NumberWithUnits package to use for all of its stuff.
 
 	Parser::Legacy::ObjectWithUnits::initializeUnits(\%fundamental_units, \%known_units);
 	# main::PG_restricted_eval('sub NumberWithUnits {Parser::Legacy::NumberWithUnits->new(@_)}');

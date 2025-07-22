@@ -1,0 +1,68 @@
+## DESCRIPTION
+## Answer that may not be an equation.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(PGML tutorial 2023)
+## Date(07/21/2023)
+## Institution(MWSU)
+## Author(Glenn Rice)
+## KEYWORDS('algebra', 'alternate answer forms')
+
+#:% name = Answers with Alternate Forms
+#:% type = Sample
+#:% subject = [algebra, precalculus]
+#:% categories = [equations]
+
+#:% section = preamble
+#: Load the PODLINK('parserRadioMultiAnswer.pl') macro in addition to the usual
+#: macros.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',             'PGML.pl',
+    'parserRadioMultiAnswer.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
+#: A `RadioMultiAnswer` produces a set of radio buttons for each of the given
+#: statements. The format is
+#:
+#: ```{#radio-multi-answer-usage .perl}
+#: RadioMultiAnswer([
+#:     [statement1, first answer in statement 1, second answer in statement 1, ...],
+#:     [statement2, first answer in statement 2, ...],
+#:     ...
+#:     [last statement]
+#: ], correct index, options)
+#: ```
+#:
+#: Answer blanks can be added to a part with the `%s` in the string. If an array
+#: answer is desired, use `%s*` instead. See the
+#: PODLINK('parserRadioMultiAnswer.pl') macro for more details.
+
+$y = random(0, 4);
+
+$rma = RadioMultiAnswer(
+    [
+        [ 'The equation of the line is \(y = \) %s.', '2x' ],
+        ['No such line exists.']
+    ],
+    $y < 4 ? 1 : 0
+);
+
+#:% section = statement
+BEGIN_PGML
+Is there a line through the points [`(0, 0)`], [`(1, 2)`], and [`(2, [$y])`]?
+If there is, then give the equation for this line.
+
+[_]{$rma}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

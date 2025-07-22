@@ -1,7 +1,12 @@
 
-=head1 niceTables.pl
+=head1 NAME
 
-Subroutines for creating tables that:
+niceTables.pl - Subroutines for creating tables that are accessible, more uniform
+styling, can include CSS or LaTeX.
+
+=head1 DESCRIPTION
+
+This macro allows tables that can be made that
 
 =over
 
@@ -23,8 +28,6 @@ output. Use C<LayoutTable()> whenever you are simply laying out content
 for space-saving purposes. Ask yourself if there is any meaningful
 relation between content cells within a column or within a row. If the
 answer is no in both cases, it is likely a case for C<LayoutTable()>.
-
-=head2 Description
 
 Command for a typical table:
 
@@ -48,7 +51,7 @@ Command for a typical table:
 
 The cell entries above like C<a> may be simple cell content,
 a hash reference with C<< data => cellContent >> and options,
-or an array reference where the 0th entry is the the cell content
+or an array reference where the 0th entry is the cell content
 and it is followed by option key-value pairs.
 
 As much as possible, options apply to all output formats.
@@ -93,7 +96,7 @@ The width can be an absolute width or (unlike in LaTeX) a positive decimal numbe
 If it is a decimal, it will be interpreted as a portion of the available width.
 
 C<X> for a column that expands to fill (see C<Xratio> below),
-and will have left-aligned paragraphs 
+and will have left-aligned paragraphs
 
 C<|> for a vertical rule (n adjacent pipes make one rule that is n times as thick)
 
@@ -970,7 +973,7 @@ sub Row {
 				} elsif (!$cellOpts->{halign}) {
 					$columntype .= getLaTeXcolumnWidth($cellAlign->{right});
 				}
-				$cell = latexCommand('multicolumn', [ $cellOpts->{colspan}, $columntype, $cell ]);
+				$cell = "\\multicolumn{$cellOpts->{colspan}}{$columntype}{$cell}";
 			}
 			$cell = suffix($cell, '&', ' ') unless ($i == $#$rowArray);
 			push(@cells, $cell);
@@ -1453,16 +1456,6 @@ sub latexEnvironment {
 	}
 	$return .= "$separator$inside$separator";
 	$return .= "\\end{$environment}";
-	return $return;
-}
-
-sub latexCommand {
-	my ($command, $arguments) = @_;
-	my $return = "\\$command";
-	for my $x (@$arguments) {
-		$return .= "{$x}" if ($x ne '');
-	}
-	$return .= " ";
 	return $return;
 }
 

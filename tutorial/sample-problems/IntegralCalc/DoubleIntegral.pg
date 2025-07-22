@@ -13,25 +13,28 @@
 
 #:% name = Double Integral
 #:% type = Sample
-#:% subject = multivariate calculus
+#:% subject = Multivariable Calculus
 #:% categories = [double integral]
 
 #:% section = preamble
-#: Since there are multiple answer blanks that are dependent upon each other, we use `parserMultiAnswer.pl`.
+#: Since there are multiple answer blanks that are dependent upon each other the
+#: PODLINK('parserMultiAnswer.pl') macro is used.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: There are two separate cases: integrating with respect to dx dy (which we call case
-#: 0) or with respect to dy dx (which we call case 1). The zeroth and first entries
-#: in each of the arrays `@id, @od, @A, @B, @C, @D` hold the values for case 0 and case 1,
-#: respectively. We used constant limits of integration to keep this example easy to follow,
-#: but we encourage you to write questions over non-rectangular regions.
+#: There are two separate cases: integrating with respect to `dx dy` (case 0) or
+#: with respect to `dy dx` (case 1). The zeroth and first entries in each of the
+#: arrays `@id`, `@od`, `@A`, `@B`, `@C`, and `@D` hold the values for case 0
+#: and case 1, respectively. Constant limits of integration are used to keep
+#: this example easy to follow, but you are encouraged to write questions over
+#: non-rectangular regions.
 #:
-#: The `$multians` object has been compartmentalized, so you shouldn't need to change it
-#: unless you want to fiddle with the weighted score for each answer blank (by changing
-#: the return values). The return values are set so that the percentages come out nicely.
+#: The `$multians` object has been compartmentalized, so you shouldn't need to
+#: change it unless you want to fiddle with the weighted score for each answer
+#: blank (by changing the return values). The return values are set so that the
+#: percentages come out nicely.
 Context()->variables->are(
     x  => 'Real',
     dx => 'Real',
@@ -74,8 +77,7 @@ $multians = MultiAnswer($f, $id[0], $od[0], $A[0], $B[0], $C[0], $D[0])->with(
     singleResult => 1,
     checker      => sub {
         my ($correct, $student, $self) = @_;
-        my ($fstu, $idstu, $odstu, $Astu, $Bstu, $Cstu, $Dstu) =
-            @{$student};
+        my ($fstu, $idstu, $odstu, $Astu, $Bstu, $Cstu, $Dstu) = @$student;
         if (
             (
                 $f == $fstu
@@ -153,17 +155,18 @@ $multians = MultiAnswer($f, $id[0], $od[0], $A[0], $B[0], $C[0], $D[0])->with(
 );
 
 #:% section = statement
-#: The only interesting thing to note here is that you must use `$multians` for each
-#: answer blank (except the last one, which is independent.)
+#: The only interesting thing to note here is that `$multians` must be used for
+#: each answer rule (except the last one, which is independent.)
 BEGIN_PGML
 Set up a double integral in rectangular coordinates for calculating the volume
 of the solid under the graph of the function [`f(x,y) = [$f]`] over the region
 [`[$a] \leq x \leq [$b]`] and [`[$c] \leq y \leq [$d]`].
 
 _Instructions:_ Please enter the integrand in the first answer box . Depending
-on the order of integration you choose, enter _dx_ and _dy_ in either order into
-the second and third answer boxes with only one _dx_ or _dy_ in each box . Then,
-enter the limits of integration and evaluate the integral to find the volume.
+on the order of integration you choose, enter [`dx`] and [`dy`] in either order
+into the second and third answer boxes with only one [`dx`] or [`dy`] in each
+box . Then, enter the limits of integration and evaluate the integral to find
+the volume.
 
 [``\int_A^B \int_C^D``] [_]{$multians}{10} [_]{$multians}{5} [_]{$multians}{5}
 

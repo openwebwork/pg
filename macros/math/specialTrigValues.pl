@@ -1,10 +1,10 @@
 
-=head1 specialTrigValues.pl
+=head1 NAME
 
-Subroutines for converting numbers that arise in a trigonometry setting into
+specialTrigValues.pl - Subroutines for converting numbers that arise in a trigonometry setting into
 "nice" expressions like pi/4 and sqrt(3)/2
 
-=head2 Description
+=head1 DESCRIPTION
 
 C<specialRadical(x)> returns a MathObject Formula in Complex context of the
 form "a sqrt(b)/c" that is the closest possible to x, where a is an integer,
@@ -17,7 +17,8 @@ Imaginary parts separately.
 
 C<specialAngle(x)> returns a MathObject Formula in Numeric context of the form
 "a pi/c" that is the closest possible to x, where a is an integer, and c is from
-a specified set of positive integers. By default, c comes from [1,2,3,4,6].
+a specified set of positive integers. By default, c comes from [1,2,3,4,6]. If
+a equals 0, then this returns Formula('0').
 
 =head2 Options
 
@@ -106,7 +107,7 @@ sub specialAngle {
 	} else {
 		$a = $closest->[0];
 	}
-	my $return = Formula("$a pi $divc");
+	my $return = ($a ne '0') ? Formula("$a pi $divc") : Formula('0');
 	Context($mycontext);
 	return $return;
 }

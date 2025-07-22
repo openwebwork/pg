@@ -13,12 +13,12 @@
 #:% name = Graph Tool, plotting a cubic
 #:% type = [Sample, technique]
 #:% subject = [algebra, precalculus]
-#:% categories = [graph]
+#:% categories = [graph, graphtool]
 
 #:% section = preamble
 #: This example shows how to get student input in the form of a graph (a cubic)
-#: by using interactive graphing tools. Load the parserGraphTool.pl macro for
-#: this.
+#: by using interactive graphing tools. Load the PODLINK('parserGraphTool.pl')
+#: macro for this.
 DOCUMENT();
 
 loadMacros(
@@ -74,25 +74,28 @@ $gt =
     );
 
 #:% section = statement
-#: This asks to graph the cubic throw the given points. The code
-#: `[_]{$gt}` inserts the GraphTool.
+#: This asks to the student to graph the cubic defined by the given equation.
+#: The code `[_]{$gt}` inserts the GraphTool.
 BEGIN_PGML
 Graph the cubic function [``p(x) = [$k](x-[$x1])(x-[$x2])(x-[$x3])``]
 
 [_]{$gt}
 END_PGML
 
+$altText = 'the graph of a cubic function through the points '
+    . "($x1, 0), ($x2, 0), ($x3, 0), and (0, $y0)";
+
 #:% section = solution
 #: The solution describes how to obtain the graph of the circle from the
 #: equation.
 BEGIN_PGML_SOLUTION
-To graph the cubic, you'll need 4 points.  Because of the form, there are
-3 zeros [`([$x1],0), ([$x2],0)`] and [`([$x3],0)`].  Any other point can be
-chosen, but another easy one is the [`y`]-intercept, which by evaluating
-[`p(0)=[$y0]`], then select [`(0,[$y0])`].
+To graph the cubic, you'll need 4 points.  Because of the form, there are 3
+zeros [`([$x1], 0)`], [`([$x2], 0)`] and [`([$x3], 0)`].  Any other point can be
+chosen, but another easy one is the [`y`]-intercept, which can be found by
+evaluating [`p(0) = [$y0]`], then select [`(0, [$y0])`].
 
 The solution is
-[@ $gt->generateAnswerGraph @]*
+[![$altText]!]{$gt}
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

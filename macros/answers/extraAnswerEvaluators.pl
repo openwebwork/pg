@@ -1,24 +1,15 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
 extraAnswerEvaluators.pl - Answer evaluators for intervals, lists of numbers,
 and lists of points.
 
-=head1 SYNPOSIS
+=head1 DESCRIPTION
+
+This is a list of functions that create "answer evaluators" for checking student
+answers of various "exotic" types.
+
+=head1 SYNOPSIS
 
 	interval_cmp() -- checks answers which are unions of intervals. It can also
 					  be used for checking an ordered pair or list of ordered
@@ -36,10 +27,7 @@ and lists of points.
 	                  instructor's equation.  The student's equation must be of
 	                  the same general type as the instructors to get credit.
 
-=head1 DESCRIPTION
 
-This file adds subroutines which create "answer evaluators" for checking student
-answers of various "exotic" types.
 
 =cut
 
@@ -255,7 +243,7 @@ sub mode2context {
 	return ($context);
 }
 
-=head1 MACROS
+=head1 FUNCTIONS
 
 =head2 interval_cmp
 
@@ -367,7 +355,7 @@ sub interval_cmp {
 	$options{studentsMustReduceUnions} = $opts{studentsMustReduceUnions};
 	if (defined($opts{ordered}) and $opts{ordered}) {
 		$options{ordered} = 1;
-		# Force this option if the the union must be ordered
+		# Force this option if the union must be ordered
 		$options{studentsMustReduceUnions} = 1;
 	}
 	if (defined($opts{'sloppy'}) && $opts{'sloppy'} eq 'yes') {

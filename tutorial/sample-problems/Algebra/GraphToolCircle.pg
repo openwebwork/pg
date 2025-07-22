@@ -12,26 +12,27 @@
 
 #:% name = Graph Tool, plotting a circle
 #:% type = [Sample, technique]
-#:% subject = [algebra, precalculus]
-#:% categories = [graph]
+#:% subject = [algebra, precalculus, geometry]
+#:% categories = [graph, graphtool]
 
 #:% section = preamble
 #: This example shows how to get student input in the form of a graph (a circle)
-#: by using interactive graphing tools. Load the parserGraphTool.pl macro for
-#: this.
+#: by using interactive graphing tools. Load the PODLINK('parserGraphTool.pl')
+#: macro for this.
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: The variables `$h`, `$k` and `$r` randomly pick a center and radius of the circle.
+#: The variables `$h`, `$k` and `$r` randomly pick a center and radius of the
+#: circle.
 #:
 #: The lines
 #:
-#:```{#equation .perl}
+#: ```{#equation .perl}
 #: Context()->variables->add(y => 'Real');
 #: $circle_eq_lhs = Formula("(x - $h)^2 + (y - $k)^2")->reduce;
-#:```
+#: ```
 #:
 #: define the equation of the circle that is shown in the problem and solution.
 #:
@@ -58,7 +59,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #: PROBLINK('GraphToolCustomChecker.pg') for an example of how to use a custom
 #: checker.
 #:
-#: For more details, see the PODLINK('POD documentation','parserGraphTool.pl')
+#: For more details, see PODLINK('parserGraphTool.pl').
 $h = non_zero_random(-5, 5);
 $k = non_zero_random(-5, 5);
 $r = random(1, 4);
@@ -70,7 +71,7 @@ $gt = GraphTool("{circle, solid, ($h, $k), ($h + $r, $k)}")
     ->with(bBox => [ -11, 11, 11, -11 ]);
 
 #:% section = statement
-#: This asks to graph the circle given by the equation. The code
+#: This asks the student to graph the circle given by the equation. The code
 #: `[_]{$gt}` inserts the GraphTool.
 BEGIN_PGML
 Graph the circle given by the following equation.
@@ -84,8 +85,8 @@ END_PGML
 #: The solution describes how to obtain the graph of the circle from the
 #: equation.
 #:
-#: The line `[@ $gt->generateAnswerGraph @]*` inserts the correct answer
-#: graph.
+#: The line `[! the graph of a circle centered at ([$h], [$k]) of radius [$r] !]{$gt}`
+#: inserts the correct answer graph.
 BEGIN_PGML_SOLUTION
 The equation of the circle of the form:
 
@@ -93,11 +94,11 @@ The equation of the circle of the form:
 
 has a center at [`([$h],[$k])`] and radius [$r].  To enter the graph, click the
 circle tool, then click the center at [`([$h],[$k])`] and then click a second
-point that is [$r] units from the center.  This is easist going left, right, up
+point that is [$r] units from the center.  This is easiest going left, right, up
 or down from the center.
 
 The solution is
-[@ $gt->generateAnswerGraph @]*
+[! the graph of a circle centered at ([$h], [$k]) of radius [$r] !]{$gt}
 END_PGML_SOLUTION
 
 ENDDOCUMENT();

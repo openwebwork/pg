@@ -8,12 +8,16 @@ use lib "$ENV{PG_ROOT}/lib";
 
 my $macros_dir = "$ENV{PG_ROOT}/macros";
 
+use HTML::Entities;
+
 use WeBWorK::PG::Environment;
 use WeBWorK::PG;
 use PGcore;
 use Parser;
 
-%main::envir = %{ WeBWorK::PG::defineProblemEnvironment(WeBWorK::PG::Environment->new) };
+$WeBWorK::PG::IO::pg_envir = WeBWorK::PG::Environment->new;
+
+%main::envir = %{ WeBWorK::PG::defineProblemEnvironment($WeBWorK::PG::IO::pg_envir) };
 
 sub PG_restricted_eval {
 	my @input = @_;

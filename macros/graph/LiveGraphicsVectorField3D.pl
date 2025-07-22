@@ -1,17 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
@@ -103,7 +89,7 @@ from C<zmin> to C<zmax> to use.
 
 =item C<< axesframed => 1 >>
 
-If set to 1 then the framed axes are displayed.  If set to 0, the the framed
+If set to 1 then the framed axes are displayed.  If set to 0, the framed
 axes are not shown. This is 1 by default.
 
 =item C<< xaxislabel => 'x' >>
@@ -177,15 +163,15 @@ sub VectorField3D {
 		yvar            => 'y',
 		zvar            => 'z',
 		xmin            => -3,
-		xmax            => 3,
+		xmax            =>  3,
 		ymin            => -3,
-		ymax            => 3,
+		ymax            =>  3,
 		zmin            => -3,
-		zmax            => 3,
-		xsamples        => 20,
-		ysamples        => 20,
-		zsamples        => 20,
-		axesframed      => 1,
+		zmax            =>  3,
+		xsamples        =>  20,
+		ysamples        =>  20,
+		zsamples        =>  20,
+		axesframed      =>  1,
 		xaxislabel      => 'x',
 		yaxislabel      => 'y',
 		zaxislabel      => 'z',

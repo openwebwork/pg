@@ -1,24 +1,9 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =head1 NAME
 
-C<Context("AlternateIntervals")> - Provides a context that allows the
+contextAlternateIntervals.pl - Provides a context that allows the
 entry of intervals using reversed bracket notation for open endpoints
 (e.g., C<]a,b[> rather than C<(a,b)> for an open interval).
-
 
 =head1 DESCRIPTION
 
@@ -27,9 +12,6 @@ specified using reversed brackets rather than parentheses.  Both forms
 are always recognized, but you can determine whether one or the other
 form produces an error message when used.  You can also force the
 display of intervals to use one or the other form.
-
-
-=head1 USAGE
 
 To use this file, first load it into your problem, then select the
 context that you wish to use.  There are three pre-defined contexts,
@@ -97,7 +79,7 @@ different values.  For example.
 would allow students to enter intervals in either format, but all
 intervals would be displayed in standard form.
 
-=head1 Setting the alternate form as the default
+=head2 Setting the alternate form as the default
 
 If you want to force existing problems that use the Interval context
 to use one of the alternate contexts instead, then create a file named

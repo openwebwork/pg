@@ -1,18 +1,3 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
-
 package WeBWorK::PG;
 
 use strict;
@@ -54,6 +39,8 @@ sub new_helper ($invocant, %options) {
 	my $class = ref($invocant) || $invocant;
 
 	my $pg_envir = WeBWorK::PG::Environment->new($options{courseName});
+	$pg_envir->{directories}{html_temp} = $options{tempDirectory} =~ s!/*$!!r if $options{tempDirectory};
+	$WeBWorK::PG::IO::pg_envir = $pg_envir;
 
 	# Make sure these are defined.
 	$options{sourceFilePath}    //= '';
@@ -264,10 +251,6 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		showMessages            => $options->{showMessages}            // 1,
 		showCorrectAnswers      => $options->{showCorrectAnswers}      // 0,
 
-		# The next has marks what data was updated and needs to be saved
-		# by the front end.
-		PERSISTENCE_HASH_UPDATED => {},
-
 		inputs_ref => $options->{inputs_ref},
 
 		(map { $_ => $ansEvalDefaults->{$_} } keys %$ansEvalDefaults),
@@ -291,7 +274,6 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 		htmlDirectory     => $options->{htmlDirectory}     // "$pg_envir->{directories}{html}/",
 		htmlURL           => $options->{htmlURL}           // "$pg_envir->{URLs}{html}/",
 		templateDirectory => $options->{templateDirectory} // '',
-		tempDirectory     => $options->{tempDirectory}     // "$pg_envir->{directories}{html_temp}/",
 		tempURL           => $options->{tempURL}           // "$pg_envir->{URLs}{tempURL}/",
 		localHelpURL      => $options->{localHelpURL}      // "$pg_envir->{URLs}{localHelpURL}/",
 

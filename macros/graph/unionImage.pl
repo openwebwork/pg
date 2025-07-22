@@ -66,12 +66,12 @@ sub Image {
 	my $TeX;
 	($image, $ilink) = @{$image} if (ref($image) eq "ARRAY");
 	$ilink = $ilink // '';
-	$image = alias(insertGraph($image)) if (ref($image) eq "WWPlot");
-	$image = alias($image) unless ($image =~ m!^(/|https?:)!i);         # see note
+	$image = alias(insertGraph($image)) if (ref($image) eq "WWPlot" || ref($image) eq 'Plots::Plot');
+	$image = alias($image) unless ($image =~ m!^(/|https?:)!i);                                         # see note
 
 	if ($ilink) {
 		$ilink = alias(insertGraph($ilink)) if (ref($ilink) eq "WWPlot");
-		$ilink = alias($ilink) unless ($ilink =~ m!^(/|https?:)!i);         # see note
+		$ilink = alias($ilink) unless ($ilink =~ m!^(/|https?:)!i);                                     # see note
 	} else {
 		$ilink = $image;
 	}
@@ -98,9 +98,8 @@ sub Image {
 	$TeX  = '\includegraphics[width=' . $ratio . '\linewidth]{' . $image . '}';
 	$TeX  = '\centerline{' . $TeX . '}' if $tcenter;
 	MODES(
-		TeX        => $TeX . "\n",
-		Latex2HTML => $bHTML . $HTML . $eHTML,
-		HTML       => $HTML
+		TeX  => $TeX . "\n",
+		HTML => $HTML
 	);
 }
 

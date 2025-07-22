@@ -1,23 +1,9 @@
-################################################################################
-# WeBWorK Online Homework Delivery System
-# Copyright &copy; 2000-2024 The WeBWorK Project, https://github.com/openwebwork
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of either: (a) the GNU General Public License as published by the
-# Free Software Foundation; either version 2, or (at your option) any later
-# version, or (b) the "Artistic License" which comes with this package.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
-# Artistic License for more details.
-################################################################################
 
 =encoding utf8
 
 =head1 NAME
 
-draggableSubsets.pl
+draggableSubsets.pl - Creates visual items that can be dragged into various buckets.
 
 =head1 DESCRIPTION
 
@@ -25,7 +11,6 @@ This macro helps the instructor create a drag-and-drop environment in which a
 pre-specified set of elements may be dragged to different "buckets", effectively
 partitioning the original set into subsets.
 
-=head1 TERMINOLOGY
 
 An HTML element into or out of which other elements may be dragged will be
 called a "bucket".
@@ -33,7 +18,6 @@ called a "bucket".
 An HTML element which houses a collection of buckets will be called a "bucket
 pool".
 
-=head1 USAGE
 
 To initialize a C<DraggableSubset> bucket pool in a .pg problem, insert the line
 
@@ -87,16 +71,17 @@ Available Options:
     ResetButtonText   => <string>
     AddButtonText     => <string>
     RemoveButtonText  => <string>
+    ShowUniversalSet  => 0 or 1
+    UniversalSetLabel => <string>
 
 Their usage is demonstrated in the example below.
 
-=head1 EXAMPLE
+=head1 SYNOPSIS
 
     DOCUMENT();
     loadMacros(
         'PGstandard.pl',
         'PGML.pl',
-        'MathObjects.pl',
         'draggableSubsets.pl'
     );
 
@@ -170,6 +155,16 @@ Their usage is demonstrated in the example below.
         # removable buckets.  The default value if not given is "Remove".
         RemoveButtonText => 'Delete'
 
+        # If this is true then a separate bucket containing the full set passed
+        # as the first argument above (the universal set) will be shown, and the
+        # elements of the set can be distributed to the other subsets (or
+        # buckets) that are shown.  The default value if not given is 0.
+        ShowUniversalSet => 1,
+
+        # Label for the bucket representing the universal set.
+        #  The default value if not given is "Universal Set".
+        UniversalSetLabel => 'Universal Set',
+
         # These are options that will be passed to the $draggable->cmp method.
         cmpOptions => { checker => sub { ... } }
     );
@@ -228,9 +223,43 @@ sub new {
 		ResetButtonText   => 'Reset',
 		AddButtonText     => 'Add Bucket',
 		RemoveButtonText  => 'Remove',
+		ShowUniversalSet  => 0,
+		UniversalSetLabel => 'Universal Set',
 		%options
 		},
 		ref($invocant) || $invocant;
+
+	Value::Error('Answer subsets must be an array reference.') unless ref($subsets) eq 'ARRAY';
+
+	my %seenIndices;
+	for my $subset (@$subsets) {
+		Value::Error('Each answer subset must be a reference to an array of indices.')
+			unless ref($subset) eq 'ARRAY';
+		for (@$subset) {
+			Value::Error('An index in an answer subset is out of range.') unless $_ < @$set;
+			Value::Error('An index is repeated in multiple answer subsets. '
+					. 'This can only be the case if ShowUniversalSet is 1.')
+				if !$base->{ShowUniversalSet} && $seenIndices{$_};
+			$seenIndices{$_} = 1;
+		}
+	}
+
+	Value::Error('Default subsets must be an array reference.')
+		unless ref($base->{DefaultSubsets}) eq 'ARRAY';
+
+	%seenIndices = ();
+	for my $subset (@{ $base->{DefaultSubsets} }) {
+		Value::Error('Each default subset must be a hash reference.') unless ref($subset) eq 'HASH';
+		Value::Error('Each default subset must have "indices" which must be a reference to an array of indices.')
+			unless ref($subset->{indices}) eq 'ARRAY';
+		for (@{ $subset->{indices} }) {
+			Value::Error('An index in a default subset is out of range.') unless $_ < @$set;
+			Value::Error('An index is repeated in multiple default subsets.'
+					. 'This can only be the case if ShowUniversalSet is 1.')
+				if !$base->{ShowUniversalSet} && $seenIndices{$_};
+			$seenIndices{$_} = 1;
+		}
+	}
 
 	$base->{order} = do {
 		my @indices = 0 .. $#{ $base->{set} };
@@ -304,7 +333,9 @@ sub ans_rule {
 		bucketLabelFormat => $self->{BucketLabelFormat},
 		resetButtonText   => $self->{ResetButtonText},
 		addButtonText     => $self->{AddButtonText},
-		removeButtonText  => $self->{RemoveButtonText}
+		removeButtonText  => $self->{RemoveButtonText},
+		showUniversalSet  => $self->{ShowUniversalSet},
+		universalSetLabel => $self->{UniversalSetLabel},
 	);
 
 	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($self->ANS_NAME);
@@ -359,8 +390,7 @@ sub cmp_preprocess {
 		$ans->{preview_latex_string} = join(
 			',',
 			map {
-				"\\{\\text{"
-					. join(',', map { $self->{shuffledSet}[$_] } grep { $_ >= 0 } @{ $_->{data} }) . "}\\}"
+				"\\{\\text{" . join(',', map { $self->{shuffledSet}[$_] } grep { $_ >= 0 } @{ $_->{data} }) . "}\\}"
 			} @{ $ans->{student_value}{data} }
 		);
 	}

@@ -1,0 +1,104 @@
+## DESCRIPTION
+## This shows how to check answers that require students to factor or expand
+## a polynomial expression.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/01/2008)
+## Institution(University of Michigan)
+## Author(Gavin LaRose)
+## MO(1)
+## KEYWORDS('answer', 'custom')
+
+#:% name = Factoring and Expanding Polynomials
+#:% type = technique
+#:% categories = [polynomials, factoring, expanding]
+
+#:% section = preamble
+#: The macros PODLINK('contextLimitedPolynomial.pl'),
+#: PODLINK('contextPolynomialFactors.pl'), and
+#: PODLINK('contextLimitedPowers.pl') are needed for this example.
+DOCUMENT();
+loadMacros(
+    'PGstandard.pl',               'PGML.pl',
+    'contextLimitedPolynomial.pl', 'contextPolynomialFactors.pl',
+    'contextLimitedPowers.pl',     'PGcourse.pl'
+);
+
+#:% section = setup
+#: Randomly generate `$a` and `$b`. The quadratic in this problem will be
+#: `(x + $a)(x - $b)`.
+#:
+#: Then compute the vertex form `(a(x - h)^2 + k)`, expanded form
+#: `(ax^2 + bx + c)`, and factored form `(x + $a)(x - $b)` of the quadratic in
+#: different contexts.
+#:
+#: The vertex form is computed in the default `Numeric` context. This form is
+#: used for display only and will not be used as an answer. So particular care
+#: with specialized contexts is not needed.
+#:
+#: The expanded form is computed in the `LimitedPolynomial-Strict` context.
+#: The coefficients `$p[0]` and `$p[1]` are constructed as Perl reals, and then
+#: the `$expandedform` computed using these coefficients. This is because the
+#: `LimitedPolynomial-Strict` context does not allow computations in the
+#: coefficients.
+#:
+#: The factored form is computed in the `PolynomialFactors-Strict` context. The
+#: context is further restricted to allow only the exponents of 0 or 1 using
+#: `LimitedPowers::OnlyIntegers`. Note that restricting all exponents to 0 or 1
+#: means that repeated factors will have to be entered in the form
+#: `k(ax + b)(ax + b)` instead of `k(ax + b)^2`. This also means that the
+#: polynomial must factor as a product of linear factors (no irreducible
+#: quadratic factors can appear). Of course, the exponents of 0, 1, or 2 could
+#: be allowed, but then students would be allowed to enter reducible quadratic
+#: factors. There are no restrictions on the coefficients, i.e., the quadratic
+#: could have any nonzero leading coefficient. The context flags
+#: `singleFactors => 0` is set so that repeated, non-simplified factors do not
+#: generate errors.
+Context('Numeric');
+
+$a = random(2, 5);
+$b = ($a + 2 * random(2, 5));
+
+#  Vertex form
+$h          = ($b - $a) / 2;
+$k          = $h**2 + $a * $b;
+$vertexform = Compute("(x - $h)^2 - $k");
+
+#  Expanded form
+Context('LimitedPolynomial-Strict');
+$p0           = $h**2 - $k;
+$p1           = 2 * $h;
+$expandedform = Formula("x^2 - $p1 x + $p0")->reduce;
+
+#  Factored form
+Context('PolynomialFactors-Strict');
+Context()->flags->set(singleFactors => 0);
+LimitedPowers::OnlyIntegers(
+    minPower => 0,
+    maxPower => 1,
+    message  => 'either 0 or 1',
+);
+$factoredform = Compute("(x + $a)(x - $b)");
+
+#:% section = statement
+BEGIN_PGML
+The quadratic expression [`[$vertexform]`] is written in vertex form.
+
+a. Write the expression in expanded form [`ax^2 + bx + c`].
+
+    [_]{$expandedform}{15}
+
+b. Write the expression in factored form [`k(ax + b)(cx + d)`].
+
+    [_]{$factoredform}{15}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
