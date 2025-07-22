@@ -1,12 +1,15 @@
 
 =head1 NAME
 
-This context distinguishes between "forms" of an expression by using bizarro
+contextForm.pl - This context distinguishes between "forms" of an expression by using bizarro
 arithmetic.
 
-For example, the answer could be "(x+1)(x+2)". Bizarro arithmetic always has
+=head1 DESCRIPTION
+
+This context distinguishes between "forms" of an expression by using bizarro
+arithmetic.  For example, the answer could be "(x+1)(x+2)". Bizarro arithmetic always has
 commutative and associative addidition and multiplication, so it would be OK
-to anwer with "(2+x)(x+1)".
+to answer with "(2+x)(x+1)".
 
 But this context initally only uses bizarro with multiplication and division.
 So "x^2+3x+2" will not evaluate to the same as "(x+1)(x+2)".
@@ -23,9 +26,6 @@ the answer, at first it will not accept "(x+1)(x+1)". Because bizarro exponents
 are not activated. But you could activate them (or deactivate bizarro multiplication
 and division while activating bizarro addition and subtraction) and then
 "(x+1)^2" and "(x+1)(x+1)" would be equivalent, yet distinct from "x^2+2x+1".
-
-
-=head1 DESCRIPTION
 
 =cut
 
@@ -44,7 +44,9 @@ sub _contextForm_init {
 		setSqrt                 => exp(1) / main::ln(2),
 		setRoot                 => exp(2) / main::ln(3),
 		wrongFormMessage        =>
-			'Your answer is algebraically equivalent to the correct answer, but not in the expected form. Maybe it is not fully simplified. Maybe something is not completely factored or expanded. Maybe it is not in the expected form for some other reason.',
+			'Your answer is algebraically equivalent to the correct answer, but not in the expected form. '
+			. 'Maybe it is not fully simplified. Maybe something is not completely factored or expanded. '
+			. 'Maybe it is not in the expected form for some other reason.',
 
 	);
 	$context->noreduce('(-x)+y', '(-x)-y');

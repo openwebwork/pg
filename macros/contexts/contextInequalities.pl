@@ -1,18 +1,9 @@
 
 =head1 NAME
 
-Context("Inequalities"), Context("Inequalities-Only") - Provides contexts that
-allow intervals to be specified as inequalities.
+contextInequalities.pl - Provides contexts that allow intervals to be specified as inequalities.
 
-=head1 DESCRIPTION
-
-Implements contexts that provides for inequalities that produce
-the cooresponding C<Interval>, C<Set> or C<Union> C<MathObjects>.  There are
-two such contexts:  C<Context("Inequalities")>, in which both
-intervals and inequalities are defined, and C<Context("Inequalities-Only")>,
-which allows only inequalities as a means of producing intervals.
-
-=head1 USAGE
+=head1 SYNOPSIS
 
     loadMacros("contextInequalities.pl");
 
@@ -28,6 +19,15 @@ which allows only inequalities as a means of producing intervals.
     $S4 = Compute("x > 2 and x <= 4"); # forms the Interval (2,4]
     $S5 = Compute("x = 1");            # forms the Set
     $S6 = Compute("x != 1");           # forms the Union (-inf,1) U (1,inf)
+
+
+=head1 DESCRIPTION
+
+Implements contexts that provides for inequalities that produce
+the cooresponding C<Interval>, C<Set> or C<Union> C<MathObjects>.  There are
+two such contexts:  C<Context("Inequalities")>, in which both
+intervals and inequalities are defined, and C<Context("Inequalities-Only")>,
+which allows only inequalities as a means of producing intervals.
 
 You can set the "noneWord" flag to specify the string to
 use when the inequalities specify the empty set.  By default,

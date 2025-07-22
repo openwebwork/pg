@@ -14,19 +14,13 @@ B<Note:> By default, webwork problems evaluate trigonometric functions
 in radians.  Problems which evaluate trigonometric functions in degrees
 should alert the student in their text.
 
-=head1 USAGE
+=head1 SYNOPSIS
 
     Context("TrigDegrees")
 
     $a = 60;
     $b = Compute("cos($a)");
     ANS($b->cmp);
-
-=head1 AUTHORS
-
-Davide Cervone (Union College, Schenectady, New York, USA)
-
-Paul Pearson (Hope College, Holland, Michigan, USA)
 
 =cut
 

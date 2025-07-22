@@ -9,6 +9,8 @@ Implements contexts for string-valued answers especially
 for matching problems (where you match against A, B, C, D,
 and so on).
 
+=head1 SYNOPSIS
+
 There are two contexts defined here,
 
     Context("ABCD");

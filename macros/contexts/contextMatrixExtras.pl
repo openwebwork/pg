@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-F<contextMatrixExtras.pl> - Add transpose, trace, and determinant to Matrix context
+contextMatrixExtras.pl - Add transpose, trace, and determinant to Matrix context
 
 =head1 DESCRIPTION
 

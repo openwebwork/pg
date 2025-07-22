@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-contextLimitedPolynomial.pl - Allow only entry of polynomials.
+contextLimitedPolynomial.pl - Allow only entry of polynomials in multiple forms.
 
 =head1 DESCRIPTION
 

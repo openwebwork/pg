@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-Describe this context here.
+contextRestrictedDomains.pl - Provide a way for students to enter formulas with a restricted domain.
 
 =head1 DESCRIPTION
 
@@ -20,7 +20,9 @@ sub _contextRestrictedDomains_init {
 		checkRoot               => 0,
 		setSqrt                 => exp(1) / main::ln(2),
 		wrongFormMessage        =>
-			'Your answer is algebraically equivalent to the correct answer, but not in the expected form. Maybe it is not fully simplified. Maybe something is not completely factored. Maybe it is not in the expected form for some other reason.',
+			'Your answer is algebraically equivalent to the correct answer, but not in the expected form. '
+			. 'Maybe it is not fully simplified. Maybe something is not completely factored. '
+			. 'Maybe it is not in the expected form for some other reason.',
 		useBizarro       => 1,
 		expressionWeight => 0.9,
 	);

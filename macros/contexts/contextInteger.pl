@@ -8,7 +8,7 @@ contextInteger.pl - adds integer related functions primeFactorization, phi, tau,
 This is a Parser context that adds integer related functions.
 This forces students to only enter integers as their answers.
 
-=head1 USAGE
+=head1 SYNOPSIS
 
     Context("Integer")
 
@@ -45,6 +45,32 @@ Check if prime
 Get a random prime in a range
 
     $randomPrime = randomPrime(100, 1000);
+
+=head1 FUNCTIONS
+
+=head2 primeFactorization
+
+Find the prime factorization of an integer.
+
+=head2 gcd
+
+Find the greatest common divisor
+
+=head2 lcm
+
+Find the lowest common multiple.
+
+=head2 phi
+
+Find phi.
+
+=head2 tau
+
+Find tau.
+
+=head2 isPrime
+
+Determine if the given integer is prime.
 
 =cut
 

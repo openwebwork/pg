@@ -4,7 +4,6 @@
 C<Context("Permutation")> - Provides contexts that allow the
 entry of cycles and permutations.
 
-
 =head1 DESCRIPTION
 
 These contexts allow you to enter permutations using cycle notation.
@@ -19,7 +18,6 @@ allows permutations in any form, C<Context("Permutation-Strict")>, which
 only allows permutations that use disjoint cycles, and
 C<Context("Permutation-Canonical")>, which only allows permutations that
 are written in canonical form (as described below).
-
 
 =head1 USAGE
 

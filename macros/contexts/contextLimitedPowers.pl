@@ -40,7 +40,7 @@ a context reference, as in
 
 For the integer power functions, you can pass additional
 parameters that control the range of values that are allowed
-for the powers.  The oprtions include:
+for the powers.  The options include:
 
 =over
 

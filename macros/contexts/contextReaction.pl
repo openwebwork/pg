@@ -62,7 +62,7 @@ which you could use in a problem as follows:
     $products  = Formula("4CO_2 + 6H_2O");
 
     BEGIN_PGML
-    [`[$reactants] \longrightarrow`] [_____________________]{$products}.
+    [`[$reactants] \longrightarrow`] [_]{$products}{25}.
     END_PGML
 
 Note that sums are simplified during comparisons, so that

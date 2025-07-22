@@ -1,21 +1,10 @@
 
 =head1 NAME
 
-C<Context("InequalitySetBuilder")>, C<Context("InequalitySetBuilder-Only")> - Provides
-contexts that allow sets to be specified using set-builder notation and inequalities.
+contextInequalitySetBuilder.pl - Provides contexts that allow sets to be specified using
+set-builder notation and inequalities.
 
-=head1 DESCRIPTION
-
-Implements contexts that provides for sets described using set-builder
-notation with inequalities.  (This actually is a special way of
-creating Intervals, Sets, and Unions, and they can be used together
-with standard interval notation.)  There are two such contexts:
-C<Context("InequalitySetBuilder")>, in which both intervals and sets
-formed by inequalities are defined, and
-C<Context("InequalitySetBuilder-Only")>, which allows only set-builder
-notation (not intervals or point sets).
-
-=head1 USAGE
+=head1 SYNOPSIS
 
     loadMacros("contextInequalitySetBuilder.pl");
 
@@ -31,6 +20,17 @@ notation (not intervals or point sets).
     $S4 = Compute("{ x : x > 2 and x <= 4 }"); # forms the Interval (2,4]
     $S5 = Compute("{ x : x = 1 }");            # forms the Set {1}
     $S6 = Compute("{ x : x != 1 }");           # forms the Union (-inf,1) U (1,inf)
+
+=head1 DESCRIPTION
+
+Implements contexts that provides for sets described using set-builder
+notation with inequalities.  (This actually is a special way of
+creating Intervals, Sets, and Unions, and they can be used together
+with standard interval notation.)  There are two such contexts:
+C<Context("InequalitySetBuilder")>, in which both intervals and sets
+formed by inequalities are defined, and
+C<Context("InequalitySetBuilder-Only")>, which allows only set-builder
+notation (not intervals or point sets).
 
 The C<InequalitySetBuilder> contexts accept the flags for the
 Inequalities contexts from the C<contextInequalities.pl> file (see its

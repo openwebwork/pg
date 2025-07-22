@@ -1,10 +1,9 @@
 
-=encoding UTF-8
+=encoding utf8
+
 =head1 NAME
 
-
-C<Context("Congruence")> - Provides contexts that allow the
-entry of congruence solutions
+contextCongruence.pl - Provides contexts that allow the entry of congruence solutions
 
 =head1 DESCRIPTION
 
@@ -18,9 +17,6 @@ requires the general solution, and C<Context("Congruence-All-Solutions")>, which
 requires all solutions to be entered.
 
 Congruences must be created with three paramters (a, b, m) from ax ≡ b (mod m).
-
-=head1 USAGE
-
 
     loadMacros("contextCongruence.pl");
 

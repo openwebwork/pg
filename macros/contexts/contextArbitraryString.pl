@@ -4,12 +4,7 @@
 contextArbitraryString.pl - Implements a context in which the student's answer is treated as a
 literal string, and not parsed further.
 
-=head1 DESCRIPTION
-
-Implements a context in which the student's answer is treated as a
-literal string, and not parsed further.  The real answer checking
-should be performed in a custom checker passed to the answer
-string's C<cmp()> method.  E.g.,
+=head1 SYNOPSIS
 
     loadMacros("contextArbitraryString.pl");
     Context("ArbitraryString");
@@ -25,6 +20,13 @@ string's C<cmp()> method.  E.g.,
 
         return $score;
     }));
+
+=head1 DESCRIPTION
+
+Implements a context in which the student's answer is treated as a
+literal string, and not parsed further.  The real answer checking
+should be performed in a custom checker passed to the answer
+string's C<cmp()> method.
 
 The default checker is essentially that given above, so if you want
 the student answer to match the correct one exactly (spacing and
@@ -131,8 +133,7 @@ sub quoteHTML {
 }
 
 #
-#  Adjust preview and strings so they display
-#  multiline answers properly.
+#  Adjust preview and strings so they display multiline answers properly.
 #
 sub cmp_preprocess {
 	my $self = shift;

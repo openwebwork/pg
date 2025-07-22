@@ -1,16 +1,11 @@
 
 =head1 NAME
 
-contextInequalitiesAllowStrings.pl -- extra macros for Intermediate Algebra problems at CofI
+contextInequalitiesAllowStrings.pl - Allows use of R, the set of real numbers, in intervals.
 
-=head1 Synposis
+=head1 DESCRIPTION
 
-macros by R Cruz -- The College of Idaho
-
-=head2 Allows string answers for the set of real numbers and the empty set
-
-Adds the string "All real numbers" to the Inequalities context
-NOT WORKING: Adds the string "No solution" to the Inequalities context
+Allows string answers for the set of real numbers and the empty set.
 
 =cut
 

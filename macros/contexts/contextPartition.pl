@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-C<Context("Partition")> - Provides a context that allows the
+contextPartition.pl - Provides a context that allows the
 entry of a partition of an integer as a sum of positive integers.
 
 
@@ -14,7 +14,7 @@ partitions, and provides the answer checker to determine if partitions
 are equal.
 
 
-=head1 USAGE
+=head1 SYNOPSIS
 
     loadMacros("contextPartition.pl");
 

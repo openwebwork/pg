@@ -1,8 +1,7 @@
 
 =head1 NAME
 
-contextRationalFunction.pl - Only allow rational functions
-                             (and their products and powers)
+contextRationalFunction.pl - Only allow rational functions (and their products and powers)
 
 =head1 DESCRIPTION
 

@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-F<contextPercent.pl> - Context for entering percentages using C<%>
+contextPercent.pl - Context for entering percentages using C<%>
 
 =head1 DESCRIPTION
 
@@ -518,10 +518,5 @@ sub _check {
 	return unless $self->{coords}[0]{isPercent};
 	$self->Error("In this context, absolute values can only be used with Numbers");
 }
-
-##############################################
-##############################################
-
-######################################################################
 
 1;

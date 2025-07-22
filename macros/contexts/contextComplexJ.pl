@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-C<contextComplexJ.pl> - Alters the Complex context to allow the
+contextComplexJ.pl - Alters the Complex context to allow the
 use of j-notation in addition to (or in place of) i-notation for
 complex numbers.
 
@@ -13,9 +13,6 @@ i and j notation for complex numbers.  There are flags that control
 which notation a student must use (a warning is given for the other
 type), and how complex numbers should be displayed (you can force
 either form to be used regardless of how they were entered).
-
-
-=head1 USAGE
 
 To use this file, first load it into your problem, then use the
 Complex context as usual.  Both i and j notation will be allowed,
@@ -68,7 +65,7 @@ would allow students to enter complex numbers in either format, but
 all numebrs would be displayed in standard form.
 
 
-=head1 SETTING THE ALTERNATE FORM AS THE DEFAULT
+=head2 SETTING THE ALTERNATE FORM AS THE DEFAULT
 
 If you want to force existing problems to allow (or force, or warn
 about) the j notation, then create a file named

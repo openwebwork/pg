@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-F<contextCopmlesExtras.pl> - Add conjugation to Complex contexts, and
+contextComplexExtras.pl - Add conjugation to Complex contexts, and
 transpose, conjugate transpose, trace, and determinant to Complex-Matrix context.
 
 =head1 DESCRIPTION
@@ -10,6 +10,8 @@ The F<contextComplexExtras.pl> file adds the ability to include matrix
 transpose, conjugate transpose, trace, and determinants in student
 answers in the Complex-Matrix context, and adds conjugation to all
 Complex contexts.
+
+=head1 SYNOPSIS
 
 Conjugation is represented by C<~>, as in C<~z> or C<~M> to conjugate
 a complex number or complex matrix.  This can be used in both PG code
@@ -180,10 +182,8 @@ sub _eval {
 }
 
 #
-#  Check for a single Matrix-valued argument
-#  Then promote it to a Matrix (does error checking)
-#    and call the routine from Value package (after
-#    converting "tr" to "trace")
+#  Check for a single Matrix-valued argument. Then promote it to a Matrix (does error checking)
+#    and call the routine from Value package (after converting "tr" to "trace")
 #
 sub _call {
 	my $self = shift;
@@ -195,3 +195,5 @@ sub _call {
 	$name = "trace" if $name eq "tr";    # method of Matrix is trace not tr
 	$self->Package("Matrix")->promote($context, $M)->$name;
 }
+
+1;

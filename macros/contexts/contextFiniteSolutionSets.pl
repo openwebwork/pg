@@ -6,7 +6,14 @@ solution set.
 
 =head1 DESCRIPTION
 
-After setting the context to "FiniteSolutionSets", make an answer like:
+This provides some common input forms for a finite solution set.
+
+Load the macro and set the Context:
+
+    loadMacros('contextFiniteSolutionSets.pl');
+    Context('FiniteSolutionSets');
+
+Then create answers such as:
 
     Formula("1,2")
     Formula("1/2,2/3,3/4")
