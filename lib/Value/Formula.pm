@@ -112,7 +112,14 @@ sub _dot {
 	$l->SUPER::_dot($r, $flag);
 }
 
-sub pdot { '(' . (shift->stringify) . ')' }
+sub pdot {
+	my $self       = shift;
+	my $nobrackets = $self->context->flag('stringifyNoBrackets');
+	$self->context->flags->set(stringifyNoBrackets => 1);
+	my $string = '(' . ($self->stringify) . ')';
+	$self->context->flags->set(stringifyNoBrackets => $nobrackets);
+	return $string;
+}
 
 #
 #  Call the Parser::Function call function
