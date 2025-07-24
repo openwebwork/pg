@@ -2634,13 +2634,9 @@ Usage:
 
 #  uniq gives unique elements of a list:
 sub uniq {
-	my @in   = @_;
-	my %temp = ();
-	while (@in) {
-		$temp{ shift(@in) }++;
-	}
-	my @out = keys %temp;    # sort is causing trouble with Safe.??
-	@out;
+	my @in = @_;
+	my %seen;
+	return grep { !$seen{$_}++ } @in;
 }
 
 sub lex_sort {
