@@ -363,7 +363,7 @@ sub makeValue {
 	my $value   = shift;
 	my %options = (context => $self->context, @_);
 	my $num     = Value::makeValue($value, %options);
-	return bless $num, 'Parser::Legacy::FormulaWithUnits' if $num->classMatch('Formula');
+	return bless $num, 'Parser::Legacy::FormulaWithUnits' if defined $num && $num->classMatch('Formula');
 	Value::Error("A number with units must be a constant, not %s", lc(Value::showClass($num)))
 		unless Value::isReal($num);
 	bless $num, $options{class};
