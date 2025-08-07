@@ -92,7 +92,7 @@ sub splitUnits {
 		: $aUnit . '(?:\s*[/* ]\s*' . $aUnit . ')*';
 	$unitPattern = $unitPattern . '(?:\/' . $unitPattern . ')*' if $parseMathQuill;
 	my $unitSpace = "($aUnit) +($aUnit)";
-	my ($num, $units) = $string =~ m!^(.*?(?:[)}\]0-9a-z]|\d\.))\s*($unitPattern)\s*$!;
+	my ($num, $units) = $string =~ m!^(.*?(?:[)}\]0-9a-z]|\d\.))?\s*($unitPattern)\s*$!;
 	if ($units) {
 		while ($units =~ s/$unitSpace/$1*$2/) { }
 		$units =~ s/ //g;
@@ -238,20 +238,26 @@ sub unitsPreFilter {
 		$ans->{correct_value}{context}
 			&& $ans->{correct_value}->context->flag('useMathQuill')
 			&& (!defined $ans->{mathQuillOpts} || $ans->{mathQuillOpts} !~ /^\s*disabled\s*$/i));
+	if (defined($units) && $units ne '' && $num eq '') {
+		$self->cmp_Error($ans, "Units must follow a number");
+		$ans->{unit_error}  = $ans->{ans_message};
+		$ans->{student_ans} = '';
+		return $ans;
+	}
 	unless (defined($num) && defined($units) && $units ne '') {
 		$self->cmp_Error($ans, "Your answer doesn't look like " . lc($self->cmp_class));
-		$ans->{error_flag} = 'UNITS_NONE';
+		$ans->{unit_error} = $ans->{ans_message};
 		return $ans;
 	}
 	if ($units =~ m!/.*/!) {
 		$self->cmp_Error($ans, "Your units can only contain one division");
-		$ans->{error_flag} = 'UNITS_DIVISION';
+		$ans->{unit_error} = $ans->{ans_message};
 		return $ans;
 	}
 	my $ref = { getUnits($units) };
 	if ($ref->{ERROR}) {
 		$self->cmp_Error($ans, $ref->{ERROR});
-		$ans->{error_flag} = 'UNITS_BAD';
+		$ans->{unit_error} = $ans->{ans_message};
 		return $ans;
 	}
 	$ans->{units}       = $units;
@@ -263,6 +269,14 @@ sub cmp_preprocess {
 	my $self = shift;
 	my $ans  = shift;
 
+	if ($ans->{unit_error}) {
+		$ans->{ans_message} = $ans->{error_message} = $ans->{unit_error};
+		if ($ans->{student_ans} eq '') {
+			$ans->{student_ans}          = $ans->{original_student_ans};
+			$ans->{preview_latex_string} = TeXunits($ans->{student_ans});
+		}
+		return;
+	}
 	my $units = $ans->{units};
 	return $ans unless $units;
 	$ans->{student_ans}          .= " " . $units;
@@ -272,8 +286,8 @@ sub cmp_preprocess {
 	if (!defined($ans->{student_value}) || $self->checkStudentValue($ans->{student_value})) {
 		$ans->{student_value} = undef;
 		$ans->score(0);
-		$ans->{error_flag} = 'UNITS_NO_NUMBER';
 		$self->cmp_Error($ans, "Units must follow a number");
+		$ans->{unit_error} = $ans->{ans_message};
 		return;
 	}
 
@@ -284,7 +298,7 @@ sub cmp_preprocess {
 sub cmp_equal {
 	my $self = shift;
 	my $ans  = shift;
-	if (!$ans->{error_flag}) {
+	if (!$ans->{unit_error}) {
 		my $meth = @{ ref($self) . '::ISA' }[-1] . '::cmp_equal';
 		$meth = 'Value::cmp_equal' unless defined &$meth;
 		&$meth($self, $ans, @_);
@@ -298,7 +312,6 @@ sub cmp_postprocess {
 		$self->cmp_Error($ans, "The units for your answer are not correct")
 			unless $ans->{correct_value}->uPowers eq $ans->{student_value}->uPowers;
 	}
-	$ans->{error_flag} = undef if $ans->{error_flag} =~ m/^UNITS_/;
 	return $ans;
 }
 

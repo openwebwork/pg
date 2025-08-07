@@ -354,9 +354,10 @@ sub cmp {
 	}
 
 	if ($self->{allowBlankAnswers}) {
+		my $blankCheck = AnswerEvaluator->new()->{pre_filters}[0][0];
 		for (@{ $self->{cmp} }) {
 			for my $cmp (@$_) {
-				$cmp->install_pre_filter('erase');
+				$cmp->{pre_filters} = [ grep { $_->[0] != $blankCheck } @{ $cmp->{pre_filters} } ];
 				$cmp->install_pre_filter(sub {
 					my $ans = shift;
 					$ans->{student_ans} =~ s/^\s+//g;
