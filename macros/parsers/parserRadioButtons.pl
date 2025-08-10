@@ -699,7 +699,9 @@ sub BUTTONS {
 			. qq{data-feedback-btn-add-class="ms-3">$radio[0]};
 		$radio[-1] .= "</div>";
 	}
-	(wantarray) ? @radio : join(($main::displayMode eq 'PTX') ? '' : $self->{separator}, @radio);
+	wantarray
+		? @radio
+		: join($main::displayMode eq 'PTX' || $main::displayMode eq 'TeX' ? '' : $self->{separator}, @radio);
 }
 
 sub protect {

@@ -614,7 +614,10 @@ sub CHECKS {
 		$checks[-1] .= "</div>";
 	}
 
-	return wantarray ? @checks : join($main::displayMode eq 'PTX' ? '' : $self->{separator}, @checks);
+	return
+		wantarray
+		? @checks
+		: join($main::displayMode eq 'PTX' || $main::displayMode eq 'TeX' ? '' : $self->{separator}, @checks);
 }
 
 sub protect {
