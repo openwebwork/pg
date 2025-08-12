@@ -137,7 +137,8 @@ inserted before the choice text.  Default: 0.
 
 =item C<S<< separator => string >>>
 
-Specifies the text to put between the checkboxes.  Default: $BR
+Specifies the text to put between the checkboxes. Note that this is only used in
+HTML display modes, and is ignored for PTX and TeX display modes.  Default: $BR
 
 =item C<S<< checked => choice >>>
 
