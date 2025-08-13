@@ -115,7 +115,7 @@ sub new_helper ($invocant, %options) {
 				translator       => $translator,
 				head_text        => '',
 				post_header_text => '',
-				body_text        => "Unabled to read problem source file:\n$@\n",
+				body_text        => "Unable to read problem source file:\n$@\n",
 				answers          => {},
 				result           => {},
 				state            => {},
