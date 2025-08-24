@@ -54,7 +54,7 @@ Example:
 
 sub BeginList {
 	my $LIST = 'OL';
-	$LIST = shift if (uc($_[0]) eq "OL" or uc($_[0]) eq "UL");
+	$LIST = uc(shift) if (defined($_[0]) && (uc($_[0]) eq "OL" or uc($_[0]) eq "UL"));
 	my $enum    = ($LIST eq 'OL' ? "enumerate" : "itemize");
 	my %options = @_;
 	$LIST .= ' TYPE="' . $options{type} . '"'   if defined($options{type});
