@@ -1550,28 +1550,27 @@ sub Align {
 }
 
 our %bullet = (
-	bullet  => 'ul type="disc"',
-	numeric => 'ol type="1"',
-	alpha   => 'ol type="a"',
-	Alpha   => 'ol type="A"',
-	roman   => 'ol type="i"',
-	Roman   => 'ol type="I"',
-	disc    => 'ul type="disc"',
-	circle  => 'ul type="circle"',
-	square  => 'ul type="square"',
+	bullet  => [ 'ul', 'list-style-type: disc;' ],
+	numeric => [ 'ol', 'list-style-type: decimal;' ],
+	alpha   => [ 'ol', 'list-style-type: lower-alpha;' ],
+	Alpha   => [ 'ol', 'list-style-type: upper-alpha;' ],
+	roman   => [ 'ol', 'list-style-type: lower-roman;' ],
+	Roman   => [ 'ol', 'list-style-type: upper-roman;' ],
+	disc    => [ 'ul', 'list-style-type: disc;' ],
+	circle  => [ 'ul', 'list-style-type: circle;' ],
+	square  => [ 'ul', 'list-style-type: square;' ],
 );
 
 sub List {
 	my $self = shift;
 	my $item = shift;
 	my $list = $bullet{ $item->{bullet} };
-	return
-		$self->nl . '<'
-		. $list
-		. ' style="margin:0; padding-left:2.25em">' . "\n"
-		. $self->string($item)
-		. $self->nl . "</"
-		. substr($list, 0, 2) . ">\n";
+	return $self->nl
+		. main::tag(
+			$list->[0],
+			style => "margin:0; padding-left:2.25em; $list->[1]",
+			$self->string($item) . $self->nl
+		);
 }
 
 sub Bullet {
