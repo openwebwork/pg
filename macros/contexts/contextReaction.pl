@@ -752,9 +752,7 @@ sub TeX {
 	my $self = shift;
 	my $uop  = $self->{def};
 	my $op   = (defined($uop->{TeX}) ? $uop->{TeX} : $uop->{string});
-	#	my $unity     = $self->context->flags->get('showUnity');
 	my $magnitude = $self->{op}->TeX($uop->{precedence});
-	#if ($unity == 0 && $magnitude == 1) { return $op }
 	return $op if $self->context->flags->get('showUnity') == 0 && $magnitude == 1;
 	return $magnitude . $op;
 }
