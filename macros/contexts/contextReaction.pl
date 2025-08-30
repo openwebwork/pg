@@ -749,9 +749,9 @@ sub string {
 #  Always put signs on the right
 #
 sub TeX {
-	my $self = shift;
-	my $uop  = $self->{def};
-	my $op   = (defined($uop->{TeX}) ? $uop->{TeX} : $uop->{string});
+	my $self      = shift;
+	my $uop       = $self->{def};
+	my $op        = (defined($uop->{TeX}) ? $uop->{TeX} : $uop->{string});
 	my $magnitude = $self->{op}->TeX($uop->{precedence});
 	return $op if $self->context->flags->get('showUnity') == 0 && $magnitude == 1;
 	return $magnitude . $op;
