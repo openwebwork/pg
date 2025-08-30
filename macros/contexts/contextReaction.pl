@@ -741,8 +741,11 @@ sub equivalent {
 #
 sub string {
 	my $self = shift;
-	my $n    = $self->{op}->string($uop->{precedence});
-	return ($n eq '1' ? '' : $n) . $self->{def}{string};
+	my $uop  = $self->{def};
+	my $op   = $uop->{string};
+	my $mag  = $self->{op}->string($uop->{precedence}); 	#magnitude
+	return $op if !$self->context->flags->get('showUnity') && $mag eq 1;
+	return $mag . $op;
 }
 
 #
@@ -752,9 +755,9 @@ sub TeX {
 	my $self      = shift;
 	my $uop       = $self->{def};
 	my $op        = (defined($uop->{TeX}) ? $uop->{TeX} : $uop->{string});
-	my $magnitude = $self->{op}->TeX($uop->{precedence});
-	return $op if $self->context->flags->get('showUnity') == 0 && $magnitude == 1;
-	return $magnitude . $op;
+	my $mag       = $self->{op}->TeX($uop->{precedence});
+	return $op if !$self->context->flags->get('showUnity') && $mag eq 1;
+	return $mag . $op;
 }
 
 sub TYPE {'a charge'}
