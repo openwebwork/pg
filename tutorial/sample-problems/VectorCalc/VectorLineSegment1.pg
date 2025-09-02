@@ -20,7 +20,7 @@
 #:% see_also = [VectorParametricLine.pg, VectorLineSegment2.pg]
 
 #:% section = preamble
-#: The PODLINK('parseParametricLine.pl') macro provides the `ParametricLine`
+#: The PODLINK('parserParametricLine.pl') macro provides the `ParametricLine`
 #: function which us used to check the answer.  The
 #: PODLINK('parserMultiAnswer.pl') macro is needed since the answers are
 #: interdependent.

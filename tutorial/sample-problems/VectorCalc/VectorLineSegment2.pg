@@ -20,7 +20,7 @@
 #:% see_also = [VectorParametricLine.pg, VectorLineSegment1.pg]
 
 #:% section = preamble
-#:  The PODLINK('parseVectorUtils.pl') macro is loaded for the
+#:  The PODLINK('parserVectorUtils.pl') macro is loaded for the
 #: `non_zero_point3D` and `non_zero_vector3D` methods.
 DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
