@@ -49,7 +49,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: `useBaseTenLog` flag is 0, and the `log` function is the natural logarithm.
 #:
 #: If a function for log base 2 (or another base) is needed see
-#: PROBLINK('AddingFunctions.pg') for how to define and add a new function
+#: PROBLINK('DefiningFunctions.pg') for how to define and add a new function
 #: to the context so that students can enter it in their answers.
 Context()->variables->set(x => { limits => [ 0.1, 4 ] });
 
