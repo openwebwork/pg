@@ -1,5 +1,29 @@
 #!/usr/bin/env perl
 
+=head1 NAME
+
+parse-problem-doc.pl - Parse sample problem documentation.
+
+=head1 SYNOPSIS
+
+parse-problem-doc.pl [options]
+
+ Options:
+   -d|--problem-dir      Directory containing sample problems to be parsed.
+                         This defaults to the tutorial/sample-problems directory
+                         in the PG root directory if not given.
+   -o|--out-dir          Directory to save the output files to. (required)
+   -p|--pod-base-url     Base URL location for POD on server. (required)
+   -s|--sample-problem-base-url
+                         Base URL location for sample problems on server. (required)
+   -v|--verbose          Give verbose feedback.
+
+=head1 DESCRIPTION
+
+Parse sample problem documentation.
+
+=cut
+
 use strict;
 use warnings;
 use experimental 'signatures';
@@ -17,26 +41,26 @@ use lib "$pg_root/lib";
 use Mojo::Template;
 use File::Basename qw(basename);
 use Getopt::Long;
+use Pod::Usage;
 use File::Copy qw(copy);
 use Pod::Simple::Search;
 
-use SampleProblemParser qw(parseSampleProblem generateMetadata);
+use WeBWorK::PG::SampleProblemParser qw(parseSampleProblem generateMetadata);
 
 my $problem_dir = "$pg_root/tutorial/sample-problems";
 
-my ($out_dir, $pod_root, $pg_doc_home);
+my ($out_dir, $pod_base_url, $sample_problem_base_url);
 my $verbose = 0;
 
 GetOptions(
-	"d|problem_dir=s" => \$problem_dir,
-	"o|out_dir=s"     => \$out_dir,
-	"v|verbose"       => \$verbose,
-	"p|pod_root=s"    => \$pod_root,
-	"h|pg_doc_home=s" => \$pg_doc_home,
+	"d|problem-dir=s"             => \$problem_dir,
+	"o|out-dir=s"                 => \$out_dir,
+	"p|pod-base-url=s"            => \$pod_base_url,
+	"s|sample-problem-base-url=s" => \$sample_problem_base_url,
+	"v|verbose"                   => \$verbose
 );
 
-die "out_dir, pod_root, and pg_doc_home must be provided.\n"
-	unless $out_dir && $pod_root && $pg_doc_home;
+pod2usage(2) unless $out_dir && $pod_base_url && $sample_problem_base_url;
 
 my $mt           = Mojo::Template->new(vars => 1);
 my $template_dir = "$pg_root/tutorial/templates";
@@ -46,7 +70,7 @@ my $macro_locations = { map { basename($_) => ($_ =~ s!$pg_root/macros/!!r) =~ s
 
 my @problem_types = qw(sample technique snippet);
 
-$pod_root .= '/pg/macros';
+$pod_base_url .= '/macros';
 mkdir $out_dir unless -d $out_dir;
 
 # Build a hash of all PG files for linking.
@@ -55,16 +79,16 @@ my $index_table = generateMetadata($problem_dir, macro_locations => $macro_locat
 for (keys %$index_table) {
 	renderSampleProblem(
 		$_ =~ s/.pg$//r,
-		metadata        => $index_table,
-		macro_locations => $macro_locations,
-		pod_root        => $pod_root,
-		pg_doc_home     => $pg_doc_home,
-		url_extension   => '.html',
-		problem_dir     => $problem_dir,
-		out_dir         => $out_dir,
-		template_dir    => $template_dir,
-		mt              => $mt,
-		verbose         => $verbose
+		metadata                => $index_table,
+		macro_locations         => $macro_locations,
+		pod_base_url            => $pod_base_url,
+		sample_problem_base_url => $sample_problem_base_url,
+		url_extension           => '.html',
+		problem_dir             => $problem_dir,
+		out_dir                 => $out_dir,
+		template_dir            => $template_dir,
+		mt                      => $mt,
+		verbose                 => $verbose
 	);
 }
 
