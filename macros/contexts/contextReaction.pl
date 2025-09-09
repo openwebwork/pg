@@ -25,10 +25,14 @@ reactions.  For example:
 
     $R = Formula("4P + 5O_2 --> 2P_2O_5");
 
-Ions can be specified using C<^> to produce superscripts, as in C<Na^+2> or
-C<Na^{+2}>.  Note that the charge may be listed with prefix notation (+2)
-or postfix notation (2+).  A sign by itself is assumed to have number
-1, so that C<Na^+> is equivalent to C<Na^1+>.
+Ions can be specified using C<^> to produce superscripts, as in C<Ca^+2> or
+C<Ca^{+2}>. Note that the charge may be listed with prefix notation (+2)
+or postfix notation (2+). By default, TeX will display only the sign of the 
+charge of singly charged ions, e.g., C<Na^+> and C<Cl^->. However, the context 
+flag C<< showUnity=>1 >> can be used to direct TeX to use an alternative 
+notation for singly charged ions, by which the numerical magnitude (1) is 
+displayed along with the sign of the charge, e.g., C<Na^1+> and C<Cl^1->. The 
+default value of C<<showUnity>> is zero.
 
 States can be appended to compounds, as in C<AgCl(s)>.  So you can
 make reactions like the following:
@@ -259,6 +263,7 @@ sub Init {
 	);
 	$context->variables->add(map { $_ => $STATE } ('(aq)', '(s)', '(l)', '(g)', '(ppt)'));
 	$context->reductions->clear();
+	$context->flags->set(showUnity             => 0);
 	$context->flags->set(studentsMustUseStates => 1);
 	$context->flags->set(reduceConstants       => 0);
 	$context->{parser}{Number}   = 'context::Reaction::Number';
@@ -735,19 +740,26 @@ sub equivalent {
 #  Always put signs on the right
 #
 sub string {
-	my $self = shift;
-	my $n    = $self->{op}->string($uop->{precedence});
-	return ($n eq '1' ? '' : $n) . $self->{def}{string};
+	my $self    = shift;
+	my $uop     = $self->{def};
+	my $op      = $uop->{string};
+	my $isUnity = $self->context->flags->get('showUnity');
+	my $mag     = $self->{op}->string($uop->{precedence});    #magnitude
+	$mag = '' if ($mag eq '1' && !$isUnity);
+	return $mag . $op;
 }
 
 #
 #  Always put signs on the right
 #
 sub TeX {
-	my $self = shift;
-	my $uop  = $self->{def};
-	my $op   = (defined($uop->{TeX}) ? $uop->{TeX} : $uop->{string});
-	return $self->{op}->TeX($uop->{precedence}) . $op;
+	my $self    = shift;
+	my $uop     = $self->{def};
+	my $op      = (defined($uop->{TeX}) ? $uop->{TeX} : $uop->{string});
+	my $mag     = $self->{op}->TeX($uop->{precedence});
+	my $isUnity = $self->context->flags->get('showUnity');
+	$mag = '' if ($mag eq '1' && !$isUnity);
+	return $mag . $op;
 }
 
 sub TYPE {'a charge'}
