@@ -17,7 +17,7 @@
 #:% categories = [multianswer]
 
 #:% section = preamble
-#: Load the PODLINK('parserMultianswer.pl') which provides the `MultiAnswer`
+#: Load the PODLINK('parserMultiAnswer.pl') which provides the `MultiAnswer`
 #: method.
 DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
