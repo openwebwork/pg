@@ -20,8 +20,8 @@
 #:% see_also = [VectorLineSegment1.pg, VectorLineSegment2.pg]
 
 #:% section = preamble
-#: The PODLINK('parseVectorUtils.pl') macro provides the `non_zero_point3D` and
-#: `non_zero_vector3D` methods. The macro PODLINK('parseParametricLine.pl')
+#: The PODLINK('parserVectorUtils.pl') macro provides the `non_zero_point3D` and
+#: `non_zero_vector3D` methods. The macro PODLINK('parserParametricLine.pl')
 #: provides the `ParametricLine` function used for the answer.
 DOCUMENT();
 loadMacros(

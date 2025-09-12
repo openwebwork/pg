@@ -15,7 +15,7 @@
 #:% type = Sample
 #:% subject = [geometry]
 #:% categories = [graph, graphtool]
-#:% see_also = [VectorGraphTool.pg, TriangleGraphTool.pg, QuadrilateralGraphTool.pg]
+#:% see_also = [GraphToolVectors.pg, TriangleGraphTool.pg, QuadrilateralGraphTool.pg]
 
 #:% section = preamble
 #: Load the PODLINK('parserGraphTool.pl') macro to be able to use the GraphTool.
