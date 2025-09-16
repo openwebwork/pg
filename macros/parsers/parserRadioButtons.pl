@@ -140,7 +140,9 @@ Default: 0.
 
 =item C<S<< separator => string >>>
 
-Specifies the text to put between the radio buttons.  Default: $BR
+Specifies the text to put between the radio buttons. Note that this is only used
+in HTML display modes, and is ignored for PTX and TeX display modes.
+Default: $BR
 
 =item C<S<< checked => choice >>>
 
@@ -699,7 +701,9 @@ sub BUTTONS {
 			. qq{data-feedback-btn-add-class="ms-3">$radio[0]};
 		$radio[-1] .= "</div>";
 	}
-	(wantarray) ? @radio : join(($main::displayMode eq 'PTX') ? '' : $self->{separator}, @radio);
+	wantarray
+		? @radio
+		: join($main::displayMode eq 'PTX' || $main::displayMode eq 'TeX' ? '' : $self->{separator}, @radio);
 }
 
 sub protect {
