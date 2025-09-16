@@ -108,7 +108,7 @@ class ww_applet {
 		// Communication with the applet is in plain text, not in base64 code.
 
 		if (state) {
-			if (this.debug) console.log(`${this.appletName}: Obtain state from calling paramater`);
+			if (this.debug) console.log(`${this.appletName}: Obtain state from calling parameter`);
 		} else {
 			if (this.debug) console.log(`${this.appletName}: Obtain state from ${this.stateInput}`);
 			// Hidden answer box preserving applet state

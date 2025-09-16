@@ -223,7 +223,7 @@ sometimes extra flexibility is desiredin which case:
 When entering radio buttons using the "NAMED" format, you should use
 NAMED_ANS_RADIO button for the first button and then use
 NAMED_ANS_RADIO_EXTENSION for the remaining buttons. NAMED_ANS_RADIO requires a
-matching answer evalutor, while NAMED_ANS_RADIO_EXTENSION does not. The name
+matching answer evaluator, while NAMED_ANS_RADIO_EXTENSION does not. The name
 used for NAMED_ANS_RADIO_EXTENSION should match the name used for
 NAMED_ANS_RADIO (and the associated answer evaluator).
 
@@ -3228,7 +3228,7 @@ sub tag {
 		' ',
 		map {
 			($_ =~ s/_/-/gr) . (defined $attributes{$_} ? ('="' . encode_pg_and_html($attributes{$_})) . '"' : '')
-		}
+			}
 			keys %attributes
 	);
 
