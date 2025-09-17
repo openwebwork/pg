@@ -29,7 +29,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 #: `($sx1, $sy1)` and `($sx2, $sy2)`. For a correct answer, the line segment
 #: must have the given the endpoints and be solid.
 #:
-#: Mulitple line segments can be added to the graph tool, however, if a
+#: Multiple line segments can be added to the graph tool, however, if a
 #: triangle or quadrilateral is desired, see PROBLINK('TriangleGraphTool.pg')
 #: and PROBLINK('QuadrilateralGraphTool.pg') for more appropriate tools.
 $sx1 = random(-8, 8);
