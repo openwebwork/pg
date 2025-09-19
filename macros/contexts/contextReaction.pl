@@ -871,7 +871,7 @@ sub equivalent {
 		return $list->equivalent($other);
 	}
 	return 0 unless $other->isChemical;
-	$other = $other->COMPOUND unless $other -type eq 'Compound';
+	$other = $other->COMPOUND unless $other->type eq 'Compound';
 	my $states    = $self->context->flag('studentsMustUseStates');
 	my $molecular = $self->context->flag('compareMolecular');
 	my $both      = $self->context->flag('acceptMolecularForm');
