@@ -78,7 +78,7 @@ $gt = GraphTool('{circle, solid, (1, 1), (2, 2)}');
 #: graphs. It is intended to be used to show an interactive graphing tool in
 #: which student's are expected to graph requested objects, in this case the
 #: circle that has center `(1, 1)` and passes through the point `(2, 2)`.
-#: However, static images can be diplayed as is shown in this example. The
+#: However, static images can be displayed as is shown in this example. The
 #: intent for this usage is to show the correct graph in a solution.
 BEGIN_PGML
 * A static image: [!Graph of an exponential!]{'image.png'}{120}

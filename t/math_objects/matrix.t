@@ -183,7 +183,7 @@ subtest 'Test if Matrix is in (R)REF' => sub {
 subtest 'Transpose a Matrix' => sub {
 	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
 	my $B = Matrix([ [ 1, 5, 9 ], [ 2, 6, 10 ], [ 3, 7, 11 ], [ 4, 8, 12 ] ]);
-	is $A->transpose->TeX, $B->TeX, 'Test the tranpose of a matrix';
+	is $A->transpose->TeX, $B->TeX, 'Test the transpose of a matrix';
 
 	my $row       = Matrix([ 1, 2, 3, 4 ]);
 	my $row_trans = Matrix([ [1], [2], [3], [4] ]);
@@ -191,7 +191,7 @@ subtest 'Transpose a Matrix' => sub {
 
 	my $C = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
 	my $D = Matrix([ [ [ 1, 3 ], [ 2, 4 ] ], [ [ 5, 7 ], [ 6, 8 ] ] ]);
-	is $C->transpose->TeX, $D->TeX, 'Test the tranpose of a degree 3 tensor';
+	is $C->transpose->TeX, $D->TeX, 'Test the transpose of a degree 3 tensor';
 };
 
 subtest 'Extract an element' => sub {

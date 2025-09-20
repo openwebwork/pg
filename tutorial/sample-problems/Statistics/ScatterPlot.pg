@@ -34,7 +34,7 @@ loadMacros(
 #: components.
 #:
 #: For the plot, first set up the `Plot` with a plotting window that will
-#: caputure the data. The `add_dataset` method adds the data to the plot
+#: capture the data. The `add_dataset` method adds the data to the plot
 #: with circles and color blue.
 #:
 #: The line is added to the dataset with the `add_function` method.  The 3rd

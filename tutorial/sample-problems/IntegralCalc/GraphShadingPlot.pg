@@ -28,7 +28,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
 #:
 #: First create a `Plot` object with a plotting window that will capture the
 #: transformed function.  The function is then added to the plot with fill
-#: characteristics.  Note: it is important that the `name` atrribute is defined.
+#: characteristics.  Note: it is important that the `name` attribute is defined.
 
 $a    = random(-4, 2);
 $b    = random( 1, 4);
