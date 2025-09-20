@@ -101,8 +101,8 @@ subtest 'Quadrature' => sub {
 
 	is trapezoid($f, 0, 2, steps => 4), 2.75, 'Trapezoid rule of x^2 on [0,2]';
 
-	is romberg($f, 0, 2), 8 / 3,      'Romberg interation for x^2 on [0,2]';
-	is romberg($g, 0, 1), exp(1) - 1, 'Romberg interation on e^x on [0,1]';
+	is romberg($f, 0, 2), 8 / 3,      'Romberg integration for x^2 on [0,2]';
+	is romberg($g, 0, 1), exp(1) - 1, 'Romberg integration on e^x on [0,1]';
 
 	is inv_romberg($g, 0, exp(1) - 1), 1.0, 'Inverse Romberg to find b with int of e^x on [0,b] returns 1';
 };

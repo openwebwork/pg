@@ -92,7 +92,7 @@ sub renderSampleProblem ($filename, %global) {
 	return;
 }
 
-# Ouput index files.
+# Output index files.
 for (qw(categories subjects macros techniques)) {
 	my $options = {
 		metadata     => $index_table,
