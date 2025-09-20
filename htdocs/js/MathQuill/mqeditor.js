@@ -550,7 +550,15 @@
 					toolbarEnabled = !toolbarEnabled;
 					localStorage.setItem('MQEditorToolbarEnabled', toolbarEnabled);
 					if (!toolbarEnabled && answerQuill.toolbar) toolbarRemove();
-					menu.hide();
+					// Bootstrap tries to focus the triggering element after hiding the menu. However, the menu gets
+					// disposed of and the hidden link which is the triggering element removed too quickly in the
+					// hidden.bs.dropdown event, and that causes an exception. So ignore that exception so that the
+					// answerQuill textarea is focused instead.
+					try {
+						menu.hide();
+					} catch {
+						/* ignore */
+					}
 					answerQuill.textarea.focus();
 				},
 				{ once: true }

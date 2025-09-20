@@ -198,7 +198,7 @@ window.graphTool = (containerId, options) => {
 			}
 
 			if (this.visProp.useunicodeminus) labelText = labelText.replace(/-/g, '\u2212');
-			return addTeXDelims ?? this.visProp.label.usemathjax ? `\\(${labelText}\\)` : labelText;
+			return (addTeXDelims ?? this.visProp.label.usemathjax) ? `\\(${labelText}\\)` : labelText;
 		};
 
 		gt.board.defaultAxes.x.defaultTicks.generateLabelText = generateLabelText;
