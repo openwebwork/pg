@@ -158,6 +158,7 @@ index into the choice array or not.  If set to 1, then the number is treated as
 the literal correct answer, not an index to it.  Default: 0
 
 =item C<S<< showInStatic => 0 or 1 >>>
+
 In static output, such as PDF or PTX, this controls whether or not
 the list of answer options is displayed.  (The text preceding the list
 of answer options might make printing the answer option list
