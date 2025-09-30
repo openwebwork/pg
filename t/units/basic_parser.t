@@ -95,12 +95,8 @@ subtest 'Test error handling' => sub {
 		qr/Unrecognizable unit: \|$fake\|/,
 		"No unit '$fake' defined in Units file"
 	);
-	like(dies { NumberWithUnits(1) }, qr/You must provide units for your number/, 'No unit given');
-	like(
-		dies { NumberWithUnits('J') },
-		qr/You must provide units for your number/,
-		'No value given, wants 2 arguments'
-	);
+	like(dies { NumberWithUnits(1) },   qr/You must provide units for your number/,         'No unit given');
+	like(dies { NumberWithUnits('J') }, qr/A number with units must be a constant, not ''/, 'No value given');
 };
 
 subtest 'Check parsing of arguments' => sub {
