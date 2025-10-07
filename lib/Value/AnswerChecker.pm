@@ -555,57 +555,57 @@ sub format_matrix_HTML {
 	my ($rows, $cols) = (scalar(@{$array}), scalar(@{ $array->[0] }));
 	my $HTML  = "";
 	my $class = 'class="ans_array_cell"';
-	my $cell  = "display:table-cell;vertical-align:middle;";
+	my $cell  = "display:table-cell;vertical-align:middle;text-align:center;";
 	my $pad   = "padding:4px 0;";
-	if   ($sep) { $sep = '<span class="ans_array_sep" style="' . $cell . 'padding:0 2px">' . $sep . '</span>' }
-	else        { $sep = '<span class="ans_array_sep" style="' . $cell . 'width:8px"></span>' }
-	$sep = '</span>' . $sep . '<span ' . $class . ' style="' . $cell . $pad . '">';
+	if   ($sep) { $sep = '<div class="ans_array_sep" style="' . $cell . 'padding:0 2px">' . $sep . '</div>' }
+	else        { $sep = '<div class="ans_array_sep" style="' . $cell . 'width:8px"></div>' }
+	$sep = '</div>' . $sep . '<div ' . $class . ' style="' . $cell . $pad . '">';
 
 	if ($options{top_labels}) {
 		$HTML .=
-			'<span style="display:table-row"><span '
+			'<div style="display:table-row"><div '
 			. $class
 			. ' style="'
 			. $cell
 			. $pad . '">'
 			. join($sep, @{ $options{top_labels} })
-			. '</span></span>';
+			. '</div></div>';
 	}
 	foreach my $i (0 .. $rows - 1) {
 		$HTML .=
-			'<span style="display:table-row"><span '
+			'<div style="display:table-row"><div '
 			. $class
 			. ' style="'
 			. $cell
 			. $pad . '">'
 			. join($sep, EVALUATE(@{ $array->[$i] }))
-			. '</span></span>';
+			. '</div></div>';
 	}
-	$HTML  = '<span class="ans_array_table" style="display:inline-table; vertical-align:middle">' . $HTML . '</span>';
+	$HTML  = '<div class="ans_array_table" style="display:inline-table; vertical-align:middle">' . $HTML . '</div>';
 	$open  = $self->format_delimiter($open,  $rows, $options{tth_delims});
 	$close = $self->format_delimiter($close, $rows, $options{tth_delims});
 	if ($open ne '' || $close ne '') {
 		my $delim = "display:inline-block; vertical-align:middle;";
 		$HTML =
-			'<span class="ans_array_open" style="'
+			'<div class="ans_array_open" style="'
 			. $delim
 			. ' margin-right:4px">'
 			. $open
-			. '</span>'
+			. '</div>'
 			. $HTML
-			. '<span class="ans_array_close" style="'
+			. '<div class="ans_array_close" style="'
 			. $delim
 			. ' margin-left:4px">'
 			. $close
-			. '</span>';
+			. '</div>';
 	}
-	return '<span class="ans_array" style="display:inline-block;vertical-align:.5ex"'
+	return '<div class="ans_array" style="display:inline-block;vertical-align:.5ex"'
 		. ($options{ans_last_name}
 			? qq{ data-feedback-insert-element="$options{ans_last_name}" data-feedback-insert-method="append_content"}
 			: '')
 		. '>'
 		. $HTML
-		. '</span>';
+		. '</div>';
 }
 
 sub EVALUATE {
