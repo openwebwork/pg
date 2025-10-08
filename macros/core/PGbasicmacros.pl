@@ -2928,9 +2928,9 @@ sub image {
 			$image_item->{width}    = $width    if $out_options{width};
 			$image_item->{height}   = $height   if $out_options{height};
 			$image_item->{tex_size} = $tex_size if $out_options{tex_size};
-			$image_item->axes->style(aria_description => shift @alt_list) if $out_options{alt};
 
 			if ($image_item->ext eq 'html') {
+				$image_item->axes->style(aria_description => shift @alt_list) if $out_options{alt};
 				$image_item->{description_details} = $description_details;
 				push(@output_list, $image_item->draw);
 				next;
