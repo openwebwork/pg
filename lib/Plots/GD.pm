@@ -63,7 +63,8 @@ sub im_y {
 	return unless defined($y);
 	my $plots = $self->plots;
 	my ($ymin, $ymax) = ($plots->axes->yaxis('min'), $plots->axes->yaxis('max'));
-	return int(($ymax - $y) * $plots->{height} / ($ymax - $ymin));
+	(undef, my $height) = $plots->size;
+	return int(($ymax - $y) * $height / ($ymax - $ymin));
 }
 
 sub moveTo {
@@ -217,12 +218,11 @@ sub draw_circle_stamp {
 }
 
 sub draw {
-	my $self   = shift;
-	my $plots  = $self->plots;
-	my $axes   = $plots->axes;
-	my $grid   = $axes->grid;
-	my $width  = $plots->{width};
-	my $height = $plots->{height};
+	my $self  = shift;
+	my $plots = $self->plots;
+	my $axes  = $plots->axes;
+	my $grid  = $axes->grid;
+	my ($width, $height) = $plots->size;
 
 	# Initialize image
 	$self->im->interlaced('true');

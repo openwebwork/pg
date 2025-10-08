@@ -404,7 +404,6 @@ sub init_graph {
 
 	my $JSXOptions = Mojo::JSON::encode_json({
 		title          => $axes->style('aria_label'),
-		description    => $axes->style('aria_description'),
 		boundingBox    => [ $xmin, $ymax, $xmax, $ymin ],
 		axis           => 0,
 		showNavigation => $allow_navigation,
@@ -497,6 +496,12 @@ sub init_graph {
 	$self->{JSend} = '';
 	$self->{JS}    = <<~ "END_JS";
 			const board = JXG.JSXGraph.initBoard(id, $JSXOptions);
+			const descriptionSpan = document.createElement('span');
+			descriptionSpan.id = `\${id}_description`;
+			descriptionSpan.classList.add('visually-hidden');
+			descriptionSpan.textContent = '${\($axes->style('aria_description'))}';
+			board.containerObj.after(descriptionSpan);
+			board.containerObj.setAttribute('aria-describedby', descriptionSpan.id);
 			board.suspendUpdate();
 			board.create('axis', [[$xmin, $xaxis_pos], [$xmax, $xaxis_pos]], $XAxisOptions);
 			board.create('axis', [[$yaxis_pos, $ymin], [$yaxis_pos, $ymax]], $YAxisOptions);
