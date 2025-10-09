@@ -1333,7 +1333,7 @@ sub cmp_compare {
 }
 
 #
-#  Check for wrong enpoints and wrong type of endpoints
+#  Check for wrong endpoints and wrong type of endpoints
 #
 sub cmp_postprocess {
 	my $self = shift;

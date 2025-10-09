@@ -40,7 +40,7 @@ Here's an example:
 #:% categories = [graph]
 ```
 
-## Structure of the code documenation
+## Structure of the code documentation
 
 The comments that are associated with each file in on the WeBWorK
 wiki have been embedded as formatted

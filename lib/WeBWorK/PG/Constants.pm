@@ -11,7 +11,7 @@ use warnings;
 
 # ImageGenerator
 
-# Arguments to pass to dvipng. This is dependant on the version of dvipng.
+# Arguments to pass to dvipng. This is dependent on the version of dvipng.
 #
 # For dvipng versions 0.x
 #     $ImageGenerator::DvipngArgs = "-x4000.5 -bgTransparent -Q6 -mode toshiba -D180";
