@@ -3228,7 +3228,7 @@ sub tag {
 		' ',
 		map {
 			($_ =~ s/_/-/gr) . (defined $attributes{$_} ? ('="' . encode_pg_and_html($attributes{$_})) . '"' : '')
-			}
+		}
 			keys %attributes
 	);
 
