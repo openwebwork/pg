@@ -16,27 +16,24 @@ use Plots::Axes;
 use Plots::Data;
 use Plots::Tikz;
 use Plots::JSXGraph;
-use Plots::GD;
 
 sub new {
 	my ($class, %options) = @_;
 
 	my $self = bless {
-		imageName => {},
-		width     => eval('$main::envir{onTheFlyImageSize}') || 350,
-		height    => undef,
-		tex_size  => 600,
-		axes      => Plots::Axes->new,
-		colors    => {},
-		data      => [],
+		imageName       => {},
+		width           => eval('$main::envir{onTheFlyImageSize}') || 350,
+		height          => undef,
+		tex_size        => 600,
+		rounded_corners => 0,
+		axes            => Plots::Axes->new,
+		colors          => {},
+		data            => [],
 	}, $class;
 
 	# Besides for these core options, pass everything else to the Axes object.
-	for ('width', 'height', 'tex_size') {
-		if ($options{$_}) {
-			$self->{$_} = $options{$_};
-			delete $options{$_};
-		}
+	for ('width', 'height', 'tex_size', 'rounded_corners') {
+		$self->{$_} = delete $options{$_} if $options{$_};
 	}
 	$self->axes->set(%options) if %options;
 
@@ -48,13 +45,12 @@ sub new {
 
 sub pgCall {
 	my ($call, @args) = @_;
-	WeBWorK::PG::Translator::PG_restricted_eval('\&' . $call)->(@args);
-	return;
+	return WeBWorK::PG::Translator::PG_restricted_eval('\&' . $call)->(@args);
 }
 
 sub add_js_file {
-	my ($self, $file) = @_;
-	pgCall('ADD_JS_FILE', $file);
+	my ($self, $file, $attributes) = @_;
+	pgCall('ADD_JS_FILE', $file, 0, $attributes);
 	return;
 }
 
@@ -164,6 +160,17 @@ sub image_type {
 	my ($self, $type, $ext) = @_;
 	return $self->{type} unless $type;
 
+	# Hardcopy uses the Tikz 'pdf' extension and PTX uses the Tikz 'tgz' extension.
+	if ($self->{pg}{displayMode} eq 'TeX') {
+		$self->{type} = 'Tikz';
+		$self->{ext}  = 'pdf';
+		return;
+	} elsif ($self->{pg}{displayMode} eq 'PTX') {
+		$self->{type} = 'Tikz';
+		$self->{ext}  = 'tgz';
+		return;
+	}
+
 	# Check type and extension are valid. The first element of @validExt is used as default.
 	my @validExt;
 	$type = lc($type);
@@ -173,9 +180,6 @@ sub image_type {
 	} elsif ($type eq 'tikz') {
 		$self->{type} = 'Tikz';
 		@validExt = ('svg', 'png', 'pdf', 'gif', 'tgz');
-	} elsif ($type eq 'gd') {
-		$self->{type} = 'GD';
-		@validExt = ('png', 'gif');
 	} else {
 		warn "Plots: Invalid image type $type.";
 		return;
@@ -191,14 +195,6 @@ sub image_type {
 		$self->{ext} = $validExt[0];
 	}
 
-	# Hardcopy uses the Tikz 'pdf' extension and PTX uses the Tikz 'tgz' extension.
-	if ($self->{pg}{displayMode} eq 'TeX') {
-		$self->{type} = 'Tikz';
-		$self->{ext}  = 'pdf';
-	} elsif ($self->{pg}{displayMode} eq 'PTX') {
-		$self->{type} = 'Tikz';
-		$self->{ext}  = 'tgz';
-	}
 	return;
 }
 
@@ -215,7 +211,7 @@ sub tikz_code {
 
 # Add functions to the graph.
 sub _add_function {
-	my ($self, $Fx, $Fy, $var, $min, $max, @rest) = @_;
+	my ($self, $Fx, $Fy, $var, $min, $max, %rest) = @_;
 	$var = 't'  unless $var;
 	$Fx  = $var unless defined($Fx);
 
@@ -229,9 +225,10 @@ sub _add_function {
 		xmax        => $max,
 		color       => 'default_color',
 		width       => 2,
+		mark_size   => 2,
 		dashed      => 0,
 		tikz_smooth => 1,
-		@rest
+		%rest
 	);
 
 	$self->add_data($data);
@@ -297,11 +294,8 @@ sub add_function {
 sub add_multipath {
 	my ($self, $paths, $var, %options) = @_;
 	my $data  = Plots::Data->new(name => 'multipath');
-	my $steps = 500;                                     # Steps set high to help Tikz deal with boundaries of paths.
-	if ($options{steps}) {
-		$steps = $options{steps};
-		delete $options{steps};
-	}
+	my $steps = 100 * @$paths;                           # Steps set high to help Tikz deal with boundaries of paths.
+	$steps           = delete $options{steps} if $options{steps};
 	$data->{context} = $self->context;
 	$data->{paths}   = [
 		map { {
@@ -312,7 +306,7 @@ sub add_multipath {
 		} } @$paths
 	];
 	$data->{function} = { var => $var, steps => $steps };
-	$data->style(color => 'default_color', width => 2, %options);
+	$data->style(color => 'default_color', width => 2, mark_size => 2, %options);
 
 	$self->add_data($data);
 	return $data;
@@ -329,8 +323,9 @@ sub _add_dataset {
 		$data->add(@{ shift(@points) });
 	}
 	$data->style(
-		color => 'default_color',
-		width => 2,
+		color     => 'default_color',
+		width     => 2,
+		mark_size => 2,
 		@points
 	);
 
@@ -351,9 +346,10 @@ sub _add_circle {
 	my $data = Plots::Data->new(name => 'circle');
 	$data->add(@$point);
 	$data->style(
-		radius => $radius,
-		color  => 'default_color',
-		width  => 2,
+		radius    => $radius,
+		color     => 'default_color',
+		width     => 2,
+		mark_size => 2,
 		@options
 	);
 
@@ -374,8 +370,9 @@ sub _add_arc {
 	my $data = Plots::Data->new(name => 'arc');
 	$data->add($point1, $point2, $point3);
 	$data->style(
-		color => 'default_color',
-		width => 2,
+		color     => 'default_color',
+		width     => 2,
+		mark_size => 2,
 		@options
 	);
 
@@ -396,18 +393,19 @@ sub add_vectorfield {
 	my $data = Plots::Data->new(name => 'vectorfield');
 	$data->set_function(
 		$self->context,
-		Fx     => '',
-		Fy     => '',
-		xvar   => 'x',
-		yvar   => 'y',
-		xmin   => -5,
-		xmax   =>  5,
-		ymin   => -5,
-		ymax   =>  5,
-		xsteps =>  15,
-		ysteps =>  15,
-		width  =>  1,
-		color  => 'default_color',
+		Fx        => '',
+		Fy        => '',
+		xvar      => 'x',
+		yvar      => 'y',
+		xmin      => -5,
+		xmax      =>  5,
+		ymin      => -5,
+		ymax      =>  5,
+		xsteps    =>  15,
+		ysteps    =>  15,
+		width     =>  1,
+		mark_size =>  1,
+		color     => 'default_color',
 		@options
 	);
 
@@ -417,15 +415,17 @@ sub add_vectorfield {
 
 sub _add_label {
 	my ($self, $x, $y, @options) = @_;
-	my $data = Plots::Data->new(name => 'label');
+	my $data  = Plots::Data->new(name => 'label');
+	my $label = @options % 2 ? shift @options : '';
 	$data->add($x, $y);
 	$data->style(
 		color       => 'default_color',
 		fontsize    => 'medium',
 		orientation => 'horizontal',
+		rotate      => 0,
 		h_align     => 'center',
 		v_align     => 'middle',
-		label       => '',
+		label       => $label,
 		@options
 	);
 
@@ -438,22 +438,17 @@ sub add_label {
 	return ref($labels[0]) eq 'ARRAY' ? [ map { $self->_add_label(@$_); } @labels ] : $self->_add_label(@labels);
 }
 
-# Fill regions only work with GD and are ignored in TikZ images.
-sub _add_fill_region {
-	my ($self, $x, $y, $color) = @_;
-	my $data = Plots::Data->new(name => 'fill_region');
-	$data->add($x, $y);
-	$data->style(color => $color || 'default_color');
-	$self->add_data($data);
+sub _add_point {
+	my ($self, $x, $y, %options) = @_;
+	$options{marks} = delete $options{mark} if $options{mark} && !defined $options{marks};
+	my $data = $self->_add_dataset([ $x, $y ], marks => 'circle', %options);
+	$data->{name} = 'point';
 	return $data;
 }
 
-sub add_fill_region {
-	my ($self, @regions) = @_;
-	return
-		ref($regions[0]) eq 'ARRAY'
-		? [ map { $self->_add_fill_region(@$_); } @regions ]
-		: $self->_add_fill_region(@regions);
+sub add_point {
+	my ($self, @points) = @_;
+	return ref($points[0]) eq 'ARRAY' ? [ map { $self->_add_point(@$_); } @points ] : $self->_add_point(@points);
 }
 
 sub _add_stamp {
@@ -462,7 +457,7 @@ sub _add_stamp {
 	$data->add($x, $y);
 	$data->style(
 		color  => 'default_color',
-		size   => 4,
+		radius => 4,
 		symbol => 'circle',
 		@options
 	);
@@ -485,8 +480,6 @@ sub draw {
 		$image = Plots::Tikz->new($self);
 	} elsif ($type eq 'JSXGraph') {
 		$image = Plots::JSXGraph->new($self);
-	} elsif ($type eq 'GD') {
-		$image = Plots::GD->new($self);
 	} else {
 		warn "Undefined image type: $type";
 		return;

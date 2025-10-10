@@ -87,18 +87,51 @@ The maximum value the axis shows. Default is 5.
 
 This is the number of major tick marks to include on the axis. This number is used
 to compute the C<tick_delta> as the difference between the C<max> and C<min> values
-and the number of ticks. Default: 5.
+and the number of ticks. Note that this is only used if C<tick_delta> is zero
+and C<tick_distance> is undefined.  Default: 5.
 
 =item tick_delta
 
-This is the distance between each major tick mark, starting from the origin.
-If this is set to 0, this distance is set by using the number of ticks, C<tick_num>.
-Default is 0.
+This is the distance between each major tick mark, starting from the origin.  If
+this is set to 0 and C<tick_distance> is not 0, then this distance is computed
+to be the product of the C<tick_distance> and the C<tick_scale>, and if this is
+set to 0 and C<tick_distance> is undefined then this is computed to be the
+difference between the C<max> and C<min> divided by the C<tick_num>. Default: 0
 
 =item tick_labels
 
 This can be either 1 (show) or 0 (don't show) the labels for the major ticks.
 Default: 1
+
+=item tick_label_format
+
+This can be one of "decimal", "fraction", "multiple", or "scinot".  If this is
+"decimal", then tick labels will be displayed in decimal format.  If this is
+"fraction", then tick labels will be displayed as (improper) fractions.  If this
+is "mixed", then tick labels will be displayed as mixed numbers. If this is
+"scinot", then tick labels will be displayed in scientific notation. Default:
+"decimal"
+
+=item tick_label_digits
+
+The number of decimal places to round tick labels to when the
+C<tick_label_format> is "decimal" or "scinot". Default: 2
+
+=item tick_distance
+
+This is the unscaled distance between each major tick mark starting from the
+origin when the axis is scaled by the C<tick_scale> factor. If this is 0, then
+this will be computed to be the C<tick_delta> divided by the C<tick_scale>.
+Default: 0
+
+=item tick_scale
+
+This is used in combination with the C<tick_distance> above to calculate the
+C<tick_delta>.  Default: 1
+
+=item tick_scale_symbol
+
+This is appended to major tick labels.  Default: ''
 
 =item show_ticks
 
@@ -115,8 +148,13 @@ Show (1) or don't show (0) grid lines at the tick marks. Default is 1.
 
 =item minor
 
-This sets the number of minor grid lines per major grid line. If this is
-set to 0, no minor grid lines are shown. Default is 3.
+This sets the number of minor ticks (and minor grid lines if minor_grids is 1)
+per major tick. If this is set to 0, no minor ticks are shown. Default: 3
+
+=item minor_grids
+
+If this is 1, then grid lines are shown at minor ticks, and if this is 0, then
+grid lines are not shown at minor ticks. Default: 1
 
 =item visible
 
@@ -141,7 +179,13 @@ set to 'middle' or 'center'. Default is 0.
 
 =item jsx_options
 
-A hash reference of options to be passed to the JSXGraph axis objects.
+A hash reference of options to be passed to the JSXGraph axis object.
+
+=item jsx_grid_options
+
+A hash reference of options to be passed to the JSXGraph grid object. Note that
+the grid is implemented as an axis with ticks the extend to infinity. So the
+options are really JSXGraph axis options.
 
 =back
 
@@ -185,6 +229,29 @@ Configures if the Tikz axis should be drawn on top of the graph (1) or below the
 Useful when filling a region that covers an axis, if the axis are on top they will still
 be visible after the fill, otherwise the fill will cover the axis. Default: 0
 
+Note that this setting is not honored for the JSXGraph image type.
+
+This is not the best way of ensuring that axis elements are not covered by a
+fill. If this is used, then not only is the fill region placed behind the axis
+and the grid, but all graphed elements are behind the axis and the grid which is
+usually not desirable. A better way is to use the "axis background" C<layer> to
+only place the fill on the "axis background" layer, and leave everything else on
+top of the axis.
+
+=item axes_arrows_both
+
+Configures if arrows should be drawn in both directions (1) or only in the
+positive direction (0) at the axes ends. In other words, this is a choice
+between the convention that arrows are meant to indicate that the axes lines
+continue forever, or the convention that arrows are meant to indicate the
+positive direction of the axes only.  Default: 0
+
+=item mathjax_tick_labels
+
+If this is 1, then tick labels will be displayed using MathJax.  If this is 0,
+then ticks will be displayed as basic text.  This only applies to the JSXGraph
+output type. Default: 1
+
 =item jsx_navigation
 
 Either allow (1) or don't allow (0) the user to pan and zoom the view port of the
@@ -196,6 +263,13 @@ of the graph that can be zoomed in or out.  Default: 0
 
 A hash reference of options to be passed to the JSXGraph board object.
 
+=item tikz_options
+
+Additional options to be passed to the pgfplots axis definition. This should be
+a single string.  For example, to make longer and thicker x axis ticks use
+
+    tikz_options => 'x tick style={line width=2pt},major tick length=0.6cm'
+
 =back
 
 =cut
@@ -206,18 +280,21 @@ use strict;
 use warnings;
 
 sub new {
-	my $class = shift;
-	my $self  = bless {
+	my ($class, @options) = @_;
+	my $self = bless {
 		xaxis  => {},
 		yaxis  => {},
 		styles => {
-			aria_label       => 'Graph',
-			aria_description => 'Generated graph',
-			grid_color       => 'gray',
-			grid_alpha       => 40,
-			show_grid        => 1,
+			aria_label          => 'Graph',
+			aria_description    => 'Generated graph',
+			grid_color          => 'gray',
+			grid_alpha          => 40,
+			show_grid           => 1,
+			axis_on_top         => 0,
+			axes_arrows_both    => 0,
+			mathjax_tick_labels => 1,
 		},
-		@_
+		@options
 	}, $class;
 
 	$self->xaxis($self->axis_defaults('x'));
@@ -228,18 +305,24 @@ sub new {
 sub axis_defaults {
 	my ($self, $axis) = @_;
 	return (
-		visible     =>  1,
-		min         => -5,
-		max         =>  5,
-		label       => $axis eq 'y' ? '\(y\)'  : '\(x\)',
-		location    => $axis eq 'y' ? 'center' : 'middle',
-		position    => 0,
-		tick_labels => 1,
-		show_ticks  => 1,
-		tick_delta  => 0,
-		tick_num    => 5,
-		major       => 1,
-		minor       => 3,
+		visible           =>  1,
+		min               => -5,
+		max               =>  5,
+		label             => $axis eq 'y' ? '\(y\)'  : '\(x\)',
+		location          => $axis eq 'y' ? 'center' : 'middle',
+		position          => 0,
+		tick_labels       => 1,
+		tick_label_format => 'decimal',
+		tick_label_digits => 2,
+		tick_distance     => 0,
+		tick_scale        => 1,
+		tick_scale_symbol => '',
+		show_ticks        => 1,
+		tick_delta        => 0,
+		tick_num          => 5,
+		major             => 1,
+		minor             => 3,
+		minor_grids       => 1
 	);
 }
 
@@ -256,8 +339,11 @@ sub axis {
 		map { $self->{$axis}{$_} = $item->{$_}; } (keys %$item);
 		return;
 	}
-	# Deal with ticks individually since they may need to be generated.
-	return $item eq 'tick_delta' ? $self->tick_delta($self->{$axis}) : $self->{$axis}{$item};
+	# Deal with the tick_delta and tick_distance individually since they may need to be computed.
+	return
+		$item eq 'tick_delta'      ? $self->tick_delta($self->{$axis})
+		: $item eq 'tick_distance' ? $self->tick_distance($self->{$axis})
+		:                            $self->{$axis}{$item};
 }
 
 sub xaxis {
@@ -322,14 +408,28 @@ sub style {
 sub tick_delta {
 	my ($self, $axis) = @_;
 	return $axis->{tick_delta} if $axis->{tick_delta};
-	return 2 unless $axis->{tick_num};
-	$axis->{tick_delta} = ($axis->{max} - $axis->{min}) / $axis->{tick_num} if $axis->{tick_num};
+	if ($axis->{tick_distance}) {
+		$axis->{tick_delta} = $axis->{tick_distance} * ($axis->{tick_scale} || 1);
+	} elsif ($axis->{tick_num}) {
+		$axis->{tick_delta} = ($axis->{max} - $axis->{min}) / $axis->{tick_num};
+	} else {
+		$axis->{tick_delta} = 2;
+	}
 	return $axis->{tick_delta};
+}
+
+sub tick_distance {
+	my ($self, $axis) = @_;
+	return $axis->{tick_distance} if $axis->{tick_distance};
+	my $tick_delta = $self->tick_delta($axis);
+	$axis->{tick_distance} = $axis->{tick_delta} / ($axis->{tick_scale} || 1);
+	return $axis->{tick_distance};
 }
 
 sub grid {
 	my $self = shift;
-	return $self->get('xmajor', 'xminor', 'xtick_delta', 'ymajor', 'yminor', 'ytick_delta');
+	return $self->get('xmajor', 'xminor_grids', 'xminor', 'xtick_delta', 'ymajor', 'yminor_grids', 'yminor',
+		'ytick_delta');
 }
 
 sub bounds {

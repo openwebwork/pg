@@ -7,9 +7,9 @@ plots.pl - A macro to create dynamic graphs to include in PG problems.
 
 This macro creates a Plots object that is used to add data of different
 elements of a 2D plot, then draw the plot. The plots can be drawn using different
-formats. Currently C<TikZ> (using PGFplots), C<JSXGraph>, and the legacy C<GD>
-graphics format are available. Default is to use C<JSXGraph> for HTML output and
-C<TikZ> for hardcopy.
+formats. Currently C<TikZ> (using PGFplots) and C<JSXGraph> graphics format are
+available. The default is to use C<JSXGraph> for HTML output and C<TikZ> for
+hardcopy.
 
 Note, due to differences in features between C<JSXGraph> and C<TikZ>, not all
 options work with both.
@@ -36,6 +36,41 @@ This single call configures the L<Axes Object|Plots::Axes> (see link for full li
 Options that start with C<x> configure the xaxis, options that start with C<y> configure the
 yaxis, and all other options are Axes styles.
 
+In addition to the options for configuring the L<Axes Object|Plots::Axes>, the
+following options may be passed.
+
+=over
+
+=item width
+
+The width of the image.  The default value of this option is the
+C<onTheFlyImageSize> value in the environment, or C<350> if that is not set or
+is C<0>.
+
+=item height
+
+The height of the image.  The default value of this option is the C<undef>. If
+this is explicitly set to a positive integer value, then that height will be
+used.  If this is C<undef>, then the height of the image will be automatically
+determined.  If the C<aspect_ratio> style setting for the C<Plots::Axes> object
+is C<1>, then the height will be computed to maintain the aspect ratio of the
+image.  Otherwise it will be set to value of the C<width> option.
+
+=item tex_size
+
+The size of the image in hardcopy.  See L<PGbasicmacros.pl/Macros for displaying images>
+for more details on this setting.
+
+=item rounded_corners
+
+Determines if the image will be displayed in a rectangle with rounded corners
+or sharp corners.  The default value for this option is C<0> which means that
+sharp corners will be used.  If this is set to C<1>, then rounded corners will
+be used. Note that this may not work well for images that have elements of the
+plot near or in the corners.
+
+=back
+
 Add a function and other objects to the plot.
 
     $plot->add_function('-16t^2 + 80t + 384', 't', 0, 8, color => 'blue', width => 3);
@@ -59,11 +94,11 @@ to plot the data. Datasets are added to a plot via C<< $plot->add_dataset >>, an
 can be added individually, or multiple at once as shown:
 
     # Add a single dataset
-    $plot->add_dataset([$x1, $y1], [$x2, $y2], ..., [$xn, $yn], @options);
+    $plot->add_dataset([$x1, $y1], [$x2, $y2], ..., [$xn, $yn], %options);
     # Add multiple datasets with single call
     $plot->add_dataset(
-        [[$x11, $y11], [$x12, $y12], ..., [$x1n, $y1n], @options1],
-        [[$x21, $y21], [$x22, $y22], ..., [$x2m, $y2m], @options2],
+        [[$x11, $y11], [$x12, $y12], ..., [$x1n, $y1n], %options1],
+        [[$x21, $y21], [$x22, $y22], ..., [$x2m, $y2m], %options2],
         ...
     );
 
@@ -90,11 +125,11 @@ Functions can be used to generate a dataset to plot. Similar to datasets
 functions can be added individually or multiple at once:
 
     # Add a single function
-    $plot->add_function($function, $variable, $min, $max, @options)
+    $plot->add_function($function, $variable, $min, $max, %options)
     # Add multiple functions
     $plot->add_function(
-        [$function1, $variable1, $min1, $max1, @options1],
-        [$function2, $variable2, $min2, $max2, @options2],
+        [$function1, $variable1, $min1, $max1, %options1],
+        [$function2, $variable2, $min2, $max2, %options2],
         ...
      );
 
@@ -196,7 +231,7 @@ then the arc of the circle of radius 5 from pi/4 to 3pi/4, followed by the final
 
 =head2 PLOT CIRCLES
 
-Circles can be added to the plot by specifing its center and radius using the
+Circles can be added to the plot by specifying its center and radius using the
 C<< $plot->add_circle >> method. This can either be done either one at a time
 or multiple at once.
 
@@ -209,15 +244,17 @@ or multiple at once.
 
 =head2 PLOT ARCS
 
-Arcs (or a portion of a circle) can be plotted using the C<< $plot->add_arc >> method.
-This method takes three points. The first point is where the arc starts, the second point
-is the center of the circle, and the third point specifies the ray from the center of
-the circle the arc ends. Arcs always go in the counter clockwise direction.
+Arcs (or a portion of a circle) can be plotted using the C<< $plot->add_arc >>
+method.  This method takes three points. The first point is the center of the
+circle, the second point is where the arc starts, and the arc ends at the point
+on the circle that intersects the ray from the center of the circle pointing in
+the direction of the third point. Arcs always go in the counter clockwise
+direction.
 
     $plot->add_arc([$start_x, $start_y], [$center_x, $center_y], [$end_x, $end_y], %options);
     $plot->add_arc(
-        [[$start_x1, $start_y1], [$center_x1, $center_y1], [$end_x1, $end_y1], %options1],
-        [[$start_x2, $start_y2], [$center_x2, $center_y2], [$end_x2, $end_y2], %options2],
+        [[$center_x1, $center_y1], [$start_x1, $start_y1], [$end_x1, $end_y1], %options1],
+        [[$center_x2, $center_y2], [$start_x2, $start_y2], [$end_x2, $end_y2], %options2],
         ...
     );
 
@@ -262,8 +299,9 @@ Range of the x and y coordinates of the vector field. Default: -5 to 5
 
 =item xsteps, ysteps
 
-The number of arrows drawn in each direction. Note, that in TikZ output, this cannot be
-set individually so only C<xsteps> is used. Default: 15
+The number of steps from the domain minimum to the domain maximum at which to
+draw arrows.  The number of arrows drawn will be one more than the number of
+steps. Default: 15
 
 =item scale
 
@@ -303,14 +341,17 @@ The color of the plot. Default: 'default_color'
 
 =item width
 
-The line width of the plot. Default: 1
+The line width of the plot. Default: 2
 
 =item linestyle
 
-Linestyle can be one of 'solid', 'dashed', 'dotted', 'short dashes', 'long dashes',
-'long medium dashes' (alternates between long and medium dashes), or 'none'. If set
-to 'none', only the points are shown (see marks for point options) For convince
-underscores can also be used, such as 'long_dashes'. Default: 'solid'
+Linestyle can be one of 'solid', 'dashed', 'dotted', 'short dashes', 'long
+dashes', 'long medium dashes' (alternates between long and medium dashes), or
+'none'. If set to 'none', then the curve will not be drawn. This can be used to
+show only points by setting the C<marks> option (see C<marks> for point
+options), or to only show a fill region by setting the C<fill> option.  For
+convenience underscores can also be used, such as 'long_dashes'.
+Default: 'solid'
 
 =item marks
 
@@ -322,8 +363,7 @@ can be one of 'none', 'circle' (or 'closed_circle'), 'open_circle', 'square',
 =item mark_size
 
 Configure the size of the marks (if shown). The size is a natural number,
-and represents the point (pt) size of the mark. If the size is 0, the
-default size is used. Default: 0
+and represents the point (pt) size of the mark. Default: 2
 
 =item start_mark
 
@@ -338,7 +378,7 @@ Place a mark at the end (right end) of the plot. This can be one of
 =item arrow_size
 
 Sets the arrow head size for C<start_mark> or C<end_mark> arrows.
-Default: 10
+Default: 8
 
 =item name
 
@@ -352,8 +392,9 @@ Sets the fill method to use. If set to 'none', no fill will be added.
 If set to 'self', the object fills within itself, best used with closed
 datasets. If set to 'xaxis', this will fill the area between the curve
 and the x-axis. If set to another non-empty string, this is the name of
-the other dataset to fill against. The C<name> attribute must be set to
-fill between the 'xaxis' or another curve.
+the other dataset to fill against. Note that the other dataset must be
+created first before attempting to fill against it. The C<name> attribute
+must be set to fill between the 'xaxis' or another curve.
 
 The following creates a filled rectangle:
 
@@ -406,6 +447,25 @@ The minimum and maximum x-value to fill between. If either of these are
 not defined, then the fill will use the full domain of the function.
 Default: undefined
 
+=item layer
+
+The layer to draw on. Available layers are "axis background", "axis grid",
+"axis ticks", "axis lines", "axis tick labels", "pre main", "main",
+"axis descriptions", and "axis foreground". Note that the default order is the
+order just given (from back to front). However, if C<axis_on_top> is true for
+the axes, then "pre main" and "main" are after "axis background" and before
+"axis grid". If this is undefined, then the default drawing layer will be used.
+Default: undefined
+
+=item fill_layer
+
+The layer to place the fill region on. The curves will be drawn on the default
+layer (or the layer specified by the C<layer> option) and the fill region will
+be drawn on the layer specified by this option. Note that if this option is not
+specified and the C<layer> option, then the curve and the fill region will both
+be drawn on the specified C<layer>. See the C<layer> option above regarding
+available layers to choose from.  Default: undefined
+
 =item steps
 
 This defines the number of points to generate for a dataset from a function.
@@ -448,13 +508,16 @@ Labels can be added to the graph using the C<< $plot->add_label >> method.
 Similar to datasets this can be added individually or multiple at once.
 
     # Add a label at the point ($x, $y).
-    $plot->add_label($x, $y, label => $label, @options)>
+    $plot->add_label($x, $y, $label, %options)
     # Add multiple labels at once.
     $plot->add_label(
-        [$x1, $y1, label => $label1, @options1],
-        [$x2, $y2, label => $label2, @options2],
+        [$x1, $y1, $label1, %options1],
+        [$x2, $y2, $label2, %options2],
         ...
-     );
+    );
+
+    # Deprecated way of adding a label with an option instead of the third argument.
+    $plot->add_label($x, $y, label => $label, %options)
 
 Labels can be configured using the following options:
 
@@ -470,8 +533,11 @@ The color of the label. Default: 'default_color'
 
 =item fontsize
 
-The font size of the label used. This can be one of 'tiny', 'small', 'medium',
-'large', or 'giant'. Default: 'medium'
+The font size of the label used. This can be one of 'tiny', 'small',
+'normalsize', 'large', 'Large', 'huge', or 'Huge' which correspond to the same
+named TeX font sizes. Note that this list used to include 'medium' and 'giant'
+which still work, but are deprecated.  Instead of 'medium' use 'normalsize', and
+instead of 'giant' use 'Large'.  Default: 'normalsize'
 
 =item rotate
 
@@ -499,7 +565,35 @@ Additional TikZ options to be appended to C<\node> when adding the label.
 
 =back
 
+=head2 POINTS
+
+Points are really dataset marks (with no associated curve).  Note that points
+are drawn after all of the other graph objects except labels are drawn.  Thus
+points will always appear to be on top of everything else (except labels).
+
+Note that the C<color>, C<mark_size>, C<marks>, and C<width> dataset options are
+valid for points. The C<mark> option is also a valid option that is an alias for
+the C<marks> dataset option.  The C<mark> or C<marks> options can be used to
+change the symbol that is used for the point.  By default the symbol is a
+C<closed_circle>.
+
+    # Add a single point.
+    $plot->add_point($x1, $y1, color => $color, mark_size => $mark_size);
+
+    # Add multiple points.
+    $plot->add_point(
+        [$x1, $y1, color => $color1, mark_size => $mark_size1],
+        [$x2, $y2, color => $color2, mark_size => $mark_size2],
+        ...
+    );
+
+    # Add a single open point.
+    $plot->add_point($x1, $y1, color => $color, mark => 'open_circle');
+
 =head2 STAMPS
+
+Stamps and the C<add_stamp> method are deprecated.  DO NOT USE THEM. Use the
+C<add_dataset> or C<add_point> methods instead.
 
 Stamps are a single point with a mark drawn at the given point.
 Stamps can be added individually or multiple at once:
@@ -513,24 +607,8 @@ Stamps can be added individually or multiple at once:
         ...
     );
 
-Stamps are here for backwards compatibility with WWplot and GD output, and are
-equivalent to creating a dataset with one point when not using GD output (with
-the small difference that stamps are added after all other datasets have been added).
-
-=head2 FILL REGIONS
-
-Fill regions define a point which GD will fill with a color until it hits a boundary curve.
-This is only here for backwards comparability with WWplot and GD output. This will not
-work with TikZ output, instead using the fill methods mentioned above.
-
-    # Add a single fill region.
-    $plot->add_fill_region($x1, $y1, $color);
-    # Add multiple fill regions.
-    $plot->add_fill_region(
-        [$x1, $y1, $color1],
-        [$x2, $y2, $color2],
-        ...
-    );
+Adding a stamp is equivalent to creating a dataset with one point with the
+exception that stamps are added after all other datasets have been added.
 
 =head2 COLORS
 
@@ -563,6 +641,45 @@ Colors can be added individually or multiple using a single call.
         [$color_name2, $red2, $green2, $blue2],
         ...
     );
+
+Note that SVG colors can also be used directly by name without being defined via
+the C<add_color> method.  See section 4.3 of the
+L<xcolor|https://ctan.mirrors.hoobly.com/macros/latex/contrib/xcolor/xcolor.pdf>
+documentation for a list of available color names.
+
+=head2 EXTRA CODE
+
+Additional JavaScript and TikZ code may be added to draw elements that are not
+provided for by this macro and its underlying modules.  To add JavaScript code
+set the C<extra_js_code> key on the C<$plot> object, and to add TikZ code set
+the C<extra_tikz_code> key on the C<$plot> object. The JavaScript code will have
+access to the C<JXG.Board> object via the variable C<board>, and will be
+inserted after all of the other code generated by this macro, and before the
+C<board.unsuspendUpdate()> call is executed. The TikZ code will be inserted
+after all of the other code generated by this macro, and before the pgfplots
+C<axis> environment is ended.
+
+Note that if one of these is used, then both should be used to ensure that both
+the JavaScript plot image (used in HTML) and the TikZ plot image (used in
+hardcopy) are the same (or at least as close as possible).
+
+For example,
+
+    $plot = Plot();
+
+    $plot->{extra_js_code} = << 'END_JS_CODE';
+        board.create(
+            'line',
+            [[0, 0], [1, 1]],
+            { straightLast: false, straightFirst: false, color: 'blue' }
+        );
+    END_JS_CODE
+
+    $plot->{extra_tikz_code} = "\draw[line width = 2pt, blue] (axis cs: 0, 0) -- (axis cs: 1, 1);";
+
+Note that the above code is not an actual example that should be used as those
+lines could be created using this macro directly. It is only included here to
+demonstrate how to use these options.
 
 =head1 TIKZ DEBUGGING
 
