@@ -117,9 +117,9 @@ By default, the Reaction context checks the student answer against the
 correct answer in the form the correct answer is given (molecular or
 condensed structural form).  If you want to allow either form, then
 you can set the flag C<acceptMolecularForm> to C<1>, in which case,
-the student's answwer is compared first to the original correct answer
+the student's answer is compared first to the original correct answer
 and then to its molecular form.  For example, if the correct answer is
-`(NH_4)_3PO_4`, then a student answer of `N_3H_12PO_4` would also be
+C<(NH_4)_3PO_4>, then a student answer of C<N_3H_12PO_4> would also be
 considered correct when this flag is set to C<1>.
 
 You can convert a compound (or every term of a complete reaction) to
@@ -128,7 +128,7 @@ object.  For example
 
     $R = Compute("CH_3CH_2CH_3")->molecularForm;
 
-would make C<$R> be the quivalent of C<Compute("C_3H_8")>.
+would make C<$R> be the equivalent of C<Compute("C_3H_8")>.
 
 Note that student answers aren't reduced to molecular form when
 C<acceptMolecularForm> is true.  If you want to allow students to
