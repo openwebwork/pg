@@ -709,7 +709,7 @@ sub _check {
 		$self->{type} = $Value::Type{number};
 	} else {
 		&{ $self->super('_check') }($self);
-		$self->setExtensionClass('MINUS') if $self->{op}->class eq 'Number';
+		$self->setExtensionClass('MINUS') if $self->extensionClassMatch($self->{op}, 'MINUS', 'INTEGER');
 	}
 	$self->mutate;
 }
