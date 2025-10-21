@@ -25,14 +25,15 @@ reactions.  For example:
 
     $R = Formula("4P + 5O_2 --> 2P_2O_5");
 
-Ions can be specified using C<^> to produce superscripts, as in C<Ca^+2> or
-C<Ca^{+2}>. Note that the charge may be listed with prefix notation (+2)
-or postfix notation (2+). By default, TeX will display only the sign of the 
-charge of singly charged ions, e.g., C<Na^+> and C<Cl^->. However, the context 
-flag C<< showUnity=>1 >> can be used to direct TeX to use an alternative 
-notation for singly charged ions, by which the numerical magnitude (1) is 
-displayed along with the sign of the charge, e.g., C<Na^1+> and C<Cl^1->. The 
-default value of C<<showUnity>> is zero.
+Ions can be specified using C<^> to produce superscripts, as in
+C<Ca^+2> or C<Ca^{+2}>. Note that the charge may be listed with prefix
+notation (+2) or postfix notation (2+). By default, TeX will display
+only the sign of the charge of singly charged ions, e.g., C<Na^+> and
+C<Cl^->. However, the context flag C<< showUnity=>1 >> can be used to
+direct TeX to use an alternative notation for singly charged ions, by
+which the numerical magnitude (1) is displayed along with the sign of
+the charge, e.g., C<Na^1+> and C<Cl^1->. The default value of
+C<<showUnity>> is zero.
 
 States can be appended to compounds, as in C<AgCl(s)>.  So you can
 make reactions like the following:
@@ -48,9 +49,9 @@ Complexes can be formed using square brackets, as in
 
 These can be used in reactions as with any other compound.
 
-Reactions know how to create their own TeX versions (via C<< $R->TeX >>), and
-know how to check student answers (via C<< $R->cmp >>), just like any other
-MathObject.
+Reactions know how to create their own TeX versions (via C<< $R->TeX >>),
+and know how to check student answers (via C<< $R->cmp >>), just like
+any other MathObject.
 
 The Reaction Context also allows you to create parts of reactions.
 E.g., you could create
@@ -112,6 +113,48 @@ If you need to add more states, use C<$context::Reaction::STATE>, as in
 
 to allow a state of C<(x)> for a compound.
 
+By default, the Reaction context checks the student answer against the
+correct answer in the form the correct answer is given (molecular or
+condensed structural form).  If you want to allow either form, then
+you can set the flag C<acceptMolecularForm> to C<1>, in which case,
+the student's answer is compared first to the original correct answer
+and then to its molecular form.  For example, if the correct answer is
+C<(NH_4)_3PO_4>, then a student answer of C<N_3H_12PO_4> would also be
+considered correct when this flag is set to C<1>.
+
+You can convert a compound (or every term of a complete reaction) to
+molecular form using the C<molecularForm> method of any Reaction
+object.  For example
+
+    $R = Compute("CH_3CH_2CH_3")->molecularForm;
+
+would make C<$R> be the equivalent of C<Compute("C_3H_8")>.
+
+Note that student answers aren't reduced to molecular form when
+C<acceptMolecularForm> is true.  If you want to allow students to
+enter compounds in any form, you can set the C<compareMolecular> flag
+to C<1>, in which case both the correct and student answers are
+formatted in molecular form internally before they are compared.
+
+The molecular form will have the elements in the order that they first
+appeared in the compound, and the student must use the same order for
+their answer to be considered correct.  If you want to allow the
+student to enter the elements in any order, you can set the
+C<keepElementOrder> flag to C<0> which will cause the molecular form
+to be in alphabetical order.  That way, if the student has the correct
+number of each element, in any order, the two answers will match.
+
+The Reaction context can perform an automatic reduction that combines
+adjacent elements that are the same.  This is controlled by the
+C<combineAdjacentElements> flag, which is C<1> by default.  For
+example,
+
+    $R1 = Compute("COOH");
+    $R2 = Compute("CO_2H");
+
+would equal each other when the flag is set, even when
+C<compareMolecular> is not set.
+
 =cut
 
 ######################################################################
@@ -146,19 +189,16 @@ sub Init {
 	$context->functions->clear();
 	$context->strings->clear();
 	$context->constants->clear();
-	$context->lists->clear();
-	$context->lists->add(
+	$context->lists->are(
 		'List'    => { class => 'context::Reaction::List::List',    open => '',  close => '',  separator => ' + ' },
 		'Complex' => { class => 'context::Reaction::List::Complex', open => '[', close => ']', separator => '' },
 	);
-	$context->parens->clear();
-	$context->parens->add(
+	$context->parens->are(
 		'(' => { close => ')', type => 'List', formList  => 1, removable => 1 },
 		'{' => { close => '}', type => 'List', removable => 1 },
 		'[' => { close => ']', type => 'Complex' },
 	);
-	$context->operators->clear();
-	$context->operators->set(
+	$context->operators->are(
 		'-->' => {
 			precedence    => 1,
 			associativity => 'left',
@@ -263,9 +303,15 @@ sub Init {
 	);
 	$context->variables->add(map { $_ => $STATE } ('(aq)', '(s)', '(l)', '(g)', '(ppt)'));
 	$context->reductions->clear();
-	$context->flags->set(showUnity             => 0);
-	$context->flags->set(studentsMustUseStates => 1);
-	$context->flags->set(reduceConstants       => 0);
+	$context->flags->set(
+		showUnity               => 0,
+		studentsMustUseStates   => 1,
+		reduceConstants         => 1,
+		combineAdjacentElements => 1,
+		acceptMolecularForm     => 0,
+		compareMolecular        => 0,
+		keepElementOrder        => 1,
+	);
 	$context->{parser}{Number}   = 'context::Reaction::Number';
 	$context->{parser}{Variable} = 'context::Reaction::Variable';
 	$context->{parser}{Formula}  = 'context::Reaction';
@@ -282,14 +328,14 @@ sub Init {
 #  Handle postfix - and + in superscripts
 #
 sub Op {
-	my $self = shift;
-	my $name = shift;
-	my $ref  = $self->{ref} = shift;
+	my $self    = shift;
+	my $name    = shift;
+	my $ref     = $self->{ref} = shift;
+	my $context = $self->{context};
+	my $op;
+	($name, $op) = $context->operators->resolve($name);
+	($name, $op) = $context->operators->resolve($op->{space}) if $self->{space} && defined($op->{space});
 	if ($self->state eq 'operand') {
-		my $context = $self->{context};
-		my $op;
-		($name, $op) = $context->operators->resolve($name);
-		($name, $op) = $context->operators->resolve($op->{space}) if $self->{space} && defined($op->{space});
 		if ($op->{type} eq 'both'
 			&& $context->{operators}{"p$name"}
 			&& $self->top->{value}->class eq 'Number'
@@ -297,23 +343,32 @@ sub Op {
 			&& $self->prev->{name} eq '^')
 		{
 			($name, $op) = $context->operators->resolve("p$name");
-			$self->pushOperand($self->Item('UOP')->new($self, $name, $self->pop->{value}, $ref));
+			$self->pushCharge($name, $self->pop->{value});
 			return;
 		}
-	} elsif ($self->state eq 'operator' && $self->top->{name} =~ m/^u/) {
-		$self->SimpleCharge;
 	}
 	$self->SUPER::Op($name, $ref);
 }
 
 #
-#  Handle superscripts of just + or -
+#  Handle superscripts of just + or - or postscript + or -
 #
 sub Close {
 	my $self = shift;
 	my $type = shift;
 	my $ref  = $self->{ref} = shift;
 	$self->SimpleCharge if $self->state eq 'operator' && $self->top->{name} =~ m/^u/;
+	my $name    = $self->top->{name};
+	my $context = $self->{context};
+	if ($self->state eq 'operator'
+		&& $context->{operators}{"p$name"}
+		&& $self->prev->{type} eq 'operand'
+		&& $self->top(-2)->{type} eq 'open')
+	{
+		$self->pop;
+		($name) = $context->operators->resolve("p$name");
+		$self->pushCharge($name, $self->pop->{value});
+	}
 	$self->SUPER::Close($type, $ref);
 }
 
@@ -327,11 +382,18 @@ sub pushOperand {
 	$self->push({ type => 'operand', ref => $self->{ref}, value => $value });
 }
 
+sub pushCharge {
+	my $self  = shift;
+	my $op    = shift;
+	my $value = shift;
+	$self->pushOperand($self->Item('UOP')->new($self, $op, $value, $self->{ref}));
+}
+
 sub SimpleCharge {
 	my $self = shift;
 	my $top  = $self->pop;
 	my $one  = $self->Item('Number')->new($self, 1, $self->{ref});
-	$self->pushOperand($self->Item('UOP')->new($self, $top->{name}, $one, $self->{ref}));
+	$self->pushCharge($top->{name}, $one);
 }
 
 #
@@ -346,11 +408,20 @@ sub compare {
 }
 
 #
-#  Don't allow evaluation
+#  Don't allow evaluation except for numbers
 #
 sub eval {
 	my $self = shift;
-	$self->Error("Can't evaluate " . $self->TYPE);
+	return $self->Package('Real')->new($self->{tree}{value}) if $self->{tree}->class eq 'Number';
+	$self->Error("Can't evaluate " . $self->{tree}->TYPE);
+}
+
+#
+#  Get the molecular form for everything in the reaction
+#
+sub molecularForm {
+	my $self = shift;
+	return $self->new($self->{tree}->molecularForm);
 }
 
 #
@@ -390,10 +461,69 @@ sub typeMatch {
 
 ######################################################################
 #
+#  Common functions to multiple classes
+#
+package context::Reaction::common;
+
+#
+#  Shorthand for creating parser items
+#
+sub ITEM {
+	my $self = shift;
+	return $self->Item(shift)->new($self->{equation}, @_);
+}
+
+#
+#  Convert an item to a compound
+#
+sub COMPOUND {
+	my $self = shift;
+	return $self->ITEM('BOP', ' ', $self->ITEM('Number', 1), $self->copy);
+}
+
+#
+#  Make a charge item from a number
+#
+sub CHARGE {
+	my ($self, $n) = @_;
+	return $self->ITEM('UOP', $n < 0 ? 'u-' : 'u+', $self->ITEM('Number', CORE::abs($n)));
+}
+
+#
+#  Add a term into an item's data
+#
+sub combineData {
+	my ($self, $other) = @_;
+	return unless $other->{order};
+	my ($order, $elements) = ($self->{order}, $self->{elements});
+	for my $element (@{ $other->{order} }) {
+		if (!$elements->{$element}) {
+			push(@$order, $element);
+			$elements->{$element} = 0;
+		}
+		$elements->{$element} += $other->{elements}{$element};
+	}
+	$self->{charge} += $other->{charge};
+	$self->{factor} *= $other->{factor};
+}
+
+#
+#  Molecular form is same as original
+#
+sub molecularForm { shift->copy }
+
+#
+#  Default is not a checmicla or sum
+#
+sub isChemical {0}
+sub isSum      {0}
+
+######################################################################
+#
 #  The replacement for the Parser:Number class
 #
 package context::Reaction::Number;
-our @ISA = ('Parser::Number');
+our @ISA = ('Parser::Number', 'context::Reaction::common');
 
 #
 #  Equivalent is equal
@@ -405,8 +535,6 @@ sub equivalent {
 	return $self->eval == $other->eval;
 }
 
-sub isChemical {0}
-
 sub class {'Number'}
 sub TYPE  {'a Number'}
 
@@ -415,7 +543,21 @@ sub TYPE  {'a Number'}
 #  The replacement for Parser::Variable.  We hold the elements here.
 #
 package context::Reaction::Variable;
-our @ISA = ('Parser::Variable');
+our @ISA = ('Parser::Variable', 'context::Reaction::common');
+
+#
+#  Save the element data
+#
+sub new {
+	my $self = shift->SUPER::new(@_);
+	if ($self->type ne 'State') {
+		$self->{order}    = [ $self->{name} ];
+		$self->{elements} = { $self->{name} => 1 };
+		$self->{charge}   = 0;
+		$self->{factor}   = 1;
+	}
+	return $self;
+}
 
 #
 #  Two elements are equivalent if their names are equal
@@ -457,7 +599,7 @@ sub TYPE {
 #  are subclasses of this).
 #
 package context::Reaction::BOP;
-our @ISA = ('Parser::BOP');
+our @ISA = ('Parser::BOP', 'context::Reaction::common');
 
 #
 #  Binary operators produce chemicals (unless overridden, as in arrow)
@@ -467,17 +609,34 @@ sub isChemical {1}
 sub eval { context::Reaction::eval(@_) }
 
 #
+#  Form molecular form by combining molecular forms of the operands
+#
+sub molecularForm {
+	my $self = shift;
+	$self        = bless {%$self}, ref($self);
+	$self->{lop} = $self->{lop}->molecularForm;
+	$self->{rop} = $self->{rop}->molecularForm;
+	return $self;
+}
+
+#
 #  Two nodes are equivalent if their operands are equivalent
 #  and they have the same operator
 #
 sub equivalent {
 	my $self  = shift;
 	my $other = shift;
-	#        return $other->equivalent($self)
-	#		if $other->class eq 'BOP' && $other->{rop}->type eq 'State' && $self->{rop}->type ne 'State';
-	return 0 unless $other->class eq 'BOP';
-	return 0 unless $self->{bop} eq $other->{bop};
+	return 0 unless $other->class eq 'BOP' && $self->{bop} eq $other->{bop};
 	return $self->{lop}->equivalent($other->{lop}) && $self->{rop}->equivalent($other->{rop});
+}
+
+#
+#  Check for equivalence using string representations of compounds
+#
+sub equivalentTo {
+	my ($self, $other, $states) = @_;
+	$other = $other->string;
+	return $self->string eq $other || (!$states && $self->{hasState} && $self->{lop}->string eq $other);
 }
 
 ######################################################################
@@ -497,10 +656,11 @@ sub isChemical {0}
 #
 sub _check {
 	my $self = shift;
-	$self->Error("The left-hand side of '-->' must be a (sum of) reactants, not %s", $self->{lop}->TYPE)
-		unless $self->{lop}->isChemical;
-	$self->Error("The right-hand side of '-->' must be a (sum of) products, not %s", $self->{rop}->TYPE)
-		unless $self->{rop}->isChemical;
+	my ($lop, $rop) = ($self->{lop}, $self->{rop});
+	$self->Error("The left-hand side of '-->' must be a (sum of) reactants, not %s", $lop->TYPE)
+		unless $lop->isChemical || $lop->isSum;
+	$self->Error("The right-hand side of '-->' must be a (sum of) products, not %s", $rop->TYPE)
+		unless $rop->isChemical || $rop->isSum;
 	$self->{type} = $REACTION->{type};
 }
 
@@ -519,8 +679,9 @@ our @ISA = ('Parser::BOP::comma', 'context::Reaction::BOP');
 #
 sub _check {
 	my $self = shift;
-	$self->Error("Can't add %s and %s", $self->{lop}->TYPE, $self->{rop}->TYPE)
-		unless $self->{lop}->isChemical && $self->{rop}->isChemical;
+	my ($lop, $rop) = ($self->{lop}, $self->{rop});
+	$self->Error("Can't combine %s and %s", $lop->TYPE, $rop->TYPE)
+		unless ($lop->isChemical || $lop->isSum) && ($rop->isChemical || $rop->isSum);
 	$self->SUPER::_check(@_);
 }
 
@@ -539,6 +700,11 @@ sub equivalent {
 
 sub TYPE {'a sum of Compounds'}
 
+#
+#  It is a sum
+#
+sub isSum {1}
+
 ######################################################################
 #
 #  Implements concatenation, which produces compounds or integer
@@ -553,55 +719,186 @@ our @ISA = ('context::Reaction::BOP');
 sub _check {
 	my $self = shift;
 	my ($lop, $rop) = ($self->{lop}, $self->{rop});
-	$self->Error("Can't combine %s and %s", $lop->TYPE, $rop->TYPE)
+	$self->Error("Can't use a numeric prefix with %s", $rop->TYPE)
 		unless ($lop->class eq 'Number' || $lop->isChemical) && $rop->isChemical;
 	$self->Error("Compound already has a state") if $lop->{hasState} && $rop->type eq 'State';
 	$self->Error("Can't combine %s with %s", $lop->TYPE,   $rop->TYPE)   if $lop->{hasState} && $rop->isChemical;
 	$self->Error("Can't combine %s with %s", $lop->TYPE,   $rop->TYPE)   if $rop->{hasState} && $lop->isChemical;
 	$self->Error("Can't combine %s with %s", $lop->{name}, $rop->TYPE)   if $lop->type eq 'Constant';
 	$self->Error("Can't combine %s with %s", $lop->TYPE,   $rop->{name}) if $rop->type eq 'Constant';
+	$self->Error("Can't combine %s with %s", $lop->TYPE,   $rop->TYPE)
+		if $lop->class ne 'Number' && $rop->{hasNumber};
 	$self->{type} = $COMPOUND->{type};
 
-	if ($self->{lop}{hasNumber}) {
-		my $n = $self->{lop}{lop};
-		$self->{lop}{lop}      = $self->{lop}{rop};
-		$self->{lop}{rop}      = $self->{rop};
-		$self->{lop}{hasState} = 1 if $self->{rop}->type eq 'State';
-		delete $self->{lop}{hasNumber};
-		$self->{rop} = $self->{lop};
-		$self->{lop} = $n;
+	$self->getCompound;
+	$self->{hasState}  = 1 if $rop->type eq 'State';
+	$self->{hasNumber} = 1 if $lop->type eq 'Number' || $lop->{hasNumber};
+
+	if ($lop->{hasNumber} && $rop->type ne 'State') {
+		my $n = $lop->{lop};
+		$lop->{lop} = $lop->{rop};
+		$lop->{rop} = $rop;
+		delete $lop->{hasNumber};
+		$rop = $self->{rop} = $lop;
+		$lop = $self->{lop} = $n;
 	}
-	$self->{hasState}  = 1 if $self->{rop}->type eq 'State';
-	$self->{hasNumber} = 1 if $self->{lop}->class eq 'Number';
+
+	$self->combineAdjacentNumbers  if $self->context->flag('reduceConstants');
+	$self->combineAdjacentElements if $self->context->flag('combineAdjacentElements');
 }
 
 #
-#  Remove ground state, if needed
+#  Get the order/element/charge data for a compound
+#
+sub getCompound {
+	my $self = shift;
+	my ($lop, $rop) = ($self->{lop}, $self->{rop});
+	$self->{order}    = [];
+	$self->{elements} = {};
+	$self->{charge}   = 0;
+	$self->{factor}   = $lop->type eq 'Number' ? $lop->eval : 1;
+	$self->combineData($lop);
+	$self->combineData($rop);
+}
+
+#
+#  Combine adjacent numbers (e.g., 2(3CO))
+#
+sub combineAdjacentNumbers {
+	my $self = shift;
+	my ($lop, $rop) = ($self->{lop}, $self->{rop});
+	if ($rop->{hasNumber} && $lop->class eq 'Number') {
+		if ($rop->{hasState}) {
+			$lop->{value} *= $rop->{lop}{lop}{value};
+			$rop->{lop} = $rop->{lop}{rop};
+		} else {
+			$lop->{value} *= $rop->{lop}{value};
+			$rop = $self->{rop} = $rop->{rop};
+		}
+	}
+}
+
+#
+#  Combine adjacent elements if they are the same
+#
+sub combineAdjacentElements {
+	my $self = shift;
+	my ($lop, $rop) = ($self->{lop}, $self->{rop});
+	return unless $lop->{order} && $rop->{order} && scalar(@{ $rop->{order} }) == 1;
+	my $name = $rop->{order}[0];
+	if ($lop->type eq 'Compound') {
+		$self->combineCompound($lop, $rop);
+	} else {
+		$self->combineSimple($lop, $rop);
+	}
+}
+
+#
+#  Combine elements when the left operand is a compound
+#
+sub combineCompound {
+	my ($self, $lop, $rop) = @_;
+	my $last = $lop->{rop};
+	my $name = $rop->{order}[0];
+	return unless $last->{order} && scalar(@{ $last->{order} }) == 1 && $last->{order}[0] eq $name;
+	$self->{lop} = $lop->{lop};
+	my $n = $self->ITEM('Number', $last->{elements}{$name} + $rop->{elements}{$name});
+	$self->{rop} = $self->ITEM('BOP', '_', $self->ITEM('Variable', $name), $n);
+	my $charge = $last->{charge} + $rop->{charge};
+	$self->{rop} = $self->ITEM('BOP', '^', $self->{rop}, $self->CHARGE($charge)) if $charge;
+}
+
+#
+#  Combine elements when the left is not a compound
+#
+sub combineSimple {
+	my ($self, $lop, $rop) = @_;
+	my $name = $rop->{order}[0];
+	return unless scalar(@{ $lop->{order} }) == 1 && $lop->{order}[0] eq $name;
+	my $n       = $self->ITEM('Number',   $lop->{elements}{$name} + $rop->{elements}{$name});
+	my $element = $self->ITEM('Variable', $name);
+	my $charge  = $lop->{charge} + $rop->{charge};
+	if ($charge) {
+		$self->mutate('^', $self->ITEM('BOP', '_', $element, $n), $self->CHARGE($charge));
+	} else {
+		$self->mutate('_', $element, $n);
+	}
+}
+
+#
+#  Mutate the BOP into a different one
+#
+sub mutate {
+	my $self  = shift;
+	my $other = $self->ITEM('BOP', @_);
+	delete $self->{$_} for (keys %$self);
+	$self->{$_} = $other->{$_} for (keys %$other);
+	bless $self, ref($other);
+}
+
+#
+#  Create the molecular form for a compound
+#
+sub molecularForm {
+	my $self     = shift;
+	my $elements = $self->{elements};
+	my $state    = $self->{hasState}   ? $self->{rop}                           : undef;
+	my $number   = $self->{factor} > 1 ? $self->ITEM('Number', $self->{factor}) : undef;
+	my @order    = @{ $self->{order} };
+	@order = main::lex_sort(@order) if !$self->context->flag('keepElementOrder');
+	my $compound;
+	for (@order) {
+		my $term = $self->ITEM('Variable', $_);
+		$term     = $self->ITEM('BOP', '_', $term, $self->ITEM('Number', $elements->{$_})) if $elements->{$_} > 1;
+		$compound = $compound ? $self->ITEM('BOP', ' ', $compound, $term) : $term;
+	}
+	$compound = $self->ITEM('BOP', '^', $compound, $self->CHARGE($self->{charge})) if $self->{charge};
+	$compound = $self->ITEM('BOP', ' ', $number,   $compound)                      if $number;
+	$compound = $self->ITEM('BOP', ' ', $compound, $state->copy)                   if $state;
+	return $compound;
+}
+
+#
+#  Check for equivalence of two compounds
+#    removing states if needed and student answers can be without them
 #
 sub equivalent {
 	my $self  = shift;
 	my $other = shift;
 	if ($other->class eq 'List') {
 		my $parens = $self->context->parens->get('(');
-		my $list   = $self->Item('List')->new($self->{equation}, [$self], 1, $parens);
+		my $list   = $self->ITEM('List', $self->{equation}, [$self], 1, $parens);
 		return $list->equivalent($other);
 	}
-	my $states = $self->context->flags->get('studentsMustUseStates');
-	my $equiv  = $self->SUPER::equivalent($other);
-	return ($equiv || !$self->{hasState} || $states ? $equiv : $self->{lop}->equivalent($other));
+	return 0 unless $other->isChemical;
+	$other = $other->COMPOUND unless $other->type eq 'Compound';
+	my $states    = $self->context->flag('studentsMustUseStates');
+	my $molecular = $self->context->flag('compareMolecular');
+	my $both      = $self->context->flag('acceptMolecularForm');
+	return $self->molecularForm->equivalentTo($other->molecularForm, $states) if $molecular;
+	return $self->equivalentTo($other, $states) || ($both && $self->molecularForm->equivalentTo($other, $states));
 }
 
 #
 #  No space in output for implied multiplication
+#    and add parentheses for compounds that need it
 #
 sub string {
 	my $self = shift;
-	return $self->{lop}->string . $self->{rop}->string;
+	my ($l, $r) = ($self->{lop}->string, $self->{rop}->string);
+	$l = '' if $l eq '1';
+	$r = "($r)"
+		if $l && $self->{rop}->type eq 'Compound' && ($self->{rop}{hasNumber} || $self->{lop}->class ne 'Number');
+	return $l . $r;
 }
 
 sub TeX {
 	my $self = shift;
-	return $self->{lop}->TeX . $self->{rop}->TeX;
+	my ($l, $r) = ($self->{lop}->TeX, $self->{rop}->TeX);
+	$l = '' if $l eq '1';
+	$r = "($r)"
+		if $l && $self->{rop}->type eq 'Compound' && ($self->{rop}{hasNumber} || $self->{lop}->class ne 'Number');
+	return $l . $r;
 }
 
 #
@@ -609,7 +906,9 @@ sub TeX {
 #
 sub TYPE {
 	my $self = shift;
-	return $self->{rop}->TYPE eq 'a state' ? $self->{lop}->TYPE . ' with state' : 'a compound';
+	return $self->{rop}->TYPE eq 'a state'
+		? $self->{lop}->TYPE . ' with state'
+		: 'a compound' . ($self->{hasNumber} ? ' with number' : '');
 }
 
 ######################################################################
@@ -626,10 +925,33 @@ sub _check {
 	my $self = shift;
 	my ($lop, $rop) = ($self->{lop}, $self->{rop});
 	$self->Error("The left-hand side of '_' must be an element, compound, or complex, not %s", $lop->TYPE)
-		unless $lop->type =~ m/Element|Compound|Complex/ && !$lop->{hasState};
+		unless $lop->type =~ m/Element|Compound|Complex/ && !$lop->{hasState} && !$lop->{hasNumber};
 	$self->Error("The right-hand side of '_' must be a number, not %s", $rop->TYPE)
 		unless $rop->class eq 'Number';
 	$self->{type} = $MOLECULE->{type};
+	$self->getMolecule;
+}
+
+#
+#  Get the order/elements/charge data for a molecule
+#
+sub getMolecule {
+	my $self = shift;
+	my $lop  = $self->{lop};
+	my $n    = $self->{rop}->eval;
+	$self->{order}    = [ @{ $lop->{order} } ];
+	$self->{elements} = { %{ $lop->{elements} } };
+	$self->{elements}{$_} *= $n for (keys %{ $self->{elements} });
+	$self->{charge} = $n * $lop->{charge};
+	$self->{factor} = $lop->{factor};
+}
+
+#
+#  Use compound check
+#
+sub equivalent {
+	my ($self, $other) = @_;
+	return $self->COMPOUND->equivalent($other);
 }
 
 #
@@ -667,11 +989,32 @@ our @ISA = ('context::Reaction::BOP');
 sub _check {
 	my $self = shift;
 	my ($lop, $rop) = ($self->{lop}, $self->{rop});
-	$self->Error("The left-hand side of '^' must be an element, molecule, or complex, not %s", $lop->TYPE)
-		unless $lop->type =~ m/Element|Molecule|Compound|Complex/ && !$lop->{hasState};
+	$self->Error("The left-hand side of '^' must be an element, molecule, or compound, not %s", $lop->TYPE)
+		unless $lop->type =~ m/Element|Molecule|Compound|Complex/ && !$lop->{hasState} && !$lop->{hasNumber};
 	$self->Error("The right-hand side of '^' must be %s, not %s", context::Reaction::UOP->TYPE, $rop->TYPE)
-		unless $rop->class eq 'UOP';
+		unless $rop->TYPE eq 'a charge';
 	$self->{type} = $ION->{type};
+	$self->getIon;
+}
+
+#
+#  Get the order/elements/charge data for an ion
+#
+sub getIon {
+	my $self = shift;
+	my $lop  = $self->{lop};
+	$self->{order}    = [ @{ $lop->{order} } ];
+	$self->{elements} = { %{ $lop->{elements} } };
+	$self->{charge}   = $self->{rop}->eval;
+	$self->{factor}   = $lop->{factor};
+}
+
+#
+#  Use compound check
+#
+sub equivalent {
+	my ($self, $other) = @_;
+	return $self->COMPOUND->equivalent($other);
 }
 
 #
@@ -680,7 +1023,6 @@ sub _check {
 sub TeX {
 	my $self = shift;
 	my $left = $self->{lop}->TeX;
-	$left = "\\left($left\\right)" if $self->{lop}->type eq 'Compound';
 	return $left . '^{' . $self->{rop}->TeX . '}';
 }
 
@@ -691,7 +1033,6 @@ sub string {
 	my $self  = shift;
 	my $left  = $self->{lop}->string;
 	my $right = $self->{rop}->string;
-	$left  = "($left)" if $self->{lop}->type eq 'Compound';
 	$right = "($right)" unless $right eq '-' || $right eq '+';
 	return "$left^$right";
 }
@@ -703,7 +1044,7 @@ sub TYPE {'an ion'}
 #  General unary operator (minus and plus are subclasses of this).
 #
 package context::Reaction::UOP;
-our @ISA = ('Parser::UOP');
+our @ISA = ('Parser::UOP', 'context::Reaction::common');
 
 sub _check {
 	my $self = shift;
@@ -713,13 +1054,6 @@ sub _check {
 	$name =~ s/^[up]//;
 	$self->Error("Can't use unary '%s' with %s", $name, $self->{op}->TYPE);
 }
-
-#
-#  Unary operators produce numbers
-#
-sub isChemical {0}
-
-sub eval { context::Reaction::eval(@_) }
 
 #
 #  Two nodes are equivalent if their operands are equivalent
@@ -735,6 +1069,11 @@ sub equivalent {
 	return 0 unless $sop eq $oop;
 	return $self->{op}->equivalent($other->{op});
 }
+
+#
+#  Don't allow reduction of UOP plus (or minus)
+#
+sub isNeg {1}
 
 #
 #  Always put signs on the right
@@ -771,6 +1110,8 @@ sub TYPE {'a charge'}
 package context::Reaction::UOP::minus;
 our @ISA = ('context::Reaction::UOP');
 
+sub eval { -(shift->{op}{value}) }
+
 ######################################################################
 #
 #  Positive numbers (for ion exponents)
@@ -778,12 +1119,14 @@ our @ISA = ('context::Reaction::UOP');
 package context::Reaction::UOP::plus;
 our @ISA = ('context::Reaction::UOP');
 
+sub eval { shift->{op}{value} }
+
 ######################################################################
 #
 #  Implements sums of compounds as a list
 #
 package context::Reaction::List::List;
-our @ISA = ('Parser::List::List');
+our @ISA = ('Parser::List::List', 'context::Reaction::common');
 
 #
 #  Two sums are equivalent if their terms agree in any order.
@@ -853,9 +1196,19 @@ sub TeX {
 	return join(' + ', @coords);
 }
 
+#
+#  Get the molecular form of each item in the list
+#
+sub molecularForm {
+	my $self   = shift;
+	my $coords = [ map { $_->molecularForm } @{ $self->{coords} } ];
+	my $paren  = $self->context->parens->get('(');
+	return $self->new($self->{equation}, $coords, 0, $paren);
+}
+
 sub eval { context::Reaction::eval(@_) }
 
-sub isChemical {1}
+sub isSum {1}
 
 sub TYPE {'a sum of compounds'}
 
@@ -864,7 +1217,7 @@ sub TYPE {'a sum of compounds'}
 #  Implements complexes as a list
 #
 package context::Reaction::List::Complex;
-our @ISA = ('Parser::List::List');
+our @ISA = ('Parser::List::List', 'context::Reaction::common');
 
 sub _check {
 	my $self = shift;
@@ -874,6 +1227,16 @@ sub _check {
 	$self->Error("The contents of a complex must be an element, molecule, ion, or compound, not %s", $arg->TYPE)
 		unless $arg->type =~ /Element|Molecule|Ion|Compound/ && !$arg->{hasState};
 	$self->{type} = $COMPLEX->{type};
+	$self->getComplex;
+}
+
+sub getComplex {
+	my $self = shift;
+	$self->{order}    = [];
+	$self->{elements} = {};
+	$self->{charge}   = 0;
+	$self->{factor}   = 1;
+	$self->combineData($self->{coords}[0]);
 }
 
 #
@@ -885,6 +1248,14 @@ sub equivalent {
 	my $other = shift;
 	return 0 unless $other->type eq $self->type;
 	return $self->{coords}[0]->equivalent($other->{coords}[0]);
+}
+
+#
+#  Get the molecular form of each item in the list
+#
+sub molecularForm {
+	my $self = shift;
+	return $self->{coords}[0]->molecularForm;
 }
 
 sub eval { context::Reaction::eval(@_) }
