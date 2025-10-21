@@ -24,7 +24,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: A `plotly3D` graph is created with the `Graph3D` function. There are many
-#: options as decribed in PODLINK('plotly3D macro documentation','plotly3D.pl').
+#: options as described in PODLINK('plotly3D macro documentation','plotly3D.pl').
 #: In this example, only the `height`, `width`, and `title` are provided.
 #:
 #: A parametric curve is added to the graph with the `addCurve` method, which

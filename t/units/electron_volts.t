@@ -26,7 +26,7 @@ is \%tev,           by_factor(10**12,     \%electron_volt), 'tera is factor 10^1
 done_testing();
 
 # this sub is useful when reusing units for testing
-# NumberWithUnits is mutable and test order dependant
+# NumberWithUnits is mutable and test order dependent
 sub by_factor {
 	my ($value, $unit) = @_;
 	my $new_unit = {%$unit};    # shallow copy hash values

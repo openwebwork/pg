@@ -24,7 +24,7 @@ DOCUMENT();
 loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
-#: Two intervals are created with random enpoints. The first
+#: Two intervals are created with random endpoints. The first
 #: one is a bounded interval, and the second an unbounded interval.
 #:
 #: The `GraphTool` method creates the graph tool object. The only argument is

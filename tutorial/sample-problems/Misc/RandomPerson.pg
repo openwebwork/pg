@@ -48,7 +48,7 @@ $c = random(4,  8,  2);
 #: capitalized pronouns.
 #:
 #: Alternatively, a more-natural set of methods, `they, them, their` and `theirs`
-#: will generate the correct subject, object, possession, possesive forms of the
+#: will generate the correct subject, object, possession, possessive forms of the
 #: pronoun.
 #:
 #: In addition, there is a `verb` method to conjugate most
