@@ -38,7 +38,7 @@ returns: d, x, y, s, t where gcd( a, b ) = d = a( x + sk ) + b( y + tk ) for all
 
 =cut
 
-# by Dick Lane  http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2286
+# by Dick Lane  https://forums.openwebwork.org/mod/forum/discuss.php?d=2286
 
 sub xgcd ($$) {
 	my ($a, $b, $x, $y, $s, $t) = (@_, 1, 0, 0, 1);

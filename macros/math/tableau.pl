@@ -157,9 +157,9 @@ flag indicating the column (1 or n+m+1) for the objective value
 
 =head1 REFERENCES
 
-MathObject Matrix methods: L<http://webwork.maa.org/wiki/Matrix_(MathObject_Class)>
-MathObject Contexts: L<http://webwork.maa.org/wiki/Common_Contexts>
-CPAN RealMatrix docs: L<http://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
+MathObject Matrix methods: L<https://wiki.openwebwork.org/wiki/Matrix_(MathObject_Class)>
+MathObject Contexts: L<https://wiki.openwebwork.org/wiki/Common_Contexts>
+CPAN RealMatrix docs: L<https://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
 
 More references: L<Matrix>
 
@@ -1477,7 +1477,7 @@ sub submatrix {
 =cut
 
 #  This was written by Davide Cervone.
-#  http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2970
+#  https://forums.openwebwork.org/mod/forum/discuss.php?d=2970
 # taken from MatrixReduce.pl from Paul Pearson
 
 sub change_matrix_entry {
