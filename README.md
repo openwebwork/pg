@@ -1,9 +1,5 @@
 # Welcome to WeBWorK
 
-![main workflow](https://github.com/pstaabp/pg/actions/workflows/coverage.yml/badge.svg)
-[![codecov](https://codecov.io/gh/pstaabp/pg/branch/unit-test/graph/badge.svg?token=H7WYHBDB9S)](https://codecov.io/gh/pstaabp/pg)
-![GitHub last commit](https://img.shields.io/github/last-commit/pstaabp/pg/unit-test)
-
 WeBWorK is an open-source online homework system for math and sciences courses. WeBWorK is supported by the MAA and the NSF and comes with an Open Problem Library (OPL) of over 30,000 homework problems. Problems in the OPL target most lower division undergraduate math courses and some advanced courses. Supported courses include college algebra, discrete mathematics, probability and statistics, single and multivariable calculus, differential equations, linear algebra and complex analysis.  Find out more at the main WeBWorK [webpage](http://webwork.maa.org).
 
 ## Information for Users
