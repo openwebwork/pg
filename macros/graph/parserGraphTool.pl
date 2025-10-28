@@ -331,8 +331,12 @@ respectively.
 
 =item scaleX, scaleY (Default: C<< scaleX => 1, scaleY => 1 >>)
 
-These are the scale of the ticks on the x and y axes. That is the distance between two
-successive ticks on the axis (including both major and minor ticks).
+These are the scale of the tick distances on the x and y axes. That is the distance between two
+successive major ticks on the axis will be the product of the ticks distance and the scale.
+This is usually used in conjunction with the C<scaleSymbolX> and C<scaleSymbolY> options.  For
+example, if C<ticksDistanceX> is 2, C<scaleX> is 3, and C<scaleSymbolX> is 'a', then the first
+positive major x axis tick will occur 6 units to the right and be labeled '2a', and the next
+major x axis tick will occur 12 units to the right and be labeled '4a'.
 
 =item scaleSymbolX, scaleSymbolY (Default: C<< scaleSymbolX => '', scaleSymbolY => '' >>)
 
@@ -1195,6 +1199,47 @@ sub generateHTMLAnswerGraph {
 		END_SCRIPT
 }
 
+# This is essentially copied from contextFraction.pl.
+sub continuedFraction {
+	my ($x) = @_;
+
+	my $step = $x;
+	my $n    = int($step);
+	my ($h0, $h1, $k0, $k1) = (1, $n, 0, 1);
+
+	while ($step != $n) {
+		$step = 1 / ($step - $n);
+		$n    = int($step);
+		my ($newh, $newk) = ($n * $h1 + $h0, $n * $k1 + $k0);
+		last if $newk > 10**8;    # Bail if the denominator is skyrocketing out of control.
+		($h0, $h1, $k0, $k1) = ($h1, $newh, $k1, $newk);
+	}
+
+	return ($h1, $k1);
+}
+
+sub formatTickLabelText {
+	my ($self, $value, $axis) = @_;
+	my $coordinateHintsType = $self->{"coordinateHintsType$axis"} // $self->{coordinateHintsType};
+	if ($coordinateHintsType eq 'fraction' || $coordinateHintsType eq 'mixed') {
+		my ($num, $den) = continuedFraction(abs($value));
+		if ($num && $den != 1 && !($num == 1 && $den == 1)) {
+			if ($coordinateHintsType eq 'fraction' || $num < $den) {
+				$value = ($value < 0 ? '-' : '') . "\\frac{$num}{$den}";
+			} else {
+				my $int       = int($num / $den);
+				my $properNum = $num % $den;
+				$value = ($value < 0 ? '-' : '') . "$int\\frac{$properNum}{$den}";
+			}
+		}
+	}
+	my $scaleSymbol = $self->{"scaleSymbol$axis"} // '';
+	return
+		$value eq '0'  ? '0'
+		: $scaleSymbol ? ($value eq '1' ? $scaleSymbol : $value eq '-1' ? "-$scaleSymbol" : "$value$scaleSymbol")
+		:                $value;
+}
+
 sub generateTeXGraph {
 	my ($self, %options) = @_;
 
@@ -1203,7 +1248,7 @@ sub generateTeXGraph {
 
 	return &{ $self->{printGraph} } if ref($self->{printGraph}) eq 'CODE';
 
-	my @size = $self->{numberLine} ? (500, 100) : (500, 500);
+	my @size = $self->{numberLine} ? (500, 110) : (500, 500);
 
 	my $graph = main::createTikZImage();
 	$graph->tikzLibraries('arrows.meta');
@@ -1264,32 +1309,71 @@ END_TIKZ
 	}
 
 	# Horizontal axis ticks and labels
-	my @xTicks = grep { $_ < $self->{bBox}[2] }
-		map { $_ * $self->{ticksDistanceX} } (1 .. $self->{bBox}[2] / $self->{ticksDistanceX});
-	push(@xTicks,
+	my @xTicks =
 		grep { $_ > $self->{bBox}[0] }
-		map { -$_ * $self->{ticksDistanceX} } (1 .. -$self->{bBox}[0] / $self->{ticksDistanceX}));
+		map  { -$_ * $self->{ticksDistanceX} * $self->{scaleX} }
+		reverse(1 .. -$self->{bBox}[0] / ($self->{ticksDistanceX} * $self->{scaleX}));
+	my $numNegative = @xTicks;
 	# Add zero if this is a number line and 0 is in the given range.
-	push(@xTicks, 0) if ($self->{numberLine} && $self->{bBox}[2] > 0 && $self->{bBox}[0] < 0);
+	push(@xTicks, 0) if $self->{numberLine} && $self->{bBox}[2] > 0 && $self->{bBox}[0] < 0;
+	push(@xTicks,
+		grep { $_ < $self->{bBox}[2] }
+			map { $_ * $self->{ticksDistanceX} * $self->{scaleX} }
+			(1 .. $self->{bBox}[2] / ($self->{ticksDistanceX} * $self->{scaleX})));
 	my $tickSize = $self->{numberLine} ? '9' : '5';
 	$tikz .=
-		"\\foreach \\x in {"
-		. join(',', @xTicks)
-		. "}{\\draw[thin] (\\x,${tickSize}pt) -- (\\x,-${tickSize}pt) node[below]{\\(\\x\\)};}\n"
+		"\\foreach \\x/\\label in {"
+		. join(',', map { "$_/" . $self->formatTickLabelText($_ / $self->{scaleX}, 'X') } @xTicks)
+		. "}{\\draw[thin, opacity = 0.5] (\\x,${tickSize}pt) -- (\\x,-${tickSize}pt) "
+		. "node[baseline, yshift = -15pt, opacity = 1]{\\(\\label\\)};}\n"
 		if (@xTicks);
+
+	# Add horizontal axis minor ticks.
+	splice(@xTicks, $numNegative, 0, 0) if !$self->{numberLine} || ($self->{bBox}[0] <= 0 && $self->{bBox}[2] >= 0);
+	unshift(@xTicks, $xTicks[0] - $self->{ticksDistanceX} * $self->{scaleX}) if $self->{bBox}[0] < 0;
+	push(@xTicks, $xTicks[-1] + $self->{ticksDistanceX} * $self->{scaleX})   if $self->{bBox}[2] > 0;
+	my @xMinorTicks;
+	my $xMinorTickDelta = $self->{ticksDistanceX} * $self->{scaleX} / ($self->{minorTicksX} + 1);
+	for my $tickIndex (0 .. $#xTicks - 1) {
+		push(@xMinorTicks, map { $xTicks[$tickIndex] + $_ * $xMinorTickDelta } 1 .. $self->{minorTicksX});
+	}
+	$tikz .=
+		"\\foreach \\x in {"
+		. join(',', @xMinorTicks)
+		. "}{\\draw[thin, opacity = 0.5] (\\x,0) -- (\\x,-${tickSize}pt);}\n"
+		if (@xMinorTicks);
 
 	# Vertical axis ticks and labels
 	unless ($self->{numberLine}) {
-		my @yTicks = grep { $_ < $self->{bBox}[1] }
-			map { $_ * $self->{ticksDistanceY} } (1 .. $self->{bBox}[1] / $self->{ticksDistanceY});
-		push(@yTicks,
+		my @yTicks =
 			grep { $_ > $self->{bBox}[3] }
-			map { -$_ * $self->{ticksDistanceY} } (1 .. -$self->{bBox}[3] / $self->{ticksDistanceY}));
+			map  { -$_ * $self->{ticksDistanceY} * $self->{scaleY} }
+			reverse(1 .. -$self->{bBox}[3] / ($self->{ticksDistanceY} * $self->{scaleY}));
+		my $numNegative = @yTicks;
+		push(@yTicks,
+			grep { $_ < $self->{bBox}[1] }
+				map { $_ * $self->{ticksDistanceY} * $self->{scaleY} }
+				(1 .. $self->{bBox}[1] / ($self->{ticksDistanceY} * $self->{scaleY})));
+		$tikz .=
+			"\\foreach \\y/\\label in {"
+			. join(',', map { "$_/" . $self->formatTickLabelText($_ / $self->{scaleY}, 'Y') } @yTicks)
+			. "}{\\draw[thin, opacity = 0.5] (5pt,\\y) -- (-5pt,\\y) node[left, opacity = 1]{\$\\label\$};}\n"
+			if (@yTicks);
+
+		# Add vertical axis minor ticks.
+		splice(@yTicks, $numNegative, 0, 0);
+		unshift(@yTicks, $yTicks[0] - $self->{ticksDistanceY} * $self->{scaleY}) if $self->{bBox}[3] < 0;
+		push(@yTicks, $yTicks[-1] + $self->{ticksDistanceY} * $self->{scaleY})   if $self->{bBox}[1] > 0;
+		my @yMinorTicks;
+		my $yMinorTickDelta = $self->{ticksDistanceY} * $self->{scaleY} / ($self->{minorTicksY} + 1);
+		for my $tickIndex (0 .. $#yTicks - 1) {
+			push(@yMinorTicks, map { $yTicks[$tickIndex] + $_ * $yMinorTickDelta } 1 .. $self->{minorTicksY});
+		}
 		$tikz .=
 			"\\foreach \\y in {"
-			. join(',', @yTicks)
-			. "}{\\draw[thin] (5pt,\\y) -- (-5pt,\\y) node[left]{\$\\y\$};}\n"
-			if (@yTicks);
+			. join(',', @yMinorTicks)
+			. "}{\\draw[thin, opacity = 0.5] (0, \\y) -- (-5pt, \\y);}\n"
+			if @yMinorTicks;
 	}
 
 	# Border box
