@@ -141,7 +141,7 @@ specialPGEnvironmentVars:
 
   # To enable Rserve (the R statistical server), uncomment the following two
   # lines. The R server needs to be installed and running in order for this to
-  # work. See http://webwork.maa.org/wiki/R_in_WeBWorK for more info.
+  # work. See https://wiki.openwebwork.org/wiki/R_in_WeBWorK for more info.
   #Rserve:
   #  host: localhost
 

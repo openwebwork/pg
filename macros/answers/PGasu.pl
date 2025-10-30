@@ -116,7 +116,7 @@ but you don't want to allow "sin(pi/4)" as the answer.
 
 A similar effect can be accomplished with Contexts() by undefining
 the trig functions.
-See http://webwork.maa.org/wiki/Modifying_contexts_%28advanced%29#.282.29_Functions
+See https://wiki.openwebwork.org/wiki/DisableFunctions
 
 
 =cut
@@ -202,7 +202,7 @@ as a post filter.
 
 A similar effect can be accomplished with Contexts() by undefining
 the trig functions.
-See http://webwork.maa.org/wiki/Modifying_contexts_%28advanced%29
+See https://wiki.openwebwork.org/wiki/DisableFunctions
 
 =cut
 

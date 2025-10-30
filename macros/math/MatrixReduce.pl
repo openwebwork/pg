@@ -201,7 +201,7 @@ sub rref_perl_array {
 }
 
 #  This was written by Davide Cervone.
-#  http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2970
+#  https://forums.openwebwork.org/mod/forum/discuss.php?d=2970
 
 sub change_matrix_entry {
 	my $self  = shift;
