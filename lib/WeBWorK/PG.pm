@@ -160,18 +160,11 @@ sub new_helper ($invocant, %options) {
 		);
 	}
 
-	# HTML_dpng uses an ImageGenerator. We have to render the queued equations.  This must be done before the post
-	# processing, since the image tags output by the image generator initially include markers which are invalid html.
-	# Mojo::DOM will change these markers into attributes with values and this will fail.
-	if ($image_generator) {
-		$image_generator->render(
-			refresh   => $options{refreshMath2img} // 0,
-			body_text => $translator->r_text,
-		);
-	}
-
 	$translator->post_process_content if ref($translator->{rh_pgcore}) eq 'PGcore';
 	$translator->stringify_answers;
+
+	$image_generator->render(body_text => $translator->r_text, refresh => $options{refreshMath2img} // 0)
+		if $image_generator;
 
 	# Add the result summary set in post processing into the result.
 	$result->{summary} = $translator->{rh_pgcore}{result_summary}
