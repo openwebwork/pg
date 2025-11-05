@@ -19,7 +19,7 @@ sub new {
 	$image->svgMethod(eval('$main::envir{latexImageSVGMethod}')           // 'dvisvgm');
 	$image->convertOptions(eval('$main::envir{latexImageConvertOptions}') // { input => {}, output => {} });
 	$image->ext($plots->ext);
-	$image->tikzLibraries('arrows.meta,plotmarks,calc');
+	$image->tikzLibraries('arrows.meta,plotmarks,calc,spath3');
 	$image->texPackages(['pgfplots']);
 
 	# Set the pgfplots compatibility, add the pgfplots fillbetween library, define a save
@@ -458,18 +458,8 @@ sub get_options {
 		my $fill_color   = $data->style('fill_color')   || $data->style('color') || 'default_color';
 		my $fill_opacity = $data->style('fill_opacity') || 0.5;
 		push(@drawOptions, "fill=$fill_color", "fill opacity=$fill_opacity");
-	}
-
-	my $name = $data->style('name');
-	if ($name) {
-		warn 'Duplicate plot name detected. This will most likely cause issues. '
-			. 'Make sure that all names used are unique.'
-			if $self->{names}{$name};
-		$self->{names}{$name} = 1;
-		# This forces the curve to be inserted invisibly if it has been named,
-		# but the curve would otherwise not be drawn.
-		push(@drawOptions, 'draw=none') if !@drawOptions;
-		push(@drawOptions, "name path=$name");
+	} elsif (!@drawOptions) {
+		push(@drawOptions, 'draw=none');
 	}
 
 	push(@drawOptions, $tikz_options) if $tikz_options;
@@ -539,6 +529,19 @@ sub draw {
 			next;
 		}
 
+		my $curve_name = $data->style('name');
+		warn 'Duplicate plot name detected. This will most likely cause issues. '
+			. 'Make sure that all names used are unique.'
+			if $curve_name && $self->{names}{$curve_name};
+		$self->{names}{$curve_name} = 1 if $curve_name;
+
+		my $count = 0;
+		unless ($curve_name) {
+			++$count while ($self->{names}{"_plots_internal_$count"});
+			$curve_name = "_plots_internal_$count";
+			$self->{names}{$curve_name} = 1;
+		}
+
 		my $fill       = $data->style('fill') || 'none';
 		my $fill_color = $data->style('fill_color') || $data->style('color') || 'default_color';
 		$tikzCode .= $self->get_color($fill_color) unless $fill eq 'none';
@@ -549,11 +552,12 @@ sub draw {
 			my $x = $data->x(0);
 			my $y = $data->y(0);
 			my $r = $data->style('radius');
-			$tikzCode .= $self->draw_on_layer("\\fill[$fill_options->[0]] (axis cs:$x,$y) circle[radius=$r];\n",
-				$fill_options->[1])
-				if $fill_options;
-			$tikzCode .= $self->draw_on_layer("\\draw[$draw_options->[0]] (axis cs:$x,$y) circle[radius=$r];\n",
+			$tikzCode .= $self->draw_on_layer(
+				"\\draw[name path=$curve_name, $draw_options->[0]] (axis cs:$x,$y) circle[radius=$r];\n",
 				$draw_options->[1]);
+			$tikzCode .=
+				$self->draw_on_layer("\\fill[$fill_options->[0]] [spath/use=$curve_name];\n", $fill_options->[1])
+				if $fill_options;
 			next;
 		}
 		if ($data->name eq 'arc') {
@@ -566,20 +570,19 @@ sub draw {
 			$theta1 += 360 if $theta1 < 0;
 			$theta2 += 360 if $theta2 < 0;
 			$tikzCode .= $self->draw_on_layer(
-				"\\fill[$fill_options->[0]] (axis cs:$x2,$y2) "
-					. "arc[start angle=$theta1, end angle=$theta2, radius = $r];\n",
-				$fill_options->[1]
-			) if $fill_options;
-			$tikzCode .= $self->draw_on_layer(
-				"\\draw[$draw_options->[0]] (axis cs:$x2,$y2) "
+				"\\draw[name path=$curve_name, $draw_options->[0]] (axis cs:$x2,$y2) "
 					. "arc[start angle=$theta1, end angle=$theta2, radius = $r];\n",
 				$draw_options->[1]
 			);
+			$tikzCode .=
+				$self->draw_on_layer("\\fill[$fill_options->[0]] [spath/use=$curve_name];\n", $fill_options->[1])
+				if $fill_options;
 			next;
 		}
 
 		my $plot;
 		my $plot_options = '';
+
 		if ($data->name eq 'function') {
 			my $f = $data->{function};
 			if (ref($f->{Fx}) ne 'CODE' && $f->{xvar} eq $f->{Fx}->string) {
@@ -599,43 +602,79 @@ sub draw {
 					$plot = "({$xfunction}, {$yfunction})";
 				}
 			}
-		}
-		if ($data->name eq 'multipath') {
+		} elsif ($data->name eq 'multipath') {
 			my $var   = $data->{function}{var};
 			my @paths = @{ $data->{paths} };
-			my $n     = scalar(@paths);
 			my @tikzFunctionx;
 			my @tikzFunctiony;
+
+			# This saves the internal path names and the endpoints of the paths. The endpoints are used to determine if
+			# the paths meet at the endpoints. If the end of one path is not at the same place that the next path
+			# starts, then the line segment from the first path end to the next path start is inserted.
+			my @pathData;
+
+			my $count = 0;
+
 			for (0 .. $#paths) {
 				my $path = $paths[$_];
-				my $a    = $_ / $n;
-				my $b    = ($_ + 1) / $n;
-				my $tmin = $path->{tmin};
-				my $tmax = $path->{tmax};
-				my $m    = ($tmax - $tmin) / ($b - $a);
-				my $tmp  = $a < 0 ? 'x+' . (-$a)       : "x-$a";
-				my $t    = $m < 0 ? "($tmin$m*($tmp))" : "($tmin+$m*($tmp))";
 
-				my $xfunction = $data->function_string($path->{Fx}, 'PGF', $var, undef, $t);
-				my $yfunction = $data->function_string($path->{Fy}, 'PGF', $var, undef, $t);
-				my $last      = $_ == $#paths ? '=' : '';
-				push(@tikzFunctionx, "(x>=$a)*(x<$last$b)*($xfunction)");
-				push(@tikzFunctiony, "(x>=$a)*(x<$last$b)*($yfunction)");
+				my $xfunction = $data->function_string($path->{Fx}, 'PGF', $var);
+				my $yfunction = $data->function_string($path->{Fy}, 'PGF', $var);
+
+				++$count while $self->{names}{"${curve_name}_$count"};
+				push(
+					@pathData,
+					[
+						"${curve_name}_$count",
+						$path->{Fx}->eval($var => $path->{tmin}),
+						$path->{Fy}->eval($var => $path->{tmin}),
+						$path->{Fx}->eval($var => $path->{tmax}),
+						$path->{Fy}->eval($var => $path->{tmax})
+					]
+				);
+				$self->{names}{ $pathData[-1][0] } = 1;
+
+				my $steps = $path->{steps} // $data->{function}{steps};
+
+				$tikzCode .=
+					"\\addplot[name path=$pathData[-1][0], draw=none, domain=$path->{tmin}:$path->{tmax}, "
+					. "samples=$steps] ({$xfunction}, {$yfunction});\n";
 			}
-			$plot_options .= ", mark=none, domain=0:1, samples=$data->{function}{steps}";
-			$plot = "\n({" . join("\n+", @tikzFunctionx) . "},\n{" . join("\n+", @tikzFunctiony) . '})';
+
+			$tikzCode .= "\\path[name path=$curve_name] " . join(
+				' ',
+				map {
+					(
+						$_ == 0 || ($pathData[ $_ - 1 ][3] == $pathData[$_][1]
+							&& $pathData[ $_ - 1 ][4] == $pathData[$_][2])
+						? ''
+						: "-- (spath cs:$pathData[$_ - 1][0] 1) -- (spath cs:$pathData[$_][0] 0) "
+						)
+						. "[spath/append no move=$pathData[$_][0]]"
+				} 0 .. $#pathData
+			) . ($data->style('cycle') ? '-- cycle' : '') . ";\n";
+
+			$plot = 'skip';
+			$tikzCode .=
+				$self->draw_on_layer("\\draw[$draw_options->[0], spath/use=$curve_name];\n", $draw_options->[1]);
 		}
+
 		unless ($plot) {
 			$data->gen_data;
 			$plot = 'coordinates {'
 				. join(' ', map { '(' . $data->x($_) . ',' . $data->y($_) . ')'; } (0 .. $data->size - 1)) . '}';
 		}
-		$tikzCode .= $self->draw_on_layer("\\addplot[$fill_options->[0]$plot_options] $plot;\n", $fill_options->[1])
+
+		# 'skip' is a special value of $plot for a multipath which has already been drawn.
+		$tikzCode .= $self->draw_on_layer("\\addplot[name path=$curve_name, $draw_options->[0]$plot_options] $plot;\n",
+			$draw_options->[1])
+			unless $plot eq 'skip';
+		$tikzCode .= $self->draw_on_layer("\\fill[$fill_options->[0]] [spath/use=$curve_name];\n", $fill_options->[1])
 			if $fill_options;
-		$tikzCode .= $self->draw_on_layer("\\addplot[$draw_options->[0]$plot_options] $plot;\n", $draw_options->[1]);
 
 		unless ($fill eq 'none' || $fill eq 'self') {
 			if ($self->{names}{$fill}) {
+				# Make sure this is the name from the data style attribute, and not an internal name.
 				my $name = $data->style('name');
 				if ($name) {
 					my $opacity  = $data->style('fill_opacity') || 0.5;

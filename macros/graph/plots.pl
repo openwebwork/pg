@@ -197,26 +197,34 @@ It is preferred to use strings or MathObjects instead of perl subroutines.
 
 =head2 PLOT MULTIPATH FUNCTIONS
 
-A multipath function is defined using multiple parametric paths pieced together into into a single
-curve, whose primary use is to create a closed region to be filled using multiple boundaries.
-This is done by providing a list of parametric functions, the name of the parameter, and a list
-of options.
+A multipath function is defined using multiple parametric paths pieced together
+into into a single curve, whose primary use is to create a closed region to be
+filled using multiple boundaries.  This is done by providing a list of
+parametric functions, the name of the parameter, and a list of options.
 
     $plot->add_multipath(
         [
-            [ $function_x1, $function_y1, $min1, $max1 ],
-            [ $function_x2, $function_y2, $min2, $max2 ],
+            [ $function_x1, $function_y1, $min1, $max1, %path_options ],
+            [ $function_x2, $function_y2, $min2, $max2, %path_options ],
             ...
         ],
         $variable,
         %options
     );
 
-The paths have to be listed in the order they are followed, but the minimum/maximum values
-of the parameter can match the parametrization. The following example creates a sector of
-radius 5 between pi/4 and 3pi/4, by first drawing the line (0,0) to (5sqrt(2),5/sqrt(2)),
-then the arc of the circle of radius 5 from pi/4 to 3pi/4, followed by the final line from
-(-5sqrt(2), 5sqrt(2)) back to the origin.
+Note that C<%path_options> can be specified for each path.  At this point, the
+only supported individual path option is C<steps>, if specified, then that
+number of steps will be used for that path in the TikZ format. If not specified
+the number of steps for the multipath will be used. That defaults to 30, but can
+be changed by passing the C<steps> option in the general C<%options> for the
+multipath.
+
+The paths have to be listed in the order they are followed, but the
+minimum/maximum values of the parameter can match the parametrization. The
+following example creates a sector of radius 5 between pi/4 and 3pi/4, by first
+drawing the line from (0,0) to (5sqrt(2),5/sqrt(2)), then the arc of the circle
+of radius 5 from pi/4 to 3pi/4, followed by the final line from (-5sqrt(2),
+5sqrt(2)) back to the origin.
 
     $plot->add_multipath(
         [
@@ -227,6 +235,31 @@ then the arc of the circle of radius 5 from pi/4 to 3pi/4, followed by the final
         't',
         color => 'green',
         fill  => 'self',
+    );
+
+Note that the ending point of one path does not need to be the same as the
+starting point of the next.  In this case a line segment will connect the end of
+the first path to the start of the next.  Additionally, if C<< cycle => 1 >> is
+added to the C<%options> for the multipath, and the last path does not end where
+the first path starts, then a line segment will connect the end of the last path
+to the start of the first path.  For example, the following path draws the top
+half of a circle of radius two centered at the point (0, 2), followed by the
+line segment from (-2, 0) to (2, 0). The line segment from (-2, 2) to (-2, 0) is
+implicitly added to connect the end of the first path to the beginning of the
+second path. The cycle option is added to close the path with the line segment
+from (2, 0) to (2, 2).  Note that drawing of the line is optimized by using only
+2 steps, and the fill region is drawn on the "axis background" layer.
+
+    $plot->add_multipath(
+        [
+            [ '2 cos(t) + 5', '2 sin(t) - 5', '0', 'pi' ],
+            [ 't', '-8', '3', '7', steps => 2 ]
+        ],
+        't',
+        color      => 'green',
+        fill       => 'self',
+        fill_layer => 'axis background',
+        cycle      => 1
     );
 
 =head2 PLOT CIRCLES
