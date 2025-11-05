@@ -294,15 +294,15 @@ sub add_function {
 sub add_multipath {
 	my ($self, $paths, $var, %options) = @_;
 	my $data  = Plots::Data->new(name => 'multipath');
-	my $steps = 100 * @$paths;                           # Steps set high to help Tikz deal with boundaries of paths.
-	$steps           = delete $options{steps} if $options{steps};
+	my $steps = (delete $options{steps}) || 30;
 	$data->{context} = $self->context;
 	$data->{paths}   = [
 		map { {
 			Fx   => $data->get_math_object($_->[0], $var),
 			Fy   => $data->get_math_object($_->[1], $var),
 			tmin => $data->str_to_real($_->[2]),
-			tmax => $data->str_to_real($_->[3])
+			tmax => $data->str_to_real($_->[3]),
+			@$_[ 4 .. $#$_ ]
 		} } @$paths
 	];
 	$data->{function} = { var => $var, steps => $steps };
