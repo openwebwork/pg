@@ -390,37 +390,65 @@ sub add_multipath {
 	my ($self, $data) = @_;
 
 	my @paths      = @{ $data->{paths} };
-	my $n          = scalar(@paths);
 	my $var        = $data->{function}{var};
 	my $curve_name = $data->style('name');
 	warn 'Duplicate plot name detected. This will most likely cause issues. Make sure that all names used are unique.'
 		if $curve_name && $self->{names}{$curve_name};
 	$self->{names}{$curve_name} = 1 if $curve_name;
 	my ($plotOptions, $fillOptions) = $self->get_options($data);
-	my $jsFunctionx = 'function (x){';
-	my $jsFunctiony = 'function (x){';
+
+	my $count = 0;
+	unless ($curve_name) {
+		++$count while ($self->{names}{"_plots_internal_$count"});
+		$curve_name = "_plots_internal_$count";
+		$self->{names}{$curve_name} = 1;
+	}
+
+	$count = 0;
+	++$count while ($self->{names}{"${curve_name}_$count"});
+	my $curve_parts_name = "${curve_name}_$count";
+	$self->{names}{$curve_parts_name} = 1;
+
+	$self->{JS} .= "const $curve_parts_name = [\n";
+
+	my $cycle = $data->style('cycle');
+	my ($start_x, $start_y) = ('', '');
 
 	for (0 .. $#paths) {
 		my $path = $paths[$_];
-		my $a    = $_ / $n;
-		my $b    = ($_ + 1) / $n;
-		my $tmin = $path->{tmin};
-		my $tmax = $path->{tmax};
-		my $m    = ($tmax - $tmin) / ($b - $a);
-		my $tmp  = $a < 0 ? 'x+' . (-$a)       : "x-$a";
-		my $t    = $m < 0 ? "($tmin$m*($tmp))" : "($tmin+$m*($tmp))";
 
-		my $xfunction = $data->function_string($path->{Fx}, 'js', $var, undef, $t);
-		my $yfunction = $data->function_string($path->{Fy}, 'js', $var, undef, $t);
-		$jsFunctionx .= "if(x<=$b){return $xfunction;}";
-		$jsFunctiony .= "if(x<=$b){return $yfunction;}";
+		($start_x, $start_y) =
+			(', ' . $path->{Fx}->eval($var => $path->{tmin}), ', ' . $path->{Fy}->eval($var => $path->{tmin}))
+			if $cycle && $_ == 0;
+
+		my $xfunction = $data->function_string($path->{Fx}, 'js', $var);
+		my $yfunction = $data->function_string($path->{Fy}, 'js', $var);
+
+		$self->{JS} .=
+			"board.create('curve', "
+			. "[(x) => $xfunction, (x) => $yfunction, $path->{tmin}, $path->{tmax}], { visible: false }),\n";
 	}
-	$jsFunctionx .= 'return 0;}';
-	$jsFunctiony .= 'return 0;}';
 
-	$self->{JS} .= "const curve_${curve_name} = "                                             if $curve_name;
-	$self->{JS} .= "board.create('curve', [$jsFunctionx, $jsFunctiony, 0, 1], $plotOptions);" if $plotOptions;
-	$self->{JS} .= "board.create('curve', [$jsFunctionx, $jsFunctiony, 0, 1], $fillOptions);" if $fillOptions;
+	$self->{JS} .= "];\n";
+
+	if ($plotOptions) {
+		$self->{JS} .= <<~ "END_JS";
+			const curve_$curve_name = board.create('curve', [[], []], $plotOptions);
+			curve_$curve_name.updateDataArray = function () {
+				this.dataX = [].concat(...$curve_parts_name.map((c) => c.points.map((p) => p.usrCoords[1]))$start_x);
+				this.dataY = [].concat(...$curve_parts_name.map((c) => c.points.map((p) => p.usrCoords[2]))$start_y);
+			};
+			END_JS
+	}
+	if ($fillOptions) {
+		$self->{JS} .= <<~ "END_JS";
+			const fill_$curve_name = board.create('curve', [[], []], $fillOptions);
+			fill_$curve_name.updateDataArray = function () {
+				this.dataX = [].concat(...$curve_parts_name.map((c) => c.points.map((p) => p.usrCoords[1])));
+				this.dataY = [].concat(...$curve_parts_name.map((c) => c.points.map((p) => p.usrCoords[2])));
+			};
+			END_JS
+	}
 	return;
 }
 
@@ -530,8 +558,8 @@ sub add_circle {
 	my $r = $data->style('radius');
 	my ($circleOptions, $fillOptions) = $self->get_options($data);
 
-	$self->{JS} .= "board.create('circle', [[$x, $y], $r], $circleOptions);";
-	$self->{JS} .= "board.create('circle', [[$x, $y], $r], $fillOptions);" if $fillOptions;
+	$self->{JS} .= "board.create('circle', [[$x, $y], $r], $circleOptions);" if $circleOptions;
+	$self->{JS} .= "board.create('circle', [[$x, $y], $r], $fillOptions);"   if $fillOptions;
 	return;
 }
 
@@ -547,7 +575,7 @@ sub add_arc {
 		radiusPoint => { visible => 0 },
 	);
 
-	$self->{JS} .= "board.create('arc', [[$x1, $y1], [$x2, $y2], [$x3, $y3]], $arcOptions);";
+	$self->{JS} .= "board.create('arc', [[$x1, $y1], [$x2, $y2], [$x3, $y3]], $arcOptions);"  if $arcOptions;
 	$self->{JS} .= "board.create('arc', [[$x1, $y1], [$x2, $y2], [$x3, $y3]], $fillOptions);" if $fillOptions;
 	return;
 }
