@@ -589,8 +589,11 @@ sub draw {
 				my $function = $data->function_string($f->{Fy}, 'PGF', $f->{xvar});
 				if ($function ne '') {
 					$data->update_min_max;
+					my ($axes_xmin, undef, $axes_xmax) = $plots->axes->bounds;
+					my $min = $data->style('continue') || $data->style('continue_left')  ? $axes_xmin : $f->{xmin};
+					my $max = $data->style('continue') || $data->style('continue_right') ? $axes_xmax : $f->{xmax};
 					$plot_options .= ", data cs=polar" if $data->style('polar');
-					$plot_options .= ", domain=$f->{xmin}:$f->{xmax}, samples=$f->{xsteps}";
+					$plot_options .= ", domain=$min:$max, samples=$f->{xsteps}";
 					$plot = "{$function}";
 				}
 			} else {
