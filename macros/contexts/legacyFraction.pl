@@ -223,7 +223,7 @@ error.
 
 =cut
 
-sub _contextFraction_init { context::Fraction::Init() }
+sub _legacyFraction_init { context::Fraction::Init() }
 
 ###########################################################################
 
