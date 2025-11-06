@@ -821,7 +821,7 @@ sub make {
 	my $context = (Value::isContext($_[0]) ? shift : $self->context);
 	my $x       = shift;
 	$x = $context->Package("Formula")->new($context, $x)->eval if !ref($x) && $x =~ m!/!;
-	$x = $x->eval                                              if @_ == 0  && Value::classMatch($x, 'Fraction');
+	return $x->eval if @_ == 0 && Value::classMatch($x, 'Fraction');
 	return $self->mutate($context)->make($context, $x, @_);
 }
 
@@ -860,10 +860,10 @@ sub new {
 	return $x->[0]                            if Value::classMatch($x->[0], 'Fraction') && @_ == 0;
 	$x = $context->toFraction($x->[0]->value) if Value::isReal($x->[0]) && @_ == 0;
 	return $self->formula($x)                 if Value::isFormula($x->[0]) || Value::isFormula($x->[1]);
-	Value::Error("Fraction numerators must be integers")   unless isInteger($x->[0]);
-	Value::Error("Fraction denominators must be integers") unless isInteger($x->[1]);
 	my ($a, $b) = ($x->[0]->value, $x->[1]->value);
 	($a, $b) = (-$a, -$b) if $b < 0;
+	Value::Error("Fraction numerators must be integers")   unless isInteger($a);
+	Value::Error("Fraction denominators must be integers") unless isInteger($b);
 	Value::Error("Denominator can't be zero") if $b == 0;
 	($a, $b) = context::Fraction::reduce($a, $b) if $context->flag("reduceFractions");
 	bless { data => [ $a, $b ], context => $context }, $class;
@@ -880,6 +880,8 @@ sub make {
 	push(@_, 0) if @_ == 0;
 	push(@_, 1) if @_ == 1;
 	my ($a, $b) = @_;
+	$a = $a->value if Value::isReal($a);
+	$b = $b->value if Value::isReal($b);
 	($a, $b) = (-$a, -$b) if $b < 0;
 	return $context->Package("Real")->make($context, $a / $b) unless isInteger($a) && isInteger($b);
 	($a, $b) = context::Fraction::reduce($a, $b) if $context->flag("reduceFractions");
