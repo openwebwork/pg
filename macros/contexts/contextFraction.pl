@@ -646,7 +646,15 @@ sub _check {
 #  operator we didn't otherwise subclass.
 #
 package context::Fraction::BOP::Space;
-our @ISA = ('context::Fraction::BOP::space');
+our @ISA = ('context::Fraction::Class', 'Parser::BOP');
+
+sub _check {
+	my $self    = shift;
+	my $context = $self->context;
+	$self->{bop} = $self->{def}{string};
+	$self->{def} = $context->{operators}{ $self->{bop} };
+	return $self->mutate->_check;
+}
 
 #################################################################################################
 #################################################################################################
