@@ -73,16 +73,16 @@ All lines following the documentation lines are considered code until the next `
 
 ## Generate the documentation
 
-The documentation is generated with the `parse-prob-doc.pl` script in the `bin`
+The documentation is generated with the `parse-problem-doc.pl` script in the `bin`
 directory of pg. There are the following options (and many are required):
 
-- `problem_dir` or `d`:  The directory where the sample problems are.  This defaults to
+- `problem-dir` or `d`:  The directory where the sample problems are.  This defaults to
 `PG_ROOT/tutorial/sample-problems` if not passed in.
-- `out_dir` or `o`: The directory where the resulting documentation files (HTML)
+- `out-dir` or `o`: The directory where the resulting documentation files (HTML)
 will be located.
-- `pod_root` or `p`: The URL where the POD is located.  This is needed to
+- `pod-base-url` or `p`: The URL where the POD is located.  This is needed to
 correctly link POD from the sample problems.
-- `pg_doc_home` or `h`: The URL of the directory for `out_dir`.  This is needed
+- `sample-problem-base-url` or `s`: The URL of the directory for `out-dir`.  This is needed
 for correct linking.
 - `verbose` or `v`: verbose mode.
 
@@ -94,7 +94,7 @@ produce four different ways of categorizing the problems.
   - an html file with the documented PG file
   - a pg file with the documentation removed.  There is a link to this in the html file.
 
-The script `parse-prob-doc.pl` parses each pg file and uses the `problem-template.mt`
+The script `parse-problem-doc.pl` parses each pg file and uses the `problem-template.mt`
 template file to generate the
 html.  This template is processed using the `Mojo::Template` Perl module.  See the
 [Mojo::Template documentation](https://docs.mojolicious.org/Mojo/Template) for more information.
