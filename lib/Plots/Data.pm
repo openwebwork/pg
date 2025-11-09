@@ -225,7 +225,7 @@ sub set_function {
 		$f->{"x$key"} = $options{$key};
 		delete $options{$key};
 	}
-	return unless $f->{Fy};
+	return unless $f->{Fy} ne '';
 
 	$f->{Fx}          = $self->get_math_object($f->{Fx}, $f->{xvar}, $f->{yvar});
 	$f->{Fy}          = $self->get_math_object($f->{Fy}, $f->{xvar}, $f->{yvar});
