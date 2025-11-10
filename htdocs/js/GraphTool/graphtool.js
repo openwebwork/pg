@@ -69,7 +69,6 @@ window.graphTool = (containerId, options) => {
 	if ('htmlInputId' in options) gt.html_input = document.getElementById(options.htmlInputId);
 	const cfgOptions = {
 		title: 'WeBWorK Graph Tool',
-		description: options.ariaDescription ?? 'Interactively graph objects',
 		showCopyright: false,
 		pan: { enabled: false },
 		zoom: { enabled: false },
@@ -116,6 +115,14 @@ window.graphTool = (containerId, options) => {
 
 	const setupBoard = () => {
 		gt.board = JXG.JSXGraph.initBoard(`${containerId}_graph`, cfgOptions);
+
+		const descriptionSpan = document.createElement('span');
+		descriptionSpan.id = `${containerId}_description`;
+		descriptionSpan.classList.add('visually-hidden');
+		descriptionSpan.textContent = options.ariaDescription ?? 'Interactively graph objects';
+		gt.board.containerObj.after(descriptionSpan);
+		gt.board.containerObj.setAttribute('aria-describedby', descriptionSpan.id);
+
 		gt.board.suspendUpdate();
 
 		// Move the axes defining points to the end so that the arrows go to the board edges.
