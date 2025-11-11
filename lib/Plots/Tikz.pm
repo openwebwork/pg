@@ -567,8 +567,7 @@ sub draw {
 			my $r      = sqrt(($x2 - $x1)**2 + ($y2 - $y1)**2);
 			my $theta1 = 180 * atan2($y2 - $y1, $x2 - $x1) / 3.14159265358979;
 			my $theta2 = 180 * atan2($y3 - $y1, $x3 - $x1) / 3.14159265358979;
-			$theta1 += 360 if $theta1 < 0;
-			$theta2 += 360 if $theta2 < 0;
+			$theta2 += 360 if $theta2 <= $theta1;
 			$tikzCode .= $self->draw_on_layer(
 				"\\draw[name path=$curve_name, $draw_options->[0]] (axis cs:$x2,$y2) "
 					. "arc[start angle=$theta1, end angle=$theta2, radius = $r];\n",
