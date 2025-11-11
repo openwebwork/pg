@@ -575,6 +575,14 @@ sub add_arc {
 		radiusPoint => { visible => 0 },
 	);
 
+	# JSXGraph arcs cannot make a 360 degree revolution.  So in the case that the start and end point are the same,
+	# move the end point back around the circle a tiny amount.
+	if ($x2 == $x3 && $y2 == $y3) {
+		my $theta = atan2($y2 - $y1, $x2 - $x1) + 2 * 3.14159265358979 - 0.0001;
+		$x3 = $x1 + cos($theta);
+		$y3 = $y1 + sin($theta);
+	}
+
 	$self->{JS} .= "board.create('arc', [[$x1, $y1], [$x2, $y2], [$x3, $y3]], $arcOptions);"  if $arcOptions;
 	$self->{JS} .= "board.create('arc', [[$x1, $y1], [$x2, $y2], [$x3, $y3]], $fillOptions);" if $fillOptions;
 	return;
