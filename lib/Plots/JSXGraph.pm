@@ -417,6 +417,12 @@ sub add_multipath {
 	for (0 .. $#paths) {
 		my $path = $paths[$_];
 
+		if (ref $path eq 'ARRAY') {
+			($start_x, $start_y) = (', ' . $path->[0], ', ' . $path->[1]) if $cycle && $_ == 0;
+			$self->{JS} .= "board.create('curve', [[$path->[0]], [$path->[1]]], { visible: false }),\n";
+			next;
+		}
+
 		($start_x, $start_y) =
 			(', ' . $path->{Fx}->eval($var => $path->{tmin}), ', ' . $path->{Fy}->eval($var => $path->{tmin}))
 			if $cycle && $_ == 0;

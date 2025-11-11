@@ -297,13 +297,17 @@ sub add_multipath {
 	my $steps = (delete $options{steps}) || 30;
 	$data->{context} = $self->context;
 	$data->{paths}   = [
-		map { {
-			Fx   => $data->get_math_object($_->[0], $var),
-			Fy   => $data->get_math_object($_->[1], $var),
-			tmin => $data->str_to_real($_->[2]),
-			tmax => $data->str_to_real($_->[3]),
-			@$_[ 4 .. $#$_ ]
-		} } @$paths
+		map {
+			@$_ == 2
+				? [@$_]
+				: {
+					Fx   => $data->get_math_object($_->[0], $var),
+					Fy   => $data->get_math_object($_->[1], $var),
+					tmin => $data->str_to_real($_->[2]),
+					tmax => $data->str_to_real($_->[3]),
+					@$_[ 4 .. $#$_ ]
+				}
+		} @$paths
 	];
 	$data->{function} = { var => $var, steps => $steps };
 	$data->style(color => 'default_color', width => 2, mark_size => 2, %options);

@@ -197,15 +197,22 @@ It is preferred to use strings or MathObjects instead of perl subroutines.
 
 =head2 PLOT MULTIPATH FUNCTIONS
 
-A multipath function is defined using multiple parametric paths pieced together
-into into a single curve, whose primary use is to create a closed region to be
-filled using multiple boundaries.  This is done by providing a list of
-parametric functions, the name of the parameter, and a list of options.
+A multipath function is defined using multiple parametric paths and points
+pieced together into into a single curve. This is done by providing a list of
+parametric functions and points, the name of the parameter, and a list of
+options. A parametric function is specified by a reference to an array
+containing an x function, a y function, the minimum value for the parameter, and
+the maximum value for the parameter, followed by options.  A point is specified
+by a reference to an array containing the coordinates of the point.  One reason
+for creating a multipath is to create a closed region to be filled using
+multiple boundaries.
 
     $plot->add_multipath(
         [
-            [ $function_x1, $function_y1, $min1, $max1, %path_options ],
-            [ $function_x2, $function_y2, $min2, $max2, %path_options ],
+            [ $function_x1, $function_y1, $min1, $max1, %path_options1 ],
+            [ $function_x2, $function_y2, $min2, $max2, %path_options2 ],
+			[ $point_x1, $point_x2 ]
+			[ $function_x3, $function_y3, $min3, $max3, %path_options3 ],
             ...
         ],
         $variable,
@@ -222,19 +229,19 @@ multipath.
 The paths have to be listed in the order they are followed, but the
 minimum/maximum values of the parameter can match the parametrization. The
 following example creates a sector of radius 5 between pi/4 and 3pi/4, by first
-drawing the line from (0,0) to (5sqrt(2),5/sqrt(2)), then the arc of the circle
-of radius 5 from pi/4 to 3pi/4, followed by the final line from (-5sqrt(2),
-5sqrt(2)) back to the origin.
+drawing the arc of the circle of radius 5 from pi/4 to 3pi/4, followed by the
+line from (-5 sqrt(2), 5 sqrt(2)) to the origin, and then drawing the line from
+the origin to (5 sqrt(2), 5 sqrt(2)).
 
     $plot->add_multipath(
         [
-            [ 't',       't',       0,           '5/sqrt(2)' ],
-            [ '5cos(t)', '5sin(t)', 'pi/4',      '3pi/4' ],
-            [ '-t',      't',       '5/sqrt(2)', 0 ],
+            [ '5cos(t)', '5sin(t)', 'pi/4', '3pi/4' ],
+            [ 0, 0 ],
         ],
         't',
         color => 'green',
         fill  => 'self',
+        cycle => 1
     );
 
 Note that the ending point of one path does not need to be the same as the

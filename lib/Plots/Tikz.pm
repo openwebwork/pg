@@ -620,21 +620,27 @@ sub draw {
 			for (0 .. $#paths) {
 				my $path = $paths[$_];
 
+				++$count while $self->{names}{"${curve_name}_$count"};
+				push(@pathData, ["${curve_name}_$count"]);
+				$self->{names}{ $pathData[-1][0] } = 1;
+
+				if (ref $path eq 'ARRAY') {
+					$tikzCode .=
+						"\\addplot[name path=$pathData[-1][0], draw=none] coordinates {($path->[0], $path->[1])};\n";
+					push(@{ $pathData[-1] }, @$path, @$path);
+					next;
+				}
+
+				push(
+					@{ $pathData[-1] },
+					$path->{Fx}->eval($var => $path->{tmin}),
+					$path->{Fy}->eval($var => $path->{tmin}),
+					$path->{Fx}->eval($var => $path->{tmax}),
+					$path->{Fy}->eval($var => $path->{tmax})
+				);
+
 				my $xfunction = $data->function_string($path->{Fx}, 'PGF', $var);
 				my $yfunction = $data->function_string($path->{Fy}, 'PGF', $var);
-
-				++$count while $self->{names}{"${curve_name}_$count"};
-				push(
-					@pathData,
-					[
-						"${curve_name}_$count",
-						$path->{Fx}->eval($var => $path->{tmin}),
-						$path->{Fy}->eval($var => $path->{tmin}),
-						$path->{Fx}->eval($var => $path->{tmax}),
-						$path->{Fy}->eval($var => $path->{tmax})
-					]
-				);
-				$self->{names}{ $pathData[-1][0] } = 1;
 
 				my $steps = $path->{steps} // $data->{function}{steps};
 
