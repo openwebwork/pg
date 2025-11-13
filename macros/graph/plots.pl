@@ -588,6 +588,21 @@ The vertical alignment of the text relative to the position of the label,
 that states which end of the label is placed at the label's position.
 Can be one of 'top', 'middle', or 'bottom'. Default: 'middle'
 
+=item anchor
+
+The angle in degrees of the label anchor relative to the center of the text. In
+other words, the text will be positioned relative to the point on the rectangle
+encompassing the label text (including C<padding>) where a ray shot from the
+text center with the given angle hits the rectangle. This is an alternate method
+for positioning the text relative to the label position. If this is set, then
+C<h_align> and C<v_align> are not used. This is particularly useful for
+positioning text when labeling angles. Default: ''
+
+=item padding
+
+This is the horizontal and vertical padding applied to the text of the label (in
+pixels for the JSXGraph format, and in points for the TikZ format). Default: 4
+
 =item jsx_options
 
 An hash reference of options to pass to JSXGraph text object.
