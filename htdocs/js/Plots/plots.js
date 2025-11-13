@@ -53,83 +53,129 @@ const PGplots = {
 			board.containerObj.after(descriptionSpan);
 			board.containerObj.setAttribute('aria-describedby', descriptionSpan.id);
 
-			// Convert a decimal number into a fraction or mixed number.  This is basically the JXG.toFraction method
-			// except that the "mixed" parameter is added, and it returns an improper fraction if mixed is false.
-			const toFraction = (x, useTeX, mixed, order) => {
-				const arr = JXG.Math.decToFraction(x, order);
+			// This object is passed to the plotContents method as its second argument and exposes these methods (and
+			// potentially other things in the future) to the code that is called in that method. So the JavaScript code
+			// generated in JSXGraph.pm can use these methods.
+			const plot = {
+				// Convert a decimal number into a fraction or mixed number.  This is basically the JXG.toFraction method
+				// except that the "mixed" parameter is added, and it returns an improper fraction if mixed is false.
+				toFraction(x, useTeX, mixed, order) {
+					const arr = JXG.Math.decToFraction(x, order);
 
-				if (arr[1] === 0 && arr[2] === 0) {
-					return '0';
-				} else {
-					let str = '';
-					// Sign
-					if (arr[0] < 0) str += '-';
-					if (arr[2] === 0) {
-						// Integer
-						str += arr[1];
-					} else if (!(arr[2] === 1 && arr[3] === 1)) {
-						// Proper fraction
-						if (mixed) {
-							if (arr[1] !== 0) str += arr[1] + ' ';
-							if (useTeX) str += `\\frac{${arr[2]}}{${arr[3]}}`;
-							else str += `${arr[2]}/${arr[3]}`;
-						} else {
-							if (useTeX) str += `\\frac{${arr[3] * arr[1] + arr[2]}}{${arr[3]}}`;
-							else str += `${arr[3] * arr[1] + arr[2]}/${arr[3]}`;
-						}
-					}
-					return str;
-				}
-			};
-
-			// Override the default axis generateLabelText method so that 0 is displayed
-			// using MathJax if the axis is configured to show tick labels using MathJax.
-			const generateLabelText = function (tick, zero, value) {
-				if (JXG.exists(value)) return this.formatLabelText(value);
-				const distance = this.getDistanceFromZero(zero, tick);
-				return this.formatLabelText(Math.abs(distance) < JXG.Math.eps ? 0 : distance / this.visProp.scale);
-			};
-
-			const trimTrailingZeros = (value) => {
-				if (value.indexOf('.') > -1 && value.endsWith('0')) {
-					value = value.replace(/0+$/, '');
-					// Remove the decimal if it is now at the end.
-					value = value.replace(/\.$/, '');
-				}
-				return value;
-			};
-
-			// Override the formatLabelText method for the axes ticks so that
-			// better number formats can be used for tick labels.
-			const formatLabelText = function (value) {
-				let labelText;
-
-				if (JXG.isNumber(value)) {
-					if (this.visProp.label.format === 'fraction' || this.visProp.label.format === 'mixed') {
-						labelText = toFraction(
-							value,
-							this.visProp.label.usemathjax,
-							this.visProp.label.format === 'mixed'
-						);
-					} else if (this.visProp.label.format === 'scinot') {
-						const [mantissa, exponent] = value.toExponential(this.visProp.digits).toString().split('e');
-						labelText = this.visProp.label.usemathjax
-							? `${trimTrailingZeros(mantissa)}\\cdot 10^{${exponent}}`
-							: `${trimTrailingZeros(mantissa)} x 10^${exponent}`;
+					if (arr[1] === 0 && arr[2] === 0) {
+						return '0';
 					} else {
-						labelText = trimTrailingZeros(value.toFixed(this.visProp.digits).toString());
+						let str = '';
+						// Sign
+						if (arr[0] < 0) str += '-';
+						if (arr[2] === 0) {
+							// Integer
+							str += arr[1];
+						} else if (!(arr[2] === 1 && arr[3] === 1)) {
+							// Proper fraction
+							if (mixed) {
+								if (arr[1] !== 0) str += arr[1] + ' ';
+								if (useTeX) str += `\\frac{${arr[2]}}{${arr[3]}}`;
+								else str += `${arr[2]}/${arr[3]}`;
+							} else {
+								if (useTeX) str += `\\frac{${arr[3] * arr[1] + arr[2]}}{${arr[3]}}`;
+								else str += `${arr[3] * arr[1] + arr[2]}/${arr[3]}`;
+							}
+						}
+						return str;
 					}
-				} else {
-					labelText = value.toString();
-				}
+				},
 
-				if (this.visProp.scalesymbol.length > 0) {
-					if (labelText === '1') labelText = this.visProp.scalesymbol;
-					else if (labelText === '-1') labelText = `-${this.visProp.scalesymbol}`;
-					else if (labelText !== '0') labelText = labelText + this.visProp.scalesymbol;
-				}
+				// Override the default axis generateLabelText method so that 0 is displayed
+				// using MathJax if the axis is configured to show tick labels using MathJax.
+				generateLabelText(tick, zero, value) {
+					if (JXG.exists(value)) return this.formatLabelText(value);
+					const distance = this.getDistanceFromZero(zero, tick);
+					return this.formatLabelText(Math.abs(distance) < JXG.Math.eps ? 0 : distance / this.visProp.scale);
+				},
 
-				return this.visProp.label.usemathjax ? `\\(${labelText}\\)` : labelText;
+				trimTrailingZeros(value) {
+					if (value.indexOf('.') > -1 && value.endsWith('0')) {
+						value = value.replace(/0+$/, '');
+						// Remove the decimal if it is now at the end.
+						value = value.replace(/\.$/, '');
+					}
+					return value;
+				},
+
+				// Override the formatLabelText method for the axes ticks so that
+				// better number formats can be used for tick labels.
+				formatLabelText(value) {
+					let labelText;
+
+					if (JXG.isNumber(value)) {
+						if (this.visProp.label.format === 'fraction' || this.visProp.label.format === 'mixed') {
+							labelText = plot.toFraction(
+								value,
+								this.visProp.label.usemathjax,
+								this.visProp.label.format === 'mixed'
+							);
+						} else if (this.visProp.label.format === 'scinot') {
+							const [mantissa, exponent] = value.toExponential(this.visProp.digits).toString().split('e');
+							labelText = this.visProp.label.usemathjax
+								? `${plot.trimTrailingZeros(mantissa)}\\cdot 10^{${exponent}}`
+								: `${plot.trimTrailingZeros(mantissa)} x 10^${exponent}`;
+						} else {
+							labelText = plot.trimTrailingZeros(value.toFixed(this.visProp.digits).toString());
+						}
+					} else {
+						labelText = value.toString();
+					}
+
+					if (this.visProp.scalesymbol.length > 0) {
+						if (labelText === '1') labelText = this.visProp.scalesymbol;
+						else if (labelText === '-1') labelText = `-${this.visProp.scalesymbol}`;
+						else if (labelText !== '0') labelText = labelText + this.visProp.scalesymbol;
+					}
+
+					return this.visProp.label.usemathjax ? `\\(${labelText}\\)` : labelText;
+				},
+
+				createLabel(x, y, text, options) {
+					const anchor = options.angleAnchor;
+					delete options.angleAnchor;
+					const rotate = options.rotate;
+					delete options.rotate;
+
+					const textElement = board.create('text', [x, y, text], options);
+
+					if (typeof anchor !== 'undefined') {
+						const cosA = Math.cos((anchor * Math.PI) / 180);
+						const sinA = Math.sin((anchor * Math.PI) / 180);
+
+						const transform = board.create(
+							'transform',
+							[
+								() => {
+									const [w, h] = textElement.getSize();
+									return (
+										(w * Math.abs(sinA) > h * Math.abs(cosA)
+											? (-h / 2 / Math.abs(sinA)) * cosA
+											: ((cosA < 0 ? 1 : -1) * w) / 2) / board.unitX
+									);
+								},
+								() => {
+									const [w, h] = textElement.getSize();
+									return (
+										(w * Math.abs(sinA) > h * Math.abs(cosA)
+											? ((sinA < 0 ? 1 : -1) * h) / 2
+											: (-w / 2 / Math.abs(cosA)) * sinA) / board.unitY
+									);
+								}
+							],
+							{ type: 'translate' }
+						);
+						transform.bindTo(textElement);
+					}
+					if (rotate) textElement.addRotation(rotate);
+
+					return textElement;
+				}
 			};
 
 			board.suspendUpdate();
@@ -329,8 +375,8 @@ const PGplots = {
 						options.xAxis.overrideOptions ?? {}
 					)
 				);
-				xAxis.defaultTicks.generateLabelText = generateLabelText;
-				xAxis.defaultTicks.formatLabelText = formatLabelText;
+				xAxis.defaultTicks.generateLabelText = plot.generateLabelText;
+				xAxis.defaultTicks.formatLabelText = plot.formatLabelText;
 
 				if (options.xAxis.location !== 'middle') {
 					board.create(
@@ -424,8 +470,8 @@ const PGplots = {
 						options.yAxis.overrideOptions ?? {}
 					)
 				);
-				yAxis.defaultTicks.generateLabelText = generateLabelText;
-				yAxis.defaultTicks.formatLabelText = formatLabelText;
+				yAxis.defaultTicks.generateLabelText = plot.generateLabelText;
+				yAxis.defaultTicks.formatLabelText = plot.formatLabelText;
 
 				if (options.yAxis.location !== 'center') {
 					board.create(
@@ -448,7 +494,7 @@ const PGplots = {
 				}
 			}
 
-			plotContents(board);
+			plotContents(board, plot);
 
 			board.unsuspendUpdate();
 
