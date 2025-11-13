@@ -149,7 +149,7 @@ sub HTML {
 		(async () => {
 			const id = 'jsxgraph-plot-$self->{name}';
 			const options = ${\(Mojo::JSON::encode_json($options))};
-			const plotContents = (board) => { $self->{JS}$plots->{extra_js_code} };
+			const plotContents = (board, plot) => { $self->{JS}$plots->{extra_js_code} };
 			if (document.readyState === 'loading')
 				window.addEventListener('DOMContentLoaded',
 					async () => { await PGplots.plot(id, plotContents, options); });
@@ -633,6 +633,9 @@ sub draw {
 		my $fontsize    = $label->style('fontsize') || 'normalsize';
 		my $h_align     = $label->style('h_align')  || 'center';
 		my $v_align     = $label->style('v_align')  || 'middle';
+		my $anchor      = $label->style('anchor');
+		my $rotate      = $label->style('rotate');
+		my $padding     = $label->style('padding') || 4;
 		my $textOptions = Mojo::JSON::encode_json({
 			fontSize => {
 				tiny       => 8,
@@ -646,17 +649,18 @@ sub draw {
 				huge       => 20,
 				Huge       => 23
 			}->{$fontsize},
-			$label->style('rotate') ? (rotate => $label->style('rotate')) : (),
 			strokeColor => $self->get_color($label->style('color')),
-			anchorX     => $h_align eq 'center' ? 'middle' : $h_align,
-			anchorY     => $v_align,
-			cssStyle    => 'padding: 3px 5px;',
-			useMathJax  => 1,
+			$anchor ne ''
+			? (angleAnchor => $anchor, anchorX => 'middle', anchorY => 'middle')
+			: (anchorX => $h_align eq 'center' ? 'middle' : $h_align, anchorY => $v_align),
+			$rotate ? (rotate => $rotate) : (),
+			cssStyle   => "line-height: 1; padding: ${padding}px;",
+			useMathJax => 1,
 		});
 		$textOptions = "JXG.merge($textOptions, " . Mojo::JSON::encode_json($label->style('jsx_options')) . ')'
 			if $label->style('jsx_options');
 
-		$self->{JS} .= "board.create('text', [$x, $y, '$str'], $textOptions);";
+		$self->{JS} .= "plot.createLabel($x, $y, '$str', $textOptions);";
 	}
 
 	# JSXGraph only produces HTML graphs and uses TikZ for hadrcopy.
