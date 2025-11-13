@@ -728,9 +728,12 @@ sub draw {
 		my $tikz_options = $label->style('tikz_options');
 		my $h_align      = $label->style('h_align') || 'center';
 		my $v_align      = $label->style('v_align') || 'middle';
-		my $anchor       = join(' ',
+		my $anchor       = $label->style('anchor');
+		$anchor = join(' ',
 			$v_align eq 'top'  ? 'north' : $v_align eq 'bottom' ? 'south' : (),
-			$h_align eq 'left' ? 'west'  : $h_align eq 'right'  ? 'east'  : ());
+			$h_align eq 'left' ? 'west'  : $h_align eq 'right'  ? 'east'  : ())
+			if $anchor eq '';
+		my $padding = $label->style('padding') || 4;
 		$str = {
 			tiny       => '\tiny ',
 			small      => '\small ',
@@ -746,6 +749,7 @@ sub draw {
 		$tikz_options = $tikz_options ? "$color, $tikz_options" : $color;
 		$tikz_options = "anchor=$anchor, $tikz_options" if $anchor;
 		$tikz_options = "rotate=$rotate, $tikz_options" if $rotate;
+		$tikz_options = "inner sep=${padding}pt, $tikz_options";
 		$tikzCode .= $self->get_color($color) . "\\node[$tikz_options] at (axis cs: $x,$y) {$str};\n";
 	}
 
