@@ -685,18 +685,27 @@ sub draw {
 				# Make sure this is the name from the data style attribute, and not an internal name.
 				my $name = $data->style('name');
 				if ($name) {
-					my $opacity  = $data->style('fill_opacity') || 0.5;
-					my $fill_min = $data->style('fill_min');
-					my $fill_max = $data->style('fill_max');
+					my $opacity      = $data->style('fill_opacity') || 0.5;
+					my $fill_min     = $data->style('fill_min');
+					my $fill_max     = $data->style('fill_max');
+					my $fill_min_y   = $data->style('fill_min_y');
+					my $fill_max_y   = $data->style('fill_max_y');
+					my $fill_reverse = $data->style('fill_reverse');
 					my $fill_range =
-						$fill_min ne '' && $fill_max ne '' ? ", soft clip={domain=$fill_min:$fill_max}" : '';
+						$fill_min ne '' && $fill_max ne '' && $fill_min_y ne '' && $fill_max_y ne ''
+						? ", soft clip={($fill_min, $fill_min_y) rectangle ($fill_max, $fill_max_y)}"
+						: $fill_min ne ''   && $fill_max ne ''   ? ", soft clip={domain=$fill_min:$fill_max}"
+						: $fill_min_y ne '' && $fill_max_y ne '' ? ", soft clip={domain y=$fill_min_y:$fill_max_y}"
+						:                                          '';
 					my $fill_layer = $data->style('fill_layer') || $layer;
+					my $reverse    = $fill_reverse eq '' ? '' : $fill_reverse ? ', reverse' : 'reverse=false';
 					$tikzCode .=
 						"\\begin{scope}[/tikz/fill between/on layer=$fill_layer]\\begin{pgfonlayer}{$fill_layer}"
 						. "\\clip\\axisclippath;\n"
 						if $fill_layer;
 					$tikzCode .=
-						"\\addplot[$fill_color, fill opacity=$opacity] fill between[of=$name and $fill$fill_range];\n";
+						"\\addplot[$fill_color, fill opacity=$opacity] "
+						. "fill between[of=$name and $fill$fill_range$reverse];\n";
 					$tikzCode .= "\\end{pgfonlayer}\\end{scope}\n" if $fill_layer;
 				} else {
 					warn q{Unable to create fill. Missing 'name' attribute.};

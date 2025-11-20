@@ -473,6 +473,23 @@ and only fills in the area between x=-2 and x=2:
         fill_opacity => 0.2,
     );
 
+The following fills the area between the two curves x = 4 - y^2 and x = y^2 - 4,
+and only fills in the area between y=-2 and y=2:
+
+    $plot->add_function(['4 - y^2', 'y'], 'y', -3, 3,
+        color => 'blue',
+        name  => 'A'
+    );
+    $plot->add_function(['y^2 - 4', 'y'] 'y', -3, 3,
+        color        => 'blue',
+        name         => 'B',
+        fill         => 'A',
+        fill_min_y   => -2,
+        fill_max_y   => 2,
+        fill_color   => 'green',
+        fill_opacity => 0.2,
+    );
+
 =item fill_color
 
 The color used when filling the region. Default: C<color>
@@ -486,6 +503,30 @@ A number between 0 and 1 giving the opacity of the fill. Default: 0.5
 The minimum and maximum x-value to fill between. If either of these are
 not defined, then the fill will use the full domain of the function.
 Default: undefined
+
+=item fill_min_y, fill_max_y
+
+The minimum and maximum y-values to fill between. If either of these are
+not defined, then the fill will use the full y range of the function.
+Default: undefined
+
+Note that fill_min, fill_max, fill_min_y, and fill_max_y can be defined, and
+this will result in the region filled being restricted to the rectangle defined
+by those ranges.
+
+=item fill_reverse
+
+This should only be used if the TikZ output is filling the wrong region when
+filling between two curves.  By default the pgfplots fillbetween library
+attempts to autodetect if one of the curves needs to be reversed in order to
+obtain the fill region between the curves. However, the heuristic used for the
+autodetection is sometimes wrong. Particularly when filling between two
+functions x of y using the C<fill_min_y> and C<fill_max_y> options. In that case
+set this option to either 0 or 1.  If set to 1, then a reversal of one of the
+curves is forced. If set to 0, then no reversal will occur.  If this is unset,
+then the pgfplots fillbetween library will attempt to autodetect if a reversal
+is needed.  If the correct region is being filled as compared to the JSXGraph
+output, then leave this unset. Default: undefined
 
 =item layer
 
