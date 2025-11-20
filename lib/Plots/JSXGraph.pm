@@ -326,6 +326,8 @@ sub add_curve {
 			if ($curve_name) {
 				my $fill_min    = $data->str_to_real($data->style('fill_min'));
 				my $fill_max    = $data->str_to_real($data->style('fill_max'));
+				my $fill_min_y  = $data->str_to_real($data->style('fill_min_y'));
+				my $fill_max_y  = $data->str_to_real($data->style('fill_max_y'));
 				my $fill_layer  = $self->get_layer($data, 1) // $self->get_layer($data);
 				my $fillOptions = Mojo::JSON::encode_json({
 					strokeWidth => 0,
@@ -361,11 +363,23 @@ sub add_curve {
 							".filter(p => {"
 							. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
 					}
+					if ($fill_min_y ne '' && $fill_max_y ne '') {
+						$self->{JS} .=
+							".filter(p => {"
+							. "return p.usrCoords[2] >= $fill_min_y && p.usrCoords[2] <= $fill_max_y ? true : false"
+							. "})";
+					}
 					$self->{JS} .= ";const points2 = curve_${fill}.points";
 					if ($fill_min ne '' && $fill_max ne '') {
 						$self->{JS} .=
 							".filter(p => {"
 							. "return p.usrCoords[1] >= $fill_min && p.usrCoords[1] <= $fill_max ? true : false" . "})";
+					}
+					if ($fill_min_y ne '' && $fill_max_y ne '') {
+						$self->{JS} .=
+							".filter(p => {"
+							. "return p.usrCoords[2] >= $fill_min_y && p.usrCoords[2] <= $fill_max_y ? true : false"
+							. "})";
 					}
 					$self->{JS} .=
 						";this.dataX = points1.map( p => p.usrCoords[1] ).concat("
