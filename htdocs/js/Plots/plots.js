@@ -326,7 +326,7 @@ const PGplots = {
 										? 'sticky'
 										: 'static'
 									: 'fixed',
-							firstArrow: options.axesArrowsBoth ? { size: 7 } : false,
+							firstArrow: options.xAxis.arrowsBoth ? { size: 7 } : false,
 							lastArrow: { size: 7 },
 							highlight: false,
 							straightFirst: options.board?.showNavigation ? true : false,
@@ -420,7 +420,7 @@ const PGplots = {
 										? 'sticky'
 										: 'static'
 									: 'fixed',
-							firstArrow: options.axesArrowsBoth ? { size: 7 } : false,
+							firstArrow: options.yAxis.arrowsBoth ? { size: 7 } : false,
 							lastArrow: { size: 7 },
 							highlight: false,
 							straightFirst: options.board?.showNavigation ? true : false,

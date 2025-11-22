@@ -188,15 +188,16 @@ sub generate_axes {
 	my $xaxis_location = $axes->xaxis('location');
 	my $xaxis_pos      = $xaxis_location eq 'middle' ? $axes->xaxis('position') : 0;
 	my $yaxis_location = $axes->yaxis('location');
-	my $yaxis_pos      = $yaxis_location eq 'center'      ? $axes->yaxis('position')   : 0;
-	my $axis_on_top    = $axes->style('axis_on_top')      ? "axis on top,\n"           : '';
-	my $negativeArrow  = $axes->style('axes_arrows_both') ? 'Latex[{round,scale=1.6}]' : '';
+	my $yaxis_pos      = $yaxis_location eq 'center' ? $axes->yaxis('position')   : 0;
+	my $axis_on_top    = $axes->style('axis_on_top') ? "axis on top,\n"           : '';
+	my $xNegativeArrow = $axes->xaxis('arrows_both') ? 'Latex[{round,scale=1.6}]' : '';
+	my $yNegativeArrow = $axes->yaxis('arrows_both') ? 'Latex[{round,scale=1.6}]' : '';
 	my $tikz_options   = $axes->style('tikz_options') // '';
 
 	my $xlabel = $xvisible ? $axes->xaxis('label') : '';
 	my $xaxis_style =
 		$xvisible
-		? ",\nx axis line style={$negativeArrow-Latex[{round,scale=1.6}]}"
+		? ",\nx axis line style={$xNegativeArrow-Latex[{round,scale=1.6}]}"
 		: ",\nx axis line style={draw=none},\nextra y ticks={0}";
 	my $xtick_style =
 		$xvisible && $axes->xaxis('show_ticks') ? ",\nx tick style={line width=0.6pt}" : ",\nx tick style={draw=none}";
@@ -204,7 +205,7 @@ sub generate_axes {
 	my $ylabel = $yvisible ? $axes->yaxis('label') : '';
 	my $yaxis_style =
 		$yvisible
-		? ",\ny axis line style={$negativeArrow-Latex[{round,scale=1.6}]}"
+		? ",\ny axis line style={$yNegativeArrow-Latex[{round,scale=1.6}]}"
 		: ",\ny axis line style={draw=none},\nextra x ticks={0}";
 	my $ytick_style =
 		$yvisible && $axes->yaxis('show_ticks') ? ",\ny tick style={line width=0.6pt}" : ",\ny tick style={draw=none}";
