@@ -116,10 +116,7 @@ sub HTML {
 		}
 	}
 
-	if ($xvisible || $yvisible) {
-		$options->{mathJaxTickLabels} = $axes->style('mathjax_tick_labels');
-		$options->{axesArrowsBoth}    = $axes->style('axes_arrows_both');
-	}
+	$options->{mathJaxTickLabels} = $axes->style('mathjax_tick_labels') if $xvisible || $yvisible;
 
 	if ($xvisible) {
 		$options->{xAxis}{name}               = $axes->xaxis('label');
@@ -128,6 +125,7 @@ sub HTML {
 		$options->{xAxis}{ticks}{labelFormat} = $axes->xaxis('tick_label_format');
 		$options->{xAxis}{ticks}{labelDigits} = $axes->xaxis('tick_label_digits');
 		$options->{xAxis}{ticks}{scaleSymbol} = $axes->xaxis('tick_scale_symbol');
+		$options->{xAxis}{arrowsBoth}         = $axes->xaxis('arrows_both');
 		$options->{xAxis}{overrideOptions}    = $axes->xaxis('jsx_options') if $axes->xaxis('jsx_options');
 	}
 	if ($yvisible) {
@@ -137,6 +135,7 @@ sub HTML {
 		$options->{yAxis}{ticks}{labelFormat} = $axes->yaxis('tick_label_format');
 		$options->{yAxis}{ticks}{labelDigits} = $axes->yaxis('tick_label_digits');
 		$options->{yAxis}{ticks}{scaleSymbol} = $axes->yaxis('tick_scale_symbol');
+		$options->{yAxis}{arrowsBoth}         = $axes->yaxis('arrows_both');
 		$options->{yAxis}{overrideOptions}    = $axes->yaxis('jsx_options') if $axes->yaxis('jsx_options');
 	}
 
