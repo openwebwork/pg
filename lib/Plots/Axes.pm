@@ -177,6 +177,14 @@ Default 'middle' or 'center'.
 The position in terms of the appropriate variable to draw the axis if the location is
 set to 'middle' or 'center'. Default is 0.
 
+=item arrows_both
+
+Configures if arrows should be drawn in both directions (1) or only in the
+positive direction (0) at the axis ends. In other words, this is a choice
+between the convention that arrows are meant to indicate that the axis lines
+continue forever, or the convention that arrows are meant to indicate the
+positive direction of the axis only.  Default: 0
+
 =item jsx_options
 
 A hash reference of options to be passed to the JSXGraph axis object.
@@ -238,14 +246,6 @@ usually not desirable. A better way is to use the "axis background" C<layer> to
 only place the fill on the "axis background" layer, and leave everything else on
 top of the axis.
 
-=item axes_arrows_both
-
-Configures if arrows should be drawn in both directions (1) or only in the
-positive direction (0) at the axes ends. In other words, this is a choice
-between the convention that arrows are meant to indicate that the axes lines
-continue forever, or the convention that arrows are meant to indicate the
-positive direction of the axes only.  Default: 0
-
 =item mathjax_tick_labels
 
 If this is 1, then tick labels will be displayed using MathJax.  If this is 0,
@@ -291,7 +291,6 @@ sub new {
 			grid_alpha          => 40,
 			show_grid           => 1,
 			axis_on_top         => 0,
-			axes_arrows_both    => 0,
 			mathjax_tick_labels => 1,
 		},
 		@options
@@ -322,7 +321,8 @@ sub axis_defaults {
 		tick_num          => 5,
 		major             => 1,
 		minor             => 3,
-		minor_grids       => 1
+		minor_grids       => 1,
+		arrows_both       => 0,
 	);
 }
 
