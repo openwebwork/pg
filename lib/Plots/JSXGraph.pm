@@ -65,7 +65,10 @@ sub HTML {
 	$options->{board}{showNavigation}  = $axes->style('jsx_navigation') ? 1 : 0;
 	$options->{board}{overrideOptions} = $axes->style('jsx_options') if $axes->style('jsx_options');
 
-	# Set the bounding box. Add padding for the axes at the edge of graph if needed.
+	# Set the bounding box. Add padding for the axes at the edge of graph if needed. Note that the padding set here is
+	# not the final padding used in the end result.  The plots.js JavaScript adjusts the padding to fit the axis label
+	# content. This just needs to add enough padding so that the label content has enough room to render, and so that
+	# the JavaScript knows where the adjustments are needed.
 	$options->{board}{boundingBox} = [
 		$xmin - (
 			$yvisible
@@ -80,8 +83,8 @@ sub HTML {
 	];
 
 	$options->{xAxis}{visible} = $xvisible;
+	($options->{xAxis}{min}, $options->{xAxis}{max}) = ($xmin, $xmax);
 	if ($xvisible || ($show_grid && $grid->{xmajor})) {
-		($options->{xAxis}{min}, $options->{xAxis}{max}) = ($xmin, $xmax);
 		$options->{xAxis}{position}          = $xaxis_pos;
 		$options->{xAxis}{location}          = $xaxis_loc;
 		$options->{xAxis}{ticks}{scale}      = $axes->xaxis('tick_scale');
@@ -90,8 +93,8 @@ sub HTML {
 	}
 
 	$options->{yAxis}{visible} = $yvisible;
+	($options->{yAxis}{min}, $options->{yAxis}{max}) = ($ymin, $ymax);
 	if ($yvisible || ($show_grid && $grid->{ymajor})) {
-		($options->{yAxis}{min}, $options->{yAxis}{max}) = ($ymin, $ymax);
 		$options->{yAxis}{position}          = $yaxis_pos;
 		$options->{yAxis}{location}          = $yaxis_loc;
 		$options->{yAxis}{ticks}{scale}      = $axes->yaxis('tick_scale');

@@ -182,7 +182,7 @@ const PGplots = {
 
 			// This axis provides the vertical grid lines.
 			if (options.grid?.x) {
-				board.create(
+				plot.xGrid = board.create(
 					'axis',
 					[
 						[options.xAxis?.min ?? -5, options.xAxis?.position ?? 0],
@@ -246,7 +246,7 @@ const PGplots = {
 
 			// This axis provides the horizontal grid lines.
 			if (options.grid?.y) {
-				board.create(
+				plot.yGrid = board.create(
 					'axis',
 					[
 						[options.yAxis?.position ?? 0, options.yAxis?.min ?? -5],
@@ -305,7 +305,7 @@ const PGplots = {
 			}
 
 			if (options.xAxis?.visible) {
-				const xAxis = board.create(
+				const xAxis = (plot.xAxis = board.create(
 					'axis',
 					[
 						[options.xAxis.min ?? -5, options.xAxis.position ?? 0],
@@ -374,16 +374,19 @@ const PGplots = {
 						},
 						options.xAxis.overrideOptions ?? {}
 					)
-				);
+				));
 				xAxis.defaultTicks.generateLabelText = plot.generateLabelText;
 				xAxis.defaultTicks.formatLabelText = plot.formatLabelText;
 
-				if (options.xAxis.location !== 'middle') {
-					board.create(
+				if (options.xAxis.location !== 'middle' && options.xAxis.name !== '') {
+					plot.xLabel = board.create(
 						'text',
 						[
-							(xAxis.point1.X() + xAxis.point2.X()) / 2,
-							options.xAxis.location === 'top' ? board.getBoundingBox()[1] : board.getBoundingBox()[3],
+							() => (xAxis.point1.X() + xAxis.point2.X()) / 2,
+							() =>
+								options.xAxis.location === 'top'
+									? board.getBoundingBox()[1] - 2 / board.unitY
+									: board.getBoundingBox()[3] + 2 / board.unitY,
 							options.xAxis.name ?? '\\(x\\)'
 						],
 						{
@@ -392,14 +395,15 @@ const PGplots = {
 							highlight: false,
 							color: 'black',
 							fixed: true,
-							useMathJax: true
+							useMathJax: true,
+							cssStyle: 'line-height: 1;'
 						}
 					);
 				}
 			}
 
 			if (options.yAxis?.visible) {
-				const yAxis = board.create(
+				const yAxis = (plot.yAxis = board.create(
 					'axis',
 					[
 						[options.yAxis.position ?? 0, options.yAxis.min ?? -5],
@@ -469,34 +473,102 @@ const PGplots = {
 						},
 						options.yAxis.overrideOptions ?? {}
 					)
-				);
+				));
 				yAxis.defaultTicks.generateLabelText = plot.generateLabelText;
 				yAxis.defaultTicks.formatLabelText = plot.formatLabelText;
 
-				if (options.yAxis.location !== 'center') {
-					board.create(
-						'text',
+				if (options.yAxis.location !== 'center' && options.yAxis.name !== '') {
+					plot.yLabel = board.create('text', [0, 0, options.yAxis.name ?? '\\(y\\)'], {
+						anchorX: 'middle',
+						anchorY: options.yAxis.location === 'right' ? 'bottom' : 'top',
+						rotate: 90,
+						highlight: 0,
+						color: 'black',
+						fixed: 1,
+						useMathJax: 1,
+						cssStyle: 'line-height: 1;'
+					});
+					const transform = board.create(
+						'transform',
 						[
-							options.yAxis.location === 'right' ? boundingBox[2] : boundingBox[0],
-							(yAxis.point1.Y() + yAxis.point2.Y()) / 2,
-							options.yAxis.name ?? '\\(y\\)'
+							() =>
+								options.yAxis.location === 'right'
+									? board.getBoundingBox()[2] - 2 / board.unitX
+									: board.getBoundingBox()[0] + 2 / board.unitX,
+							() => (yAxis.point1.Y() + yAxis.point2.Y()) / 2
 						],
-						{
-							anchorX: 'middle',
-							anchorY: options.yAxis.location === 'right' ? 'bottom' : 'top',
-							rotate: 90,
-							highlight: 0,
-							color: 'black',
-							fixed: 1,
-							useMathJax: 1
-						}
+						{ type: 'translate' }
 					);
+					transform.bindTo(plot.yLabel);
 				}
 			}
 
 			plotContents(board, plot);
 
 			board.unsuspendUpdate();
+
+			plot.updateBoundingBox = () => {
+				if (options.board?.showNavigation || (!plot.xAxis && !plot.yAxis)) return;
+
+				const adjustLeft = options.yAxis?.visible && boundingBox[0] < (options.xAxis?.min ?? -5);
+				const adjustRight = options.yAxis?.visible && boundingBox[2] > (options.xAxis?.max ?? 5);
+				const adjustBottom = options.xAxis?.visible && boundingBox[3] < (options.yAxis?.min ?? 5);
+				const adjustTop = options.xAxis?.visible && boundingBox[1] > (options.yAxis?.max ?? -5);
+				if (!adjustLeft && !adjustRight && !adjustTop && !adjustBottom) return;
+
+				let width = 0;
+				if (plot.yAxis) {
+					for (const label of plot.yAxis.defaultTicks.labels) {
+						const rect = label.rendNode.getBoundingClientRect();
+						if (rect.width > width) width = rect.width;
+					}
+					if (plot.yLabel) width += plot.yLabel.rendNode.getBoundingClientRect().width + 4;
+					width += 12;
+				}
+
+				let height = 0;
+				if (plot.xAxis) {
+					for (const label of plot.xAxis.defaultTicks.labels) {
+						const rect = label.rendNode.getBoundingClientRect();
+						if (rect.height > height) height = rect.height;
+					}
+					if (plot.xLabel) height += plot.xLabel.rendNode.getBoundingClientRect().height + 4;
+					height += 8;
+				}
+
+				const currentBoundingBox = board.getBoundingBox();
+				board.setBoundingBox([
+					adjustLeft ? options.xAxis.min - width / board.unitX : currentBoundingBox[0],
+					adjustTop ? options.yAxis.max + height / board.unitY : currentBoundingBox[1],
+					adjustRight ? options.xAxis.max + width / board.unitX : currentBoundingBox[2],
+					adjustBottom ? options.yAxis.min - height / board.unitY : currentBoundingBox[3]
+				]);
+
+				if (options.yAxis.location !== 'center' && (adjustLeft || adjustRight)) {
+					const anchorDist = adjustLeft
+						? (options.xAxis?.min ?? -5) - board.getBoundingBox()[0]
+						: board.getBoundingBox()[2] - (options.xAxis?.max ?? -5);
+					plot.yAxis?.setAttribute({ anchorDist });
+					plot.yGrid?.setAttribute({ anchorDist });
+				}
+				if (options.xAxis.location !== 'center' && (adjustBottom || adjustTop)) {
+					const anchorDist = adjustBottom
+						? (options.yAxis?.min ?? -5) - board.getBoundingBox()[3]
+						: board.getBoundingBox()[1] - (options.yAxis?.max ?? -5);
+					plot.xAxis?.setAttribute({ anchorDist });
+					plot.xGrid?.setAttribute({ anchorDist });
+				}
+			};
+
+			if (id.startsWith('magnified-')) {
+				board.containerObj.addEventListener('resized.imageview', () => {
+					board.resizeContainer(board.containerObj.clientWidth, board.containerObj.clientHeight, true);
+					setTimeout(plot.updateBoundingBox);
+				});
+				board.containerObj.addEventListener('hidden.imageview', () => JXG.JSXGraph.freeBoard(board));
+			} else {
+				setTimeout(plot.updateBoundingBox);
+			}
 
 			return board;
 		};
@@ -515,19 +587,11 @@ const PGplots = {
 
 		await drawPromise(boardContainerId);
 
-		let jsxBoard = null;
 		container.addEventListener('shown.imageview', async () => {
 			document
 				.getElementById(`magnified-${boardContainerId}`)
 				?.classList.add(...Array.from(container.classList).filter((c) => c !== 'image-view-elt'));
-			jsxBoard = await drawPromise(`magnified-${boardContainerId}`);
-		});
-		container.addEventListener('resized.imageview', () => {
-			jsxBoard?.resizeContainer(jsxBoard.containerObj.clientWidth, jsxBoard.containerObj.clientHeight, true);
-		});
-		container.addEventListener('hidden.imageview', () => {
-			if (jsxBoard) JXG.JSXGraph.freeBoard(jsxBoard);
-			jsxBoard = null;
+			await drawPromise(`magnified-${boardContainerId}`);
 		});
 	}
 };
