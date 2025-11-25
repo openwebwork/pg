@@ -789,7 +789,7 @@ our @ISA = ('context::Fraction::Class', 'Parser::Number');
 
 sub new {
 	my $self = shift;
-	my $num  = &{ $self->super('new') }($self, @_);
+	my $num  = &{ $self->super('new', $_[0]->context) }($self, @_);
 	$num->setExtensionClass('INTEGER') if $num->{value_string} =~ m/^[-+]?[0-9]+$/;
 	return $num->mutate;
 }
