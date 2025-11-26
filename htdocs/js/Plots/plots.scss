@@ -1,4 +1,8 @@
 .plots-jsxgraph {
 	display: inline-block;
-	border-radius: 0px;
+	vertical-align: middle;
+
+	&:not(.plots-jsxgraph-rounded) {
+		border-radius: 0px;
+	}
 }
