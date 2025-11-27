@@ -255,7 +255,7 @@ sub new {
 	$self->getCheckedChoices($self->{checked});
 
 	$context->strings->add(map { ($self->{values}[$_] => {}) } (0 .. ($self->{n} - 1)));
-	$_ = Value::makeValue($_, context => $context) for @{ $self->data };
+	$_ = $context->Package('String')->make($context, $_) for @{ $self->data };
 
 	return $self;
 }
