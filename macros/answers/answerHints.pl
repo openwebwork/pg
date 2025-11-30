@@ -139,12 +139,12 @@ sub AnswerHints {
 				next if !$options{processPreview} && $ans->{isPreview};
 				$wrongList = [$wrongList] unless ref($wrongList) eq 'ARRAY';
 
-				foreach my $wrong (@{$wrongList}) {
-					if (ref($wrong) eq 'CODE') {
-						if ((!$options{checkTypes} || $correct->type eq $student->type)
-							&& ($ans->{score} < 1 || $options{checkCorrect})
-							&& ($ans->{ans_message} eq "" || $options{replaceMessage}))
-						{
+				if (($ans->{score} < 1 || $options{checkCorrect})
+					&& ($ans->{ans_message} eq "" || $options{replaceMessage})
+					&& (!$options{checkTypes} || $correct->type eq $student->type))
+				{
+					foreach my $wrong (@{$wrongList}) {
+						if (ref($wrong) eq 'CODE') {
 							# Make the call to run the function inside an eval to trap errors
 							my $myResult = 0;
 							eval { $myResult = &$wrong($correct, $student, $ans); 1; } or do {
@@ -156,18 +156,16 @@ sub AnswerHints {
 								$ans->{score}       = $options{score} if defined $options{score};
 								last;
 							}
-						}
-					} else {
-						unless (Value::isValue($wrong)) {
-							$wrong = main::Formula($wrong);
-							$wrong = $wrong->{tree}->Compute if $wrong->{tree}{canCompute};
-						}
-						if (($ans->{ans_message} eq "" || $options{replaceMessage})
-							&& AnswerHints::Compare($wrong, $student, $ans, @{ $options{cmp_options} }))
-						{
-							$ans->{ans_message} = $ans->{error_message} = $message;
-							$ans->{score}       = $options{score} if defined $options{score};
-							last;
+						} else {
+							unless (Value::isValue($wrong)) {
+								$wrong = main::Formula($wrong);
+								$wrong = $wrong->{tree}->Compute if $wrong->{tree}{canCompute};
+							}
+							if (AnswerHints::Compare($wrong, $student, $ans, @{ $options{cmp_options} })) {
+								$ans->{ans_message} = $ans->{error_message} = $message;
+								$ans->{score}       = $options{score} if defined $options{score};
+								last;
+							}
 						}
 					}
 				}
