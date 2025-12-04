@@ -69,54 +69,23 @@ creates a hidden answer blank for storing the state of the applet.
 
 # Inserts both header text and object text.
 sub insertAll {
-	my $self    = shift;
-	my %options = @_;
-
-	my $includeAnswerBox = (defined($options{includeAnswerBox}) && $options{includeAnswerBox} == 1) ? 1 : 0;
-
-	my $reset_button = $options{reinitialize_button} || 0;
-
-	# Get data to be interpolated into the HTML code defined in this subroutine.
-	# This consists of the name of the applet and the names of the routines to get and set State
-	# of the applet (which is done every time the question page is refreshed and to get and set
-	# Config  which is the initial configuration the applet is placed in when the question is
-	# first viewed.  It is also the state which is returned to when the reset button is pressed.
+	my ($self, %options) = @_;
 
 	# Prepare html code for storing state.
 	my $appletName = $self->appletName;
 	# The name of the hidden "answer" blank storing state.
 	$self->{stateInput} = "$main::PG->{QUIZ_PREFIX}${appletName}_state";
-	my $appletStateName = $self->{stateInput};
 
-	# Names of routines for this applet
-	my $getState  = $self->getStateAlias;
-	my $setState  = $self->setStateAlias;
-	my $getConfig = $self->getConfigAlias;
-	my $setConfig = $self->setConfigAlias;
-
-	my $base64_initialState = $self->base64_encode($self->initialState);
 	# This insures that the state will be saved from one invocation to the next.
-	# FIXME -- with PGcore the persistant data mechanism can be used instead
-	main::RECORD_FORM_LABEL($appletStateName);
-	my $answer_value = '';
-
-	# Implement the sticky answer mechanism for maintaining the applet state when the question
-	# page is refreshed This is important for guest users for whom no permanent record of
-	# answers is recorded.
-	if (defined(${$main::inputs_ref}{$appletStateName}) && ${$main::inputs_ref}{$appletStateName} =~ /\S/) {
-		$answer_value = ${$main::inputs_ref}{$appletStateName};
-	} elsif (defined($main::rh_sticky_answers->{$appletStateName})) {
-		$answer_value = shift(@{ $main::rh_sticky_answers->{$appletStateName} });
+	my $answer_value = ${$main::inputs_ref}{ $self->{stateInput} } // '';
+	if ($answer_value !~ /\S/ && defined(my $persistent_data = main::persistent_data($self->{stateInput}))) {
+		$answer_value = $persistent_data;
 	}
 	$answer_value =~ tr/\\$@`//d;    # Make sure student answers cannot be interpolated by e.g. EV3
 	$answer_value =~ s/\s+/ /g;      # Remove excessive whitespace from student answer
 
 	# Regularize the applet's state which could be in either XML format or in XML format encoded by base64.
-	# In rare cases it might be simple string.  Protect against that by putting xml tags around the state.
-	# The result:
-	# $base_64_encoded_answer_value -- a base64 encoded xml string
-	# $decoded_answer_value         -- an xml string
-
+	# In rare cases it might be a simple string.  Protect against that by putting xml tags around the state.
 	my $base_64_encoded_answer_value;
 	my $decoded_answer_value;
 	if ($answer_value =~ /<\??xml/i) {
@@ -125,10 +94,8 @@ sub insertAll {
 	} else {
 		$decoded_answer_value = $self->base64_decode($answer_value);
 		if ($decoded_answer_value =~ /<\??xml/i) {
-			# Great, we've decoded the answer to obtain an xml string
 			$base_64_encoded_answer_value = $answer_value;
 		} else {
-			#WTF??  apparently we don't have XML tags
 			$answer_value                 = "<xml>$answer_value</xml>";
 			$base_64_encoded_answer_value = $self->base64_encode($answer_value);
 			$decoded_answer_value         = $answer_value;
@@ -136,25 +103,33 @@ sub insertAll {
 	}
 	$base_64_encoded_answer_value =~ s/\r|\n//g;    # Get rid of line returns
 
+	main::persistent_data($self->{stateInput} => $base_64_encoded_answer_value);
+
 	# Construct the reset button string (this is blank if the button is not to be displayed).
-	my $reset_button_str = $reset_button
-		? qq!<button type='button' class='btn btn-primary applet-reset-btn' data-applet-name="$appletName">
-		Return this question to its initial state</button><br/>!
+	my $reset_button_str = $options{reinitialize_button}
+		? main::tag(
+			'button',
+			type               => 'button',
+			class              => 'btn btn-primary applet-reset-btn mt-3',
+			'data-applet-name' => $appletName,
+			'Return this question to its initial state'
+		)
 		: '';
 
-	# Combine the state_input_button and the reset button into one string.
-	my $state_storage_html_code = qq!<input type="hidden" name="previous_$appletStateName"
-		id="previous_$appletStateName" value = "$base_64_encoded_answer_value">!
-		. qq!<input type="hidden" name="$appletStateName" id="$appletStateName" value="$base_64_encoded_answer_value">!
-		. $reset_button_str;
+	# Construct the state storage hidden input.
+	my $state_storage_html_code = main::tag(
+		'input',
+		type  => 'hidden',
+		name  => $self->{stateInput},
+		id    => $self->{stateInput},
+		value => $base_64_encoded_answer_value
+	);
 
 	# Construct the answerBox (if it is requested).  This is a default input box for interacting
 	# with the applet.  It is separate from maintaining state but it often contains similar
 	# data.  Additional answer boxes or buttons can be defined but they must be explicitly
 	# connected to the applet with additional JavaScript commands.
-	my $answerBox_code = $includeAnswerBox
-		? $answerBox_code = main::NAMED_HIDDEN_ANS_RULE($self->{answerBoxAlias}, 50)
-		: '';
+	my $answerBox_code = $options{includeAnswerBox} ? main::NAMED_HIDDEN_ANS_RULE($self->{answerBoxAlias}, 50) : '';
 
 	# Insert header material
 	main::HEADER_TEXT($self->insertHeader());
@@ -162,7 +137,7 @@ sub insertAll {
 	# Return HTML or TeX strings to be included in the body of the page
 	return main::MODES(
 		TeX  => ' {\bf ' . $self->{type} . ' applet } ',
-		HTML => $self->insertObject . $main::BR . $state_storage_html_code . $answerBox_code,
+		HTML => $self->insertObject . $state_storage_html_code . $reset_button_str . $answerBox_code,
 		PTX  => ' applet '
 	);
 }

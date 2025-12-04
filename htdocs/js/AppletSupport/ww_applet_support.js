@@ -95,7 +95,6 @@ class ww_applet {
 		if (typeof newState === 'undefined') newState = '<xml>restart_applet</xml>';
 		const stateInput = ww_applet_list[this.appletName].stateInput;
 		getQE(stateInput).value = newState;
-		getQE(`previous_${stateInput}`).value = newState;
 	}
 
 	// STATE:
