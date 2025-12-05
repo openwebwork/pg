@@ -274,12 +274,14 @@ class ww_applet {
 		if (form.submitHandlerInitialized) return;
 		form.submitHandlerInitialized = true;
 
-		// Connect the submit action handler to the form.
-		form.addEventListener('submit', () => {
-			for (const appletName in ww_applet_list) {
-				ww_applet_list[appletName].submitAction();
-			}
-		});
+		// Connect the submit action handler to the form submit buttons.
+		for (const button of form.querySelectorAll('input[type="submit"]')) {
+			button.addEventListener('click', () => {
+				for (const appletName in ww_applet_list) {
+					ww_applet_list[appletName].submitAction();
+				}
+			});
+		}
 	};
 
 	// Initialize applet support and the applets.
