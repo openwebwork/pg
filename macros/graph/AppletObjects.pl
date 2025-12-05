@@ -112,7 +112,7 @@ sub insertAll {
 			type               => 'button',
 			class              => 'btn btn-primary applet-reset-btn mt-3',
 			'data-applet-name' => $appletName,
-			'Return this question to its initial state'
+			$main::PG->maketext('Return this question to its initial state')
 		)
 		: '';
 
