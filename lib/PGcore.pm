@@ -703,9 +703,8 @@ sub directoryFromPath {
 }
 
 sub AskSage {
-	my $self    = shift;
-	my $python  = shift;
-	my $options = shift;
+	my ($self, $python, $options) = @_;
+	$options = {} unless ref $options eq 'HASH';
 	$options->{curlCommand} = WeBWorK::PG::IO::externalCommand('curl');
 	WeBWorK::PG::IO::AskSage($python, $options);
 }

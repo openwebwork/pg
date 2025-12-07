@@ -10,3 +10,5 @@ htdocs/static-assets.json
 htdocs/**/*.min.js
 htdocs/**/*.min.css
 htdocs/tmp
+
+sagecell-docker/sagecell-docker.service

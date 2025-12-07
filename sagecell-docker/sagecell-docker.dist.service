@@ -1,0 +1,11 @@
+[Unit]
+Description=sagecell server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=docker run --rm -p 127.0.0.1:3500:3500 sagecell:latest
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
