@@ -219,7 +219,7 @@
 				if (graphDiv) {
 					graphDiv.style.width = width + 'px';
 					graphDiv.style.height = height + 'px';
-					this.dispatchEvent(new Event('resized.imageview'));
+					graphDiv.dispatchEvent(new Event('resized.imageview'));
 				}
 
 				// Re-position the modal.
@@ -312,7 +312,7 @@
 			backdrop.style.opacity = '0.2';
 		});
 		modal.addEventListener('hidden.bs.modal', () => {
-			if (imgType == 'div') this.dispatchEvent(new Event('hidden.imageview'));
+			if (graphDiv) graphDiv.dispatchEvent(new Event('hidden.imageview'));
 			bsModal.dispose();
 			modal.remove();
 			window.removeEventListener('resize', onWinResize);
