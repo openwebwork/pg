@@ -994,7 +994,8 @@ sub ENDDOCUMENT {
 
 				if ($ansHash->{correct_value}) {
 					for (keys %{ $ansHash->{correct_value}->context->flag('mathQuillOpts') }) {
-						$mq_part_opts->{$_} = 0 unless defined $mq_part_opts->{$_};
+						$mq_part_opts->{$_} = $ansHash->{correct_value}->context->flag('mathQuillOpts')->{$_}
+							unless defined $mq_part_opts->{$_};
 					}
 				}
 
