@@ -1319,8 +1319,8 @@ sub BBOLD   { MODES(TeX => '{\\bf ',       HTML => '<STRONG>',  PTX => '<alert>'
 sub EBOLD   { MODES(TeX => '}',            HTML => '</STRONG>', PTX => '</alert>'); }
 sub BLABEL  { MODES(TeX => '',             HTML => '<LABEL>',   PTX => ''); }
 sub ELABEL  { MODES(TeX => '',             HTML => '</LABEL>',  PTX => ''); }
-sub BITALIC { MODES(TeX => '{\\it ',       HTML => '<I>',       PTX => '<em>'); }
-sub EITALIC { MODES(TeX => '} ',           HTML => '</I>',      PTX => '</em>'); }
+sub BITALIC { MODES(TeX => '{\\it ',       HTML => '<em>',      PTX => '<em>'); }
+sub EITALIC { MODES(TeX => '} ',           HTML => '</em>',     PTX => '</em>'); }
 sub BUL     { MODES(TeX => '\\underline{', HTML => '<U>',       PTX => '<em>'); }
 sub EUL     { MODES(TeX => '}',            HTML => '</U>',      PTX => '</em>'); }
 
