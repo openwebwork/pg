@@ -770,22 +770,23 @@ sub image {
 	}
 	return $self->wheelLayoutImage(%options) if defined $self->{wheelLayout};
 
-	$options{width}      //= 250;
-	$options{height}     //= $options{width};
-	$options{showLabels} //= 1;
+	my %graphOptions;
+	@graphOptions{qw(showLabels showWeights)} = delete @options{qw(showLabels showWeights)};
+	$graphOptions{showLabels} //= 1;
 
 	my $plot = main::Plot(
-		xmin      => -1.5,
-		xmax      =>  1.5,
-		ymin      => -1.5,
-		ymax      =>  1.5,
-		width     => $options{width},
-		height    => $options{height},
-		xlabel    => '',
-		ylabel    => '',
-		xvisible  => 0,
-		yvisible  => 0,
-		show_grid => 0
+		xmin         => -1.5,
+		xmax         =>  1.5,
+		ymin         => -1.5,
+		ymax         =>  1.5,
+		xlabel       => '',
+		ylabel       => '',
+		xvisible     => 0,
+		yvisible     => 0,
+		show_grid    => 0,
+		width        => 250,
+		aspect_ratio => 1,
+		%options
 	);
 
 	my $gap = 2 * $main::PI / ($self->numVertices || 1);
@@ -800,7 +801,7 @@ sub image {
 			color   => 'blue',
 			h_align => 'center',
 			v_align => 'middle'
-		) if $options{showLabels};
+		) if $graphOptions{showLabels};
 
 		my $u = 0.275;
 		my $v = 1 - $u;
@@ -810,7 +811,7 @@ sub image {
 				my $jVertex = [ cos($j * $gap), sin($j * $gap) ];
 				$plot->add_dataset($iVertex, $jVertex, color => 'black');
 
-				if ($options{showWeights}) {
+				if ($graphOptions{showWeights}) {
 					my @vector = ($jVertex->[0] - $iVertex->[0], $jVertex->[1] - $iVertex->[1]);
 					my $norm   = sqrt($vector[0]**2 + $vector[1]**2);
 					my @perp   = ($vector[1] / $norm, -$vector[0] / $norm);
@@ -837,24 +838,27 @@ sub gridLayoutImage {
 	die 'Grid layout is not defined, or is but does not have a row and column dimension.'
 		unless ref $self->{gridLayout} eq 'ARRAY' && @{ $self->{gridLayout} } == 2;
 
-	$options{showLabels} //= 1;
+	my %graphOptions;
+	@graphOptions{qw(showLabels showWeights)} = delete @options{qw(showLabels showWeights)};
+	$graphOptions{showLabels} //= 1;
 
 	my $gridGap    = 20;
 	my $gridShift  = $gridGap / 2;
 	my $labelShift = $gridGap / 15;
 
 	my $plot = main::Plot(
-		xmin      => -$gridShift,
-		xmax      => $self->{gridLayout}[1] * $gridGap - $gridShift,
-		ymin      => -$gridShift,
-		ymax      => $self->{gridLayout}[0] * $gridGap - $gridShift,
-		width     => 7 * ($self->{gridLayout}[1] - 1) * $gridGap,
-		height    => 7 * ($self->{gridLayout}[0] - 1) * $gridGap,
-		xlabel    => '',
-		ylabel    => '',
-		xvisible  => 0,
-		yvisible  => 0,
-		show_grid => 0
+		xmin         => -$gridShift,
+		xmax         => $self->{gridLayout}[1] * $gridGap - $gridShift,
+		ymin         => -$gridShift,
+		ymax         => $self->{gridLayout}[0] * $gridGap - $gridShift,
+		width        => 7 * ($self->{gridLayout}[1] - 1) * $gridGap,
+		aspect_ratio => 1,
+		xlabel       => '',
+		ylabel       => '',
+		xvisible     => 0,
+		yvisible     => 0,
+		show_grid    => 0,
+		%options
 	);
 
 	for my $i (0 .. $self->{gridLayout}[0] - 1) {
@@ -868,7 +872,7 @@ sub gridLayoutImage {
 				color   => 'blue',
 				h_align => 'center',
 				v_align => 'middle'
-			) if $options{showLabels};
+			) if $graphOptions{showLabels};
 		}
 	}
 
@@ -888,7 +892,7 @@ sub gridLayoutImage {
 				];
 				$plot->add_dataset($iVertex, $jVertex, color => 'black', width => 1);
 				my $vector = [ $jVertex->[0] - $iVertex->[0], $jVertex->[1] - $iVertex->[1] ];
-				if ($options{showWeights}) {
+				if ($graphOptions{showWeights}) {
 					my $norm = sqrt($vector->[0]**2 + $vector->[1]**2);
 					$plot->add_label(
 						$u * $iVertex->[0] + $v * $jVertex->[0] - $vector->[1] / $norm * 2,
@@ -921,9 +925,9 @@ sub bipartiteLayoutImage {
 		die 'Bipartite layout is not defined.';
 	}
 
-	$options{width}      //= 250;
-	$options{height}     //= $options{width};
-	$options{showLabels} //= 1;
+	my %graphOptions;
+	@graphOptions{qw(showLabels showWeights)} = delete @options{qw(showLabels showWeights)};
+	$graphOptions{showLabels} //= 1;
 
 	my ($low, $high, $width) = (0, 15, 20);
 	my @shift = (0, 0);
@@ -948,17 +952,18 @@ sub bipartiteLayoutImage {
 	}
 
 	my $plot = main::Plot(
-		xmin      => -10,
-		xmax      => $x_max,
-		ymin      => -5,
-		ymax      => 20,
-		width     => $options{width},
-		height    => $options{height},
-		xlabel    => '',
-		ylabel    => '',
-		xvisible  => 0,
-		yvisible  => 0,
-		show_grid => 0
+		xmin         => -10,
+		xmax         => $x_max,
+		ymin         => -5,
+		ymax         => 20,
+		width        => 250,
+		aspect_ratio => 1,
+		xlabel       => '',
+		ylabel       => '',
+		xvisible     => 0,
+		yvisible     => 0,
+		show_grid    => 0,
+		%options
 	);
 
 	for my $i (0 .. $#$top) {
@@ -969,7 +974,7 @@ sub bipartiteLayoutImage {
 			color   => 'blue',
 			h_align => 'center',
 			v_align => 'bottom'
-		) if $options{showLabels};
+		) if $graphOptions{showLabels};
 	}
 	for my $j (0 .. $#$bottom) {
 		$plot->add_stamp($j * $width + $shift[1], $low, color => 'blue');
@@ -979,7 +984,7 @@ sub bipartiteLayoutImage {
 			color   => 'blue',
 			h_align => 'center',
 			v_align => 'top'
-		) if $options{showLabels};
+		) if $graphOptions{showLabels};
 	}
 
 	my ($u, $v) = $diff >= 0 ? (2 / 3, 1 / 3) : (1 / 3, 2 / 3);
@@ -990,7 +995,7 @@ sub bipartiteLayoutImage {
 			my $point1 = [ $i * $width + $shift[0], $high ];
 			my $point2 = [ $j * $width + $shift[1], $low ];
 			$plot->add_dataset($point1, $point2, color => 'black');
-			if ($options{showWeights}) {
+			if ($graphOptions{showWeights}) {
 				my $vector = [ $point2->[0] - $point1->[0], $point2->[1] - $point1->[1] ];
 				my $norm   = sqrt($vector->[0]**2 + $vector->[1]**2);
 				$plot->add_label(
@@ -1011,22 +1016,23 @@ sub wheelLayoutImage {
 
 	die 'Wheel layout is not defined.' unless defined $self->{wheelLayout};
 
-	$options{width}      //= 250;
-	$options{height}     //= $options{width};
-	$options{showLabels} //= 1;
+	my %graphOptions;
+	@graphOptions{qw(showLabels showWeights)} = delete @options{qw(showLabels showWeights)};
+	$graphOptions{showLabels} //= 1;
 
 	my $plot = main::Plot(
-		xmin      => -1.5,
-		xmax      =>  1.5,
-		ymin      => -1.5,
-		ymax      =>  1.5,
-		width     => $options{width},
-		height    => $options{height},
-		xlabel    => '',
-		ylabel    => '',
-		xvisible  => 0,
-		yvisible  => 0,
-		show_grid => 0
+		xmin         => -1.5,
+		xmax         =>  1.5,
+		ymin         => -1.5,
+		ymax         =>  1.5,
+		width        =>  250,
+		aspect_ratio =>  1,
+		xlabel       => '',
+		ylabel       => '',
+		xvisible     => 0,
+		yvisible     => 0,
+		show_grid    => 0,
+		%options
 	);
 
 	my $gap = 2 * $main::PI / ($self->lastVertexIndex || 1);
@@ -1038,7 +1044,7 @@ sub wheelLayoutImage {
 		color   => 'blue',
 		h_align => 'center',
 		v_align => 'middle'
-	) if $options{showLabels};
+	) if $graphOptions{showLabels};
 
 	for my $i (0 .. $self->lastVertexIndex) {
 		next if $i == $self->{wheelLayout};
@@ -1054,11 +1060,11 @@ sub wheelLayoutImage {
 			color   => 'blue',
 			h_align => 'center',
 			v_align => 'middle'
-		) if $options{showLabels};
+		) if $graphOptions{showLabels};
 
 		if ($self->hasEdge($self->{wheelLayout}, $i)) {
 			$plot->add_dataset([ 0, 0 ], $iVertex, color => 'black');
-			if ($options{showWeights}) {
+			if ($graphOptions{showWeights}) {
 				my $norm = sqrt($iVertex->[0]**2 + $iVertex->[1]**2);
 				my @perp = ($iVertex->[1] / $norm, -$iVertex->[0] / $norm);
 				$plot->add_label(
@@ -1082,7 +1088,7 @@ sub wheelLayoutImage {
 				my $jVertex = [ cos($jRel * $gap), sin($jRel * $gap) ];
 				$plot->add_dataset($iVertex, $jVertex, color => 'black');
 
-				if ($options{showWeights}) {
+				if ($graphOptions{showWeights}) {
 					my @vector = ($jVertex->[0] - $iVertex->[0], $jVertex->[1] - $iVertex->[1]);
 					my $norm   = sqrt($vector[0]**2 + $vector[1]**2);
 					my @perp   = ($vector[1] / $norm, -$vector[0] / $norm);
@@ -2368,22 +2374,6 @@ The following options can be set via the C<%options> argument.
 
 =over
 
-=item width
-
-This is the width of the image. Default is 250.
-
-Note that the width option is not honored if the C<gridLayout> is used. Note
-that the width can still be set via the L<PGbasicmacros.pl> C<image> method, or
-via the width option for the PGML image syntax.
-
-=item height
-
-This is the height of the image. Default is the value of the width option above.
-
-Note that the height option is not honored if the C<gridLayout> is used. Note
-that the height can still be set via the L<PGbasicmacros.pl> C<image> method, or
-via the height option for the PGML image syntax.
-
 =item showLabels
 
 If this is 1, then vertex labels will be shown. If this is 0, then vertex labels
@@ -2401,7 +2391,32 @@ graph has a large number of edges. Graphs that are created via the
 C<randomSimpleGraph> function using the row and column C<$size> argument (and
 hence are displayed using the grid layout) do work quite well for this.
 
+=item width
+
+This is the width of the image. Default is 250 (except in the case that the
+C<gridLayout> is used, in which case the default is the product of 140 and one
+less than the number of columns in the grid layout).
+
+Note that the width can also be set via the L<PGbasicmacros.pl> C<image>
+method, or via the width option for the PGML image syntax.
+
+=item height
+
+This is the height of the image. Default is undefined.
+
+Note that the height can also be set via the L<PGbasicmacros.pl> C<image>
+method, or via the height option for the PGML image syntax.
+
+=item aspect_ratio
+
+If this is set and the C<height> option above is not set, then the height of the
+image will be computed from the width using this aspect_ratio. Default is 1.
+
 =back
+
+Note that aside from the C<showLabels> and C<showWeights> options, all other
+options (including any not listed above) that are provided are actually just
+passed to the underlying C<Plot> object.
 
 =head2 gridLayoutImage
 
@@ -2411,7 +2426,8 @@ This method is not intended to be used externally. It is called by the L</image>
 method if the C<gridLayout> property is set for the graph object. If this method
 is called directly and the C<gridLayout> property is set, then it will still
 work. Otherwise an exception will be thrown. It accepts the same options as the
-L</image> method, but does not honor the C<width> and C<height> options.
+L</image> method. Note that the default value for the C<width> option is the
+product of 140 and one less than the number of columns in the grid layout.
 
 =head2 bipartiteLayoutImage
 
