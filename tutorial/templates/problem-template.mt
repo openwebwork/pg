@@ -5,12 +5,12 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title><%= $filename %></title>
-
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.0.0/css/all.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="<%= $sample_problem_base_url %>/sample-problem.css">
 	<script
 		src="https://cdn.jsdelivr.net/npm/@openwebwork/pg-codemirror-editor@0.0.5/dist/pg-codemirror-editor.js"
 		defer></script>
-	<link rel="stylesheet" href="<%= $pg_doc_home %>/sample-problem.css">
 </head>
 
 % # Default explanations
@@ -30,7 +30,7 @@
 				<p><%= $description %></p>
 			</div>
 			<div class="col text-end">
-				<a href="<%= $pg_doc_home =%>/../">Return to the PG docs home</a>
+				<a href="<%= $sample_problem_base_url =%>/../">Return to the PG documentation home</a>
 			</div>
 		</div>
 		<div class="row">
@@ -44,7 +44,9 @@
 					<ul>
 						% for my $macro (@{$metadata->{$filename}{macros}}) {
 							% if ($macro_locations->{$macro}) {
-								<li><a href="<%= $pod_root %>/<%= $macro_locations->{$macro} %>"><%= $macro =%></a></li>
+								<li>
+									<a href="<%= $pod_base_url %>/<%= $macro_locations->{$macro} %>"><%= $macro =%></a>
+								</li>
 							% } else {
 								<li class="text-danger"><%= $macro %></li>
 							% }
@@ -58,7 +60,7 @@
 				<ul>
 					% for (@{$metadata->{$filename}{related}}) {
 					<li>
-						<a href="<%= $pg_doc_home =%>/<%= $metadata->{$_}{dir} =%>/<%= $_ =~ s/.pg$//r =%>.html">
+						<a href="<%= $sample_problem_base_url =%>/<%= $metadata->{$_}{dir} =%>/<%= $_ =~ s/.pg$//r =%>.html">
 							<%= $metadata->{$_}{name} =%>
 						</a>
 					</li>
@@ -76,10 +78,7 @@
 				<div class="col-sm-12 col-md-6 order-md-first order-last p-0 position-relative overflow-x-hidden">
 					<button class="clipboard-btn btn btn-sm btn-secondary position-absolute top-0 end-0 me-1 mt-1 z-1"
 						type="button" data-code="<%== $_->{code} %>" aria-label="copy to clipboard">
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-							class="bi bi-clipboard-fill" viewBox="0 0 16 16">
-							<path fill-rule="evenodd" d="M10 1.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1Zm-5 0A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5v1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 5 2.5v-1Zm-2 0h1v1A2.5 2.5 0 0 0 6.5 5h3A2.5 2.5 0 0 0 12 2.5v-1h1a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2Z"/>
-						</svg>
+						<i class="fa-regular fa-clipboard fa-xl"></i>
 					</button>
 					<pre class="PGCodeMirror m-0 h-100 p-3 border border-secondary overflow-x-scroll"><%== $_->{code} %></pre>
 				</div>
