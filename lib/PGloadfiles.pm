@@ -135,7 +135,7 @@ sub loadMacros {
 		}
 		my $macro_file_name = $fileName;
 		$macro_file_name =~ s/\.pl//;                    # trim off the extension
-		$macro_file_name =~ s/\.pg//;                    # sometimes the extension is .pg (e.g. CAPA files)
+		$macro_file_name =~ s/\.pg//;                    # sometimes the extension is .pg
 		my $init_subroutine_name = "_${macro_file_name}_init";
 		$init_subroutine_name =~ s![^a-zA-Z0-9_]!_!g;    # remove dangerous chars
 
