@@ -22,7 +22,8 @@
 							strokeColor: gt.color.curve,
 							fixed: gt.isStatic,
 							highlightStrokeColor: gt.color.underConstruction,
-							highlightFillColor: gt.color.pointHighlight
+							highlightFillColor: gt.color.pointHighlight,
+							tabindex: gt.isStatic ? -1 : 0
 						})
 					);
 

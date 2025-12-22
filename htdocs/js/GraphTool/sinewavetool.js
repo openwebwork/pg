@@ -12,7 +12,7 @@
 
 				constructor(shiftPoint, periodPoint, amplitudePoint, solid) {
 					for (const point of [shiftPoint, periodPoint, amplitudePoint]) {
-						point.setAttribute(gt.definingPointAttributes);
+						point.setAttribute(gt.definingPointAttributes());
 						if (!gt.isStatic) {
 							point.on('down', () => gt.onPointDown(point));
 							point.on('up', () => gt.onPointUp(point));
