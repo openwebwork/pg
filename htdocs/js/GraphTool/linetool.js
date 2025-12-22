@@ -188,7 +188,7 @@
 					const point1 = this.point1;
 					delete this.point1;
 
-					point1.setAttribute(gt.definingPointAttributes);
+					point1.setAttribute(gt.definingPointAttributes());
 					point1.on('down', () => gt.onPointDown(point1));
 					point1.on('up', () => gt.onPointUp(point1));
 

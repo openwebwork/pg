@@ -188,7 +188,7 @@
 					const center = this.center;
 					delete this.center;
 
-					center.setAttribute(gt.definingPointAttributes);
+					center.setAttribute(gt.definingPointAttributes());
 					center.on('down', () => gt.onPointDown(center));
 					center.on('up', () => gt.onPointUp(center));
 
