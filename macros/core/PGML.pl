@@ -1613,13 +1613,13 @@ sub Break {"<br />\n"}
 sub Bold {
 	my $self = shift;
 	my $item = shift;
-	return '<b>' . $self->string($item) . '</b>';
+	return '<strong>' . $self->string($item) . '</strong>';
 }
 
 sub Italic {
 	my $self = shift;
 	my $item = shift;
-	return '<i>' . $self->string($item) . '</i>';
+	return '<em>' . $self->string($item) . '</em>';
 }
 
 our %openQuote  = ('"' => "&#x201C;", "'" => "&#x2018;");
