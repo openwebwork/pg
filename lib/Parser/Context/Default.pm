@@ -435,6 +435,7 @@ $flags = {
 	reduceConstantFunctions    => 1,              # 1 = compute function values of constants
 	showExtraParens            => 1,              # 1 = add useful parens, 2 = make things painfully unambiguous
 	stringifyNoBrackets        => 0,              # 1 = only use parentheses not brackets when stringifying
+	stringifyAbsAsFunction     => 0,              # 1 = abs(x) is stringified as abs(x) instead of |x|
 	formatStudentAnswer        => 'evaluated',    # or 'parsed' or 'reduced'
 	allowMissingOperands       => 0,              # 1 is used by Typeset context
 	allowMissingFunctionInputs => 0,              # 1 is used by Typeset context
