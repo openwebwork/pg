@@ -707,10 +707,13 @@ sub ans_rule {
 
 	return main::MODES(
 		TeX  => '\\begin{itemize}',
-		HTML => '<div class="radio-multianswer-container">'
+		HTML => '<div class="radio-multianswer-container">',
+		PTX  => qq(<ul form="buttons" name="$radio_name">)
 		)
-		. join(main::MODES(TeX => '\vskip\baselineskip', HTML => main::tag('div', style => 'margin-top:1rem')), @rules)
-		. main::MODES(TeX => '\\end{itemize}', HTML => '</div>');
+		. join(
+			main::MODES(TeX => '\vskip\baselineskip', HTML => main::tag('div', style => 'margin-top:1rem'), PTX => ''),
+			@rules
+		) . main::MODES(TeX => '\\end{itemize}', HTML => '</div>', PTX => '</ul>');
 }
 
 # Format a label.
@@ -754,7 +757,7 @@ sub begin_radio {
 				$checked ? (checked => undef) : ()
 			)
 			. main::tag('label', for => "$name$idSuffix", $tag),
-		PTX => "<li>$tag",
+		PTX => "<li>",
 	);
 }
 
