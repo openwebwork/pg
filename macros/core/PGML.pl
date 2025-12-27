@@ -1266,19 +1266,21 @@ sub format {
 }
 
 sub string {
-	my $self    = shift;
-	my $block   = shift;
+	my ($self, $block) = @_;
+	my $stack   = $block->{stack};
 	my @strings = ();
 	my $string;
-	foreach my $item (@{ $block->{stack} }) {
+	for my $i (0 .. $#$stack) {
+		my $item     = $stack->[$i];
+		my $next_par = $i < $#$stack && $stack->[ $i + 1 ]{type} eq 'par' ? $stack->[ $i + 1 ] : undef;
 		$self->{item} = $item;
 		$self->{nl}   = (!defined($strings[-1]) || $strings[-1] =~ m/\n$/ ? "" : "\n");
 		for ($item->{type}) {
-			/indent/   && do { $string = $self->Indent($item);                    last };
+			/indent/   && do { $string = $self->Indent($item, $next_par);         last };
 			/align/    && do { $string = $self->Align($item);                     last };
 			/par/      && do { $string = $self->Par($item);                       last };
-			/list/     && do { $string = $self->List($item);                      last };
-			/bullet/   && do { $string = $self->Bullet($item);                    last };
+			/list/     && do { $string = $self->List($item, $next_par);           last };
+			/bullet/   && do { $string = $self->Bullet($item, $next_par);         last };
 			/text/     && do { $string = $self->Text($item);                      last };
 			/variable/ && do { $string = $self->Variable($item, $block);          last };
 			/command/  && do { $string = $self->Command($item);                   last };
@@ -1523,17 +1525,15 @@ sub Escape {
 }
 
 sub Indent {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $item, $next_par) = @_;
 	return $self->string($item) if $item->{indent} == 0;
-	my $em = 2.25 * $item->{indent};
-	return
-		$self->nl
-		. '<div style="margin:0 0 0 '
-		. $em . 'em">' . "\n"
-		. $self->string($item)
-		. $self->nl
-		. "</div>\n";
+	my $em     = 2.25 * $item->{indent};
+	my $bottom = '0';
+	if ($next_par) {
+		$next_par->{used_on_prev_item} = 1;
+		$bottom = '1em';
+	}
+	return $self->nl . "<div style=\"margin: 0 0 $bottom ${em}em;\">\n" . $self->string($item) . $self->nl . "</div>\n";
 }
 
 sub Align {
@@ -1562,20 +1562,27 @@ our %bullet = (
 );
 
 sub List {
-	my $self = shift;
-	my $item = shift;
-	my $list = $bullet{ $item->{bullet} };
+	my ($self, $item, $next_par) = @_;
+	my $list   = $bullet{ $item->{bullet} };
+	my $margin = '0';
+	if ($next_par) {
+		$next_par->{used_on_prev_item} = 1;
+		$margin = '0 0 1em 0';
+	}
 	return $self->nl
 		. main::tag(
 			$list->[0],
-			style => "margin:0; padding-left:2.25em; $list->[1]",
+			style => "margin: $margin; padding-left: 2.25em; $list->[1]",
 			$self->string($item) . $self->nl
 		);
 }
 
 sub Bullet {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $item, $next_par) = @_;
+	if ($next_par) {
+		$next_par->{used_on_prev_item} = 1;
+		return $self->nl . '<li style="margin-bottom: 1em;">' . $self->string($item) . "</li>\n";
+	}
 	return $self->nl . '<li>' . $self->string($item) . "</li>\n";
 }
 
@@ -1603,9 +1610,8 @@ sub Heading {
 }
 
 sub Par {
-	my $self = shift;
-	my $item = shift;
-	return $self->nl . '<div style="margin-top:1em"></div>' . "\n";
+	my ($self, $item) = @_;
+	return $item->{used_on_prev_item} ? '' : $self->nl . '<div style="margin-top:1em"></div>' . "\n";
 }
 
 sub Break {"<br />\n"}
