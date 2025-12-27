@@ -16,7 +16,7 @@ the problem.  For example:
     $rma = RadioMultiAnswer([
                ['The unique solution is \(x=\) %s and \(y=\) %s.', 5, 6],
                ['There are an infinite number of solutions parameterized by '
-                    . '\(x=\) %s and \(y=\) %s.', '23-3t', 't']
+                    . '\(x=\) %s and \(y=\) %s.', '23-3x', 'x'],
                ['There are no solutions.']
            ], 0);
 
@@ -233,6 +233,14 @@ is checked.  If this is set to "shift", unchecking requires the shift key to be 
 
 =back
 
+=item showInStatic (Default: showInStatic => 1)
+
+In static output, such as PDF or PTX, this controls whether or not the list of answer options is
+displayed.  (The text preceding the list of answer options might make printing the answer option
+list unnecessary in a static output format.)
+
+=back
+
 =cut
 
 BEGIN { strict->import }
@@ -288,6 +296,7 @@ sub new {
 		size              => undef,
 		checked           => undef,
 		uncheckable       => 0,
+		showInStatic      => 1,
 		@inputs
 	);
 
@@ -593,6 +602,7 @@ sub ANS_NAME {
 # Produce the label for a part of the radio answer.
 sub label {
 	my ($self, $i) = @_;
+	$self->{originalLabels} //= $self->{labels};
 	return $self->{labels}[$i] if ref($self->{labels}) eq 'ARRAY' && $#{ $self->{labels} } >= $i;
 
 	$self->{labels} = [ @main::ALPHABET[ 0 .. $#{ $self->{data} } ] ] if uc($self->{labels}) eq 'ABC';
@@ -638,6 +648,7 @@ sub generate_aria_label {
 # Produce the answer rule.
 sub ans_rule {
 	my ($self, $size, @options) = @_;
+
 	$size ||= 20;
 	my @data = @{ $self->{data} };
 	my @rules;
@@ -705,18 +716,44 @@ sub ans_rule {
 		push(@rules, $rule);
 	}
 
+	return '' if !$self->{showInStatic} && ($main::displayMode eq 'TeX' || $main::displayMode eq 'PTX');
+
+	my $ptx_list_type = 'ul';
+	my $ptx_sub_type  = ' form="buttons"';
+	if ($main::displayMode eq 'PTX') {
+		# Do we want an ol, ul, or dl?
+		if ($self->{displayLabels}) {
+			my $originalLabels = $self->{originalLabels};
+			if (ref $originalLabels eq 'ARRAY') {
+				$ptx_list_type = 'dl';
+				$ptx_sub_type  = ' width = "narrow"';
+			} elsif ($originalLabels =~ m/^(123|abc)$/i) {
+				my $marker = '';
+				$marker        = '1' if $originalLabels eq '123';
+				$marker        = 'a' if $originalLabels eq 'abc';
+				$marker        = 'A' if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
+				$ptx_list_type = 'ol';
+				$ptx_sub_type  = qq( marker="$marker");
+			}
+		}
+	}
+
 	return main::MODES(
 		TeX  => '\\begin{itemize}',
-		HTML => '<div class="radio-multianswer-container">'
+		HTML => '<div class="radio-multianswer-container">',
+		PTX  => qq(<${ptx_list_type}${ptx_sub_type} name="$radio_name">)
 		)
-		. join(main::MODES(TeX => '\vskip\baselineskip', HTML => main::tag('div', style => 'margin-top:1rem')), @rules)
-		. main::MODES(TeX => '\\end{itemize}', HTML => '</div>');
+		. join(
+			main::MODES(TeX => '\vskip\baselineskip', HTML => main::tag('div', style => 'margin-top:1rem'), PTX => ''),
+			@rules
+		) . main::MODES(TeX => '\\end{itemize}', HTML => '</div>', PTX => "</$ptx_list_type>");
 }
 
 # Format a label.
 sub label_format {
 	my ($self, $label) = @_;
 	return '' unless $self->{displayLabels} && defined $label && $label ne '';
+	return '<title>' . $self->quoteXML($label) . '</title>' if $main::displayMode eq 'PTX';
 	return sprintf($self->{labelFormat}, main::MODES(TeX => $self->quoteTeX($label), HTML => $self->quoteHTML($label)));
 }
 
@@ -733,6 +770,8 @@ sub begin_radio {
 
 	if ($extend) { main::EXTEND_RESPONSE($name, $name, $value, $checked) }
 	else         { $name = main::RECORD_ANS_NAME($name, { $value => $checked }) }
+
+	return '' if !$self->{showInStatic} && ($main::displayMode eq 'TeX' || $main::displayMode eq 'PTX');
 
 	my $idSuffix = $extend ? "_$value" : '';
 
@@ -754,7 +793,7 @@ sub begin_radio {
 				$checked ? (checked => undef) : ()
 			)
 			. main::tag('label', for => "$name$idSuffix", $tag),
-		PTX => "<li>$tag",
+		PTX => ref $self->{originalLabels} eq 'ARRAY' ? "<li>$tag" : '<li>',
 	);
 }
 
