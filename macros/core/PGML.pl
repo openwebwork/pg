@@ -1635,7 +1635,7 @@ sub Rule {
 		. main::tag(
 			'div',
 			main::tag(
-				'span',
+				'div',
 				style => "width:$width; display:inline-block; margin:0.3em auto",
 				main::tag(
 					'hr', style => "width:$width; height:$height; background-color:currentColor; margin:0.3em auto;"
