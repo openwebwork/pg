@@ -221,7 +221,7 @@ sub get_plot_opts {
 	}
 	my $end_markers = ($start || $end) ? ", $start-$end" : '';
 	$marks = $self->get_mark($marks);
-	$marks = $marks ? $mark_size ? ", mark=$marks, mark size=${mark_size}px" : ", mark=$marks" : '';
+	$marks = $marks ? $mark_size ? ", mark=$marks, mark size=${mark_size}pt" : ", mark=$marks" : '';
 
 	$linestyle =~ s/ /_/g;
 	$linestyle = {
