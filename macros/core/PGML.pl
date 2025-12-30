@@ -1267,45 +1267,21 @@ sub format {
 
 sub string {
 	my ($self, $block) = @_;
-	my $stack   = $block->{stack};
-	my @strings = ();
-	my $string;
-	for my $i (0 .. $#$stack) {
-		my $item     = $stack->[$i];
-		my $next_par = $i < $#$stack && $stack->[ $i + 1 ]{type} eq 'par' ? $stack->[ $i + 1 ] : undef;
-		$self->{item} = $item;
-		$self->{nl}   = (!defined($strings[-1]) || $strings[-1] =~ m/\n$/ ? "" : "\n");
-		for ($item->{type}) {
-			/indent/   && do { $string = $self->Indent($item, $next_par);         last };
-			/align/    && do { $string = $self->Align($item);                     last };
-			/par/      && do { $string = $self->Par($item);                       last };
-			/list/     && do { $string = $self->List($item, $next_par);           last };
-			/bullet/   && do { $string = $self->Bullet($item, $next_par);         last };
-			/text/     && do { $string = $self->Text($item);                      last };
-			/variable/ && do { $string = $self->Variable($item, $block);          last };
-			/command/  && do { $string = $self->Command($item);                   last };
-			/math/     && do { $string = $self->Math($item);                      last };
-			/answer/   && do { $string = $self->Answer($item);                    last };
-			/bold/     && do { $string = $self->Bold($item);                      last };
-			/italic/   && do { $string = $self->Italic($item);                    last };
-			/heading/  && do { $string = $self->Heading($item);                   last };
-			/quote/    && do { $string = $self->Quote($item, $strings[-1] || ''); last };
-			/rule/     && do { $string = $self->Rule($item);                      last };
-			/code/     && do { $string = $self->Code($item);                      last };
-			/pre/      && do { $string = $self->Pre($item);                       last };
-			/verbatim/ && do { $string = $self->Verbatim($item);                  last };
-			/image/    && do { $string = $self->Image($item);                     last };
-			/break/    && do { $string = $self->Break($item);                     last };
-			/forced/   && do { $string = $self->Forced($item);                    last };
-			/comment/  && do { $string = $self->Comment($item);                   last };
-			/table/    && do { $string = $self->Table($item);                     last };
-			/tag/      && do { $string = $self->Tag($item);                       last };
+	my $stack = $block->{stack};
+	my $state = { strings => [], i => 0 };
+	while ($state->{i} <= $#$stack) {
+		my $item   = $self->{item} = $stack->[ $state->{i}++ ];
+		my $method = ucfirst($item->{type});
+		$self->{nl} = (!defined($state->{strings}[-1]) || $state->{strings}[-1] =~ m/\n$/ ? '' : "\n");
+		if (Value::can($self, $method)) {
+			my $string = $self->$method($item, $block, $state);
+			push(@{ $state->{strings} }, $string) unless !defined $string || $string eq '';
+		} else {
 			PGML::Warning "Warning: unknown block type '$item->{type}' in " . ref($self) . "::format\n";
 		}
-		push(@strings, $string) unless (!defined $string || $string eq '');
 	}
-	$self->{nl} = (!defined($strings[-1]) || $strings[-1] =~ m/\n$/ ? "" : "\n");
-	return join('', @strings);
+	$self->{nl} = (!defined($state->{strings}[-1]) || $state->{strings}[-1] =~ m/\n$/ ? '' : "\n");
+	return join('', @{ $state->{strings} });
 }
 
 sub nl {
@@ -1525,13 +1501,13 @@ sub Escape {
 }
 
 sub Indent {
-	my ($self, $item, $next_par) = @_;
+	my ($self, $item, $block, $state) = @_;
 	return $self->string($item) if $item->{indent} == 0;
 	my $em     = 2.25 * $item->{indent};
 	my $bottom = '0';
-	if ($next_par) {
-		$next_par->{used_on_prev_item} = 1;
+	if (defined $block->{stack}[ $state->{i} ] && $block->{stack}[ $state->{i} ]{type} eq 'par') {
 		$bottom = '1em';
+		$state->{i}++;
 	}
 	return $self->nl . "<div style=\"margin: 0 0 $bottom ${em}em;\">\n" . $self->string($item) . $self->nl . "</div>\n";
 }
@@ -1562,12 +1538,12 @@ our %bullet = (
 );
 
 sub List {
-	my ($self, $item, $next_par) = @_;
+	my ($self, $item, $block, $state) = @_;
 	my $list   = $bullet{ $item->{bullet} };
 	my $margin = '0';
-	if ($next_par) {
-		$next_par->{used_on_prev_item} = 1;
+	if (defined $block->{stack}[ $state->{i} ] && $block->{stack}[ $state->{i} ]{type} eq 'par') {
 		$margin = '0 0 1em 0';
+		$state->{i}++;
 	}
 	return $self->nl
 		. main::tag(
@@ -1578,9 +1554,9 @@ sub List {
 }
 
 sub Bullet {
-	my ($self, $item, $next_par) = @_;
-	if ($next_par) {
-		$next_par->{used_on_prev_item} = 1;
+	my ($self, $item, $block, $state) = @_;
+	if (defined $block->{stack}[ $state->{i} ] && $block->{stack}[ $state->{i} ]{type} eq 'par') {
+		$state->{i}++;
 		return $self->nl . '<li style="margin-bottom: 1em;">' . $self->string($item) . "</li>\n";
 	}
 	return $self->nl . '<li>' . $self->string($item) . "</li>\n";
@@ -1610,8 +1586,9 @@ sub Heading {
 }
 
 sub Par {
-	my ($self, $item) = @_;
-	return $item->{used_on_prev_item} ? '' : $self->nl . '<div style="margin-top:1em"></div>' . "\n";
+	my $self = shift;
+	my $item = shift;
+	return $self->nl . '<div style="margin-top:1em"></div>' . "\n";
 }
 
 sub Break {"<br />\n"}
@@ -1632,10 +1609,9 @@ our %openQuote  = ('"' => "&#x201C;", "'" => "&#x2018;");
 our %closeQuote = ('"' => "&#x201D;", "'" => "&#x2019;");
 
 sub Quote {
-	my $self   = shift;
-	my $item   = shift;
-	my $string = shift;
-	return $openQuote{ $item->{token} } if $string eq "" || $string =~ m/(^|[ ({\[\s])$/;
+	my ($self, $item, $block, $state) = @_;
+	my $string = $state->{strings}[-1] // '';
+	return $openQuote{ $item->{token} } if $string eq '' || $string =~ m/(^|[ ({\[\s])$/;
 	return $closeQuote{ $item->{token} };
 }
 
@@ -1811,10 +1787,9 @@ our %openQuote  = ('"' => "``", "'" => "`");
 our %closeQuote = ('"' => "''", "'" => "'");
 
 sub Quote {
-	my $self   = shift;
-	my $item   = shift;
-	my $string = shift;
-	return $openQuote{ $item->{token} } if $string eq "" || $string =~ m/(^|[ ({\[\s])$/;
+	my ($self, $item, $block, $state) = @_;
+	my $string = $state->{strings}[-1] // '';
+	return $openQuote{ $item->{token} } if $string eq '' || $string =~ m/(^|[ ({\[\s])$/;
 	return $closeQuote{ $item->{token} };
 }
 
@@ -1968,10 +1943,9 @@ our %openQuote  = ('"' => "<lq/>", "'" => "<lsq/>");
 our %closeQuote = ('"' => "<rq/>", "'" => "<rsq/>");
 
 sub Quote {
-	my $self   = shift;
-	my $item   = shift;
-	my $string = shift;
-	return $openQuote{ $item->{token} } if $string eq "" || $string =~ m/(^|[ ({\[\s])$/;
+	my ($self, $item, $block, $state) = @_;
+	my $string = $state->{strings}[-1] // '';
+	return $openQuote{ $item->{token} } if $string eq '' || $string =~ m/(^|[ ({\[\s])$/;
 	return $closeQuote{ $item->{token} };
 }
 
