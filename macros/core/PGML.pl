@@ -1292,7 +1292,7 @@ sub nl {
 	return $nl;
 }
 
-sub Escape { shift; shift }
+sub escape { shift; shift }
 
 sub Indent   { return "" }
 sub Align    { return "" }
@@ -1439,7 +1439,7 @@ sub Command {
 	my $item = $state->{item};
 	my $text = $self->{parser}->replaceCommand($item);
 	$text = PGML::LaTeX($text) if ($item->{hasStar} || 0) == 3;
-	$text = $self->Escape($text) unless $item->{hasStar};
+	$text = $self->escape($text) unless $item->{hasStar};
 	return $text;
 }
 
@@ -1448,7 +1448,7 @@ sub Variable {
 	my $item = $state->{item};
 	my $text = $self->{parser}->replaceVariable($item, $state->{block});
 	$text = PGML::LaTeX($text) if ($item->{hasStar} || 0) == 3;
-	$text = $self->Escape($text) unless $item->{hasStar};
+	$text = $self->escape($text) unless $item->{hasStar};
 	return $text;
 }
 
@@ -1456,7 +1456,7 @@ sub Text {
 	my ($self, $state) = @_;
 	my $text = $self->{parser}->replaceText($state->{item});
 	$text =~ s/^\n+// if substr($text, 0, 1) eq "\n" && $self->nl eq "";
-	return $self->Escape($text);
+	return $self->escape($text);
 }
 
 sub Image {
@@ -1486,7 +1486,7 @@ sub Image {
 package PGML::Format::html;
 our @ISA = ('PGML::Format');
 
-sub Escape {
+sub escape {
 	my ($self, $string) = @_;
 	return '' unless defined $string;
 	$string =~ s/&/\&amp;/g;
@@ -1647,7 +1647,7 @@ sub Rule {
 sub Verbatim {
 	my ($self, $state) = @_;
 	my $item = $state->{item};
-	my $text = $self->Escape($item->{text});
+	my $text = $self->escape($item->{text});
 	$text = "<code>$text</code>" if $item->{hasStar};
 	return $text;
 }
@@ -1702,7 +1702,7 @@ my %escape = (
 	'~'  => '{\ttfamily\char126}',
 );
 
-sub Escape {
+sub escape {
 	my ($self, $string) = @_;
 	return '' unless defined($string);
 	$string =~ s/(["\#\$%&<>\\^_\{|\}~])/$escape{$1}/eg;
@@ -1805,7 +1805,7 @@ sub Rule {
 sub Verbatim {
 	my ($self, $state) = @_;
 	my $item = $state->{item};
-	my $text = $self->Escape($item->{text});
+	my $text = $self->escape($item->{text});
 	$text = "{\\tt{}$text}" if $item->{hasStar};
 	return $text;
 }
@@ -1833,7 +1833,7 @@ sub Tag {
 package PGML::Format::ptx;
 our @ISA = ('PGML::Format');
 
-sub Escape {
+sub escape {
 	my ($self, $string) = @_;
 	return '' unless defined $string;
 	$string =~ s/&/&amp;/g;
