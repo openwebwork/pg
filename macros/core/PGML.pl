@@ -1268,20 +1268,21 @@ sub format {
 sub string {
 	my ($self, $block) = @_;
 	my $stack = $block->{stack};
-	my $state = { strings => [], i => 0 };
+	my @strings;
+	my $state = { block => $block, strings => \@strings, i => 0 };
 	while ($state->{i} <= $#$stack) {
-		my $item   = $stack->[ $state->{i}++ ];
-		my $method = ucfirst($item->{type});
-		$self->{nl} = (!defined($state->{strings}[-1]) || $state->{strings}[-1] =~ m/\n$/ ? '' : "\n");
+		$state->{item} = $stack->[ $state->{i}++ ];
+		$self->{nl}    = (!defined($strings[-1]) || $strings[-1] =~ m/\n$/ ? '' : "\n");
+		my $method = ucfirst($state->{item}{type});
 		if (Value::can($self, $method)) {
-			my $string = $self->$method($item, $block, $state);
-			push(@{ $state->{strings} }, $string) unless !defined $string || $string eq '';
+			my $string = $self->$method($state);
+			push(@strings, $string) unless !defined $string || $string eq '';
 		} else {
-			PGML::Warning "Warning: unknown block type '$item->{type}' in " . ref($self) . "::format\n";
+			PGML::Warning "Warning: unknown block type '$state->{item}{type}' in " . ref($self) . "::format\n";
 		}
 	}
-	$self->{nl} = (!defined($state->{strings}[-1]) || $state->{strings}[-1] =~ m/\n$/ ? '' : "\n");
-	return join('', @{ $state->{strings} });
+	$self->{nl} = (!defined($strings[-1]) || $strings[-1] =~ m/\n$/ ? '' : "\n");
+	return join('', @strings);
 }
 
 sub nl {
@@ -1311,8 +1312,8 @@ sub Forced   { return "" }
 sub Comment  { return "" }
 
 sub Table {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	return "[misplaced $item->{type}]" if $item->{hasWarning};
 	my @options;
 	foreach my $option (@{ $item->{options} || [] }) {
@@ -1333,13 +1334,13 @@ sub Table {
 }
 
 sub Tag {
-	my ($self, $item) = @_;
-	return $self->string($item);
+	my ($self, $state) = @_;
+	return $self->string($state->{item});
 }
 
 sub Math {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my $math = $item->{text};
 	if ($item->{parsed}) {
 		my $context = $main::context{Typeset};
@@ -1364,8 +1365,8 @@ sub Math {
 }
 
 sub Answer {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my $ans  = $item->{answer};
 	my $rule;
 	$item->{width} = length($item->{token}) - 2 if (!defined($item->{width}));
@@ -1434,8 +1435,8 @@ sub Answer {
 }
 
 sub Command {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my $text = $self->{parser}->replaceCommand($item);
 	$text = PGML::LaTeX($text) if ($item->{hasStar} || 0) == 3;
 	$text = $self->Escape($text) unless $item->{hasStar};
@@ -1443,25 +1444,24 @@ sub Command {
 }
 
 sub Variable {
-	my $self = shift;
-	my $item = shift;
-	my $cur  = shift;
-	my $text = $self->{parser}->replaceVariable($item, $cur);
+	my ($self, $state) = @_;
+	my $item = $state->{item};
+	my $text = $self->{parser}->replaceVariable($item, $state->{block});
 	$text = PGML::LaTeX($text) if ($item->{hasStar} || 0) == 3;
 	$text = $self->Escape($text) unless $item->{hasStar};
 	return $text;
 }
 
 sub Text {
-	my $self = shift;
-	my $item = shift;
-	my $text = $self->{parser}->replaceText($item);
+	my ($self, $state) = @_;
+	my $text = $self->{parser}->replaceText($state->{item});
 	$text =~ s/^\n+// if substr($text, 0, 1) eq "\n" && $self->nl eq "";
 	return $self->Escape($text);
 }
 
 sub Image {
-	my ($self, $item) = @_;
+	my ($self, $state) = @_;
+	my $item                   = $state->{item};
 	my $text                   = $item->{text};
 	my $source                 = $item->{source};
 	my $width                  = $item->{width}                  || '';
@@ -1487,9 +1487,8 @@ package PGML::Format::html;
 our @ISA = ('PGML::Format');
 
 sub Escape {
-	my $self   = shift;
-	my $string = shift;
-	return "" unless defined $string;
+	my ($self, $string) = @_;
+	return '' unless defined $string;
 	$string =~ s/&/\&amp;/g;
 	$string =~ s/</&lt;/g;
 	$string =~ s/>/&gt;/g;
@@ -1501,20 +1500,22 @@ sub Escape {
 }
 
 sub Indent {
-	my ($self, $item, $block, $state) = @_;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	return $self->string($item) if $item->{indent} == 0;
 	my $em     = 2.25 * $item->{indent};
 	my $bottom = '0';
-	if (defined $block->{stack}[ $state->{i} ] && $block->{stack}[ $state->{i} ]{type} eq 'par') {
+	my $next   = $state->{block}{stack}[ $state->{i} ];
+	if (defined $next && $next->{type} eq 'par') {
 		$bottom = '1em';
 		$state->{i}++;
 	}
-	return $self->nl . "<div style=\"margin: 0 0 $bottom ${em}em;\">\n" . $self->string($item) . $self->nl . "</div>\n";
+	return $self->nl . "<div style=\"margin:0 0 $bottom ${em}em\">\n" . $self->string($item) . $self->nl . "</div>\n";
 }
 
 sub Align {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	return
 		$self->nl
 		. '<div style="text-align:'
@@ -1538,46 +1539,48 @@ our %bullet = (
 );
 
 sub List {
-	my ($self, $item, $block, $state) = @_;
+	my ($self, $state) = @_;
+	my $item   = $state->{item};
 	my $list   = $bullet{ $item->{bullet} };
 	my $margin = '0';
-	if (defined $block->{stack}[ $state->{i} ] && $block->{stack}[ $state->{i} ]{type} eq 'par') {
-		$margin = '0 0 1em 0';
+	my $next   = $state->{block}{stack}[ $state->{i} ];
+	if (defined $next && $next->{type} eq 'par') {
+		$margin = '0 0 1em';
 		$state->{i}++;
 	}
 	return $self->nl
 		. main::tag(
 			$list->[0],
-			style => "margin: $margin; padding-left: 2.25em; $list->[1]",
+			style => "margin:$margin;padding-left:2.25em;$list->[1]",
 			$self->string($item) . $self->nl
 		);
 }
 
 sub Bullet {
-	my ($self, $item, $block, $state) = @_;
-	if (defined $block->{stack}[ $state->{i} ] && $block->{stack}[ $state->{i} ]{type} eq 'par') {
+	my ($self, $state) = @_;
+	my $next = $state->{block}{stack}[ $state->{i} ];
+	if (defined $next && $next->{type} eq 'par') {
 		$state->{i}++;
-		return $self->nl . '<li style="margin-bottom: 1em;">' . $self->string($item) . "</li>\n";
+		return $self->nl . '<li style="margin-bottom:1em">' . $self->string($state->{item}) . "</li>\n";
 	}
-	return $self->nl . '<li>' . $self->string($item) . "</li>\n";
+	return $self->nl . '<li>' . $self->string($state->{item}) . "</li>\n";
 }
 
 sub Code {
-	my $self  = shift;
-	my $item  = shift;
+	my ($self, $state) = @_;
+	my $item  = $state->{item};
 	my $class = ($item->{class} ? ' class="' . $item->{class} . '"' : "");
 	return $self->nl . '<pre style="margin:0"><code' . $class . '>' . $self->string($item) . "</code></pre>\n";
 }
 
 sub Pre {
-	my $self = shift;
-	my $item = shift;
-	return $self->nl . '<pre style="margin:0"><code>' . $self->string($item) . "</code></pre>\n";
+	my ($self, $state) = @_;
+	return $self->nl . '<pre style="margin:0"><code>' . $self->string($state->{item}) . "</code></pre>\n";
 }
 
 sub Heading {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my $n    = $item->{n};
 	my $text = $self->string($item);
 	$text =~ s/^ +| +$//gm;
@@ -1586,38 +1589,35 @@ sub Heading {
 }
 
 sub Par {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
 	return $self->nl . '<div style="margin-top:1em"></div>' . "\n";
 }
 
 sub Break {"<br />\n"}
 
 sub Bold {
-	my $self = shift;
-	my $item = shift;
-	return '<strong>' . $self->string($item) . '</strong>';
+	my ($self, $state) = @_;
+	return '<strong>' . $self->string($state->{item}) . '</strong>';
 }
 
 sub Italic {
-	my $self = shift;
-	my $item = shift;
-	return '<em>' . $self->string($item) . '</em>';
+	my ($self, $state) = @_;
+	return '<em>' . $self->string($state->{item}) . '</em>';
 }
 
 our %openQuote  = ('"' => "&#x201C;", "'" => "&#x2018;");
 our %closeQuote = ('"' => "&#x201D;", "'" => "&#x2019;");
 
 sub Quote {
-	my ($self, $item, $block, $state) = @_;
+	my ($self, $state) = @_;
 	my $string = $state->{strings}[-1] // '';
-	return $openQuote{ $item->{token} } if $string eq '' || $string =~ m/(^|[ ({\[\s])$/;
-	return $closeQuote{ $item->{token} };
+	return $openQuote{ $state->{item}{token} } if $string eq '' || $string =~ m/(^|[ ({\[\s])$/;
+	return $closeQuote{ $state->{item}{token} };
 }
 
 sub Rule {
-	my $self   = shift;
-	my $item   = shift;
+	my ($self, $state) = @_;
+	my $item   = $state->{item};
 	my $width  = '100%;';
 	my $height = '1px';
 	if (defined $item->{width}) {
@@ -1645,20 +1645,21 @@ sub Rule {
 }
 
 sub Verbatim {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my $text = $self->Escape($item->{text});
 	$text = "<code>$text</code>" if $item->{hasStar};
 	return $text;
 }
 
 sub Math {
-	my $self = shift;
-	return main::general_math_ev3($self->SUPER::Math(@_));
+	my ($self, $state) = @_;
+	return main::general_math_ev3($self->SUPER::Math($state));
 }
 
 sub Tag {
-	my ($self, $item) = @_;
+	my ($self, $state) = @_;
+	my $item       = $state->{item};
 	my %whitelist  = (div => 1, span => 1);
 	my @attributes = ref($item->{html}) eq 'ARRAY' ? @{ $item->{html} }           : $item->{html};
 	my $tag        = @attributes % 2               ? (shift @attributes // 'div') : 'div';
@@ -1702,31 +1703,30 @@ my %escape = (
 );
 
 sub Escape {
-	my $self   = shift;
-	my $string = shift;
-	return "" unless defined($string);
+	my ($self, $string) = @_;
+	return '' unless defined($string);
 	$string =~ s/(["\#\$%&<>\\^_\{|\}~])/$escape{$1}/eg;
 	return $string;
 }
 
 sub Indent {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	return $self->string($item) if $item->{indent} == 0;
 	my $em = 2.25 * $item->{indent};
 	return $self->nl . "{\\pgmlIndent\n" . $self->string($item) . $self->nl . "\\par}%\n";
 }
 
 sub Align {
-	my $self  = shift;
-	my $item  = shift;
+	my ($self, $state) = @_;
+	my $item  = $state->{item};
 	my $align = uc(substr($item->{align}, 0, 1)) . substr($item->{align}, 1);
 	return $self->nl . "{\\pgml${align}{}" . $self->string($item) . $self->nl . "\\par}%\n";
 }
 
 sub List {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	return
 		$self->nl
 		. "{\\pgmlIndent\\let\\pgmlItem=\\pgml$item->{bullet}Item\n"
@@ -1736,26 +1736,23 @@ sub List {
 }
 
 sub Bullet {
-	my $self = shift;
-	my $item = shift;
-	return $self->nl . "\\pgmlItem{}" . $self->string($item) . "\n";
+	my ($self, $state) = @_;
+	return $self->nl . "\\pgmlItem{}" . $self->string($state->{item}) . "\n";
 }
 
 sub Code {
-	my $self = shift;
-	my $item = shift;
-	return $self->nl . "{\\pgmlPreformatted\\ttfamily%\n" . $self->string($item) . "\\par}%\n";
+	my ($self, $state) = @_;
+	return $self->nl . "{\\pgmlPreformatted\\ttfamily%\n" . $self->string($state->{item}) . "\\par}%\n";
 }
 
 sub Pre {
-	my $self = shift;
-	my $item = shift;
-	return $self->nl . "{\\pgmlPreformatted%\n" . $self->string($item) . "\\par}%\n";
+	my ($self, $state) = @_;
+	return $self->nl . "{\\pgmlPreformatted%\n" . $self->string($state->{item}) . "\\par}%\n";
 }
 
 sub Heading {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my $n    = $item->{n};
 	my $text = $self->string($item);
 	$text =~ s/^ +| +$//gm;
@@ -1764,38 +1761,35 @@ sub Heading {
 }
 
 sub Par {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
 	return $self->nl . "\\vskip\\baselineskip\n";
 }
 
 sub Break {"\\pgmlBreak\n"}
 
 sub Bold {
-	my $self = shift;
-	my $item = shift;
-	return "{\\bfseries{}" . $self->string($item) . "}";
+	my ($self, $state) = @_;
+	return "{\\bfseries{}" . $self->string($state->{item}) . "}";
 }
 
 sub Italic {
-	my $self = shift;
-	my $item = shift;
-	return "{\\itshape{}" . $self->string($item) . "}";
+	my ($self, $state) = @_;
+	return "{\\itshape{}" . $self->string($state->{item}) . "}";
 }
 
 our %openQuote  = ('"' => "``", "'" => "`");
 our %closeQuote = ('"' => "''", "'" => "'");
 
 sub Quote {
-	my ($self, $item, $block, $state) = @_;
+	my ($self, $state) = @_;
 	my $string = $state->{strings}[-1] // '';
-	return $openQuote{ $item->{token} } if $string eq '' || $string =~ m/(^|[ ({\[\s])$/;
-	return $closeQuote{ $item->{token} };
+	return $openQuote{ $state->{item}{token} } if $string eq '' || $string =~ m/(^|[ ({\[\s])$/;
+	return $closeQuote{ $state->{item}{token} };
 }
 
 sub Rule {
-	my $self   = shift;
-	my $item   = shift;
+	my ($self, $state) = @_;
+	my $item   = $state->{item};
 	my $width  = "100%";
 	my $height = "1";
 	$width  = $item->{width}  if defined $item->{width};
@@ -1809,20 +1803,21 @@ sub Rule {
 }
 
 sub Verbatim {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my $text = $self->Escape($item->{text});
 	$text = "{\\tt{}$text}" if $item->{hasStar};
 	return $text;
 }
 
 sub Math {
-	my $self = shift;
-	return main::general_math_ev3($self->SUPER::Math(@_));
+	my ($self, $state) = @_;
+	return main::general_math_ev3($self->SUPER::Math($state));
 }
 
 sub Tag {
-	my ($self, $item) = @_;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my ($tex_begin, $tex_end);
 	if (ref($item->{tex}) eq 'ARRAY') {
 		($tex_begin, $tex_end) = @{ $item->{tex} };
@@ -1839,9 +1834,8 @@ package PGML::Format::ptx;
 our @ISA = ('PGML::Format');
 
 sub Escape {
-	my $self   = shift;
-	my $string = shift;
-	return "" unless defined $string;
+	my ($self, $string) = @_;
+	return '' unless defined $string;
 	$string =~ s/&/&amp;/g;
 	$string =~ s/</&lt;/g;
 	$string =~ s/>/&gt;/g;
@@ -1850,15 +1844,14 @@ sub Escape {
 
 # No indentation for PTX
 sub Indent {
-	my $self = shift;
-	my $item = shift;
-	return $self->string($item);
+	my ($self, $state) = @_;
+	return $self->string($state->{item});
 }
 
 # No align for PTX
 sub Align {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	return "<!-- PTX:WARNING: PGML wanted to " . $item->{align} . " align here. -->\n" . $self->string($item);
 }
 
@@ -1875,21 +1868,20 @@ our %bullet = (
 );
 
 sub List {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my $list = $bullet{ $item->{bullet} };
 	return $self->nl . '<' . $list . '>' . "\n" . $self->string($item) . $self->nl . "</" . substr($list, 0, 2) . ">\n";
 }
 
 sub Bullet {
-	my $self = shift;
-	my $item = shift;
-	return $self->nl . '<li>' . $self->string($item) . '</li>';
+	my ($self, $state) = @_;
+	return $self->nl . '<li>' . $self->string($state->{item}) . '</li>';
 }
 
 sub Code {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my $code =
 		($self->string($item) =~ /\n/)
 		? $self->nl
@@ -1905,8 +1897,7 @@ sub Code {
 }
 
 sub Pre {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
 	## PGML pre can have stylized contents like bold,
 	## and PTX pre cannot have element children
 	return "<!-- PTX:WARNING: PGML wanted to make preformatted text here. -->\n";
@@ -1914,51 +1905,47 @@ sub Pre {
 
 # PreTeXt can't use headings.
 sub Heading {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	return "<!-- PTX:WARNING: PGML wanted to make this a level " . $item->{n} . " header. -->\n" . $self->string($item);
 }
 
 sub Par {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
 	return $self->nl . "\n";
 }
 
 sub Break {"\n\n"}
 
 sub Bold {
-	my $self = shift;
-	my $item = shift;
-	return '<alert>' . $self->string($item) . '</alert>';
+	my ($self, $state) = @_;
+	return '<alert>' . $self->string($state->{item}) . '</alert>';
 }
 
 sub Italic {
-	my $self = shift;
-	my $item = shift;
-	return '<em>' . $self->string($item) . '</em>';
+	my ($self, $state) = @_;
+	return '<em>' . $self->string($state->{item}) . '</em>';
 }
 
 our %openQuote  = ('"' => "<lq/>", "'" => "<lsq/>");
 our %closeQuote = ('"' => "<rq/>", "'" => "<rsq/>");
 
 sub Quote {
-	my ($self, $item, $block, $state) = @_;
+	my ($self, $state) = @_;
 	my $string = $state->{strings}[-1] // '';
-	return $openQuote{ $item->{token} } if $string eq '' || $string =~ m/(^|[ ({\[\s])$/;
-	return $closeQuote{ $item->{token} };
+	return $openQuote{ $state->{item}{token} } if $string eq '' || $string =~ m/(^|[ ({\[\s])$/;
+	return $closeQuote{ $state->{item}{token} };
 }
 
 # No rule for PTX
 sub Rule {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
 	return "<!-- PTX:WARNING: PGML wanted to place a horizontal rule here. -->\n";
 }
 
 sub Verbatim {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my $text = $item->{text};
 	if ($item->{hasStar}) {
 		#Don't escape most content. Just < and &
@@ -1974,12 +1961,13 @@ sub Verbatim {
 }
 
 sub Math {
-	my $self = shift;
-	return main::general_math_ev3($self->SUPER::Math(@_));
+	my ($self, $state) = @_;
+	return main::general_math_ev3($self->SUPER::Math($state));
 }
 
 sub Tag {
-	my ($self, $item) = @_;
+	my ($self, $state) = @_;
+	my $item = $state->{item};
 	my @args = ref($item->{ptx}) eq 'ARRAY' ? @{ $item->{ptx} } : $item->{ptx};
 	if (my $tag = shift @args) {
 		return NiceTables::tag($self->string($item), $tag, @args);
