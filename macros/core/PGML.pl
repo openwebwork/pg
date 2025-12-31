@@ -1270,7 +1270,7 @@ sub string {
 	my $stack = $block->{stack};
 	my $state = { strings => [], i => 0 };
 	while ($state->{i} <= $#$stack) {
-		my $item   = $self->{item} = $stack->[ $state->{i}++ ];
+		my $item   = $stack->[ $state->{i}++ ];
 		my $method = ucfirst($item->{type});
 		$self->{nl} = (!defined($state->{strings}[-1]) || $state->{strings}[-1] =~ m/\n$/ ? '' : "\n");
 		if (Value::can($self, $method)) {
