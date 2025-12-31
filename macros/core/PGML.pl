@@ -1510,32 +1510,25 @@ sub Indent {
 		$bottom = '1em';
 		$state->{i}++;
 	}
-	return $self->nl . "<div style=\"margin:0 0 $bottom ${em}em\">\n" . $self->string($item) . $self->nl . "</div>\n";
+	return main::tag('div', style => "margin:0 0 $bottom ${em}em", $self->string($item));
 }
 
 sub Align {
 	my ($self, $state) = @_;
 	my $item = $state->{item};
-	return
-		$self->nl
-		. '<div style="text-align:'
-		. $item->{align}
-		. '; margin:0">' . "\n"
-		. $self->string($item)
-		. $self->nl
-		. "</div>\n";
+	return main::tag('div', style => "text-align:$item->{align};margin:0", $self->string($item));
 }
 
 our %bullet = (
-	bullet  => [ 'ul', 'list-style-type: disc;' ],
-	numeric => [ 'ol', 'list-style-type: decimal;' ],
-	alpha   => [ 'ol', 'list-style-type: lower-alpha;' ],
-	Alpha   => [ 'ol', 'list-style-type: upper-alpha;' ],
-	roman   => [ 'ol', 'list-style-type: lower-roman;' ],
-	Roman   => [ 'ol', 'list-style-type: upper-roman;' ],
-	disc    => [ 'ul', 'list-style-type: disc;' ],
-	circle  => [ 'ul', 'list-style-type: circle;' ],
-	square  => [ 'ul', 'list-style-type: square;' ],
+	bullet  => [ 'ul', 'list-style-type:disc;' ],
+	numeric => [ 'ol', 'list-style-type:decimal;' ],
+	alpha   => [ 'ol', 'list-style-type:lower-alpha;' ],
+	Alpha   => [ 'ol', 'list-style-type:upper-alpha;' ],
+	roman   => [ 'ol', 'list-style-type:lower-roman;' ],
+	Roman   => [ 'ol', 'list-style-type:upper-roman;' ],
+	disc    => [ 'ul', 'list-style-type:disc;' ],
+	circle  => [ 'ul', 'list-style-type:circle;' ],
+	square  => [ 'ul', 'list-style-type:square;' ],
 );
 
 sub List {
@@ -1548,34 +1541,33 @@ sub List {
 		$margin = '0 0 1em';
 		$state->{i}++;
 	}
-	return $self->nl
-		. main::tag(
-			$list->[0],
-			style => "margin:$margin;padding-left:2.25em;$list->[1]",
-			$self->string($item) . $self->nl
-		);
+	return main::tag($list->[0], style => "margin:$margin;padding-left:2.25em;$list->[1]", $self->string($item));
 }
 
 sub Bullet {
 	my ($self, $state) = @_;
 	my $next = $state->{block}{stack}[ $state->{i} ];
+	my $style;
 	if (defined $next && $next->{type} eq 'par') {
 		$state->{i}++;
-		return $self->nl . '<li style="margin-bottom:1em">' . $self->string($state->{item}) . "</li>\n";
+		$style = 'margin-bottom:1em';
 	}
-	return $self->nl . '<li>' . $self->string($state->{item}) . "</li>\n";
+	return main::tag('li', $style ? (style => $style) : (), $self->string($state->{item}));
 }
 
 sub Code {
 	my ($self, $state) = @_;
-	my $item  = $state->{item};
-	my $class = ($item->{class} ? ' class="' . $item->{class} . '"' : "");
-	return $self->nl . '<pre style="margin:0"><code' . $class . '>' . $self->string($item) . "</code></pre>\n";
+	my $item = $state->{item};
+	return main::tag(
+		'pre',
+		style => 'margin:0',
+		main::tag('code', $item->{class} ? (class => $item->{class}) : (), $self->string($item))
+	);
 }
 
 sub Pre {
 	my ($self, $state) = @_;
-	return $self->nl . '<pre style="margin:0"><code>' . $self->string($state->{item}) . "</code></pre>\n";
+	return main::tag('pre', style => 'margin:0', main::tag('code', $self->string($state->{item})));
 }
 
 sub Heading {
@@ -1585,24 +1577,24 @@ sub Heading {
 	my $text = $self->string($item);
 	$text =~ s/^ +| +$//gm;
 	$text =~ s! +(<br />)!$1!g;
-	return '<h' . $n . ' style="margin:0">' . $text . "</h$n>\n";
+	return main::tag("h$n", style => 'margin:0', $text);
 }
 
 sub Par {
 	my ($self, $state) = @_;
-	return $self->nl . '<div style="margin-top:1em"></div>' . "\n";
+	return main::tag('div', style => 'margin-top:1em', '');
 }
 
-sub Break {"<br />\n"}
+sub Break {'<br />'}
 
 sub Bold {
 	my ($self, $state) = @_;
-	return '<strong>' . $self->string($state->{item}) . '</strong>';
+	return main::tag('strong', $self->string($state->{item}));
 }
 
 sub Italic {
 	my ($self, $state) = @_;
-	return '<em>' . $self->string($state->{item}) . '</em>';
+	return main::tag('em', $self->string($state->{item}));
 }
 
 our %openQuote  = ('"' => "&#x201C;", "'" => "&#x2018;");
@@ -1631,24 +1623,23 @@ sub Rule {
 		$height = $item->{size};
 		$height .= 'px' if ($height =~ /^\d*\.?\d+$/);
 	}
-	return $self->nl
-		. main::tag(
+	return main::tag(
+		'div',
+		main::tag(
 			'div',
+			style => "width:$width;display:inline-block;margin:0.3em auto",
 			main::tag(
-				'div',
-				style => "width:$width; display:inline-block; margin:0.3em auto",
-				main::tag(
-					'hr', style => "width:$width; height:$height; background-color:currentColor; margin:0.3em auto;"
-				)
+				'hr', style => "width:$width;height:$height;background-color:currentColor;margin:0.3em auto;"
 			)
-		);
+		)
+	);
 }
 
 sub Verbatim {
 	my ($self, $state) = @_;
 	my $item = $state->{item};
 	my $text = $self->escape($item->{text});
-	$text = "<code>$text</code>" if $item->{hasStar};
+	$text = main::tag('code', $text) if $item->{hasStar};
 	return $text;
 }
 
