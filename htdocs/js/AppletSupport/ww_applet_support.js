@@ -95,7 +95,6 @@ class ww_applet {
 		if (typeof newState === 'undefined') newState = '<xml>restart_applet</xml>';
 		const stateInput = ww_applet_list[this.appletName].stateInput;
 		getQE(stateInput).value = newState;
-		getQE(`previous_${stateInput}`).value = newState;
 	}
 
 	// STATE:
@@ -275,12 +274,14 @@ class ww_applet {
 		if (form.submitHandlerInitialized) return;
 		form.submitHandlerInitialized = true;
 
-		// Connect the submit action handler to the form.
-		form.addEventListener('submit', () => {
-			for (const appletName in ww_applet_list) {
-				ww_applet_list[appletName].submitAction();
-			}
-		});
+		// Connect the submit action handler to the form submit buttons.
+		for (const button of form.querySelectorAll('input[type="submit"]')) {
+			button.addEventListener('click', () => {
+				for (const appletName in ww_applet_list) {
+					ww_applet_list[appletName].submitAction();
+				}
+			});
+		}
 	};
 
 	// Initialize applet support and the applets.
