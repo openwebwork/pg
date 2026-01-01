@@ -1,0 +1,76 @@
+name: Generate and Publish PG POD and Sample Problem Documentation
+
+on:
+  # Execute the workflow anytime something is merged into or pushed to main.
+  push:
+    branches:
+      - main
+
+  # This allows this workflow to be triggered manually from the actions tab.
+  workflow_dispatch:
+
+jobs:
+  generate-documentation:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends --no-install-suggests \
+            pandoc \
+            libmojolicious-perl \
+            libpandoc-wrapper-perl \
+            libpod-parser-perl
+
+      - name: Checkout pg code
+        uses: actions/checkout@v4
+        with:
+          path: pg
+
+      - name: Create output directory
+        run: mkdir /home/runner/work/pg/pg/documentation
+
+      - name: Generate sample problem documentation
+        run: |
+          perl pg/bin/parse-problem-doc.pl \
+            --problem-dir=/home/runner/work/pg/pg/pg/tutorial/sample-problems \
+            --out-dir=/home/runner/work/pg/pg/documentation/sampleproblems \
+            --pod-base-url=/pg/pod \
+            --sample-problem-base-url=/pg/sampleproblems
+
+      - name: Generate POD
+        run: perl pg/bin/generate-pg-pod.pl --output-dir=documentation/pod --base-url=/pg/pod/ --home-url=/pg
+
+      - name: Generate search data
+        run: perl pg/bin/generate-search-data.pl --out-file=documentation/sample-problem-search-data.json
+
+      - name: Copy assets
+        run: |
+          cp /home/runner/work/pg/pg/pg/tutorial/templates/index.html \
+            /home/runner/work/pg/pg/documentation/
+          cp /home/runner/work/pg/pg/pg/htdocs/js/SampleProblemViewer/documentation-search.js \
+            /home/runner/work/pg/pg/documentation/
+
+      - name: Upload documentation html
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: documentation
+
+  publish-documentation:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Set the permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages.
+    permissions:
+      pages: write
+      id-token: write
+
+    runs-on: ubuntu-24.04
+    needs: generate-documentation
+
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
