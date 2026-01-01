@@ -1270,7 +1270,7 @@ sub string {
 	my $stack = $block->{stack};
 	my @strings;
 	my $state = { block => $block, strings => \@strings, i => 0 };
-	while ($state->{i} <= $#$stack) {
+	while ($state->{i} < @$stack) {
 		$state->{item} = $stack->[ $state->{i}++ ];
 		$self->{nl}    = (!defined($strings[-1]) || $strings[-1] =~ m/\n$/ ? '' : "\n");
 		my $method = ucfirst($state->{item}{type});
@@ -1323,7 +1323,7 @@ sub Table {
 	my $table = [];
 	my $row   = [];
 	for my $cell (@{ $item->{stack} }) {
-		push(@$row, $self->Table($cell));
+		push(@$row, $self->Table({ item => $cell }));
 		if ($cell->{hasStar}) {
 			push(@$table, $row);
 			$row = [];
