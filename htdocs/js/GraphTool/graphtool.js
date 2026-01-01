@@ -39,7 +39,7 @@ window.graphTool = (containerId, options) => {
 		underConstructionFixed: JXG.palette.red // defined to be '#d55e00'
 	};
 
-	gt.definingPointAttributes = {
+	gt.definingPointAttributes = () => ({
 		size: 3,
 		fixed: false,
 		highlight: true,
@@ -49,8 +49,9 @@ window.graphTool = (containerId, options) => {
 		fillColor: gt.color.point,
 		highlightStrokeWidth: 1,
 		highlightStrokeColor: gt.color.focusCurve,
-		highlightFillColor: gt.color.pointHighlight
-	};
+		highlightFillColor: gt.color.pointHighlight,
+		tabindex: gt.isStatic ? -1 : 0
+	});
 
 	gt.options = options;
 	gt.snapSizeX = options.snapSizeX ? options.snapSizeX : 1;
@@ -262,6 +263,113 @@ window.graphTool = (containerId, options) => {
 		gt.board.highlightInfobox = (_x, _y, el) => gt.board.highlightCustomInfobox('', el);
 
 		if (!gt.isStatic) {
+			// This is a mess to work around an issue with JSXGraph versions 1.11.1 or later.  Their keyDownListener
+			// calls preventDefault on the keydown event when shift-tab is pressed.  That prevents keyboard focus from
+			// moving backward in the tab order.  So this removes the JSXGraph keyboard event handlers, then overrides
+			// the board's keyDownListener with essentially the same code with the exception that when the tab key is
+			// pressed, preventDefault is not called.  Then the keyboard event listeners are added back, using this
+			// keydownListener.
+			gt.board.removeKeyboardEventHandlers();
+			gt.board.keyDownListener = function (evt) {
+				const id_node = evt.target.id;
+				let done = true;
+
+				if (!this.attr.keyboard.enabled || id_node === '') return false;
+
+				const doc = this.containerObj.shadowRoot || document;
+				if (doc.activeElement) {
+					if (doc.activeElement.tagName === 'INPUT' || doc.activeElement.tagName === 'textarea') return false;
+				}
+
+				const id = id_node.replace(this.containerObj.id + '_', '');
+				const el = this.select(id);
+
+				if (
+					(JXG.evaluate(this.attr.keyboard.panshift) && evt.shiftKey) ||
+					(JXG.evaluate(this.attr.keyboard.panctrl) && evt.ctrlKey)
+				) {
+					const doZoom = JXG.evaluate(this.attr.zoom.enabled) === true;
+					if (evt.keyCode === 38) this.clickUpArrow();
+					else if (evt.keyCode === 40) this.clickDownArrow();
+					else if (evt.keyCode === 37) this.clickLeftArrow();
+					else if (evt.keyCode === 39) this.clickRightArrow();
+					else if (doZoom && evt.keyCode === 171) this.zoomIn();
+					else if (doZoom && evt.keyCode === 173) this.zoomOut();
+					else if (doZoom && evt.keyCode === 79) this.zoom100();
+					else done = false;
+				} else if (!evt.shiftKey && !evt.ctrlKey) {
+					let dx = JXG.evaluate(this.attr.keyboard.dx) / this.unitX;
+					let dy = JXG.evaluate(this.attr.keyboard.dy) / this.unitY;
+					if (JXG.exists(el.visProp)) {
+						if (
+							JXG.exists(el.visProp.snaptogrid) &&
+							el.visProp.snaptogrid &&
+							el.evalVisProp('snapsizex') &&
+							el.evalVisProp('snapsizey')
+						) {
+							const res = el.getSnapSizes();
+							dx = res[0];
+							dy = res[1];
+						} else if (
+							JXG.exists(el.visProp.attracttogrid) &&
+							el.visProp.attracttogrid &&
+							el.evalVisProp('attractordistance') &&
+							el.evalVisProp('attractorunit')
+						) {
+							let sX = 1.1 * el.evalVisProp('attractordistance');
+							let sY = sX;
+							if (el.evalVisProp('attractorunit') === 'screen') {
+								sX /= this.unitX;
+								sY /= this.unitX;
+							}
+							dx = Math.max(sX, dx);
+							dy = Math.max(sY, dy);
+						}
+					}
+
+					let dir;
+					if (evt.keyCode === 38) dir = [0, dy];
+					else if (evt.keyCode === 40) dir = [0, -dy];
+					else if (evt.keyCode === 37) dir = [-dx, 0];
+					else if (evt.keyCode === 39) dir = [dx, 0];
+					else done = false;
+
+					if (
+						dir &&
+						el.isDraggable &&
+						el.visPropCalc.visible &&
+						((this.geonextCompatibilityMode &&
+							(JXG.isPoint(el) || el.elementClass === Const.OBJECT_CLASS_TEXT)) ||
+							!this.geonextCompatibilityMode) &&
+						!el.evalVisProp('fixed')
+					) {
+						this.mode = this.BOARD_MODE_DRAG;
+						if (JXG.exists(el.coords)) {
+							const actPos = el.coords.usrCoords.slice(1);
+							dir[0] += actPos[0];
+							dir[1] += actPos[1];
+							el.setPosition(JXG.COORDS_BY_USER, dir);
+							this.updateInfobox(el);
+						} else {
+							this.displayInfobox(false);
+							el.setPositionDirectly(Const.COORDS_BY_USER, dir, [0, 0]);
+						}
+
+						this.triggerEventHandlers(['keymove', 'move'], [evt, this.mode]);
+						el.triggerEventHandlers(['keydrag', 'drag'], [evt]);
+						this.mode = this.BOARD_MODE_NONE;
+					}
+				} else if (evt.key === 'Tab') {
+					done = false;
+				}
+
+				this.update();
+
+				if (done && JXG.exists(evt.preventDefault)) evt.preventDefault();
+				return done;
+			};
+			gt.board.addKeyboardEventHandlers();
+
 			gt.graphContainer.tabIndex = -1;
 			gt.board.containerObj.tabIndex = -1;
 
@@ -805,7 +913,7 @@ window.graphTool = (containerId, options) => {
 		const point = gt.board.create('point', [gt.snapRound(x, gt.snapSizeX), gt.snapRound(y, gt.snapSizeY)], {
 			snapSizeX: gt.snapSizeX,
 			snapSizeY: gt.snapSizeY,
-			...gt.definingPointAttributes
+			...gt.definingPointAttributes()
 		});
 		point.setAttribute({ snapToGrid: true });
 		if (!gt.isStatic) {

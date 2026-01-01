@@ -12,7 +12,7 @@
 
 				constructor(point1, point2, point3, point4, solid) {
 					for (const point of [point1, point2, point3, point4]) {
-						point.setAttribute(gt.definingPointAttributes);
+						point.setAttribute(gt.definingPointAttributes());
 						if (!gt.isStatic) {
 							point.on('down', () => gt.onPointDown(point));
 							point.on('up', () => gt.onPointUp(point));
