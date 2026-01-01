@@ -793,7 +793,7 @@ sub image {
 
 	for my $i (0 .. $self->lastVertexIndex) {
 		my $iVertex = [ cos($i * $gap), sin($i * $gap) ];
-		$plot->add_stamp(@$iVertex, color => 'blue');
+		$plot->add_point(@$iVertex, color => 'blue', mark_size => 3);
 
 		$plot->add_label(
 			1.25 * $iVertex->[0], 1.25 * $iVertex->[1],
@@ -865,7 +865,7 @@ sub gridLayoutImage {
 		for my $j (0 .. $self->{gridLayout}[1] - 1) {
 			my $x = $gridGap * $j;
 			my $y = $gridGap * ($self->{gridLayout}[0] - $i - 1);
-			$plot->add_stamp($x, $y, color => 'blue');
+			$plot->add_point($x, $y, color => 'blue', mark_size => 3);
 			$plot->add_label(
 				$x - $labelShift, $y + 2 * $labelShift,
 				label   => "\\\\($self->{labels}[$i + $self->{gridLayout}[0] * $j]\\\\)",
@@ -967,7 +967,7 @@ sub bipartiteLayoutImage {
 	);
 
 	for my $i (0 .. $#$top) {
-		$plot->add_stamp($i * $width + $shift[0], $high, color => 'blue');
+		$plot->add_point($i * $width + $shift[0], $high, color => 'blue', mark_size => 3);
 		$plot->add_label(
 			$i * $width + $shift[0], $high + 2 / 3,
 			label   => "\\\\($self->{labels}[$top->[$i]]\\\\)",
@@ -977,7 +977,7 @@ sub bipartiteLayoutImage {
 		) if $graphOptions{showLabels};
 	}
 	for my $j (0 .. $#$bottom) {
-		$plot->add_stamp($j * $width + $shift[1], $low, color => 'blue');
+		$plot->add_point($j * $width + $shift[1], $low, color => 'blue', mark_size => 3);
 		$plot->add_label(
 			$j * $width + $shift[1], $low - 2 / 3,
 			label   => "\\\\($self->{labels}[$bottom->[$j]]\\\\)",
@@ -1037,7 +1037,7 @@ sub wheelLayoutImage {
 
 	my $gap = 2 * $main::PI / ($self->lastVertexIndex || 1);
 
-	$plot->add_stamp(0, 0, color => 'blue');
+	$plot->add_point(0, 0, color => 'blue', mark_size => 3);
 	$plot->add_label(
 		0.1, 0.2,
 		label   => "\\\\($self->{labels}[ $self->{wheelLayout} ]\\\\)",
@@ -1052,7 +1052,7 @@ sub wheelLayoutImage {
 		my $iRel = $i > $self->{wheelLayout} ? $i - 1 : $i;
 
 		my $iVertex = [ cos($iRel * $gap), sin($iRel * $gap) ];
-		$plot->add_stamp(@$iVertex, color => 'blue');
+		$plot->add_point(@$iVertex, color => 'blue', mark_size => 3);
 
 		$plot->add_label(
 			1.25 * $iVertex->[0], 1.25 * $iVertex->[1],
