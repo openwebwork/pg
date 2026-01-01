@@ -1576,7 +1576,7 @@ sub Heading {
 	my $n    = $item->{n};
 	my $text = $self->string($item);
 	$text =~ s/^ +| +$//gm;
-	$text =~ s! +(<br />)!$1!g;
+	$text =~ s! +(<br>)!$1!g;
 	return main::tag("h$n", style => 'margin:0', $text);
 }
 
@@ -1585,7 +1585,7 @@ sub Par {
 	return main::tag('div', style => 'margin-top:1em', '');
 }
 
-sub Break {'<br />'}
+sub Break {'<br>'}
 
 sub Bold {
 	my ($self, $state) = @_;
