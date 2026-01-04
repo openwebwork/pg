@@ -499,7 +499,7 @@ sub init_graph {
 			const descriptionSpan = document.createElement('span');
 			descriptionSpan.id = `\${id}_description`;
 			descriptionSpan.classList.add('visually-hidden');
-			descriptionSpan.textContent = '${\($axes->style('aria_description'))}';
+			descriptionSpan.textContent = ${\(Mojo::JSON::encode_json($axes->style('aria_description')))};
 			board.containerObj.after(descriptionSpan);
 			board.containerObj.setAttribute('aria-describedby', descriptionSpan.id);
 			board.suspendUpdate();
