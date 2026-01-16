@@ -170,18 +170,17 @@
 			title.textContent = 'Equation Editor';
 
 			const closeButton = document.createElement('button');
-			// When bootstrap is upgraded to version 5.3 this will need to be changed.
-			// btn-close-white will be deprecated and data-bs-theme="dark" is used instead.
-			closeButton.classList.add('btn-close', 'btn-close-white');
+			closeButton.classList.add('btn-close');
 			closeButton.type = 'button';
 			closeButton.setAttribute('aria-label', 'Close');
+			closeButton.dataset.bsTheme = 'dark';
 			closeButton.dataset.bsToggle = 'collapse';
 			closeButton.dataset.bsTarget = `#${answerLabel}-equation-editor`;
 
 			cardHeader.append(title, closeButton);
 
 			const cardBody = document.createElement('div');
-			cardBody.classList.add('card-body', 'p-2', 'd-flex', 'align-items-center');
+			cardBody.classList.add('card-body', 'p-2', 'd-flex', 'align-items-center', 'bg-light-subtle');
 			cardBody.append(answerQuill);
 
 			// Insert text at a the current cursor position in a text input replacing the current selection if any.
@@ -213,7 +212,7 @@
 				'pb-2',
 				'px-2',
 				'gap-2',
-				'bg-white',
+				'bg-light-subtle',
 				'border-top-0'
 			);
 

@@ -410,6 +410,7 @@
 		htmlBucket(label, removable, indices = []) {
 			const bucketElement = document.createElement('div');
 			bucketElement.classList.add('dd-bucket');
+			bucketElement.dataset.bsTheme = 'light';
 
 			const bucketLabel = document.createElement('div');
 			bucketLabel.classList.add('dd-bucket-label');

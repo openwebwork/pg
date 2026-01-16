@@ -126,6 +126,7 @@ window.graphTool = (containerId, options) => {
 		descriptionSpan.textContent = options.ariaDescription ?? 'Interactively graph objects';
 		gt.board.containerObj.after(descriptionSpan);
 		gt.board.containerObj.setAttribute('aria-describedby', descriptionSpan.id);
+		gt.board.containerObj.dataset.bsTheme = 'light';
 
 		gt.board.suspendUpdate();
 

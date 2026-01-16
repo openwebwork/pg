@@ -8,6 +8,10 @@ span[id^='mq-answer'] {
 	background-color: white;
 	margin-right: 0;
 	margin-left: 0;
+
+	[data-bs-theme='dark'] & {
+		background-color: black;
+	}
 }
 
 input[type='text'].codeshard.mq-edit {
