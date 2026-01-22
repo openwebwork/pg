@@ -24,6 +24,10 @@
 			knowl.knowlModal.setAttribute('aria-labelledby', `${knowl.knowlModal.id}-title`);
 			knowl.knowlModal.setAttribute('aria-hidden', 'true');
 
+			// Force the dialog into light mode. This is needed for a webwork2 page in dark mode since the dialog is
+			// outside of the problem content.  At least until PG and the help files are updated to honor dark mode.
+			knowl.knowlModal.dataset.bsTheme = 'light';
+
 			const knowlDialog = document.createElement('div');
 			knowlDialog.classList.add(
 				'knowl-dialog',
