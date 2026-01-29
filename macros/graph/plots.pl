@@ -16,7 +16,7 @@ options work with both.
 
 =head1 USAGE
 
-First create a Plots object:
+First create a Plot object:
 
     loadMacros('plots.pl');
     $plot = Plot(
@@ -291,11 +291,28 @@ on the circle that intersects the ray from the center of the circle pointing in
 the direction of the third point. Arcs always go in the counter clockwise
 direction.
 
-    $plot->add_arc([$start_x, $start_y], [$center_x, $center_y], [$end_x, $end_y], %options);
+    $plot->add_arc([$center_x, $center_y], [$start_x, $start_y], [$end_x, $end_y], %options);
     $plot->add_arc(
         [[$center_x1, $center_y1], [$start_x1, $start_y1], [$end_x1, $end_y1], %options1],
         [[$center_x2, $center_y2], [$start_x2, $start_y2], [$end_x2, $end_y2], %options2],
         ...
+    );
+
+=head2 PLOT RECTANGLES
+
+A rectangle can be plotted with the C<< $plot->add_rectangle >> method.  This is a 
+convenience method as a shortcut for the C<< $plot->add_dataset >> method. The first
+two arguments are opposite corners of the rectangle.  All other arguments are passed
+as options to the C<< add_dataset >> method. 
+
+The following makes a filled rectangle with a thicker blue border.
+
+    $plot->add_rectangle([2,1], [6,3],
+        color        => 'blue',
+        width        => 1.5,
+        fill         => 'self',
+        fill_color   => 'yellow',
+        fill_opacity => 0.1,
     );
 
 =head2 PLOT VECTOR FIELDS
@@ -579,7 +596,7 @@ A hash reference of options to add to the JSXGraph output of the associated obje
 
 =item tikz_options
 
-Additional pgfplots C<\addplot> options to be appeneded to the tikz output.
+Additional pgfplots C<\addplot> options to be appended to the tikz output.
 
 =back
 
@@ -696,7 +713,7 @@ Stamps can be added individually or multiple at once:
 
     # Add a single stamp.
     $plot->add_stamp($x1, $y1, symbol => $symbol, color => $color, radius => $radius);
-    # Add Multple stamps.
+    # Add Multiple stamps.
     $plot->add_stamp(
         [$x1, $y1, symbol => $symbol1, color => $color1, radius => $radius1],
         [$x2, $y2, symbol => $symbol2, color => $color2, radius => $radius2],

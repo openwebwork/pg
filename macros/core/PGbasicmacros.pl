@@ -2923,7 +2923,7 @@ sub image {
 			);
 			next;
 		}
-		if (ref $image_item eq 'Plots::Plot') {
+		if (ref $image_item eq 'Plots::Plot' || ref $image_item eq 'Plots::StatPlot') {
 			# Update image attributes as needed.
 			$image_item->{width}    = $width    if $out_options{width};
 			$image_item->{height}   = $height   if $out_options{height};

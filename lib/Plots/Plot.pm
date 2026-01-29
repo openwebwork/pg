@@ -392,6 +392,18 @@ sub add_arc {
 	return $self->_add_arc(@data);
 }
 
+sub add_rectangle {
+	my ($self, $pt0, $pt2, %options) = @_;
+
+	Value::Error('The first point must be an array ref of length 2')
+		unless ref($pt0) eq 'ARRAY' && scalar(@$pt0) == 2;
+	Value::Error('The second point must be an array ref of length 2')
+		unless ref($pt2) eq 'ARRAY' && scalar(@$pt2) == 2;
+	my $pt1 = [ $pt2->[0], $pt0->[1] ];
+	my $pt3 = [ $pt0->[0], $pt2->[1] ];
+	return $self->add_dataset($pt0, $pt1, $pt2, $pt3, $pt0, %options);
+}
+
 sub add_vectorfield {
 	my ($self, @options) = @_;
 	my $data = Plots::Data->new(name => 'vectorfield');
