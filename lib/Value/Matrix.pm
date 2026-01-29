@@ -1081,7 +1081,7 @@ Usage:
 generates the matrix
 
     [ [ 1, 0, 0, 0 ],
-      [ 0, 4, 0, 0 ],
+      [ 0, 3, 0, 0 ],
       [ 0, 0, 1, 0 ],
       [ 0, 0, 0, 1 ] ]
 
@@ -1102,15 +1102,16 @@ Usage:
 generates the matrix:
 
     [ [ 1, 0, 0, 0 ],
-      [ 0, 1, 0, 0 ],
-      [ 0, -3, 1, 0 ],
+      [ 0, 1, -3, 0 ],
+      [ 0, 0, 1, 0 ],
       [ 0, 0, 0, 1 ] ]
 
-or if the matrix C<$A> exists then
+or if the matrix C<$A> exists of size m by n then
 
     $A->E([3, 4], -5);
 
-will generate the elementary matrix of size number of rows of C<$A>, which multiplies row 3 by -5 and adds to row 4.
+will generate the m by m elementary matrix which multiplies row 3 by -5 and adds to row 4. 
+If $A does not have at least 4 rows, an error is raised.
 
 =back
 
@@ -1147,7 +1148,7 @@ sub E {
 		if (@ij == 1) {
 			$row[$i] = $k if ($i == $ij[0]);
 		} elsif (defined $k) {
-			$row[ $ij[1] ] = $k if ($i == $ij[0]);
+			$row[ $ij[0] ] = $k if ($i == $ij[1]);
 		} else {
 			($row[ $ij[0] ], $row[ $ij[1] ]) = ($row[ $ij[1] ], $row[ $ij[0] ]) if ($i == $ij[0] || $i == $ij[1]);
 		}
