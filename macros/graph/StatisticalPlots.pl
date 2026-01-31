@@ -9,7 +9,7 @@ This macro includes a number of methods to include statistical plots in PG probl
 This is based on L<plots.pl> which will draw in either C<TikZ> or C<JSXGraph> format with the 
 default for the former to be used for hardcopy and the latter for HTML output.  
 
-The statistical plot available are
+The statistical plots available are
 
 =over 
 
@@ -73,9 +73,15 @@ where C<$xdata> is an ARRAYREF of x-values where the bars will be centered and C
 ARRAY of heights of the bars.  Note: if the option C<< orientation => 'horizontal' >> is included
 then the bar lengths are the values in C<$xdata> and locations in C<$ydata>.  
 
+=head3 OPTIONS
+
 The options for the C<add_barplot> method are two fold.  The following are specific to changing
 the barplot, and the rest are passed along to C<add_rectangle>, which is a wrapper function for 
 C<add_dataset>. 
+
+=over 
+
+=item orientation
 
 The C<orientation> option can take on C<vertical> (default) or C<horizontal> to make vertical
 or horizontal bars.  Above was an example with vertical bars and an example with horizontal bars is
@@ -89,21 +95,25 @@ or horizontal bars.  Above was an example with vertical bars and an example with
         bar_width  => 0.9
     );
 
+=item bar_width
+
 The option C<bar_width> is a number in the range [0,1] to give the relative width of the bar.  If 
 C<< bar_width => 1 >> (default), then there is no gap between bars.  In the example above, with 
 C<< bar_width => 0.9 >>, there is a small gap between bars.  
+
+=back
 
 Any remaining options are passed to C<add_rectangle> which has the same options as C<add_dataset>, 
 however, if C<fill_color> is passed to C<add_barplot>, then the C<< fill => 'self' >> is also 
 passed along. 
 
-See L<Options for add_dataset|plots.pl/DATASET OPTIONS> for specifics about other options to both changing fill and stroke
-color. 
+See L<Options for add_dataset|plots.pl/DATASET OPTIONS> for specifics about other options to 
+both changing fill and stroke color. 
 
 =head2 HISTOGRAMS
 
-A L<histogram|https://en.wikipedia.org/wiki/Histogram> is added with the `add_histogram` method to a C<StatPlot>. The general form
-is 
+A L<histogram|https://en.wikipedia.org/wiki/Histogram> is added with the `add_histogram` method 
+to a C<StatPlot>. The general form is 
 
     $stat_plot->add_histogram($data, %options);
 
@@ -167,7 +177,8 @@ and L<add_dataset options|plots.pl/DATASET OPTIONS> for more details.
 
 =head2 BOX PLOTS
 
-A box plot (also called a box and whiskers plot) can be created with the C<add_boxplot> method.  If one performs
+A box plot (also called a box and whiskers plot) can be created with the C<add_boxplot> method.  
+If one performs
 
    $stat_plot->add_boxplot($data, %options);
 
@@ -201,8 +212,8 @@ and as with other methods in this macro, one can pass options to the characteris
 box plot (like fill color or stroke color and width) within the C<add_boxplot> method. 
 
 If C<$data> is a hashref, it must contains the fields C<min, q1, median, q3, max> that are used to
-define the boxplot.  Optionally, one may also include the field C<outliers> which is an array ref of values
-which will be plotted beyond the whiskers. 
+define the boxplot.  Optionally, one may also include the field C<outliers> which is an array 
+ref of values which will be plotted beyond the whiskers. 
 
 An example of this is 
 
@@ -289,7 +300,7 @@ where the dataset in C<$data> is an array ref of C<x, y> pairs as an array ref. 
 
     $stat_plot->add_scatterplot($data, marks => 'diamond', mark_size => 5, color => 'orange');
 
-This method is simply a wrapper for the C<add_dataset> method where the defaults are different.  Specifically
+This method is simply a wrapper for the C<add_dataset> method where the defaults are different.  
 
 =over 
 
@@ -299,7 +310,8 @@ The C<linestyle> option is set to 'none', so that lines are not drawn between th
 
 =item marks
 
-The C<marks> is default to 'circle'.  See L<plots.pl> for other mark options. 
+The C<marks> is default to 'circle'.  See L<Options for add_dataset|plots.pl/DATASET OPTIONS> 
+for other mark options. 
 
 =item mark_size
 
@@ -324,36 +336,36 @@ loadMacros('PGstatisticsmacros.pl');
 package Plots::StatPlot;
 our @ISA = qw(Plots::Plot);
 
-sub new {
-	my $self  = shift;
-	my $class = ref($self) || $self;
-
-	return $class->SUPER::new(@_);
-}
-
 sub add_histogram {
 	my ($self, $data, %opts) = @_;
 
 	my %options = (
-		bins => 10,
+		bins        => 10,
+		normalize   => 0,
+		orientation => 'vertical',
 		%opts
 	);
 
 	Value::Error("The option 'bins' must be a positive integer")
 		unless $options{bins} =~ /^\d+$/ && $options{bins} > 0;
 
-	# if the bin_width is 0, set the num_bins to 1 and give a non-zero bin_width.
-
-	my @counts;
+	my @counts    = (0) x $options{bins};
 	my $min       = $options{min} // main::min(@$data);
 	my $max       = $options{max} // main::max(@$data);
 	my $bin_width = ($max - $min) / $options{bins};
 
+	# TODO: if the bin_width is 0, set the num_bins to 1 and give a non-zero bin_width.
+
 	$counts[ int(($_ - $min) / $bin_width) ]++ for (@$data);
+	if ($options{normalize}) {
+		my $total = 0;
+		$total += $_ for (@counts);
+		@counts = map { $_ / $total } @counts;
+	}
 	my @xdata = map { $min + (0.5 + $_) * $bin_width } (0 .. $#counts);
 
 	# Remove these options and pass the rest to add_barplot
-	delete $options{$_} for ('min', 'max', 'bins');
+	delete $options{$_} for ('min', 'max', 'bins', 'normalize');
 
 	if ($options{orientation} eq 'vertical') {
 		$self->add_barplot(\@xdata, \@counts, %options);

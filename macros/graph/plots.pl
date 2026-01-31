@@ -5,7 +5,7 @@ plots.pl - A macro to create dynamic graphs to include in PG problems.
 
 =head1 DESCRIPTION
 
-This macro creates a Plots object that is used to add data of different
+This macro creates a Plot object that is used to add data of different
 elements of a 2D plot, then draw the plot. The plots can be drawn using different
 formats. Currently C<TikZ> (using PGFplots) and C<JSXGraph> graphics format are
 available. The default is to use C<JSXGraph> for HTML output and C<TikZ> for

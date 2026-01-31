@@ -2942,10 +2942,7 @@ sub image {
 			$width_ratio   = 0.001 * $image_item->{tex_size};
 		}
 		$image_item = insertGraph($image_item)
-			if (ref $image_item eq 'WWPlot'
-				|| ref $image_item eq 'Plots::Plot'
-				|| ref $image_item eq 'PGlateximage'
-				|| ref $image_item eq 'PGtikz');
+			if (grep { ref $image_item eq $_ } ('WWPlot', 'Plots::Plot', 'Plots::StatPlot', 'PGlateximage', 'PGtikz'));
 		my $imageURL = alias($image_item) // '';
 		$imageURL = ($envir{use_site_prefix}) ? $envir{use_site_prefix} . $imageURL : $imageURL;
 		my $id  = $main::PG->getUniqueName('img');
