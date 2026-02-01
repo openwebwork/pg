@@ -281,12 +281,17 @@
 				answerQuill.toolbar?.remove();
 				delete answerQuill.toolbar;
 
-				// For ww2 homework, depends on $pg{options}{enterKey}
+				// For ww2 homework if the enter_key_submit button is found, then use that.
+				// This Depends on $pg{options}{enterKey}.
 				const enterKeySubmit = document.getElementById('enter_key_submit');
-				if (enterKeySubmit) enterKeySubmit.click();
-				else document.getElementById('previewAnswers_id')?.click();
-				// For gateway quizzes, always the preview button
+				if (enterKeySubmit) {
+					enterKeySubmit.click();
+					return;
+				}
+				// If the enter_key_submit button is not found (it will not be present in tests),
+				// then use the preview button.
 				document.querySelector('input[name=previewAnswers]')?.click();
+
 				// For ww3
 				const previewButtonId = answerQuill.textarea
 					.closest('[name=problemMainForm]')
