@@ -237,7 +237,7 @@
 					const vertex = this.vertex;
 					delete this.vertex;
 
-					vertex.setAttribute(gt.definingPointAttributes);
+					vertex.setAttribute(gt.definingPointAttributes());
 					vertex.on('down', () => gt.onPointDown(vertex));
 					vertex.on('up', () => gt.onPointUp(vertex));
 
