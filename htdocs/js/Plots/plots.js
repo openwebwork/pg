@@ -375,8 +375,16 @@ const PGplots = {
 						options.xAxis.overrideOptions ?? {}
 					)
 				));
-				xAxis.defaultTicks.generateLabelText = plot.generateLabelText;
+				
 				xAxis.defaultTicks.formatLabelText = plot.formatLabelText;
+
+				if (options.xAxis.ticks?.customLabels) {
+					xAxis.defaultTicks.generateLabelText = function (tick) {
+						return options.xAxis.ticks.customLabels[tick.usrCoords[1]/options.xAxis.ticks.distance-1];
+					}
+				} else {
+					xAxis.defaultTicks.generateLabelText = plot.generateLabelText;
+				}
 
 				if (options.xAxis.location !== 'middle' && options.xAxis.name !== '') {
 					plot.xLabel = board.create(

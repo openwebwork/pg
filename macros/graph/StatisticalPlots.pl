@@ -270,6 +270,21 @@ will take the value of 0.5 times the space between the axis and the edge of the 
 
 If multiple box plots are defined, this should only be a single value.  
 
+=item whisker_cap
+
+Value of 0 (default) or 1.  If 1, his will add a short line perpendicular to the whiskers 
+on the boxplot with relative size C<cap_width>
+
+=item cap_width
+
+The width of the cap as a fraction of the box height (if C<< orientation => 'vertical' >>)
+or box width (if C<< orientation => 'horizontal' >>).  Default value is 0.2.
+
+=item outlier_mark 
+
+The shape of the mark to use for outliers.  Default is 'plus'.  See L<Options for add_dataset|plots.pl/DATASET OPTIONS> 
+for other mark options.
+
 =back
 
 As with other methods in the macro, other options can be passed along to C<add_rectangle>
@@ -411,7 +426,10 @@ sub add_boxplot {
 	my ($self, $data, %opts) = @_;
 
 	my %options = (
-		orientation => 'horizontal',
+		orientation  => 'horizontal',
+		whisker_cap  => 0,
+		cap_width    => 0.2,
+		outlier_mark => 'plus',
 		%opts
 	);
 
@@ -463,12 +481,10 @@ sub _add_boxplot {
 		$count{$_}++ for ('min', 'q1', 'median', 'q3', 'max');
 		$count{$_}-- for (keys %$data);
 		for (keys %count) {
-			# warn "$_: $count{$_}";
 			Value::Error("The parameter $_ is missing from the boxplot attributes.") if $count{$_} > 0;
 		}
 		$params = $data;
 	}
-	# warn "$_: $options{$_}" for (keys %options);s
 
 	# if fill_color is passed as an option, set the 'fill' to 'self'.
 	$options{fill} = 'self' if $options{fill_color};
@@ -484,9 +500,17 @@ sub _add_boxplot {
 		$self->add_dataset([ $params->{median}, $box_center - 0.5 * $box_width ],
 			[ $params->{median}, $box_center + 0.5 * $box_width ], %options);
 
+		# add whisker caps
+		if ($options{whisker_cap}) {
+			$self->add_dataset([ $params->{max}, $box_center - 0.5 * $options{cap_width} * $box_width ],
+				[ $params->{max}, $box_center + 0.5 * $options{cap_width} * $box_width ], %options);
+			$self->add_dataset([ $params->{min}, $box_center - 0.5 * $options{cap_width} * $box_width ],
+				[ $params->{min}, $box_center + 0.5 * $options{cap_width} * $box_width ], %options);
+		}
+
 		if ($params->{outliers}) {
 			my @points = map { [ $_, $box_center ] } @{ $params->{outliers} };
-			$self->add_dataset(@points, linestyle => 'none', marks => 'plus', marksize => 3);
+			$self->add_dataset(@points, linestyle => 'none', marks => $options{outlier_mark}, marksize => 3);
 		}
 	} elsif ($orientation eq 'vertical') {
 
@@ -499,6 +523,19 @@ sub _add_boxplot {
 		$self->add_dataset([ $box_center, $params->{q3} ],  [ $box_center, $params->{max}, ], %options);
 		$self->add_dataset([ $box_center - 0.5 * $box_width, $params->{median} ],
 			[ $box_center + 0.5 * $box_width, $params->{median} ], %options);
+
+		if ($params->{outliers}) {
+			my @points = map { [ $box_center, $_ ] } @{ $params->{outliers} };
+			$self->add_dataset(@points, linestyle => 'none', marks => $options{outlier_mark}, marksize => 3);
+		}
+
+		# add whisker caps
+		if ($options{whisker_cap}) {
+			$self->add_dataset([ $box_center - 0.5 * $options{cap_width} * $box_width, $params->{max} ],
+				[ $box_center + 0.5 * $options{cap_width} * $box_width, $params->{max}, ], %options);
+			$self->add_dataset([ $box_center - 0.5 * $options{cap_width} * $box_width, $params->{min} ],
+				[ $box_center + 0.5 * $options{cap_width} * $box_width, $params->{min} ], %options);
+		}
 	}
 }
 

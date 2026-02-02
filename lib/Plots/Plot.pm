@@ -399,6 +399,8 @@ sub add_rectangle {
 		unless ref($pt0) eq 'ARRAY' && scalar(@$pt0) == 2;
 	Value::Error('The second point must be an array ref of length 2')
 		unless ref($pt2) eq 'ARRAY' && scalar(@$pt2) == 2;
+	# If the fill_color option is set, set the fill to 'self'.
+	$options{fill} = 'self' if $options{fill_color} && !defined($options{fill});
 	return $self->add_dataset($pt0, [ $pt2->[0], $pt0->[1] ], $pt2, [ $pt0->[0], $pt2->[1] ], $pt0, %options);
 }
 

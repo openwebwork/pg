@@ -313,6 +313,7 @@ sub axis_defaults {
 		tick_labels       => 1,
 		tick_label_format => 'decimal',
 		tick_label_digits => 2,
+		tick_label_custom => undef,       # NEW: Array of custom labels
 		tick_distance     => 0,
 		tick_scale        => 1,
 		tick_scale_symbol => '',
