@@ -819,7 +819,7 @@ sub image {
 						$u * $iVertex->[0] + $v * $jVertex->[0] + $perp[0] * 0.06,
 						$u * $iVertex->[1] + $v * $jVertex->[1] + $perp[1] * 0.06,
 						label  => "\\\\($self->{adjacencyMatrix}->[$i][$j]\\\\)",
-						color  => 'red',
+						color  => 'FireBrick',
 						rotate => ($perp[0] < 0 ? 1 : -1) *
 							atan2(sqrt(1 - $perp[1] * $perp[1]), $perp[1]) * 180 /
 							$main::PI - ($perp[1] < 0 ? 180 : 0)
@@ -898,7 +898,7 @@ sub gridLayoutImage {
 						$u * $iVertex->[0] + $v * $jVertex->[0] - $vector->[1] / $norm * 2,
 						$u * $iVertex->[1] + $v * $jVertex->[1] + $vector->[0] / $norm * 2,
 						label => "\\\\($self->{adjacencyMatrix}[$i][$j]\\\\)",
-						color => 'red'
+						color => 'FireBrick'
 					);
 				}
 			}
@@ -1002,7 +1002,7 @@ sub bipartiteLayoutImage {
 					$u * $point1->[0] + $v * $point2->[0] - $vector->[1] / $norm * 5 / 4,
 					$u * $point1->[1] + $v * $point2->[1] + $vector->[0] / $norm * 5 / 4,
 					label => "\\\\($self->{adjacencyMatrix}[ $top->[$i] ][ $bottom->[$j] ]\\\\)",
-					color => 'red'
+					color => 'FireBrick'
 				);
 			}
 		}
@@ -1071,7 +1071,7 @@ sub wheelLayoutImage {
 					0.5 * $iVertex->[0] + $iVertex->[1] / $norm * 0.1,
 					0.5 * $iVertex->[1] - $iVertex->[0] / $norm * 0.1,
 					label  => "\\\\($self->{adjacencyMatrix}->[ $self->{wheelLayout} ][$i]\\\\)",
-					color  => 'red',
+					color  => 'FireBrick',
 					rotate => ($perp[0] < 0 ? 1 : -1) *
 						atan2(sqrt(1 - $perp[1] * $perp[1]), $perp[1]) * 180 /
 						$main::PI - ($perp[1] < 0 ? 180 : 0)
@@ -1096,7 +1096,7 @@ sub wheelLayoutImage {
 						0.5 * $iVertex->[0] + 0.5 * $jVertex->[0] + $vector[1] / $norm * 0.1,
 						0.5 * $iVertex->[1] + 0.5 * $jVertex->[1] - $vector[0] / $norm * 0.1,
 						label  => "\\\\($self->{adjacencyMatrix}->[$i][$j]\\\\)",
-						color  => 'red',
+						color  => 'FireBrick',
 						rotate => ($perp[0] < 0 ? 1 : -1) *
 							atan2(sqrt(1 - $perp[1] * $perp[1]), $perp[1]) * 180 /
 							$main::PI - ($perp[1] < 0 ? 180 : 0)
