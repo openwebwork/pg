@@ -375,13 +375,13 @@ const PGplots = {
 						options.xAxis.overrideOptions ?? {}
 					)
 				));
-				
+
 				xAxis.defaultTicks.formatLabelText = plot.formatLabelText;
 
 				if (options.xAxis.ticks?.customLabels) {
 					xAxis.defaultTicks.generateLabelText = function (tick) {
-						return options.xAxis.ticks.customLabels[tick.usrCoords[1]/options.xAxis.ticks.distance-1];
-					}
+						return options.xAxis.ticks.customLabels[tick.usrCoords[1] / options.xAxis.ticks.distance - 1];
+					};
 				} else {
 					xAxis.defaultTicks.generateLabelText = plot.generateLabelText;
 				}

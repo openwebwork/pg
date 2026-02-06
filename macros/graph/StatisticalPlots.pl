@@ -21,6 +21,8 @@ The statistical plots available are
 
 =item Scatter Plots
 
+=item Pie Charts
+
 =back
 
 =head2 USAGE
@@ -69,7 +71,7 @@ bar plot with vertical bars (the default) is
 
     $stat_plot->add_barplot($xdata, $ydata, %opts);
 
-where C<$xdata> is an ARRAYREF of x-values where the bars will be centered and C<$ydata> is an
+where C<$xdata> is an array reference of x-values where the bars will be centered and C<$ydata> is an
 ARRAY of heights of the bars.  Note: if the option C<< orientation => 'horizontal' >> is included
 then the bar lengths are the values in C<$xdata> and locations in C<$ydata>.  
 
@@ -169,9 +171,19 @@ If the value of 0 (default) is used, the height of the bars is the count of the 
 of points.  If the value is 1, then the heights are scaled so the total height of the
 bars is 1.  
 
+=item stroke_color 
+
+This sets the color of the boundary of the rectangle and the whiskers.  It is an alias for 
+the C<color> option of L<add_dataset|plots.pl/DATASET OPTIONS>.  See L<COLORS|plots.pl> for options to change the color. 
+
+=item stroke_width
+
+This sets the width of the boundary of the rectangle and the whiskers. This is an alias for 
+the C<width> option of L<add_dataset|plots.pl>. 
+
 =back
 
-The rest of the options are passed through to the C<add_barplot> method in which the
+The rest of the options are passed through to the L<add_barplot|BAR PLOTS> method in which the
 fill color and opacity as well as the stroke color and width.  See both L<add_barplot>
 and L<add_dataset options|plots.pl/DATASET OPTIONS> for more details. 
 
@@ -189,8 +201,8 @@ or if one has multiple box plots
 where C<$data> is an array ref of univariate data or a hash ref of the boxplot characteristics, 
 then a box plot is created using the five number summary (minimum, first quartile, median,
 third quartile, maximum) of the data.  These values are calculated using the C<five_point_summary> 
-function from C<PGstatisticsmacros.pl>.  An example of creating a boxplot with an arrayref of
-univariate data is 
+function from C<PGstatisticsmacros.pl>.  An example of creating a boxplot with an array reference
+of univariate data is 
 
     @data = urand(100,25,75,6);
 
@@ -211,7 +223,7 @@ univariate data is
 and as with other methods in this macro, one can pass options to the characteristic of the 
 box plot (like fill color or stroke color and width) within the C<add_boxplot> method. 
 
-If C<$data> is a hashref, it must contains the fields C<min, q1, median, q3, max> that are used to
+If C<$data> is a hash reference, it must contains the fields C<min, q1, median, q3, max> that are used to
 define the boxplot.  Optionally, one may also include the field C<outliers> which is an array 
 ref of values which will be plotted beyond the whiskers. 
 
@@ -257,7 +269,7 @@ box between the axis and the edge of the plot.
 
 If multiple box plots are included, this option will be created to equally space the 
 box plots between the axis and the edge of the plot.  If included, this option must be an 
-arrayref of values (in the x-direction for vertical plots and y-direction for horizontal).  
+array reference of values (in the x-direction for vertical plots and y-direction for horizontal).  
 
     box_center => [3,6,9]
 
@@ -285,9 +297,19 @@ or box width (if C<< orientation => 'horizontal' >>).  Default value is 0.2.
 The shape of the mark to use for outliers.  Default is 'plus'.  See L<Options for add_dataset|plots.pl/DATASET OPTIONS> 
 for other mark options.
 
+=item stroke_color 
+
+This sets the color of the boundary of the rectangle and the whiskers.  It is an alias for 
+the C<color> option of L<add_dataset|plots.pl/DATASET OPTIONS>.  See L<COLORS|plots.pl> for options to change the color. 
+
+=item stroke_width
+
+This sets the width of the boundary of the rectangle and the whiskers. This is an alias for 
+the C<width> option of L<add_dataset|plots.pl>. 
+
 =back
 
-As with other methods in the macro, other options can be passed along to C<add_rectangle>
+As with other methods in the macro, other options can be passed along to L<add_rectangle|plots.pl/PLOT RECTANGLES>
 and C<add_dataset> which are used in the macro. 
 
 Also, if C<fill_color> is included, then C<< fill => 'self' >> is automatically added on the 
@@ -332,11 +354,107 @@ for other mark options.
 
 The C<mark_size> is default to 3.  
 
+=item mark_color
+
+This changes the mark color and  is an alias for the C<color> option.  See L<COLORS/plots.pl> 
+for options to change the color. 
+
 =back
 
 If more that one dataset is to be plotted, simply call the C<add_scatterplot> method multiple 
 times.  This can be done with a single C<add_dataset> method call, but this wrapper makes it 
 easier to set different options
+
+=head2 PIE CHARTS
+
+A pie chart is a circle that divided in to sectors whose size is proportional to an input array.  
+The sectors are generally given each a color and a label.   This method will also produce
+donut charts (or ring charts), which is a pie chart with a hole. 
+
+The general form is 
+
+    $stat_plot->add_piechart($data, %options);
+
+where $data is an array reference of values. 
+
+The following are the options:
+
+=over 
+
+=item center
+
+The center of the circle as an array reference.  The default value is C<[0,0]>. 
+
+=item radius
+
+The radius of the circle.  The default value of C<4> is chosen to fit nicely with the 
+default values of the bounding box of the C<StatPlot> which ranges from -5 to 5
+in both the x- and y-directions. 
+
+=item inner_radius 
+
+If you desire a donut chart or ring chart, set this to a value less than the radius. 
+The default value is 0. 
+
+=item angle_offset
+
+The first sector by default starts at angle 0 (from the positive horizontal axis) in degrees.  Use 
+this to change this.
+
+=item color_palette 
+
+This is either the name of a color palette or an array reference of colors for each of the 
+sectors in the pie chart.  If the length of this array reference is smaller than 
+the C<$data> array reference, then the colors will be cycled.  The default is to 
+use the 'default' color palette.  See L<COLOR PALETTES> for more information.
+
+=item color_sectors 
+
+If this is 1 (default), then colors are used for the pie chart.  If 0, then the 
+sectors are not filled.  See C<color_palette> for selecting colors. 
+
+=item sector_labels 
+
+The labels for the sector as a array reference of strings or values.  The default is for
+no labels.  If this is used, the length of this must be the same as the C<$data> array 
+reference. 
+
+=back 
+
+=head2 COLOR PALETTES
+
+The color palettes for the bar plots and pie charts can be select from the C<color_palette>
+function.  This allows a number of built-in/generated color palettes.  To get an 
+array reference of either named or generated colors: 
+
+    color_palette($name, num_colors => $n);
+
+For example, 
+
+    color_palette('rainbow');
+
+returns the 6 colors of the rainbow.  Some of the palettes have fixed numbers of colors, 
+whereas others have variable numbers.  If C<num_colors> is not defined, then some palettes 
+return a fixed number (like 'rainbow') and if the C<num_colors> is needed, then the 
+default of 10 is assumed. 
+
+=head3 PALETTE NAMES
+
+=over 
+
+=item rainbow
+
+The colors of the rainbow from violet to red.   The C<num_colors> options is ignored. 
+
+=item random
+
+This will return C<num_colors> random colors from the defined SVG colors.  
+
+=back 
+
+=head2 LEGENDS
+
+A legend is helpful for some plots.  
 
 =cut
 
@@ -399,10 +517,10 @@ sub add_barplot {
 	my %options = (
 		bar_width   => 1,
 		orientation => 'vertical',
-		%opts
+		plot_option_aliases(%opts)
 	);
 
-	Value::Error('The lengths of the data in the first two arguments must be arrayrefs of the same length')
+	Value::Error('The lengths of the data in the first two arguments must be array references of the same length')
 		unless ref $xdata eq 'ARRAY' && ref $xdata eq 'ARRAY' && scalar(@$xdata) == scalar(@$ydata);
 
 	# assume that the $xdata is equally spaced.  TODO: should we handle arbitrary spaced bars?
@@ -430,7 +548,7 @@ sub add_boxplot {
 		whisker_cap  => 0,
 		cap_width    => 0.2,
 		outlier_mark => 'plus',
-		%opts
+		plot_option_aliases(%opts)
 	);
 
 	# Placeholder for boxplot implementation.
@@ -546,10 +664,109 @@ sub add_scatterplot {
 		linestyle => 'none',
 		marks     => 'circle',
 		mark_size => 3,
-		%opts
+		plot_option_aliases(%opts)
 	);
 
 	$self->add_dataset(@$data, %options);
+
+}
+
+sub add_piechart {
+	my ($self, $data, %opts) = @_;
+
+	my %options = (
+		center       => [ 0, 0 ],
+		radius       => 4,
+		angle_offset => 0,
+		inner_radius => 0,
+		plot_option_aliases(%opts)
+	);
+
+	Value::Error('The number of labels must equal the number of sectors in the pie chart')
+		unless defined($options{labels}) && scalar(@$data) == scalar(@{ $options{labels} });
+
+	my $fill_colors =
+		(!defined $options{fill_colors} || ref $options{fill_colors} ne 'ARRAY')
+		? color_palette($options{fill_colors})
+		: $options{fill_colors};
+
+	my $pi    = 4 * atan2(1, 1);
+	my $total = 0;
+	$total += $_ for (@$data);
+
+	my $theta = $options{angle_offset} * $pi / 180;    # first angle of the sector
+	for (0 .. $#$data) {
+		my $delta_theta = 2 * $pi * $data->[$_] / $total;
+		$self->add_multipath(
+			[
+				[
+					"$options{center}->[0] + $options{radius} * cos(t)",
+					"$options{center}->[1] + $options{radius} * sin(t)",
+					$theta,
+					$theta + $delta_theta
+				],
+				[
+					"$options{center}->[0] + $options{inner_radius} * cos(t)",
+					"$options{center}->[1] + $options{inner_radius} * sin(t)",
+					$theta + $delta_theta,
+					$theta
+				],
+			],
+			't',
+			cycle      => 1,
+			fill       => 'self',
+			fill_color => $fill_colors->[ $_ % scalar(@$fill_colors) ],
+			%options
+		);
+		# add the labels if defined
+		if ($options{labels}) {
+			my $alpha = $theta + 0.5 * $delta_theta;
+			# take $alpha mod 2pi
+			$alpha = $alpha - (2 * $pi * int($alpha / (2 * $pi)));
+
+			$self->add_label(
+				1.1 * $options{radius} * cos($alpha),
+				1.1 * $options{radius} * sin($alpha),
+				$options{labels}->[$_],
+				(0 <= $alpha && $alpha < $pi / 4)
+					|| (7 * $pi / 4 < $alpha && $alpha < 2 * $pi) ? (h_align => 'left')
+				: $pi / 4 <= $alpha < 3 * $pi / 4     ? (v_align => 'bottom')
+				: 3 * $pi / 4 <= $alpha < 5 * $pi / 4 ? (h_align => 'right')
+				:                                       (v_align => 'top')
+			);
+		}
+		$theta += $delta_theta;
+	}
+
+}
+
+# This provides some alias for options.
+# For additional aliases, add to the %aliases hash below.
+
+sub plot_option_aliases {
+	my (%options) = @_;
+
+	my %aliases = (
+		width => 'stroke_width',
+		color => 'stroke_color',
+		color => 'mark_color'
+	);
+
+	for (keys %aliases) {
+		$options{$_} = $options{ $aliases{$_} } if $options{ $aliases{$_} };
+		delete $options{ $aliases{$_} };
+	}
+	return %options;
+}
+
+sub color_palette {
+	my ($palette_name, $num_colors) = @_;
+
+	$palette_name = 'rainbow' unless defined($palette_name);
+
+	if ($palette_name eq 'rainbow') {
+		return [ 'violet', 'blue', 'green', 'yellow', 'orange', 'red' ];
+	}
 
 }
 
