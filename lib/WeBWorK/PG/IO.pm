@@ -38,9 +38,8 @@ our $pg_envir;
 
 =head2 includePGtext
 
-This is used in processing some of the sample CAPA files and in creating aliases
-to redirect calls to duplicate problems so that they go to the original problem
-instead.  It is called by includePGproblem.
+This is used in creating aliases to redirect calls to duplicate problems so that
+they go to the original problem instead.  It is called by includePGproblem.
 
 Usage: C<includePGtext($str)>
 
@@ -77,9 +76,8 @@ Read the contents of a pg file.
 Usage: C<read_whole_problem_file($filePath)>
 
 Don't use for huge files. The file name will have .pg appended to it if it
-doesn't already end in .pg.  This is used in importing additional .pg files as
-is done in the sample problems translated from CAPA. Returns a reference to a
-string containing the contents of the file.
+doesn't already end in .pg.  This is used in importing additional .pg files.
+Returns a reference to a string containing the contents of the file.
 
 =cut
 
