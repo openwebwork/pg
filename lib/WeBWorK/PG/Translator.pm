@@ -1077,9 +1077,6 @@ sub avg_problem_grader {
 
 	my %problem_result = (score => 0, errors => '', type => 'avg_problem_grader', msg => '');
 
-	$problem_result{msg} = eval('main::maketext("You can earn partial credit on this problem.")')
-		if keys %$answers > 1;
-
 	# Return unless answers have been submitted.
 	return (\%problem_result, $problem_state) unless $form_options{answers_submitted} == 1;
 
