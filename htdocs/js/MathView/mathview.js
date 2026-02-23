@@ -410,7 +410,12 @@
 					if (node.dataset.mvInitialized === 'true') continue;
 
 					if (node.classList.contains('codeshard')) new MathViewer(node);
-					else node.querySelectorAll('.codeshard').forEach((input) => new MathViewer(input));
+					else {
+						for (const input of node.querySelectorAll('.codeshard')) {
+							if (input.dataset.mvInitialized === 'true') continue;
+							new MathViewer(input);
+						}
+					}
 					if (node.classList.contains('latexentryfield'))
 						new MathViewer(node, {
 							renderingMode: 'LATEX',
@@ -418,14 +423,14 @@
 							includeDelimiters: true
 						});
 					else
-						node.querySelectorAll('.latexentryfield').forEach(
-							(input) =>
-								new MathViewer(input, {
-									renderingMode: 'LATEX',
-									decoratedTextBoxAsInput: false,
-									includeDelimiters: true
-								})
-						);
+						for (const input of node.querySelectorAll('.latexentryfield')) {
+							if (input.dataset.mvInitialized === 'true') continue;
+							new MathViewer(input, {
+								renderingMode: 'LATEX',
+								decoratedTextBoxAsInput: false,
+								includeDelimiters: true
+							});
+						}
 				}
 			}
 		}
