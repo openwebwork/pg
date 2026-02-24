@@ -378,6 +378,8 @@ const PGplots = {
 
 				xAxis.defaultTicks.formatLabelText = plot.formatLabelText;
 
+				// If there are custom labels defined, create a function to generate them at the
+				// tick locations.
 				if (options.xAxis.ticks?.customLabels) {
 					xAxis.defaultTicks.generateLabelText = function (tick) {
 						return options.xAxis.ticks.customLabels[tick.usrCoords[1] / options.xAxis.ticks.distance - 1];
@@ -482,8 +484,19 @@ const PGplots = {
 						options.yAxis.overrideOptions ?? {}
 					)
 				));
-				yAxis.defaultTicks.generateLabelText = plot.generateLabelText;
+
 				yAxis.defaultTicks.formatLabelText = plot.formatLabelText;
+				// If there are custom labels defined, create a function to generate them at the
+				// tick locations.
+				if (options.yAxis.ticks?.customLabels) {
+					console.log(options.yAxis);
+					yAxis.defaultTicks.generateLabelText = function (tick) {
+						console.log(tick);
+						return options.yAxis.ticks.customLabels[tick.usrCoords[2] / options.yAxis.ticks.distance - 1];
+					};
+				} else {
+					yAxis.defaultTicks.generateLabelText = plot.generateLabelText;
+				}
 
 				if (options.yAxis.location !== 'center' && options.yAxis.name !== '') {
 					plot.yLabel = board.create('text', [0, 0, options.yAxis.name ?? '\\(y\\)'], {

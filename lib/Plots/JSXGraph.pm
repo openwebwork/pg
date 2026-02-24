@@ -125,8 +125,8 @@ sub HTML {
 		$options->{xAxis}{name}          = $axes->xaxis('label');
 		$options->{xAxis}{ticks}{show}   = $axes->xaxis('show_ticks');
 		$options->{xAxis}{ticks}{labels} = $axes->xaxis('tick_labels');
-		if ($axes->xaxis('tick_label_custom')) {
-			$options->{xAxis}{ticks}{customLabels} = $axes->xaxis('tick_label_custom');
+		if ($axes->xaxis('tick_custom_labels')) {
+			$options->{xAxis}{ticks}{customLabels} = $axes->xaxis('tick_custom_labels');
 		} else {
 			$options->{xAxis}{ticks}{labelFormat} = $axes->xaxis('tick_label_format');
 			$options->{xAxis}{ticks}{labelDigits} = $axes->xaxis('tick_label_digits');
@@ -139,8 +139,8 @@ sub HTML {
 		$options->{yAxis}{name}          = $axes->yaxis('label');
 		$options->{yAxis}{ticks}{show}   = $axes->yaxis('show_ticks');
 		$options->{yAxis}{ticks}{labels} = $axes->yaxis('tick_labels');
-		if ($axes->yaxis('tick_label_custom')) {
-			$options->{yAxis}{ticks}{customLabels} = $axes->yaxis('tick_label_custom');
+		if ($axes->yaxis('tick_custom_labels')) {
+			$options->{yAxis}{ticks}{customLabels} = $axes->yaxis('tick_custom_labels');
 		} else {
 			$options->{yAxis}{ticks}{labelFormat} = $axes->yaxis('tick_label_format');
 			$options->{yAxis}{ticks}{labelDigits} = $axes->yaxis('tick_label_digits');

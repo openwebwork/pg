@@ -63,7 +63,7 @@ It is also possible to get multiple options for both axes using the get method, 
 a reference to a hash of requested keys, such as:
 
     $bounds = $plot->axes->get('xmin', 'xmax', 'ymin', 'ymax');
-    # The following is equivlant to $plot->axes->grid
+    # The following is equivalent to $plot->axes->grid
     $grid = $plot->axes->get('xmajor', 'xminor', 'xtick_delta', 'ymajor', 'yminor', 'ytick_delta');
 
 It is also possible to get the bounds as an array in the order xmin, ymin, xmax, ymax
@@ -102,6 +102,17 @@ difference between the C<max> and C<min> divided by the C<tick_num>. Default: 0
 
 This can be either 1 (show) or 0 (don't show) the labels for the major ticks.
 Default: 1
+
+=item tick_custom_labels
+
+If defined, this replaces the automatically generated labels for the ticks.  
+This should be an array reference with the number of labels equal to the 
+expected number of ticks. If this is defined then the C<tick_label_format> is
+ignored. 
+
+Example:
+
+    xtick_custom_labels => ['A', 'B', 'C', 'D']
 
 =item tick_label_format
 
@@ -304,26 +315,26 @@ sub new {
 sub axis_defaults {
 	my ($self, $axis) = @_;
 	return (
-		visible           =>  1,
-		min               => -5,
-		max               =>  5,
-		label             => $axis eq 'y' ? '\(y\)'  : '\(x\)',
-		location          => $axis eq 'y' ? 'center' : 'middle',
-		position          => 0,
-		tick_labels       => 1,
-		tick_label_format => 'decimal',
-		tick_label_digits => 2,
-		tick_label_custom => undef,       # NEW: Array of custom labels
-		tick_distance     => 0,
-		tick_scale        => 1,
-		tick_scale_symbol => '',
-		show_ticks        => 1,
-		tick_delta        => 0,
-		tick_num          => 5,
-		major             => 1,
-		minor             => 3,
-		minor_grids       => 1,
-		arrows_both       => 0,
+		visible            =>  1,
+		min                => -5,
+		max                =>  5,
+		label              => $axis eq 'y' ? '\(y\)'  : '\(x\)',
+		location           => $axis eq 'y' ? 'center' : 'middle',
+		position           => 0,
+		tick_labels        => 1,
+		tick_label_format  => 'decimal',
+		tick_label_digits  => 2,
+		tick_custom_labels => undef,
+		tick_distance      => 0,
+		tick_scale         => 1,
+		tick_scale_symbol  => '',
+		show_ticks         => 1,
+		tick_delta         => 0,
+		tick_num           => 5,
+		major              => 1,
+		minor              => 3,
+		minor_grids        => 1,
+		arrows_both        => 0,
 	);
 }
 
