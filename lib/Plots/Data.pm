@@ -66,7 +66,7 @@ stored in the C<< $data->{function} >> hash, though other data is stored as a st
     );
 
 Note, the first argument must be $self->context when called from C<Plots::Plot>
-to use a single context for all C<Plost::Data> objects.
+to use a single context for all C<Plots::Data> objects.
 
 This is also used to set a two variable function (used for slope or vector fields):
 
@@ -116,7 +116,7 @@ Takes a MathObject C<$formula> and replaces the function with either
 a JavaScript or PGF function string. If the function contains any function
 tokens not supported, a warning and empty string is returned.
 
-    $formula   The mathobject formula object, either $self->{function}{Fx} or $self->{function}{Fy}.
+    $formula   The MathObject formula object, either $self->{function}{Fx} or $self->{function}{Fy}.
     $type      'js' or 'PGF' (falls back to js for any input except 'PGF').
     $xvar      The x-variable name, $self->{function}{xvar}.
     $yvar      The y-variable name, $self->{function}{yvar}, for vector fields.

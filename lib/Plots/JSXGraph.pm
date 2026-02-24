@@ -122,21 +122,29 @@ sub HTML {
 	$options->{mathJaxTickLabels} = $axes->style('mathjax_tick_labels') if $xvisible || $yvisible;
 
 	if ($xvisible) {
-		$options->{xAxis}{name}               = $axes->xaxis('label');
-		$options->{xAxis}{ticks}{show}        = $axes->xaxis('show_ticks');
-		$options->{xAxis}{ticks}{labels}      = $axes->xaxis('tick_labels');
-		$options->{xAxis}{ticks}{labelFormat} = $axes->xaxis('tick_label_format');
-		$options->{xAxis}{ticks}{labelDigits} = $axes->xaxis('tick_label_digits');
+		$options->{xAxis}{name}          = $axes->xaxis('label');
+		$options->{xAxis}{ticks}{show}   = $axes->xaxis('show_ticks');
+		$options->{xAxis}{ticks}{labels} = $axes->xaxis('tick_labels');
+		if ($axes->xaxis('tick_custom_labels')) {
+			$options->{xAxis}{ticks}{customLabels} = $axes->xaxis('tick_custom_labels');
+		} else {
+			$options->{xAxis}{ticks}{labelFormat} = $axes->xaxis('tick_label_format');
+			$options->{xAxis}{ticks}{labelDigits} = $axes->xaxis('tick_label_digits');
+		}
 		$options->{xAxis}{ticks}{scaleSymbol} = $axes->xaxis('tick_scale_symbol');
 		$options->{xAxis}{arrowsBoth}         = $axes->xaxis('arrows_both');
 		$options->{xAxis}{overrideOptions}    = $axes->xaxis('jsx_options') if $axes->xaxis('jsx_options');
 	}
 	if ($yvisible) {
-		$options->{yAxis}{name}               = $axes->yaxis('label');
-		$options->{yAxis}{ticks}{show}        = $axes->yaxis('show_ticks');
-		$options->{yAxis}{ticks}{labels}      = $axes->yaxis('tick_labels');
-		$options->{yAxis}{ticks}{labelFormat} = $axes->yaxis('tick_label_format');
-		$options->{yAxis}{ticks}{labelDigits} = $axes->yaxis('tick_label_digits');
+		$options->{yAxis}{name}          = $axes->yaxis('label');
+		$options->{yAxis}{ticks}{show}   = $axes->yaxis('show_ticks');
+		$options->{yAxis}{ticks}{labels} = $axes->yaxis('tick_labels');
+		if ($axes->yaxis('tick_custom_labels')) {
+			$options->{yAxis}{ticks}{customLabels} = $axes->yaxis('tick_custom_labels');
+		} else {
+			$options->{yAxis}{ticks}{labelFormat} = $axes->yaxis('tick_label_format');
+			$options->{yAxis}{ticks}{labelDigits} = $axes->yaxis('tick_label_digits');
+		}
 		$options->{yAxis}{ticks}{scaleSymbol} = $axes->yaxis('tick_scale_symbol');
 		$options->{yAxis}{arrowsBoth}         = $axes->yaxis('arrows_both');
 		$options->{yAxis}{overrideOptions}    = $axes->yaxis('jsx_options') if $axes->yaxis('jsx_options');

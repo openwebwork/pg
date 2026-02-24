@@ -213,11 +213,19 @@ sub generate_axes {
 	my $x_tick_distance = $axes->xaxis('tick_distance');
 	my $x_tick_scale    = $axes->xaxis('tick_scale') || 1;
 
+	# If there are custom labels and 0 is one of the ticks, an empty label needs to be added.
+	my @custom_xlabels;
+	@custom_xlabels = @{ $axes->xaxis('tick_custom_labels') } if $axes->xaxis('tick_custom_labels');
+
 	my @xticks =
 		grep { $_ > $xmin && $_ < $xmax }
 		map  { -$_ * $x_tick_distance * $x_tick_scale }
 		reverse(1 .. -$xmin / ($x_tick_distance * $x_tick_scale));
-	push(@xticks, 0) if $xmin < 0 && $xmax > 0;
+	if ($xmin < 0 && $xmax > 0) {
+		push(@xticks, 0);
+		unshift(@custom_xlabels, '') if @custom_xlabels;
+	}
+
 	push(@xticks,
 		grep { $_ > $xmin && $_ < $xmax }
 		map { $_ * $x_tick_distance * $x_tick_scale } (1 .. $xmax / ($x_tick_distance * $x_tick_scale)));
@@ -226,8 +234,13 @@ sub generate_axes {
 		$xvisible
 		&& $axes->xaxis('show_ticks')
 		&& $axes->xaxis('tick_labels')
-		? (",\nxticklabel shift=9pt,\nxticklabel style={anchor=center},\nxticklabels={"
-			. join(',', map { $self->formatTickLabelText($_ / $x_tick_scale, 'xaxis') } @xticks) . '}')
+		? (
+			$axes->xaxis('tick_custom_labels')
+			? (",\nxticklabel shift=9pt,\nxticklabel style={anchor=center},\nxticklabels={"
+				. join(',', @custom_xlabels) . '}')
+			: (",\nxticklabel shift=9pt,\nxticklabel style={anchor=center},\nxticklabels={"
+				. join(',', map { $self->formatTickLabelText($_ / $x_tick_scale, 'xaxis') } @xticks) . '}')
+		)
 		: ",\nxticklabel=\\empty";
 
 	my @xminor_ticks;
@@ -250,7 +263,14 @@ sub generate_axes {
 		grep { $_ > $ymin && $_ < $ymax }
 		map  { -$_ * $y_tick_distance * $y_tick_scale }
 		reverse(1 .. -$ymin / ($y_tick_distance * $y_tick_scale));
-	push(@yticks, 0) if $ymin < 0 && $ymax > 0;
+
+	# If there are custom labels and 0 is one of the ticks, an empty label needs to be added.
+	my @custom_ylabels;
+	@custom_ylabels = @{ $axes->yaxis('tick_custom_labels') } if $axes->yaxis('tick_custom_labels');
+	if ($ymin < 0 && $ymax > 0) {
+		push(@yticks, 0);
+		unshift(@custom_ylabels, '') if @custom_ylabels;
+	}
 	push(@yticks,
 		grep { $_ > $ymin && $_ < $ymax }
 		map { $_ * $y_tick_distance * $y_tick_scale } (1 .. $ymax / ($y_tick_distance * $y_tick_scale)));
@@ -259,8 +279,13 @@ sub generate_axes {
 		$yvisible
 		&& $axes->yaxis('show_ticks')
 		&& $axes->yaxis('tick_labels')
-		? (",\nyticklabel shift=-3pt,\nyticklabels={"
-			. join(',', map { $self->formatTickLabelText($_ / $y_tick_scale, 'yaxis') } @yticks) . '}')
+		? (
+			$axes->yaxis('tick_custom_labels')
+			? (",\nyticklabel shift=-3pt,\nyticklabel style={anchor=left},\nyticklabels={"
+				. join(',', @custom_ylabels) . '}')
+			: (",\nyticklabel shift=-3pt,\nyticklabels={"
+				. join(',', map { $self->formatTickLabelText($_ / $y_tick_scale, 'yaxis') } @yticks) . '}')
+		)
 		: ",\nyticklabel=\\empty";
 
 	my @yminor_ticks;
