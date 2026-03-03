@@ -645,6 +645,37 @@ sub numComponents {
 	return $result;
 }
 
+sub components {
+	my $self = shift;
+
+	my @adjacencyMatrix = map { [@$_] } @{ $self->{adjacencyMatrix} };
+
+	for my $i (0 .. $#adjacencyMatrix) {
+		for my $j ($i + 1 .. $#adjacencyMatrix) {
+			if ($adjacencyMatrix[$i][$j] != 0) {
+				for my $k (0 .. $#adjacencyMatrix) {
+					$adjacencyMatrix[$j][$k] += $adjacencyMatrix[$i][$k];
+					$adjacencyMatrix[$k][$j] += $adjacencyMatrix[$k][$i];
+				}
+			}
+		}
+	}
+
+	my @components;
+	for my $i (reverse(0 .. $#adjacencyMatrix)) {
+		my $componentFound = 0;
+		for (@components) {
+			next unless $adjacencyMatrix[ $_->[-1] ][$i];
+			$componentFound = 1;
+			unshift(@$_, $i);
+			last;
+		}
+		push(@components, [$i]) unless $componentFound;
+	}
+
+	return main::PGsort(sub { $_[0][0] < $_[1][0] }, @components);
+}
+
 sub edgeWeight {
 	my ($self, $i, $j, $weight) = @_;
 	if (defined $weight) {
@@ -2241,6 +2272,13 @@ This method returns an array of the degrees of the vertices in the graph.
     $c = $graph->numComponents;
 
 This method returns the number of connected components in the graph.
+
+=head2 components
+
+    @c = $graph->components;
+
+This method returns an array containing references to arrays that form a
+partition of the vertex indices into the connected components of the graph.
 
 =head2 edgeWeight
 
