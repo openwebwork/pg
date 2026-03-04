@@ -543,7 +543,7 @@ sub edgeSet {
 		}
 	}
 
-	my $edgeSet = GraphTheory::SimpleGraph::Value::EdgeSet->new($context, @edgeSet);
+	my $edgeSet = GraphTheory::SimpleGraph::Value::EdgeSet->new($context, \@edgeSet);
 	$edgeSet->{open}  = '{';
 	$edgeSet->{close} = '}';
 	return $edgeSet;
