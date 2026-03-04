@@ -135,7 +135,7 @@ sub randomGraphWithoutEulerTrail {
 	my $graph;
 
 	do {
-		$graph = simpleGraphWithDegreeSequence([ map { main::random(2, $size - 1, 1) } 0 .. $size - 1 ], %options);
+		$graph = simpleGraphWithDegreeSequence([ map { main::random(2, $size - 1) } 0 .. $size - 1 ], %options);
 	} while !defined $graph || $graph->hasEulerTrail;
 
 	return $graph->setRandomWeights(
@@ -827,11 +827,10 @@ sub image {
 		$plot->add_point(@$iVertex, color => 'blue', mark_size => 3);
 
 		$plot->add_label(
-			1.25 * $iVertex->[0], 1.25 * $iVertex->[1],
-			label   => "\\\\($self->{labels}[$i]\\\\)",
+			$iVertex->[0], $iVertex->[1], "\\\\($self->{labels}[$i]\\\\)",
 			color   => 'blue',
-			h_align => 'center',
-			v_align => 'middle'
+			anchor  => 180 + $i * $gap * 180 / $main::PI,
+			padding => 8
 		) if $graphOptions{showLabels};
 
 		my $u = 0.275;
@@ -849,7 +848,7 @@ sub image {
 					$plot->add_label(
 						$u * $iVertex->[0] + $v * $jVertex->[0] + $perp[0] * 0.06,
 						$u * $iVertex->[1] + $v * $jVertex->[1] + $perp[1] * 0.06,
-						label  => "\\\\($self->{adjacencyMatrix}->[$i][$j]\\\\)",
+						"\\\\($self->{adjacencyMatrix}->[$i][$j]\\\\)",
 						color  => 'FireBrick',
 						rotate => ($perp[0] < 0 ? 1 : -1) *
 							atan2(sqrt(1 - $perp[1] * $perp[1]), $perp[1]) * 180 /
@@ -898,11 +897,10 @@ sub gridLayoutImage {
 			my $y = $gridGap * ($self->{gridLayout}[0] - $i - 1);
 			$plot->add_point($x, $y, color => 'blue', mark_size => 3);
 			$plot->add_label(
-				$x - $labelShift, $y + 2 * $labelShift,
-				label   => "\\\\($self->{labels}[$i + $self->{gridLayout}[0] * $j]\\\\)",
+				$x, $y, "\\\\($self->{labels}[$i + $self->{gridLayout}[0] * $j]\\\\)",
 				color   => 'blue',
-				h_align => 'center',
-				v_align => 'middle'
+				anchor  => -atan2(2, 1) * 180 / $main::PI,
+				padding => 8,
 			) if $graphOptions{showLabels};
 		}
 	}
@@ -922,14 +920,14 @@ sub gridLayoutImage {
 					($self->{gridLayout}[0] - ($j % $self->{gridLayout}[0]) - 1) * $gridGap
 				];
 				$plot->add_dataset($iVertex, $jVertex, color => 'black', width => 1);
-				my $vector = [ $jVertex->[0] - $iVertex->[0], $jVertex->[1] - $iVertex->[1] ];
 				if ($graphOptions{showWeights}) {
-					my $norm = sqrt($vector->[0]**2 + $vector->[1]**2);
+					my $vector = [ $jVertex->[0] - $iVertex->[0], $jVertex->[1] - $iVertex->[1] ];
 					$plot->add_label(
-						$u * $iVertex->[0] + $v * $jVertex->[0] - $vector->[1] / $norm * 2,
-						$u * $iVertex->[1] + $v * $jVertex->[1] + $vector->[0] / $norm * 2,
-						label => "\\\\($self->{adjacencyMatrix}[$i][$j]\\\\)",
-						color => 'FireBrick'
+						$u * $iVertex->[0] + $v * $jVertex->[0],
+						$u * $iVertex->[1] + $v * $jVertex->[1],
+						"\\\\($self->{adjacencyMatrix}[$i][$j]\\\\)",
+						color  => 'FireBrick',
+						anchor => atan2(-$vector->[0], $vector->[1]) * 180 / $main::PI
 					);
 				}
 			}
@@ -1000,21 +998,21 @@ sub bipartiteLayoutImage {
 	for my $i (0 .. $#$top) {
 		$plot->add_point($i * $width + $shift[0], $high, color => 'blue', mark_size => 3);
 		$plot->add_label(
-			$i * $width + $shift[0], $high + 2 / 3,
-			label   => "\\\\($self->{labels}[$top->[$i]]\\\\)",
+			$i * $width + $shift[0], $high, "\\\\($self->{labels}[$top->[$i]]\\\\)",
 			color   => 'blue',
 			h_align => 'center',
-			v_align => 'bottom'
+			v_align => 'bottom',
+			padding => 8
 		) if $graphOptions{showLabels};
 	}
 	for my $j (0 .. $#$bottom) {
 		$plot->add_point($j * $width + $shift[1], $low, color => 'blue', mark_size => 3);
 		$plot->add_label(
-			$j * $width + $shift[1], $low - 2 / 3,
-			label   => "\\\\($self->{labels}[$bottom->[$j]]\\\\)",
+			$j * $width + $shift[1], $low, "\\\\($self->{labels}[$bottom->[$j]]\\\\)",
 			color   => 'blue',
 			h_align => 'center',
-			v_align => 'top'
+			v_align => 'top',
+			padding => 8
 		) if $graphOptions{showLabels};
 	}
 
@@ -1028,12 +1026,13 @@ sub bipartiteLayoutImage {
 			$plot->add_dataset($point1, $point2, color => 'black');
 			if ($graphOptions{showWeights}) {
 				my $vector = [ $point2->[0] - $point1->[0], $point2->[1] - $point1->[1] ];
-				my $norm   = sqrt($vector->[0]**2 + $vector->[1]**2);
 				$plot->add_label(
-					$u * $point1->[0] + $v * $point2->[0] - $vector->[1] / $norm * 5 / 4,
-					$u * $point1->[1] + $v * $point2->[1] + $vector->[0] / $norm * 5 / 4,
-					label => "\\\\($self->{adjacencyMatrix}[ $top->[$i] ][ $bottom->[$j] ]\\\\)",
-					color => 'FireBrick'
+					$u * $point1->[0] + $v * $point2->[0],
+					$u * $point1->[1] + $v * $point2->[1],
+					"\\\\($self->{adjacencyMatrix}[ $top->[$i] ][ $bottom->[$j] ]\\\\)",
+					color   => 'FireBrick',
+					anchor  => atan2($vector->[0], -$vector->[1]) * 180 / $main::PI + 180,
+					padding => 2
 				);
 			}
 		}
@@ -1070,11 +1069,10 @@ sub wheelLayoutImage {
 
 	$plot->add_point(0, 0, color => 'blue', mark_size => 3);
 	$plot->add_label(
-		0.1, 0.2,
-		label   => "\\\\($self->{labels}[ $self->{wheelLayout} ]\\\\)",
+		0, 0, "\\\\($self->{labels}[ $self->{wheelLayout} ]\\\\)",
 		color   => 'blue',
-		h_align => 'center',
-		v_align => 'middle'
+		anchor  => 180 + $gap * 90 / $main::PI,
+		padding => 10
 	) if $graphOptions{showLabels};
 
 	for my $i (0 .. $self->lastVertexIndex) {
@@ -1086,11 +1084,10 @@ sub wheelLayoutImage {
 		$plot->add_point(@$iVertex, color => 'blue', mark_size => 3);
 
 		$plot->add_label(
-			1.25 * $iVertex->[0], 1.25 * $iVertex->[1],
-			label   => "\\\\($self->{labels}[$i]\\\\)",
+			$iVertex->[0], $iVertex->[1], "\\\\($self->{labels}[$i]\\\\)",
 			color   => 'blue',
-			h_align => 'center',
-			v_align => 'middle'
+			anchor  => 180 + $iRel * $gap * 180 / $main::PI,
+			padding => 8
 		) if $graphOptions{showLabels};
 
 		if ($self->hasEdge($self->{wheelLayout}, $i)) {
@@ -1101,7 +1098,7 @@ sub wheelLayoutImage {
 				$plot->add_label(
 					0.5 * $iVertex->[0] + $iVertex->[1] / $norm * 0.1,
 					0.5 * $iVertex->[1] - $iVertex->[0] / $norm * 0.1,
-					label  => "\\\\($self->{adjacencyMatrix}->[ $self->{wheelLayout} ][$i]\\\\)",
+					"\\\\($self->{adjacencyMatrix}->[ $self->{wheelLayout} ][$i]\\\\)",
 					color  => 'FireBrick',
 					rotate => ($perp[0] < 0 ? 1 : -1) *
 						atan2(sqrt(1 - $perp[1] * $perp[1]), $perp[1]) * 180 /
@@ -1126,7 +1123,7 @@ sub wheelLayoutImage {
 					$plot->add_label(
 						0.5 * $iVertex->[0] + 0.5 * $jVertex->[0] + $vector[1] / $norm * 0.1,
 						0.5 * $iVertex->[1] + 0.5 * $jVertex->[1] - $vector[0] / $norm * 0.1,
-						label  => "\\\\($self->{adjacencyMatrix}->[$i][$j]\\\\)",
+						"\\\\($self->{adjacencyMatrix}->[$i][$j]\\\\)",
 						color  => 'FireBrick',
 						rotate => ($perp[0] < 0 ? 1 : -1) *
 							atan2(sqrt(1 - $perp[1] * $perp[1]), $perp[1]) * 180 /
