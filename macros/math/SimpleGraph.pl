@@ -1199,45 +1199,43 @@ sub nearestNeighborPath {
 sub kruskalGraph {
 	my $self = shift;
 
+	my $numComponents     = $self->numComponents;
 	my $graph             = $self->copy;
 	my $tree              = GraphTheory::SimpleGraph->new($graph->numVertices, labels => $graph->labels);
-	my $numTreeComponents = $tree->numComponents;
+	my $numTreeComponents = $tree->numVertices;
 
-	my $treeWeight = 0;
-
-	my $weight = 0;
 	my @treeWeights;
+	my $treeWeight = 0;
+	my @algorithmSteps;
 
-	my @weights;
-	for my $i (0 .. $graph->lastVertexIndex) {
-		for my $j ($i + 1 .. $graph->lastVertexIndex) {
-			push(@weights, $graph->edgeWeight($i, $j)) if $graph->hasEdge($i, $j);
+	my @sortedEdges;
+	for my $i (0 .. $self->lastVertexIndex) {
+		for my $j ($i + 1 .. $self->lastVertexIndex) {
+			next unless $self->hasEdge($i, $j);
+			push @sortedEdges, [ $i, $j, $self->edgeWeight($i, $j) ];
 		}
 	}
-	@weights = main::num_sort(@weights);
+	@sortedEdges = main::PGsort(sub { $_[0][-1] < $_[1][-1] }, @sortedEdges);
 
-	while (@weights > 0) {
-		$weight = shift @weights;
-		for my $i (0 .. $graph->lastVertexIndex) {
-			for my $j ($i + 1 .. $graph->lastVertexIndex) {
-				if ($graph->edgeWeight($i, $j) == $weight) {
-					$graph->removeEdge($i, $j);
-					$tree->addEdge($i, $j, $weight);
-					my $currentTreeNumComponents = $tree->numComponents;
-					if ($currentTreeNumComponents < $numTreeComponents) {
-						$numTreeComponents = $currentTreeNumComponents;
-						$treeWeight += $weight;
-						push @treeWeights, $weight;
-					} else {
-						$tree->removeEdge($i, $j);
-					}
-					last;
-				}
-			}
+	while (@sortedEdges && $numTreeComponents > $numComponents) {
+		my $edge   = shift @sortedEdges;
+		my $weight = $edge->[2];
+
+		$graph->removeEdge($edge->[0], $edge->[1]);
+		$tree->addEdge(@$edge);
+		my $currentTreeNumComponents = $tree->numComponents;
+		if ($currentTreeNumComponents < $numTreeComponents) {
+			push @algorithmSteps, [ @$edge, 1 ];
+			$numTreeComponents = $currentTreeNumComponents;
+			$treeWeight += $weight;
+			push @treeWeights, $weight;
+		} else {
+			push @algorithmSteps, [ @$edge, 0 ];
+			$tree->removeEdge($edge->[0], $edge->[1]);
 		}
 	}
 
-	return ($tree, $treeWeight, \@treeWeights);
+	return ($tree, $treeWeight, \@treeWeights, \@algorithmSteps);
 }
 
 sub hasEulerCircuit {
@@ -2535,18 +2533,32 @@ path.
 
 =head2 kruskalGraph
 
-    ($tree, $treeWeight, $treeWeights) = $graph->kruskalGraph($vertex);
+	($tree, $treeWeight, $treeWeights, $algorithmSteps) = $graph->kruskalGraph($vertex);
 
 This is an implementation of Kruskal's algorithm. It attempts to find a minimum
 spanning tree or forest for the graph. Note that if the graph is connected, then
 the result will be a tree, and otherwise it will be a forest consisting of
 minimal spanning trees for each component.
 
-The method returns a list with three entries.  The first entry is a
+The method returns a list with four entries.  The first entry is a
 C<GraphTheory::SimpleGraph> object representing the tree or forest found. The
-second entry is the total weight of that tree or forest. The last entry is a
+second entry is the total weight of that tree or forest. The third entry is a
 reference to an array containing the weights of the edges in the tree or forest
-in the order that they are added by the algorithm.
+in the order that they are added by the algorithm. The fourth entry is a
+reference to an array of array references that represent the steps of Kruskal's
+algorithm.
+
+The returned representation of the steps in the algorithm will be a reference to
+an array of array references where each array reference is of the form C<[$i,
+$j, $weight, $accepted]>. This is where C<$i> and C<$j> are the indices of the
+vertices connected by an edge in the graph, and C<$weight> is the weight of that
+edge. These arrays will be sorted in ascending order of weight, i.e., the order
+the edge is considered by Kruskal's algorithm. The last C<$accepted> will be
+either 0 or 1. It will be 0 if the edge is rejected by the algorithm, and 1 if
+it is accepted by the algorithm.  Note that this list may not contain all edges
+of the original graph if there are edges that are never considered by the
+algorithm because the minimal spanning tree is completed before those edges are
+reached.
 
 =head2 hasEulerCircuit
 
