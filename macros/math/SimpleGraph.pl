@@ -1486,54 +1486,51 @@ sub dijkstraPath {
 sub sortedEdgesPath {
 	my $self = shift;
 
-	my @weights;
+	my @sortedEdges;
 	my $sortedGraph = GraphTheory::SimpleGraph->new($self->numVertices, labels => $self->labels);
 
 	for my $i (0 .. $self->lastVertexIndex) {
 		for my $j ($i + 1 .. $self->lastVertexIndex) {
 			next unless $self->hasEdge($i, $j);
-			push @weights, $self->edgeWeight($i, $j);
+			push @sortedEdges, [ $i, $j, $self->edgeWeight($i, $j) ];
 		}
 	}
 
-	@weights = main::num_sort(@weights);
+	@sortedEdges = main::PGsort(sub { $_[0][-1] < $_[1][-1] }, @sortedEdges);
 
-	# Returns 1 if an edge can be added to the sorted edges based graph and 0 otherwise. An edge can be added if it does
-	# not make a vertex have more than two edges connected to it, and it does not create a circuit in the graph (unless
-	# it is the last vertex in which case that is okay since it completes the circuit).
-	my $goodEdge = sub {
+	# Returns 0 if an edge can be added to the sorted edges based graph, 1 if adding the edge results in a vertex having
+	# more than two edges connected to it, and 2 if adding the edge results in the path having a circuit (unless it is
+	# the last vertex in which case that is okay since it completes the circuit).
+	my $edgeCheck = sub {
 		my $graph = shift;
 
 		my $sum = 0;
 
 		for my $i (0 .. $graph->lastVertexIndex) {
 			my $degree = $graph->vertexDegree($i);
-			return 0 if $degree > 2;
+			return 1 if $degree > 2;
 			$sum += $degree;
 		}
 
-		return $sum < 2 * $graph->numVertices && $graph->hasCircuit ? 0 : 1;
+		return $sum < 2 * $graph->numVertices && $graph->hasCircuit ? 2 : 0;
 	};
 
 	my @pathWeights;
+	my @algorithmSteps;
 
 	do {
-		my $weight = shift @weights;
-		for my $i (0 .. $sortedGraph->lastVertexIndex) {
-			for my $j ($i + 1 .. $sortedGraph->lastVertexIndex) {
-				if ($weight == $self->edgeWeight($i, $j)) {
-					$sortedGraph->addEdge($i, $j, $self->edgeWeight($i, $j));
-					if ($goodEdge->($sortedGraph)) {
-						push @pathWeights, $weight;
-					} else {
-						$sortedGraph->removeEdge($i, $j);
-					}
-				}
-			}
+		my $edge = shift @sortedEdges;
+		$sortedGraph->addEdge(@$edge);
+		my $edgeCheckResult = $edgeCheck->($sortedGraph);
+		push @algorithmSteps, [ @$edge, $edgeCheckResult ];
+		if ($edgeCheckResult) {
+			$sortedGraph->removeEdge(@$edge);
+		} else {
+			push @pathWeights, $edge->[-1];
 		}
-	} while @pathWeights < $sortedGraph->numVertices && @weights > 0;
+	} while @pathWeights < $sortedGraph->numVertices && @sortedEdges;
 
-	return ($sortedGraph, \@pathWeights);
+	return (\@pathWeights, \@algorithmSteps, $sortedGraph);
 }
 
 sub chromaticNumber {
@@ -2658,16 +2655,33 @@ vertex.
 
 =head2 sortedEdgesPath
 
-    ($sortedEdgesPath, $edgeWeights) = $graph->sortedEdgesPath;
+    ($pathWeights, $algorithmSteps, $sortedGraph) = $graph->sortedEdgesPath;
 
-This is an implementation of the sorted edges algorithm for finding the shortest
+This is an implementation of the sorted edges algorithm for finding a low cost
 Hamiltonian circuit in a graph. That is a path that visits each vertex in the
-graph exactly once. The return value will be a list with two entries  The first
-entry is the resulting sorted edges graph, and the second entry is a reference
-to an array containing the weights of the edges in the path in the order that
-they are chosen by the algorithm. Note that the returned graph will contain a
-Hamiltonian circuit from the original graph if one exists. In any case the graph
-will contain all edges chosen in the algorithm.
+graph exactly once. The return value will be a list with three entries. The
+first entry is a reference to an array containing the weights of the edges in
+the path in the order that they are chosen by the algorithm, the second entry is
+a reference to an array of array references that represent the steps of the
+sorted edges algorithm, and the third entry is the resulting sorted edges graph.
+
+The returned representation of the steps in the algorithm will be a reference to
+an array of array references where each array reference is of the form
+C<[$i, $j, $weight, $reason]>.  This is where C<$i> and C<$j> are the indices of
+the vertices connected by an edge in the graph, and C<$weight> is the weight of
+that edge. These arrays will be sorted in ascending order of weight, i.e., the
+order the edge is considered by the sorted edges algorithm. The C<$reason> will
+be one of 0, 1, or 2. It will be 0 if the edge is chosen by the sorted edges
+algorithm, 1 if the edge is rejected by the sorted edges algorithm because
+adding it would have made a vertex in the path have more than two edges
+connected to it, and 2 if adding the edge would have created a circuit in the
+path (before the path is completed). Note that this list may not contain all
+edges of the original graph if there are edges that are never considered by the
+algorithm because the circuit is completed before those edges are reached.
+
+The returned sorted edges graph will contain a Hamiltonian circuit from the
+original graph if one exists. In any case the graph will contain all edges
+chosen in the algorithm.
 
 =head2 chromaticNumber
 
