@@ -357,8 +357,21 @@ subtest 'Construct an elementary matrix' => sub {
 		'Elementary Matrix with row multiple';
 
 	my $E3 = Value::Matrix->E(4, [ 3, 2 ], -3);
-	is $E3->TeX, Matrix([ [ 1, 0, 0, 0 ], [ 0, 1, 0, 0 ], [ 0, -3, 1, 0 ], [ 0, 0, 0, 1 ] ])->TeX,
+	is $E3->TeX, Matrix([ [ 1, 0, 0, 0 ], [ 0, 1, -3, 0 ], [ 0, 0, 1, 0 ], [ 0, 0, 0, 1 ] ])->TeX,
 		'Elementary Matrix with row multiple and add';
+
+	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ] ]);
+	is $A->E([ 1, 4 ])->TeX,
+		Matrix([ [ 0, 0, 0, 1 ], [ 0, 1, 0, 0 ], [ 0, 0, 1, 0 ], [ 1, 0, 0, 0 ] ])->TeX,
+		'Elementary Matrix from syntax $A->E an existing matrix with a row swap';
+
+	is $A->E([2], 5)->TeX,
+		Matrix([ [ 1, 0, 0, 0 ], [ 0, 5, 0, 0 ], [ 0, 0, 1, 0 ], [ 0, 0, 0, 1 ] ])->TeX,
+		'Elementary Matrix from syntax $A->E an existing matrix with a row multiple';
+
+	is $A->E([ 2, 4 ], -4)->TeX,
+		Matrix([ [ 1, 0, 0, 0 ], [ 0, 1, 0, 0 ], [ 0, 0, 1, 0 ], [ 0, -4, 0, 1 ] ])->TeX,
+		'Elementary Matrix from syntax $A->E an existing matrix with a row multiple and add';
 };
 
 subtest 'Extract a slice from a Matrix' => sub {
