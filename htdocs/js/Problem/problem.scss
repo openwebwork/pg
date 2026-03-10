@@ -164,6 +164,19 @@
 			border-radius: 50%;
 			background-color: var(--bs-warning);
 			padding: 0.25rem;
+			animation: flash-in 1s alternate 3;
+
+			@keyframes flash-in {
+				0% {
+					filter: brightness(2);
+					opacity: 0.5;
+				}
+
+				50% {
+					filter: brightness(2);
+					opacity: 1;
+				}
+			}
 		}
 	}
 
