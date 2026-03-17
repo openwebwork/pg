@@ -150,19 +150,33 @@ sub loadMacros {
 			if $debugON;
 		unless ($macro_file_loaded) {
 			warn "loadMacros: loading macro file $fileName" if $debugON;
-			my $filePath = $self->findMacroFile($fileName);
-			#### (check for renamed files here?) ####
-			warn "loadMacros:  look for $fileName at |$filePath|" if $debugON;
-			if ($filePath) {
-				$self->compile_file($filePath);
-				warn "loadMacros is compiling $filePath" if $debugON;
+
+			# Check for injected macro source (from OPL content-addressed macros)
+			# before searching the filesystem. This allows custom macros to be
+			# delivered via %envir without requiring them on disk.
+			my $injected = $self->{envir}{injectedMacros}{$fileName};
+			if ($injected) {
+				warn "loadMacros: using injected source for $fileName" if $debugON;
+				my ($result, $error, $fullerror) =
+					$self->PG_macro_file_eval($injected, "injected:$fileName");
+				if ($error) {
+					die "Error detected while loading injected macro $fileName:\n$fullerror";
+				}
 			} else {
-				my $pgDirectory       = $self->{envir}{pgMacrosDir};
-				my $templateDirectory = $self->{envir}{templateDirectory};
-				my @shortenedPaths    = @{$macrosPath};
-				@shortenedPaths = map { $_ =~ s|^$templateDirectory|[TMPL]/|; $_ } @shortenedPaths;
-				@shortenedPaths = map { $_ =~ s|^$pgDirectory|[PG]/macros/|;  $_ } @shortenedPaths;
-				warn "Can't locate macro file |$fileName| via path: |" . join("|,<br/> |", @shortenedPaths) . "|\n";
+				my $filePath = $self->findMacroFile($fileName);
+				#### (check for renamed files here?) ####
+				warn "loadMacros:  look for $fileName at |$filePath|" if $debugON;
+				if ($filePath) {
+					$self->compile_file($filePath);
+					warn "loadMacros is compiling $filePath" if $debugON;
+				} else {
+					my $pgDirectory       = $self->{envir}{pgMacrosDir};
+					my $templateDirectory = $self->{envir}{templateDirectory};
+					my @shortenedPaths    = @{$macrosPath};
+					@shortenedPaths = map { $_ =~ s|^$templateDirectory|[TMPL]/|; $_ } @shortenedPaths;
+					@shortenedPaths = map { $_ =~ s|^$pgDirectory|[PG]/macros/|;  $_ } @shortenedPaths;
+					warn "Can't locate macro file |$fileName| via path: |" . join("|,<br/> |", @shortenedPaths) . "|\n";
+				}
 			}
 
 			$init_subroutine = eval { \&{ 'main::' . $init_subroutine_name } };
