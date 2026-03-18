@@ -93,15 +93,15 @@ subtest 'Create numbers with significant digits using Real' => sub {
 	is $a6->sigfigs,     3,                     '1230000 has 3 significant figures.';
 	is $a6->E,           6,                     '1230000 = 1.23 * 10^6';
 	is $a6->format('E'), '1.23E+06',            'Correct exponential/internal form of 1230000';
-	is $a6->string,      '1.23E+06',            'Correct string output of 1230000';
+	is $a6->string,      '1.23x10^6',           'Correct string output of 1230000';
 	is $a6->TeX,         '{1.23\times 10^{6}}', 'Correct TeX output of 1230000';
 
 	ok my $a7 = Compute('2'), 'Create the number 2';
 	is $a7->sigfigs,     1,       '2 has 1 significant figure.';
 	is $a7->E,           0,       '2 = 2 * 10^0';
 	is $a7->format('E'), '2E+00', 'Correct exponential/internal form of 2';
-	is $a7->string,      '2.',    'Correct string output of 2';
-	is $a7->TeX,         '{2.}',  'Correct TeX output of 2';
+	is $a7->string,      '2',     'Correct string output of 2';
+	is $a7->TeX,         '{2}',   'Correct TeX output of 2';
 
 	ok my $a8 = Compute('-1.932'), 'Creating the number -1.932';
 	is $a8->sigfigs,     4,            '-1.932 has 4 significant figures.';
@@ -114,14 +114,14 @@ subtest 'Create numbers with significant digits using Real' => sub {
 	is $a9->sigfigs,     4,                       '-12340000 has 4 significant figures';
 	is $a9->E,           7,                       '-12340000 = -1.234 * 10^(7)';
 	is $a9->format('E'), '-1.234E+07',            'Correct exponential/internal form';
-	is $a9->string,      '-1.234E+07',            'Correct string output.';
+	is $a9->string,      '-1.234x10^7',          'Correct string output.';
 	is $a9->TeX,         '{-1.234\times 10^{7}}', 'Correct TeX output.';
 
 	ok my $a10 = Compute('0.00000001234'), 'Creating the number 0.00000001234';
 	is $a10->sigfigs,      4,                      '0.00000001234 has 4 significant figures';
 	is $a10->E,           -8,                      '0.00000001234 = 1.234 * 10^(-11)';
 	is $a10->format('E'), '1.234E-08',             'Correct exponential/internal form';
-	is $a10->string,      '1.234E-08',             'Correct string output.';
+	is $a10->string,      '1.234x10^(-8)',         'Correct string output.';
 	is $a10->TeX,         '{1.234\times 10^{-8}}', 'Correct TeX output.';
 
 	ok my $a11 = Real('10', sigfigs => 'inf'), 'Creating the number 10 with infinite sigfigs.';
