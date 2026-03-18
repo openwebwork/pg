@@ -151,17 +151,18 @@ sub new {
 	my ($value, %opts) = @_;
 	my $n = $opts{sigfigs};
 
+	if (!Value::isValue($value) && !Value::matchNumber($value)) {
+		$value = Value::makeValue($value, context => $context);
+		return $value if Value::isFormula($value);
+		Value::Error("Can't convert %s to %s", Value::showClass($value), Value::showClass($self))
+			unless Value::isNumber($value);
+	}
+	return $value->eval if Value::isFormula($value);
 	if (Value::isValue($value) && $value->{sigfigs}) {
 		my $copy = $value->copy->inContext($context);
 		$copy->sigfigs($n) if defined($n) && $n != $copy->N;
 		return $copy;
 	}
-	if (!Value::matchNumber($value)) {
-		$value = Value::makeValue($value, context => $context);
-		return $value if Value::isFormula($value);
-		Value::Error("Can't convert %s to %s", Value::showClass($value), Value::showClass($self));
-	}
-	return $value->eval if Value::isFormula($value);
 
 	if (!defined $n) {
 		my $digits = $value;
@@ -184,6 +185,7 @@ sub new {
 	$value           = $self->format('E', $self->value, $N) unless $N eq 'inf';
 	$self->{exp}     = $N eq 'inf' ? 0 : (split(/E/, $value))[1] + 0;
 	$self->{sigfigs} = $N;
+	$self->{pure}    = 1 unless $opts{computed} || $self->{value}{hadParens};
 
 	return $self;
 }
@@ -216,12 +218,20 @@ sub expFor {
 }
 
 #  Stringify and TeXify the number in the context's base
-sub string { shift->format('f') }
+
+sub string {
+	my ($self, $equation, $precedence) = @_;
+	my $string = $self->format($self->{expForm} || $self->getFlag('alwaysExponentialForm') ? 'E' : 'f');
+	$string        =~ s/E(?:(-)|\+)0*(\d+)/x10^$1$2/;
+	$string        =~ s/\^-(.*)/^(-$1)/;
+	return $string =~ m/x/ && $precedence ? "($string)" : $string;
+}
 
 sub TeX {
-	my $tex = shift->string;
-	$tex =~ s/E(?:(-)|\+)0*([1-9]\d?)/\\times 10^{$1$2}/;
-	return "{$tex}";
+	my ($self, $equation, $precedence) = @_;
+	my $tex = $self->format($self->{expForm} || $self->getFlag('alwaysExponentialForm') ? 'E' : 'f');
+	$tex =~ s/E(?:(-)|\+)0*(\d+)/\\times 10^{$1$2}/;
+	return $tex =~ m/\\times/ && $precedence ? "\\left($tex\\right)" : "{$tex}";
 }
 
 # Format the number in $value in either 'E' (exponential form) or 'f' decimal form using
@@ -237,10 +247,12 @@ sub format {
 	return "$value" if $n == 'inf';
 	$value = ROUND($value, 0) if $n == 0;
 	my $exp = $self->E // $self->expFor($value, 0);
-	$f = 'E' if $f eq 'f' && ($n < 1 || $exp >= 5 || -5 >= $exp);
+	$f = 'E' if $f eq 'f' && ($n - $exp < 1 || $exp >= 5 || -5 >= $exp);
 	$n -= $exp if $f eq 'f';
-	$n = main::max(0, $n - 1);
-	return sprintf("%.${n}${f}" . ($n == 0 && $f eq 'f' ? '.' : ''), $value);
+	$n     = main::max(0, $n - 1);
+	$value = sprintf("%.${n}${f}", $value);
+	$value .= '.' if $n == 0 && $f eq 'f' && $value =~ m/0$/;
+	return $value;
 }
 
 # Redefine addition.  The leftmost signifcant place in the result is needed to get the
@@ -250,7 +262,7 @@ sub add {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
 	my $exp   = main::min($l->N - $l->E, $r->N - $r->E);
 	my $value = $l->round($exp) + $r->round($exp);
-	return $self->new($value, sigfigs => main::max(0, $exp + $self->expFor($value, $exp)));
+	return $self->new($value, sigfigs => main::max(0, $exp + $self->expFor($value, $exp)), computed => 1);
 }
 
 # Redefine subtraction.  The leftmost signifcant place in the result is needed to get the
@@ -260,7 +272,7 @@ sub sub {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
 	my $exp   = main::min($l->N - $l->E, $r->N - $r->E);
 	my $value = $l->round($exp) - $r->round($exp);
-	return $self->new($value, sigfigs => main::max(0, $exp + $self->expFor($value, $exp)));
+	return $self->new($value, sigfigs => main::max(0, $exp + $self->expFor($value, $exp)), computed => 1);
 }
 
 # Redefine multiplication.  Use the product of the two numbers and set the number of significant
@@ -268,7 +280,7 @@ sub sub {
 
 sub mult {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
-	return $self->new($l->value * $r->value, sigfigs => main::min($l->{sigfigs}, $r->{sigfigs}));
+	return $self->new($l->value * $r->value, sigfigs => main::min($l->{sigfigs}, $r->{sigfigs}), computed => 1);
 }
 
 # Redefine multiplication.  Use the quotient of the two numbers and set the number of significant
@@ -276,14 +288,29 @@ sub mult {
 
 sub div {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
-	return $self->new($l->value / $r->value, sigfigs => main::min($l->{sigfigs}, $r->{sigfigs}));
+	return $self->new($l->value / $r->value, sigfigs => main::min($l->{sigfigs}, $r->{sigfigs}), computed => 1);
+}
+
+# Redefine powers.  Record whether this is an integer power of 10 for use with exponetial form.
+
+sub power {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	my ($L, $R) = ($l->value, $r->value);
+	$self->Error("Can't raise a negative number to a non-integer power") if $L < 0  && CORE::int($R) != $R;
+	$self->Error("Zero to the zero power is undefined")                  if $L == 0 && $R == 0;
+	return $l->copy                                                      if $L == 0;
+	my $intPower = CORE::int($R) == $R;
+	my $n        = $intPower ? $l->{sigfigs} : main::min($l->{sigfigs}, $r->{sigfigs});
+	my $result   = $self->make($L**$R, sigfigs => $n, computed => 1);
+	$result->{tenPower} = 1 if $intPower && $L == 10 && $l->{pure} && $r->{pure};
+	return $result;
 }
 
 # Redefine abs to return the absolute value of the number with the same number of sigfigs.
 
 sub abs {
 	my $self = shift;
-	return $self->make(CORE::abs($self->value), sigfigs => $self->{sigfigs});
+	return $self->make(CORE::abs($self->value), sigfigs => $self->{sigfigs}, computed => 1);
 }
 
 # Redefined neg to handle the parsing of negative numbers with sigfigs.
@@ -297,11 +324,11 @@ sub neg {
 # with infinite precision.
 
 sub promote {
-	my $self    = shift;
-	my $context = (Value::isContext($_[0]) ? shift : $self->context);
-	my $value   = (scalar(@_)              ? shift : $self);
-	return $value->inContext($context) if Value::isValue($value) && $value->{sigfigs};
-	return $self->new($context, $value, sigfigs => 'inf');
+       my $self    = shift;
+       my $context = (Value::isContext($_[0]) ? shift : $self->context);
+       my $value   = (scalar(@_)              ? shift : $self);
+       return $value->inContext($context) if Value::isValue($value) && $value->{sigfigs};
+       return $self->new($context, $value, sigfigs => 'inf');
 }
 
 # The compare method determines that the values are equal with the same number of significant figures.
@@ -322,15 +349,15 @@ sub round {
 
 sub ROUND {
 	my ($x, $n) = @_;
-	return $x + 0 if $n == 'inf';                        # keep the same if infinite digits
-	return 0      if $n < 0 || $x == 0;                  # 0 if less than 0 digits wanted or there are no digits
-	my $N = main::max(0, $n - 1);                        # Number of decimals to use in E notation
-	my $r = sprintf("%.${N}E", $x);                      # preliminary rounding of $x
-	my $e = (split(/E/, $r))[1] + 0;                     # exponent for $r
-	my $s = ($x < 0 ? -1 : 1);                           # sign of $x
-	my $m = main::max($n, 14 - $n);                      # position to use for adjustment for repeated 9s
-	$x += $s * 10**($e - $m);                            # adjust for repeated 9s
-	return sprintf("%.${N}E", $x) + 0 unless $n == 0;    # if we want digits, re-round the adjusted value
+	return $x + 0 if $n == 'inf';                      # keep the same if infinite digits
+	return 0      if $n < 0 || $x == 0;                # 0 if less than 0 digits wanted or there are no digits
+	my $N = main::max(0, $n - 1);                      # Number of decimals to use in E notation
+	my $r = sprintf("%.${N}E", $x);                    # preliminary rounding of $x
+	my $e = (split(/E/, $r))[1] + 0;                   # exponent for $r
+	my $s = ($x < 0 ? -1 : 1);                         # sign of $x
+	my $m = main::max($n, 14 - $n);                    # position to use for adjustment for repeated 9s
+	$x += $s * 10**($e - $m);                          # adjust for repeated 9s
+	return sprintf("%.${N}E", $x) + 0 unless $n == 0;  # if we want digits, re-round the adjusted value
 
 	# For zero digits, we add a digit just above the first one in $x,
 	# round that, then remove the added digit, getting 0 if $x didn't
@@ -346,6 +373,12 @@ package context::SignificantFigures;
 
 sub Init {
 	my $context = $main::context{SignificantFigures} = context::SignificantFigures::Context->new();
+	$context         = $main::context{LimitedSignificantFigures} = $context->copy;
+	$context->{name} = 'LimitedSignificantFigures';
+	$context->parens->undefine('|', '{', '[');
+	$context->variables->remove('x');
+	$context->operators->undefine('-', '+', '/', '//', ' /', '/ ', '!', '_', '.', 'U', '><');
+	$context->flags->set(limitedSigFigs => 1);
 }
 
 package context::SignificantFigures::Context;
@@ -355,14 +388,44 @@ sub new {
 	my $self    = shift;
 	my $class   = ref($self) || $self;
 	my $context = bless Parser::Context->getCopy('Numeric'), $class;
-	$context->{name}           = 'SignificantFigures';
-	$context->{parser}{Number} = 'context::SignificantFigures::Number';
-	$context->{value}{Real}    = 'context::SignificantFigures::Real';
+	$context->{name}             = 'SignificantFigures';
+	$context->{parser}{Number}   = 'context::SignificantFigures::Number';
+	$context->{parser}{Value}    = 'context::SignificantFigures::Value';
+	$context->{parser}{Variable} = 'context::SignificantFigures::Variable';
+	$context->{value}{Real}      = 'context::SignificantFigures::Real';
 	$context->functions->disable('All');
 	$context->constants->clear();
-	$context->{precedence}{SignifcantFigures} = $context->{precedence}{special};
-	$context->flags->set(limits => [ -1000, 1000, 1 ]);
-
+	$context->{precedence}{SignificantFigures} = $context->{precedence}{special};
+	$context->flags->set(alwaysExponentialForm => 0);    # controls whether all reals are given in exponential form
+	$context->operators->set(
+		'*'  => { class => 'context::SignificantFigures::BOP::multiply' },
+		'* ' => { class => 'context::SignificantFigures::BOP::multiply' },
+		' *' => { class => 'context::SignificantFigures::BOP::multiply' },
+		'^'  => { class => 'context::SignificantFigures::BOP::power' },
+		'**' => { class => 'context::SignificantFigures::BOP::power' },
+		' '  => { class => 'context::SignificantFigures::BOP::space', space => '  ', string => '  ' },
+		'  ' =>
+			{ %{ $context->operators->get('*') }, class => 'context::SignificantFigures::BOP::space', hidden => 1 },
+		'u-' => { class => 'context::SignificantFigures::UOP::minus' },
+		'u+' => { class => 'context::SignificantFigures::UOP::plus' },
+	);
+	#
+	# Arrange for variables to be higher priority than operators so variable 'x' is used rather
+	# than operator 'x', unless the variable is removed.
+	#
+	my $variables = '_' . $context->variables->{dataName};
+	$context->{data}{objects} = [ (grep { $_ ne $variables } @{ $context->{data}{objects} }), $variables ];
+	#
+	# Add the 'x' operator as a fallback when 'x' is not a variable.
+	#
+	$context->operators->set(
+		'x' => {
+			%{ $context->operators->get('*') },
+			class  => 'context::SignificantFigures::BOP::multiply',
+			string => 'x',
+			TeX    => '\\times'
+		},
+	);
 	return $context;
 }
 
@@ -375,8 +438,79 @@ sub checkSigFigs {
 	return main::max(1, $n);
 }
 
+# Some common function for the Parser object overrides
+
+package context::SignificantFigures::common;
+
+# True when this is a pure real, not a computed one
+
+sub isPure {
+	my ($self, $value) = @_;
+	return $value->{pure} && !$value->{hadParens};
+}
+
+# Check for limited use of UOPs
+
+sub checkLimitedUOP {
+	my $self = shift;
+	Value::Error("You can only use '%s' on an unsigned constant", shift)
+		if $self->context->flag('limitedSigFigs') && !$self->{pure};
+}
+
+# Check whether multiplication is for exponential form
+
+sub checkExponentialForm {
+	my $self = shift;
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	if ($r->{tenPower} && !$r->{hadParens} && $self->isPure($l)) {
+		$r                   = $r->{lop} if $r->class eq 'BOP';
+		$r->{value}{sigfigs} = 'inf';
+		$self->{expForm}     = 1;
+		$self->{def}         = { %{ $self->{def} }, string => 'x', TeX => '\times' };
+	} else {
+		Value::Error("The '%s' operator can ony appear between a simple constant and an integer power of ten",
+			$self->{bop})
+			if $self->context->flag('limitedSigFigs') || $self->{bop} eq 'x';
+	}
+}
+
+# Copy the special properites used for exponential notation processing
+
+sub COPY {
+	my ($self, $from, $to) = @_;
+	for my $name ('pure', 'hadParens', 'hadPlus', 'tenPower', 'expForm') {
+		delete $to->{name} if $to->{$name};
+		$to->{$name} = 1   if $from->{$name};
+	}
+	delete $to->{pure} if $to->{hadParens};
+	return $to;
+}
+
+# Properly handle constants in exponential form, and add parenthese if needed
+
+sub STRING {
+	my ($self, $fn, $precedence) = @_;
+	my $flags  = Value::contextSet($self->context, alwaysExponentialForm => 0);
+	my $string = $self->{expForm} && $precedence ? $self->addParens(&$fn) : &$fn;
+	Value::contextSet($self->context, %$flags);
+	return $string;
+}
+
+# Properly handle constants in exponential form, and add parenthese if needed
+
+sub TEX {
+	my ($self, $fn, $precedence) = @_;
+	my $flags = Value::contextSet($self->context, alwaysExponentialForm => 0);
+	my $tex   = $self->{expForm} && $precedence ? '\left(' . &$fn . '\right)' : &$fn;
+	Value::contextSet($self->context, %$flags);
+	return $tex;
+}
+
+# Override Parser::Number to handle SignificantFigures Reals and copy the properties
+# needed for processing exponential form.
+
 package context::SignificantFigures::Number;
-our @ISA = ('Parser::Number');
+our @ISA = ('Parser::Number', 'context::SignificantFigures::common');
 
 sub new {
 	my $self  = shift;
@@ -387,14 +521,203 @@ sub new {
 	$self = bless $self->SUPER::new($equation, $x, $ref), $class;
 	$self->{value} = Value::isValue($x)
 		&& $x->{sigfigs} ? $x->copy->inContext($context) : $self->Package('Real')->new($context, $self->{value_string});
-	return $self;
+	return $self->COPY($self->{value}, $self);
+}
+
+sub class {'Number'}
+
+sub value { shift->{value}->value }
+
+sub eval {
+	my $self = shift;
+	return $self->COPY($self, $self->SUPER::eval(@_));
 }
 
 sub perl {
 	my $self  = shift;
 	my $value = $self->{value};
 	return $self->SUPER::perl unless $value->{sigfigs};
-	return $self->context->Package('Real') . '->new(' . $value->value . ',' . $value->N . ')';
+	return $self->context->Package('Real') . '->new(' . $value->value . ', sigfigs => {' . $value->N . '})';
+}
+
+# Override the Parser::Value class to avoid using CORE::abs that would otherwise
+# mark the result as computed when it may be pure
+
+package context::SignificantFigures::Value;
+our @ISA = ('Parser::Value');
+
+sub new {
+	my $self     = shift;
+	my $class    = ref($self) || $self;
+	my $equation = shift;
+	my $context  = $equation->{context};
+	my ($value, $ref) = @_;
+	$value = $value->[0] if ref($value) eq 'ARRAY' && scalar(@{$value}) == 1;
+	return $self->SUPER::new($equation, @_) unless Value::isValue($value) && $value->{sigfigs};
+	return $self->Item("Number")->new($equation, $value);
+}
+
+# Override the Parser::Variable class to count the number of times a variable is used
+# (so we can remove it from the equation's variables if 'x' is used for exponential form)
+
+package context::SignificantFigures::Variable;
+our @ISA = ('Parser::Variable');
+
+sub new {
+	my $self = shift;
+	my $v    = $self->SUPER::new(@_);
+	my ($equation, $name) = ($v->{equation}, $v->{name});
+	$equation->{vCount}{$name} = 0 unless defined $equation->{vCount}{$name};
+	$equation->{vCount}{$name}++;
+	return $v;
+}
+
+sub class {'Variable'}
+
+# Override Parser::UOP::minus to allow negation of a constant, but mark
+# any other usage as computed rather than pure
+
+package context::SignificantFigures::UOP::minus;
+our @ISA = ('Parser::UOP::minus', 'context::SignificantFigures::common');
+
+sub _check {
+	my $self = shift;
+	$self->SUPER::_check(@_);
+	my $op = $self->{op};
+	$self->{pure} = 1 if $op->class eq 'Number' && $self->isPure($op) && !$op->{hadPlus};
+	$self->checkLimitedUOP('-');
+}
+
+sub _eval {
+	my $self = shift;
+	return $self->COPY($self, $self->SUPER::_eval(@_));
+}
+
+# Override the Parser::UOP::plus to allow it to be used on a constant, but
+# mark any other usage as computed rather than pure
+
+package context::SignificantFigures::UOP::plus;
+our @ISA = ('Parser::UOP::plus', 'context::SignificantFigures::common');
+
+sub _check {
+	my $self = shift;
+	$self->SUPER::_check(@_);
+	my $op = $self->{op};
+	$self->{pure}    = 1 if $op->class eq 'Number' && $self->isPure($op) && !$op->{hadPlus};
+	$self->{hadPlus} = 1;
+	$self->checkLimitedUOP('+');
+}
+
+sub _eval {
+	my $self = shift;
+	return $self->COPY($self, $self->SUPER::_eval(@_)->with(hadPlus => 1));
+}
+
+# Override Parser::BOP::mulitoply to handle the formation of an exponential form
+
+package context::SignificantFigures::BOP::multiply;
+our @ISA = ('Parser::BOP::multiply', 'context::SignificantFigures::common');
+
+sub _check {
+	my $self = shift;
+	$self->SUPER::_check(@_);
+	$self->checkExponentialForm;
+}
+
+sub _eval {
+	my $self = shift;
+	return $self->COPY($self, $self->SUPER::_eval(@_));
+}
+
+sub string {
+	my $self = shift;
+	return $self->STRING(sub { $self->SUPER::string }, @_);
+}
+
+sub TeX {
+	my $self = shift;
+	return $self->TEX(sub { $self->SUPER::TeX }, @_);
+}
+
+# Override implicit multiplication to form exponential form when we have
+# a number (implicitly) times the 'x' (implicitly) times a power of 10.
+
+package context::SignificantFigures::BOP::space;
+our @ISA = ('Parser::BOP::multiply', 'context::SignificantFigures::common');
+
+sub _check {
+	my $self = shift;
+	$self->SUPER::_check(@_);
+	Value::Error("Can't use implied multiplication in this context") if $self->context->flag('limitedSigFigs');
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	return unless $r->{tenPower} && !$r->{hadParens} && $l->class eq 'BOP' && $l->{bop} eq '  ';
+	my ($L, $R) = ($l->{lop}, $l->{rop});
+	if ($R->class eq 'Variable' && $R->{name} eq 'x' && $self->isPure($L)) {
+		#
+		# Mark the 10 as infinite precision and remove the 'x' and its multiplication,
+		# leaving only the number and the power of ten being multiplied.
+		#
+		$r                   = $r->{lop} if $r->class eq 'BOP';
+		$r->{value}{sigfigs} = 'inf';
+		$self->{lop}         = $l->{lop};
+		$self->{isConstant}  = 1;
+		$self->{expForm}     = 1;
+		#
+		# Set the string and TeX values for exponential form.
+		#
+		$self->{def} = { %{ $self->{def} }, string => 'x', TeX => '\times' };
+		#
+		# Remove the variable from the expression if this was the only occurrance of 'x'.
+		#
+		my $equation = $self->{equation};
+		$equation->{vCount}{x}--;
+		delete $equation->{variables}{x} if $equation->{vCount}{x} == 0;
+	}
+}
+
+sub eval {
+	my $self = shift;
+	return $self->COPY($self, $self->SUPER::eval(@_));
+}
+
+sub string {
+	my $self = shift;
+	return $self->STRING(sub { $self->SUPER::string }, @_);
+}
+
+sub TeX {
+	my $self = shift;
+	return $self->TEX(sub { $self->SUPER::TeX }, @_);
+}
+
+# Override Parser::BOP::power to mark occurances of ten-to-a-power so we can
+# recognize them when checking for exponential form
+
+package context::SignificantFigures::BOP::power;
+our @ISA = ('Parser::BOP::power', 'context::SignificantFigures::common');
+
+sub _check {
+	my $self = shift;
+	$self->SUPER::_check(@_);
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	delete $r->{hadParens} if $self->isPureParen($r);
+	if ($l->class eq 'Number' && $self->isPure($r)) {
+		my ($L, $R) = ($l->value, $r->eval->value);
+		$self->{tenPower} = 1 if $L == 10 && $self->isPure($l) && CORE::int($R) == $R;
+	}
+	$self->checkLimited();
+}
+
+sub isPureParen {
+	my ($self, $r) = @_;
+	return $r->{hadParens} && $r->{pure} && $r->class eq 'UOP';
+}
+
+sub checkLimited {
+	my $self = shift;
+	return                                                            unless $self->context->flag('limitedSigFigs');
+	Value::Error("Exponents can only be used with a base of 10 here") unless $self->{lop}->value == 10;
+	Value::Error("Exponents can only be integers")                    unless $self->{tenPower};
 }
 
 1;
