@@ -114,7 +114,7 @@ subtest 'Create numbers with significant digits using Real' => sub {
 	is $a9->sigfigs,     4,                       '-12340000 has 4 significant figures';
 	is $a9->E,           7,                       '-12340000 = -1.234 * 10^(7)';
 	is $a9->format('E'), '-1.234E+07',            'Correct exponential/internal form';
-	is $a9->string,      '-1.234x10^7',          'Correct string output.';
+	is $a9->string,      '-1.234x10^7',           'Correct string output.';
 	is $a9->TeX,         '{-1.234\times 10^{7}}', 'Correct TeX output.';
 
 	ok my $a10 = Compute('0.00000001234'), 'Creating the number 0.00000001234';
