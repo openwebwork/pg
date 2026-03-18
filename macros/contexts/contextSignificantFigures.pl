@@ -324,11 +324,11 @@ sub neg {
 # with infinite precision.
 
 sub promote {
-       my $self    = shift;
-       my $context = (Value::isContext($_[0]) ? shift : $self->context);
-       my $value   = (scalar(@_)              ? shift : $self);
-       return $value->inContext($context) if Value::isValue($value) && $value->{sigfigs};
-       return $self->new($context, $value, sigfigs => 'inf');
+	my $self    = shift;
+	my $context = (Value::isContext($_[0]) ? shift : $self->context);
+	my $value   = (scalar(@_)              ? shift : $self);
+	return $value->inContext($context) if Value::isValue($value) && $value->{sigfigs};
+	return $self->new($context, $value, sigfigs => 'inf');
 }
 
 # The compare method determines that the values are equal with the same number of significant figures.
@@ -349,15 +349,15 @@ sub round {
 
 sub ROUND {
 	my ($x, $n) = @_;
-	return $x + 0 if $n == 'inf';                      # keep the same if infinite digits
-	return 0      if $n < 0 || $x == 0;                # 0 if less than 0 digits wanted or there are no digits
-	my $N = main::max(0, $n - 1);                      # Number of decimals to use in E notation
-	my $r = sprintf("%.${N}E", $x);                    # preliminary rounding of $x
-	my $e = (split(/E/, $r))[1] + 0;                   # exponent for $r
-	my $s = ($x < 0 ? -1 : 1);                         # sign of $x
-	my $m = main::max($n, 14 - $n);                    # position to use for adjustment for repeated 9s
-	$x += $s * 10**($e - $m);                          # adjust for repeated 9s
-	return sprintf("%.${N}E", $x) + 0 unless $n == 0;  # if we want digits, re-round the adjusted value
+	return $x + 0 if $n == 'inf';                        # keep the same if infinite digits
+	return 0      if $n < 0 || $x == 0;                  # 0 if less than 0 digits wanted or there are no digits
+	my $N = main::max(0, $n - 1);                        # Number of decimals to use in E notation
+	my $r = sprintf("%.${N}E", $x);                      # preliminary rounding of $x
+	my $e = (split(/E/, $r))[1] + 0;                     # exponent for $r
+	my $s = ($x < 0 ? -1 : 1);                           # sign of $x
+	my $m = main::max($n, 14 - $n);                      # position to use for adjustment for repeated 9s
+	$x += $s * 10**($e - $m);                            # adjust for repeated 9s
+	return sprintf("%.${N}E", $x) + 0 unless $n == 0;    # if we want digits, re-round the adjusted value
 
 	# For zero digits, we add a digit just above the first one in $x,
 	# round that, then remove the added digit, getting 0 if $x didn't
