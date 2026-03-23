@@ -1,9 +1,11 @@
 package PGanswergroup;
-use Exporter;
+use parent qw(PGcore);    # This is so that PGresponsegroup objects can call the PGcore warning_message method.
+
+use strict;
+use warnings;
+
 use PGUtil qw(not_null);
 use PGresponsegroup;
-
-our @ISA = qw(PGcore);
 
 #############################################
 # An object which contains an answer label and
@@ -24,16 +26,14 @@ our @ISA = qw(PGcore);
 # use Tie: IxHash??? to create ordered hash? (see Perl Cookbook)
 
 sub new {
-	my $class = shift;
-	my $label = shift;
-	my $self  = {
+	my ($class, $label, %options) = @_;
+	my $self = {
 		ans_label => $label,
-		ans_eval  => undef,                          # usually an AnswerEvaluator, sometimes a CODE
-		response  => new PGresponsegroup($label),    # A PGresponse object which holds the responses
-													 # which make up the answer
+		ans_eval  => undef,                           # usually an AnswerEvaluator, sometimes a CODE
+		response  => PGresponsegroup->new($label),    # A PGresponse object which holds the responses
+													  # which make up the answer
 		active    => 1,    # whether this answer group is currently active (for multistate problems)
-
-		@_,
+		%options
 	};
 	bless $self, $class;
 	return $self;

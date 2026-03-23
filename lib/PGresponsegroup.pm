@@ -22,11 +22,13 @@ use PGUtil qw(not_null);
 # Optionally append label/response pairs.
 sub new {
 	my ($class, $answergroup_label, @responses) = @_;
+	my $pg   = eval('$main::PG');
 	my $self = bless {
 		answergroup_label => $answergroup_label,    # enclosing answergroup that created this responsegroup
 		response_order    => [],                    # response labels
 		responses         => {},                    # response label/response value pair,
 													# value could be an arrayref in the case of radio or checkbox groups
+		WARNING_messages  => $pg->{WARNING_messages}
 	}, $class;
 	$self->append_responses(@responses);
 	return $self;
@@ -45,12 +47,11 @@ sub append_response {
 				? [ map { [ $_ => $response_value->{$_} ] } keys %$response_value ]
 				: $response_value;
 		} else {
-			$self->internal_debug_message(
-				"PGresponsegroup::append_response error: there is already an answer labeled $response_label",
-				caller(2), "\n");
+			$self->warning_message(
+				qq{PGresponsegroup::append_response error: There is already an answer labeled "$response_label".});
 		}
 	} else {
-		$self->internal_debug_message('PGresponsegroup::append_response error: undefined or empty response label');
+		$self->warning_message('PGresponsegroup::append_response error: Undefined or empty response label.');
 	}
 	return;
 }
@@ -82,13 +83,14 @@ sub replace_response {
 sub extend_response {
 	my ($self, $response_label, $new_value_key, $selected) = @_;
 
-	if (defined $self->{responses}{$response_label}) {
+	if (defined $response_label && defined $self->{responses}{$response_label}) {
 		my $response_value = $self->{responses}{$response_label};
 		$response_value //= [];
 
 		if (ref($response_value) !~ /^(HASH|ARRAY)$/) {
-			$self->internal_debug_message("PGresponsegroup::extend_response: error in extending response ",
-				ref($response_value), $response_value);
+			$self->warning_message('PGresponsegroup::extend_response error: Invalid value type "'
+					. (ref($response_value) || 'scalar')
+					. qq{" for $response_label.});
 			$response_value = [ [ $response_value => $selected ] ];
 		}
 
@@ -99,7 +101,12 @@ sub extend_response {
 		$self->{responses}{$response_label} = $response_value;
 		return $response_value;
 	} else {
-		$self->internal_debug_message("PGresponsegroup::extend_response: response label |$response_label| not defined");
+		if (defined $response_label) {
+			$self->warning_message(
+				qq{PGresponsegroup::extend_response error: Response label "$response_label" not defined.});
+		} else {
+			$self->warning_message('PGresponsegroup::extend_response error: Response label not provided.');
+		}
 		return;
 	}
 }
