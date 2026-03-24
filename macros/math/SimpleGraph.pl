@@ -593,7 +593,7 @@ sub labels {
 
 sub labelsString {
 	my $self = shift;
-	return join(', ', @{ $self->{labels} });
+	return join($main::PG->maketext(', '), @{ $self->{labels} });
 }
 
 sub vertexLabel {
@@ -783,6 +783,43 @@ sub isIsomorphic {
 	}
 
 	return 0;
+}
+
+sub description {
+	my ($self, %options) = @_;
+
+	my $description = $main::PG->maketext('A graph with vertices [_1].', $self->labelsString);
+
+	my $comma = $main::PG->maketext(', ');
+
+	my @edgeText;
+	for my $i (0 .. $self->lastVertexIndex) {
+		for my $j ($i + 1 .. $self->lastVertexIndex) {
+			next unless $self->hasEdge($i, $j);
+			push(
+				@edgeText,
+				$options{includeWeights}
+				? $main::PG->maketext(
+					'[_1] and [_2] with weight [_3]', $self->vertexLabel($i),
+					$self->vertexLabel($j),           $self->edgeWeight($i, $j)
+					)
+				: $main::PG->maketext('[_1] and [_2]', $self->vertexLabel($i), $self->vertexLabel($j))
+			);
+		}
+	}
+	if (@edgeText == 1) {
+		$description .= $main::PG->maketext(" There is an edge between [_1].", $edgeText[0]);
+	} elsif (@edgeText == 2) {
+		$description .= $main::PG->maketext(" There are edges between [_1] and [_2].", $edgeText[0], $edgeText[1]);
+	} elsif (@edgeText) {
+		$description .= $main::PG->maketext(
+			' There are edges between [_1][_2]and [_3].',
+			join($comma, @edgeText[ 0 .. $#edgeText - 1 ]),
+			$comma, $edgeText[-1]
+		);
+	}
+
+	return $description;
 }
 
 sub image {
@@ -2380,6 +2417,21 @@ represented by C<$other> are isomorphic.
 WARNING: This method uses a brute force approach and compares the first graph to
 all possible permutations of the other graph, and so should not be used for
 graphs with a large number of vertices (probably no more than 8).
+
+=head2 description
+
+    $graph->description(%options);
+
+Returns a textual description of the graph. The string that is returned is
+translated and is suitable to be used as the C<alt> text for the graph image
+returned by one of the following image methods.  Note that the description just
+lists the vertices and edges, and does not describe the layout for the
+specialized layout image methods.
+
+At this point the only option that can be set via the C<%options> argument is
+C<includeWeights>. If C<includeWeights> is set to 1, then the edge weights will
+be included in the description. If this is 0, then edge weights will not be
+included. Default is 0.
 
 =head2 image
 
