@@ -90,6 +90,9 @@ sub HTML {
 		$options->{xAxis}{ticks}{scale}      = $axes->xaxis('tick_scale');
 		$options->{xAxis}{ticks}{distance}   = $axes->xaxis('tick_distance');
 		$options->{xAxis}{ticks}{minorTicks} = $grid->{xminor};
+
+		my $xticks = $axes->xaxis('tick_positions');
+		$options->{xAxis}{ticks}{positions} = $xticks if ref $xticks eq 'ARRAY';
 	}
 
 	$options->{yAxis}{visible} = $yvisible;
@@ -100,6 +103,9 @@ sub HTML {
 		$options->{yAxis}{ticks}{scale}      = $axes->yaxis('tick_scale');
 		$options->{yAxis}{ticks}{distance}   = $axes->yaxis('tick_distance');
 		$options->{yAxis}{ticks}{minorTicks} = $grid->{yminor};
+
+		my $yticks = $axes->yaxis('tick_positions');
+		$options->{yAxis}{ticks}{positions} = $yticks if ref $yticks eq 'ARRAY';
 	}
 
 	if ($show_grid) {
