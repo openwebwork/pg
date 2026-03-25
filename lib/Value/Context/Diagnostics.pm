@@ -31,7 +31,6 @@ sub new {
 			limits    => undef,
 			size      => 250,
 			grid      => [ 10, 10 ],
-			axes      => [ 0,  0 ],
 		},
 		@_,
 	);
