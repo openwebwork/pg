@@ -100,8 +100,36 @@ difference between the C<max> and C<min> divided by the C<tick_num>. Default: 0
 
 =item tick_labels
 
-This can be either 1 (show) or 0 (don't show) the labels for the major ticks.
+This can be set to 1 to show the labels for the major ticks, 0 to not show the
+labels for the major ticks, or to a reference to a hash whose keys are tick
+positions, and whose values are tick labels to be shown at those positions.
 Default: 1
+
+The following is an example of passing a reference to a hash for this option.
+
+    tick_labels => { 5 => '\(a\)' }
+
+In this case if there is a major tick at 5, then the label that will be shown
+there is 'a' and the label will be rendered via MathJax. Note that if there is
+not a major tick at 5, then the label will be unused.  At any other major tick
+that is shown, the position will be shown for the label and will be formatted
+according to the C<tick_label_format> option.
+
+This option is most useful in combination with the C<tick_positions> option
+below. With that option the precise list of major ticks to be shown can be
+specified, and the labels for those ticks specified with this option. For
+example,
+
+    tick_positions => [2, 4],
+    tick_labels    => { 2 => 'a', 4 => 'b' },
+
+would place a tick at 2 labeled 'a', and a tick at 4 labeled 'b'. No other ticks
+would be shown on the axis.
+
+Note that if the hash reference value is used, the C<tick_label_format> does not
+apply. You are responsible for formatting the labels as you would like them to
+appear. If you want the labels rendered via MathJax, then wrap the labels in
+C<\(> and C<\)>.
 
 =item tick_label_format
 
@@ -132,6 +160,15 @@ C<tick_delta>.  Default: 1
 =item tick_scale_symbol
 
 This is appended to major tick labels.  Default: ''
+
+=item tick_positions
+
+Set this to a reference to an array of values to be used for the positions of
+ticks that will be shown on the axis. In this case the C<tick_delta>,
+C<tick_distance>, and C<tick_scale> options will not be used to generate tick
+positions.  If this is set to 0 (or is not an array reference), then the tick
+positions will be computed using the values of the C<tick_delta>,
+C<tick_distance>, and C<tick_scale> options.  Default: 0
 
 =item show_ticks
 
@@ -316,6 +353,7 @@ sub axis_defaults {
 		tick_distance     => 0,
 		tick_scale        => 1,
 		tick_scale_symbol => '',
+		tick_positions    => 0,
 		show_ticks        => 1,
 		tick_delta        => 0,
 		tick_num          => 5,

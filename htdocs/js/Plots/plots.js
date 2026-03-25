@@ -86,9 +86,18 @@ const PGplots = {
 					}
 				},
 
-				// Override the default axis generateLabelText method so that 0 is displayed
-				// using MathJax if the axis is configured to show tick labels using MathJax.
+				// Override the default axis generateLabelText method to show custom tick labels if they are set, and so
+				// that 0 is displayed using MathJax if the axis is configured to show tick labels using MathJax.
 				generateLabelText(tick, zero, value) {
+					for (const axis of ['xAxis', 'yAxis']) {
+						if (
+							this === plot[axis]?.defaultTicks &&
+							typeof options[axis]?.ticks?.labels === 'object' &&
+							tick.usrCoords[1] in options[axis].ticks.labels
+						) {
+							return options[axis].ticks.labels[tick.usrCoords[1]];
+						}
+					}
 					if (JXG.exists(value)) return this.formatLabelText(value);
 					const distance = this.getDistanceFromZero(zero, tick);
 					return this.formatLabelText(Math.abs(distance) < JXG.Math.eps ? 0 : distance / this.visProp.scale);
@@ -216,7 +225,7 @@ const PGplots = {
 								strokeColor: options.grid.color ?? '#808080',
 								strokeOpacity: options.grid.opacity ?? 0.2,
 								insertTicks: false,
-								ticksDistance: options.xAxis?.ticks?.distance ?? 2,
+								ticksDistance: options.xAxis.ticks?.positions ?? options.xAxis.ticks?.distance ?? 2,
 								scale: options.xAxis?.ticks?.scale ?? 1,
 								minorTicks: options.grid.x.minorGrids ? (options.xAxis?.ticks?.minorTicks ?? 3) : 0,
 								ignoreInfiniteTickEndings: false,
@@ -280,7 +289,7 @@ const PGplots = {
 								strokeColor: options.grid.color ?? '#808080',
 								strokeOpacity: options.grid.opacity ?? 0.2,
 								insertTicks: false,
-								ticksDistance: options.yAxis?.ticks?.distance ?? 2,
+								ticksDistance: options.yAxis.ticks?.positions ?? options.yAxis.ticks?.distance ?? 2,
 								scale: options.yAxis?.ticks?.scale ?? 1,
 								minorTicks: options.grid.y.minorGrids ? (options.yAxis?.ticks?.minorTicks ?? 3) : 0,
 								ignoreInfiniteTickEndings: false,
@@ -352,7 +361,7 @@ const PGplots = {
 										? true
 										: false,
 								insertTicks: false,
-								ticksDistance: options.xAxis.ticks?.distance ?? 2,
+								ticksDistance: options.xAxis.ticks?.positions ?? options.xAxis.ticks?.distance ?? 2,
 								scale: options.xAxis.ticks?.scale ?? 1,
 								scaleSymbol: options.xAxis.ticks?.scaleSymbol ?? '',
 								minorTicks: options.xAxis.ticks?.minorTicks ?? 3,
@@ -451,7 +460,7 @@ const PGplots = {
 										? true
 										: false,
 								insertTicks: false,
-								ticksDistance: options.yAxis.ticks?.distance ?? 2,
+								ticksDistance: options.yAxis.ticks?.positions ?? options.yAxis.ticks?.distance ?? 2,
 								scale: options.yAxis.ticks?.scale ?? 1,
 								scaleSymbol: options.yAxis.ticks?.scaleSymbol ?? '',
 								minorTicks: options.yAxis.ticks?.minorTicks ?? 3,
