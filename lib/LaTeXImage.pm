@@ -271,12 +271,18 @@ sub draw {
 
 sub use_svgMethod {
 	my ($self, $working_dir) = @_;
-	if ($self->svgMethod eq 'dvisvgm') {
-		system WeBWorK::PG::IO::externalCommand('dvisvgm')
-			. " $working_dir/image.dvi --no-fonts --output=$working_dir/image.svg > /dev/null 2>&1";
+
+	# Validate svgMethod against known SVG converters to prevent command injection.
+	my $method = $self->svgMethod;
+	if ($method eq 'dvisvgm') {
+		my $cmd = WeBWorK::PG::IO::externalCommand('dvisvgm');
+		system {$cmd} $cmd, "$working_dir/image.dvi", '--no-fonts', "--output=$working_dir/image.svg";
+	} elsif ($method eq 'pdf2svg') {
+		my $cmd = WeBWorK::PG::IO::externalCommand('pdf2svg');
+		system {$cmd} $cmd, "$working_dir/image.pdf", "$working_dir/image.svg";
 	} else {
-		system WeBWorK::PG::IO::externalCommand($self->svgMethod)
-			. " $working_dir/image.pdf $working_dir/image.svg > /dev/null 2>&1";
+		warn "Unknown svgMethod '$method'. Must be 'dvisvgm' or 'pdf2svg'.";
+		return;
 	}
 	warn "Failed to generate svg file." unless -r "$working_dir/image.svg";
 
@@ -285,11 +291,24 @@ sub use_svgMethod {
 
 sub use_convert {
 	my ($self, $working_dir, $ext) = @_;
-	system WeBWorK::PG::IO::externalCommand('convert')
-		. join('', map { " -$_ " . $self->convertOptions->{input}->{$_} } (keys %{ $self->convertOptions->{input} }))
-		. " $working_dir/image.pdf"
-		. join('', map { " -$_ " . $self->convertOptions->{output}->{$_} } (keys %{ $self->convertOptions->{output} }))
-		. " $working_dir/image.$ext > /dev/null 2>&1";
+
+	# Validate convertOptions keys and values to prevent shell injection.
+	# Only alphanumeric option names and simple values are permitted.
+	my @args;
+	for my $phase (qw(input output)) {
+		my $opts = $self->convertOptions->{$phase} // {};
+		for my $key (keys %$opts) {
+			warn("Invalid convert option name: $key"), next unless $key =~ /^[a-zA-Z][a-zA-Z0-9\-]*$/;
+			my $val = $opts->{$key};
+			warn("Invalid convert option value for $key"), next unless defined $val && $val =~ /^[a-zA-Z0-9.\-+:x%]+$/;
+			push @args, "-$key", $val;
+		}
+		push @args, "$working_dir/image.pdf" if $phase eq 'input';
+	}
+	push @args, "$working_dir/image.$ext";
+
+	my $convert = WeBWorK::PG::IO::externalCommand('convert');
+	system {$convert} $convert, @args;
 	warn "Failed to generate $ext file." unless -r "$working_dir/image.$ext";
 
 	return;
