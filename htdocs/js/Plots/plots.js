@@ -347,8 +347,8 @@ const PGplots = {
 									!options.yAxis?.visible ||
 									(options.yAxis.location === 'center' && (options.yAxis.position ?? 0) != 0) ||
 									((options.yAxis.location === 'left' || options.yAxis.location === 'box') &&
-										(options.yAxis.min ?? -5) != 0) ||
-									(options.yAxis.location === 'right' && (options.yAxis.max ?? 5) != 0)
+										(options.xAxis.min ?? -5) != 0) ||
+									(options.yAxis.location === 'right' && (options.xAxis.max ?? 5) != 0)
 										? true
 										: false,
 								insertTicks: false,
@@ -446,8 +446,8 @@ const PGplots = {
 									!options.xAxis?.visible ||
 									(options.xAxis.location === 'middle' && (options.xAxis.position ?? 0) != 0) ||
 									((options.xAxis.location === 'bottom' || options.xAxis.location === 'box') &&
-										(options.xAxis.min ?? -5) != 0) ||
-									(options.xAxis.location === 'top' && (options.xAxis.max ?? 5) != 0)
+										(options.yAxis.min ?? -5) != 0) ||
+									(options.xAxis.location === 'top' && (options.yAxis.max ?? 5) != 0)
 										? true
 										: false,
 								insertTicks: false,
