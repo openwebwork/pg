@@ -109,7 +109,7 @@ Examples:
 
     column(j) : MathObject Matrix or Real or Complex
         For a degree 1 Matrix, produces a Real or Complex
-        For a degree n Matrix with n > 1, produces a degree n Matrix where the 2nd dimesion is length 1
+        For a degree n Matrix with n > 1, produces a degree n Matrix where the 2nd dimension is length 1
 
     element : Real/Complex/Fraction value when passed the same number of arguments as the degree of the Matrix.
         If passed more than n arguments, null. If the degree of the Matrix is n and C<element> is passed
@@ -366,7 +366,7 @@ sub isSquare {
 
 =head3 C<isRow>
 
-Return true if the matix is degree 1 (i.e., is a matrix row)
+Return true if the matrix is degree 1 (i.e., is a matrix row)
 
 Usage:
 
@@ -1052,7 +1052,8 @@ perform row operations.
 
 =item * Row Swap
 
-To perform a row swap between rows C<i> and C<j>, then C<E(n,[i, j])>.
+The method C<< Value::Matrix->E(n,[i, j]) >> returns the n by n elementary matrix that 
+upon right multiplication performs the row swap between rows C<i> and C<j>.
 
 Usage:
 
@@ -1072,7 +1073,8 @@ where the size of the resulting matrix is the number of rows of C<$A>.
 
 =item * Multiply a row by a constant
 
-To create the matrix that will multiply a row C<i>, by constant C<k>, then C<E(n,[i],k)>
+The method C<< Value::Matrix->E(n, [i], k) >> returns the n by n elementary matrix that upon 
+right multiplication will multiply a row C<i>, by constant C<k>. 
 
 Usage:
 
@@ -1081,7 +1083,7 @@ Usage:
 generates the matrix
 
     [ [ 1, 0, 0, 0 ],
-      [ 0, 4, 0, 0 ],
+      [ 0, 3, 0, 0 ],
       [ 0, 0, 1, 0 ],
       [ 0, 0, 0, 1 ] ]
 
@@ -1093,7 +1095,8 @@ will generate the elementary matrix of size number of rows of C<$A>, which multi
 
 =item * Multiply a row by a constant and add to another row.
 
-To create the matrix that will multiply a row C<i>, by constant C<k> and add to row C<j> then C<E(n,[i, j],k)>
+The method C<< Value::Matrix->E(n, [i], k) >> returns the n by n elementary matrix that upon 
+right multiplication will multiply a row C<i>, by constant C<k> and add to row C<j>. 
 
 Usage:
 
@@ -1102,15 +1105,16 @@ Usage:
 generates the matrix:
 
     [ [ 1, 0, 0, 0 ],
-      [ 0, 1, 0, 0 ],
-      [ 0, -3, 1, 0 ],
+      [ 0, 1, -3, 0 ],
+      [ 0, 0, 1, 0 ],
       [ 0, 0, 0, 1 ] ]
 
-or if the matrix C<$A> exists then
+or if the matrix C<$A> exists of size m by n then
 
     $A->E([3, 4], -5);
 
-will generate the elementary matrix of size number of rows of C<$A>, which multiplies row 3 by -5 and adds to row 4.
+will generate the m by m elementary matrix which multiplies row 3 by -5 and adds to row 4. 
+If C<$A> does not have at least 4 rows, an error is raised.
 
 =back
 
@@ -1147,7 +1151,7 @@ sub E {
 		if (@ij == 1) {
 			$row[$i] = $k if ($i == $ij[0]);
 		} elsif (defined $k) {
-			$row[ $ij[1] ] = $k if ($i == $ij[0]);
+			$row[ $ij[0] ] = $k if ($i == $ij[1]);
 		} else {
 			($row[ $ij[0] ], $row[ $ij[1] ]) = ($row[ $ij[1] ], $row[ $ij[0] ]) if ($i == $ij[0] || $i == $ij[1]);
 		}
