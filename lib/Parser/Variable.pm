@@ -26,6 +26,14 @@ sub new {
 			$ref->[3] = $ref->[2] + length($1);
 			$equation->Error([ "'%s' is not defined in this context", $1 ], $ref);
 		}
+		my ($iname) = grep {/^$name$/i} $equation->{context}->variables->variables;
+		$equation->Error(
+			[
+				"Variable '%s' is not defined in this context, but perhaps you mean '%s', which is defined",
+				$name, $iname
+			],
+			$ref
+		) if $iname;
 		$equation->Error([ "Variable '%s' is not defined in this context", $name ], $ref);
 	}
 	$equation->Error([ "Variable '%s' is not defined in this context", $name ], $ref)
