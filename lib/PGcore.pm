@@ -10,8 +10,6 @@ BEGIN {
 	$ENV{PG_VERSION} = $PGcore::PG_VERSION || 'unknown';
 }
 
-our $internal_debug_messages = [];
-
 use PGanswergroup;
 use PGresponsegroup;
 use PGrandom;
@@ -418,7 +416,7 @@ sub new_ans_name {
 sub record_ans_name {
 	my ($self, $label, $value) = @_;
 
-	my $response_group = new PGresponsegroup($label, $label, $value);
+	my $response_group = PGresponsegroup->new($label, $label, $value);
 
 	if (ref($self->{PG_ANSWERS_HASH}{$label}) eq 'PGanswergroup') {
 		# This should really never happen.  Should this warn if it does?
@@ -732,15 +730,6 @@ To report the messages use:
 
 These are used in Problem.pm for example to report any errors.
 
-There is also
-
-	$PG->internal_debug_message()
-	$PG->get_internal_debug_message
-	$PG->clear_internal_debug_messages();
-
-There were times when things were buggy enough that only the internal_debug_message which are not saved
-inside the PGcore object would report.
-
 =cut
 
 sub debug_message {
@@ -761,21 +750,6 @@ sub warning_message {
 sub get_warning_messages {
 	my $self = shift;
 	$self->{WARNING_messages};
-}
-
-sub internal_debug_message {
-	my ($self, @str) = @_;
-	push @$internal_debug_messages, @str;
-}
-
-sub get_internal_debug_messages {
-	my $self = shift;
-	$internal_debug_messages;
-}
-
-sub clear_internal_debug_messages {
-	my $self = shift;
-	$internal_debug_messages = [];
 }
 
 sub DESTROY {

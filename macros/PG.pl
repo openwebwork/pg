@@ -111,14 +111,13 @@ initializes variables and defines the problem environment.
 
 sub DOCUMENT {
 	# get environment
-	$rh_envir = \%envir;      #KLUDGE FIXME
-							  # warn "rh_envir is ",ref($rh_envir);
-	$PG       = new PGcore(
-		$rh_envir,            # can add key/value options to modify
-	);
-	$PG->clear_internal_debug_messages;
-	# initialize main:: variables
+	$rh_envir = \%envir;    #KLUDGE FIXME
 
+	$PG = new PGcore(
+		$rh_envir,          # can add key/value options to modify
+	);
+
+	# initialize main:: variables
 	$ANSWER_PREFIX             = $PG->{ANSWER_PREFIX};
 	$QUIZ_PREFIX               = $PG->{QUIZ_PREFIX};
 	$showPartialCorrectAnswers = $PG->{flags}->{showPartialCorrectAnswers};
@@ -620,7 +619,7 @@ sub NEW_ANS_ARRAY_NAME_EXTENSION {
 	}
 	my $ans_label         = $PG->new_ans_name();
 	my $element_ans_label = $PG->new_array_element_label($ans_label, $row_num, $col_num, vec_num => $vecnum);
-	my $response          = new PGresponsegroup($ans_label, $element_ans_label, undef);
+	my $response          = PGresponsegroup->new($ans_label, $element_ans_label, undef);
 	$PG->extend_ans_group($ans_label, $response);
 	return $element_ans_label;
 }
@@ -632,7 +631,7 @@ sub CLEAR_RESPONSES {
 		if (ref($responsegroup)) {
 			$responsegroup->clear;
 		} else {
-			$responsegroup = $PG->{PG_ANSWERS_HASH}{$ans_label}{response} = new PGresponsegroup($label);
+			$responsegroup = $PG->{PG_ANSWERS_HASH}{$ans_label}{response} = PGresponsegroup->new($ans_label);
 		}
 	}
 	return;
