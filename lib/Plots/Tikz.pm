@@ -213,25 +213,41 @@ sub generate_axes {
 	my $x_tick_distance = $axes->xaxis('tick_distance');
 	my $x_tick_scale    = $axes->xaxis('tick_scale') || 1;
 
-	my @xticks =
-		grep { $_ > $xmin && $_ < $xmax }
-		map  { -$_ * $x_tick_distance * $x_tick_scale }
-		reverse(1 .. -$xmin / ($x_tick_distance * $x_tick_scale));
-	push(@xticks, 0) if $xmin < 0 && $xmax > 0;
-	push(@xticks,
-		grep { $_ > $xmin && $_ < $xmax }
-		map { $_ * $x_tick_distance * $x_tick_scale } (1 .. $xmax / ($x_tick_distance * $x_tick_scale)));
+	my $xtick_positions = $axes->xaxis('tick_positions');
+	my @xticks;
+	if (ref $xtick_positions eq 'ARRAY') {
+		@xticks = @$xtick_positions;
+	} else {
+		@xticks =
+			grep { $_ > $xmin && $_ < $xmax }
+			map  { -$_ * $x_tick_distance * $x_tick_scale }
+			reverse(1 .. -$xmin / ($x_tick_distance * $x_tick_scale));
+		push(@xticks, 0) if $xmin < 0 && $xmax > 0;
+		push(@xticks,
+			grep { $_ > $xmin && $_ < $xmax }
+			map { $_ * $x_tick_distance * $x_tick_scale } (1 .. $xmax / ($x_tick_distance * $x_tick_scale)));
+	}
 
+	my $xtick_labels_value = $axes->xaxis('tick_labels');
 	my $xtick_labels =
 		$xvisible
 		&& $axes->xaxis('show_ticks')
-		&& $axes->xaxis('tick_labels')
-		? (",\nxticklabel shift=9pt,\nxticklabel style={anchor=center},\nxticklabels={"
-			. join(',', map { $self->formatTickLabelText($_ / $x_tick_scale, 'xaxis') } @xticks) . '}')
+		&& $xtick_labels_value
+		? (
+			",\nxticklabel shift=9pt,\nxticklabel style={anchor=center},\nxticklabels={" . (join(
+				',',
+				map {
+					ref $xtick_labels_value eq 'HASH' && defined $xtick_labels_value->{$_}
+					? $xtick_labels_value->{$_}
+					: $self->formatTickLabelText($_ / $x_tick_scale, 'xaxis')
+				} @xticks
+			))
+			. '}'
+		)
 		: ",\nxticklabel=\\empty";
 
 	my @xminor_ticks;
-	if ($grid->{xminor} > 0) {
+	if ($grid->{xminor} > 0 && ref $xtick_positions ne 'ARRAY') {
 		my @majorTicks = @xticks;
 		unshift(@majorTicks, ($majorTicks[0] // $xmin) - $x_tick_distance * $x_tick_scale);
 		push(@majorTicks, ($majorTicks[-1] // $xmax) + $x_tick_distance * $x_tick_scale);
@@ -246,25 +262,41 @@ sub generate_axes {
 	my $y_tick_distance = $axes->yaxis('tick_distance');
 	my $y_tick_scale    = $axes->yaxis('tick_scale') || 1;
 
-	my @yticks =
-		grep { $_ > $ymin && $_ < $ymax }
-		map  { -$_ * $y_tick_distance * $y_tick_scale }
-		reverse(1 .. -$ymin / ($y_tick_distance * $y_tick_scale));
-	push(@yticks, 0) if $ymin < 0 && $ymax > 0;
-	push(@yticks,
-		grep { $_ > $ymin && $_ < $ymax }
-		map { $_ * $y_tick_distance * $y_tick_scale } (1 .. $ymax / ($y_tick_distance * $y_tick_scale)));
+	my $ytick_positions = $axes->yaxis('tick_positions');
+	my @yticks;
+	if (ref $ytick_positions eq 'ARRAY') {
+		@yticks = @$ytick_positions;
+	} else {
+		@yticks =
+			grep { $_ > $ymin && $_ < $ymax }
+			map  { -$_ * $y_tick_distance * $y_tick_scale }
+			reverse(1 .. -$ymin / ($y_tick_distance * $y_tick_scale));
+		push(@yticks, 0) if $ymin < 0 && $ymax > 0;
+		push(@yticks,
+			grep { $_ > $ymin && $_ < $ymax }
+			map { $_ * $y_tick_distance * $y_tick_scale } (1 .. $ymax / ($y_tick_distance * $y_tick_scale)));
+	}
 
+	my $ytick_labels_value = $axes->yaxis('tick_labels');
 	my $ytick_labels =
 		$yvisible
 		&& $axes->yaxis('show_ticks')
-		&& $axes->yaxis('tick_labels')
-		? (",\nyticklabel shift=-3pt,\nyticklabels={"
-			. join(',', map { $self->formatTickLabelText($_ / $y_tick_scale, 'yaxis') } @yticks) . '}')
+		&& $ytick_labels_value
+		? (
+			",\nyticklabel shift=-3pt,\nyticklabel style={anchor=left},\nyticklabels={" . (join(
+				',',
+				map {
+					ref $ytick_labels_value eq 'HASH' && defined $ytick_labels_value->{$_}
+					? $ytick_labels_value->{$_}
+					: $self->formatTickLabelText($_ / $y_tick_scale, 'yaxis')
+				} @yticks
+			))
+			. '}'
+		)
 		: ",\nyticklabel=\\empty";
 
 	my @yminor_ticks;
-	if ($grid->{yminor} > 0) {
+	if ($grid->{yminor} > 0 && ref $ytick_positions ne 'ARRAY') {
 		my @majorTicks = @yticks;
 		unshift(@majorTicks, ($majorTicks[0] // $ymin) - $y_tick_distance * $y_tick_scale);
 		push(@majorTicks, ($majorTicks[-1] // $ymax) + $y_tick_distance * $y_tick_scale);
