@@ -270,7 +270,7 @@ sub convert_file_to_png_for_tex {
 	$self->debug_message('convert filePath ', $sourceFilePath, "\n");
 
 	my $conversion_command = WeBWorK::PG::IO::externalCommand('convert');
-	my $returnCode         = system "$conversion_command '${sourceFilePath}[0]' $targetFilePath";
+	my $returnCode         = system {$conversion_command} $conversion_command, "${sourceFilePath}[0]", $targetFilePath;
 	if ($returnCode || !-e $targetFilePath) {
 		$resource_object->warning_message(
 			qq{Failed to convert "$sourceFilePath" to "$targetFilePath" using "$conversion_command": $!});

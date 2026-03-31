@@ -316,17 +316,40 @@ sub externalCommand {
 # Isolate the call to the sage server in case we have to jazz it up.
 sub query_sage_server {
 	my ($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug, $curlCommand) = @_;
-	my $sagecall =
-		qq{$curlCommand -i -k -sS -L }
-		. qq{--data-urlencode "accepted_tos=${accepted_tos}" }
-		. qq{--data-urlencode 'user_expressions={"WEBWORK":"_webwork_safe_json(WEBWORK)"}' }
-		. qq{--data-urlencode "code=${setSeed}${webworkfunc}$python" $url};
 
-	my $output = `$sagecall`;
+	# Validate url to prevent shell injection — must look like a URL.
+	if ($url && $url !~ m{^https?://[^\s;|&`\$]+$}) {
+		warn "query_sage_server: invalid url rejected: $url";
+		return;
+	}
+
+	# Use system LIST form via open-pipe to capture output without shell interpolation.
+	my @cmd = (
+		$curlCommand,                                                 '-i',
+		'-k',                                                         '-sS',
+		'-L',                                                         '--data-urlencode',
+		"accepted_tos=$accepted_tos",                                 '--data-urlencode',
+		'user_expressions={"WEBWORK":"_webwork_safe_json(WEBWORK)"}', '--data-urlencode',
+		"code=${setSeed}${webworkfunc}$python",                       $url // (),
+	);
+
 	if ($debug) {
 		warn "debug is turned on in IO.pm. ";
-		warn "\n\nIO::query_sage_server(): SAGE CALL: ", $sagecall, "\n\n";
-		warn "\n\nRETURN from sage call \n",             $output,   "\n\n";
+		warn "\n\nIO::query_sage_server(): SAGE CMD: ", join(' ', @cmd), "\n\n";
+	}
+
+	my $output = '';
+	if (open(my $pipe, '-|', @cmd)) {
+		local $/;
+		$output = <$pipe>;
+		close $pipe;
+	} else {
+		warn "query_sage_server: failed to execute curl: $!";
+		return;
+	}
+
+	if ($debug) {
+		warn "\n\nRETURN from sage call \n", $output, "\n\n";
 		warn "\n\n END SAGE CALL";
 	}
 
