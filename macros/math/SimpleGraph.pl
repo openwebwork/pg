@@ -135,7 +135,7 @@ sub randomGraphWithoutEulerTrail {
 	my $graph;
 
 	do {
-		$graph = simpleGraphWithDegreeSequence([ map { main::random(2, $size - 1, 1) } 0 .. $size - 1 ], %options);
+		$graph = simpleGraphWithDegreeSequence([ map { main::random(2, $size - 1) } 0 .. $size - 1 ], %options);
 	} while !defined $graph || $graph->hasEulerTrail;
 
 	return $graph->setRandomWeights(
@@ -543,7 +543,7 @@ sub edgeSet {
 		}
 	}
 
-	my $edgeSet = GraphTheory::SimpleGraph::Value::EdgeSet->new($context, @edgeSet);
+	my $edgeSet = GraphTheory::SimpleGraph::Value::EdgeSet->new($context, \@edgeSet);
 	$edgeSet->{open}  = '{';
 	$edgeSet->{close} = '}';
 	return $edgeSet;
@@ -593,7 +593,7 @@ sub labels {
 
 sub labelsString {
 	my $self = shift;
-	return join(', ', @{ $self->{labels} });
+	return join($main::PG->maketext(', '), @{ $self->{labels} });
 }
 
 sub vertexLabel {
@@ -643,6 +643,37 @@ sub numComponents {
 		--$result if $connected > 0;
 	}
 	return $result;
+}
+
+sub components {
+	my $self = shift;
+
+	my @adjacencyMatrix = map { [@$_] } @{ $self->{adjacencyMatrix} };
+
+	for my $i (0 .. $#adjacencyMatrix) {
+		for my $j ($i + 1 .. $#adjacencyMatrix) {
+			if ($adjacencyMatrix[$i][$j] != 0) {
+				for my $k (0 .. $#adjacencyMatrix) {
+					$adjacencyMatrix[$j][$k] += $adjacencyMatrix[$i][$k];
+					$adjacencyMatrix[$k][$j] += $adjacencyMatrix[$k][$i];
+				}
+			}
+		}
+	}
+
+	my @components;
+	for my $i (reverse(0 .. $#adjacencyMatrix)) {
+		my $componentFound = 0;
+		for (@components) {
+			next unless $adjacencyMatrix[ $_->[-1] ][$i];
+			$componentFound = 1;
+			unshift(@$_, $i);
+			last;
+		}
+		push(@components, [$i]) unless $componentFound;
+	}
+
+	return main::PGsort(sub { $_[0][0] < $_[1][0] }, @components);
 }
 
 sub edgeWeight {
@@ -754,6 +785,43 @@ sub isIsomorphic {
 	return 0;
 }
 
+sub description {
+	my ($self, %options) = @_;
+
+	my $description = $main::PG->maketext('A graph with vertices [_1].', $self->labelsString);
+
+	my $comma = $main::PG->maketext(', ');
+
+	my @edgeText;
+	for my $i (0 .. $self->lastVertexIndex) {
+		for my $j ($i + 1 .. $self->lastVertexIndex) {
+			next unless $self->hasEdge($i, $j);
+			push(
+				@edgeText,
+				$options{includeWeights}
+				? $main::PG->maketext(
+					'[_1] and [_2] with weight [_3]', $self->vertexLabel($i),
+					$self->vertexLabel($j),           $self->edgeWeight($i, $j)
+					)
+				: $main::PG->maketext('[_1] and [_2]', $self->vertexLabel($i), $self->vertexLabel($j))
+			);
+		}
+	}
+	if (@edgeText == 1) {
+		$description .= $main::PG->maketext(" There is an edge between [_1].", $edgeText[0]);
+	} elsif (@edgeText == 2) {
+		$description .= $main::PG->maketext(" There are edges between [_1] and [_2].", $edgeText[0], $edgeText[1]);
+	} elsif (@edgeText) {
+		$description .= $main::PG->maketext(
+			' There are edges between [_1][_2]and [_3].',
+			join($comma, @edgeText[ 0 .. $#edgeText - 1 ]),
+			$comma, $edgeText[-1]
+		);
+	}
+
+	return $description;
+}
+
 sub image {
 	my ($self, %options) = @_;
 
@@ -796,11 +864,10 @@ sub image {
 		$plot->add_point(@$iVertex, color => 'blue', mark_size => 3);
 
 		$plot->add_label(
-			1.25 * $iVertex->[0], 1.25 * $iVertex->[1],
-			label   => "\\\\($self->{labels}[$i]\\\\)",
+			$iVertex->[0], $iVertex->[1], "\\\\($self->{labels}[$i]\\\\)",
 			color   => 'blue',
-			h_align => 'center',
-			v_align => 'middle'
+			anchor  => 180 + $i * $gap * 180 / $main::PI,
+			padding => 8
 		) if $graphOptions{showLabels};
 
 		my $u = 0.275;
@@ -818,8 +885,8 @@ sub image {
 					$plot->add_label(
 						$u * $iVertex->[0] + $v * $jVertex->[0] + $perp[0] * 0.06,
 						$u * $iVertex->[1] + $v * $jVertex->[1] + $perp[1] * 0.06,
-						label  => "\\\\($self->{adjacencyMatrix}->[$i][$j]\\\\)",
-						color  => 'red',
+						"\\\\($self->{adjacencyMatrix}->[$i][$j]\\\\)",
+						color  => 'FireBrick',
 						rotate => ($perp[0] < 0 ? 1 : -1) *
 							atan2(sqrt(1 - $perp[1] * $perp[1]), $perp[1]) * 180 /
 							$main::PI - ($perp[1] < 0 ? 180 : 0)
@@ -867,11 +934,10 @@ sub gridLayoutImage {
 			my $y = $gridGap * ($self->{gridLayout}[0] - $i - 1);
 			$plot->add_point($x, $y, color => 'blue', mark_size => 3);
 			$plot->add_label(
-				$x - $labelShift, $y + 2 * $labelShift,
-				label   => "\\\\($self->{labels}[$i + $self->{gridLayout}[0] * $j]\\\\)",
+				$x, $y, "\\\\($self->{labels}[$i + $self->{gridLayout}[0] * $j]\\\\)",
 				color   => 'blue',
-				h_align => 'center',
-				v_align => 'middle'
+				anchor  => -atan2(2, 1) * 180 / $main::PI,
+				padding => 8,
 			) if $graphOptions{showLabels};
 		}
 	}
@@ -891,14 +957,14 @@ sub gridLayoutImage {
 					($self->{gridLayout}[0] - ($j % $self->{gridLayout}[0]) - 1) * $gridGap
 				];
 				$plot->add_dataset($iVertex, $jVertex, color => 'black', width => 1);
-				my $vector = [ $jVertex->[0] - $iVertex->[0], $jVertex->[1] - $iVertex->[1] ];
 				if ($graphOptions{showWeights}) {
-					my $norm = sqrt($vector->[0]**2 + $vector->[1]**2);
+					my $vector = [ $jVertex->[0] - $iVertex->[0], $jVertex->[1] - $iVertex->[1] ];
 					$plot->add_label(
-						$u * $iVertex->[0] + $v * $jVertex->[0] - $vector->[1] / $norm * 2,
-						$u * $iVertex->[1] + $v * $jVertex->[1] + $vector->[0] / $norm * 2,
-						label => "\\\\($self->{adjacencyMatrix}[$i][$j]\\\\)",
-						color => 'red'
+						$u * $iVertex->[0] + $v * $jVertex->[0],
+						$u * $iVertex->[1] + $v * $jVertex->[1],
+						"\\\\($self->{adjacencyMatrix}[$i][$j]\\\\)",
+						color  => 'FireBrick',
+						anchor => atan2(-$vector->[0], $vector->[1]) * 180 / $main::PI
 					);
 				}
 			}
@@ -969,21 +1035,21 @@ sub bipartiteLayoutImage {
 	for my $i (0 .. $#$top) {
 		$plot->add_point($i * $width + $shift[0], $high, color => 'blue', mark_size => 3);
 		$plot->add_label(
-			$i * $width + $shift[0], $high + 2 / 3,
-			label   => "\\\\($self->{labels}[$top->[$i]]\\\\)",
+			$i * $width + $shift[0], $high, "\\\\($self->{labels}[$top->[$i]]\\\\)",
 			color   => 'blue',
 			h_align => 'center',
-			v_align => 'bottom'
+			v_align => 'bottom',
+			padding => 8
 		) if $graphOptions{showLabels};
 	}
 	for my $j (0 .. $#$bottom) {
 		$plot->add_point($j * $width + $shift[1], $low, color => 'blue', mark_size => 3);
 		$plot->add_label(
-			$j * $width + $shift[1], $low - 2 / 3,
-			label   => "\\\\($self->{labels}[$bottom->[$j]]\\\\)",
+			$j * $width + $shift[1], $low, "\\\\($self->{labels}[$bottom->[$j]]\\\\)",
 			color   => 'blue',
 			h_align => 'center',
-			v_align => 'top'
+			v_align => 'top',
+			padding => 8
 		) if $graphOptions{showLabels};
 	}
 
@@ -997,12 +1063,13 @@ sub bipartiteLayoutImage {
 			$plot->add_dataset($point1, $point2, color => 'black');
 			if ($graphOptions{showWeights}) {
 				my $vector = [ $point2->[0] - $point1->[0], $point2->[1] - $point1->[1] ];
-				my $norm   = sqrt($vector->[0]**2 + $vector->[1]**2);
 				$plot->add_label(
-					$u * $point1->[0] + $v * $point2->[0] - $vector->[1] / $norm * 5 / 4,
-					$u * $point1->[1] + $v * $point2->[1] + $vector->[0] / $norm * 5 / 4,
-					label => "\\\\($self->{adjacencyMatrix}[ $top->[$i] ][ $bottom->[$j] ]\\\\)",
-					color => 'red'
+					$u * $point1->[0] + $v * $point2->[0],
+					$u * $point1->[1] + $v * $point2->[1],
+					"\\\\($self->{adjacencyMatrix}[ $top->[$i] ][ $bottom->[$j] ]\\\\)",
+					color   => 'FireBrick',
+					anchor  => atan2($vector->[0], -$vector->[1]) * 180 / $main::PI + 180,
+					padding => 2
 				);
 			}
 		}
@@ -1039,11 +1106,10 @@ sub wheelLayoutImage {
 
 	$plot->add_point(0, 0, color => 'blue', mark_size => 3);
 	$plot->add_label(
-		0.1, 0.2,
-		label   => "\\\\($self->{labels}[ $self->{wheelLayout} ]\\\\)",
+		0, 0, "\\\\($self->{labels}[ $self->{wheelLayout} ]\\\\)",
 		color   => 'blue',
-		h_align => 'center',
-		v_align => 'middle'
+		anchor  => 180 + $gap * 90 / $main::PI,
+		padding => 10
 	) if $graphOptions{showLabels};
 
 	for my $i (0 .. $self->lastVertexIndex) {
@@ -1055,11 +1121,10 @@ sub wheelLayoutImage {
 		$plot->add_point(@$iVertex, color => 'blue', mark_size => 3);
 
 		$plot->add_label(
-			1.25 * $iVertex->[0], 1.25 * $iVertex->[1],
-			label   => "\\\\($self->{labels}[$i]\\\\)",
+			$iVertex->[0], $iVertex->[1], "\\\\($self->{labels}[$i]\\\\)",
 			color   => 'blue',
-			h_align => 'center',
-			v_align => 'middle'
+			anchor  => 180 + $iRel * $gap * 180 / $main::PI,
+			padding => 8
 		) if $graphOptions{showLabels};
 
 		if ($self->hasEdge($self->{wheelLayout}, $i)) {
@@ -1070,8 +1135,8 @@ sub wheelLayoutImage {
 				$plot->add_label(
 					0.5 * $iVertex->[0] + $iVertex->[1] / $norm * 0.1,
 					0.5 * $iVertex->[1] - $iVertex->[0] / $norm * 0.1,
-					label  => "\\\\($self->{adjacencyMatrix}->[ $self->{wheelLayout} ][$i]\\\\)",
-					color  => 'red',
+					"\\\\($self->{adjacencyMatrix}->[ $self->{wheelLayout} ][$i]\\\\)",
+					color  => 'FireBrick',
 					rotate => ($perp[0] < 0 ? 1 : -1) *
 						atan2(sqrt(1 - $perp[1] * $perp[1]), $perp[1]) * 180 /
 						$main::PI - ($perp[1] < 0 ? 180 : 0)
@@ -1095,8 +1160,8 @@ sub wheelLayoutImage {
 					$plot->add_label(
 						0.5 * $iVertex->[0] + 0.5 * $jVertex->[0] + $vector[1] / $norm * 0.1,
 						0.5 * $iVertex->[1] + 0.5 * $jVertex->[1] - $vector[0] / $norm * 0.1,
-						label  => "\\\\($self->{adjacencyMatrix}->[$i][$j]\\\\)",
-						color  => 'red',
+						"\\\\($self->{adjacencyMatrix}->[$i][$j]\\\\)",
+						color  => 'FireBrick',
 						rotate => ($perp[0] < 0 ? 1 : -1) *
 							atan2(sqrt(1 - $perp[1] * $perp[1]), $perp[1]) * 180 /
 							$main::PI - ($perp[1] < 0 ? 180 : 0)
@@ -1171,45 +1236,43 @@ sub nearestNeighborPath {
 sub kruskalGraph {
 	my $self = shift;
 
+	my $numComponents     = $self->numComponents;
 	my $graph             = $self->copy;
 	my $tree              = GraphTheory::SimpleGraph->new($graph->numVertices, labels => $graph->labels);
-	my $numTreeComponents = $tree->numComponents;
+	my $numTreeComponents = $tree->numVertices;
 
-	my $treeWeight = 0;
-
-	my $weight = 0;
 	my @treeWeights;
+	my $treeWeight = 0;
+	my @algorithmSteps;
 
-	my @weights;
-	for my $i (0 .. $graph->lastVertexIndex) {
-		for my $j ($i + 1 .. $graph->lastVertexIndex) {
-			push(@weights, $graph->edgeWeight($i, $j)) if $graph->hasEdge($i, $j);
+	my @sortedEdges;
+	for my $i (0 .. $self->lastVertexIndex) {
+		for my $j ($i + 1 .. $self->lastVertexIndex) {
+			next unless $self->hasEdge($i, $j);
+			push @sortedEdges, [ $i, $j, $self->edgeWeight($i, $j) ];
 		}
 	}
-	@weights = main::num_sort(@weights);
+	@sortedEdges = main::PGsort(sub { $_[0][-1] < $_[1][-1] }, @sortedEdges);
 
-	while (@weights > 0) {
-		$weight = shift @weights;
-		for my $i (0 .. $graph->lastVertexIndex) {
-			for my $j ($i + 1 .. $graph->lastVertexIndex) {
-				if ($graph->edgeWeight($i, $j) == $weight) {
-					$graph->removeEdge($i, $j);
-					$tree->addEdge($i, $j, $weight);
-					my $currentTreeNumComponents = $tree->numComponents;
-					if ($currentTreeNumComponents < $numTreeComponents) {
-						$numTreeComponents = $currentTreeNumComponents;
-						$treeWeight += $weight;
-						push @treeWeights, $weight;
-					} else {
-						$tree->removeEdge($i, $j);
-					}
-					last;
-				}
-			}
+	while (@sortedEdges && $numTreeComponents > $numComponents) {
+		my $edge   = shift @sortedEdges;
+		my $weight = $edge->[2];
+
+		$graph->removeEdge($edge->[0], $edge->[1]);
+		$tree->addEdge(@$edge);
+		my $currentTreeNumComponents = $tree->numComponents;
+		if ($currentTreeNumComponents < $numTreeComponents) {
+			push @algorithmSteps, [ @$edge, 1 ];
+			$numTreeComponents = $currentTreeNumComponents;
+			$treeWeight += $weight;
+			push @treeWeights, $weight;
+		} else {
+			push @algorithmSteps, [ @$edge, 0 ];
+			$tree->removeEdge($edge->[0], $edge->[1]);
 		}
 	}
 
-	return ($tree, $treeWeight, \@treeWeights);
+	return ($tree, $treeWeight, \@treeWeights, \@algorithmSteps);
 }
 
 sub hasEulerCircuit {
@@ -1458,54 +1521,51 @@ sub dijkstraPath {
 sub sortedEdgesPath {
 	my $self = shift;
 
-	my @weights;
+	my @sortedEdges;
 	my $sortedGraph = GraphTheory::SimpleGraph->new($self->numVertices, labels => $self->labels);
 
 	for my $i (0 .. $self->lastVertexIndex) {
 		for my $j ($i + 1 .. $self->lastVertexIndex) {
 			next unless $self->hasEdge($i, $j);
-			push @weights, $self->edgeWeight($i, $j);
+			push @sortedEdges, [ $i, $j, $self->edgeWeight($i, $j) ];
 		}
 	}
 
-	@weights = main::num_sort(@weights);
+	@sortedEdges = main::PGsort(sub { $_[0][-1] < $_[1][-1] }, @sortedEdges);
 
-	# Returns 1 if an edge can be added to the sorted edges based graph and 0 otherwise. An edge can be added if it does
-	# not make a vertex have more than two edges connected to it, and it does not create a circuit in the graph (unless
-	# it is the last vertex in which case that is okay since it completes the circuit).
-	my $goodEdge = sub {
+	# Returns 0 if an edge can be added to the sorted edges based graph, 1 if adding the edge results in a vertex having
+	# more than two edges connected to it, and 2 if adding the edge results in the path having a circuit (unless it is
+	# the last vertex in which case that is okay since it completes the circuit).
+	my $edgeCheck = sub {
 		my $graph = shift;
 
 		my $sum = 0;
 
 		for my $i (0 .. $graph->lastVertexIndex) {
 			my $degree = $graph->vertexDegree($i);
-			return 0 if $degree > 2;
+			return 1 if $degree > 2;
 			$sum += $degree;
 		}
 
-		return $sum < 2 * $graph->numVertices && $graph->hasCircuit ? 0 : 1;
+		return $sum < 2 * $graph->numVertices && $graph->hasCircuit ? 2 : 0;
 	};
 
 	my @pathWeights;
+	my @algorithmSteps;
 
 	do {
-		my $weight = shift @weights;
-		for my $i (0 .. $sortedGraph->lastVertexIndex) {
-			for my $j ($i + 1 .. $sortedGraph->lastVertexIndex) {
-				if ($weight == $self->edgeWeight($i, $j)) {
-					$sortedGraph->addEdge($i, $j, $self->edgeWeight($i, $j));
-					if ($goodEdge->($sortedGraph)) {
-						push @pathWeights, $weight;
-					} else {
-						$sortedGraph->removeEdge($i, $j);
-					}
-				}
-			}
+		my $edge = shift @sortedEdges;
+		$sortedGraph->addEdge(@$edge);
+		my $edgeCheckResult = $edgeCheck->($sortedGraph);
+		push @algorithmSteps, [ @$edge, $edgeCheckResult ];
+		if ($edgeCheckResult) {
+			$sortedGraph->removeEdge(@$edge);
+		} else {
+			push @pathWeights, $edge->[-1];
 		}
-	} while @pathWeights < $sortedGraph->numVertices && @weights > 0;
+	} while @pathWeights < $sortedGraph->numVertices && @sortedEdges;
 
-	return ($sortedGraph, \@pathWeights);
+	return (\@pathWeights, \@algorithmSteps, $sortedGraph);
 }
 
 sub chromaticNumber {
@@ -2242,6 +2302,13 @@ This method returns an array of the degrees of the vertices in the graph.
 
 This method returns the number of connected components in the graph.
 
+=head2 components
+
+    @c = $graph->components;
+
+This method returns an array containing references to arrays that form a
+partition of the vertex indices into the connected components of the graph.
+
 =head2 edgeWeight
 
     $c = $graph->edgeWeight($i, $j);
@@ -2350,6 +2417,21 @@ represented by C<$other> are isomorphic.
 WARNING: This method uses a brute force approach and compares the first graph to
 all possible permutations of the other graph, and so should not be used for
 graphs with a large number of vertices (probably no more than 8).
+
+=head2 description
+
+    $graph->description(%options);
+
+Returns a textual description of the graph. The string that is returned is
+translated and is suitable to be used as the C<alt> text for the graph image
+returned by one of the following image methods.  Note that the description just
+lists the vertices and edges, and does not describe the layout for the
+specialized layout image methods.
+
+At this point the only option that can be set via the C<%options> argument is
+C<includeWeights>. If C<includeWeights> is set to 1, then the edge weights will
+be included in the description. If this is 0, then edge weights will not be
+included. Default is 0.
 
 =head2 image
 
@@ -2503,18 +2585,32 @@ path.
 
 =head2 kruskalGraph
 
-    ($tree, $treeWeight, $treeWeights) = $graph->kruskalGraph($vertex);
+	($tree, $treeWeight, $treeWeights, $algorithmSteps) = $graph->kruskalGraph($vertex);
 
 This is an implementation of Kruskal's algorithm. It attempts to find a minimum
 spanning tree or forest for the graph. Note that if the graph is connected, then
 the result will be a tree, and otherwise it will be a forest consisting of
 minimal spanning trees for each component.
 
-The method returns a list with three entries.  The first entry is a
+The method returns a list with four entries.  The first entry is a
 C<GraphTheory::SimpleGraph> object representing the tree or forest found. The
-second entry is the total weight of that tree or forest. The last entry is a
+second entry is the total weight of that tree or forest. The third entry is a
 reference to an array containing the weights of the edges in the tree or forest
-in the order that they are added by the algorithm.
+in the order that they are added by the algorithm. The fourth entry is a
+reference to an array of array references that represent the steps of Kruskal's
+algorithm.
+
+The returned representation of the steps in the algorithm will be a reference to
+an array of array references where each array reference is of the form C<[$i,
+$j, $weight, $accepted]>. This is where C<$i> and C<$j> are the indices of the
+vertices connected by an edge in the graph, and C<$weight> is the weight of that
+edge. These arrays will be sorted in ascending order of weight, i.e., the order
+the edge is considered by Kruskal's algorithm. The last C<$accepted> will be
+either 0 or 1. It will be 0 if the edge is rejected by the algorithm, and 1 if
+it is accepted by the algorithm.  Note that this list may not contain all edges
+of the original graph if there are edges that are never considered by the
+algorithm because the minimal spanning tree is completed before those edges are
+reached.
 
 =head2 hasEulerCircuit
 
@@ -2623,16 +2719,33 @@ vertex.
 
 =head2 sortedEdgesPath
 
-    ($sortedEdgesPath, $edgeWeights) = $graph->sortedEdgesPath;
+    ($pathWeights, $algorithmSteps, $sortedGraph) = $graph->sortedEdgesPath;
 
-This is an implementation of the sorted edges algorithm for finding the shortest
+This is an implementation of the sorted edges algorithm for finding a low cost
 Hamiltonian circuit in a graph. That is a path that visits each vertex in the
-graph exactly once. The return value will be a list with two entries  The first
-entry is the resulting sorted edges graph, and the second entry is a reference
-to an array containing the weights of the edges in the path in the order that
-they are chosen by the algorithm. Note that the returned graph will contain a
-Hamiltonian circuit from the original graph if one exists. In any case the graph
-will contain all edges chosen in the algorithm.
+graph exactly once. The return value will be a list with three entries. The
+first entry is a reference to an array containing the weights of the edges in
+the path in the order that they are chosen by the algorithm, the second entry is
+a reference to an array of array references that represent the steps of the
+sorted edges algorithm, and the third entry is the resulting sorted edges graph.
+
+The returned representation of the steps in the algorithm will be a reference to
+an array of array references where each array reference is of the form
+C<[$i, $j, $weight, $reason]>.  This is where C<$i> and C<$j> are the indices of
+the vertices connected by an edge in the graph, and C<$weight> is the weight of
+that edge. These arrays will be sorted in ascending order of weight, i.e., the
+order the edge is considered by the sorted edges algorithm. The C<$reason> will
+be one of 0, 1, or 2. It will be 0 if the edge is chosen by the sorted edges
+algorithm, 1 if the edge is rejected by the sorted edges algorithm because
+adding it would have made a vertex in the path have more than two edges
+connected to it, and 2 if adding the edge would have created a circuit in the
+path (before the path is completed). Note that this list may not contain all
+edges of the original graph if there are edges that are never considered by the
+algorithm because the circuit is completed before those edges are reached.
+
+The returned sorted edges graph will contain a Hamiltonian circuit from the
+original graph if one exists. In any case the graph will contain all edges
+chosen in the algorithm.
 
 =head2 chromaticNumber
 
