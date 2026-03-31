@@ -15,60 +15,64 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. ($numManuallyGraded)
-#: /opt/webwork/pg/macros/PG.pl:1455
+#: /opt/webwork/pg/macros/PG.pl:1456
 msgid "%1 of the answers %plural(%1,has,have) been graded."
 msgstr ""
 
 #. (@answerNames - $numBlank - $numCorrect - $numManuallyGraded)
-#: /opt/webwork/pg/macros/PG.pl:1427
+#: /opt/webwork/pg/macros/PG.pl:1428
 msgid "%1 of the answers %plural(%1,is,are) NOT correct."
 msgstr ""
 
 #. ($numManuallyGraded)
-#: /opt/webwork/pg/macros/PG.pl:1451
+#: /opt/webwork/pg/macros/PG.pl:1452
 msgid "%1 of the answers will be graded later."
 msgstr ""
 
 #. ($options{resultTitle})
-#: /opt/webwork/pg/macros/PG.pl:1224
+#: /opt/webwork/pg/macros/PG.pl:1225
 msgid "%1 with message"
 msgstr ""
 
 #. (round($answerScore * 100)
-#: /opt/webwork/pg/macros/PG.pl:1117
+#: /opt/webwork/pg/macros/PG.pl:1118
 msgid "%1% correct"
 msgstr ""
 
 #. ($numBlank)
-#: /opt/webwork/pg/macros/PG.pl:1440
+#: /opt/webwork/pg/macros/PG.pl:1441
 msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1414
+#: /opt/webwork/pg/macros/PG.pl:1415
 msgid "All of the answers are correct."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1405
+#: /opt/webwork/pg/macros/PG.pl:1406
 msgid "All of the computer gradable answers are correct."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1060
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1260
+msgid "An edge traversed by this path does not exist in the graph."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1061
 msgid "Answer Preview"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1240 /opt/webwork/pg/macros/PG.pl:1316
+#: /opt/webwork/pg/macros/PG.pl:1241 /opt/webwork/pg/macros/PG.pl:1317
 msgid "Close"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2894
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2908
 msgid "Close image description"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1109
+#: /opt/webwork/pg/macros/PG.pl:1110
 msgid "Correct"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1322
+#: /opt/webwork/pg/macros/PG.pl:1323
 msgid "Correct Answer"
 msgstr ""
 
@@ -96,11 +100,11 @@ msgstr ""
 msgid "Hardcopy will always print the original version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1302
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
 msgid "Hint"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1301
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1304
 msgid "Hint:"
 msgstr ""
 
@@ -108,7 +112,7 @@ msgstr ""
 msgid "If you come back to it later, it may revert to its original version."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1113
+#: /opt/webwork/pg/macros/PG.pl:1114
 msgid "Incorrect"
 msgstr ""
 
@@ -120,7 +124,7 @@ msgstr ""
 msgid "Preview"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1285
+#: /opt/webwork/pg/macros/PG.pl:1286
 msgid "Preview of Your Answer"
 msgstr ""
 
@@ -128,7 +132,11 @@ msgstr ""
 msgid "Quick Entry"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1328
+#: /opt/webwork/pg/macros/graph/AppletObjects.pl:115
+msgid "Return this question to its initial state"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1329
 msgid "Reveal"
 msgstr ""
 
@@ -136,11 +144,11 @@ msgstr ""
 msgid "Set random seed to:"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1294
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
 msgid "Solution"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1293
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1296
 msgid "Solution:"
 msgstr ""
 
@@ -148,27 +156,31 @@ msgstr ""
 msgid "Submit your answers again to go on to the next part."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1375
+#: /opt/webwork/pg/macros/PG.pl:1376
 msgid "The answer has been graded."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1393
+#: /opt/webwork/pg/macros/PG.pl:1394
 msgid "The answer is NOT correct."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1364
+#: /opt/webwork/pg/macros/PG.pl:1365
 msgid "The answer is correct."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1374
+#: /opt/webwork/pg/macros/PG.pl:1375
 msgid "The answer will be graded later."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1384
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1221
+msgid "The degrees of the vertices in this graph are not all even."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1385
 msgid "The question has not been answered."
 msgstr ""
 
-#: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1113 /opt/webwork/pg/macros/core/PGanswermacros.pl:1673
+#: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1110 /opt/webwork/pg/macros/core/PGanswermacros.pl:1671
 msgid "This answer was marked correct because the primary answer is correct."
 msgstr ""
 
@@ -176,11 +188,31 @@ msgstr ""
 msgid "This answer will be graded at a later time."
 msgstr ""
 
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1244
+msgid "This graph does not have two vertices of odd degree and all other vertices of even degree."
+msgstr ""
+
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1313 /opt/webwork/pg/macros/math/SimpleGraph.pl:1320
+msgid "This graph has a circuit."
+msgstr ""
+
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1218 /opt/webwork/pg/macros/math/SimpleGraph.pl:1231 /opt/webwork/pg/macros/math/SimpleGraph.pl:1314
+msgid "This graph is not connected."
+msgstr ""
+
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:409
 msgid "This is a new (re-randomized) version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3086
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1268
+msgid "This path does not traverse all edges."
+msgstr ""
+
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1280
+msgid "This path is not a circuit."
+msgstr ""
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3100
 msgid "This problem contains a video which must be viewed online."
 msgstr ""
 
@@ -196,12 +228,8 @@ msgstr ""
 msgid "Ungraded"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1280
+#: /opt/webwork/pg/macros/PG.pl:1281
 msgid "You Entered"
-msgstr ""
-
-#: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1080 /opt/webwork/pg/macros/core/PGanswermacros.pl:1641
-msgid "You can earn partial credit on this problem."
 msgstr ""
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:383
@@ -212,7 +240,7 @@ msgstr ""
 msgid "You may not change your answers when going on to the next part!"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3079
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3093
 msgid "Your browser does not support the video tag."
 msgstr ""
 
@@ -222,11 +250,11 @@ msgstr ""
 
 #. ($name)
 #. ($1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528 /opt/webwork/pg/macros/core/PGbasicmacros.pl:539 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:623
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528 /opt/webwork/pg/macros/core/PGbasicmacros.pl:539 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:634
 msgid "answer %1 "
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2964
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2978
 msgid "end image description"
 msgstr ""
 
@@ -237,43 +265,43 @@ msgstr ""
 msgid "i"
 msgstr ""
 
-#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:826
+#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:818
 msgid "if"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2879 /opt/webwork/pg/macros/core/PGbasicmacros.pl:2962
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2893 /opt/webwork/pg/macros/core/PGbasicmacros.pl:2976
 msgid "image description"
 msgstr ""
 
 #. (1)
 #. ($count)
 #. ($i + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611 /opt/webwork/pg/macros/core/PGbasicmacros.pl:665 /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:556 /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:565
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611 /opt/webwork/pg/macros/core/PGbasicmacros.pl:665 /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:558 /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:567
 msgid "option %1 "
 msgstr ""
 
-#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:829
+#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:821
 msgid "otherwise"
 msgstr ""
 
 #. ($2 + 1)
 #. ($radioIndex)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:625
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:636
 msgid "part %1 "
 msgstr ""
 
 #. ($1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:618
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:629
 msgid "problem %1 "
 msgstr ""
 
 #. ($1 + 1, $2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:631
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:642
 msgid "row %1 column %2 "
 msgstr ""
 
 #. ($partIndex)
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:626
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:637
 msgid "subpart %1 "
 msgstr ""
 

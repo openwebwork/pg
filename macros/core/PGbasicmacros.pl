@@ -223,7 +223,7 @@ sometimes extra flexibility is desiredin which case:
 When entering radio buttons using the "NAMED" format, you should use
 NAMED_ANS_RADIO button for the first button and then use
 NAMED_ANS_RADIO_EXTENSION for the remaining buttons. NAMED_ANS_RADIO requires a
-matching answer evalutor, while NAMED_ANS_RADIO_EXTENSION does not. The name
+matching answer evaluator, while NAMED_ANS_RADIO_EXTENSION does not. The name
 used for NAMED_ANS_RADIO_EXTENSION should match the name used for
 NAMED_ANS_RADIO (and the associated answer evaluator).
 
@@ -1319,8 +1319,8 @@ sub BBOLD   { MODES(TeX => '{\\bf ',       HTML => '<STRONG>',  PTX => '<alert>'
 sub EBOLD   { MODES(TeX => '}',            HTML => '</STRONG>', PTX => '</alert>'); }
 sub BLABEL  { MODES(TeX => '',             HTML => '<LABEL>',   PTX => ''); }
 sub ELABEL  { MODES(TeX => '',             HTML => '</LABEL>',  PTX => ''); }
-sub BITALIC { MODES(TeX => '{\\it ',       HTML => '<I>',       PTX => '<em>'); }
-sub EITALIC { MODES(TeX => '} ',           HTML => '</I>',      PTX => '</em>'); }
+sub BITALIC { MODES(TeX => '{\\it ',       HTML => '<em>',      PTX => '<em>'); }
+sub EITALIC { MODES(TeX => '} ',           HTML => '</em>',     PTX => '</em>'); }
 sub BUL     { MODES(TeX => '\\underline{', HTML => '<U>',       PTX => '<em>'); }
 sub EUL     { MODES(TeX => '}',            HTML => '</U>',      PTX => '</em>'); }
 
@@ -2634,13 +2634,9 @@ Usage:
 
 #  uniq gives unique elements of a list:
 sub uniq {
-	my @in   = @_;
-	my %temp = ();
-	while (@in) {
-		$temp{ shift(@in) }++;
-	}
-	my @out = keys %temp;    # sort is causing trouble with Safe.??
-	@out;
+	my @in = @_;
+	my %seen;
+	return grep { !$seen{$_}++ } @in;
 }
 
 sub lex_sort {
@@ -2932,9 +2928,9 @@ sub image {
 			$image_item->{width}    = $width    if $out_options{width};
 			$image_item->{height}   = $height   if $out_options{height};
 			$image_item->{tex_size} = $tex_size if $out_options{tex_size};
-			$image_item->axes->style(aria_description => shift @alt_list) if $out_options{alt};
 
 			if ($image_item->ext eq 'html') {
+				$image_item->axes->style(aria_description => shift @alt_list) if $out_options{alt};
 				$image_item->{description_details} = $description_details;
 				push(@output_list, $image_item->draw);
 				next;

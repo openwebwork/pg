@@ -42,7 +42,6 @@ directories:
     - .
     - $pg_root/macros
     - $pg_root/macros/answers
-    - $pg_root/macros/capa
     - $pg_root/macros/contexts
     - $pg_root/macros/core
     - $pg_root/macros/graph
@@ -141,15 +140,9 @@ specialPGEnvironmentVars:
 
   # To enable Rserve (the R statistical server), uncomment the following two
   # lines. The R server needs to be installed and running in order for this to
-  # work. See http://webwork.maa.org/wiki/R_in_WeBWorK for more info.
+  # work. See https://wiki.openwebwork.org/wiki/R_in_WeBWorK for more info.
   #Rserve:
   #  host: localhost
-
-  # Locations of CAPA resources. (Only necessary if you need to use converted CAPA problems.)
-  CAPA_Tools: $Contrib_dir/CAPA/macros/CAPA_Tools/
-  CAPA_MCTools: $Contrib_dir/Contrib/CAPA/macros/CAPA_MCTools/
-  CAPA_GraphicsDirectory: $Contrib_dir/Contrib/CAPA/CAPA_Graphics/
-  CAPA_Graphics_URL: $pg_root_url/CAPA_Graphics/
 
 # Answer evaluatior defaults
 ansEvalDefaults:
@@ -236,7 +229,7 @@ modules:
   - [Multiple]
   - [PGrandom]
   - [Regression]
-  - ['Plots::Plot', 'Plots::Axes', 'Plots::Data', 'Plots::Tikz', 'Plots::JSXGraph', 'Plots::GD']
+  - ['Plots::Plot', 'Plots::Axes', 'Plots::Data', 'Plots::Tikz', 'Plots::JSXGraph']
   - [Select]
   - [Units]
   - [VectorField]

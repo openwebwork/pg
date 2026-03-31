@@ -16,7 +16,7 @@ and a working test can be better than documentation because it shows how
 the code currently works in practice.
 
 Old references can be found on the WebWork wiki page
-[Unit Testing](https://webwork.maa.org/wiki/Unit_Testing)
+[Unit Testing](https://wiki.openwebwork.org/wiki/Unit_Testing)
 
 ## Unit Tests
 

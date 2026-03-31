@@ -191,7 +191,7 @@ sub push { push(@{ (shift)->{stack} }, @_) }
 sub state { (shift)->top->{type} }
 
 #
-#  Report an error at a given possition (if possible)
+#  Report an error at a given position (if possible)
 #
 sub Error {
 	my $self    = shift;

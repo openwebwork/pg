@@ -12,11 +12,11 @@ This is the Math Object code for a Matrix.
 
 =over
 
-=item L<MathObject Matrix methods|http://webwork.maa.org/wiki/Matrix_(MathObject_Class)>
+=item L<MathObject Matrix methods|https://wiki.openwebwork.org/wiki/Matrix_(MathObject_Class)>
 
-=item L<MathObject Contexts|http://webwork.maa.org/wiki/Common_Contexts>
+=item L<MathObject Contexts|https://wiki.openwebwork.org/wiki/Common_Contexts>
 
-=item L<CPAN RealMatrix docs|http://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
+=item L<CPAN RealMatrix docs|https://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
 
 =back
 
@@ -117,7 +117,7 @@ Examples:
 
 =head3 Update values (these need to be added)
 
-    see C<change_matrix_entry()> in MatrixReduce and L<http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2970>
+    see C<change_matrix_entry()> in MatrixReduce and L<https://wiki.openwebwork.org/moodle/mod/forum/discuss.php?d=2970>
 
 =head3 Advanced
 
@@ -174,7 +174,7 @@ One can use fractions in Matrices by including C<Context("Fraction")>.  For exam
 
 and operations will be done using rational arithmetic. Also helpful is the method
 C<apply_fraction_to_matrix_entries> in the L<MatrixReduce.pl> macro. Some additional information can be
-found at L<https://webwork.maa.org/moodle/mod/forum/discuss.php?d=2978>.
+found at L<https://forums.openwebwork.org/mod/forum/discuss.php?d=2978>.
 
 =head2 methods
 

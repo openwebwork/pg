@@ -31,6 +31,12 @@
 		modal.setAttribute('aria-label', 'image view dialog');
 		modal.tabIndex = -1;
 
+		// Force the dialog into light mode. This is needed for a webwork2 page in dark mode since the dialog is outside
+		// of the problem content.  At least until PG is updated to honor dark mode. Further discussion on this will
+		// also be needed at that time since many images have transparent backgrounds that will not work with a dark
+		// background.
+		modal.dataset.bsTheme = 'light';
+
 		const dialog = document.createElement('div');
 		dialog.classList.add('modal-dialog');
 
@@ -219,7 +225,7 @@
 				if (graphDiv) {
 					graphDiv.style.width = width + 'px';
 					graphDiv.style.height = height + 'px';
-					this.dispatchEvent(new Event('resized.imageview'));
+					graphDiv.dispatchEvent(new Event('resized.imageview'));
 				}
 
 				// Re-position the modal.
@@ -312,7 +318,7 @@
 			backdrop.style.opacity = '0.2';
 		});
 		modal.addEventListener('hidden.bs.modal', () => {
-			if (imgType == 'div') this.dispatchEvent(new Event('hidden.imageview'));
+			if (graphDiv) graphDiv.dispatchEvent(new Event('hidden.imageview'));
 			bsModal.dispose();
 			modal.remove();
 			window.removeEventListener('resize', onWinResize);

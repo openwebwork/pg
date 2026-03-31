@@ -74,7 +74,7 @@ Determine if the given integer is prime.
 
 =cut
 
-loadMacros('MathObjects.pl');
+loadMacros('PGbasicmacros.pl', 'MathObjects.pl');
 
 sub _contextInteger_init { context::Integer::Init() }
 
@@ -124,7 +124,7 @@ sub Init {
 sub _divisor {
 	my $power = abs(shift);
 	my $a     = abs(shift);
-	$self->Error("Cannot perform divisor function on Zero") if $a == 0;
+	Value::Error('Cannot perform divisor function on Zero') if $a == 0;
 	$result = 1;
 	$sqrt_a = int(sqrt($a));
 	for (my $i = 2; $i < $sqrt_a; $i++) {
@@ -146,9 +146,9 @@ sub _divisor {
 sub _getPrimesInRange {
 	my $index = shift;
 	my $end   = shift;
-	$self->Error("Start of range must be a positive number.")       if $index < 0;
-	$self->Error("End of range must be greater than or equal to 2") if $end < 2;
-	$self->Error("Start or range must be before end of range")      if $index > $end;
+	Value::Error('Start of range must be a positive number.')       if $index < 0;
+	Value::Error('End of range must be greater than or equal to 2') if $end < 2;
+	Value::Error('Start of range must be before end of range')      if $index > $end;
 	@primes = ();
 
 	# consider switching to set upper limit and static array of primes
@@ -156,7 +156,7 @@ sub _getPrimesInRange {
 	push(@primes, 2) if $index <= 2;
 	# ensure index is odd
 	$index++ if $index % 2 == 0;
-	while ($index < $end) {
+	while ($index <= $end) {
 		push(@primes, $index) if context::Integer::Function::Numeric::isPrime($index);
 		$index += 2;
 	}
@@ -172,8 +172,8 @@ our @ISA = qw(Parser::Function::numeric);    # checks for 2 numeric inputs
 #
 sub primeFactorization {
 	my $a = abs(shift);
-	$self->Error("Cannot factor Zero into primes.") if $a == 0;
-	$self->Error("Cannot factor One into primes.")  if $a == 1;
+	Value::Error('Cannot factor Zero into primes.') if $a == 0;
+	Value::Error('Cannot factor One into primes.')  if $a == 1;
 
 	my %factors;
 	my $n = $a;
@@ -200,7 +200,7 @@ sub primeFactorization {
 #
 sub phi {
 	my $a = abs(shift);
-	$self->Error("Cannot phi on Zero.") if $a == 0;
+	Value::Error('Cannot phi on Zero.') if $a == 0;
 	$result = $a;
 	$n      = $a;
 	for (my $i = 2; ($i**2) <= $n; $i++) {
@@ -235,9 +235,8 @@ sub isPrime {
 sub randomPrime {
 	my ($start, $end) = @_;
 	my @primes = context::Integer::_getPrimesInRange($start, $end);
-	$self->Error("Could not find any prime numbers in range.") if $#primes == 0;
-	my $primeIndex = $main::PG_random_generator->random(0, ($#primes - 1), 1);
-	return $primes[$primeIndex];
+	Value::Error('Could not find any prime numbers in range.') unless @primes;
+	return main::list_random(@primes);
 }
 
 package context::Integer::Function::Numeric2;

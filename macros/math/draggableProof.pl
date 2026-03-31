@@ -160,8 +160,8 @@ Their usage is explained in the example below.
 
 Custom checkers can also be used by passing the C<checker> or C<list_checker>
 options to the C<cmp> method.  See
-L<https://webwork.maa.org/wiki/Custom_Answer_Checkers>, and
-L<https://webwork.maa.org/wiki/Custom_Answer_Checkers_for_Lists> for details on
+L<https://wiki.openwebwork.org/wiki/Custom_Answer_Checkers>, and
+L<https://wiki.openwebwork.org/wiki/Custom_Answer_Checkers_for_Lists> for details on
 how to use these.
 
 Note that if using a standard C<checker> the correct and student answers

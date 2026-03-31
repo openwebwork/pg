@@ -188,7 +188,7 @@ Their usage is demonstrated in the example below.
 =head1 CUSTOM CHECKERS
 
 A custom checkers can also be used by passing the C<list_checker> option to the
-C<cmp> method.  See L<https://webwork.maa.org/wiki/Custom_Answer_Checkers_for_Lists>
+C<cmp> method.  See L<https://wiki.openwebwork.org/wiki/Custom_Answer_Checkers_for_Lists>
 for details on how to use a custom list checker.  This follows the usual rules
 for the return value of the C<list_checker> method.
 

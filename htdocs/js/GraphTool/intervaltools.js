@@ -454,7 +454,8 @@
 						highlightStrokeWidth: 3,
 						highlightStrokeColor: gt.color.pointHighlightDarker,
 						// highlightFillColor is gt.color.pointHighlight if not included.
-						highlightFillColor: gt.color.pointHighlightDarker
+						highlightFillColor: gt.color.pointHighlightDarker,
+						tabindex: gt.isStatic ? -1 : 0
 					};
 				}
 
