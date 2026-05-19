@@ -23,13 +23,13 @@ or
 where the latter context, you or the student are not allowed to perform any operations on
 any numbers.
 
-This is primarily for decimal numbers and keep track of signficant figures.   With the context loaded,
+This is primarily for decimal numbers and keep track of significant figures.   With the context loaded,
 a call to C<Real> will parse the number or string to keep track of significant figures. For example,
 
     $x = Real('10.45');
     $y = Real('37.1834');
 
-and these numbers will have 6 and 4 signficant figures respectively.  To query the number of significant
+and these numbers will have 6 and 4 significant figures respectively.  To query the number of significant
 figures, use the C<sigfigs> method.  For example, C<< $x->sigfigs >> will return 4.
 
 The standard arithmetic operations +, -, *, / are defined for these and the result will have the correct
@@ -41,7 +41,7 @@ returns the value C<20.63>, where the first number is rounded to the hundredths 
 
    $x * $y;
 
-returns C<106.4> (with only 4 signficant figures, since one of them only has four).
+returns C<106.4> (with only 4 significant figures, since one of them only has four).
 
 Finally, we can also perform subtraction as in
 
@@ -52,24 +52,24 @@ figures.
 
 =head2 Significant Figure Rules
 
-A reminder about signficant figures is that all non-zero digits are significant.  The rule about a zero's
-significance depends on where it is in a number.
+A reminder about significant figures is that all non-zero digits are significant.  The rule about a
+zero's significance depends on where it is in a number.
 
 =over
 
-=item * Zeros between any significant digits are signficant.  The zeros in 12.0034 are significant. There are 6
-significant figures in this number.
+=item * Zeros between any significant digits are significant.  The zeros in 12.0034 are significant.
+There are 6 significant figures in this number.
 
-=item * Zeros to the left of a non-zero digit are not significant.  The zeros in 0.00123 are not signficant.
-There are 3 significant figures in this number.
+=item * Zeros to the left of a non-zero digit are not significant.  The zeros in 0.00123 are 
+not significant.  There are 3 significant figures in this number.
 
-=item * Zeros to right of the decimal point and to the right a non-zero digit are significant.  The zeros in 12.3400 are
-significant. There are 6 significant figures in this number.
+=item * Zeros to right of the decimal point and to the right a non-zero digit are significant.
+The zeros in 12.3400 are significant. There are 6 significant figures in this number.
 
-=item * Zeros to the left of the decimal point and to the right of a non zero digit are not significant.  The
-zeros in 12300 are not significant. There are 3 significant figures in this number.  However, the presesence of
-a significant zero changes the rule.  The zeros in 12300.0  are all significant because the rightmost 0 is
-significant and therefore the other zeros are significant.
+=item * Zeros to the left of the decimal point and to the right of a non zero digit are not
+significant.  The zeros in 12300 are not significant. There are 3 significant figures in this number.
+However, the presence of a significant zero changes the rule.  The zeros in 12300.0  are all
+significant because the rightmost 0 is significant and therefore the other zeros are significant.
 
 
 =back
@@ -88,8 +88,8 @@ Note: If a number only consists of zeros has some different rules generally as a
 
 =head3 Setting the number of significant figures.
 
-The number of significant figures can be set in two ways.  The first, in creation of the number if the option
-C<sigfigs> is used.  For example
+The number of significant figures can be set in two ways.  The first, in creation of the number if the 
+option C<sigfigs> is used.  For example
 
     Real('100', sigfigs => 2)
 
@@ -108,8 +108,8 @@ as the number x.  Example:
     $x = Real(17.05);
     $p = Real(4, sigfigs => 'inf') * $x;
 
-One can set the number of significant figures after a number has been created with the C<sigfigs> method.  For
-example,
+One can set the number of significant figures after a number has been created with the C<sigfigs> method.
+For example,
 
     $x = Real(12.3456);
 
@@ -118,9 +118,9 @@ rounding has been performed.
 
 =head2 Flags
 
-There are two flags that give authors some control over messaging for near correct answers.  Recall that 
-a correct answer in this context is only given when a student has correct number of significant figures and 
-the correct answer (to all digits). 
+There are two flags that give authors some control over messaging for near correct answers.  Recall that
+a correct answer in this context is only given when a student has correct number of significant figures
+and the correct answer (to all digits).
 
 =over 
 
@@ -268,7 +268,7 @@ sub expFor {
 sub string {
 	my ($self, $equation, $precedence) = @_;
 	my $string = $self->format($self->{expForm} || $self->getFlag('alwaysExponentialForm') ? 'E' : 'f');
-	$string        =~ s/E(?:(-)|\+)0*(\d+)/x10^$1$2/;
+	$string        =~ s/E(?:(-)|\+)0*(\d+)/ 'x10^' . (defined($1) ? $1 : '') . $2 /e;
 	$string        =~ s/\^-(.*)/^(-$1)/;
 	return $string =~ m/x/ && $precedence ? "($string)" : $string;
 }
@@ -276,12 +276,12 @@ sub string {
 sub TeX {
 	my ($self, $equation, $precedence) = @_;
 	my $tex = $self->format($self->{expForm} || $self->getFlag('alwaysExponentialForm') ? 'E' : 'f');
-	$tex =~ s/E(?:(-)|\+)0*(\d+)/\\times 10^{$1$2}/;
+	$tex =~ s/E([-+])0*(\d+)/'\\times 10^{' . ($1 eq '-' ? '-' : '') . $2 . '}'/e;
 	return $tex =~ m/\\times/ && $precedence ? "\\left($tex\\right)" : "{$tex}";
 }
 
 # Format the number in $value in either 'E' (exponential form) or 'f' decimal form using
-# $n signficant figures.
+# $n significant figures.
 
 # Example: format('E', '123.456', 6) returns 1.23456E+02
 # format('f', 1.23E-01, 3) returns '0.123'.
@@ -301,7 +301,7 @@ sub format {
 	return $value;
 }
 
-# Redefine addition.  The leftmost signifcant place in the result is needed to get the
+# Redefine addition.  The leftmost significant place in the result is needed to get the
 # correct value.
 
 sub add {
@@ -311,7 +311,7 @@ sub add {
 	return $self->new($value, sigfigs => main::max(0, $exp + $self->expFor($value, $exp)), computed => 1);
 }
 
-# Redefine subtraction.  The leftmost signifcant place in the result is needed to get the
+# Redefine subtraction.  The leftmost significant place in the result is needed to get the
 # correct value.
 
 sub sub {
@@ -337,7 +337,7 @@ sub div {
 	return $self->new($l->value / $r->value, sigfigs => main::min($l->{sigfigs}, $r->{sigfigs}), computed => 1);
 }
 
-# Redefine powers.  Record whether this is an integer power of 10 for use with exponetial form.
+# Redefine powers.  Record whether this is an integer power of 10 for use with exponential form.
 
 sub power {
 	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
@@ -428,7 +428,6 @@ sub cmp_preprocess {
 # to the correct answer, but the incorrect number of significant figures.
 # If so, show a warning and given partial credit.
 
-# use Data::Dumper;
 
 sub cmp_postprocess {
 	my ($self, $ansHash) = @_;
@@ -444,8 +443,9 @@ sub cmp_postprocess {
 	# Create Value::Real versions of the student and correct answer
 	# and check if the numbers are within tolerance but the number of significant figures is not correct.
 
-	my $student_real = Value::Real->new($student->string);
-	my $correct_real = Value::Real->new($correct->string);
+	my $student_real = Value::Real->new($student->value);
+	my $correct_real = Value::Real->new($correct->value);
+
 
 	if ($self->getFlag('partial_incorrect_sf')
 		&& $student_real == $correct_real
@@ -572,7 +572,7 @@ sub checkExponentialForm {
 	}
 }
 
-# Copy the special properites used for exponential notation processing
+# Copy the special properties used for exponential notation processing
 
 sub COPY {
 	my ($self, $from, $to) = @_;
@@ -584,7 +584,7 @@ sub COPY {
 	return $to;
 }
 
-# Properly handle constants in exponential form, and add parenthese if needed
+# Properly handle constants in exponential form, and add parentheses if needed
 
 sub STRING {
 	my ($self, $fn, $precedence) = @_;
@@ -594,7 +594,7 @@ sub STRING {
 	return $string;
 }
 
-# Properly handle constants in exponential form, and add parenthese if needed
+# Properly handle constants in exponential form, and add parentheses if needed
 
 sub TEX {
 	my ($self, $fn, $precedence) = @_;
@@ -711,7 +711,7 @@ sub _eval {
 	return $self->COPY($self, $self->SUPER::_eval(@_)->with(hadPlus => 1));
 }
 
-# Override Parser::BOP::mulitoply to handle the formation of an exponential form
+# Override Parser::BOP::multiply to handle the formation of an exponential form
 
 package context::SignificantFigures::BOP::multiply;
 our @ISA = ('Parser::BOP::multiply', 'context::SignificantFigures::common');
@@ -765,7 +765,7 @@ sub _check {
 		#
 		$self->{def} = { %{ $self->{def} }, string => 'x', TeX => '\times' };
 		#
-		# Remove the variable from the expression if this was the only occurrance of 'x'.
+		# Remove the variable from the expression if this was the only occurrence of 'x'.
 		#
 		my $equation = $self->{equation};
 		$equation->{vCount}{x}--;
@@ -788,7 +788,7 @@ sub TeX {
 	return $self->TEX(sub { $self->SUPER::TeX }, @_);
 }
 
-# Override Parser::BOP::power to mark occurances of ten-to-a-power so we can
+# Override Parser::BOP::power to mark occurrences of ten-to-a-power so we can
 # recognize them when checking for exponential form
 
 package context::SignificantFigures::BOP::power;
