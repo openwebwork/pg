@@ -123,7 +123,6 @@ sub AnswerHints {
 			my $hash    = $context->{answerHash};
 			$context->{answerHash} = $ans;
 			my $processPreview = $correct->getFlag('answerHintsProcessPreview', 0);
-			$context->{answerHash} = $hash;
 
 			while (@_) {
 				my $wrongList = shift;
@@ -175,6 +174,7 @@ sub AnswerHints {
 					}
 				}
 			}
+			$context->{answerHash} = $hash;
 			return $ans;
 		},
 		@_
@@ -194,6 +194,9 @@ sub Compare {
 	$ans->{typeError}   = 0;
 	$ans->{ans_message} = $ans->{error_message} = "";
 	$ans->{score}       = 0;
+	my $context = $self->context;
+	my $hash    = $context->{answerHash};
+	$context->{answerHash} = $ans;
 
 	if ($self->address != $ans->{correct_value}->address) {
 		$ans->{correct_ans}     = $self->string;
@@ -208,6 +211,7 @@ sub Compare {
 	$self->cmp_preprocess($ans);
 	$self->cmp_equal($ans);
 	$self->cmp_postprocess($ans) if !$ans->{error_message} && !$ans->{typeError};
+	$context->{answerHash} = $hash;
 	return $ans->{score} >= 1;
 }
 
