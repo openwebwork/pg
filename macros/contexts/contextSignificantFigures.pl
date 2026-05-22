@@ -116,6 +116,52 @@ example,
 which has 6 significant figures.  If C<< $x->sigfigs(4) >>, then the result is the number '12.35', where
 rounding has been performed.
 
+=head2 Flags
+
+There are two flags that give authors some control over messaging for near correct answers.  Recall that 
+a correct answer in this context is only given when a student has correct number of significant figures and 
+the correct answer (to all digits). 
+
+=over 
+
+=item Incorrect Significant Figures
+
+If an author wants show a message and possibly give partial credit for a correct answer (within tolerance)
+but the incorrect number of significant figures, then set the C<partial_incorrect_sf> flag to a value between 
+0 and 1. 
+
+If a student has the correct answer to within tolerance (using any of the tolerances set by C<Value::Real>),
+but has the incorrect number of significant figures, then if the flag C<partial_incorrect_sf> exists, then a 
+message will be shown to the student and the student will receive partial credit with this value. 
+
+For example,
+
+    Context('SignificantFigures')->flags->set(tolerance => 0.01, partial_incorrect_sf => 0.6);
+
+will set the tolerance to 0.01 (this is the same C<tolerance> flag for reals) and the amount of 
+partial credit to give for the correct answer with wrong number of significant figures. 
+
+Note that if the author would like to have the message shown, but no partial credit, use
+C<< partial_incorrect_sf => 0 >>. 
+
+=item Correct Significant Figures and Close to the Correct Answer
+
+If an author would like to show a message and possibly give partial credit for a correct answer (within tolerance)
+and correct number of significant figures, then the flag C<partial_sf_within_tolerance> can be used.  
+
+If this flag exists and a student has the correct number of significant figures and the answer is within
+tolerance (using those set by C<Value::Real>) then a message will be shown and the student will
+receive this value on the answer. 
+
+For example,
+
+    Context('SignificantFigures')->flags->set(partial_sf_within_tolerance => 0.8);
+
+Note that if the author would like to have the message shown, but no partial credit, use
+C<< partial_sf_within_tolerance => 0 >>. 
+
+=back 
+
 =head2 SigFigNumber
 
 The function C<SigFigNumber> will also create a SigFigNumber with the second argument the number of
@@ -367,6 +413,58 @@ sub ROUND {
 
 	my $d = $s * 10**($e + 1);
 	return sprintf("%.0E", $x + $d) - $d;
+}
+
+# The preview_latex_string isn't correct, so in the processing pipeline, fix it.
+
+sub cmp_preprocess {
+	my ($self, $ansHash) = @_;
+	$tex = $ansHash->{student_ans};
+	$tex =~ s/E([-+])0*(\d+)/'\\times 10^{' . ($1 eq '-' ? '-' : '') . $2 . '}' /e;
+	$ansHash->{preview_latex_string} = $tex;
+}
+
+# This method checks to see if the student answer is equal (in the Value::Real sense)
+# to the correct answer, but the incorrect number of significant figures.
+# If so, show a warning and given partial credit.
+
+# use Data::Dumper;
+
+sub cmp_postprocess {
+	my ($self, $ansHash) = @_;
+
+	return if $ansHash->{isPreview};
+	return
+		unless ($self->getFlag('partial_incorrect_sf') || $self->getFlag('partial_sf_within_tolerance'))
+		&& $ansHash->score < 1;
+
+	my $student = $ansHash->{student_value};
+	my $correct = $ansHash->{correct_value};
+
+	# Create Value::Real versions of the student and correct answer
+	# and check if the numbers are within tolerance but the number of significant figures is not correct.
+
+	my $student_real = Value::Real->new($student->string);
+	my $correct_real = Value::Real->new($correct->string);
+
+	if ($self->getFlag('partial_incorrect_sf')
+		&& $student_real == $correct_real
+		&& $student->sigfigs != $correct->sigfigs)
+	{
+		$ansHash->{ans_message} = "Incorrect number of significant figures";
+		$ansHash->score($self->getFlag('partial_incorrect_sf'));
+	}
+
+	# This time check if the number of sigfigs are correct, but the student answer is not
+	# exactly identical to the correct answer, but within tolerance
+
+	if ($self->getFlag('partial_sf_within_tolerance')
+		&& $student_real == $correct_real
+		&& $student->sigfigs == $correct->sigfigs)
+	{
+		$ansHash->{ans_message} = "Correct number of significant figures, but the value is not correct";
+		$ansHash->{score}       = $self->getFlag('partial_sf_within_tolerance');
+	}
 }
 
 package context::SignificantFigures;
