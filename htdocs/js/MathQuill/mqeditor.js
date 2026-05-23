@@ -527,6 +527,7 @@
 
 			const menuEl = document.createElement('ul');
 			menuEl.classList.add('dropdown-menu');
+			menuEl.style.setProperty('min-width', 'unset');
 			const li = document.createElement('li');
 			menuEl.append(li);
 			const action = document.createElement('a');
