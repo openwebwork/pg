@@ -70,11 +70,20 @@ This returns a string that is the converted input string.
 
 =cut
 
+use Mojo::Util qw(dumper);
+
 # This stores the answers inside of ANS and related functions.
 my @ans_list;
 
 sub convertToPGML {
 	my ($pg_source) = @_;
+
+	print dumper ($pg_source);
+
+	# Check that the file is not already in PGML format by looking for PGML.pl in the loadMacros statement.
+	# and there are no BEGIN_TEXT, BEGIN_SOLUTION, etc. blocks.
+
+	return $pg_source if ($pg_source =~ /loadMacros\((.*)PGML\.pl(.*)\)/ && $pg_source !~ /BEGIN_(TEXT|HINT|SOLUTION)/);
 
 	# First get a list of all of the ANS, LABELED_ANS, etc. in the problem.
 	@ans_list = getANS($pg_source);
@@ -101,29 +110,48 @@ sub convertToPGML {
 		} elsif ($in_pgml_block) {
 			push(@pgml_block, $row);
 		} elsif ($row =~ /loadMacros\(/) {
-			# Parse the macros, which may be on multiple rows.
-			# Remove comments within loadMacros block (should we keep them?)
-			my $macros = $row;
-			while ($row && $row !~ /\);\s*$/) {
+			# Parse the macros, which may be on multiple rows and may be in a qw block.
+			my $macros = '';
+			while (1) {
+				# Remove comments within loadMacros block (should we keep them?)
+				$row =~ s/#.*$//;
+				$macros .= $row;
+				last if ($row =~ /(.*)\);/);
 				$row = shift @rows;
 				my @mrow = split(/#/, $row);
 				# This only adds the row if there is something relevant to the left of a #
 				$macros .= $mrow[0] if $mrow[0] !~ /^\s*$/;
 			}
-			# Split by commas and pull out the quotes.
-			my @macros =
-				grep { $_ !~ /^#/ }
-				grep {
-					$_ !~
-					/(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse|AnswerFormatHelp).pl/
-				}
-				map {s/['"\s]//gr}
-				split(/\s*,\s*/, $macros =~ s/loadMacros\((.*)\)\;$/$1/r);
 
-			push(@all_lines,
-				'loadMacros('
-					. join(', ', map {"'$_'"} ('PGstandard.pl', 'PGML.pl', @macros, 'PGcourse.pl'))
-					. ');');
+			my @macros = ();
+			my ($qw_start, $qw_end);    # the characters if the loadMacros has a qw block.
+
+			# The following can parse loadMacros in the form loadMacros('macro1.pl', 'macro2.pl'); or
+			# loadMacros(qw{macro1.pl macro2.pl});
+			if ($macros =~ /loadMacros\((qw(.))?(.*?)(.)?\)/ms) {
+				($qw_start, $qw_end) = ($2, $4);
+				@macros =
+					grep {
+						$_
+						&& $_ !~
+						/(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse|AnswerFormatHelp).pl/
+					}
+					map {s/['"]//gr} split(/\s+|\s*,\s*/, $3);
+
+				# Remove any duplicates:
+				my %seen;
+				@macros = grep { !$seen{$_}++ } @macros;
+			} else {
+				warn 'The loadMacros statement in this file could not be processed.';
+			}
+
+			@macros = ('PGstandard.pl', 'PGML.pl', @macros, 'PGcourse.pl');
+
+			if ($qw_start) {
+				push(@all_lines, "loadMacros(qw$qw_start\n\t" . join("\n\t", @macros) . "\n$qw_end);");
+			} else {
+				push(@all_lines, 'loadMacros(' . join(', ', map {"'$_'"} @macros) . ');');
+			}
 		} else {
 			push(@all_lines, cleanUpCode($row));
 		}
