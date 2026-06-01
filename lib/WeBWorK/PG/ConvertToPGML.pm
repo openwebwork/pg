@@ -70,15 +70,11 @@ This returns a string that is the converted input string.
 
 =cut
 
-use Mojo::Util qw(dumper);
-
 # This stores the answers inside of ANS and related functions.
 my @ans_list;
 
 sub convertToPGML {
 	my ($pg_source) = @_;
-
-	print dumper ($pg_source);
 
 	# Check that the file is not already in PGML format by looking for PGML.pl in the loadMacros statement.
 	# and there are no BEGIN_TEXT, BEGIN_SOLUTION, etc. blocks.
