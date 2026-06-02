@@ -631,6 +631,101 @@ sub isRREF {
 	return 1;
 }
 
+=head3 C<isREQ>
+
+Fuzzy, probabilistic check for if two matrices are row equivalent.
+
+Usage:
+
+   $A = Matrix([3, 1], [1, 0.3333]);
+   $B = Matrix([1, 1/3], [0, 0]);
+   $A->isREQ($B);   # true
+
+=cut
+
+sub isREQ {
+	my ($l, $r) = @_;
+	my @ldim = $l->dimensions;
+	my @rdim = $r->dimensions;
+	Value::Error('Cannot compare row equivalency of matrices of different degree') unless scalar @ldim == scalar @rdim;
+	for my $i (0 .. $#ldim) {
+		Value::Error('Cannot compare row equivalency because matrices differ in the '
+				. $l->NameForNumber($i + 1)
+				. ' dimension')
+			unless $ldim[$i] == $rdim[$i];
+	}
+	return 1 if $l->isZero && $r->isZero;
+	return 0 if $l->isZero && !$r->isZero || !$l->isZero && $r->isZero;
+
+	if (scalar @ldim == 1) {
+		# simply need to determine if rows are parallel
+		my ($lk, $rk);
+		for my $i (1 .. $ldim[0]) {
+			if ($l->element($i) != 0) {
+				$lk = $l->element($i);
+				$rk = $r->element($i);
+				last;
+			}
+		}
+		return $lk * $r == $rk * $l;
+	} elsif (scalar @ldim == 2) {
+		# get Gram-Schmidt basis for each row space
+		my @rrows = map { $r->new($_) } $r->value;
+		@rrows = grep { !$_->isZero } @rrows;
+		@rrows = map  { $_ / ($_ * $_)**0.5 } @rrows;
+		my @rgs = ($rrows[0]);
+		for my $i (1 .. $#rrows) {
+			my $proj = $r->new((0) x $rdim[1]);
+			for my $v (@rgs) {
+				$proj += ($rrows[$i] * $v) * $v;
+			}
+			my $gs = $rrows[$i] - $proj;
+			push @rgs, $gs / ($gs * $gs)**0.5 unless $rrows[$i] == $proj;
+		}
+		my @lrows = map { $l->new($_) } $l->value;
+		@lrows = grep { !$_->isZero } @lrows;
+		@lrows = map  { $_ / ($_ * $_)**0.5 } @lrows;
+		my @lgs = ($lrows[0]);
+		for my $i (1 .. $#lrows) {
+			my $proj = $r->new((0) x $ldim[1]);
+			for my $v (@lgs) {
+				$proj += ($lrows[$i] * $v) * $v;
+			}
+			my $gs = $lrows[$i] - $proj;
+			push @lgs, $gs / ($gs * $gs)**0.5 unless $lrows[$i] == $proj;
+		}
+
+		return 0 if scalar @lgs != scalar @rgs;
+
+		# project each row from $rrows onto @lgs;
+		# if the complement is nonzero, the row spaces disagree
+		for my $v (@rrows) {
+			my $proj = $r->new((0) x $ldim[1]);
+			for my $w (@lgs) {
+				$proj += ($v * $w) * $w;
+			}
+			return 0 unless $v == $proj;
+		}
+		# and vice versa
+		for my $v (@lrows) {
+			my $proj = $r->new((0) x $rdim[1]);
+			for my $w (@rgs) {
+				$proj += ($v * $w) * $w;
+			}
+			return 0 unless $v == $proj;
+		}
+
+		# if we got this far, the row spaces are (fuzzy) equal
+		# so the matrices are row equivalent
+		return 1;
+	} else {
+		for my $i (1 .. $ldim[0]) {
+			return 0 unless $l->new($l->{data}[ $i - 1 ])->isREQ($r->new($r->{data}[ $i - 1 ]));
+		}
+		return 1;
+	}
+}
+
 sub _isNumber {
 	my $n = shift;
 	return Value::isNumber($n) || Value::classMatch($n, 'Fraction');
