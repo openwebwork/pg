@@ -1,0 +1,78 @@
+## DESCRIPTION
+##  Produce a pie chart.
+## ENDDESCRIPTION
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## Date(06/25/2026)
+## KEYWORDS('statistics', 'bar graph')
+
+#:% name = Pie Chart
+#:% subject = [statistics]
+#:% type = sample
+#:% categories = [graph, statistics]
+#:% see_also = [DonutPlot.pg]
+
+#:% section = preamble
+#: This uses the `add_piechart` method in the PODLINK('StatisticalPlots.pl')
+#: macro.  A donut plot version of this is available at PROBLINK('DonutPlot.pg'). 
+DOCUMENT();
+
+loadMacros("PGstandard.pl", 'PGML.pl', 'StatisticalPlots.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: In this example, the size of each wedge in the pie chart is given as an
+#: array.
+#:
+#: The StatPlot is created with the axes and grid turned off.  The
+#: `add_piechart` method takes the values and number of options.  In this
+#: case, the labels are included as an arrayref (which is why the `~~` is needed)
+#: and are placed outside the piechart.  The `radius` gives the size of the
+#: circle and the `angle_offset` is useful to get the labels in the proper position.
+#:
+#: The default colors come from the `rainbow` palette, and other options
+#: exist.
+#:
+#: A detailed alt_text should accompany all plots/graphs.
+
+@values  = (1,          5,        8,       2,       4);
+@animals = ('Anteater', 'Bobcat', 'Camel', 'Dingo', 'Elephant');
+
+$stat_plot = StatPlot(xvisible => 0, yvisible => 0, show_grid => 0);
+$stat_plot->add_piechart(
+    ~~@values,
+    labels          => ~~@animals,
+    radius          => 3.25,
+    angle_offset    => 30,
+    stroke_width    => 1,
+    rounded_corners => 1
+);
+
+$total = 0;
+$total += $_ for (@values);
+$alt_text = 'A pie chart of animals.  ';
+for (0 .. 4) {
+    $alt_text .=
+        "The size of the $animals[$_] wedge is about "
+        . Round(100 * $values[$_] / $total, 1)
+        . '% of the total. ';
+}
+
+#:% section = statement
+#: In this case, we just plot the box plots.
+BEGIN_PGML
+
+>> Pie Chart of the number of animals at the local zoo <<
+
+>>[! [$alt_text] !]{$stat_plot}{400}<<
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Place a detailed solution here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

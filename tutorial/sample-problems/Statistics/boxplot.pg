@@ -1,0 +1,132 @@
+## DESCRIPTION
+##  Produce a box plot from both a set of numbers and from the quartiles.
+## ENDDESCRIPTION
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## Date(06/25/2026)
+## KEYWORDS('statistics', 'box plot')
+
+#:% name = Boxplot
+#:% subject = [statistics]
+#:% type = sample
+#:% categories = [graph, statistics]
+
+#:% section = preamble
+#: Use the PODLINK('StatisticalPlots.pl') macro, which provides some convenience methods
+#: for creating Statistical plots. This also uses the
+#: PODLINK('PGstatisticsmacros.pl') for access to random normally-distributed numbers.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',       'PGML.pl',
+    'StatisticalPlots.pl', 'PGstatisticsmacros.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
+#:
+#: The `urand` function is used for normally distributed random numbers.  This example
+#: generates an array of length 75 with mean 100 and standard deviation 25.
+#
+#: To create a graph, start with a `StatPlot`.  The `min` and `max` options in
+#: the two directions give the bounding box of the plot.  The `tick_delta` for
+#: each direction gives the distance between tick marks and the `minor` option is
+#: the number of minor ticks between each tick.
+#:
+#: The box plot is created with the `add_boxplot` method in which the data is the
+#: first argument (it is an array ref, which is why the `~~` is needed).  The
+#: remaining arguments are options to the box plot. See PODLINK('StatisticalPlots.pl')
+#: for other options to this method.
+#:
+#: The second box plot shows that the min/max, median and quartiles can be passed in
+#: as an alternative to an arrayref of numbers.
+
+#: Make sure that an alternate text is added to all graphs for accessibility. Be
+#: detailed.
+
+@data = urand(100, 25, 75, 6);
+
+$boxplotA = StatPlot(
+    xmin            =>  0,
+    xmax            => 200,
+    xtick_delta     =>  25,
+    show_grid       =>  0,
+    ymin            => -5,
+    ymax            =>  25,
+    yvisible        =>  0,
+    aspect_ratio    =>  4,
+    rounded_corners => 1
+);
+
+$boxplotA->add_boxplot(~~@data, fill_color => 'lightblue', stroke_width => 1);
+
+# the five point summary is needed for the alt text:
+
+@five_point = five_point_summary(@data);
+$minA       = Round($five_point[0]);
+$q1A        = Round($five_point[1]);
+$medA       = Round($five_point[2]);
+$q3A        = Round($five_point[3]);
+$maxA       = Round($five_point[4]);
+
+$alt_textA =
+    "A horizontal box plot with the box between $q1A and $q3A and vertical "
+    . "line at $medA. The is line from the box to the left from $q1A to $minA and a "
+    . "line to the right from $q3A to $maxA.";
+
+# Alternatively, we can set these value for the plot.
+
+$boxplotB = StatPlot(
+    xmin            => 100,
+    xmax            => 400,
+    ymin            => -5,
+    ymax            =>  25,
+    xtick_delta     =>  50,
+    yvisible        =>  0,
+    show_grid       =>  0,
+    aspect_ratio    =>  4,
+    rounded_corners => 1
+);
+
+$minB = random(150, 175, 5);
+$q1B  = random(180, 225, 5);
+$medB = random(250, 275, 5);
+$q3B  = random(280, 320, 10);
+$maxB = random(325, 350, 5);
+
+$boxplotB->add_boxplot({
+    min      => $minB,
+    q1       => $q1B,
+    median   => $medB,
+    q3       => $q3B,
+    max      => $maxB,
+    outliers => [ 115, 130, 375 ]
+});
+
+$alt_textB =
+    "A horizontal box plot with the box betwen $q1B and $q3B and vertical "
+    . "line at $medA. The is line from the box to the left from $q1B to $minB and a "
+    . "line to the right from $q3B to $maxB.  There are also 3 small plus signs at "
+    . "115, 130 and 375.";
+
+#:% section = statement
+#: For this problem, only the plots are shown.  Generally the questions would go
+#: here.  Again, add a detailed alt text for each plot. 
+BEGIN_PGML
+
+>>[! [$alt_textA] !]{$boxplotA}{400}<<
+
+>>[! [$alt_textB] !]{$boxplotB}{400}<<
+
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Add solution here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
