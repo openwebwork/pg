@@ -107,32 +107,48 @@ sub convertToPGML {
 			push(@pgml_block, $row);
 		} elsif ($row =~ /loadMacros\(/) {
 			# Parse the macros, which may be on multiple rows and may be in a qw block.
-			my $macros = '';
+			my $macros          = '';
+			my $num_macro_lines = 0; # store the number of lines in the loadMacro so the output is similar to the input.
 			while (1) {
 				# Remove comments within loadMacros block (should we keep them?)
 				$row =~ s/#.*$//;
 				$macros .= $row;
 				last if ($row =~ /(.*)\);/);
+				++$num_macro_lines;
 				$row = shift @rows;
 				my @mrow = split(/#/, $row);
 				# This only adds the row if there is something relevant to the left of a #
 				$macros .= $mrow[0] if $mrow[0] !~ /^\s*$/;
 			}
-
 			my @macros = ();
 			my ($qw_start, $qw_end);    # the characters if the loadMacros has a qw block.
 
 			# The following can parse loadMacros in the form loadMacros('macro1.pl', 'macro2.pl'); or
 			# loadMacros(qw{macro1.pl macro2.pl});
-			if ($macros =~ /loadMacros\((qw(.))?(.*?)(.)?\)/ms) {
-				($qw_start, $qw_end) = ($2, $4);
+			if ($macros =~ /loadMacros\((.*?)\);/ms) {
+				my @macro_str = split(/\s*,\s*/, $1);
+
+				for my $str (@macro_str) {
+					if ($str =~ /^qw(.)/) {
+						my $qw_matches = { '{' => '}', '(' => ')', '[' => ']', '/' => '/', '|' => '|' };
+						$qw_start = $1;
+						$qw_end   = $qw_matches->{$qw_start};
+
+						if ($str =~ /^qw\Q${qw_start}\E(.*?)\Q${qw_end}\E/) {
+							push(@macros, split(/\s+/, $1));
+						}
+					} else {
+						push(@macros, $str);
+					}
+				}
+
 				@macros =
 					grep {
 						$_
 						&& $_ !~
 						/(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse|AnswerFormatHelp).pl/
 					}
-					map {s/['"]//gr} split(/\s+|\s*,\s*/, $3);
+					map {s/['"]//gr} @macros;
 
 				# Remove any duplicates:
 				my %seen;
@@ -144,7 +160,13 @@ sub convertToPGML {
 			@macros = ('PGstandard.pl', 'PGML.pl', @macros, 'PGcourse.pl');
 
 			if ($qw_start) {
-				push(@all_lines, "loadMacros(qw$qw_start\n\t" . join("\n\t", @macros) . "\n$qw_end);");
+				if ($num_macro_lines > 1) {    # put each macro on a separate line
+					push(@all_lines, "loadMacros(qw$qw_start");
+					push(@all_lines, "\t$_") for (@macros);
+					push(@all_lines, "$qw_end);");
+				} else {
+					push(@all_lines, "loadMacros(qw$qw_start" . join(' ', @macros) . "$qw_end);");
+				}
 			} else {
 				push(@all_lines, 'loadMacros(' . join(', ', map {"'$_'"} @macros) . ');');
 			}
