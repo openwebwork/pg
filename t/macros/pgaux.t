@@ -61,8 +61,6 @@ subtest 'round and Round functions' => sub {
 
 	is(Round(15.793, -1), 20, "Round to -1 digits (nearest 10)");
 
-	# tests that round handles some cases related to precision loss in calculations
-
 	is(Round(134.49999999999997, 0), 134.0, 'Round a number with decimals close to 0.5');
 	is(Round(1.49999999999991,   0), 1.0,   'Round another number with decimals close to 0.5');
 	is(Round(0.01499999999991,   2), 0.01,  'Round a number close to 0.005 to 2 digits');
