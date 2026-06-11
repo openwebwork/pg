@@ -334,6 +334,11 @@ subtest 'Remove row' => sub {
 	like dies {
 		$A->removeRow('a');
 	}, qr/Can only remove rows 1 through 4/, 'check that error is thrown for bad row specification';
+
+	my $D = Matrix([ [ 1, 2, 3 ] ]);
+	like dies {
+		$D->removeRow(1);
+	}, qr/cannot remove a Matrix's only row/, 'check that error is thrown for trying to remove the only row';
 };
 
 subtest 'Remove column' => sub {
@@ -362,6 +367,11 @@ subtest 'Remove column' => sub {
 	like dies {
 		$A->removeColumn('a');
 	}, qr/Can only remove columns 1 through 4/, 'check that error is thrown for bad column specification';
+
+	my $D = Matrix([1], [2], [3]);
+	like dies {
+		$D->removeColumn(1);
+	}, qr/cannot remove a Matrix's only column/, 'check that error is thrown for trying to remove the only column';
 };
 
 subtest 'Construct an identity matrix' => sub {

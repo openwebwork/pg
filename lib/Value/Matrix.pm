@@ -1502,6 +1502,7 @@ sub removeRow {
 	my @dim    = $self->dimensions;
 	my $degree = scalar @dim;
 	Value::Error("removeRow cannot be used on a Matrix of degree 1") if $degree == 1;
+	Value::Error("cannot remove a Matrix's only row")                if $dim[0] == 1;
 	my @indices = map { [ 1 .. $_ ] } @dim;
 	Value::Error("Can only remove rows 1 through $indices[0][-1]")
 		unless $r =~ /^\d+$/ && $r >= 1 && $r <= $indices[0][-1];
@@ -1529,6 +1530,7 @@ sub removeColumn {
 	my @dim    = $self->dimensions;
 	my $degree = scalar @dim;
 	Value::Error("removeColumn cannot be used on a Matrix of degree 1") if $degree == 1;
+	Value::Error("cannot remove a Matrix's only column")                if $dim[1] == 1;
 	my @indices = map { [ 1 .. $_ ] } @dim;
 	Value::Error("Can only remove columns 1 through $indices[1][-1]")
 		unless $r =~ /^\d+$/ && $r >= 1 && $r <= $indices[1][-1];
