@@ -781,7 +781,7 @@ sub addUnit {
 		$constants->add(
 			$name => {
 				value      => context::Units::Unit->new($name => $unit),
-				TeX        => "\\text{$name}",
+				TeX        => '\\text{' . pretty($name) . '}',
 				isUnit     => 1,
 				isConstant => 1
 			}
@@ -793,6 +793,27 @@ sub addUnit {
 		$self->addUnitAliases($unit);
 	}
 	return $self;
+}
+
+sub pretty {
+	my $name       = shift;
+	my %prettyName = (
+		angstrom => "\x{00C5}",
+		deg      => "\x{00B0}",
+		degC     => "\x{2103}",
+		degF     => "\x{00B0}F",
+		degK     => "\x{212A}",
+		ohm      => "\x{2126}",
+		kohm     => "k\x{2126}",
+		Mohm     => "M\x{2126}",
+		uC       => "\x{00B5}C",
+		uF       => "\x{00B5}F",
+		um       => "\x{00B5}m",
+		uN       => "\x{00B5}N",
+		us       => "\x{00B5}s",
+		uSv      => "\x{00B5}Sv",
+	);
+	return defined $prettyName{$name} ? $prettyName{$name} : $name;
 }
 
 #
@@ -1315,7 +1336,7 @@ sub cmp_postprocess {
 #
 sub string {
 	my ($self, $equation, $open, $close, $precedence) = @_;
-	my $string = $self->stringFor('nunits', 'dunits', $self->{order});
+	my $string = context::Units::Context::pretty($self->stringFor('nunits', 'dunits', $self->{order}));
 	$string = '(' . $string . ')' if $string =~ m![ /]! && defined($precedence) && $precedence > 2.9;
 	return $string;
 }
@@ -1502,7 +1523,7 @@ sub uString { (shift)->unit->uString(shift) }
 sub string {
 	my ($self, $equation, $open, $close, $precedence) = @_;
 	my $unit   = $self->unit;
-	my $u      = $unit->stringFor('nunits', 'dunits', $unit->{order}, 0, 1);
+	my $u      = context::Units::Context::pretty($unit->stringFor('nunits', 'dunits', $unit->{order}, 0, 1));
 	my $string = $self->number->string;
 	$string .= substr($u, 0, 1) eq '/' ? $u : " $u";
 	$string = '(' . $string . ')' if defined($precedence) && $precedence > 1;
