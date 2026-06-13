@@ -1525,9 +1525,15 @@ sub string {
 	my $unit   = $self->unit;
 	my $u      = context::Units::Context::pretty($unit->stringFor('nunits', 'dunits', $unit->{order}, 0, 1));
 	my $string = $self->number->string;
-	$string .= substr($u, 0, 1) eq '/' ? $u : " $u";
+	$string .= substr($u, 0, 1) eq '/' || noSeparator($u) ? $u : " $u";
 	$string = '(' . $string . ')' if defined($precedence) && $precedence > 1;
 	return $string;
+}
+
+sub noSeparator {
+	my $u = shift;
+	return 1 if ($u =~ /^(\x{00B0}|\x{2103}|\x{00B0}F)$/);
+	return 0;
 }
 
 #
@@ -1541,7 +1547,7 @@ sub TeX {
 	if (substr($u, 0, 1) eq '/') {
 		$tex = "\\frac{$tex}{" . $unit->raiseUnit(-1, 1)->with(negativePowers => {})->TeX . '}';
 	} else {
-		$tex .= '\\,' . $unit->TeX;
+		$tex .= (noSeparator($unit) ? '' : '\\,') . $unit->TeX;
 	}
 	$tex = '(' . $tex . ')' if defined($precedence) && $precedence > 1;
 	return $tex;
