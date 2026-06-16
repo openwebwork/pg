@@ -118,6 +118,27 @@ L<color options|plots.pl/COLORS> for more details on specifying colors.
 This sets the width of the rectangle borders. This is an alias for the C<width>
 L<dataset option|plots.pl/DATASET OPTIONS>.
 
+=item fill_colors
+
+This is either the name of a color palette, a reference to an array of colors,
+or a reference to a hash containing the name of a color palette
+(C<palette_name>) and number of colors to generate (C<num_colors>) (see L<COLOR
+PALETTES> for more information). If this is a reference to an array and the
+length of the array is smaller than the number of data values in the array
+referenced to by C<$data>, then the colors will be cycled.  
+
+If C<fill_color> is included in the list of options, this will apply the same 
+color to each bar.  If neither C<fill_color> nor C<fill_colors> is included, 
+then the 'rainbow' palette will be used as default.
+
+For example,
+
+    fill_colors => 'rainbow'
+
+    fill_colors => ['green', 'OliveGreen', 'DarkGreen', 'ForestGreen', 'PineGreen']
+
+    fill_colors => { palette_name => 'random', num_colors => 7 }
+
 =back
 
 =head2 HISTOGRAMS
@@ -568,6 +589,13 @@ sub add_barplot {
 	# TODO: Should arbitrarily spaced bars be handled?
 	my $bar_width = $options{orientation} eq 'vertical' ? $xdata->[1] - $xdata->[0] : $ydata->[1] - $ydata->[0];
 
+	my $fill_colors =
+		ref $options{fill_colors} eq 'HASH'
+		? color_palette($options{fill_colors}{palette_name}, $options{fill_colors}{num_colors})
+		: (!defined $options{fill_colors} || ref $options{fill_colors} ne 'ARRAY')
+		? color_palette($options{fill_colors})
+		: $options{fill_colors};
+
 	return $self->add_rectangle(
 		map { [
 			$options{orientation} eq 'vertical'
@@ -579,6 +607,7 @@ sub add_barplot {
 				[ 0,            $ydata->[$_] - 0.5 * $bar_width * $options{bar_width} ],
 				[ $xdata->[$_], $ydata->[$_] + 0.5 * $bar_width * $options{bar_width} ]
 			),
+			fill_color => $fill_colors->[ $_ % @$fill_colors ],
 			%options
 		] } 0 .. $#$xdata
 	);
