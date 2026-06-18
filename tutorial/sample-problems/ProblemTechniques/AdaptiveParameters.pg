@@ -43,7 +43,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: If the answers may be a pure multiple of the correct answer without an
 #: additive constant, then `0` should not be considered correct. For example,
 #: if the general solution were `ce^x`. So the commented out line
-#: `return 0 if $student == Formula(0);` would needed in that case.
+#: `return 0 if Formula(0) == $student;` would needed in that case.
 #:
 #: Observe that this checker bypasses the adaptive parameter code for the
 #: 'produce_equivalence_message' filter. This filter compares the current
@@ -54,7 +54,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 $aSoln = Compute('e^x - 1')->cmp(
     checker => sub {
         my ($correct, $student, $ans) = @_;
-        # return 0 if $student == Formula(0); # See comments.
+        # return 0 if Formula(0) == $student; # See comments.
         if ($ans->{_filter_name} ne 'produce_equivalence_message') {
             my $context = Context()->copy;
             $context->flags->set(no_parameters => 0);
