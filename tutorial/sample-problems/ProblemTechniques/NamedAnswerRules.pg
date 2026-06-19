@@ -1,0 +1,149 @@
+## DESCRIPTION
+## Add buttons to the MathQuill toolbar for a particular
+## answer using a named answer rule.
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(Problem Techniques)
+## Date(06/17/2026)
+## Institution(Missouri Western State University)
+## Author(Glenn Rice)
+## MO(1)
+## KEYWORDS('inequalities')
+
+#:% name = Named answer rules
+#:% type = technique
+#:% categories = [equations, interval]
+
+#:% section = preamble
+#: Load the PODLINK('parserLinearInequality.pl') macro so that a linear
+#: inequality answer can be used.
+DOCUMENT();
+loadMacros(
+    'PGstandard.pl',             'PGML.pl',
+    'parserLinearInequality.pl', 'PGcourse.pl'
+);
+
+#:% section = setup
+#: Generate random variables `$a`, `$b`, and `$c` to use for coefficients in the
+#: linear inequality to be solved.
+#:
+#: Then define a linear inequality answer in the `LinearInequality` context,
+#: and an interval answer in the `Interval` context.
+$a = random(2, 9);
+$b = random(2, 9);
+$c = random(2, 9);
+
+Context('LinearInequality');
+$inequalityAnswer = LinearInequality("x <= $a");
+
+Context('Interval');
+$intervalAnswer = Interval("(-inf, $a]");
+
+#:% section = statement
+#: Ask the student to solve the inequality, and give the answer as both a linear
+#: inequality and an interval.
+#:
+#: A named answer is needed for the linear inequality answer in order to add
+#: toolbar buttons to the MathQuill toolbar for that answer. Do this with the
+#: third option for a PGML answer by calling the `NEW_ANS_NAME` function and
+#: assigning that to the variable `$inequalityAnswerName`. Never use hard coded
+#: made up answer names in problems. Always obtain an answer name using the
+#: `NEW_ANS_NAME` method. Problems that use hard coded made up answer names will
+#: not work correctly in many situations. The interval answer does not need to
+#: be named.
+#:
+#: Finally inject a `script` tag to the end of the problem text. It is important
+#: that this JavaScript code be executed after the PG MathQuill JavaScript so
+#: that the `window.answerQuills` variable will be defined. One way to
+#: accomplish this is by executing the code in the `DOMContentLoaded` event.
+#:
+#: Add the buttons to the toolbar for the linear inequality answer by calling
+#: the `addToolbarButtons` function of the `options` object for the `mathField`
+#: associated to the `$inequalityAnswerName` answer quill. The first argument
+#: for the `addToolbarButtons` function can be either a single toolbar button
+#: definition or an array of toolbar button definitions (see below for a
+#: description of a toolbar button definition). The second argument can be
+#: either a number which is the zero based position at which the new toolbar
+#: buttons will be inserted, or the `id` of an existing toolbar button after
+#: which the new toolbar buttons will be inserted (note the `id`s of the default
+#: toolbar buttons in order are `frac`, `abs`, `sqrt`, `nthroot`, `exponent`,
+#: `infty`, `pi`, `vert`, `cup`, and `text`). Note that the second argument can
+#: be a negative number which counts backward from the end. In fact the second
+#: argument can be entirely omitted. In that case a position of -1 is used which
+#: will insert the new button before the last toolbar button (initially the text
+#: button).
+#:
+#: A toolbar button is defined as a JavaScript object with the four properties
+#: `id`, `latex`, `tooltip`, and `icon`.
+#:
+#: - The `id` can be any string, but should not have the same `id` of another
+#:   toolbar button.
+#: - The `latex` for a button is the LaTeX code that will be inserted into the
+#:   MathQuill input when the toolbar button is pressed. Make sure that
+#:   backslashes are escaped with another backslash.
+#: - The `tooltip` is text that will be shown in a tooltip when the button on
+#:   the toolbar has keyboard focus or is hovered over by the mouse cursor. Note
+#:   that the toolbar text should include a brief textual description of what
+#:   will be inserted when the button is pressed, and in parentheses after that
+#:   the keyboard sequence that can be typed into the MathQuill input to insert
+#:   the same thing that pressing the button will insert.
+#: - The `icon` is the LaTeX code for icon that will be shown in a static
+#:   MathQuill field on the toolbar button. Make sure that backslashes are
+#:   escaped with another backslash.
+#:
+#: A button can also be removed from the toolbar for an answer using the
+#: `removeToolbarButtons` function. The only argument for this function is a
+#: string `id` or array of string `id`s for existing toolbar buttons to be
+#: removed. For example,
+#: `answerQuills.$inequalityAnswerName.mathField.options.removeToolbarButtons('cup');`
+#: would remove the union button from the toolbar, and
+#: `answerQuills.$inequalityAnswerName.mathField.options.removeToolbarButtons([ 'pi', 'cup' ]);`
+#: would remove the pi and union buttons from the toolbar. It is important to
+#: note that removing a toolbar button does not prevent a student from entering
+#: what the toolbar button would insert. It merely removes the toolbar button.
+#: For example, if the `cup` button is removed, a student could still type
+#: "union" to enter a union symbol.
+BEGIN_PGML
+Solve the following inequality.
+
+>>[``[$b]x + [$c] \leq [$a * $b + $c]``]<<
+
+Express the answer as an inequality:
+[_]{$inequalityAnswer}{15}{ $inequalityAnswerName = NEW_ANS_NAME() }.
+
+Express the answer in interval notation: [_]{$intervalAnswer}{15}
+END_PGML
+
+TEXT(MODES(TeX => '', HTML => <<"END_SCRIPT"));
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    if (!window.answerQuills) return;
+    answerQuills.$inequalityAnswerName.mathField.options.addToolbarButtons(
+        [
+            {
+                id: 'leq',
+                latex: '\\leq',
+                tooltip: 'less than or equal (<=)',
+                icon: '\\leq'
+            },
+            {
+                id: 'geq',
+                latex: '\\geq',
+                tooltip: 'greater than or equal (>=)',
+                icon: '\\geq'
+            }
+        ],
+        9
+    );
+});
+</script>
+END_SCRIPT
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+Solution explanation goes here.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
