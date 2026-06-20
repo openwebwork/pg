@@ -669,36 +669,14 @@ sub isREQ {
 		}
 		return $lk * $r == $rk * $l;
 	} elsif (scalar @ldim == 2) {
-		# get Gram-Schmidt basis for each row space
-		my @rrows = map { $r->new($_) } $r->value;
-		@rrows = grep { !$_->isZero } @rrows;
-		@rrows = map  { $_ / ($_ * $_)**0.5 } @rrows;
-		my @rgs = ($rrows[0]);
-		for my $i (1 .. $#rrows) {
-			my $proj = $r->new((0) x $rdim[1]);
-			for my $v (@rgs) {
-				$proj += ($rrows[$i] * $v) * $v;
-			}
-			my $gs = $rrows[$i] - $proj;
-			push @rgs, $gs / ($gs * $gs)**0.5 unless $rrows[$i] == $proj;
-		}
-		my @lrows = map { $l->new($_) } $l->value;
-		@lrows = grep { !$_->isZero } @lrows;
-		@lrows = map  { $_ / ($_ * $_)**0.5 } @lrows;
-		my @lgs = ($lrows[0]);
-		for my $i (1 .. $#lrows) {
-			my $proj = $r->new((0) x $ldim[1]);
-			for my $v (@lgs) {
-				$proj += ($lrows[$i] * $v) * $v;
-			}
-			my $gs = $lrows[$i] - $proj;
-			push @lgs, $gs / ($gs * $gs)**0.5 unless $lrows[$i] == $proj;
-		}
+		my @rgs = $r->NGS;
+		my @lgs = $l->NGS;
 
 		return 0 if scalar @lgs != scalar @rgs;
 
 		# project each row from $rrows onto @lgs;
 		# if the complement is nonzero, the row spaces disagree
+		my @rrows = map { $r->new($_) } $r->value;
 		for my $v (@rrows) {
 			my $proj = $r->new((0) x $ldim[1]);
 			for my $w (@lgs) {
@@ -707,6 +685,7 @@ sub isREQ {
 			return 0 unless $v == $proj;
 		}
 		# and vice versa
+		my @lrows = map { $l->new($_) } $l->value;
 		for my $v (@lrows) {
 			my $proj = $r->new((0) x $rdim[1]);
 			for my $w (@rgs) {
@@ -724,6 +703,69 @@ sub isREQ {
 		}
 		return 1;
 	}
+}
+
+=head3 C<NGS>
+
+Normalized Gram Schmidt basis for a given list of vectors. This uses "fuzzy" equivalency to avoid machine rounding
+issues. If called as a method on a Matrix, the rows of that Matrix are used as the list of vectors. If called as a
+method with the option C<< cols => 1 >>, then the columns are used as the list of vectors.
+
+In array context, returns an array of 1D Matrix objects. In scalar context, returns a Matrix with those rows.
+
+If C<< cols => 1 >> was used, return the Matrix objects in column form.
+
+
+Usage:
+
+   $A = Matrix([1, 2, 2], [2, 2, 1]);
+
+   @X = $A->NGS                                   # @X is (Matrix(1, 2, 2)/3, Matrix(10, 2, -7)/sqrt(153))
+   @X = Value::Matrix->NGS([1, 2, 2], [2, 2, 1])  # @X is the same as above
+   $X = $A->NGS                                   # $X is Matrix([1/3, 2/3, 2/3], [10/sqrt(153), 2/sqrt(153), -7/sqrt(153)])
+   $X = Value::Matrix->NGS([1, 2, 2], [2, 2, 1])  # $X is the same as above
+
+   @X = $A->NGS(cols => 1)                        # @X is (Matrix([1/sqrt(5)], [2/sqrt(5)]), Matrix([2/sqrt(5)], [-1/sqrt(5)]))
+   $X = $A->NGS(cols => 1)                        # $X is Matrix([1/sqrt(5), 2/sqrt(5)], [2/sqrt(5), -1/sqrt(5)])
+
+=cut
+
+sub NGS {
+	my ($self, @args) = @_;
+	my %options;
+	my @rows;
+	if (ref($self) eq 'Value::Matrix') {
+		%options = @args;
+		@rows    = $options{cols} ? $self->transpose->value : $self->value;
+	} else {
+		@rows = @args;
+	}
+	Value::Error('You must provide vectors to apply Gram Schmidt to') if !@rows;
+	@rows = map  { Value::Matrix->new($_) } @rows;
+	@rows = grep { !$_->isZero } @rows;
+	Value::Error('You must provide at least one nonzero row for Gram Schmidt') unless @rows;
+	my $n = ($rows[0]->dimensions)[0];
+	for my $r (@rows) {
+		Value::Error('Rows provided for Gram Schmidt should not be nested arrays')     unless $r->degree == 1;
+		Value::Error('All rows provided for Gram Schmidt should have the same length') unless ($r->dimensions)[0] == $n;
+	}
+	@rows = map { $_ / ($_ * $_)**0.5 } @rows;
+	my @gs = ($rows[0]);
+	for my $i (1 .. $#rows) {
+		my $proj = Value::Matrix->new((0) x $n);
+		for my $v (@gs) {
+			$proj += ($rows[$i] * $v) * $v;
+		}
+		my $gs = $rows[$i] - $proj;
+		push @gs, $gs / ($gs * $gs)**0.5 unless $rows[$i] == $proj;
+	}
+	return
+		$options{cols}
+		? wantarray
+			? map { $_->transpose } @gs
+			: Value::Matrix->new(@gs)->transpose
+		: wantarray ? @gs
+		:             Value::Matrix->new(@gs);
 }
 
 sub _isNumber {

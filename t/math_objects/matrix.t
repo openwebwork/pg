@@ -224,6 +224,44 @@ subtest 'Check if two matrices are (fuzzy) row equivalent' => sub {
 
 };
 
+subtest 'Normalized Gram Schmidt' => sub {
+	my @A      = ([ 1, 2, 2 ], [ 2, 2, 1 ]);
+	my $A      = Matrix(@A);
+	my @NGSA   = $A->NGS;
+	my @NGSAc  = $A->NGS(cols => 1);
+	my @NGSVMA = Value::Matrix->NGS(@A);
+	my $NGSA   = $A->NGS;
+	my $NGSAc  = $A->NGS(cols => 1);
+	my $NGSVMA = Value::Matrix->NGS(@A);
+
+	is "@NGSA", "[0.333333,0.666667,0.666667] [0.808452,0.16169,-0.565916]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "@NGSAc", "[[0.447214],[0.894427]] [[0.894427],[-0.447214]]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "@NGSVMA", "[0.333333,0.666667,0.666667] [0.808452,0.16169,-0.565916]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "$NGSA", "[[0.333333,0.666667,0.666667],[0.808452,0.16169,-0.565916]]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "$NGSAc", "[[0.447214,0.894427],[0.894427,-0.447214]]", 'Test that NGS finds a correct normalized GS basis';
+	is "$NGSVMA", "[[0.333333,0.666667,0.666667],[0.808452,0.16169,-0.565916]]",
+		'Test that NGS finds a correct normalized GS basis';
+
+	like dies {
+		Value::Matrix->NGS();
+	}, qr/You must provide vectors to apply Gram Schmidt to/, 'Test that you must pass something as an argument';
+	like dies {
+		Value::Matrix->NGS([ 0, 0 ], [ 0, 10**-16 ]);
+	}, qr/You must provide at least one nonzero row for Gram Schmidt/,
+		'Test that you must pass at least one nonzero row';
+	like dies {
+		Value::Matrix->NGS([ [ 1, 0 ], [ 1, 0 ] ]);
+	}, qr/Rows provided for Gram Schmidt should not be nested arrays/,
+		'Test that rows are rows, not nested matrices';
+	like dies {
+		Value::Matrix->NGS([ 1, 0 ], [ 1, 0, 0 ]);
+	}, qr/All rows provided for Gram Schmidt should have the same length/, 'Test that rows have same length';
+};
+
 subtest 'Transpose a Matrix' => sub {
 	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
 	my $B = Matrix([ [ 1, 5, 9 ], [ 2, 6, 10 ], [ 3, 7, 11 ], [ 4, 8, 12 ] ]);
