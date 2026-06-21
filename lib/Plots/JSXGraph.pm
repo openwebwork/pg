@@ -42,7 +42,7 @@ sub HTML {
 
 	my $divs =
 		qq!<div id="jsxgraph-plot-$self->{name}" !
-		. qq!class="jxgbox plots-jsxgraph$imageviewClass$roundedCornersClass"$tabindex!
+		. qq!class="jxgbox plots-jsxgraph$imageviewClass$roundedCornersClass"$tabindex !
 		. qq!style="width: ${width}px; height: ${height}px;"$aria_details></div>!;
 	$divs = qq!<div class="image-container">$divs$details</div>! if $details;
 
