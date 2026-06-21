@@ -845,8 +845,12 @@ the type of submission.
 
 =item *
 
-C<btnClass>: This is the bootstrap button class added to the feedback button.
-By default it is "btn-info", "btn-success", "btn-danger", or "btn-warning"
+C<btnClass>: This is the button class added to the feedback button. These are
+based on bootstrap button styles, but are custom styles for the feedback
+buttons to allow clients to theme the bootstrap buttons without changing the
+feedback styles. By default it is "btn-preview" (coppied from btn-info),
+"btn-correct" (coppied from btn-success), "btn-incorrect" (coppied from
+btn-danger), or "btn-partially-correct" (coppied from btn-warning)
 depending on the status of the answer and the type of submission.
 
 =item *
@@ -1059,7 +1063,7 @@ sub ENDDOCUMENT {
 				my %options = (
 					resultTitle      => maketext('Answer Preview'),
 					resultClass      => '',
-					btnClass         => 'btn-info',
+					btnClass         => 'btn-preview',
 					btnAddClass      => 'ms-2',
 					feedbackElements => Mojo::Collection->new,
 					insertElement    => undef,
@@ -1108,15 +1112,28 @@ sub ENDDOCUMENT {
 					} elsif ($answerScore >= 1) {
 						$options{resultTitle} = maketext('Correct');
 						$options{resultClass} = 'correct';
-						$options{btnClass}    = 'btn-success';
+						$options{btnClass}    = 'btn-correct';
 					} elsif ($answerScore == 0) {
 						$options{resultTitle} = maketext('Incorrect');
 						$options{resultClass} = 'incorrect';
-						$options{btnClass}    = 'btn-danger';
+						$options{btnClass}    = 'btn-incorrect';
 					} else {
 						$options{resultTitle} = maketext('[_1]% correct', round($answerScore * 100));
 						$options{resultClass} = 'partially-correct';
-						$options{btnClass}    = 'btn-warning';
+						$options{btnClass}    = 'btn-partially-correct';
+					}
+				} elsif ($rh_envir->{showAttemptResults} && !$PG->{flags}{showPartialCorrectAnswers}) {
+					# Partially correct feedback is not being shown, but this is not a preview, so make the
+					# feedback look different than a preview. If the problem score is zero, everything is
+					# incorrect, so mark the whole problem as incorrect. Otherwise mark it as unknown correctness.
+					if ($problemResult->{score}) {
+						$options{resultTitle} = maketext('Unknown');
+						$options{resultClass} = 'unknown';
+						$options{btnClass}    = 'btn-partially-correct';
+					} else {
+						$options{resultTitle} = maketext('Incorrect');
+						$options{resultClass} = 'incorrect';
+						$options{btnClass}    = 'btn-incorrect';
 					}
 				}
 

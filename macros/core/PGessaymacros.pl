@@ -67,7 +67,7 @@ sub essay_cmp {
 
 			$options->{resultClass}      = '';
 			$options->{insertMethod}     = 'append_content';
-			$options->{btnClass}         = 'btn-info';
+			$options->{btnClass}         = 'btn-preview';
 			$options->{btnAddClass}      = '';
 			$options->{wrapPreviewInTex} = 0;
 			$options->{showEntered}      = 0;                  # Suppress output of the feedback entered answer.
