@@ -315,7 +315,7 @@ sub externalCommand {
 
 # Isolate the call to the sage server in case we have to jazz it up.
 sub query_sage_server {
-	my ($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug, $curlCommand) = @_;
+	my ($python, $url, $setSeed, $webworkfunc, $debug, $curlCommand) = @_;
 
 	# Validate url to prevent shell injection — must look like a URL.
 	if ($url && $url !~ m{^https?://[^\s;|&`\$]+$}) {
@@ -328,7 +328,7 @@ sub query_sage_server {
 		$curlCommand,                                                 '-i',
 		'-k',                                                         '-sS',
 		'-L',                                                         '--data-urlencode',
-		"accepted_tos=$accepted_tos",                                 '--data-urlencode',
+		"accepted_tos=true",                                          '--data-urlencode',
 		'user_expressions={"WEBWORK":"_webwork_safe_json(WEBWORK)"}', '--data-urlencode',
 		"code=${setSeed}${webworkfunc}$python",                       $url // (),
 	);
@@ -400,8 +400,7 @@ sub query_sage_server {
 		# Success! Put any extraneous splits back together.
 		$result = join("\r\n\r\n", @lines);
 	} else {
-		warn "ERROR in contacting sage server. Did you accept the terms of service by "
-			. "setting { accepted_tos => 'true' } in the askSage options?\n$content\n";
+		warn "ERROR in contacting sage server.\n$content\n";
 		$result = undef;
 	}
 
@@ -421,44 +420,44 @@ sub AskSage {
 	chomp($python);
 
 	# To send values back in a hash, add them to the python WEBWORK dictionary.
-	my $url          = $args->{url} || 'https://sagecell.sagemath.org/service';
-	my $seed         = $args->{seed};
-	my $accepted_tos = $args->{accepted_tos} || 'false';    # Force author to accept terms of service explicitly.
-	my $debug        = $args->{debug}        || 0;
-	my $setSeed      = $seed ? "set_random_seed($seed)\n" : '';
-	my $curlCommand  = $args->{curlCommand};
+	my $url         = $args->{url} || $pg_envir->{URLs}{sagecellService} || 'https://sagecell.sagemath.org/service';
+	my $seed        = $args->{seed};
+	my $debug       = $args->{debug} || 0;
+	my $setSeed     = $seed ? "set_random_seed($seed)\n" : '';
+	my $curlCommand = $args->{curlCommand};
 
 	my $webworkfunc = <<END;
 WEBWORK={}
 
 def _webwork_safe_json(o):
     import json
-    def default(o):
-        try:
-            if isinstance(o,sage.rings.integer.Integer):
-                json_obj = int(o)
-            elif isinstance(o,(sage.rings.real_mpfr.RealLiteral, sage.rings.real_mpfr.RealNumber)):
-                json_obj = float(o)
-            elif sage.modules.free_module_element.is_FreeModuleElement(o):
-                json_obj = list(o)
-            elif sage.matrix.matrix.is_Matrix(o):
-                json_obj = [list(i) for i in o.rows()]
-            elif isinstance(o, SageObject):
-                json_obj = repr(o)
+    class WebworkEncoder(json.JSONEncoder):
+        def default(self, o):
+            try:
+                if isinstance(o,sage.rings.integer.Integer):
+                    json_obj = int(o)
+                elif isinstance(o,(sage.rings.real_mpfr.RealLiteral, sage.rings.real_mpfr.RealNumber)):
+                    json_obj = float(o)
+                elif isinstance(o, sage.modules.free_module_element.FreeModuleElement):
+                    json_obj = list(o)
+                elif isinstance(o, sage.matrix.matrix0.Matrix):
+                    json_obj = [list(i) for i in o.rows()]
+                elif isinstance(o, SageObject):
+                    json_obj = repr(o)
+                else:
+                    raise TypeError
+            except TypeError:
+                pass
             else:
-                raise TypeError
-        except TypeError:
-            pass
-        else:
-            return json_obj
-        # Let the base class default method raise the TypeError
-        return json.JSONEncoder.default(self, o)
-    return json.dumps(o, default=default)
+                return json_obj
+            # Let the base class default method raise the TypeError
+            return super().default(o)
+    return json.dumps(o, cls=WebworkEncoder)
 END
 
 	my $ret = { success => 0 };    # We want to export more than one piece of information.
 	eval {
-		my $output = query_sage_server($python, $url, $accepted_tos, $setSeed, $webworkfunc, $debug, $curlCommand);
+		my $output = query_sage_server($python, $url, $setSeed, $webworkfunc, $debug, $curlCommand);
 
 		# has something been returned?
 		not_null($output) or die "Unable to make a sage call to $url.";
@@ -486,7 +485,7 @@ END
 		warn "now success  is $success because status was ok" if $debug;
 		if ($success) {
 			my $WEBWORK_variable_non_empty = 0;
-			my $sage_WEBWORK_data          = $decoded->{execute_reply}{user_expressions}{WEBWORK}{data}{'text/plain'};
+			my $sage_WEBWORK_data = $decoded->{execute_reply}{user_expressions}{WEBWORK}{data}{'text/plain'} // '';
 			warn "sage_WEBWORK_data $sage_WEBWORK_data" if $debug;
 			if (not_null($sage_WEBWORK_data)) {
 				$WEBWORK_variable_non_empty =    # another hack because '{}' is sometimes returned

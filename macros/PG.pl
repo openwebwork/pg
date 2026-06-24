@@ -397,9 +397,7 @@ sub load_js() {
 }
 
 sub AskSage {
-	my $python  = shift;
-	my $options = shift;
-	WARN_MESSAGE("the second argument to AskSage should be a hash of options") unless $options =~ /HASH/;
+	my ($python, $options) = @_;
 	$PG->AskSage($python, $options);
 }
 

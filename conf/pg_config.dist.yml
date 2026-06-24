@@ -74,6 +74,17 @@ URLs:
     - .
     - $pg_root_url/images
 
+  # By default the AskSage method uses the public sagecell service located at
+  # https://sagecell.sagemath.org/service. However, the server at that address
+  # is no longer accepting public requests. So in order for problems that use
+  # the AskSage method to work a different sagecell server must be used.
+  # Uncomment the line below and set the value to a custom sagecell server
+  # address to use with the AskSage method.  If using the docker container built
+  # with the instructions and files in the sagecell-docker directory in this
+  # repository, the use the line below as is.
+
+  #sagecellService: http://localhost:3500/service
+
 # Flat-file database used to protect against MD5 hash collisions. TeX equations
 # are hashed to determine the name of the image file. There is a tiny chance of
 # a collision between two TeX strings. This file allows for that. However, this
