@@ -125,10 +125,10 @@ or a reference to a hash containing the name of a color palette
 (C<palette_name>) and number of colors to generate (C<num_colors>) (see L<COLOR
 PALETTES> for more information). If this is a reference to an array and the
 length of the array is smaller than the number of data values in the array
-referenced to by C<$data>, then the colors will be cycled.  
+referenced to by C<$data>, then the colors will be cycled.
 
-If C<fill_color> is included in the list of options, this will apply the same 
-color to each bar.  If neither C<fill_color> nor C<fill_colors> is included, 
+If C<fill_color> is included in the list of options, this will apply the same
+color to each bar.  If neither C<fill_color> nor C<fill_colors> is included,
 then the 'rainbow' palette will be used as default.
 
 For example,
@@ -845,7 +845,7 @@ sub color_palette {
 	if ($palette_name eq 'rainbow') {
 		return [ 'Violet', 'blue', 'green', 'yellow', 'orange', 'red' ];
 	} elsif ($palette_name eq 'greens') {
-		return [ 'Green', 'Olive', 'DarkGreen', 'LawnGreen', 'MediumAquaMarine', 'LimeGreen' ];
+		return [ 'Green', 'Olive', 'DarkGreen', 'LawnGreen', 'MediumAquamarine', 'LimeGreen' ];
 	} elsif ($palette_name eq 'blues') {
 		return [ 'Blue', 'MidnightBlue', 'MediumBlue', 'LightSkyBlue', 'DodgerBlue', 'DarkBlue', 'CornflowerBlue' ];
 	} elsif ($palette_name eq 'reds') {
