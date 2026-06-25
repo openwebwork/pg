@@ -223,7 +223,7 @@ sub cmp_postprocess { }
 ##############################################
 
 package PolynomialFactors;
-our @ISA = ('LimitedPolynomal');
+our @ISA = ('LimitedPolynomial');
 
 sub markFactor {
 	my $self = shift;

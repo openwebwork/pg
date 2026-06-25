@@ -233,7 +233,7 @@ package Parser::Legacy::LimitedComplex;
 
 my $context = $Parser::Context::Default::context{Complex}->copy;
 $Parser::Context::Default::context{LimitedComplex} = $context;
-$context->{name} = "LimtedComplex";
+$context->{name} = "LimitedComplex";
 
 #
 #  Override operator classes
@@ -270,7 +270,7 @@ $context->flags->set(complex_format => 'either');
 $context = $context->copy;
 $Parser::Context::Default::context{'LimitedComplex-cartesian'} = $context;
 $context->flags->set(complex_format => 'cartesian');
-$context->{name} = "LimtedComplex-cartesian";
+$context->{name} = "LimitedComplex-cartesian";
 
 ##################################################
 
@@ -278,14 +278,14 @@ $context = $context->copy;
 $Parser::Context::Default::context{'LimitedComplex-cartesian-strict'} = $context;
 $context->flags->set(strict_numeric => 1);
 $context->functions->disable('All');
-$context->{name} = "LimtedComplex-cartesian-strinct";
+$context->{name} = "LimitedComplex-cartesian-strinct";
 
 ##################################################
 
 $context = $Parser::Context::Default::context{'LimitedComplex'}->copy;
 $Parser::Context::Default::context{'LimitedComplex-polar'} = $context;
 $context->flags->set(complex_format => 'polar');
-$context->{name} = "LimtedComplex-polar";
+$context->{name} = "LimitedComplex-polar";
 
 ##################################################
 
@@ -293,7 +293,7 @@ $context = $context->copy;
 $Parser::Context::Default::context{'LimitedComplex-polar-strict'} = $context;
 $context->flags->set(strict_numeric => 1);
 $context->functions->disable('All');
-$context->{name} = "LimtedComplex-polar-strict";
+$context->{name} = "LimitedComplex-polar-strict";
 
 ##################################################
 
@@ -301,7 +301,7 @@ $context = $Parser::Context::Default::context{'LimitedComplex'}->copy;
 $Parser::Context::Default::context{'LimitedComplex-strict'} = $context;
 $context->flags->set(strict_numeric => 1);
 $context->functions->disable('All');
-$context->{name} = "LimtedComplex-strict";
+$context->{name} = "LimitedComplex-strict";
 
 ##################################################
 

@@ -689,7 +689,7 @@ sub format_delimiter_tth {
 #  based on these, and keep track of error messages.
 #
 
-my @ans_cmp_defaults = (showCoodinateHints => 0, checker => sub {0});
+my @ans_cmp_defaults = (showCoordinateHints => 0, checker => sub {0});
 
 sub ans_collect {
 	my $self   = shift;

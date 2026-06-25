@@ -1028,7 +1028,7 @@ sub new {
 			dunits         => {},
 			nfunds         => $nfunds,
 			dfunds         => $dfunds,
-			isConsant      => 1,
+			isConstant     => 1,
 		},
 		$class
 	);
