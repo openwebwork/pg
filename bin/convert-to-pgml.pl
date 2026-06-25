@@ -70,14 +70,18 @@ sub convertFile ($filename) {
 	my $path = Mojo::File->new($filename);
 	die "The file: $filename does not exist or is not readable" unless -r $path;
 
-	my $pg_source        = $path->slurp;
-	my $converted_source = convertToPGML($pg_source);
+	my $pg_source = $path->slurp;
+	my $result    = convertToPGML($pg_source);
+	if (ref($result) eq 'HASH' && $result->{errors}) {
+		warn "Error parsing $filename. " . $result->{errors};
+		return;
+	}
 
 	# copy the original file to a backup and then write the file
 	my $new_path    = $backup ? $path : Mojo::File->new($filename =~ s/\.pg/.$suffix/r);
 	my $backup_file = $filename =~ s/\.pg$/.pg.bak/r;
 	$path->copy_to($backup_file) if $backup;
-	$new_path->spurt($converted_source);
+	$new_path->spurt($result->{pgmlCode});
 	print "Writing converted file to $new_path\n"      if $verbose;
 	print "Backing up original file to $backup_file\n" if $verbose && $backup;
 }
