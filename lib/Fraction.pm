@@ -2,7 +2,7 @@
 #
 # Fraction object
 # Keeps track of two variables- numerator and denominator.
-# Has subroutines for basic arithmatic functions, for anything
+# Has subroutines for basic arithmetic functions, for anything
 # more complicated, it can return a scalar value of
 # numerator/denominator.
 # VS 7/20/2000
@@ -387,7 +387,7 @@ sub print_inline {
 # Internal Methods
 
 # Least Common Multiple
-# Used in arithmatic methods to convert two fractions to common denominator
+# Used in arithmetic methods to convert two fractions to common denominator
 # takes in two scalar values and returns their lcm
 sub lcm {
 	my $self = shift;
@@ -418,7 +418,7 @@ sub lcm {
 sub gcd {
 
 	my $self = shift;
-	my $a    = abs(shift);    #absolute values because this will yeild the same gcd,
+	my $a    = abs(shift);    #absolute values because this will yield the same gcd,
 	my $b    = abs(shift);    #but allows use of the mod operation
 
 	if ($a < $b) {

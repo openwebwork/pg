@@ -539,7 +539,7 @@ sub add_container {
 		# Scaffold to consider the score to be 1. This is used by PGessaymacros.pl.
 		# Also, if answers are being previewed and the preview_can_change_state option is 0, then use the scores saved
 		# in the persistent data hash form the last answer submission (if there is no data for an answer, then the
-		# anwser is considered blank).
+		# answer is considered blank).
 		for (@{ $self->{ans_names} }) {
 			next unless defined $PG_ANSWERS_HASH->{$_};
 			$scaffold->{scores}{$_} = $scaffoldScores->{$_} =

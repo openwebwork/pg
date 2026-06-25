@@ -162,7 +162,7 @@ sub sqrt_simplify {
 	if (($number == int($number)) && ($number > 0)) {
 		$perfsqr = 1;
 		#*************************************************************************************
-		#   Check all perfect squares up to the max and store the hightest one that divides
+		#   Check all perfect squares up to the max and store the highest one that divides
 		#*************************************************************************************
 		for ($i = 2; $i * $i <= $number; $i++) {
 			$sqr = $i * $i;

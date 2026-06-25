@@ -384,7 +384,7 @@ sub grader {
 	}
 	if (!$result->{msg}) {
 		# hack to remove unwanted "<b>Note: </b>" from the problem
-		#  (it is inserted automatically by Problem.pm when {msg} is non-emtpy).
+		#  (it is inserted automatically by Problem.pm when {msg} is non-empty).
 		$result->{msg} .=
 			'<script>var bb = document.getElementsByTagName("b");' . 'bb[bb.length-1].style.display="none"</script>';
 	}

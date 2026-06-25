@@ -116,7 +116,7 @@ show a typeset view on the answer on the preview page. For a student answer of
 
 BEGIN { strict->import; }
 
-# Until we get the PG cacheing business sorted out, we need to use
+# Until we get the PG caching business sorted out, we need to use
 # PG_restricted_eval to get the correct values for some(?) PG environment
 # variables. We do this once here and place the values in lexicals for later
 # access.
@@ -222,7 +222,7 @@ sub get_var_array {
 }
 
 ## Internal routine that converts limits into the standard array of arrays format
-##	Some of the cases are probably unneccessary, but better safe than sorry
+##	Some of the cases are probably unnecessary, but better safe than sorry
 ##
 ## IN:	one of the following:
 ##			an undefined value (i.e., no limits were specified)
@@ -615,7 +615,7 @@ sub is_zero_array {
 		'stdin'        => 'ra_differences',
 		'stdout'       => 'score',
 	);
-	#intialize
+	#initialize
 	$rh_ans->{_filter_name} = $options{_filter_name};
 
 	my $array = $rh_ans->{ $options{stdin} };    # default ra_differences
@@ -697,11 +697,11 @@ sub best_approx_parameters {
 	my %options = @_;
 	set_default_options(
 		\%options,
-		'_filter_name'          => 'best_approx_paramters',
+		'_filter_name'          => 'best_approx_parameters',
 		'allow_unknown_options' => 1,
 	);
 	my $errors = undef;
-	# This subroutine for the determining the coefficents of the parameters at a given point
+	# This subroutine for the determining the coefficients of the parameters at a given point
 	# is pretty specialized, so it is included here as a sub-subroutine.
 	my $determine_param_coeffs = sub {
 		my ($rf_fun, $ra_variables, $dim_of_params_space, %options) = @_;
@@ -1297,7 +1297,7 @@ sub check_strings {
 
 # OVERVIEW of reminder of function:
 # if answer is correct, return correct.  (adjust score to 1)
-# if answer is incorect:
+# if answer is incorrect:
 #	1) determine if the answer is sensible.  if it is, return incorrect.
 #	2) if the answer is not sensible (and incorrect), then return an error message indicating so.
 # no matter what:  throw a 'STRING' error to skip numerical evaluations.  (error flag skips remainder of pre_filters and evaluators)
@@ -1722,7 +1722,7 @@ This can be very useful for printing out messages about objects while debugging
 #     if ( not ref($r_input) ) {
 #     	$out = $r_input if defined $r_input;    # not a reference
 #     	$out =~ s/</&lt;/g  ;  # protect for HTML output
-#     } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
+#     } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_input).
 # 	    local($^W) = 0;
 #
 # 		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";

@@ -116,7 +116,7 @@ sub display_matrix {
 	if (ref($ra_matrix) eq 'Value::Matrix') {
 		$ra_matrix = $ra_matrix->wwMatrix->array_ref;    # translate
 	}
-	if (ref($ra_matrix) eq 'Matrix') {                   #handle Real::Matrix1 type matrices: #FIXME deprectated
+	if (ref($ra_matrix) eq 'Matrix') {                   #handle Real::Matrix1 type matrices: #FIXME deprecated
 		($numRows, $numCols) = $ra_matrix->dim();
 		for (my $i = 0; $i < $numRows; $i++) {
 			$myRows[$i] = [];

@@ -197,7 +197,7 @@ our @ISA = qw(Parser::BOP);
 
 #
 #  Check that the operand types are compatible, and give
-#  approrpiate error messages if not.  (We have to work
+#  appropriate error messages if not.  (We have to work
 #  hard to make a good message about the number of
 #  decimal digits required.)
 #

@@ -232,7 +232,7 @@ sub ListProc {
 		@machine_info,        @these_dones
 	);
 
-	#intialize and setup
+	#initialize and setup
 	#####################################################
 	@coordinates_weights = split ",", $coordinates;
 	$i                   = 0;
@@ -274,7 +274,7 @@ sub ListProc {
 		$dependence_count[ $connections[$j] ]++;
 		$j += 2;
 	}
-	# done intializing
+	# done initializing
 	##########################################
 	$time       = 0;
 	$done       = 0;
@@ -290,7 +290,7 @@ sub ListProc {
 				if ($ready[$j] == $i) { $onlist = 1; }
 				$j++;
 			}
-			# check readyness against current dependencies
+			# check readiness against current dependencies
 			if (!$onlist && $dependence_count[$i] == 0) {
 				unshift @ready, $i;
 				pop @ready;
@@ -559,7 +559,7 @@ sub CritList {
 		$temp_word
 	);
 
-	#intialize and setup
+	#initialize and setup
 	#####################################################
 	@coordinates_weights       = split ",", $coordinates;
 	@these_coordinates_weights = @coordinates_weights;
@@ -577,7 +577,7 @@ sub CritList {
 	$task_count       = scalar @weights;
 	@connection_array = split ",", $connections;
 	$priority_list    = "";
-	# end intialize and setup
+	# end initialize and setup
 	#####################################################
 	$scheduled_count = 0;
 	while ($scheduled_count < $task_count) {
@@ -645,7 +645,7 @@ sub CritPath {
 		$independent
 	);
 
-	#intialize and setup
+	#initialize and setup
 	#####################################################
 	@coordinates_weights = split ",", $coordinates;
 	$i                   = 0;
@@ -661,7 +661,7 @@ sub CritPath {
 	@connection_array = split ",", $connections;
 	$i                = 0;
 	while ($i < scalar @connection_array) { $connection_array[$i]--; $i++; }
-	# end intialize and setup
+	# end initialize and setup
 	#####################################################
 
 	# find all possible starting vertices ...

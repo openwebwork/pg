@@ -345,7 +345,7 @@ sub _eval {
 #  This implements the "in" operator as in inequality.
 #  We inherit all the inequality methods, and simply
 #  need to handle the string and TeX output.  The
-#  underlying type is still an Inerval.
+#  underlying type is still an Interval.
 #
 package PiecewiseFunction::Interval;
 our @ISA = ("Inequalities::Interval");

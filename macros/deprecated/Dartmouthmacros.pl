@@ -79,7 +79,7 @@ sub vector_diff {
 
 ## Compute the length of a vector
 sub vec_length {
-	## Put the paramaters passed into an array of values
+	## Put the parameters passed into an array of values
 	my @vector = @_;
 
 	## Initialize maximum value to first element
@@ -137,7 +137,7 @@ sub cross_product {
 
 ## Compute the maximum value in a list
 #sub max {
-#    ## Put the paramters passed into an array of values
+#    ## Put the parameters passed into an array of values
 #    my @values = @_;
 #
 #    ## Initialize maximum value to first element
@@ -155,7 +155,7 @@ sub cross_product {
 
 ## Compute the minimum value in a list
 #sub min {
-#    ## Put the paramters passed into an array of values
+#    ## Put the parameters passed into an array of values
 #    my @values = @_;
 #
 #    ## Initialize minimum value to first element

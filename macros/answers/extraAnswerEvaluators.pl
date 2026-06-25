@@ -324,7 +324,7 @@ sub interval_cmp {
 	my $ans_type = '';                        # set to List, Union, or String below
 
 	#
-	#  Get an apppropriate context based on the mode
+	#  Get an appropriate context based on the mode
 	#
 	my $oldContext = Context();
 	my $context    = mode2context($mode, %opts);
@@ -464,7 +464,7 @@ sub number_list_cmp {
 	my %options = (debug => $num_params{debug});
 
 	#
-	#  Get an apppropriate context based on the mode
+	#  Get an appropriate context based on the mode
 	#
 	my $oldContext = Context();
 	my $context    = mode2context($mode, %num_params);

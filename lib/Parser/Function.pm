@@ -287,7 +287,7 @@ sub getVariables {
 #
 #  Produce the string form.
 #
-#  Put parentheses around the funciton call if
+#  Put parentheses around the function call if
 #    the function call is on the left of the parent operation
 #    and the precedence of the parent is higher than function call
 #    (e.g., powers, etc.)

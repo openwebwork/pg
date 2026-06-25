@@ -8,7 +8,7 @@ our @ISA = qw(Value::Context::Data);
 
 #
 #  The named types for variables
-#    (you can use arbitary types by supplying an
+#    (you can use arbitrary types by supplying an
 #     instance of the type rather than a name)
 #
 our %type = (

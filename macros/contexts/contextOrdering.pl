@@ -233,11 +233,11 @@ sub TeX {
 #
 #  This is the Value object used to implement the list That represents
 #  one ordering operation.  It is simply a normal Value::List with the
-#  operator as the first entry and the two operands as the remaing
-#  entries in the list.  The new() method is overriden to make binary
+#  operator as the first entry and the two operands as the remaining
+#  entries in the list.  The new() method is overridden to make binary
 #  trees of equal operators into flat sorted lists.  We override the
 #  List string and TeX methods so that they print correctly as binary
-#  operators.  The cmp_equal method is overriden to make sure the that
+#  operators.  The cmp_equal method is overridden to make sure the that
 #  the lists are treated as a unit during answer checking.  There is
 #  also a routine for adding letters to the object's context.
 #

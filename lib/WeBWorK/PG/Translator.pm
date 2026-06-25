@@ -13,7 +13,7 @@ WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
 
     $pt->source_string($source);             # provide the source string for the problem
                                              # or
-    $pt->source_file($sourceFilePath);       # provide the proble file containing the source
+    $pt->source_file($sourceFilePath);       # provide the problem file containing the source
 
     # Load the unprotected macro files.
     # These files are evaluated with the Safe compartment wide open.

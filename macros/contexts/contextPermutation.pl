@@ -540,7 +540,7 @@ sub _check {
 
 #
 #  Evaluate by forming a list if this is acting as a comma,
-#  othewise take a product (Value object will take care of things).
+#  otherwise take a product (Value object will take care of things).
 #
 sub _eval {
 	my $self = shift;

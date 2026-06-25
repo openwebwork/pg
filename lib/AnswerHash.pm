@@ -597,7 +597,7 @@ sub evaluate {
 	eval(q!main::DEBUG_MESSAGE( `<h4>final result: </h4>`, pretty_print($rh_ans,'html'))!)
 		if defined($self->{debug})
 		and $self->{debug} > 0;
-	# re-refrence $rh_ans;
+	# re-reference $rh_ans;
 	$self->{rh_ans} = $rh_ans;
 	$rh_ans;
 }

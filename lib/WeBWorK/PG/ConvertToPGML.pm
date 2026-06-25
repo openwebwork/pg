@@ -107,7 +107,7 @@ sub convertToPGML {
 			while ($row && $row !~ /\);\s*$/) {
 				$row = shift @rows;
 				my @mrow = split(/#/, $row);
-				# This only adds the row if there is something relevent to the left of a #
+				# This only adds the row if there is something relevant to the left of a #
 				$macros .= $mrow[0] if $mrow[0] !~ /^\s*$/;
 			}
 			# Split by commas and pull out the quotes.

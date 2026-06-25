@@ -7,7 +7,7 @@
 
 package Parser::Legacy::ObjectWithUnits;
 
-# Refrences to problem specific copies of %Units::fundamental_units
+# References to problem specific copies of %Units::fundamental_units
 # and %Units::known_units.  These should be passed to any Units function call.
 # They are set by the initializeUnits sub
 my $fundamental_units = '';

@@ -1485,7 +1485,7 @@ sub processDivSpanOptions {
 
 		# A space is used to separate class names
 
-		# The offical W3C documentation allows class names to follow a far more general
+		# The official W3C documentation allows class names to follow a far more general
 		# grammar, but this is not being permitted here at present.
 		# See: https://www.w3.org/TR/css-syntax-3/#token-diagrams
 
@@ -1524,7 +1524,7 @@ sub processDivSpanOptions {
 
 		$StyleVal = $options{style};
 
-		# Mininal cleanup for safety
+		# Minimal cleanup for safety
 		$StyleVal =~ s/["']//g;    # Drop quotes
 		if ($StyleVal eq $options{style}) {
 			# no quotes, so now drop other characters we consider invalid
@@ -2187,7 +2187,7 @@ sub PTX_cleanup {
 		#move PTX warnings from the beginning of inside a p to just before the p.
 		$string =~ s/<p>(<!\-\- PTX:WARNING.*?-->)/$1\n<p>/g;
 
-		#remove doulbe p's we may have created
+		#remove double p's we may have created
 		$string =~ s/<p><p>/<p>/g;
 		$string =~ s/<\/p><\/p>/<\/p>/g;
 

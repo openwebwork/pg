@@ -151,7 +151,7 @@ sub compare {
 #
 #  Set up a new context that is a copy of the current one, but
 #  has the equality operator defined, and the SolutionFor object
-#  prededence set so that comparisons with points or numbers will
+#  precedence set so that comparisons with points or numbers will
 #  be promoted to comparisons with the SolutionFor
 #
 sub getContext {

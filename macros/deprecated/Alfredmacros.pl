@@ -235,7 +235,7 @@ sub Snxy() {
 ### width  - change the width of the answer blanks. defaults to 3.
 ### lowerwidth  - change the width of the lower answer blank. defaults to width
 ### upperwidth  - change the width of the upper answer blank. defaults to width.
-### upper - the uppper limit of integration, does not have to be an answer blank, defaults to answer blank with width "width"
+### upper - the upper limit of integration, does not have to be an answer blank, defaults to answer blank with width "width"
 ### lower - the lower limit of integration, does not have to be an answer blank,  defaults to answer blank with width "width"
 ### limits - boolean, if 1 puts the limits of integration above and below the integral symbol, if 0 puts them after the integral symbol.
 ###          default is 1.
@@ -250,7 +250,7 @@ sub Snxy() {
 ###
 ### This example prints out a double integral, the first integral with answer blanks with width 10, the second integral
 ### has 0 for the lower limit of integration and an answer blank with width 5 for the upper limit of integration.
-### The default limits of integratin are answer blanks with width 3, in this case the default width was overridden to 5
+### The default limits of integration are answer blanks with width 3, in this case the default width was overridden to 5
 ### and the default lower limit was changed to a zero.
 ###   \{BeginTable(center=>0).
 ###      Row([tableintegral(width=>10,limits=>'\(0\)'),tableintegral(width=>5,lower=>'\(0\)',limits=>0),

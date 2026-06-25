@@ -355,7 +355,7 @@ sub matrix_graph {
 	return @matrix;
 }
 
-# $graph input is a string adjacency matrix with rows terminted with semicolons
+# $graph input is a string adjacency matrix with rows terminated with semicolons
 # and entries of each row separated by a space.
 sub ChromNum {
 	my $graph = shift;

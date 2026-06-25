@@ -48,7 +48,7 @@ recommended that you use the MathObjects cmp() methods directly if possible.
 
 BEGIN { strict->import; }
 
-# Until we get the PG cacheing business sorted out, we need to use
+# Until we get the PG caching business sorted out, we need to use
 # PG_restricted_eval to get the correct values for some(?) PG environment
 # variables. We do this once here and place the values in lexicals for later
 # access.
@@ -257,7 +257,7 @@ sub num_cmp {
 	my %out_options;
 
 #########################################################################
-	# Retain this first check for backword compatibility.  Allows input of the form
+	# Retain this first check for backward compatibility.  Allows input of the form
 	# num_cmp($ans, 1, '%0.5f') but warns against it
 #########################################################################
 	my %known_options = (
@@ -419,7 +419,7 @@ sub num_cmp {
 	return (wantarray) ? @output_list : $output_list[0];
 }
 
-#legacy code for compatability purposes
+#legacy code for compatibility purposes
 sub num_rel_cmp {    # compare numbers
 	std_num_cmp(@_);
 }
@@ -929,7 +929,7 @@ This function is deprecated. Use num_cmp with the units option instead:
 ##			zeroLevel	--	if the correct answer is this close to zero, then zeroLevelTol applies
 ##			zeroLevelTol	--	absolute tolerance to allow when correct answer is close to zero
 
-# This mode is depricated.  send input through num_cmp -- it can handle units.
+# This mode is deprecated.  send input through num_cmp -- it can handle units.
 
 sub numerical_compare_with_units {
 	my $correct_answer = shift;    # the answer is a string which	includes both the numerical answer and the units.
@@ -994,7 +994,7 @@ sub NUM_CMP {    # low level numeric compare (now uses Parser)
 		if $correctAnswer =~ m/e/ && Value::isNumber($correctAnswer);
 
 	#
-	#  Get an apppropriate context based on the mode
+	#  Get an appropriate context based on the mode
 	#
 	my $context;
 	for ($mode) {
@@ -1232,7 +1232,7 @@ sub ORIGINAL_NUM_CMP {    # low level	numeric	compare
 
 ###############################################################################
 	# We'll leave these next lines out for now, so that the evaluated versions of the student's and professor's
-	# can be displayed in the answer message.  This may still cause a few anomolies when strings are used
+	# can be displayed in the answer message.  This may still cause a few anomalies when strings are used
 	#
 ###############################################################################
 

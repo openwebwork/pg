@@ -417,14 +417,14 @@ sub perl {
 	return "($result ? context::Boolean->T : context::Boolean->F)";
 }
 
-# remove once UOP::string passses 'same' as second argument
+# remove once UOP::string passes 'same' as second argument
 sub string {
 	my ($self, $precedence, $showparens, $position, $outerRight) = @_;
 	$showparens = "same" if !($position // '') && !($showparens // '');
 	return $self->SUPER::string($precedence, $showparens, $position, $outerRight);
 }
 
-# remove once UOP::TeX passses 'same' as second argument
+# remove once UOP::TeX passes 'same' as second argument
 sub TeX {
 	my ($self, $precedence, $showparens, $position, $outerRight) = @_;
 	$showparens = "same" if !($position // '') && !($showparens // '');

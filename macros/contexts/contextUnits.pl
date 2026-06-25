@@ -2123,8 +2123,8 @@ sub _call {
 #  Differentiate a function with a number-with-units as an argument.
 #
 #  Get the argument as a Formula.
-#  If the the argument is an angle, get its quantity (which includes
-#    the unit factor) and differentiate that.
+#  If the argument is an angle, get its quantity (which includes the unit factor)
+#    and differentiate that.
 #  Otherwise, remove the unit from the function call and differentiate that.
 #
 sub D {

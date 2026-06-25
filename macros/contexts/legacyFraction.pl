@@ -482,7 +482,7 @@ sub _eval {
 
 #
 #  If the implied multiplication represents a proper fraction with a
-#  preceeding integer, then switch to the proper fraction operator
+#  preceding integer, then switch to the proper fraction operator
 #  (for proper handling of string() and TeX() calls), otherwise,
 #  convert the object to a standard multiplication.
 #

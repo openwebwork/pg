@@ -949,7 +949,7 @@ sub cmp {
 }
 
 #
-#  Adjust student preview and anser strings so they display properly
+#  Adjust student preview and answer strings so they display properly
 #
 sub cmp_preprocess {
 	my $self = shift;
@@ -1575,7 +1575,7 @@ sub cmp_equal {
 	$ans->{showPartialCorrectAnswers} = $self->getPG('$showPartialCorrectAnswers');
 
 	#
-	#  get the paramaters
+	#  get the parameters
 	#
 	my $showHints         = getOption($ans, 'showHints');
 	my $showLengthHints   = getOption($ans, 'showLengthHints');

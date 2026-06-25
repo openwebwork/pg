@@ -78,7 +78,7 @@ sub replace_response {
 }
 
 # Extend the response to an array for this response label entry.  This is used for check boxes and radio buttons.  This
-# converts the reponse value into an array of label/value pairs if it is a hash to begin with.  Otherwise it just adds a
+# converts the response value into an array of label/value pairs if it is a hash to begin with.  Otherwise it just adds a
 # label/value pair to the existing array.
 sub extend_response {
 	my ($self, $response_label, $new_value_key, $selected) = @_;

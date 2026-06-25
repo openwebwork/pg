@@ -160,7 +160,7 @@ sub compare {
 	} elsif ($requireAllSolutions) {
 		return $allSolutions->compare($r);
 	} else {
-		# check both all solutons and general solution
+		# check both all solutions and general solution
 		return 0 if $allSolutions->compare($r) == 0;
 		return $generalSolution->compare($r);
 	}
