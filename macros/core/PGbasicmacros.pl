@@ -1864,7 +1864,7 @@ sub old_safe_ev {
 	my ($out, $PG_eval_errors, $PG_full_error_report) = PG_restricted_eval($in);
 	if ($PG_eval_errors) {
 		my @errorLines = split("\n", $PG_eval_errors);
-		warn "There is an error occuring inside evaluation brackets \\{ ...code... \\}\n"
+		warn "There is an error occurring inside evaluation brackets \\{ ...code... \\}\n"
 			. "somewhere in an EV2, EV3, or BEGIN_TEXT block.\n"
 			. "Code evaluated:\n$in\n"
 			. "Errors:\n"
@@ -1988,7 +1988,7 @@ sub EV3 {
 		$string =~ s/</&lt;/g;
 		$string =~ s/>/&gt;/g;
 		$evaluated_string =
-			"<PRE>$PAR % ERROR in $0:EV3, PGbasicmacros.pl: $PAR % There is an error occuring in the following code:$BR $string $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR % $BR % $BR </PRE> ";
+			"<PRE>$PAR % ERROR in $0:EV3, PGbasicmacros.pl: $PAR % There is an error occurring in the following code:$BR $string $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR % $BR % $BR </PRE> ";
 		$@ = "";
 	}
 	$string = $evaluated_string;
@@ -2008,7 +2008,7 @@ sub EV4 {
 			$string =~ s/>/&gt;/g;
 			$evaluated_string =
 				"<PRE>$PAR % ERROR in $0:EV3, PGbasicmacros.pl:"
-				. "$PAR % There is an error occuring in the following code:$BR "
+				. "$PAR % There is an error occurring in the following code:$BR "
 				. "$string $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR "
 				. "% $BR % $BR </PRE> ";
 		}
@@ -2423,7 +2423,7 @@ only used by PreTeXt.
 
 Example usage:
 
-    knowlLink('Click Me', title => 'Fascinating Contents', value => 'Here are my facinating contents.');
+    knowlLink('Click Me', title => 'Fascinating Contents', value => 'Here are my fascinating contents.');
     knowlLink('Help Me', title => 'Help Contents', url => 'https://my.domain.edu/helpfile-contents');
 
 =cut

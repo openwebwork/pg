@@ -653,7 +653,7 @@ sub FUNCTION_CMP {
 		my $s = ($n != 1) ? "s" : "";
 		foreach my $p (@{$testPoints}) {
 			$p = [$p] unless ref($p) eq 'ARRAY';
-			warn "Test point (" . join(',', @{$p}) . ") should have $n coordiante$s"
+			warn "Test point (" . join(',', @{$p}) . ") should have $n coordinate$s"
 				unless scalar(@{$p}) == $n;
 		}
 	}

@@ -101,7 +101,7 @@ sub power {
 	my $x = $l->{data}[0]**$r->{data}[0];
 	return $self->inherit($other)->make($x) unless lc($x) eq 'nan' or lc($x) eq '-nan';
 	Value::Error("Can't raise a negative number to a non-integer power") if ($l->{data}[0] < 0);
-	Value::Error("Result of exponention is not a number");
+	Value::Error("Result of exponentiation is not a number");
 }
 
 sub modulo {

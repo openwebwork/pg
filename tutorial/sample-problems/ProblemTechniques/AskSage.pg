@@ -37,8 +37,8 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: the `sageReturnedFail` method. If that is true, then the Sage cell server
 #: query failed. In that case set fallback values for the variables needed in
 #: the problem so that a workable problem is rendered in this case. If the call
-#: succeeded the the Sage `WEBWORK` dictionary will be decoded into the
-#: `webwork` hash key of the reply.
+#: succeeded the Sage `WEBWORK` dictionary will be decoded into the `webwork`
+#: hash key of the reply.
 #:
 #: Note that by default `AskSage` queries the public Sage cell service at
 #: https://sagecell.sagemath.org/service. However, that site no longer accepts

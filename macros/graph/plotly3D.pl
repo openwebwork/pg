@@ -374,7 +374,7 @@ sub TeX {
 	if ($self->{image}) {
 		$out .= &main::image($self->{image}, tex_size => 950);
 	} else {
-		$out .= '3D image not avaialble. You must view it online.';
+		$out .= '3D image not available. You must view it online.';
 	}
 	$out .= "\n\\end{minipage}}\n";
 
@@ -492,7 +492,7 @@ sub genPoints {
 	} elsif ($type eq 'perl') {
 		$self->buildArray;
 	} else {
-		Value::Error("Unkown plot type: $type\n");
+		Value::Error("Unknown plot type: $type\n");
 	}
 }
 

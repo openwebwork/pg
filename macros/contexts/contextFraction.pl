@@ -1012,7 +1012,7 @@ sub power {
 	}
 	return $self->inherit($other)->make($x, $y) unless $x eq 'nan' || $y eq 'nan';
 	Value::Error("Can't raise a negative number to a non-integer power") if $a * $b < 0;
-	Value::Error("Result of exponention is not a number");
+	Value::Error("Result of exponentiation is not a number");
 }
 
 sub compare {

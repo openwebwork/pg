@@ -11,7 +11,7 @@ use lib "$ENV{PG_ROOT}/lib";
 use Rserve::REXP::Unknown;
 
 ok my $unk = Rserve::REXP::Unknown->new(sexptype => 42), 'new unknown';
-isa_ok $unk, [ 'Rserve::REXP::Unknown', 'Rserve::REXP' ], 'unkown has correct class classes';
+isa_ok $unk, [ 'Rserve::REXP::Unknown', 'Rserve::REXP' ], 'unknown has correct class classes';
 
 is($unk, $unk, 'self equality');
 

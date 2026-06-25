@@ -18,7 +18,7 @@ my $ctx = Context('TrigDegrees');
 ok(Value::isContext($ctx), 'trig degrees: check context');
 
 ok my $cos60      = Compute('cos(60)'),           'Call Compute';
-ok my $eval_cos60 = $cos60->cmp->evaluate('1/2'), 'evalute an answer to cos(60)';
+ok my $eval_cos60 = $cos60->cmp->evaluate('1/2'), 'evaluate an answer to cos(60)';
 
 is $eval_cos60, hash {
 	field type          => 'Value (Real)';

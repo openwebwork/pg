@@ -102,7 +102,7 @@ $multians = MultiAnswer($num, $den)->with(
 #: The fraction answer is created using a `LayoutTable` from
 #: PODLINK('niceTables.pl') via its `PGML` syntax. A `LayoutTable` is started
 #: with `[#` and is ended with `#]*`. Options for the table are set in braces
-#: after the ending `#]*`. Cells of the table are started wtih `[.` and ended
+#: after the ending `#]*`. Cells of the table are started with `[.` and ended
 #: with `.]`. Options for a cell (some of which apply to the row as a whole)
 #: are set in braces after the cell's ending `.]`. Rows of the table are ended
 #: by a starred cell. For example `[. ... .]*`. Note that the second cell of
