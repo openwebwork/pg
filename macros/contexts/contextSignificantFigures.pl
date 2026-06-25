@@ -428,7 +428,6 @@ sub cmp_preprocess {
 # to the correct answer, but the incorrect number of significant figures.
 # If so, show a warning and given partial credit.
 
-
 sub cmp_postprocess {
 	my ($self, $ansHash) = @_;
 
@@ -445,7 +444,6 @@ sub cmp_postprocess {
 
 	my $student_real = Value::Real->new($student->value);
 	my $correct_real = Value::Real->new($correct->value);
-
 
 	if ($self->getFlag('partial_incorrect_sf')
 		&& $student_real == $correct_real

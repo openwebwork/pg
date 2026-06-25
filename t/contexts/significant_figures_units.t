@@ -31,7 +31,7 @@ subtest 'Setup a basic Unit context extending SignificantFigures' => sub {
 
 subtest 'Test a number with length units and significant figures' => sub {
 	Context($context);
-	ok my $a = Compute("123.0 cm"), 'able to compute with unit';
+	ok my $a = Compute("123.0 cm"), 'Compute handles a unit.';
 
 	is $a, '123.0 cm', 'Value stringifies with units and sig figs';
 	ok $a == Compute('1.230 m'), 'Value stringifies with correct unit conversion and sig figs';

@@ -466,15 +466,16 @@ sub extensionContext {
 #
 sub AUTOLOAD {
 	our $AUTOLOAD;
-	my $self   = shift;
+	my $self = shift;
+	return unless $self;
 	my $class  = $self->extensionContext;
 	my $method = (split(/::/, $AUTOLOAD))[-1];
+	return if $method eq 'DESTROY';
 	if (substr($AUTOLOAD, 0, length($class) + 2) eq $class . '::') {
 		my $code = $self->super($method);
 		return &$code($self, @_) if $code;
 	}
-	my ($pkg, $file, $line, $subname) = caller(0);
-	die "Can't locate object method \"$method\" via package \"" . ref($self) . '"' . " at line $line of $file\n";
+	die "Can't locate object method '$method' via package \"" . ref($self) . (getCaller() // '');
 }
 
 #################################################################################################
@@ -555,7 +556,10 @@ package context::Extensions::Data;
 #
 #  Get the object's extensionData
 #
-sub extensionData { (shift)->typeRef->{ $self->extensionID } }
+sub extensionData {
+	my $self = shift;
+	$self->typeRef->{ $self->extensionID };
+}
 
 #
 #  Set the object's extensionData (and the rest of its type)

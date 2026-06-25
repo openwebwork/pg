@@ -396,7 +396,7 @@ subtest 'Significant Figures for integers' => sub {
 
 subtest 'Significant Figures for partial credit' => sub {
 	# test an actual problem
-	my $source = <<~ 'END_SOURCE';
+	my $source = <<~'END_SOURCE';
 		DOCUMENT();
 		loadMacros("PGstandard.pl","PGML.pl",'contextSignificantFigures.pl');
 		Context('SignificantFigures')->flags->set(tolerance => 0.001, 
@@ -415,9 +415,9 @@ subtest 'Significant Figures for partial credit' => sub {
 		inputs_ref     => { AnSwEr0001 => '123.0' },
 		processAnswers => 1
 		),
-		'source string renders';
+		'Problem with given source string renders correctly.';
 
-	is $pg->{result}{score}, 1, 'correct answer is scored correctly';
+	is $pg->{result}{score}, 1, 'The correct answer is scored correctly.';
 
 	my $pg2 = WeBWorK::PG->new(
 		r_source       => \$source,
@@ -427,7 +427,7 @@ subtest 'Significant Figures for partial credit' => sub {
 
 	is $pg2->{result}{score}, 0.6, 'reduced credit is scored correctly';
 	like $pg2->{answers}{AnSwEr0001}{ans_message}, qr/Incorrect number of significant figures/,
-		'Answer processed showing message.';
+		'An answer with incorrect significant figures is processed showing message.';
 
 	my $pg3 = WeBWorK::PG->new(
 		r_source       => \$source,
@@ -435,7 +435,7 @@ subtest 'Significant Figures for partial credit' => sub {
 		inputs_ref     => { AnSwEr0001 => '1.230 * 10^2' },
 	);
 
-	is $pg3->{result}{score}, 1, 'scientific notation is correct.';
+	is $pg3->{result}{score}, 1, 'The answer given in scientific notation is processed correctly.';
 
 	my $pg4 = WeBWorK::PG->new(
 		r_source       => \$source,
@@ -443,10 +443,11 @@ subtest 'Significant Figures for partial credit' => sub {
 		inputs_ref     => { AnSwEr0001 => '1.23 * 10^2' },
 	);
 
-	is $pg4->{result}{score}, 0.6, 'scientific notation is scored with correct partial credit.';
+	is $pg4->{result}{score}, 0.6,
+		'The answer with incorrect number of sig. figs is given in sci. not. is scored with correct partial credit.';
 
 	like $pg4->{answers}{AnSwEr0001}{ans_message}, qr/Incorrect number of significant figures/,
-		'Answer processed showing message.';
+		'The answer in scientific notation and incorrect number of signficant figures is processed showing message.';
 
 	my $pg5 = WeBWorK::PG->new(
 		r_source       => \$source,
@@ -454,7 +455,8 @@ subtest 'Significant Figures for partial credit' => sub {
 		inputs_ref     => { AnSwEr0001 => '123.1' },
 	);
 
-	is $pg5->{result}{score}, 0.8, 'Answer has correct sf but incorrect value.';
+	is $pg5->{result}{score}, 0.8,
+		'The answer with correct number of significant figures but incorrect but close value is processed correctly.';
 
 	like $pg5->{answers}{AnSwEr0001}{ans_message},
 		qr/Correct number of significant figures, but the value is not correct/,
