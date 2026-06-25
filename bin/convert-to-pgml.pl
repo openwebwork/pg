@@ -78,7 +78,7 @@ sub convertFile ($filename) {
 	my $pg_source = $path->slurp;
 	my $result    = convertToPGML($pg_source);
 	if (ref($result) eq 'HASH' && $result->{errors}) {
-		warn "Error parsing $filename. " . $result->{errors} . "\n";
+		warn "Error parsing $filename. " . $result->{errors};
 		return;
 	}
 

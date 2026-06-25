@@ -76,12 +76,17 @@ my @ans_list;
 sub convertToPGML {
 	my ($pg_source) = @_;
 
-	# Check that the file is not already in PGML format by looking for PGML.pl in the loadMacros statement.
+	# Check that the file is not already in PGML format by looking for PGML.pl in the loadMacros statement,
 	# and there are no BEGIN_TEXT, BEGIN_SOLUTION, etc. blocks.
 
-	return $pg_source if ($pg_source =~ /loadMacros\((.*)PGML\.pl(.*)\)/ && $pg_source !~ /BEGIN_(TEXT|HINT|SOLUTION)/);
+	return { pgmlCode => $pg_source }
+		if ($pg_source =~ /loadMacros\((.*)PGML\.pl(.*)\)/m && $pg_source !~ /BEGIN_(TEXT|HINT|SOLUTION)/);
 
-	# First get a list of all of the ANS, LABELED_ANS, etc. in the problem.
+	# Return an error if the loadMacros isn't in the form loadMacros( ... );
+	return { errors => "The loadMacros command cannot be parsed.", pgmlCode => $pg_source }
+		unless $pg_source =~ /loadMacros\((.*?)\)\s*;/m;
+
+	# Get a list of all of the ANS, LABELED_ANS, etc. in the problem.
 	@ans_list = getANS($pg_source);
 
 	my @pgml_block;
@@ -108,19 +113,20 @@ sub convertToPGML {
 		} elsif ($row =~ /loadMacros\(/) {
 			# Parse the macros, which may be on multiple rows and may be in a qw block.
 			my $macros          = '';
-			my $num_macro_lines = 0; # store the number of lines in the loadMacro so the output is similar to the input.
-			while (1) {
+			my $num_macro_lines = 1; # store the number of lines in the loadMacro so the output is similar to the input.
+			while ($row !~ /\)\s*;/) {
 				# Remove comments within loadMacros block (should we keep them?)
 				$row =~ s/#.*$//;
 				$macros .= $row;
-				last if ($row =~ /(.*)\);/);
 				++$num_macro_lines;
 				$row = shift @rows;
 				my @mrow = split(/#/, $row);
 				# This only adds the row if there is something relevant to the left of a #
 				$macros .= $mrow[0] if $mrow[0] !~ /^\s*$/;
 			}
-			my @macros = ();
+			$macros .= $row;
+
+			my @macros;
 			my ($qw_start, $qw_end);    # the characters if the loadMacros has a qw block.
 
 			# The following can parse loadMacros in the form loadMacros('macro1.pl', 'macro2.pl'); or
@@ -146,7 +152,7 @@ sub convertToPGML {
 					grep {
 						$_
 						&& $_ !~
-						/(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse|AnswerFormatHelp).pl/
+						/(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse|AnswerFormatHelp).pl/x
 					}
 					map {s/['"]//gr} @macros;
 
@@ -154,7 +160,10 @@ sub convertToPGML {
 				my %seen;
 				@macros = grep { !$seen{$_}++ } @macros;
 			} else {
-				warn 'The loadMacros statement in this file could not be processed.';
+				return {
+					errors   => 'The loadMacros command cannot be processed.',
+					pgmlCode => $pg_source
+				};
 			}
 
 			@macros = ('PGstandard.pl', 'PGML.pl', @macros, 'PGcourse.pl');
@@ -165,10 +174,10 @@ sub convertToPGML {
 					push(@all_lines, "\t$_") for (@macros);
 					push(@all_lines, "$qw_end);");
 				} else {
-					push(@all_lines, "loadMacros(qw$qw_start" . join(' ', @macros) . "$qw_end);");
+					push(@all_lines, "loadMacros(qw$qw_start" . join(' ', @macros) . "$qw_end);", '');
 				}
 			} else {
-				push(@all_lines, 'loadMacros(' . join(', ', map {"'$_'"} @macros) . ');');
+				push(@all_lines, 'loadMacros(' . join(', ', map {"'$_'"} @macros) . ');', '');
 			}
 		} else {
 			push(@all_lines, cleanUpCode($row));
