@@ -22,7 +22,7 @@ This module defines labels for the graph objects (WWPlot).
     $label1 = new Label($x_value, $y_value, $label_string, $label_color, @options)
     $options is an array with (*'d defaults)
         - one of 'left'*, 'center', 'right' (horizontal alignment)
-        - one of 'bottom', 'center', 'top'* (verical alignment)
+        - one of 'bottom', 'center', 'top'* (vertical alignment)
         - one of 'horizontal'*, 'vertical' (orientation)
         - one of 'small', 'large', 'mediumbold'*, 'tiny', 'giant' (which gd font to use)
     Note the alignment specifications are relative to the English reading of the string,

@@ -11,7 +11,7 @@ greater than or equal to 2.  The numbers will be stored internally in decimal, t
 and shown in the chosen base.
 
 The original purpose for this is simple conversion and operations in another base, however
-it is not limited to this. In addition, basic integer arithemetic (+,-,*,/,%,^) are available for these numbers.
+it is not limited to this. In addition, basic integer arithmetic (+,-,*,/,%,^) are available for these numbers.
 Division is defined in an integer sense.
 
 To use a non-decimal base MathObject, first load the contextBaseN.pl file:

@@ -39,7 +39,7 @@ modifying existing macros.
 I<Modifying macros is for users with some experience.>
 
 Modifying existing macros might break other standard macros or problems which
-depend on the unmodified behavior of these macors so do this with great caution.
+depend on the unmodified behavior of these macros so do this with great caution.
 In addition problems which use new macros defined in these files or which depend
 on the modified behavior of existing macros will not work in other courses
 unless the macros are also transferred to the new course.  It helps to document

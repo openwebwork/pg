@@ -265,7 +265,7 @@ The entry $rh_ans->{error_flag} is set to "FLAG".
 
 The catch_error and clear_error methods use this entry.
 
-message is a descriptive message for the end user, defining what error occured.
+message is a descriptive message for the end user, defining what error occurred.
 
 =head3 catch_error
 

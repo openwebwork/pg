@@ -409,7 +409,7 @@ sub interval_cmp {
 =head2 number_list_cmp
 
 Checks an answer which is a comma-separated list of numbers.  The actual
-numbers are fed to num_cmp, so all of the flexibilty of num_cmp carries
+numbers are fed to num_cmp, so all of the flexibility of num_cmp carries
 over (values can be expressions to be evaluated).  For example,
 
 	number_list_cmp("1, -2")
@@ -428,7 +428,7 @@ to use cplx_cmp instead:
 In cases where you set complex=>'ok', be sure the problem file loads
 PGcomplexmacros.pl.
 
-Optional arguements for num_cmp (resp. cplx_cmp) can be used as well,
+Optional arguments for num_cmp (resp. cplx_cmp) can be used as well,
 such as
 
 	number_list_cmp("cos(3), sqrt(111)", relTol => 3)
@@ -444,7 +444,7 @@ will mark "none" wrong, but not generate an error.  On the other hand,
 
 will mark "none" as correct.
 
-One can also specify optionnal arguments for Parser's List checker: showHints,
+One can also specify optional arguments for Parser's List checker: showHints,
 partialCredit, and showLengthHints, as in:
 
 	number_list_cmp("cos(3), sqrt(111)", partialCredit=>1)

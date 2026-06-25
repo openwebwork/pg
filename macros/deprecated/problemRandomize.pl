@@ -95,7 +95,7 @@ Note that the problem will store the new problem seed only if the student can
 submit saved answers (i.e., only before the due date).  After the due date,
 the student can get new versions, but the problem will revert to the original
 version when they come back to the problem later.  Since the default is only
-to allow reseeding afer the due date, the reseeding will not be sticky by default.
+to allow reseeding after the due date, the reseeding will not be sticky by default.
 Hardcopy ALWAYS produces the original version of the problem, regardless of
 the seed saved by the student.
 

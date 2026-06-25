@@ -7,7 +7,7 @@ PG.pl - Provides core Program Generation Language functionality.
 
 In a PG problem:
 
-    DOCUMENT();             # should be the first statment in the problem
+    DOCUMENT();             # should be the first statement in the problem
 
     loadMacros(.....);      # (optional) load other macro files if needed.
 
@@ -20,7 +20,7 @@ In a PG problem:
                             # It is defined in PGbasicmacros.pl.
     );
 
-    ANS(answer_evalutors);  # see PGanswermacros.pl for examples of answer evaluatiors.
+    ANS(answer_evaluators); # see PGanswermacros.pl for examples of answer evaluatiors.
 
     ENDDOCUMENT()           # must be the last statement in the problem
 
@@ -412,7 +412,7 @@ sub sageReturnedFail {
 
 =head2 NAMED_ANS
 
-Associates answer names with answer evaluators.  If the given anwer name has a
+Associates answer names with answer evaluators.  If the given answer name has a
 response group in the PG_ANSWERS_HASH, then the evaluator is added to that
 response group.  Otherwise the name and evaluator are added to the hash of
 explicitly named answer evaluators.  They will be paired with exlplicitly
@@ -551,7 +551,7 @@ sub persistent_data {
 }
 
 # The store_persistent_data, update_persistent_data, and get_persistent_data methods are deprecated and are only still
-# here for backward compatability. Use the persistent_data method instead which can do everything these three methods
+# here for backward compatibility. Use the persistent_data method instead which can do everything these three methods
 # can do. Note that if you use the persistent_data method, then you will need to join the values as strings if you want
 # that. Even better pass the persistent_data method an array reference containing the values so you can avoid the hassle
 # of splitting the values when they are retrieved.
@@ -846,9 +846,9 @@ the type of submission.
 C<btnClass>: This is the button class added to the feedback button. These are
 based on bootstrap button styles, but are custom styles for the feedback
 buttons to allow clients to theme the bootstrap buttons without changing the
-feedback styles. By default it is "btn-preview" (coppied from btn-info),
-"btn-correct" (coppied from btn-success), "btn-incorrect" (coppied from
-btn-danger), or "btn-partially-correct" (coppied from btn-warning)
+feedback styles. By default it is "btn-preview" (copied from btn-info),
+"btn-correct" (copied from btn-success), "btn-incorrect" (copied from
+btn-danger), or "btn-partially-correct" (copied from btn-warning)
 depending on the status of the answer and the type of submission.
 
 =item *
@@ -1796,7 +1796,7 @@ against misspelling an option and is generally what is desired for most filters.
 
 Occasionally one wants to write a filter which accepts a long list of options,
 not all of which are known in advance, but only uses a subset of the options
-provided. In this case, setting C<allow_unkown_options> to 1 prevents the error
+provided. In this case, setting C<allow_unknown_options> to 1 prevents the error
 from being signaled.
 
 =cut

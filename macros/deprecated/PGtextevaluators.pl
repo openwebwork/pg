@@ -21,7 +21,7 @@ questionnaires.
 
 =head1 DESCRIPTION
 
-This file contians macros for handling questionnaires. Questionnaires can
+This file contains macros for handling questionnaires. Questionnaires can
 consist of textual answers and radio buttons, and responses are reported
 via email.
 

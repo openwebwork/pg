@@ -2789,7 +2789,7 @@ flag before constructing the C<Edge> or C<EdgeSet>.  For example, by calling
         map { $_ => { isVertex => 1, caseSensitive => 1 } } 'A' .. 'F'
     );
 
-If it is prefered that the vertices not be case sensitive, then remove
+If it is preferred that the vertices not be case sensitive, then remove
 C<< caseSensitive => 1 >> from the above call.
 
 If the vertices in the C<Edge> or C<EdgeSet> belong to a C<GraphTheory::SimpleGraph>

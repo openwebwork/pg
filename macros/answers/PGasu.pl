@@ -452,7 +452,7 @@ the problem:
 
     $ENV{'partial_weights'} = [.2,.2,.2,.3];
 
-This will soon be superceded by a better grader.
+This will soon be superseded by a better grader.
 
 =cut
 

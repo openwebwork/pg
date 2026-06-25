@@ -15,7 +15,7 @@ loadMacros("MathObjects.pl");
 Usage: 	listVariables();
 
 Prints all variables submitted in the problem form and all variables in the
-the Problem environment and all of the flag variables in Context().
+Problem environment and all of the flag variables in Context().
 This is used for debugging and to determine the current
 context for the problem.
 

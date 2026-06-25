@@ -293,7 +293,7 @@ a particular setting, without the need for a quantity.
 =head2 Working with numbers with units
 
 Because units and numbers with units are full-fledged MathObjects, you
-can do computations with them, just as with other MathObejcts.  For
+can do computations with them, just as with other MathObjects.  For
 example, you can do
 
     $n = Compute("3 m + 10 cm");
@@ -475,7 +475,7 @@ correct answer is given as C<m s^-2>, then C<m/s^2> is also marked as
 correct.  When C<< exactUnits => 1 >> is set, however, in addition to
 using the units in the same order, the student's answer must use the
 same form (either fraction or negative power) for units in the
-denominator, and will only get the C<particalCredit> value for using
+denominator, and will only get the C<partialCredit> value for using
 the other form.
 
 Answers that are numbers with units are treated in a similar manner,

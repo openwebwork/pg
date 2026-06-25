@@ -1292,7 +1292,7 @@ Usage:
     $interval = Interval("(1,2]");
     $interval = Interval('(',1,2,']');
 
-    ANS($inteval->cmp);
+    ANS($interval->cmp);
 
 compareOptions and default values:
 

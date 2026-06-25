@@ -790,7 +790,7 @@ Creates an array of answer blanks and passes it to display_matrix which returns
 text which represents the matrix in TeX format used in math display mode. Answers
 are then passed back to whatever answer evaluators you write at the end of the problem.
 (note, if you have an m x n matrix, you will need mn answer evaluators, and they will be
-returned to the evaluaters starting in the top left hand corner and proceed to the left
+returned to the evaluators starting in the top left hand corner and proceed to the left
 and then at the end moving down one row, just as you would read them.)
 
 The options are passed on to display_matrix.
@@ -1043,7 +1043,7 @@ Takes the text to be lines of a comment to be shown only
 in the Library Browser below the rendered problem.
 
 The function COMMENT stores the needed html in the variable
-pgComment, which gets transfered to the flag 'comment' in PG_FLAGS.
+pgComment, which gets transferred to the flag 'comment' in PG_FLAGS.
 
 =cut
 
@@ -1387,7 +1387,7 @@ sub APOS    { MODES(TeX => "'",       HTML => "'",                     PTX => "\
 
 =head2 SPAN and DIV macros
 
-These are functions primarly meant to add
+These are functions primarily meant to add
 HTML block level DIV or inline SPAN
 tags and the relevant closing tags for HTML output.
 
@@ -1656,7 +1656,7 @@ See C<EV3> below for details on the processing.
 
 =head3 EV3
 
-        TEXT(EV3("This is a formulat \( \int_0^5 x^2 \, dx \) ");
+        TEXT(EV3("This is a formula \( \int_0^5 x^2 \, dx \) ");
         TEXT(EV3(@text));
 
         TEXT(EV3(<<'END_TEXT'));
@@ -1670,7 +1670,7 @@ The single quotes around END_TEXT mean that no automatic interpolation of variab
 Using EV3 with strings which have been evaluated by double quotes may lead to unexpected results.
 
 The evaluation macro E3 first evaluates perl code inside the braces:  C<\{  code \}>.
-Any perl statment can be put inside the braces.  The
+Any perl statement can be put inside the braces.  The
 result of the evaluation (i.e. the last statement evaluated) replaces the C<\{ code \}> construction.
 
 Next interpolation of all variables (e.g. C<$var or @array> ) is performed.
@@ -1790,7 +1790,7 @@ Two additional legacy formatting constructions are also supported:
 
 C<!{$c:%0.3f} > will give a number with 3 decimal places and a negative
 sign if the number is negative, no sign if the number is positive.  Since this is
-identical to the behavior of C<{$c:%0.3f}> the use of this syntax is depricated.
+identical to the behavior of C<{$c:%0.3f}> the use of this syntax is deprecated.
 
 C<?{$c:%0.3f}> determines the sign and prints it
 whether the number is positive or negative.  You can use this
@@ -2623,7 +2623,7 @@ sub PGsort {
 
 Usage:
 
-    lex_sort(@list);   # outputs list in lexigraphic (alphabetical) order
+    lex_sort(@list);   # outputs list in lexicographic (alphabetical) order
     num_sort(@list);   # outputs list in numerical order
     uniq( @list);      # outputs a list with no duplicates.  Order is unspecified.
 
@@ -2657,7 +2657,7 @@ Usage:
     row(@dataelements)
     endtable()
 
-Example of useage:
+Example of usage:
 
     BEGIN_TEXT
         This problem tests calculating new functions from old ones:$BR

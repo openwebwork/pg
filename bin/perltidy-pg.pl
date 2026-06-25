@@ -19,7 +19,7 @@ perltidy documentation for details.
 
 Note that if the -pro=file option is not given, then this script will attempt to
 use the perltidy-pg.rc file in the PG bin directory for this option.  For this to
-work the the perltidy-pg.rc file in the PG bin directory must be readable.
+work the perltidy-pg.rc file in the PG bin directory must be readable.
 
 =cut
 

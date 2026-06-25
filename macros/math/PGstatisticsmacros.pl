@@ -124,7 +124,7 @@ Usage:
 
     stats_mean(@data);
 
-Computes the artihmetic mean of a list of numbers, data. You may also pass the numbers individually.
+Computes the arithmetic mean of a list of numbers, data. You may also pass the numbers individually.
 
 =cut
 
@@ -501,7 +501,7 @@ Example:
 This routine will generate num random results. The distribution is in
 the given array.  Each element in the array is itself an array.  The
 first value in the array is the probability.  The second value in the
-array is the value assocated with the probability.
+array is the value associated with the probability.
 
 
 =cut

@@ -44,7 +44,7 @@ Other methods
 =head1 SYNOPSIS
 
 The fraction object stores two variables, numerator and denominator.  The basic
-arithmatic methods listed above can be performed on a fraction, and it can return its own
+arithmetic methods listed above can be performed on a fraction, and it can return its own
 scalar value for use with functions expecting a scalar (ie, sqrt($frac->scalar) ).
 
 =cut

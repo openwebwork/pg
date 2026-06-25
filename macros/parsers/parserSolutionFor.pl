@@ -2,7 +2,7 @@
 =head1 NAME
 
 parserSolutionFor.pl - An answer checker that checks if a student's answer
-satisifies an implicit equation.
+satisfies an implicit equation.
 
 =head1 DESCRIPTION
 
@@ -10,7 +10,7 @@ This is a Parser class that implements an answer checker that
 checks if a student's answer satisfies an implicit equation.
 We define a SolutionFor object class that lets you specify an
 equality that the student answer must satisfy, and a point that
-DOES satify the equation.  The overloaded == operator will
+DOES satisfy the equation.  The overloaded == operator will
 check if a given point satisfies the given equality.
 
 Use SolutionFor(equality,point[,options]) to create a SolutionFor object.

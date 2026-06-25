@@ -7,7 +7,7 @@ CofIdaho_macros.pl - Extra macros for Intermediate Algebra problems at The Colle
 
 macros by R Cruz -- The College of Idaho
 
-=head1 Format the instuctor answer
+=head1 Format the instructor answer
 
 
 1) SimplifyExponents: Formats an expression without negative exponents
@@ -63,7 +63,7 @@ macros by R Cruz -- The College of Idaho
    Note: Answers must be of the form: (poly)/(poly)
 
 9) ReduceFraction: Returns a string that represents a reduced fraction.
-   To use: $a = SimplifyFraction(numerator expression,denominator espression);
+   To use: $a = SimplifyFraction(numerator expression,denominator expression);
 =cut
 
 ###################################################################

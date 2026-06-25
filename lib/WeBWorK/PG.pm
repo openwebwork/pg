@@ -354,7 +354,7 @@ sourceFilePath
 =item sourceFilePath (string)
 
 Location of the pg problem file to render.  It must either be provided with an
-absoute path, or a path relative to the given templateDirectory.
+absolute path, or a path relative to the given templateDirectory.
 
 =item templateDirectory (string, default: '')
 
@@ -602,7 +602,7 @@ These options are still used in some places in PG (mostly by macros that will
 eventually be deprecated and removed), but eventually that will all be fixed and
 these will no longer be needed.  Note that webwork2 still needs to pass the
 courseName so the relevant course values (course html directories and urls) can
-be optained from the WeBWorK::CourseEnvironment.
+be obtained from the WeBWorK::CourseEnvironment.
 
 =back
 

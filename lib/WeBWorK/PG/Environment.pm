@@ -17,7 +17,7 @@ The configuration is initially loaded from
 $ENV{PG_ROOT}/conf/pg_config.dist.yml.  If it is desired to change the default
 values, then copy the $ENV{PG_ROOT}/conf/pg_config.dist.yml to
 $ENV{PG_ROOT}/conf/pg_config.yml, and make changes in the copy.  The default
-values will be overriden with the changed values in the copy.  Note that invalid
+values will be overridden with the changed values in the copy.  Note that invalid
 values added to the copy will cause a warning to be issued.
 
 If the WeBWorK::CourseEnvironment module is found, then the configuration

@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-draggableProof.pl - Allows the contructions of problems with draggable statements for proofs.
+draggableProof.pl - Allows the constructions of problems with draggable statements for proofs.
 
 =head1 DESCRIPTION
 

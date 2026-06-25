@@ -74,7 +74,7 @@ For example:
     $I0 = Compute("1 < x <= 2");       # the inequality 1 < x <= 2
     $I1 = Interval($I0);               # the interval (1,2]
 
-Note that ineqaulities and inervals can be compared and combined
+Note that inequalities and intervals can be compared and combined
 regardless of the format, so C<$I0 == $I1> is true in either example
 above.
 

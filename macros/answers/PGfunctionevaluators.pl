@@ -126,7 +126,7 @@ qualify as correct. In other words, a student answer is correct when
 
     abs(studentAnswer - correctAnswer) <= abs(.01*relTol*correctAnswer)
 
-tol and relTol are mutually exclusive. reltol is also accpeted as a synonym for
+tol and relTol are mutually exclusive. reltol is also accepted as a synonym for
 relTol.
 
 =item zeroLevel, zeroLevelTol
@@ -169,7 +169,7 @@ single variable. Hence, the following are equivalent:
 	var=>['t']
 	var=>'t'
 
-vars is recognied as a synonym for var. The default is a single variable, x.
+vars is recognized as a synonym for var. The default is a single variable, x.
 
 =item limits
 

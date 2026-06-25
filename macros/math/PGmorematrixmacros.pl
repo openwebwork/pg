@@ -172,7 +172,7 @@ sub linear_combo {
 # These should be compared to similar subroutines made later in
 # MatrixCheckers.pl
 
-=head1 COMARISON FUNCTIONS
+=head1 COMPARISON FUNCTIONS
 
 =head2 basis_cmp
 
@@ -193,7 +193,7 @@ ANS( basis_cmp( vectors_as_array_ref_in_array_ref, options_hash ) );
                                  to zero
 
         debug           --  if set to 1, provides verbose listing of
-                                hash entries throughout fliters.
+                                hash entries throughout filters.
 
         help        --  'none' (default) (is quiet on all errors)
                     'dim' (Tells student if wrong number of vectors are entered)

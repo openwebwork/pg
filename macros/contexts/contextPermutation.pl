@@ -19,7 +19,7 @@ contextPermutation.pl - Provides contexts that allow the entry of cycles and per
 
     $P4 = Compute("(1 2 3)^2");        # square a cycle
     $P5 = Compute("((1 2)(3 4))^2");   # square a permutation
-    $I = Comptue("(1 2 3)^-1");        # inverse
+    $I = Compute("(1 2 3)^-1");        # inverse
 
     $L = Compute("(1 2),(1 3 2)");     # list of permutations
 

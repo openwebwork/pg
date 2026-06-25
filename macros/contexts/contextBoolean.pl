@@ -83,7 +83,7 @@ are the only manner by which an expression will evaluate operations to the right
 
     $a = Compute("T or T and F"); # $a == F
 
-The C<oxan> setting priortizes C<or> < C<xor> < C<and> < C<not>.
+The C<oxan> setting prioritizes C<or> < C<xor> < C<and> < C<not>.
 
     Context()->setPrecedence('oxan');
     $b = Compute("T or T and F"); # $b == T

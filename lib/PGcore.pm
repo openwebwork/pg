@@ -152,7 +152,7 @@ named answer is associated with its answer blank by name.
 =item *
 
 "Extra" answers: Names of answer blanks that do not have a 1-to-1
-correspondance to an answer evaluator. For example, in matrix problems, there
+correspondence to an answer evaluator. For example, in matrix problems, there
 will be several input fields that correspond to the same answer evaluator.
 
 =back
@@ -163,7 +163,7 @@ This file is automatically loaded into the namespace of every PG problem. The
 macros within can then be called to define the structure of the problem.
 
 DOCUMENT() should be the first executable statement in any problem. It
-initializes vriables and defines the problem environment.
+initializes variables and defines the problem environment.
 
 ENDDOCUMENT() must be the last executable statement in any problem. It packs
 up the results of problem processing for delivery back to WeBWorK.

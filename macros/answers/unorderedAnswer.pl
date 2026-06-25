@@ -25,7 +25,7 @@ sub _unorderedAnswer_init { };    # don't reload this file
 
 Collect a group of answer checkers for use with answers that can be given
 in any order.  If C<N> answer checkers are given, then the last C<N> answer
-rules will be used.  It is beter to use named rules and C<UNORDERED_NAMED_ANS>
+rules will be used.  It is better to use named rules and C<UNORDERED_NAMED_ANS>
 below.  Otherwise, be sure to use C<UNORDERED_ANS> right after the answer
 rules for the answers you want to compare.
 

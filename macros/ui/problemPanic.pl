@@ -89,7 +89,7 @@ To allow the grading penalties to work, you must include the command
 
     Panic::GradeWithPenalty();
 
-in order to install the panic-button grader.  You should do this afer
+in order to install the panic-button grader.  You should do this after
 setting the grader that you want to use for the problem itself, as the
 panic grader will use the one that is installed at the time the
 Panic::GradWithPenalty command is issued.

@@ -14,8 +14,8 @@ Run perltidy on pg source files.
 
 =head1 OPTIONS
 
-For this script to work the the .perltidyrc file in the pg root directory
-must be readable.  Note that the pg root directory is automatically detected.
+For this script to work the .perltidyrc file in the pg root directory must be
+readable.  Note that the pg root directory is automatically detected.
 
 This script accepts all of the options that are accepted by perltidy.  See the
 perltidy documentation for details.

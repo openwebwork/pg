@@ -92,7 +92,7 @@ defaults. It is equivalent to:
 
     $ml = new Match(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
 
-The first argument is the seed for the match list (choosen at random between 1
+The first argument is the seed for the match list (chosen at random between 1
 and 2000 in the example above). The next two arguments are references to the
 print subroutines used to print the questions and the answers. Other printing
 methods can be used instead of the standard ones. An example of how to do this
@@ -119,7 +119,7 @@ defaults. It is equivalent to:
     $sl = new Select(random(1,2000,1), ~~&std_print_q, ~~&std_print_a);
 
 The parameters to the C<Select> constructor are the same as those for the Match
-constrcutor described above under C<new_match_list()>.
+constructor described above under C<new_match_list()>.
 
 See the documentation for the C<Select> class to see how to use this object to
 create a true/false question.
@@ -168,7 +168,7 @@ a number possible answers, only one of which can be chosen. It is equivalent to:
     $mc = new Multiple(random(1,2000,1), ~~&std_print_q, ~~&radio_print_a);
 
 The parameters to the C<Multiple> constructor are the same as those for the Match
-constrcutor described above under C<new_match_list()>.
+constructor described above under C<new_match_list()>.
 
 =cut
 

@@ -463,7 +463,7 @@ sub std_num_filter {
 
 Assumes the {student_ans} field is a numerical  array, and applies BOTH check_syntax and std_num_filter
 to each element of the array.  Does it's best to generate sensible error messages for syntax errors.
-A typical error message displayed in {studnet_ans} might be ( 56, error message, -4).
+A typical error message displayed in {student_ans} might be ( 56, error message, -4).
 
 =cut
 
@@ -660,7 +660,7 @@ The parameters for the comparison function which best approximates the test_func
 in the field {ra_parameters}.
 
 
-The last $dim_of_parms_space variables are assumed to be parameters, and it is also
+The last $dim_of_params_space variables are assumed to be parameters, and it is also
 assumed that the function \&comparison_fun
 depends linearly on these variables.  This function finds the  values for these parameters which minimizes the
 Euclidean distance (L2 distance) between the test function and the comparison function and the test points specified
@@ -1110,7 +1110,7 @@ sub phase_pi {
 	$rh_ans;
 }
 
-=head4 C<is_an_arithemetic_expression>
+=head4 C<is_an_arithmetic_expression>
 
 =cut
 

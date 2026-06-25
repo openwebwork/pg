@@ -45,7 +45,7 @@ The following types of graph objects can be graphed:
     lines                           (GraphTool::GraphObject::Line)
     circles                         (GraphTool::GraphObject::Circle)
     parabolas                       (GraphTool::GraphObject::Parabola)
-    quadratics                      (GraphTool::GraphObject::Qudratic)
+    quadratics                      (GraphTool::GraphObject::Quadratic)
     cubics                          (GraphTool::GraphObject::Cubic)
     intervals                       (GraphTool::GraphObject::Interval)
     sine waves                      (GraphTool::GraphObject::SineWave)

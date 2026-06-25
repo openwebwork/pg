@@ -16,7 +16,7 @@ allows both types of solutions, C<Context("Congruence-General-Solution")>, which
 requires the general solution, and C<Context("Congruence-All-Solutions")>, which
 requires all solutions to be entered.
 
-Congruences must be created with three paramters (a, b, m) from ax ≡ b (mod m).
+Congruences must be created with three parameters (a, b, m) from ax ≡ b (mod m).
 
     loadMacros("contextCongruence.pl");
 

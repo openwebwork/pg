@@ -11,7 +11,7 @@ The entries in a cycle are separated by spaces and enclosed in
 parentheses.  Cycles are multiplied by juxtaposition.  A permutation
 can be multiplied on the left by a number in order to obtain the
 result of that number under the action of the permutation.
-Exponentiation is alos allowed (as described below).
+Exponentiation is also allowed (as described below).
 
 There are three contexts included here: C<Context("Permutation")>, which
 allows permutations in any form, C<Context("Permutation-Strict")>, which
@@ -35,7 +35,7 @@ are written in canonical form (as described below).
 
     $P4 = Compute("(1 2 3)^2");        # square a cycle
     $P5 = Compute("((1 2)(3 4))^2");   # square a permutation
-    $I = Comptue("(1 2 3)^-1");        # inverse
+    $I = Compute("(1 2 3)^-1");        # inverse
 
     $L = Compute("(1 2),(1 3 2)");     # list of permutations
 

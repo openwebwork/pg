@@ -477,7 +477,7 @@ Specifically the following are allowed:
     time
         - Gives the current Unix time.
     atan, sin, cos, exp, log, sqrt
-        - Arithemetic commands.  More are defined in PGauxiliaryFunctions.pl
+        - Arithmetic commands.  More are defined in PGauxiliaryFunctions.pl
 
 The following are specifically not allowed:
 

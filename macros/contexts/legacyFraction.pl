@@ -10,7 +10,7 @@ keeps the numerator and denominator separate.  It provides methods for
 reducing the fractions, and for allowing fractions with a whole-number
 preceding it, as in C<4 1/2> for "four and one half".  The answer
 checker can require that students reduce their results, and there are
-contexts that don't allow entery of decimal values (only fractions),
+contexts that don't allow entry of decimal values (only fractions),
 and that don't allow any operators or functions (other than division
 and negation).
 
@@ -47,7 +47,7 @@ must enter a whole number or a fraction in this context.  It is also
 permissible to enter a whole number WITH a fraction, as in C<2 1/2> for
 "two and one half", or C<5/2>.
 
-The fourth is the same as LimiteFraction, but students must enter proper
+The fourth is the same as LimitedFraction, but students must enter proper
 fractions, and results are shown as proper fractions.
 
 You can use the C<Compute()> function to generate fraction objects, or
@@ -149,7 +149,7 @@ C<Fraction> and C<Fraction-NoDecimals> contexts, but 1 in C<LimitedFraction>.
 =item S<C<< allowMixedNumbers >>>
 
 This determines whether a space between a whole number and a fraction
-is interpretted as implicit multiplication (as it usually would be in
+is interpreted as implicit multiplication (as it usually would be in
 WeBWorK), or as addition, allowing "4 1/2" to mean "4 and 1/2".  By
 default, it acts as multiplication in the Fraction and
 C<Fraction-NoDecimals> contexts, and as addition in C<LimitedFraction>.  If
@@ -182,7 +182,7 @@ C<requirePureFractions> to 1.
 
 This determines whether fractions MUST be entered as pure fractions
 rather than mixed numbers.  If C<allowMixedNumbers> is also set, then
-mixed numbers will be properly interpretted, but will produce a
+mixed numbers will be properly interpreted, but will produce a
 warning message and be marked incorrect; that is, C<2 3/4> would be
 recognized as C<2+3/4> rather than C<2*3/4>, but would generate a message
 indicating that mixed numbers are not allowed.  This flag is off by

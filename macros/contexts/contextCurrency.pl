@@ -32,7 +32,7 @@ more than one way to write the currency).  For example:
     Context("Currency")->currency->addSymbol("dollars","dollar");
 
 would accept '$12,345.67' or '12.50 dollars' or '1 dollar' as
-acceptable values.  Note that if the symbol cantains any
+acceptable values.  Note that if the symbol contains any
 alphabetic characters, it is expected to come at the end of the
 number (as in the examples above) and if the symbol has only
 non-alphabetic characters, it comes before it.  You can change
