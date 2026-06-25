@@ -456,7 +456,7 @@ sub decompose_LR {
 	my ($swap);
 	my ($temp);
 	my $rh_options = $matrix->[$MatrixReal1::OPTION_ENTRY];
-	#    FIXEME Why won't this work on non-square matrices?
+	#    FIXME: Why won't this work on non-square matrices?
 	#    croak "MatrixReal1::decompose_LR(): matrix is not quadratic"
 	#      unless ($rows == $cols);
 	#    croak "MatrixReal1::decompose_LR(): matrix has more rows than columns"

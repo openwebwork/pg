@@ -229,7 +229,7 @@ END_OBJECT_TEXT
 
     $applet->header(<<END_HEADER);
     <script>
-        // The applet name is passed to this function, although it is not really neccessary to
+        // The applet name is passed to this function, although it is not really necessary to
         // check it, as the method will only be called for this applet.  The applet name is only
         // provided for backwards compatibility.
         function myUniqueAppletOnInit(appletName) {
