@@ -311,6 +311,7 @@ sub Init {
 		acceptMolecularForm     => 0,
 		compareMolecular        => 0,
 		keepElementOrder        => 1,
+		mathQuillOpts           => { includeIonButtons => 1 }
 	);
 	$context->{parser}{Number}   = 'context::Reaction::Number';
 	$context->{parser}{Variable} = 'context::Reaction::Variable';

@@ -290,6 +290,23 @@
 			);
 		}
 
+		if (cfgOptions.includeIonButtons) {
+			answerQuill.mathField.options.addToolbarButtons([
+				{
+					id: 'positiveion',
+					latex: '\\positiveion',
+					tooltip: 'postitive ion',
+					icon: '\\text{ }^{\\text{ }+}'
+				},
+				{
+					id: 'negativeion',
+					latex: '\\negativeion',
+					tooltip: 'negative ion',
+					icon: '\\text{ }^{\\text{ }-}'
+				}
+			]);
+		}
+
 		window.answerQuills[answerLabel] = answerQuill;
 
 		if (latexEntryMode) return;
