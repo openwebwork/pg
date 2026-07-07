@@ -279,7 +279,7 @@
 		answerQuill.textarea = answerQuill.querySelector('textarea');
 
 		if (!cfgOptions.logsChangeBase) {
-			answerQuill.mathField.options.addToolbarButton(
+			answerQuill.mathField.options.addToolbarButtons(
 				{
 					id: 'subscript',
 					latex: '_',
