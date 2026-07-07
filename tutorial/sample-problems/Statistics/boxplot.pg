@@ -107,7 +107,7 @@ $boxplotB->add_boxplot({
 });
 
 $alt_textB =
-    "A horizontal box plot with the box betwen $q1B and $q3B and vertical "
+    "A horizontal box plot with the box between $q1B and $q3B and vertical "
     . "line at $medA. The is line from the box to the left from $q1B to $minB and a "
     . "line to the right from $q3B to $maxB.  There are also 3 small plus signs at "
     . "115, 130 and 375.";
