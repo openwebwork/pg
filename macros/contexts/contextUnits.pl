@@ -47,15 +47,15 @@ The categories of units are the following:
     energy           (fundamental units "(kg m^2)/(s^2)")
     power            (fundamental units "(kg m^2)/(s^3)" except for those in "astronomy" below)
     pressure         (fundamental units "kg/(m s^2)")
-    electricity      (fundamental units "amp", "amp/s", "(kg m)/(amp s^-3)", "(amp s^-3)/(kg m)",
-                                        "(amp^2 s^4)/(kg m^2)", "(kg m^2)/(amp^2 s^3)", and "(amp^2 s^3)/(kg m^2)")
-    magnetism        (fundamental units "kg/(amp s^2)" and "(kg m)/(amp s^2)")
+    electricity      (fundamental units "A", "A/s", "(kg m)/(A s^-3)", "(A s^-3)/(kg m)",
+                                        "(A^2 s^4)/(kg m^2)", "(kg m^2)/(A^2 s^3)", and "(A^2 s^3)/(kg m^2)")
+    magnetism        (fundamental units "kg/(A s^2)" and "(kg m)/(A s^2)")
     luminosity       (fundamental units "cd/(rad^2)" and "cd/(rad m)^2")
     atomics          (amu, me, barn, a0, dalton)
     radiation        (fundamental units "(m^2)/(s^2)" and "s^-1")
     biochem          (fundamental units "mol" or "mol/s")
     astronomy        (kpc, Mpc, solar-mass, solar-radii, solar-lum, light-year, AU, parsec)
-    fundamental      (m, kg, s, rad, degC, degF, K, mol, amp, cd)
+    fundamental      (m, kg, s, rad, degC, degF, K, mol, A, cd)
 
 You can add specific named units via the C<addUnits()> method of the
 context, as in
@@ -684,12 +684,8 @@ our @ISA = ('Parser::Context');
 #
 #  The units from the original Units package
 #
-our %UNITS = (%Units::known_units);
+our %UNITS = (%Units::UNITS);
 our %ALIAS = (%Units::unit_aliased_to);
-for ('litre', 'litres', 'liter', 'liters') {
-	$UNITS{$_} = $UNITS{L};
-	$ALIAS{$_} = 'L';
-}
 
 #
 #  The categories of units that can be selected.
@@ -718,21 +714,22 @@ our %categories = (
 	power             => [ { m => 2, kg => 1, s => -3 }, '-astronomy' ],
 	pressure          => { m => -1, kg => 1, s => -2 },
 	electricity       => [
-		{ amp => 1 },
-		{ amp =>  1, s => 1 },
-		{ kg  =>  1, m =>  2, amp => -1, s => -3 },
-		{ kg  => -1, m => -2, amp =>  1, s =>  3 },
-		{ amp =>  2, s =>  4, kg  => -1, m => -2 },
-		{ kg  =>  1, m =>  2, amp => -2, s => -3 },
-		{ kg  => -1, m => -2, amp =>  2, s =>  3 },
+		{ A  => 1 },
+		{ A  =>  1, s => 1 },
+		{ kg =>  1, m =>  2, A  => -1, s => -3 },
+		{ kg => -1, m => -2, A  =>  1, s =>  3 },
+		{ A  =>  2, s =>  4, kg => -1, m => -2 },
+		{ kg =>  1, m =>  2, A  => -2, s => -3 },
+		{ kg => -1, m => -2, A  =>  2, s =>  3 },
 	],
-	magnetism   => [ { kg => 1, amp => -1, s => -2 }, { kg => 1, m => 2, amp => -1, s => -2 }, ],
-	luminosity  => [ { cd => 1, rad => -2 }, { cd => 1, rad => -2, m => -2 }, ],
-	atomics     => [ 'amu', 'me', 'barn', 'a0', 'dalton' ],
-	radiation   => [ { m => 2, s => -2 }, { s => -1 } ],
-	biochem     => [ { mol => 1 }, { mol => 1, s => -1 } ],
-	astronomy   => [ 'kpc', 'Mpc', 'solar-mass', 'solar-radii', 'solar-lum', 'light-year', 'AU', 'parsec' ],
-	fundamental => [ keys %Units::fundamental_units ],
+	magnetism     => [ { kg => 1, A => -1, s => -2 }, { kg => 1, m => 2, A => -1, s => -2 }, ],
+	luminosity    => [ { cd => 1, rad => -2 }, { cd => 1, rad => -2, m => -2 }, ],
+	atomics       => [ 'amu', 'me', 'barn', 'a0', 'dalton' ],
+	radiation     => [ { m => 2, s => -2 }, { s => -1 } ],
+	biochem       => [ { mol => 1 }, { mol => 1, s => -1 } ],
+	astronomy     => [ 'kpc', 'Mpc', 'solar-mass', 'solar-radii', 'solar-lum', 'light-year', 'AU', 'parsec' ],
+	dimensionless => ['%'],
+	fundamental   => [ keys %Units::FUNDAMENTAL_UNITS ],
 );
 
 #
@@ -772,26 +769,32 @@ sub addUnitsNotAliases {
 sub addUnit {
 	my ($self, $name, $unit, %options) = @_;
 	my $constants = $self->constants;
+	$name = $ALIAS{$name} if $name && $ALIAS{$name};
 	$unit = $UNITS{$name} unless $unit;
 	Value->Error("Can't add unknown unit '%s'", $name) unless $unit;
-	my $aliases = $unit->{aliases};
-	$unit = {%$unit}, delete $unit->{aliases} if $aliases;
+	if (!$unit->{units}) {
+		$unit = { factor => ($unit->{factor} // 1), units => { %{$unit} } };
+		$unit->{aliases} = $unit->{units}{aliases} if $unit->{units}{aliases};
+		delete $units->{units}{aliases};
+		delete $units->{units}{factor};
+	}
 	$constants->{namePattern} = qr/.+/;
 	if ($name) {
 		$constants->add(
 			$name => {
-				value      => context::Units::Unit->new($name => $unit),
-				TeX        => "\\text{$name}",
+				value => context::Units::Unit->new($name => $unit),
+				TeX => $unit->{TeX} ? "\\text{$unit->{TeX}}" : "\\text{$name}",
+				$unit->{string} ? (string => $unit->{string}) : (),
 				isUnit     => 1,
-				isConstant => 1
+				isConstant => 1,
+				noSep      => $unit->{noSeparator} // 0,
 			}
 		);
-		$constants->set($name => { ustring => $ALIAS{$name} })      if $ALIAS{$name};
-		$constants->add(map { $_ => { alias => $name } } @$aliases) if $aliases;
-		$self->addUnitAliases($name) unless $options{noaliases};
+		$constants->set($name => { ustring => $ALIAS{$name} }) if $ALIAS{$name};
 	} else {
-		$self->addUnitAliases($unit);
+		$self->addMatchingUnits($unit->{units});
 	}
+	$self->addUnitAliases($name => $unit) unless $name && $options{noaliases};
 	return $self;
 }
 
@@ -799,18 +802,35 @@ sub addUnit {
 #  Adds all the aliases for a given named unit or unit definition
 #
 sub addUnitAliases {
-	my ($self, $name) = @_;
-	my $unit = ref($name) eq 'HASH' ? $name : $UNITS{$name};
-	return unless $unit;
-	my $def = join(',', map {"$_=$unit->{$_}"} (main::lex_sort(keys %$unit)));
-	for my $alias (keys %UNITS) {
-		my $UNIT = { %{ $UNITS{$alias} } };
-		delete $UNIT->{factor} unless defined($unit->{factor});
-		if (join(',', map {"$_=$UNIT->{$_}"} (main::lex_sort(keys %$UNIT))) eq $def && $name ne $alias) {
-			$self->addUnit($alias => $UNITS{$alias}, noaliases => 1);
+	my ($self, $name, $unit) = @_;
+	$unit = $UNITS{$name} unless $unit;
+	return $self unless $unit;
+	my $aliases = $unit->{aliases};
+	if ($aliases) {
+		if ($name) {
+			$self->constants->add(map { $_ => { alias => $name } } @$aliases);
+		} else {
+			$self->addUnit($_ => $unit, noaliases => 1) for @$aliases;
 		}
 	}
 	return $self;
+}
+
+#
+#  Adds all units with the same base units and powers
+#
+sub addMatchingUnits {
+	my ($self, $units) = @_;
+	my $def = $self->unitString($units);
+	for my $unit (keys %UNITS) {
+		$self->addUnit($unit => $UNITS{$unit})
+			if $self->unitString($UNITS{$unit}->{units}) eq $def;
+	}
+}
+
+sub unitString {
+	my ($self, $units) = @_;
+	return join('', map {"$_=$units->{$_}"} (main::lex_sort(keys %$units)));
 }
 
 #
@@ -905,17 +925,9 @@ sub removeUnits {
 #
 sub removeUnitAndAliases {
 	my ($self, $name) = @_;
+	$name = $ALIAS{$name} if $ALIAS{$name};
 	my $unit = $UNITS{$name};
-	return unless $unit;
-	my $def = join(',', map {"$_=$unit->{$_}"} (main::lex_sort(keys %$unit)));
-	my @units;
-	for my $alias (keys %UNITS) {
-		my $UNIT = $UNITS{$alias};
-		if (join(',', map {"$_=$UNIT->{$_}"} (main::lex_sort(keys %$UNIT))) eq $def) {
-			push(@units, $alias);
-		}
-	}
-	$self->constants->remove(@units);
+	$self->constants->remove($name, @{ $unit->{aliases} }) if $unit;
 	return $self;
 }
 
@@ -1004,16 +1016,13 @@ sub new {
 	#
 	my $nfunds = {};
 	my $dfunds = {};
-	my $factor = 1;
-	for my $name (keys %$unit) {
-		if ($name eq 'factor') {
-			$factor = $unit->{$name};
+	my $factor = $unit->{factor} // 1;
+	my $units  = $unit->{units};
+	for my $name (keys %$units) {
+		if ($units->{$name} > 0) {
+			$nfunds->{$name} = $units->{$name};
 		} else {
-			if ($unit->{$name} > 0) {
-				$nfunds->{$name} = $unit->{$name};
-			} else {
-				$dfunds->{$name} = -$unit->{$name};
-			}
+			$dfunds->{$name} = -$units->{$name};
 		}
 	}
 	#
@@ -1485,6 +1494,16 @@ sub quantity {
 #############################################################
 
 #
+#  Check if there should be a separtor before the units
+#
+sub noSep {
+	my $self = shift;
+	my $unit = $self->unit;
+	my $def  = $self->context->constants->get($unit->{order}[0]);
+	return $def->{noSep};
+}
+
+#
 #  Get the string version using the fundamental units
 #
 sub fString { (shift)->unit->fString }
@@ -1504,7 +1523,8 @@ sub string {
 	my $unit   = $self->unit;
 	my $u      = $unit->stringFor('nunits', 'dunits', $unit->{order}, 0, 1);
 	my $string = $self->number->string;
-	$string .= substr($u, 0, 1) eq '/' ? $u : " $u";
+	$string .= substr($u, 0, 1) eq '/' ? $u : $self->noSep
+		&& (%{ $unit->{nunits} } == 1 || !%{ $unit->{dunits} }) ? $u : " $u";
 	$string = '(' . $string . ')' if defined($precedence) && $precedence > 1;
 	return $string;
 }
@@ -1520,7 +1540,7 @@ sub TeX {
 	if (substr($u, 0, 1) eq '/') {
 		$tex = "\\frac{$tex}{" . $unit->raiseUnit(-1, 1)->with(negativePowers => {})->TeX . '}';
 	} else {
-		$tex .= '\\,' . $unit->TeX;
+		$tex .= ($self->noSep && !%{ $unit->{dunits} } ? '' : '\\,') . $unit->TeX;
 	}
 	$tex = '(' . $tex . ')' if defined($precedence) && $precedence > 1;
 	return $tex;
