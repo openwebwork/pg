@@ -17,7 +17,7 @@
 
 #:% section = preamble
 #: This uses the `add_piechart` method in the PODLINK('StatisticalPlots.pl')
-#: macro.  A donut plot version of this is available at PROBLINK('DonutPlot.pg'). 
+#: macro.  A donut plot version of this is available at PROBLINK('DonutPlot.pg').
 DOCUMENT();
 
 loadMacros("PGstandard.pl", 'PGML.pl', 'StatisticalPlots.pl', 'PGcourse.pl');
@@ -27,15 +27,16 @@ loadMacros("PGstandard.pl", 'PGML.pl', 'StatisticalPlots.pl', 'PGcourse.pl');
 #: array.
 #:
 #: The StatPlot is created with the axes and grid turned off.  The
-#: `add_piechart` method takes the values and number of options.  In this
-#: case, the labels are included as an arrayref (which is why the `~~` is needed)
-#: and are placed outside the piechart.  The `radius` gives the size of the
-#: circle and the `angle_offset` is useful to get the labels in the proper position.
+#: `add_piechart` method requires an array reference of values that will
+#: generate pie wedges with given size.  Optionally, the labels are included
+#: as an array reference and are placed outside the piechart.  The `radius`
+#: gives the size of the circle and the `angle_offset` shifts the angle (in
+#: degrees) of the starting sector from the horizontal axis.
 #:
 #: The default colors come from the `rainbow` palette, and other options
 #: exist.
 #:
-#: A detailed alt_text should accompany all plots/graphs.
+#: A detailed alternative text should accompany all plots/graphs.
 
 @values  = (1,          5,        8,       2,       4);
 @animals = ('Anteater', 'Bobcat', 'Camel', 'Dingo', 'Elephant');

@@ -1,5 +1,5 @@
 ## DESCRIPTION
-##  Produce multiple box plots. 
+##  Produce multiple box plots.
 ## ENDDESCRIPTION
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
@@ -15,14 +15,11 @@
 #:% categories = [graph, statistics]
 
 #:% section = preamble
-#: The PODLINK('StatisticalPlots.pl') macro is included. This provides some 
-#: convenience methods for creating Statistical plots. 
+#: The PODLINK('StatisticalPlots.pl') macro is included. This provides some
+#: convenience methods for creating Statistical plots.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',       'PGML.pl',
-    'StatisticalPlots.pl', 'PGcourse.pl'
-);
+loadMacros('PGstandard.pl', 'PGML.pl', 'StatisticalPlots.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: To create a graph, start with a `StatPlot`.  The `min` and `max` options in
@@ -30,9 +27,9 @@ loadMacros(
 #: each direction gives the distance between tick marks and the `minor` option is
 #: the number of minor ticks between each tick.
 #:
-#: The three box plots are created by defining the `$params`, an array ref of the
-#: needed parameters.  For each set of parameters, the box plot is created 
-#: with the `add_boxplot`.  The remaining arguments are options to the box plot. 
+#: The three box plots are created by defining the `$params`, an array reference of the
+#: needed parameters.  For each set of parameters, the box plot is created
+#: with the `add_boxplot`.  The remaining arguments are options to the box plot.
 #: Note that in this example, we have selected three different colors for the
 #: box plots and each is given a whisker cap.  See PODLINK('StatisticalPlots.pl')
 #: for other options to this method.
@@ -66,19 +63,19 @@ $params = [
 ];
 
 $statPlot = StatPlot(
-    ymin        => -2,
-    ymax        => 8,
-    ytick_delta => 2,
-    yminor => 0,
-    yvisible    =>  1,
-    ytick_labels => { 6=> 'Fri.', 4=> 'Sat.', 2 => 'Sun.'},
-    show_grid   =>  0,
-    xmin        => -400,
-    xmax        => 2600,
-    xtick_delta => 500
+    ymin         => -2,
+    ymax         =>  8,
+    ytick_delta  =>  2,
+    yminor       =>  0,
+    yvisible     =>  1,
+    ytick_labels => { 6 => 'Fri.', 4 => 'Sat.', 2 => 'Sun.' },
+    show_grid    =>  0,
+    xmin         => -500,
+    xmax         =>  3000,
+    xtick_delta  => 500
 );
 @fill_colors = ('LightBlue', 'LightGreen', 'Magenta');
-@box_centers = (2,    4,    6);
+@box_centers = (2,           4,            6);
 for (0 .. $#box_centers) {
     $statPlot->add_boxplot(
         $params->[$_],
@@ -89,23 +86,24 @@ for (0 .. $#box_centers) {
         whisker_cap => 1
     );
 }
-$alt_text = 'Three horizontal box plots. ' . 
-    "The topmost one is labeled 'Fri.' with left most whisker $params->[0]{min} " .
-    "the left side of the box is at $params->[0]{q1} and vertical line at " . 
-    "$params->[0]{median}, right side of the box at $params->[0]{q3} " . 
-    "and rightmost whisker at $params->[0]{max}." . 
-    "The box plot in the middle is labelled 'Sat.' with left most whisker " .
-    "$params->[1]{min} the left side of the box is at $params->[1]{q1} and " .
-    "vertical line at $params->[1]{median}, right side of the box at " . 
-    " $params->[1]{q3} and rightmost whisker at $params->[1]{max}." . 
-    "The box plot toward the bottom is labelled 'Sun.' with left most whisker " .
-    "$params->[2]{min} the left side of the box is at $params->[2]{q1} and " .
-    "vertical line at $params->[2]{median}, right side of the box at " . 
-    " $params->[2]{q3} and rightmost whisker at $params->[2]{max}." ; 
+$alt_text =
+    'Three horizontal box plots. '
+    . "The topmost one is labeled 'Fri.' with left most whisker $params->[0]{min} "
+    . "the left side of the box is at $params->[0]{q1} and vertical line at "
+    . "$params->[0]{median}, right side of the box at $params->[0]{q3} "
+    . "and rightmost whisker at $params->[0]{max}."
+    . "The box plot in the middle is labelled 'Sat.' with left most whisker "
+    . "$params->[1]{min} the left side of the box is at $params->[1]{q1} and "
+    . "vertical line at $params->[1]{median}, right side of the box at "
+    . " $params->[1]{q3} and rightmost whisker at $params->[1]{max}."
+    . "The box plot toward the bottom is labelled 'Sun.' with left most whisker "
+    . "$params->[2]{min} the left side of the box is at $params->[2]{q1} and "
+    . "vertical line at $params->[2]{median}, right side of the box at "
+    . " $params->[2]{q3} and rightmost whisker at $params->[2]{max}.";
 
 #:% section = statement
 #: In this case, only the plot is shown.  Generally here is where questions are
-#: asked.  Also note that the alt test is provided to the plot. 
+#: asked.  Also note that the alt test is provided to the plot.
 BEGIN_PGML
 
 >>[! [$alt_text] !]{$statPlot}{400}<<

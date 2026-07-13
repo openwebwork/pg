@@ -35,13 +35,13 @@ loadMacros(
 #: each direction gives the distance between tick marks and the `minor` option is
 #: the number of minor ticks between each tick.
 #:
-#: Use `xtick_labels` to customize the tick labels and the resulting hashref
-#: is a mapping from the old tick labels to the new labels.
+#: Use `xtick_labels` to customize the tick labels. The hash reference value
+#: is a mapping from tick positions to new labels.
 #:
-#: The bars are added with the `add_barplot` method with the xdata and ydata.
-#: The `bar_width` give a relative width of the bar.  If this option is 1 
-#: there is no gap between bars.  
-#: See PODLINK('StatisticalPlots.pl') for other options to this method.
+#: The bars are added with the `add_barplot` method passing the x and y data
+#: values. The `bar_width` gives the relative width of the bar. If this option
+#: is 1, then there is no gap between bars. See PODLINK('StatisticalPlots.pl')
+#: for other options to this method.
 #:
 #: Make sure that an alternate text is added to all graphs for accessibility. Be
 #: detailed.
@@ -66,7 +66,7 @@ $statPlot = StatPlot(
 
 $statPlot->add_barplot(
     [ 1 .. 4 ], ~~@grades,
-    fill_colors   => ['Red,', 'Salmon', 'LightYellow', 'LightGreen'],
+    fill_colors  => [ 'Red,', 'Salmon', 'LightYellow', 'LightGreen' ],
     stroke_width => 1,
     bar_width    => 0.9
 );
@@ -81,7 +81,7 @@ $alt_text =
 $num_students = 0;
 $num_students += $_ for @grades;
 
-$perA = Real($grades[0] / $num_students);
+$perA = Compute($grades[0] / $num_students);
 
 #:% section = statement
 #: In this case, we plot the bar graph and ask a question.

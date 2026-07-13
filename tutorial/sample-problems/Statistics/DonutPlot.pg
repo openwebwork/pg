@@ -28,17 +28,18 @@ loadMacros("PGstandard.pl", 'PGML.pl', 'StatisticalPlots.pl', 'PGcourse.pl');
 #: array.
 #:
 #: The StatPlot is created with the axes and grid turned off.  The
-#: `add_piechart` method takes the number values in the `@values` array.  The 
-#: values must be passed in as an arrayref (which is why the `~~` is needed). 
+#: `add_piechart` method takes the number values in the `@values` array.  The
+#: values must be passed in as an array reference (which is why the `~~` is needed).
 #:
-#: For the options, the `labels` also need to be passed in as an arrayref. 
+#: For the options, the `labels` also need to be passed in as an array reference.
 #: The `radius` and `inner_radius` gives the outer and inner radii of the donut.
-#: The `angle_offset` is useful to get the labels in the proper position.
+#: The `angle_offset` shifts the angle (in degrees) of the starting sector from
+#: the horizontal axis.
 #:
 #: The default colors come from the `rainbow` palette, and other options
 #: exist.
 #:
-#: A detailed alt_text should accompany all plots/graphs.
+#: A detailed alternative text should accompany all plots/graphs.
 
 @values  = (1,          5,        8,       2,       4);
 @animals = ('Anteater', 'Bobcat', 'Camel', 'Dingo', 'Elephant');
@@ -65,7 +66,7 @@ for (0 .. 4) {
 }
 
 #:% section = statement
-#: In this case, only the plot is provided with the alt text. 
+#: In this case, only the plot is provided with the alt text.
 BEGIN_PGML
 
 >> Donut Plot of the number of animals at the local zoo <<

@@ -17,27 +17,27 @@
 #:% categories = [plots]
 
 #:% section = preamble
-#: Make sure that PODLINK('StatisticalPlots.pl') is loaded.  This is a version 
-#: of the problem in LINK('ScatterPlot.pg') that uses the scatter plot feature
-#: in StatisticalPlots.pl. 
+#: Make sure that PODLINK('StatisticalPlots.pl') is loaded.  This is a version
+#: of the problem in PROBLINK('ScatterPlot.pg') that uses the scatter plot feature
+#: in StatisticalPlots.pl.
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl', 'PGML.pl', 
-    'StatisticalPlots.pl',      'PGstatisticsmacros.pl',
+    'PGstandard.pl',       'PGML.pl',
+    'StatisticalPlots.pl', 'PGstatisticsmacros.pl',
     'PGcourse.pl'
 );
 
 #:% section = setup
 #: For this problem, we have a data set stored as an array of array
 #: references.  First we find the best-fit line using the `linear_regression`
-#: function of PODLINK('PGstatisticsmacros.pl').  Note: the x and y data
-#: needs to be array references and the 2nd and 3rd lines extract the
+#: function of PODLINK('PGstatisticsmacros.pl').  Note that the x and y data
+#: values need to be in array references, and the 2nd and 3rd lines extract the
 #: components.
 #:
-#: For the plot, first set up the `Plot` with a plotting window that will
-#: capture the data. The `add_dataset` method adds the data to the plot
-#: with circles and color blue.
+#: Set up the `StatPlot` with a plotting window that will
+#: contain the data. The `add_dataset` method adds the data to the plot
+#: with circle marks that are colored blue.
 #:
 #: The line is added to the dataset with the `add_function` method.  The 3rd
 #: and 4th arguments are the xmin and xmax of the domain.
@@ -48,18 +48,20 @@ $x = [ map { $_->[0] } @data ];
 $y = [ map { $_->[1] } @data ];
 ($m, $b) = linear_regression($x, $y);
 
-$plot = Plot(
+$plot = StatPlot(
     xmin        => 0,
     xmax        => 24,
     xtick_delta => 4,
     ymin        => 0,
     ymax        => 300,
+    ytick_delta => 50,
     aria_label  => 'Linear Regression'
 );
+
 $plot->add_scatterplot(
-    @data,
-    marks     => 'circle',
-    color     => 'blue'
+    ~~@data,
+    marks => 'circle',
+    color => 'blue'
 );
 $plot->add_function(
     "$m x + $b",
@@ -71,9 +73,10 @@ $plot->add_function(
 );
 
 #:% section = statement
-#: The data is formatted by putting the array data in a nice format using both
-#: join (which joins an array separated by ', ') and map (which creates a new
-#: array that formats as (x1, y1)).  The [@ @] is used to run perl.
+#: To format the points in the `@data` array in a human-readable manner, these
+#: are first put in "(x, y)" form using the `map` function.  The resulting array
+#: is then concatenated with the `join` command.  Since both map and join are
+#: perl commands, this compound command is placed within a `[@ @]`.
 #:
 #: The `[! !]{}{}` is a PGML format for inserting an image.
 BEGIN_PGML

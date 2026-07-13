@@ -37,12 +37,12 @@ loadMacros(
 #: the number of minor ticks between each tick.
 #:
 #: The box plot is created with the `add_boxplot` method in which the data is the
-#: first argument (it is an array ref, which is why the `~~` is needed).  The
+#: first argument (it is an array reference, which is why the `~~` is needed).  The
 #: remaining arguments are options to the box plot. See PODLINK('StatisticalPlots.pl')
 #: for other options to this method.
 #:
 #: The second box plot shows that the min/max, median and quartiles can be passed in
-#: as an alternative to an arrayref of numbers.
+#: as an alternative to an array reference of numbers.
 
 #: Make sure that an alternate text is added to all graphs for accessibility. Be
 #: detailed.
@@ -114,7 +114,7 @@ $alt_textB =
 
 #:% section = statement
 #: For this problem, only the plots are shown.  Generally the questions would go
-#: here.  Again, add a detailed alt text for each plot. 
+#: here.  Again, add a detailed alt text for each plot.
 BEGIN_PGML
 
 >>[! [$alt_textA] !]{$boxplotA}{400}<<
