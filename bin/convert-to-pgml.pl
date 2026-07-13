@@ -8,6 +8,14 @@ convert-to-pgml.pl -- Convert pg problem with non-pgml structure to PGML structu
 
     convert-to-pgml -b -s pgml file1.pg file2.pg ...
 
+Options:
+
+    -b|--backup         Create a backup of the original file before converting.
+    -s|--suffix=s       Suffix for the converted files. Default is 'pgml'.
+    -v|--verbose        Print verbose output.
+    -h|--help           Show the help message.
+
+
 =head1 DESCRIPTION
 
 This converts each pg file to PGML formatting.  In particular, text blocks are
@@ -20,14 +28,14 @@ any variables of the form C<$var> to C<[$var]>, scripts from \{ \} to [@ @], and
 to the form C<[_]{}>
 
 Many code features that are no longer needed are removed including
-C<TEXT(beginproblem())>, C<<Context()->texStrings;>> and C<<Context()->normalStrings;>>.
+C<TEXT(beginproblem())>, C<< Context()->texStrings; >> and C<< Context()->normalStrings; >>.
 Any C<ANS> commands are commented out.
 
 The C<loadMacros> command is parsed, the C<PGML.pl> is included and C<MathObjects.pl>
 is removed (because it is loaded by C<PGML.pl>) and C<PGcourse.pl> is added to the
 end of the list.
 
-Note: many of the features are converted correctly, but often there will be errors
+Note: many of the features are converted correctly, but there may be errors
 after the conversion.  Generally after using this script, the PGML style answers
 will need to have their corresponding variable added.
 
@@ -42,28 +50,25 @@ C<pgml> is used. If the C<-b> flag is used, this option will be ignored.
 
 =cut
 
-use strict;
-use warnings;
-use experimental 'signatures';
+use Mojo::Base -signatures;
 
 use Mojo::File qw(curfile);
 use Getopt::Long;
+use Pod::Usage;
 
 use lib curfile->dirname->dirname . '/lib';
 
 use WeBWorK::PG::ConvertToPGML qw(convertToPGML);
 
-my $backup  = 0;
-my $verbose = 0;
-my $suffix  = 'pgml';
-
 GetOptions(
-	"b|backup"   => \$backup,
-	"s|suffix=s" => \$suffix,
-	"v|verbose"  => \$verbose,
+	'b|backup'   => \my $backup,
+	's|suffix=s' => \my $suffix,
+	'v|verbose'  => \my $verbose,
+	'h|help'     => \my $show_help
 );
+pod2usage(2) if $show_help || @ARGV == 0;
 
-die 'arguments must have a list of pg files' unless @ARGV > 0;
+$suffix //= 'pgml';
 convertFile($_) for (grep { $_ =~ /\.pg$/ } @ARGV);
 
 sub convertFile ($filename) {
@@ -73,11 +78,11 @@ sub convertFile ($filename) {
 	my $pg_source = $path->slurp;
 	my $result    = convertToPGML($pg_source);
 	if (ref($result) eq 'HASH' && $result->{errors}) {
-		warn "Error parsing $filename. " . $result->{errors};
+		warn "Error parsing $filename. " . $result->{errors} . "\n";
 		return;
 	}
 
-	# copy the original file to a backup and then write the file
+	# Copy the original file to a backup and then write the file.
 	my $new_path    = $backup ? $path : Mojo::File->new($filename =~ s/\.pg/.$suffix/r);
 	my $backup_file = $filename =~ s/\.pg$/.pg.bak/r;
 	$path->copy_to($backup_file) if $backup;
