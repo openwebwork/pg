@@ -57,7 +57,7 @@ use parent qw(Exporter);
 use strict;
 use warnings;
 
-our @EXPORT = qw(convertToPGML);
+our @EXPORT_OK = qw(convertToPGML);
 
 =head2 convertToPGML
 
@@ -75,16 +75,6 @@ my @ans_list;
 
 sub convertToPGML {
 	my ($pg_source) = @_;
-
-	# Check that the file is not already in PGML format by looking for PGML.pl in the loadMacros statement,
-	# and there are no BEGIN_TEXT, BEGIN_SOLUTION, etc. blocks.
-
-	return { pgmlCode => $pg_source }
-		if ($pg_source =~ /loadMacros\((.*)PGML\.pl(.*)\)/m && $pg_source !~ /BEGIN_(TEXT|HINT|SOLUTION)/);
-
-	# Return an error if the loadMacros isn't in the form loadMacros( ... );
-	return { errors => "The loadMacros command cannot be parsed.", pgmlCode => $pg_source }
-		unless $pg_source =~ /loadMacros\((.*?)\)\s*;/m;
 
 	# Get a list of all of the ANS, LABELED_ANS, etc. in the problem.
 	@ans_list = getANS($pg_source);
@@ -126,58 +116,32 @@ sub convertToPGML {
 			}
 			$macros .= $row;
 
-			my @macros;
-			my ($qw_start, $qw_end);    # the characters if the loadMacros has a qw block.
+			my $load_macros_block = parseLoadMacros($macros);
 
-			# The following can parse loadMacros in the form loadMacros('macro1.pl', 'macro2.pl'); or
-			# loadMacros(qw{macro1.pl macro2.pl});
-			if ($macros =~ /loadMacros\((.*?)\);/ms) {
-				my @macro_str = split(/\s*,\s*/, $1);
+			# If PGML.pl is a macro and there are no BEGIN_TEXT/HINT/SOLUTION blocks
+			# return the original source.
+			return { pgmlCode => $pg_source }
+				if (!defined($load_macros_block->{errors})
+					&& grep { $_ eq 'PGML.pl' } @{ $load_macros_block->{macros} }
+					&& $pg_source !~ /^\s*BEGIN_(TEXT|HINT|SOLUTION)/m);
 
-				for my $str (@macro_str) {
-					if ($str =~ /^qw(.)/) {
-						my $qw_matches = { '{' => '}', '(' => ')', '[' => ']', '/' => '/', '|' => '|' };
-						$qw_start = $1;
-						$qw_end   = $qw_matches->{$qw_start};
+			return { errors => $load_macros_block->{errors}, pgmlCode => $pg_source } if ($load_macros_block->{errors});
 
-						if ($str =~ /^qw\Q${qw_start}\E(.*?)\Q${qw_end}\E/) {
-							push(@macros, split(/\s+/, $1));
-						}
-					} else {
-						push(@macros, $str);
-					}
-				}
-
-				@macros =
-					grep {
-						$_
-						&& $_ !~
-						/(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse|AnswerFormatHelp).pl/x
-					}
-					map {s/['"]//gr} @macros;
-
-				# Remove any duplicates:
-				my %seen;
-				@macros = grep { !$seen{$_}++ } @macros;
-			} else {
-				return {
-					errors   => 'The loadMacros command cannot be processed.',
-					pgmlCode => $pg_source
-				};
-			}
-
-			@macros = ('PGstandard.pl', 'PGML.pl', @macros, 'PGcourse.pl');
-
-			if ($qw_start) {
+			if ($load_macros_block->{qw_start}) {
 				if ($num_macro_lines > 1) {    # put each macro on a separate line
-					push(@all_lines, "loadMacros(qw$qw_start");
-					push(@all_lines, "\t$_") for (@macros);
-					push(@all_lines, "$qw_end);");
+					push(@all_lines, 'loadMacros(qw' . $load_macros_block->{qw_start});
+					push(@all_lines, "\t$_") for (@{ $load_macros_block->{macros} });
+					push(@all_lines, $load_macros_block->{qw_end} . ');');
 				} else {
-					push(@all_lines, "loadMacros(qw$qw_start" . join(' ', @macros) . "$qw_end);", '');
+					push(@all_lines,
+						'loadMacros(qw'
+							. $load_macros_block->{qw_start}
+							. join(' ', @{ $load_macros_block->{macros} })
+							. $load_macros_block->{qw_end} . ');',
+						'');
 				}
 			} else {
-				push(@all_lines, 'loadMacros(' . join(', ', map {"'$_'"} @macros) . ');', '');
+				push(@all_lines, 'loadMacros(' . join(', ', map {"'$_'"} @{ $load_macros_block->{macros} }) . ');', '');
 			}
 		} else {
 			push(@all_lines, cleanUpCode($row));
@@ -193,6 +157,56 @@ sub convertToPGML {
 		}
 	}
 	return { pgmlCode => join "\n", @all_lines };
+}
+
+sub parseLoadMacros {
+	my ($macros) = @_;
+
+	my $error_string = 'The loadMacros statement could not be parsed. Check for syntax errors.';
+
+	return { errors => $error_string }
+		if $macros =~ /loadMacros\(.*?\)(.*?);/s && $1 !~ /^\s*$/m;
+
+	my @macros;
+	my ($qw_start, $qw_end);    # the characters if the loadMacros has a qw block.
+	my $qw_matches = { '{' => '}', '(' => ')', '[' => ']', '/' => '/', '|' => '|' };
+
+	# The following can parse loadMacros in the form loadMacros('macro1.pl', 'macro2.pl'); or
+	# loadMacros(qw{macro1.pl macro2.pl});
+	if ($macros =~ /loadMacros\((.*?)\);/ms) {
+		my @macro_str = split(/\s*,\s*/, $1);
+
+		for my $str (@macro_str) {
+			if ($str =~ /^qw(.)/) {
+				$qw_start = $1;
+				$qw_end   = $qw_matches->{$qw_start};
+				push(@macros, split(/\s+/, $1)) if $str =~ /^qw\Q${qw_start}\E(.*?)\Q${qw_end}\E/;
+			} else {
+				push(@macros, $str);
+			}
+		}
+
+		@macros =
+			grep {
+				$_
+				&& $_ !~
+				/(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse|AnswerFormatHelp).pl/x
+			}
+			map {s/['"]//gr} @macros;
+
+		# Remove any duplicates:
+		my %seen;
+		@macros = grep { !$seen{$_}++ } @macros;
+	} else {
+		return { errors => $error_string };
+	}
+
+	@macros = ('PGstandard.pl', 'PGML.pl', @macros, 'PGcourse.pl');
+	return {
+		qw_start => $qw_start,
+		qw_end   => $qw_end,
+		macros   => \@macros
+	};
 }
 
 # This subroutine converts a block (passed in as an array ref of strings) to
@@ -269,12 +283,12 @@ sub convertPGMLBlock {
 		}
 
 		# After many other variables have been replaced, replace the variables in the PGML block.
-		# However if not in a {}, assumed to be in an answer blank.
+		# If a variable is inside [_]{}, like '[_]{$a}', then leave it alone.
 		if (my @matches = $row =~ /\$[\w\_]+/g) {
-			for my $m (@matches) {
-				$m =~ s/\$/\\\$/;
-				# Wrap variables in [].  Handle arrays, hashes, array refs and hashrefs.
-				$row =~ s/(?<!\]{)($m+(\[\d+\])?((->)?\{.*?\})?)/[$1]/;
+			my %seen;
+			for my $m (grep { !$seen{$_}++ } @matches) {
+				# $row =~ s/(?<!\{)(\Q$m\E)(?!\})/[$1]/g;
+				$row =~ s/\[_+\]\{\Q$m\E\}(*SKIP)(*F)|(\Q$m\E)/[$1]/g;
 			}
 		}
 
