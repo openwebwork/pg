@@ -75,9 +75,7 @@ subtest 'lcm and gcd functions' => sub {
 	# gcd
 	is(gcd(16, 8), 8, "gcd: 2 powers of 2");
 	is(gcd(10, 9), 1, "gcd: 2 relatively prime");
-
 	is(gcd(10, 20, 30, 40), 10, "gcd: 4 multiples of 10");
-
 };
 
 subtest 'isPrime function' => sub {
@@ -96,7 +94,6 @@ subtest 'random_coprime function' => sub {
 	is($sum, 100, "random_coprime: 100 tests in 1..20,1..20");
 
 	$sum = 0;
-
 	for my $i (1 .. 100) {
 		my @coprimes = random_coprime([ -9 .. -1, 1 .. 9 ], [ 1 .. 9 ], [ 1 .. 9 ]);
 		$sum += gcd(@coprimes);
@@ -115,11 +112,7 @@ subtest 'random_coprime function' => sub {
 };
 
 subtest 'reduce function' => sub {
-
-	# Note: this is testing reduction of fractions. Not sure why this is here.
-	my @my_arr = (3, 4);
-	my @res    = reduce(15, 20);
-	is($my_arr[0], $res[0], "reduce: correct numerator");
-	is($my_arr[1], $res[1], "reduce: correct denominator");
+	is([ reduce(15, 20) ], [ 3, 4 ], "reduce gives correct numerator and denominator");
 };
+
 done_testing;
