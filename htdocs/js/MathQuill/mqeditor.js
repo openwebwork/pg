@@ -295,7 +295,7 @@
 				{
 					id: 'positiveion',
 					latex: '\\positiveion',
-					tooltip: 'postitive ion',
+					tooltip: 'positive ion',
 					icon: '\\text{ }^{\\text{ }+}'
 				},
 				{
