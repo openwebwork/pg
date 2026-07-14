@@ -38,15 +38,13 @@ our %FUNDAMENTAL_UNITS = (
 		units    => { A => 1 },
 		prefixes => [qw(m)],
 		string   => 'A',
-		TeX      => 'A',
 		aliases  => ['amp']
 	},
 	K => {
 		factor  => 1,
 		units   => { K => 1 },
 		aliases => [ "\x{212A}", 'degK', "\x{00B0}K" ],
-		string  => "\x{212A}",
-		TeX     => "\x{212A}"
+		string  => "\x{212A}"
 	},
 	mol => {
 		factor   => 1,
@@ -66,14 +64,12 @@ our %FUNDAMENTAL_UNITS = (
 		factor  => 1,
 		units   => { degC => 1 },
 		string  => "\x{00B0}C",
-		TeX     => "\x{00B0}C",
 		aliases => [ "\x{00B0}C", "\x{2103}" ]
 	},
 	degF => {
 		factor  => 1,
 		units   => { degF => 1 },
 		string  => "\x{00B0}F",
-		TeX     => "\x{00B0}F",
 		aliases => [ "\x{00B0}F", "\x{2109}" ]
 	}
 
@@ -88,13 +84,19 @@ our %fundamental_units = (factor => 1, map { $_ => 0 } keys %FUNDAMENTAL_UNITS);
 #  Optionally:
 #  - a string key with a string to use for text output. Characters used in this string may be
 #    unicode characters but it should be checked that fonts in various output forms (HTML, TeX)
-#    support those characters.
+#    support those characters. If this is not provided, the actual name of the unit is used.
 #  - a TeX key with a string to use for tex output. The same consideration for unicode characters
-#    should be given.
+#    should be given. This will be wrapped in \text{...} for output, so don't include something
+#    like that here, and also be aware of possible issues once your string is wrapped in \text{..}.
+#    If this is not provided, the string option will be used instead. Or if that too is not
+#    provided, the actual name of the unit is used.
 #  - a noSeparator boolean key if there should be no space between a magnitude and that unit
 #  - an aliases key pointing to an array reference of aliases
 #  - a prefixes key pointing to an array reference of SI prefixes that are approved for use
 #    with this unit
+#  - a prefix_aliases key pointing to a hash reference where keys are SI prefix abbreviations,
+#    and values are special unicode characters like "\x{338C}" which is a single chacter for
+#    microFarad
 #
 # For all of these units, for all of their approved prefixes, prefixed units will be added
 # automatically. When the unit has aliases, then for each alias that is 3 characters or shorter,
@@ -120,7 +122,6 @@ our %UNITS = (
 		factor      => $PI / 180,
 		units       => { rad => 1 },
 		string      => "\x{00B0}",
-		TeX         => "\x{00B0}",
 		noSeparator => 1,
 		aliases     => [ "\x{00B0}", 'degree', 'degrees' ]
 	},
@@ -167,7 +168,6 @@ our %UNITS = (
 		factor  => 1E-10,
 		units   => { m => 1 },
 		string  => "\x{00C5}",
-		TeX     => "\x{00C5}",
 		aliases => [ "\x{00C5}", 'angstroms', 'Angstrom', 'Angstroms' ]
 	},
 	in => {
@@ -198,7 +198,7 @@ our %UNITS = (
 		units  => { m => 1 }
 	},
 	pc => {
-		factor   => 3.08567758149137E16,
+		factor   => 648000 / $PI * 149597870700,
 		units    => { m => 1 },
 		prefixes => [qw(k M)],
 		aliases  => [ 'parsec', 'parsecs' ]
@@ -496,7 +496,8 @@ our %UNITS = (
 			kg => -1,
 			A  => 2
 		},
-		prefixes => [qw(u m)]
+		prefixes       => [qw(u m)],
+		prefix_aliases => { u => "\x{338C}" }
 	},
 	ohm => {
 		factor => 1,
@@ -506,10 +507,13 @@ our %UNITS = (
 			kg =>  1,
 			A  => -2
 		},
-		prefixes => [qw(k M)],
-		string   => "\x{2126}",
-		TeX      => "\x{2126}",
-		aliases  => ["\x{2126}"]
+		prefixes       => [qw(k M)],
+		string         => "\x{2126}",
+		aliases        => ["\x{2126}"],
+		prefix_aliases => {
+			k => "\x{33C0}",
+			M => "\x{33C1}"
+		}
 	},
 	S => {
 		factor => 1,
@@ -528,7 +532,7 @@ our %UNITS = (
 			kg =>  1,
 			A  => -1
 		},
-		prefixes => [qw(m)],
+		prefixes => [qw(m)]
 	},
 	G => {
 		factor => 1E-4,
@@ -675,12 +679,11 @@ for my $name (keys %UNITS) {
 			my @short_aliases = grep { length($_) <= 3 } @{ $UNITS{$name}{aliases} };
 			$UNITS{"$prefix$name"}{aliases} = [ "\x{00B5}$name", map {"$prefix$_"} @short_aliases ];
 		}
-		# A few sporadic special characters
-		push @{ $UNITS{uF}{aliases} },   "\x{338C}" if "$prefix$name" eq 'uF';
-		push @{ $UNITS{kohm}{aliases} }, "\x{33C0}" if "$prefix$name" eq 'kohm';
-		push @{ $UNITS{Mohm}{aliases} }, "\x{33C1}" if "$prefix$name" eq 'Mohm';
+		push @{ $UNITS{"$prefix$name"}{aliases} }, $UNITS{$name}{prefix_aliases}{$prefix}
+			if $UNITS{$name}{prefix_aliases}{$prefix};
 	}
 	delete $UNITS{$name}{prefixes};
+	delete $UNITS{$name}{prefix_aliases};
 }
 
 # Legacy map of unit names to units-with-factors

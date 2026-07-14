@@ -783,7 +783,9 @@ sub addUnit {
 		$constants->add(
 			$name => {
 				value => context::Units::Unit->new($name => $unit),
-				TeX => $unit->{TeX} ? "\\text{$unit->{TeX}}" : "\\text{$name}",
+				TeX => $unit->{TeX} ? "\\text{$unit->{TeX}}"
+				: $unit->{string} ? "\\text{$unit->{string}}"
+				: "\\text{$name}",
 				$unit->{string} ? (string => $unit->{string}) : (),
 				isUnit     => 1,
 				isConstant => 1,
