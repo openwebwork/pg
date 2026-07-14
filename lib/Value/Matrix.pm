@@ -631,6 +631,143 @@ sub isRREF {
 	return 1;
 }
 
+=head3 C<isREQ>
+
+Fuzzy, probabilistic check for if two matrices are row equivalent.
+
+Usage:
+
+   $A = Matrix([3, 1], [1, 0.3333]);
+   $B = Matrix([1, 1/3], [0, 0]);
+   $A->isREQ($B);   # true
+
+=cut
+
+sub isREQ {
+	my ($l, $r) = @_;
+	my @ldim = $l->dimensions;
+	my @rdim = $r->dimensions;
+	Value::Error('Cannot compare row equivalency of matrices of different degree') unless scalar @ldim == scalar @rdim;
+	for my $i (0 .. $#ldim) {
+		Value::Error('Cannot compare row equivalency because matrices differ in the '
+				. $l->NameForNumber($i + 1)
+				. ' dimension')
+			unless $ldim[$i] == $rdim[$i];
+	}
+	return 1 if $l->isZero && $r->isZero;
+	return 0 if $l->isZero && !$r->isZero || !$l->isZero && $r->isZero;
+
+	if (scalar @ldim == 1) {
+		# simply need to determine if rows are parallel
+		my ($lk, $rk);
+		for my $i (1 .. $ldim[0]) {
+			if ($l->element($i) != 0) {
+				$lk = $l->element($i);
+				$rk = $r->element($i);
+				last;
+			}
+		}
+		return $lk * $r == $rk * $l;
+	} elsif (scalar @ldim == 2) {
+		my @rgs = $r->NGS;
+		my @lgs = $l->NGS;
+
+		return 0 if scalar @lgs != scalar @rgs;
+
+		# project each row from $rrows onto @lgs;
+		# if the complement is nonzero, the row spaces disagree
+		my @rrows = map { $r->new($_) } $r->value;
+		for my $v (@rrows) {
+			my $proj = $r->new((0) x $ldim[1]);
+			for my $w (@lgs) {
+				$proj += ($v * $w) * $w;
+			}
+			return 0 unless $v == $proj;
+		}
+		# and vice versa
+		my @lrows = map { $l->new($_) } $l->value;
+		for my $v (@lrows) {
+			my $proj = $r->new((0) x $rdim[1]);
+			for my $w (@rgs) {
+				$proj += ($v * $w) * $w;
+			}
+			return 0 unless $v == $proj;
+		}
+
+		# if we got this far, the row spaces are (fuzzy) equal
+		# so the matrices are row equivalent
+		return 1;
+	} else {
+		for my $i (1 .. $ldim[0]) {
+			return 0 unless $l->new($l->{data}[ $i - 1 ])->isREQ($r->new($r->{data}[ $i - 1 ]));
+		}
+		return 1;
+	}
+}
+
+=head3 C<NGS>
+
+Normalized Gram Schmidt basis for a given list of vectors. This uses "fuzzy" equivalency to avoid machine rounding
+issues. If called as a method on a Matrix, the rows of that Matrix are used as the list of vectors. If called as a
+method with the option C<< cols => 1 >>, then the columns are used as the list of vectors.
+
+In array context, returns an array of 1D Matrix objects. In scalar context, returns a Matrix with those rows.
+
+If C<< cols => 1 >> was used, return the Matrix objects in column form.
+
+
+Usage:
+
+   $A = Matrix([1, 2, 2], [2, 2, 1]);
+
+   @X = $A->NGS                                   # @X is (Matrix(1, 2, 2)/3, Matrix(10, 2, -7)/sqrt(153))
+   @X = Value::Matrix->NGS([1, 2, 2], [2, 2, 1])  # @X is the same as above
+   $X = $A->NGS                                   # $X is Matrix([1/3, 2/3, 2/3], [10/sqrt(153), 2/sqrt(153), -7/sqrt(153)])
+   $X = Value::Matrix->NGS([1, 2, 2], [2, 2, 1])  # $X is the same as above
+
+   @X = $A->NGS(cols => 1)                        # @X is (Matrix([1/sqrt(5)], [2/sqrt(5)]), Matrix([2/sqrt(5)], [-1/sqrt(5)]))
+   $X = $A->NGS(cols => 1)                        # $X is Matrix([1/sqrt(5), 2/sqrt(5)], [2/sqrt(5), -1/sqrt(5)])
+
+=cut
+
+sub NGS {
+	my ($self, @args) = @_;
+	my %options;
+	my @rows;
+	if (ref($self) eq 'Value::Matrix') {
+		%options = @args;
+		@rows    = $options{cols} ? $self->transpose->value : $self->value;
+	} else {
+		@rows = @args;
+	}
+	Value::Error('You must provide vectors to apply Gram Schmidt to') if !@rows;
+	@rows = map  { Value::Matrix->new($_) } @rows;
+	@rows = grep { !$_->isZero } @rows;
+	Value::Error('You must provide at least one nonzero row for Gram Schmidt') unless @rows;
+	my $n = ($rows[0]->dimensions)[0];
+	for my $r (@rows) {
+		Value::Error('Rows provided for Gram Schmidt should not be nested arrays')     unless $r->degree == 1;
+		Value::Error('All rows provided for Gram Schmidt should have the same length') unless ($r->dimensions)[0] == $n;
+	}
+	@rows = map { $_ / ($_ * $_)**0.5 } @rows;
+	my @gs = ($rows[0]);
+	for my $i (1 .. $#rows) {
+		my $proj = Value::Matrix->new((0) x $n);
+		for my $v (@gs) {
+			$proj += ($rows[$i] * $v) * $v;
+		}
+		my $gs = $rows[$i] - $proj;
+		push @gs, $gs / ($gs * $gs)**0.5 unless $rows[$i] == $proj;
+	}
+	return
+		$options{cols}
+		? wantarray
+			? map { $_->transpose } @gs
+			: Value::Matrix->new(@gs)->transpose
+		: wantarray ? @gs
+		:             Value::Matrix->new(@gs);
+}
+
 sub _isNumber {
 	my $n = shift;
 	return Value::isNumber($n) || Value::classMatch($n, 'Fraction');

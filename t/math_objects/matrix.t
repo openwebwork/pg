@@ -180,6 +180,88 @@ subtest 'Test if Matrix is in (R)REF' => sub {
 	ok !$B4->isRREF, "$B4 is not in RREF";
 };
 
+subtest 'Check if two matrices are (fuzzy) row equivalent' => sub {
+	my $A1 = Matrix(1, 2, 3);
+	my $A2 = Matrix([ 1, 2, 3 ], [ 4, 5, 6 ]);
+	my $A3 = Matrix([ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ]);
+	my $B1 = Matrix(2,        4,        6);
+	my $B2 = Matrix([ 1, 2 ], [ 3, 4 ], [ 5, 6 ]);
+	my $C1 = Matrix(0,        4,        6);
+	my $Z1 = Matrix([ 0, 0, 0 ], [ 0, 0, 0 ]);
+	my $Z2 = Matrix([ 0, 0, 0 ], [ 0, 0, 10**-14 ]);
+
+	my $M1 = Matrix([ 3, 1 ],      [ 1, 1 / 3 ]);
+	my $M2 = Matrix([ 3, 1 ],      [ 0, 0 ]);
+	my $M3 = Matrix([ 1, 0.3333 ], [ 0, 0 ]);
+	my $M4 = Matrix([ 1, 0.33 ],   [ 0, 0 ]);
+	my $M5 = Matrix([ 6, 2 ],      [ 9, 3 ]);
+	my $M6 = Matrix([ 3, 1 ],      [ 1, 3 ]);
+
+	my $N1 = Matrix([ [ 1, 2 ], [ 2, 4 ] ], [ [ 1, 2 ], [ 3, 4 ] ]);
+	my $N2 = Matrix([ [ 3, 6 ], [ 0, 0 ] ], [ [ 1, 0 ], [ 0, 1 ] ]);
+	my $N3 = Matrix([ [ 3, 6 ], [ 1, 0 ] ], [ [ 1, 0 ], [ 0, 1 ] ]);
+
+	ok $Z1->isREQ($Z2),  'Zero matrices are row equivalent';
+	ok !$Z1->isREQ($A2), 'A zero matrix is not row equivalent to a nonzero matrix';
+	ok $A1->isREQ($B1),  'Parallel degree 1 matrices are row equivalent';
+	ok !$C1->isREQ($B1), 'Non-parallel degree 1 matrices are not row equivalent';
+	ok $M2->isREQ($M5),  'Row equivalent matrices are row equivalent';
+	ok $M2->isREQ($M1),  'Row equivalent matrices are row equivalent, even with some machine rounding';
+	ok $M2->isREQ($M3),  'Row equivalent matrices are row equivalent, even with student rounding';
+	ok !$M2->isREQ($M4), 'Matrices are not row equivalent if rounding is too much';
+	ok !$M2->isREQ($M6), 'Non-row equivalent matrices are not row equivalent';
+	ok $N1->isREQ($N2),  'Row equivalent matrices are row equivalent, even at degree above 2';
+	ok !$N1->isREQ($N3), 'Non-row equivalent matrices are not row equivalent, even at degree above 2';
+
+	like dies {
+		$A2->isREQ($A3);
+	}, qr/Cannot compare row equivalency of matrices of different degree/,
+		'Test that error is thrown for comparing matrices of differing degrees';
+	like dies {
+		$A2->isREQ($B2);
+	}, qr/Cannot compare row equivalency because matrices differ in the first dimension/,
+		'Test that error is thrown for comparing matrices of differing dimensioon';
+
+};
+
+subtest 'Normalized Gram Schmidt' => sub {
+	my @A      = ([ 1, 2, 2 ], [ 2, 2, 1 ]);
+	my $A      = Matrix(@A);
+	my @NGSA   = $A->NGS;
+	my @NGSAc  = $A->NGS(cols => 1);
+	my @NGSVMA = Value::Matrix->NGS(@A);
+	my $NGSA   = $A->NGS;
+	my $NGSAc  = $A->NGS(cols => 1);
+	my $NGSVMA = Value::Matrix->NGS(@A);
+
+	is "@NGSA", "[0.333333,0.666667,0.666667] [0.808452,0.16169,-0.565916]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "@NGSAc", "[[0.447214],[0.894427]] [[0.894427],[-0.447214]]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "@NGSVMA", "[0.333333,0.666667,0.666667] [0.808452,0.16169,-0.565916]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "$NGSA", "[[0.333333,0.666667,0.666667],[0.808452,0.16169,-0.565916]]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "$NGSAc", "[[0.447214,0.894427],[0.894427,-0.447214]]", 'Test that NGS finds a correct normalized GS basis';
+	is "$NGSVMA", "[[0.333333,0.666667,0.666667],[0.808452,0.16169,-0.565916]]",
+		'Test that NGS finds a correct normalized GS basis';
+
+	like dies {
+		Value::Matrix->NGS();
+	}, qr/You must provide vectors to apply Gram Schmidt to/, 'Test that you must pass something as an argument';
+	like dies {
+		Value::Matrix->NGS([ 0, 0 ], [ 0, 10**-16 ]);
+	}, qr/You must provide at least one nonzero row for Gram Schmidt/,
+		'Test that you must pass at least one nonzero row';
+	like dies {
+		Value::Matrix->NGS([ [ 1, 0 ], [ 1, 0 ] ]);
+	}, qr/Rows provided for Gram Schmidt should not be nested arrays/,
+		'Test that rows are rows, not nested matrices';
+	like dies {
+		Value::Matrix->NGS([ 1, 0 ], [ 1, 0, 0 ]);
+	}, qr/All rows provided for Gram Schmidt should have the same length/, 'Test that rows have same length';
+};
+
 subtest 'Transpose a Matrix' => sub {
 	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
 	my $B = Matrix([ [ 1, 5, 9 ], [ 2, 6, 10 ], [ 3, 7, 11 ], [ 4, 8, 12 ] ]);
