@@ -173,7 +173,7 @@ sub parseLoadMacros {
 
 	# The following can parse loadMacros in the form loadMacros('macro1.pl', 'macro2.pl'); or
 	# loadMacros(qw{macro1.pl macro2.pl});
-	if ($macros =~ /loadMacros\((.*?)\);/ms) {
+	if ($macros =~ /loadMacros\(\s*(.*?)\s*\);/ms) {
 		my @macro_str = split(/\s*,\s*/, $1);
 
 		for my $str (@macro_str) {
