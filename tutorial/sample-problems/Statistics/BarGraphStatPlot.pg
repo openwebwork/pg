@@ -1,0 +1,105 @@
+## DESCRIPTION
+##  Find the mean and standard deviation of a list of numbers.
+## ENDDESCRIPTION
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Institution(Fitchburg State University)
+## Author(Peter Staab)
+## Date(06/25/2026)
+## KEYWORDS('statistics', 'bar graph')
+
+#:% name = Bar Graph (Stat Plot)
+#:% subject = [statistics]
+#:% type = sample
+#:% categories = [graph, statistics]
+
+#:% section = preamble
+#: This is a updated version of PROBLINK('BarGraph.pg') to use the
+#: PODLINK('StatisticalPlots.pl') macro, which provides some convenience methods
+#: for creating Statistical plots. This also uses the
+#: PODLINK('contextPercent.pl') to provide the Percent context.
+DOCUMENT();
+
+loadMacros(
+    'PGstandard.pl',       'PGML.pl',
+    'StatisticalPlots.pl', 'contextPercent.pl',
+    'PGcourse.pl'
+);
+
+#:% section = setup
+#: The 'Percent' context allow students to enter percents.
+#:
+#: To create a graph, start with a `StatPlot`.  The `min` and `max` options in
+#: the two directions give the bounding box of the plot.  The `tick_delta` for
+#: each direction gives the distance between tick marks and the `minor` option is
+#: the number of minor ticks between each tick.
+#:
+#: Use `xtick_labels` to customize the tick labels. The hash reference value
+#: is a mapping from tick positions to new labels.
+#:
+#: The bars are added with the `add_barplot` method passing the x and y data
+#: values. The `bar_width` gives the relative width of the bar. If this option
+#: is 1, then there is no gap between bars. See PODLINK('StatisticalPlots.pl')
+#: for other options to this method.
+#:
+#: Make sure that an alternate text is added to all graphs for accessibility. Be
+#: detailed.
+
+Context('Percent');
+
+@grades = map { random(1, 5) } (0 .. 3);
+
+$statPlot = StatPlot(
+    xmin            => 0,
+    xmax            => 5,
+    xtick_delta     => 1,
+    xminor          => 0,
+    ymin            => 0,
+    ymax            => 6,
+    yminor          => 0,
+    ytick_delta     => 1,
+    xtick_labels    => { 1 => 'A', 2 => 'B', 3 => 'C', 4 => 'D' },
+    show_grid       => 0,
+    rounded_corners => 1
+);
+
+$statPlot->add_barplot(
+    [ 1 .. 4 ], ~~@grades,
+    fill_colors  => [ 'Red,', 'Salmon', 'LightYellow', 'LightGreen' ],
+    stroke_width => 1,
+    bar_width    => 0.9
+);
+
+$alt_text =
+    "A bar graph with vertical bars.  The height of the bar labelled A "
+    . "is $grades[0]. The height of the bar labelled B is $grades[1].  "
+    . " The height of the bar labelled C is $grades[2] and finally the "
+    . "bar labelled D is $grades[3].";
+
+# This code adds up all the numbers in the @grades array.
+$num_students = 0;
+$num_students += $_ for @grades;
+
+$perA = Compute($grades[0] / $num_students);
+
+#:% section = statement
+#: In this case, we plot the bar graph and ask a question.
+#: Since the context is `Percent`, the students can
+#: answer the question with either a fraction, decimal or percent.
+#: If only percent answers is desired, see the flags for the Percent context
+#: in the macro.
+BEGIN_PGML
+The following is a distribution of grades on a Statistics quiz.
+>>[! [$alt_text] !]{$statPlot}{400}<<
+
+What percentage of students earned an A? [_]{$perA}
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+The total number of students that took the quiz is [$total] so the percentage is
+the number of A students or [`[$grades[0]]/[$num_students] = [$perA] `]
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

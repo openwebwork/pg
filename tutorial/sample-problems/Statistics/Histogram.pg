@@ -1,0 +1,100 @@
+## DESCRIPTION
+##  Find the mean and standard deviation of a list of numbers.
+## ENDDESCRIPTION
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Institution(Missouri Western)
+## Author(Glenn Rice)
+## Date(06/25/2026)
+## KEYWORDS('statistics', 'histogram')
+
+#:% name = Histogram
+#:% subject = [statistics]
+#:% type = sample
+#:% categories = [graph, statistics]
+
+#:% section = preamble
+#: This produces a histogram using the PODLINK('StatisticalPlots.pl') macro, which
+#: provides some convenience methods for creating Statistical plots. This also uses
+#: PODLINK('PGstatisticsmacros.pl') to generate random values from the Normal
+#: distribution.
+DOCUMENT();
+
+loadMacros(
+    "PGstandard.pl",       "PGML.pl",
+    'StatisticalPlots.pl', 'PGstatisticsmacros.pl',
+    "PGcourse.pl"
+);
+
+#:% section = setup
+#:
+#: The `urand` function produces normally distributed random numbers.  This will
+#: generate an array of 50 data values with a mean of 30 and standard deviation
+# of 9.  See PODLINK('PGstatisticsmacros.pl') for more information.
+#:
+#: To get nice bin sizes (in this case of width 5), the min and max are found and then
+#: are passed into the `add_histogram` method.  The vertical maximum is calculated from the
+#: data and then the ymax is set with the `->axes->yaxis` method.
+#:
+#: See PODLINK('StatisticalPlots.pl') for other options to this method.
+#:
+#: Make sure that an alternate text is added to all graphs for accessibility. Be
+#: detailed.
+
+$dx   = 5;                               # bin size
+@data = urand(30, 9, 50, 6);
+$min  = floor(min(@data) / $dx) * $dx;
+$max  = ceil(max(@data) / $dx) * $dx;
+
+$histogramVertical = StatPlot(
+    xmin            => $min - $dx / 2,
+    xmax            => $max + $dx / 2,
+    xtick_distance  => $dx,
+    xminor          => 0,
+    xmajor          => 0,
+    xlabel          => '',
+    xlocation       => 'bottom',
+    ymin            => 0,
+    ytick_distance  => 2,
+    yminor          => 1,
+    ylabel          => '',
+    ylocation       => 'left',
+    rounded_corners => 1
+);
+(undef, $vFrequencies) = $histogramVertical->add_histogram(
+    ~~@data,
+    min          => $min,
+    max          => $max,
+    bins         => ($max - $min) / $dx,
+    fill_color   => 'blue',
+    fill_opacity => 0.4,
+    stroke_width => 1
+);
+$histogramVertical->axes->yaxis(max => max(@$vFrequencies) + 1);
+
+# use the $vFrequencies to generate the alternative text.
+$alt_text = 'A histogram with ' . scalar(@$vFrequencies) . ' bins.  ';
+for my $i (1 .. scalar(@$vFrequencies)) {
+    $alt_text .=
+        "Bin $i is from "
+        . ($min + ($i - 1) * $dx) . ' to '
+        . ($min + $i * $dx)
+        . ' and the height is '
+        . $vFrequencies->[ $i - 1 ] . '.  ';
+}
+
+#:% section = statement
+#: In this case, only the histogram is plotted.  Make sure to add the alt text.
+BEGIN_PGML
+
+>>[! [$alt_text] !]{$histogramVertical}{400}<<
+
+END_PGML
+
+#:% section = solution
+BEGIN_PGML_SOLUTION
+If a question was asked, provide a solution.
+END_PGML_SOLUTION
+
+ENDDOCUMENT();

@@ -1,44 +1,43 @@
 ## DESCRIPTION
-## Scatter Plot with best-fit line
+## Scatter Plot with best-fit line using StatPlots
 ## ENDDESCRIPTION
 
 ## DBsubject(WeBWorK)
 ## DBchapter(WeBWorK tutorial)
 ## DBsection(PGML tutorial 2015)
-## Date(07/01/2025)
+## Date(06/01/2026)
 ## Institution(Boise State University)
 ## Author(Jaimos Skriletz)
 ## MO(1)
 ## KEYWORDS('riemann sum', 'plot')
 
-#:% name = Scatter Plot
+#:% name = Scatter Plot (Statistical Plots)
 #:% type = Sample
 #:% subject = [statistics, plot]
 #:% categories = [plots]
-#:% see_also = [ScatterPlotStatPlot.pg]
 
 #:% section = preamble
-#: This produces a scatter plot with PODLINK('plots.pl').  A version of this
-#: with PODLINK('StatisticalPlots.pl') is available in
-#: PROBLINK('ScatterPlotStatPlot.pg').
+#: Make sure that PODLINK('StatisticalPlots.pl') is loaded.  This is a version
+#: of the problem in PROBLINK('ScatterPlot.pg') that uses the scatter plot feature
+#: in StatisticalPlots.pl.
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl', 'PGML.pl',
-    'plots.pl',      'PGstatisticsmacros.pl',
+    'PGstandard.pl',       'PGML.pl',
+    'StatisticalPlots.pl', 'PGstatisticsmacros.pl',
     'PGcourse.pl'
 );
 
 #:% section = setup
 #: For this problem, we have a data set stored as an array of array
 #: references.  First we find the best-fit line using the `linear_regression`
-#: function of PODLINK('PGstatisticsmacros.pl').  Note: the x and y data
-#: needs to be array references and the 2nd and 3rd lines extract the
+#: function of PODLINK('PGstatisticsmacros.pl').  Note that the x and y data
+#: values need to be in array references, and the 2nd and 3rd lines extract the
 #: components.
 #:
-#: For the plot, first set up the `Plot` with a plotting window that will
-#: capture the data. The `add_dataset` method adds the data to the plot
-#: with circles and color blue.
+#: Set up the `StatPlot` with a plotting window that will
+#: contain the data. The `add_dataset` method adds the data to the plot
+#: with circle marks that are colored blue.
 #:
 #: The line is added to the dataset with the `add_function` method.  The 3rd
 #: and 4th arguments are the xmin and xmax of the domain.
@@ -49,19 +48,20 @@ $x = [ map { $_->[0] } @data ];
 $y = [ map { $_->[1] } @data ];
 ($m, $b) = linear_regression($x, $y);
 
-$plot = Plot(
+$plot = StatPlot(
     xmin        => 0,
     xmax        => 24,
     xtick_delta => 4,
     ymin        => 0,
     ymax        => 300,
+    ytick_delta => 50,
     aria_label  => 'Linear Regression'
 );
-$plot->add_dataset(
-    @data,
-    linestyle => 'none',
-    marks     => 'circle',
-    color     => 'blue'
+
+$plot->add_scatterplot(
+    ~~@data,
+    marks => 'circle',
+    color => 'blue'
 );
 $plot->add_function(
     "$m x + $b",
