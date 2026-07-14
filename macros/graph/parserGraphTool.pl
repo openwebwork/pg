@@ -45,7 +45,7 @@ The following types of graph objects can be graphed:
     lines                           (GraphTool::GraphObject::Line)
     circles                         (GraphTool::GraphObject::Circle)
     parabolas                       (GraphTool::GraphObject::Parabola)
-    quadratics                      (GraphTool::GraphObject::Qudratic)
+    quadratics                      (GraphTool::GraphObject::Quadratic)
     cubics                          (GraphTool::GraphObject::Cubic)
     intervals                       (GraphTool::GraphObject::Interval)
     sine waves                      (GraphTool::GraphObject::SineWave)
@@ -1808,7 +1808,7 @@ sub new {
 	$self->{isLine} = abs($self->{a}) < 0.000001;
 
 	if ($self->{isLine}) {
-		# Colinear points
+		# Collinear points
 		$self->{a}        = 1;
 		$self->{function} = sub { return ($y2 - $y1) / ($x2 - $x1) * ($_[0] - $x1) + $y1; };
 	} else {
@@ -1924,7 +1924,7 @@ sub new {
 	$self->{degree} = abs($self->{c3}) < 0.000001 && abs($c2) < 0.000001 ? 1 : abs($self->{c3}) < 0.000001 ? 2 : 3;
 
 	if ($self->{degree} == 1) {
-		# Colinear points
+		# Collinear points
 		$self->{c3}       = 1;
 		$self->{function} = sub { return ($y2 - $y1) / ($x2 - $x1) * ($_[0] - $x1) + $y1; };
 	} elsif ($self->{degree} == 2) {

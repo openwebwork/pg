@@ -49,7 +49,7 @@ In this way, C<n%> is treated essentially as C<(n/100)>.
 
 You can enforce more restrictive rules using the C<LimitedPercent> or
 C<LimitedPercent-strict> contexts.  The first of these allows
-operations within the number that preceeds the percent sign, but does
+operations within the number that precedes the percent sign, but does
 not allow you to combine percentages with real numbers or other
 percentages.  In this way, C<(5+5)%> is legal, but C<5% + 5%> is not.
 
@@ -119,7 +119,7 @@ This determines whether students are allowed to enter decimals beyond
 the number given by the C<decimalPlaces> flag.  If set to 0 (the
 default for the C<Percent>, C<Percent-strict>, and C<LimitedPercent>
 contexts), any number of decimals are allowed (but the C<tolerance>
-determines what values are meaningfull), while if set to 1 (the
+determines what values are meaningful), while if set to 1 (the
 default for the C<LimitedPercent-strict> context), students are not
 allowed to enter more than the required number of decimals and receive
 a warning if they do.

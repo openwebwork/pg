@@ -69,7 +69,7 @@ LaTeXImage object return by createTikZImage to generate the desired image.
                                and 'pdf'.  The default is an 'svg' image.  You
                                should determine if an 'svg' image works well with
                                the TikZ code that you utilize.  If not, then use
-                               this method to change the exension to 'png' or
+                               this method to change the extension to 'png' or
                                'gif'.
 
                                This macro sets the extension to 'pdf' when a

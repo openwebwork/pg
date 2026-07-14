@@ -167,7 +167,7 @@ With the default C<can_open> and C<is_open> settings, the first
 section will be open automatically when the problem is first viewed,
 but if you have material to read (or even answers to give) prior to
 the first section, you might want the first section to be closed, and
-have the student open it by hand before anwering the questions.  In
+have the student open it by hand before answering the questions.  In
 this case, set this value to 0 (it is 1 by default).
 
 =item C<< preview_can_change_state => 0 or 1 >>
@@ -245,7 +245,7 @@ you to override the defaults for a particular section.  In particular,
 you can provide a subroutine that determines when the section can or
 should be open.
 
-Note that values like C<$showPartialCorrectAnswers> and the isntalled
+Note that values like C<$showPartialCorrectAnswers> and the installed
 grader are global to the whole problem, so can't be set individually
 on a per section basis.  Also note that the answers aren't checked
 until the end of the problem, so any changes you make to the
@@ -539,7 +539,7 @@ sub add_container {
 		# Scaffold to consider the score to be 1. This is used by PGessaymacros.pl.
 		# Also, if answers are being previewed and the preview_can_change_state option is 0, then use the scores saved
 		# in the persistent data hash form the last answer submission (if there is no data for an answer, then the
-		# anwser is considered blank).
+		# answer is considered blank).
 		for (@{ $self->{ans_names} }) {
 			next unless defined $PG_ANSWERS_HASH->{$_};
 			$scaffold->{scores}{$_} = $scaffoldScores->{$_} =

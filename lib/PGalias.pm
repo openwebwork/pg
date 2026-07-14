@@ -78,7 +78,7 @@ sub make_alias {
 		$ext = $1;
 	} else {
 		$self->warning_message(qq{The file name "$aux_file_id" does not have an extension. }
-				. 'Every file name used as an argument to alias must have an extension. The permissable extensions are '
+				. 'Every file name used as an argument to alias must have an extension. The permissible extensions are '
 				. '.gif, .jpg, .png, .svg, .pdf, .mp4, .mpg, .ogg, .webm, .css, .js, .nb, .csv, .tgz, and .html.');
 		return;
 	}

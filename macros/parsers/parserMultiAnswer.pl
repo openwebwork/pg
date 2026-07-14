@@ -525,8 +525,8 @@ answer is equal to its correct answer (using the overloaded C<==> operator). If 
 the checker returns an array of 0s and 1s listing which answers are correct giving partial credit.
 If C<< partialCredit => 0 >>, the checker only returns 1 if all answers are correct, otherwise returns 0.
 
-Note that C<< $multi_ans->{scores} >> will be set to a reference to an array containing the the
-scores from evaluating the individual answers and can be used inside the C<checker> routine.
+Note that C<< $multi_ans->{scores} >> will be set to a reference to an array containing the scores
+from evaluating the individual answers and can be used inside the C<checker> routine.
 
 =head2 partialCredit
 
@@ -556,8 +556,8 @@ Specifies whether the types of the student and instructor's answers must match a
 if C<< checkTypes => 'compatible' >> then the student answers only need to be compatible with the
 instructor answers in the sense that they parse into objects that can be compared to the instructor
 answers. If C<< checkTypes => 1 >> then the types of the student answers must match the types of the
-instructor answers exactly. Otherwise no type checking is done other than the the usual type-match
-error checking (in which case, you should check the types before you use the data). Default: 1.
+instructor answers exactly. Otherwise no type checking is done other than the usual type-match error
+checking (in which case, you should check the types before you use the data). Default: 1.
 Note that if the default checker is used, i.e., if C<checker> is not set, then C<< checkTypes => 1 >>
 is the same as C<< checkTypes => 'compatible' >>.
 

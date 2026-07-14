@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-pg-critic.pl - Command line interface to critque PG problem code.
+pg-critic.pl - Command line interface to critique PG problem code.
 
 =head1 SYNOPSIS
 

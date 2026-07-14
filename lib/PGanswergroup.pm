@@ -104,7 +104,7 @@ sub insert {    # add new values to PGanswergroup keys preserve existing values
 	$self;
 }
 
-sub replace {    # add new values ot PGanswergroup, overwriting existing values when duplicated
+sub replace {    # add new values to PGanswergroup, overwriting existing values when duplicated
 	my $self = shift;
 	my @in   = @_;
 	my %hash = ();

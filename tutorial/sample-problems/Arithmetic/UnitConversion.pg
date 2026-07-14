@@ -34,7 +34,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
 #: requested unit.
 #:
 #: The second part below is a different conversion question, so the line
-#: `Context('Units')->withUnitsFor('length', 'time');` resets the contxt with
+#: `Context('Units')->withUnitsFor('length', 'time');` resets the context with
 #: a new set of units.
 Context('Units')->withUnitsFor('volume');
 

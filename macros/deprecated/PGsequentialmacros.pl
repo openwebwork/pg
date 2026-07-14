@@ -55,7 +55,7 @@ The basic sequential problem structure:
 	listVariables();
 
 Lists all variables submitted in the problem form and all variables in the
-the Problem environment.  This is used for debugging.
+Problem environment.  This is used for debugging.
 
 =cut
 

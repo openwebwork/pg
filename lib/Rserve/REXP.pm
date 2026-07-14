@@ -170,6 +170,6 @@ C<L<base::inherits|http://stat.ethz.ch/R-manual/R-patched/library/base/html/clas
 =head1 OVERLOADS
 
 C<REXP> overloads the stringification, C<eq> and C<ne> methods. Subclasses
-further specialize for their types if necesssary.
+further specialize for their types if necessary.
 
 =cut

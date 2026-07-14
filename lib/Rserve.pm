@@ -121,7 +121,7 @@ use constant {
 	CMD_attachSession    => 0x032,    # session key : -
 
 	# control commands (since 0.6-0) - passed on to the master process */
-	# Note: currently all control commands are asychronous, i.e. RESP_OK indicates that the command was enqueued in the
+	# Note: currently all control commands are asynchronous, i.e. RESP_OK indicates that the command was enqueued in the
 	# master pipe, but there is no guarantee that it will be processed. Moreover non-forked connections (e.g. the
 	# default debug setup) don't process any control commands until the current client connection is closed so the
 	# connection issuing the control command will never see its result.
@@ -131,7 +131,7 @@ use constant {
 	CMD_ctrlShutdown => 0x44,    # - : -
 
 	# 'internal' commands (since 0.1-9)
-	CMD_setBufferSize => 0x081,    # [int sendBufSize] this commad allow clients to request bigger buffer sizes if
+	CMD_setBufferSize => 0x081,    # [int sendBufSize] this command allow clients to request bigger buffer sizes if
 								   # large data is to be transported from Rserve to the client. (incoming buffer is
 								   # resized automatically)
 	CMD_setEncoding   => 0x082,    # string (one of "native","latin1","utf8") : -; since 0.5-3

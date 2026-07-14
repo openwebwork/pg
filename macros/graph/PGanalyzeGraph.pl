@@ -72,7 +72,7 @@ sub detect_intervals {
 	my ($left_x, $right_x);
 
 	########
-	# Combine adjacent intervals with the same properites
+	# Combine adjacent intervals with the same properties
 	########
 	foreach my $item (@intervals) {
 		if (defined $prev_slope) {

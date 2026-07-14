@@ -265,7 +265,7 @@ The entry $rh_ans->{error_flag} is set to "FLAG".
 
 The catch_error and clear_error methods use this entry.
 
-message is a descriptive message for the end user, defining what error occured.
+message is a descriptive message for the end user, defining what error occurred.
 
 =head3 catch_error
 
@@ -597,7 +597,7 @@ sub evaluate {
 	eval(q!main::DEBUG_MESSAGE( `<h4>final result: </h4>`, pretty_print($rh_ans,'html'))!)
 		if defined($self->{debug})
 		and $self->{debug} > 0;
-	# re-refrence $rh_ans;
+	# re-reference $rh_ans;
 	$self->{rh_ans} = $rh_ans;
 	$rh_ans;
 }

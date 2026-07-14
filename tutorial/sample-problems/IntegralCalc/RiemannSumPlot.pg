@@ -25,7 +25,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
 #:% section = setup
 #: For this problem, we make a Riemann Sum plot by plotting the function $y=x^3+3$
 #: and the midpoint rectangles.  Each of these objects is created separately and added
-#: to the the plot.
+#: to the plot.
 #:
 #: Create a Plot object with the given plotting window and other axis properties. The
 #: function is made in this case as a MathObject.  With `$plot->add_function`, the function

@@ -75,7 +75,7 @@ receive a sub-set of those questions by using choose.
 =head2 Usage
 
 
-=head3 Regualar Select List
+=head3 Regular Select List
 
 
 Create a select list using the new_select_list call.

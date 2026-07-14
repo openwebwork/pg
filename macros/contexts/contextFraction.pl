@@ -149,7 +149,7 @@ are created.  The default is to reduce fractions (except when
 C<studentsMustReduceFractions> is set), so C<Compute("4/6")> would
 produce the fraction C<2/3>.  To leave fractions unreduced, set C<S<<
 reduceFractions => 0 >>>.  The C<LimitedFraction> and
-C<LimiteProperFraction> contexts have C<studentsMustReduceFractions>
+C<LimitedProperFraction> contexts have C<studentsMustReduceFractions>
 set, so C<reduceFractions> is unset automatically for students, but
 not for correct answers, so C<Fraction(2,4)> would still produce
 C<1/2>, even though C<2/4> would not be allowed in a student answer.
@@ -207,7 +207,7 @@ C<requirePureFractions> and C<requireProperFractions> to 1.
 
 =item S<C<< fractionTolerance >>>
 
-Thie determines the tolerance to use when comparing a fraction to a
+This determines the tolerance to use when comparing a fraction to a
 real number.  The fraction will be converted to a real, and then this
 is used as the tolerance in a relative-tolerance comparison of the two
 reals.  The default is 1E-10, meaning the decimal must match to
@@ -1012,7 +1012,7 @@ sub power {
 	}
 	return $self->inherit($other)->make($x, $y) unless $x eq 'nan' || $y eq 'nan';
 	Value::Error("Can't raise a negative number to a non-integer power") if $a * $b < 0;
-	Value::Error("Result of exponention is not a number");
+	Value::Error("Result of exponentiation is not a number");
 }
 
 sub compare {

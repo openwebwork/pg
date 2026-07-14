@@ -265,7 +265,7 @@ The applets initialization method is as follows:
 
 =head3 Submit sequence
 
-When the WW question submit button is pressed the form containing the WW question calles the
+When the WW question submit button is pressed the form containing the WW question calls the
 JavaScript "submitAction()" which then asks each of the applets on the page to perform its
 submit action which consists of
 

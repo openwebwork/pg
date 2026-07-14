@@ -63,7 +63,7 @@ It is also possible to get multiple options for both axes using the get method, 
 a reference to a hash of requested keys, such as:
 
     $bounds = $plot->axes->get('xmin', 'xmax', 'ymin', 'ymax');
-    # The following is equivlant to $plot->axes->grid
+    # The following is equivalent to $plot->axes->grid
     $grid = $plot->axes->get('xmajor', 'xminor', 'xtick_delta', 'ymajor', 'yminor', 'ytick_delta');
 
 It is also possible to get the bounds as an array in the order xmin, ymin, xmax, ymax

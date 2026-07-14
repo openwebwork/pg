@@ -116,7 +116,7 @@ sub display_matrix {
 	if (ref($ra_matrix) eq 'Value::Matrix') {
 		$ra_matrix = $ra_matrix->wwMatrix->array_ref;    # translate
 	}
-	if (ref($ra_matrix) eq 'Matrix') {                   #handle Real::Matrix1 type matrices: #FIXME deprectated
+	if (ref($ra_matrix) eq 'Matrix') {                   #handle Real::Matrix1 type matrices: #FIXME deprecated
 		($numRows, $numCols) = $ra_matrix->dim();
 		for (my $i = 0; $i < $numRows; $i++) {
 			$myRows[$i] = [];
@@ -285,14 +285,14 @@ sub dm_mat_left {
 		or $main::displayMode eq 'HTML')
 	{
 		$out .= "$brh<tr valign=\"center\"><td nowrap=\"nowrap\" align=\"left\" rowspan=\"$numrows\">$erh";
-		$out .= dm_image_delimeter($numrows, $opts{'left'});
+		$out .= dm_image_delimiter($numrows, $opts{'left'});
 		#               $out .= "$brh<td><table border=0  cellspacing=5>\n$erh";
 		return $out;
 	}
 	# Mode is now tth
 
 	$out .= "<tr valign=\"center\"><td nowrap=\"nowrap\" align=\"left\" rowspan=\"$numrows\">";
-	$out .= dm_tth_delimeter($numrows, $opts{'left'});
+	$out .= dm_tth_delimiter($numrows, $opts{'left'});
 	#       $out .= "<td><table border=0  cellspacing=5>\n";
 	return $out;
 }
@@ -315,13 +315,13 @@ sub dm_mat_right {
 	{
 		$out .= "$brh<td nowrap=\"nowrap\" align=\"right\" rowspan=\"$numrows\">$erh";
 
-		$out .= dm_image_delimeter($numrows, $opts{'right'});
+		$out .= dm_image_delimiter($numrows, $opts{'right'});
 		return $out;
 	}
 
 	#       $out .= "</table>";
 	$out .= '<td nowrap="nowrap" align="left" rowspan="' . $numrows . '2">';
-	$out .= dm_tth_delimeter($numrows, $opts{'right'});
+	$out .= dm_tth_delimiter($numrows, $opts{'right'});
 	$out .= '</td>';
 	return $out;
 }
@@ -351,7 +351,7 @@ sub dm_end_matrix {
 }
 
 # Make an image of a big delimiter for a matrix
-sub dm_image_delimeter {
+sub dm_image_delimiter {
 	my $numRows = shift;
 	my $char    = shift;
 	my ($out, $j);
@@ -374,8 +374,8 @@ sub dm_image_delimeter {
 }
 
 # Basically uses a table of special characters and simple
-# recipe to produce big delimeters a la tth mode
-sub dm_tth_delimeter {
+# recipe to produce big delimiters a la tth mode
+sub dm_tth_delimiter {
 	my $numRows = shift;
 	my $char    = shift;
 
@@ -390,7 +390,7 @@ sub dm_tth_delimeter {
 	elsif ($char eq "]") { ($top, $mid, $bot, $extra) = ('ù', 'ú', 'û', 'ú'); }
 	elsif ($char eq "{") { ($top, $mid, $bot, $extra) = ('ì', 'ï', 'î', 'í'); }
 	elsif ($char eq "}") { ($top, $mid, $bot, $extra) = ('ü', 'ï', 'þ', 'ý'); }
-	else                 { warn "Unknown delimiter in dm_tth_delimeter"; }
+	else                 { warn "Unknown delimiter in dm_tth_delimiter"; }
 
 	# old version
 	#       $out = '<td nowrap="nowrap" align="left"><font face="symbol">';
@@ -463,13 +463,13 @@ sub dm_mat_row {
 			if ($myalign eq "|" or $myalign eq "d") {
 				if ($opts{'isfirst'} && $main::displayMode ne 'HTML_tth') {
 					$out .= $brh . '<td rowspan="' . $opts{'isfirst'} . '">' . $erh;
-					$out .= dm_image_delimeter($opts{'isfirst'} - 1, $myalign);
+					$out .= dm_image_delimiter($opts{'isfirst'} - 1, $myalign);
 				} elsif ($main::displayMode eq 'HTML_tth') {
 					if ($myalign eq "d") {    # dashed line in tth mode
 						$out .= '<td> | </td>';
 					} elsif ($opts{'isfirst'}) {    # solid line in tth mode
 						$out .= '<td rowspan="' . $opts{'isfirst'} . '"<table border="0"><tr>';
-						$out .= dm_tth_delimeter($opts{'isfirst'} - 1, "|");
+						$out .= dm_tth_delimiter($opts{'isfirst'} - 1, "|");
 						$out .= '</td></tr></table>';
 					}
 				}

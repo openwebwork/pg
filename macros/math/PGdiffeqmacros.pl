@@ -140,7 +140,7 @@ sub diffop {
 =cut
 
 sub rad {
-	# initalize primes
+	# initialize primes
 	my @p = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29);
 	my ($a, $b, $c) = @_;
 	my $s = "0";
@@ -345,7 +345,7 @@ sub ivy {
 		$answer = "($c1) *$rr1 + ($c2)*t *$rr2";
 	}
 
-	# if the descriminant is negative, then the roots are imaginary.
+	# if the discriminant is negative, then the roots are imaginary.
 	# recall, e^x where x=a+ib then e^x = (e^a)*cos(bt) + (e^a)*sin(bt).
 	if ($d < 0) {
 # y(t) = me^(-Bt/(2A))*cos(t*sqrt(4AC-B*B)/(2A))+(2An+Bm)*sqrt(4AC-B*B)/(4AC-B*B)*e^(-Bt/(2A))*sin(t*sqrt(4AC-B*B)/(2A))

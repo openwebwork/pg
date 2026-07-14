@@ -42,7 +42,7 @@ The graph_ref must come last.
 
 =item	$vf = new VectorField ( dx_rule_ref, dy_rule_ref );
 
-A vector field object is created where the subroutines refered to by dx_rule_ref and dy_rule_ref define
+A vector field object is created where the subroutines referred to by dx_rule_ref and dy_rule_ref define
 the x and y components of the vector field at (x,y).  Both subroutines must be functions of two variables.
 
 =item	$vf = new VectorField ( x_rule_ref, y_rule_ref, graph_ref );
@@ -52,7 +52,7 @@ of the vector field object is set to the domain of the graph. The graph_ref must
 
 =back
 
-=head2 Properites
+=head2 Properties
 
 	All of the properties are set using the construction $new_value = $vf->property($new_value)
 	and read using $current_value = $vf->property()

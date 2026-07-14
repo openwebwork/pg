@@ -26,7 +26,7 @@ Rserve::REXP::Expression - an R expression vector
 
     use Rserve::REXP::Expression
 
-    # Representation of the R call C<expresson(1 + 2))>:
+    # Representation of the R call C<expression(1 + 2))>:
     my $vec = Rserve::REXP::Expression->new([
         Rserve::REXP::Language->new([
             Rserve::REXP::Symbol->new('+'),

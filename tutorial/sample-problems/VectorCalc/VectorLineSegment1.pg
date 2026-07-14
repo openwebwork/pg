@@ -32,7 +32,7 @@ loadMacros(
 );
 
 #:% section = setup
-#: Create a `MutiAnswer` object that is used to evaluate the student's vector
+#: Create a `MultiAnswer` object that is used to evaluate the student's vector
 #: equation at the starting and ending times provided by the student. For
 #: example, both of the student answers `<4, 0> + t<-4, 2>` for `t` between `0`
 #: and `1`, and `<4,0> + t<-2,1>` for t between `0` and `2` will be marked

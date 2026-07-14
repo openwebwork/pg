@@ -190,7 +190,7 @@ sub Init {
 		BisectionCutoff              => 40,
 	);
 
-	main::Context("ImplicitEquation");    ### FIXEME:  probably should require author to set this explicitly
+	main::Context("ImplicitEquation");    ### FIXME:  probably should require author to set this explicitly
 
 	main::PG_restricted_eval('sub ImplicitEquation {ImplicitEquation->new(@_)}');
 }

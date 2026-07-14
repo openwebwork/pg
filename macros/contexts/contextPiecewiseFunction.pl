@@ -30,7 +30,7 @@ unpaired final formula, it represents the "otherwise" portion
 of the function (the formula to use of the input is not in
 any of the given intervals).
 
-Note that you can use Inveral, Set, or Union objects in place of
+Note that you can use Interval, Set, or Union objects in place of
 the intervals in the specification of a piecewise function.
 
 The PiecewiseFunction object TeXifies using a LaTeX "cases"
@@ -345,7 +345,7 @@ sub _eval {
 #  This implements the "in" operator as in inequality.
 #  We inherit all the inequality methods, and simply
 #  need to handle the string and TeX output.  The
-#  underlying type is still an Inerval.
+#  underlying type is still an Interval.
 #
 package PiecewiseFunction::Interval;
 our @ISA = ("Inequalities::Interval");

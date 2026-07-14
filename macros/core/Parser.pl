@@ -71,7 +71,7 @@ C<original_formula> field, and can be obtained by
 
 if needed later in the problem.
 
-If the formula is contstant-valued, C<Compute()> will return the value
+If the formula is constant-valued, C<Compute()> will return the value
 of the formula rather than the formula itself.  Again, in this case, the
 original can be obtained from the C<original_formula> property.
 

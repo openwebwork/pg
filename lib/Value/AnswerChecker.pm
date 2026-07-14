@@ -689,7 +689,7 @@ sub format_delimiter_tth {
 #  based on these, and keep track of error messages.
 #
 
-my @ans_cmp_defaults = (showCoodinateHints => 0, checker => sub {0});
+my @ans_cmp_defaults = (showCoordinateHints => 0, checker => sub {0});
 
 sub ans_collect {
 	my $self   = shift;
@@ -949,7 +949,7 @@ sub cmp {
 }
 
 #
-#  Adjust student preview and anser strings so they display properly
+#  Adjust student preview and answer strings so they display properly
 #
 sub cmp_preprocess {
 	my $self = shift;
@@ -1292,7 +1292,7 @@ Usage:
     $interval = Interval("(1,2]");
     $interval = Interval('(',1,2,']');
 
-    ANS($inteval->cmp);
+    ANS($interval->cmp);
 
 compareOptions and default values:
 
@@ -1575,7 +1575,7 @@ sub cmp_equal {
 	$ans->{showPartialCorrectAnswers} = $self->getPG('$showPartialCorrectAnswers');
 
 	#
-	#  get the paramaters
+	#  get the parameters
 	#
 	my $showHints         = getOption($ans, 'showHints');
 	my $showLengthHints   = getOption($ans, 'showLengthHints');

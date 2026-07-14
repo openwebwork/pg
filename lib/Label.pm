@@ -22,7 +22,7 @@ This module defines labels for the graph objects (WWPlot).
     $label1 = new Label($x_value, $y_value, $label_string, $label_color, @options)
     $options is an array with (*'d defaults)
         - one of 'left'*, 'center', 'right' (horizontal alignment)
-        - one of 'bottom', 'center', 'top'* (verical alignment)
+        - one of 'bottom', 'center', 'top'* (vertical alignment)
         - one of 'horizontal'*, 'vertical' (orientation)
         - one of 'small', 'large', 'mediumbold'*, 'tiny', 'giant' (which gd font to use)
     Note the alignment specifications are relative to the English reading of the string,
@@ -87,7 +87,7 @@ sub _initialize {
 		elsif ($j eq 'center')   { $self->lr_nudge(-(length($self->str)) / 2); }
 		elsif ($j eq 'middle')   { $self->tb_nudge(-0.5); }
 		elsif ($j eq 'vertical') { $self->orientation($j); }
-		#there are only five avialble fonts: http://search.cpan.org/~rurban/GD-2.68/lib/GD.pm#Font_Utilities
+		#there are only five available fonts: http://search.cpan.org/~rurban/GD-2.68/lib/GD.pm#Font_Utilities
 		elsif ($j eq 'small') { $self->font(GD::gdSmallFont); }
 		elsif ($j eq 'large') { $self->font(GD::gdLargeFont); }
 		elsif ($j eq 'tiny')  { $self->font(GD::gdTinyFont); }

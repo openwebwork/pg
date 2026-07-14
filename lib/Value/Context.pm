@@ -96,7 +96,7 @@ sub copy {
 }
 
 #
-#  Returns the package name for the specificied Value object class
+#  Returns the package name for the specified Value object class
 #  (as specified by the context's {value} hash, or "Value::name").
 #
 sub Package {

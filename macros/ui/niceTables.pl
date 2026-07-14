@@ -778,7 +778,7 @@ sub Rows {
 		my $html     = $row;
 
 		# establish if this row has certain things
-		# when declared mulltiple times, last non-falsy values are used
+		# when declared multiple times, last non-falsy values are used
 		my $bottom    = 0;
 		my $top       = 0;
 		my $rowcolor  = '';
@@ -808,7 +808,7 @@ sub Rows {
 					&& ($bottom || $tableOpts->{horizontalrules}));
 
 			# do cells in this row have a top or bottom border?
-			# although a propery of cells, LaTeX makes us do this at the row level
+			# although a property of cells, LaTeX makes us do this at the row level
 			for my $x (@$rowArray) {
 				$row = prefix($row, hrule($booktabs, 'cmid', $x->{top}) . "{$x->{leftcol}-$x->{rightcol}}", ' ')
 					if ($i == 0 && $x->{top});
@@ -1587,7 +1587,7 @@ sub getWidthPercent {
 		$unit = $2;
 	}
 	my %convert_to_pt = (
-		# units with related absolute defintions
+		# units with related absolute definitions
 		# the following are as TeX defines them
 		pt => 1,
 		pc => 12,

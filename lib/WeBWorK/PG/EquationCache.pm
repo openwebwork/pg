@@ -13,7 +13,7 @@ WeBWorK::PG::EquationCache - create and cache images of TeX equations.
 
 WeBWorK::PG::EquationCache maintains a list of unique identifiers for TeX
 strings. The unique identifier is based on an MD5 hash of the TeX string, and a
-sequence number. Before calcuating the MD5 hash of a TeX string, all whitespace
+sequence number. Before calculating the MD5 hash of a TeX string, all whitespace
 is removed.
 
 =head2 FILE FORMAT

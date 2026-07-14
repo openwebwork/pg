@@ -24,7 +24,7 @@ answer, the student's answer, and the answer hash, and returns
 displayed.  (See the examples below.)
 
 The right-hand side can be either the message string itself, or
-a referrence to an array where the first element is the message
+a reference to an array where the first element is the message
 string, and the remaining elements are name-value pairs that
 set options for the message.  These can include:
 
@@ -40,7 +40,7 @@ Default: 0
 
 =item C<S<< replaceMessage => 0 or 1 >>>
 
-1 means it's OK to repalce any
+1 means it's OK to replace any
 message that is already in place
 in the answer hash.
 Default: 0
@@ -57,7 +57,7 @@ Default: 1
 
 1 means process student answers even
 during answer previews.  Usually, no
-hints are given durring previews, but
+hints are given during previews, but
 only when answers are checked or submitted.
 The default can be controlled on an individual
 message basis, or by adding

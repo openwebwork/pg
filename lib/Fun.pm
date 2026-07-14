@@ -77,7 +77,7 @@ domain of the function object is set to the domain of the graph.
 
 =item	$fn = new Fun ( x_rule_ref, y_rule_ref );
 
-A parametric function object is created where the subroutines refered to by x_rule_ref and y_rule_ref define
+A parametric function object is created where the subroutines referred to by x_rule_ref and y_rule_ref define
 the x and y outputs in terms of the input t.
 
 =item	$fn = new Fun ( x_rule_ref, y_rule_ref, graph_ref );
@@ -87,7 +87,7 @@ of the function object is not adjusted.  The domain's default value is (-1, 1).
 
 =back
 
-=head2 Properites
+=head2 Properties
 
 	All of the properties are set using the construction $new_value = $fn->property($new_value)
 	and read using $current_value = $fn->property()

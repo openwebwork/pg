@@ -52,7 +52,7 @@ C<theirs> (with or without capitalization) will select the correct subject, obje
 possession, possessive forms of the pronoun.  Also, note that C<go> is one of a
 few special verbs with irregular conjugation.
 
-If you would like multiple people to be randomly choosen with unique names, use
+If you would like multiple people to be randomly chosen with unique names, use
 
     @persons = randomPerson(n => 4);
 

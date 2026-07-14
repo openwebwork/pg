@@ -83,7 +83,7 @@ are the only manner by which an expression will evaluate operations to the right
 
     $a = Compute("T or T and F"); # $a == F
 
-The C<oxan> setting priortizes C<or> < C<xor> < C<and> < C<not>.
+The C<oxan> setting prioritizes C<or> < C<xor> < C<and> < C<not>.
 
     Context()->setPrecedence('oxan');
     $b = Compute("T or T and F"); # $b == T
@@ -417,14 +417,14 @@ sub perl {
 	return "($result ? context::Boolean->T : context::Boolean->F)";
 }
 
-# remove once UOP::string passses 'same' as second argument
+# remove once UOP::string passes 'same' as second argument
 sub string {
 	my ($self, $precedence, $showparens, $position, $outerRight) = @_;
 	$showparens = "same" if !($position // '') && !($showparens // '');
 	return $self->SUPER::string($precedence, $showparens, $position, $outerRight);
 }
 
-# remove once UOP::TeX passses 'same' as second argument
+# remove once UOP::TeX passes 'same' as second argument
 sub TeX {
 	my ($self, $precedence, $showparens, $position, $outerRight) = @_;
 	$showparens = "same" if !($position // '') && !($showparens // '');

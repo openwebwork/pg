@@ -18,7 +18,7 @@ directories:
   OPL: /opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary
   Contrib: /opt/webwork/libraries/webwork-open-problem-library/Contrib
 
-  # The root PG location.  This will be set from the PG_ROOT environment variable, but can be overriden here.
+  # The root PG location.  This will be set from the PG_ROOT environment variable, but can be overridden here.
   root: $pg_root
 
   # Global temporary directory.  This location must be writable.
@@ -209,7 +209,7 @@ displayModeOptions:
 # PG modules to load
 # The first item of each list is the module file to load. The remaining items are additional packages to import that are
 # also contained in that file.
-# That is, if you wish to include a file MyModule.pm which containes the package MyModule and the additional packages
+# That is, if you wish to include a file MyModule.pm which contains the package MyModule and the additional packages
 # Dependency1 and Dependency2, then these should appear as [Mymodule, Dependency1, Dependency2].
 modules:
   - [Encode]

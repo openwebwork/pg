@@ -330,24 +330,24 @@ subtest 'Replace a value' => sub {
 subtest 'Submatrix' => sub {
 	my $A = Matrix([ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ]);
 	is $A->subMatrix([ 2 .. 3 ], [ 2 .. 4 ])->TeX, Matrix([ 6, 7, 8 ], [ 10, 11, 12 ])->TeX,
-		'Submatrix from specifing rows/cols to keep';
+		'Submatrix from specifying rows/cols to keep';
 	is $A->subMatrix(2, 3)->TeX, Matrix([ 1, 2, 4 ], [ 9, 10, 12 ])->TeX,
-		'Submatrix from specifing row/col to remove';
+		'Submatrix from specifying row/col to remove';
 	is $A->subMatrix([1], 0)->TeX, Matrix([ [ 1, 2, 3, 4 ] ])->TeX,
-		'Submatrix from specifing rows/cols with mixed syntax';
+		'Submatrix from specifying rows/cols with mixed syntax';
 	is $A->subMatrix([ 3, 1, 2 ], [ 1, 4, 2 ])->TeX, Matrix([ 9, 12, 10 ], [ 1, 4, 2 ], [ 5, 8, 6 ])->TeX,
 		'Submatrix from permuting rows and columns, droppping one column';
 
 	my $B = Matrix(2, 4, 6, 8);
 	is $B->subMatrix([ 1, 3 ])->TeX, Matrix(2, 6)->TeX,
-		'Submatrix of degree 1 matrix from specifing entries to keep';
-	is $B->subMatrix(2)->TeX, Matrix(2, 6, 8)->TeX, 'Submatrix of degree 1 matrix from specifing entry to remove';
+		'Submatrix of degree 1 matrix from specifying entries to keep';
+	is $B->subMatrix(2)->TeX, Matrix(2, 6, 8)->TeX, 'Submatrix of degree 1 matrix from specifying entry to remove';
 
 	my $C = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ], [ [ 7, 8, 9 ], [ 10, 11, 12 ] ]);
 	is $C->subMatrix(0, 1, [ 1, 3 ])->TeX, Matrix([ [ 4, 6 ] ], [ [ 10, 12 ] ])->TeX,
-		'Submatrix of degree 3 matrix from specifing indices to keep';
+		'Submatrix of degree 3 matrix from specifying indices to keep';
 	is $C->subMatrix(1, 2, 3)->TeX, Matrix([ [ [ 7, 8 ] ] ])->TeX,
-		'Submatrix of degree 3 matrix from specifing indices to remove';
+		'Submatrix of degree 3 matrix from specifying indices to remove';
 
 	like dies {
 		$A->subMatrix(1, 1, 1);
@@ -467,7 +467,7 @@ subtest 'Construct an identity matrix' => sub {
 
 subtest 'Construct a permutation matrix' => sub {
 	my $P1 = Value::Matrix->P(3, [ 1, 2, 3 ]);
-	is $P1->TeX, Matrix([ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ])->TeX, 'Create permuation matrix on cycle (123)';
+	is $P1->TeX, Matrix([ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ])->TeX, 'Create permutation matrix on cycle (123)';
 
 	my $P2 = Value::Matrix->P(6, [ 1, 3 ], [ 2, 4, 6 ]);
 	is $P2->TeX,

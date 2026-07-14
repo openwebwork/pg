@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-parserOneOf.pl - Implements a MathObject that allows students to entery any
+parserOneOf.pl - Implements a MathObject that allows students to enter any
                  one of several possible right answers.
 
 =head1 DESCRIPTION

@@ -96,7 +96,7 @@ our %known_units = (
 		rad     => 1,
 		aliases => [ "\x{00B0}", 'degree', 'degrees' ]
 	},
-	sr => {     # steradian, a mesure of solid angle
+	sr => {     # steradian, a measure of solid angle
 		factor => 1,
 		rad    => 2
 	},

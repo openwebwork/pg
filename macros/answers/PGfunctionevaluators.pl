@@ -30,7 +30,7 @@ evaluators for use in common situations which feature a simplified syntax.
 
 BEGIN { strict->import; }
 
-# Until we get the PG cacheing business sorted out, we need to use
+# Until we get the PG caching business sorted out, we need to use
 # PG_restricted_eval to get the correct values for some(?) PG environment
 # variables. We do this once here and place the values in lexicals for later
 # access.
@@ -126,7 +126,7 @@ qualify as correct. In other words, a student answer is correct when
 
     abs(studentAnswer - correctAnswer) <= abs(.01*relTol*correctAnswer)
 
-tol and relTol are mutually exclusive. reltol is also accpeted as a synonym for
+tol and relTol are mutually exclusive. reltol is also accepted as a synonym for
 relTol.
 
 =item zeroLevel, zeroLevelTol
@@ -169,7 +169,7 @@ single variable. Hence, the following are equivalent:
 	var=>['t']
 	var=>'t'
 
-vars is recognied as a synonym for var. The default is a single variable, x.
+vars is recognized as a synonym for var. The default is a single variable, x.
 
 =item limits
 
@@ -653,7 +653,7 @@ sub FUNCTION_CMP {
 		my $s = ($n != 1) ? "s" : "";
 		foreach my $p (@{$testPoints}) {
 			$p = [$p] unless ref($p) eq 'ARRAY';
-			warn "Test point (" . join(',', @{$p}) . ") should have $n coordiante$s"
+			warn "Test point (" . join(',', @{$p}) . ") should have $n coordinate$s"
 				unless scalar(@{$p}) == $n;
 		}
 	}

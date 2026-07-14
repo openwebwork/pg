@@ -37,7 +37,7 @@ sub Plot {
 #Name: checkbox_table
 #Input: [values list], [answer list i.e. 1,0,1,0]
 #Optional Input: border => n - width of border in table (default = 0)
-#		 tex_size => n - control size of tex output for pictures (defualt = 10 * 95 / # of columns)
+#		 tex_size => n - control size of tex output for pictures (default = 10 * 95 / # of columns)
 #		 geometry =>[r,c] -  the number of rows and columns desired in the table (default = 2,2)
 #		 labels => [@list] - a list of labels that appear beside the checkboxes. (default is blank)
 #		 [..] - other answer lists, included as many as desired.  Note the lists must use the same
@@ -181,7 +181,7 @@ sub checkbox_table {
 #Name: radio_table
 #Input: [values list], [answer list i.e. 1,0,1,0]
 #Optional Input: border => n - width of border in table (default = 0)
-#		 tex_size => n - control size of tex output for pictures (defualt = 10 * 95 / # of columns)
+#		 tex_size => n - control size of tex output for pictures (default = 10 * 95 / # of columns)
 #		 geometry =>[r,c] -  the number of rows and columns desired in the table (default = 2,2)
 #		 labels => [@list] - a list of labels that appear beside the radio buttons. (default is blank)
 #		 [..] - other answer lists, included as many as desired.  Note the lists must use the same

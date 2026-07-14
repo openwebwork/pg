@@ -75,7 +75,7 @@ Note: it is important to include the () at the end of tableauEquivalence
 
 tableauEquivalence compares two matrices up to
 reshuffling the rows and multiplying each row by a constant.
-It is equivalent up to multiplying on the left by a permuation matrix
+It is equivalent up to multiplying on the left by a permutation matrix
 or a (non-uniformly constant) diagonal matrix.
 It is appropriate for comparing augmented matrices representing a system of equations
 since the order of the equations is unimportant.  This applies to tableaus for
@@ -589,7 +589,7 @@ sub objective_row {
 		Parameters: () or (list)
 		Returns:  A MathObjectMatrix
 
-	Useage:
+	Usage:
 		$MathObjectmatrix = $self->current_tableau
 		$MathObjectmatrix = $self->current_tableau(3,4) #updates basis to (3,4)
 
@@ -1225,7 +1225,7 @@ These are specialized routines used in the simplex method
 
 		@array = $self->primal2dual(2,3,4)
 
-Maps LOP column indices to dual LOP indicies (basis of complementary slack property)
+Maps LOP column indices to dual LOP indices (basis of complementary slack property)
 
 
 =cut
@@ -1234,7 +1234,7 @@ Maps LOP column indices to dual LOP indicies (basis of complementary slack prope
 
 		@array = $self->dual2primal(2,3,4)
 
-Maps dual LOP column indices to primal LOP indicies (basis of complementary slack property).
+Maps dual LOP column indices to primal LOP indices (basis of complementary slack property).
 Inverse of primal2dual method.
 
 

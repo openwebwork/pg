@@ -384,7 +384,7 @@ See the documentation in F<PGcore.pl> for the latest details.
 
 =cut
 
-=head2  'Circle' lables
+=head2  'Circle' labels
 
 Usage:
 

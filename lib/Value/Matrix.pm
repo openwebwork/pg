@@ -1579,7 +1579,7 @@ sub subMatrix {
 		if (ref $ind[$i] eq 'ARRAY') {
 			push @indices, $ind[$i];
 		} else {
-			# check that $ind[$i] is an integer in the appopriate range
+			# check that $ind[$i] is an integer in the appropriate range
 			Value::Error("The input $ind[$i] is not a valid index")
 				unless $ind[$i] =~ /^\d+$/ && $ind[$i] >= 0 && $ind[$i] <= $dim[$i];
 			push @indices, [ grep { $_ != $ind[$i] } (1 .. $dim[$i]) ];

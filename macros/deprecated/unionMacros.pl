@@ -94,7 +94,7 @@ $ESUB = HTML('</SUB>', '}$');
 $BBR = HTML('<BR>');
 
 #
-#  Broser-only \displaystyle
+#  Browser-only \displaystyle
 #
 $DISPLAY = MODES(
 	TeX      => '',
@@ -127,7 +127,7 @@ sub JAVASCRIPT_PROBLEM {
 }
 
 #
-#  Modify a polynomial to remove coeficients of 1, -1 and 0
+#  Modify a polynomial to remove coefficients of 1, -1 and 0
 #  The polynomial can be a multivariable one.  The parameters
 #  following the formula itself are the names of the variables
 #  for the formula.  Any number can be provided, and the default

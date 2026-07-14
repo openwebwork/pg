@@ -1055,7 +1055,7 @@ sub DrawNormalDist {
 	);
 
 	###########################
-	# begin intialize and setup
+	# begin initialize and setup
 	# initialize to default
 	# check for options
 	while (@opt) {

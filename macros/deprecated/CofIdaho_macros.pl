@@ -7,7 +7,7 @@ CofIdaho_macros.pl - Extra macros for Intermediate Algebra problems at The Colle
 
 macros by R Cruz -- The College of Idaho
 
-=head1 Format the instuctor answer
+=head1 Format the instructor answer
 
 
 1) SimplifyExponents: Formats an expression without negative exponents
@@ -63,7 +63,7 @@ macros by R Cruz -- The College of Idaho
    Note: Answers must be of the form: (poly)/(poly)
 
 9) ReduceFraction: Returns a string that represents a reduced fraction.
-   To use: $a = SimplifyFraction(numerator expression,denominator espression);
+   To use: $a = SimplifyFraction(numerator expression,denominator expression);
 =cut
 
 ###################################################################
@@ -366,7 +366,7 @@ sub FactoringEvaluator {
 	my @vars = @_;
 
 	my $format_ans = $ans;
-	$format_ans =~ s/\*/ /g;                              #Remove any astrix
+	$format_ans =~ s/\*/ /g;                              #Remove any asterisk
 	$format_ans =~ s/[\(]/,\(/g;                          #Put in the delimiter ,
 	if ($format_ans =~ /^,/) { $format_ans =~ s/,//; }    #Remove any leading comma
 	my @factors = split(/[,]/, $format_ans);              #Split off the terms
@@ -414,7 +414,7 @@ sub FactoringEvaluator {
 
 		if ($ans_hash->{score} == 1) {
 			my $format_student_ans = $student_ans;
-			$format_student_ans =~ s/[\*]/ /g;                                    #Remove any astrix
+			$format_student_ans =~ s/[\*]/ /g;                                    #Remove any asterisk
 			$format_student_ans =~ s/[\(]/,\(/g;                                  #Put in the delimiter ,
 			if ($format_student_ans =~ /^,/) { $format_student_ans =~ s/,//; }    #Remove leading commas
 			my @student_factors = split(/[,]/, $format_student_ans);              #Split off the terms
@@ -476,7 +476,7 @@ sub StrictFactoringEvaluator {
 	my @vars = @_;
 
 	my $format_ans = $ans;
-	$format_ans =~ s/[\*]//g;                             #Remove any astrix
+	$format_ans =~ s/[\*]//g;                             #Remove any asterisk
 	$format_ans =~ s/[\(]/,\(/g;                          #Put in the delimiter ,
 	if ($format_ans =~ /^,/) { $format_ans =~ s/,//; }    #Remove any leading commas
 	my @factors = split(/[,]/, $format_ans);              #Split off the terms
@@ -504,7 +504,7 @@ sub StrictFactoringEvaluator {
 
 		if ($ans_hash->{score} == 1) {    #Check factors
 			my $format_student_ans = $student_ans;
-			$format_student_ans =~ s/[\*]//g;                                     #Remove any astrix
+			$format_student_ans =~ s/[\*]//g;                                     #Remove any asterisk
 			$format_student_ans =~ s/[\(]/,\(/g;                                  #Put in the delimiter ,
 			if ($format_student_ans =~ /^,/) { $format_student_ans =~ s/,//; }    #Remove any leading commas
 			my @student_factors = split(/[,]/, $format_student_ans);              #Split off the terms

@@ -172,7 +172,7 @@ sub linear_combo {
 # These should be compared to similar subroutines made later in
 # MatrixCheckers.pl
 
-=head1 COMARISON FUNCTIONS
+=head1 COMPARISON FUNCTIONS
 
 =head2 basis_cmp
 
@@ -193,7 +193,7 @@ ANS( basis_cmp( vectors_as_array_ref_in_array_ref, options_hash ) );
                                  to zero
 
         debug           --  if set to 1, provides verbose listing of
-                                hash entries throughout fliters.
+                                hash entries throughout filters.
 
         help        --  'none' (default) (is quiet on all errors)
                     'dim' (Tells student if wrong number of vectors are entered)
@@ -483,8 +483,8 @@ sub vec_list_string {
 						}
 					} else {
 
-						# This parser code was origianally taken from PGanswermacros::check_syntax
-						# but parts of it needed to be slighty modified for this context
+						# This parser code was originally taken from PGanswermacros::check_syntax
+						# but parts of it needed to be slightly modified for this context
 						my $parser = new AlgParserWithImplicitExpand;
 						my $ret    = $parser->parse($entry);            #for use with loops
 
@@ -588,7 +588,7 @@ sub ans_array_filter {
 	#   assign_option_aliases( \%opt,
 	#     );
 	set_default_options(\%options, _filter_name => 'ans_array_filter',);
-#   $rh_ans->{ans_label} =~ /$ArRaY(\d+)\[\d+,\d+,\d+\]/;  # CHANGE made to accomodate HTML 4.01 standards for name attribute
+#   $rh_ans->{ans_label} =~ /$ArRaY(\d+)\[\d+,\d+,\d+\]/;  # CHANGE made to accommodate HTML 4.01 standards for name attribute
 	$rh_ans->{ans_label} =~ /$ArRaY(\d+)\_\_\d+\-\d+\-\d+\_\_/;
 	my $ans_num = $1;
 	my @keys    = grep /$ArRaY$ans_num/, keys(%{$main::inputs_ref});
@@ -619,8 +619,8 @@ sub ans_array_filter {
 			for ($k = 0; $k < scalar(@{ $array[$i][$j] }); $k++) {
 				my $entry = $array[$i][$j][$k];
 				$entry = math_constants($entry);
-				# This parser code was origianally taken from PGanswermacros::check_syntax
-				# but parts of it needed to be slighty modified for this context
+				# This parser code was originally taken from PGanswermacros::check_syntax
+				# but parts of it needed to be slightly modified for this context
 				my $parser = new AlgParserWithImplicitExpand;
 				my $ret    = $parser->parse($entry);            #for use with loops
 
