@@ -75,7 +75,7 @@ $histogramVertical->axes->yaxis(max => max(@$vFrequencies) + 1);
 
 # use the $vFrequencies to generate the alternative text.
 $alt_text = 'A histogram with ' . scalar(@$vFrequencies) . ' bins.  ';
-for $i (1 .. scalar(@$vFrequencies)) {
+for my $i (1 .. scalar(@$vFrequencies)) {
     $alt_text .=
         "Bin $i is from "
         . ($min + ($i - 1) * $dx) . ' to '
