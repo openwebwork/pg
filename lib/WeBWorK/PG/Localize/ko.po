@@ -2,10 +2,10 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 # Translators:
 # Glenn Rice, 2023
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -13,70 +13,138 @@ msgstr ""
 "PO-Revision-Date: 2023-11-19 04:33+0000\n"
 "Last-Translator: Glenn Rice, 2023\n"
 "Language-Team: Korean (https://app.transifex.com/webwork/teams/16644/ko/)\n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+#. ($edgeText[0], $edgeText[1])
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:813
+msgid " There are edges between %1 and %2."
+msgstr ""
+
+#. (join($comma, @edgeText[ 0 .. $#edgeText - 1 ])
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:817
+msgid " There are edges between %1%2and %3."
+msgstr ""
+
+#. ($edgeText[0])
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:811
+msgid " There is an edge between %1."
+msgstr ""
+
+#. ($self->vertexLabel($i)
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:806
+msgid "%1 and %2"
+msgstr ""
+
+#. ($self->vertexLabel($i)
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:803
+msgid "%1 and %2 with weight %3"
+msgstr ""
+
 #. ($numManuallyGraded)
-#: /opt/webwork/pg/macros/PG.pl:1455
+#: /opt/webwork/pg/macros/PG.pl:1470
 msgid "%1 of the answers %plural(%1,has,have) been graded."
 msgstr ""
 
 #. (@answerNames - $numBlank - $numCorrect - $numManuallyGraded)
-#: /opt/webwork/pg/macros/PG.pl:1427
+#: /opt/webwork/pg/macros/PG.pl:1442
 msgid "%1 of the answers %plural(%1,is,are) NOT correct."
 msgstr ""
 
 #. ($numManuallyGraded)
-#: /opt/webwork/pg/macros/PG.pl:1451
+#: /opt/webwork/pg/macros/PG.pl:1466
 msgid "%1 of the answers will be graded later."
 msgstr ""
 
 #. ($options{resultTitle})
-#: /opt/webwork/pg/macros/PG.pl:1224
+#: /opt/webwork/pg/macros/PG.pl:1239
 msgid "%1 with message"
 msgstr ""
 
 #. (round($answerScore * 100)
-#: /opt/webwork/pg/macros/PG.pl:1117
+#: /opt/webwork/pg/macros/PG.pl:1119
 msgid "%1% correct"
 msgstr ""
 
 #. ($numBlank)
-#: /opt/webwork/pg/macros/PG.pl:1440
-msgid ""
-"%quant(%1,of the questions remains,of the questions remain) unanswered."
+#: /opt/webwork/pg/macros/PG.pl:1455
+msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1414
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:793
+msgid ", "
+msgstr ""
+
+#. ($self->labelsString)
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:791
+msgid "A graph with vertices %1."
+msgstr ""
+
+#: /opt/webwork/pg/lib/DragNDrop.pm:221
+msgid "Add Bucket"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1429
 msgid "All of the answers are correct."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1405
+#: /opt/webwork/pg/macros/PG.pl:1420
 msgid "All of the computer gradable answers are correct."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1060
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1323
+msgid "An edge traversed by this path does not exist in the graph."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1062
 msgid "Answer Preview"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1240 /opt/webwork/pg/macros/PG.pl:1316
+#: /opt/webwork/pg/macros/PG.pl:1255 /opt/webwork/pg/macros/PG.pl:1331
 msgid "Close"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2894
+#: /opt/webwork/pg/lib/DragNDrop.pm:233
+msgid "Close Help"
+msgstr ""
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2908
 msgid "Close image description"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1109
+#: /opt/webwork/pg/macros/PG.pl:1111
 msgid "Correct"
 msgstr "정답"
 
-#: /opt/webwork/pg/macros/PG.pl:1322
+#: /opt/webwork/pg/macros/PG.pl:1337
 msgid "Correct Answer"
 msgstr "정답"
+
+#: /opt/webwork/pg/lib/DragNDrop.pm:232
+msgid "Drag and Drop Help"
+msgstr ""
+
+#: /opt/webwork/pg/lib/DragNDrop.pm:241
+msgid ""
+"Drag items in the universal set to copy them to a list. Tab and shift-tab "
+"can be used to focus universal set items. A focused item in the universal "
+"set can be added to the first list with the right or down arrow keys, or "
+"added to the last list with the left or up arrow keys. A focused item in a "
+"list can be removed by using the left or right arrow key until it returns to "
+"the universal set."
+msgstr ""
+
+#: /opt/webwork/pg/lib/DragNDrop.pm:235
+msgid ""
+"Drag to reorganize items within lists or to move items to a different list. "
+"Tab and shift-tab can be used to focus list items. The left and right arrow "
+"keys move a focused list item to the list to the left or right. The up and "
+"down arrow keys move a focused list item up and down inside a list."
+msgstr ""
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
 msgid "False"
@@ -97,7 +165,7 @@ msgstr ""
 msgid "Go on to next part"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGessaymacros.pl:57
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:64
 msgid "Graded"
 msgstr ""
 
@@ -105,11 +173,11 @@ msgstr ""
 msgid "Hardcopy will always print the original version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1302
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
 msgid "Hint"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1301
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1304
 msgid "Hint:"
 msgstr ""
 
@@ -117,20 +185,40 @@ msgstr ""
 msgid "If you come back to it later, it may revert to its original version."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1113
+#: /opt/webwork/pg/macros/PG.pl:1115 /opt/webwork/pg/macros/PG.pl:1132
 msgid "Incorrect"
 msgstr "오답"
+
+#. ('%1s', '%2s', '%3s')
+#: /opt/webwork/pg/lib/DragNDrop.pm:227
+msgid "Item %1 in the universal set added as item %2 to list %3."
+msgstr ""
+
+#. ('%1s', '%2s')
+#: /opt/webwork/pg/lib/DragNDrop.pm:228
+msgid "Item %1 removed from list %2."
+msgstr ""
+
+#. ('%1s', '%2s', '%3s', '%4s')
+#: /opt/webwork/pg/lib/DragNDrop.pm:231
+msgid "Moved item %1 in list %2 to item %3 in list %4."
+msgstr ""
+
+#. ('%1s', '%2s', '%3s')
+#: /opt/webwork/pg/lib/DragNDrop.pm:229
+msgid "Moved item %1 in list %2 to item %3."
+msgstr ""
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:382
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:408
 msgid "Note:"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGessaymacros.pl:131
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:139
 msgid "Preview"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1285
+#: /opt/webwork/pg/macros/PG.pl:1300
 msgid "Preview of Your Answer"
 msgstr ""
 
@@ -139,7 +227,19 @@ msgstr ""
 msgid "Quick Entry"
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1328
+#: /opt/webwork/pg/lib/DragNDrop.pm:222
+msgid "Remove"
+msgstr ""
+
+#: /opt/webwork/pg/lib/DragNDrop.pm:220
+msgid "Reset"
+msgstr ""
+
+#: /opt/webwork/pg/macros/graph/AppletObjects.pl:115
+msgid "Return this question to its initial state"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1343
 msgid "Reveal"
 msgstr ""
 
@@ -147,11 +247,11 @@ msgstr ""
 msgid "Set random seed to:"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1294
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
 msgid "Solution"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1293
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1296
 msgid "Solution:"
 msgstr ""
 
@@ -159,40 +259,69 @@ msgstr ""
 msgid "Submit your answers again to go on to the next part."
 msgstr "다음 단계로 이동하려면 답변을 다시 제출하십시오."
 
-#: /opt/webwork/pg/macros/PG.pl:1375
+#: /opt/webwork/pg/macros/PG.pl:1390
 msgid "The answer has been graded."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1393
+#: /opt/webwork/pg/macros/PG.pl:1408
 msgid "The answer is NOT correct."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1364
+#: /opt/webwork/pg/macros/PG.pl:1379
 msgid "The answer is correct."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1374
+#: /opt/webwork/pg/macros/PG.pl:1389
 msgid "The answer will be graded later."
 msgstr ""
 
-#: /opt/webwork/pg/macros/PG.pl:1384
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1284
+msgid "The degrees of the vertices in this graph are not all even."
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1399
 msgid "The question has not been answered."
 msgstr ""
 
-#: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1113
-#: /opt/webwork/pg/macros/core/PGanswermacros.pl:1673
+#: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1110
+#: /opt/webwork/pg/macros/core/PGanswermacros.pl:1671
 msgid "This answer was marked correct because the primary answer is correct."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGessaymacros.pl:78
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:85
 msgid "This answer will be graded at a later time."
+msgstr ""
+
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1307
+msgid ""
+"This graph does not have two vertices of odd degree and all other vertices "
+"of even degree."
+msgstr ""
+
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1376
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1383
+msgid "This graph has a circuit."
+msgstr ""
+
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1281
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1294
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1377
+msgid "This graph is not connected."
 msgstr ""
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:409
 msgid "This is a new (re-randomized) version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3086
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1331
+msgid "This path does not traverse all edges."
+msgstr ""
+
+#: /opt/webwork/pg/macros/math/SimpleGraph.pl:1343
+msgid "This path is not a circuit."
+msgstr ""
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3099
 msgid "This problem contains a video which must be viewed online."
 msgstr ""
 
@@ -204,18 +333,21 @@ msgstr ""
 msgid "True"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGessaymacros.pl:55
+#: /opt/webwork/pg/macros/core/PGessaymacros.pl:62
 msgid "Ungraded"
 msgstr "채점되지 않은"
 
-#: /opt/webwork/pg/macros/PG.pl:1280
-msgid "You Entered"
+#: /opt/webwork/pg/lib/DragNDrop.pm:225
+msgid "Universal Set"
 msgstr ""
 
-#: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1080
-#: /opt/webwork/pg/macros/core/PGanswermacros.pl:1641
-msgid "You can earn partial credit on this problem."
-msgstr "이 문제의 부분 점수를 받았습니다."
+#: /opt/webwork/pg/macros/PG.pl:1128
+msgid "Unknown"
+msgstr ""
+
+#: /opt/webwork/pg/macros/PG.pl:1295
+msgid "You Entered"
+msgstr ""
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:383
 msgid "You can get a new version of this problem after the due date."
@@ -225,7 +357,7 @@ msgstr "이 문제의 새 버전은 마감일 이후에 받을 수 있습니다.
 msgid "You may not change your answers when going on to the next part!"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3079
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3092
 msgid "Your browser does not support the video tag."
 msgstr ""
 
@@ -233,71 +365,71 @@ msgstr ""
 msgid "Your score for this attempt is for this part only;"
 msgstr ""
 
-#. ($name)
 #. ($1)
+#. ($name)
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:539
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:623
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
 msgid "answer %1 "
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2964
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2977
 msgid "end image description"
 msgstr ""
 
+# does not need to be translated
 #. ('j', 'k', '_0')
 #. ('j', 'k')
-# does not need to be translated
 #: /opt/webwork/pg/lib/Parser/List/Vector.pm:41
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
 msgid "i"
 msgstr ""
 
-#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:826
+#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:818
 msgid "if"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2879
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2962
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2893
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2975
 msgid "image description"
 msgstr ""
 
+#. ($i + 1)
 #. (1)
 #. ($count)
-#. ($i + 1)
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:665
-#: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:556
-#: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:565
+#: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:558
+#: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:567
 msgid "option %1 "
 msgstr ""
 
-#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:829
+#: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:821
 msgid "otherwise"
 msgstr ""
 
-#. ($2 + 1)
 #. ($radioIndex)
+#. ($2 + 1)
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:625
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:652
 msgid "part %1 "
 msgstr ""
 
 #. ($1)
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:618
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:645
 msgid "problem %1 "
 msgstr ""
 
 #. ($1 + 1, $2 + 1)
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:631
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:658
 msgid "row %1 column %2 "
 msgstr ""
 
 #. ($partIndex)
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:626
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:653
 msgid "subpart %1 "
 msgstr ""
 
