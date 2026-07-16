@@ -23,47 +23,47 @@ msgstr ""
 #. ($edgeText[0], $edgeText[1])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:813
 msgid " There are edges between %1 and %2."
-msgstr ""
+msgstr " %1 és %2 között élek vannak."
 
 #. (join($comma, @edgeText[ 0 .. $#edgeText - 1 ])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:817
 msgid " There are edges between %1%2and %3."
-msgstr ""
+msgstr " %1%2és %3 között élek vannak."
 
 #. ($edgeText[0])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:811
 msgid " There is an edge between %1."
-msgstr ""
+msgstr " %1 között él van."
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:806
 msgid "%1 and %2"
-msgstr ""
+msgstr "%1 és %2"
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:803
 msgid "%1 and %2 with weight %3"
-msgstr ""
+msgstr "%1 és %2 %3 súllyal"
 
 #. ($numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1470
 msgid "%1 of the answers %plural(%1,has,have) been graded."
-msgstr ""
+msgstr "%1 válasz %plural(%1,értékelve lett,értékelve lettek)."
 
 #. (@answerNames - $numBlank - $numCorrect - $numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1442
 msgid "%1 of the answers %plural(%1,is,are) NOT correct."
-msgstr ""
+msgstr "%1 válasz NEM helyes."
 
 #. ($numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1466
 msgid "%1 of the answers will be graded later."
-msgstr ""
+msgstr "%1 válasz értékelése később történik meg."
 
 #. ($options{resultTitle})
 #: /opt/webwork/pg/macros/PG.pl:1239
 msgid "%1 with message"
-msgstr ""
+msgstr "%1 üzenettel"
 
 #. (round($answerScore * 100)
 #: /opt/webwork/pg/macros/PG.pl:1119
@@ -78,44 +78,44 @@ msgstr "%quant(%1,kérdés maradt,kérdés maradt) megválaszolatlan."
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:793
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #. ($self->labelsString)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:791
 msgid "A graph with vertices %1."
-msgstr ""
+msgstr "Egy gráf a következő csúcsokkal: %1."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:221
 msgid "Add Bucket"
-msgstr ""
+msgstr "Lista hozzáadása"
 
 #: /opt/webwork/pg/macros/PG.pl:1429
 msgid "All of the answers are correct."
-msgstr ""
+msgstr "Minden válasz helyes."
 
 #: /opt/webwork/pg/macros/PG.pl:1420
 msgid "All of the computer gradable answers are correct."
-msgstr ""
+msgstr "Minden számítógéppel értékelhető válasz helyes."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1323
 msgid "An edge traversed by this path does not exist in the graph."
-msgstr ""
+msgstr "Az útvonal által érintett egyik él nem létezik a gráfban."
 
 #: /opt/webwork/pg/macros/PG.pl:1062
 msgid "Answer Preview"
-msgstr ""
+msgstr "Válasz előnézete"
 
 #: /opt/webwork/pg/macros/PG.pl:1255 /opt/webwork/pg/macros/PG.pl:1331
 msgid "Close"
-msgstr ""
+msgstr "Bezárás"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:233
 msgid "Close Help"
-msgstr ""
+msgstr "Súgó bezárása"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2908
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2912
 msgid "Close image description"
-msgstr ""
+msgstr "Kép leírásának bezárása"
 
 #: /opt/webwork/pg/macros/PG.pl:1111
 msgid "Correct"
@@ -127,7 +127,7 @@ msgstr "Helyes válasz"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:232
 msgid "Drag and Drop Help"
-msgstr ""
+msgstr "Súgó a fogd és vidd funkcióhoz"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:241
 msgid ""
@@ -138,6 +138,12 @@ msgid ""
 "list can be removed by using the left or right arrow key until it returns to "
 "the universal set."
 msgstr ""
+"Húzza az elemeket az alaphalmazból egy listába való másoláshoz. A Tab és "
+"Shift+Tab billentyűkkel lehet az alaphalmaz elemeire fókuszálni. Egy "
+"fókuszált alaphalmazbeli elem a jobbra vagy lefelé nyíllal az első listához, "
+"vagy a balra vagy felfelé nyíllal az utolsó listához adható hozzá. Egy "
+"listában lévő fókuszált elem a balra vagy jobbra nyíllal távolítható el, "
+"amíg vissza nem kerül az alaphalmazba."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:235
 msgid ""
@@ -146,189 +152,198 @@ msgid ""
 "keys move a focused list item to the list to the left or right. The up and "
 "down arrow keys move a focused list item up and down inside a list."
 msgstr ""
+"Húzással rendezheti át az elemeket a listákon belül, vagy áthelyezheti őket "
+"egy másik listába. A Tab és Shift+Tab billentyűkkel lehet a lista elemeire "
+"fókuszálni. A bal és jobb nyíl billentyűk a fókuszált listaelemet a bal vagy "
+"jobb oldali listába mozgatják. A fel és le nyíl billentyűk a fókuszált "
+"listaelemet a listán belül fel vagy le mozgatják."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
 msgid "False"
-msgstr ""
+msgstr "Hamis"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:172
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:173
 msgid "Get a new version of this problem"
-msgstr ""
+msgstr "Új verzió kérése ehhez a feladathoz"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:483
 msgid "Go back to Part 1"
-msgstr ""
+msgstr "Vissza az 1. részhez"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:293
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:498
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:512
 msgid "Go on to next part"
-msgstr ""
+msgstr "Tovább a következő részre"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:64
 msgid "Graded"
-msgstr ""
+msgstr "Értékelve"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:413
 msgid "Hardcopy will always print the original version of the problem."
-msgstr ""
+msgstr "A nyomtatott másolat mindig a feladat eredeti verzióját nyomtatja ki."
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1306
+msgid "Hint"
+msgstr "Segítség"
 
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
-msgid "Hint"
-msgstr ""
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1304
 msgid "Hint:"
-msgstr ""
+msgstr "Segítség:"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:411
 msgid "If you come back to it later, it may revert to its original version."
 msgstr ""
+"Ha később visszatér hozzá, előfordulhat, hogy visszaáll az eredeti "
+"verziójára."
 
 #: /opt/webwork/pg/macros/PG.pl:1115 /opt/webwork/pg/macros/PG.pl:1132
 msgid "Incorrect"
-msgstr ""
+msgstr "Helytelen"
 
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:227
 msgid "Item %1 in the universal set added as item %2 to list %3."
-msgstr ""
+msgstr "A(z) %1 elem az alaphalmazból hozzáadva a(z) %3 listához %2 elemként."
 
 #. ('%1s', '%2s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:228
 msgid "Item %1 removed from list %2."
-msgstr ""
+msgstr "A(z) %1 elem eltávolítva a(z) %2 listából."
 
 #. ('%1s', '%2s', '%3s', '%4s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:231
 msgid "Moved item %1 in list %2 to item %3 in list %4."
-msgstr ""
+msgstr "A(z) %2 lista %1 eleme áthelyezve a(z) %4 lista %3 elemére."
 
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:229
 msgid "Moved item %1 in list %2 to item %3."
-msgstr ""
+msgstr "A(z) %2 lista %1 eleme áthelyezve a(z) %3 elemre."
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:382
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:408
 msgid "Note:"
-msgstr ""
+msgstr "Megjegyzés:"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:139
 msgid "Preview"
-msgstr ""
+msgstr "Előnézet"
 
 #: /opt/webwork/pg/macros/PG.pl:1300
 msgid "Preview of Your Answer"
-msgstr ""
+msgstr "Az Ön válaszának előnézete"
 
 #: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:44
 #: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:85
 msgid "Quick Entry"
-msgstr ""
+msgstr "Gyors bevitel"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:222
 msgid "Remove"
-msgstr ""
+msgstr "Eltávolítás"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:220
 msgid "Reset"
-msgstr ""
+msgstr "Visszaállítás"
 
 #: /opt/webwork/pg/macros/graph/AppletObjects.pl:115
 msgid "Return this question to its initial state"
-msgstr ""
+msgstr "A kérdés visszaállítása a kezdeti állapotába"
 
 #: /opt/webwork/pg/macros/PG.pl:1343
 msgid "Reveal"
-msgstr ""
+msgstr "Megjelenítés"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:174
 msgid "Set random seed to:"
-msgstr ""
+msgstr "Véletlenszám-generátor kezdőértéke:"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1298
+msgid "Solution"
+msgstr "Megoldás"
 
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
-msgid "Solution"
-msgstr ""
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1296
 msgid "Solution:"
-msgstr ""
+msgstr "Megoldás:"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:525
 msgid "Submit your answers again to go on to the next part."
-msgstr ""
+msgstr "Küldje be újra a válaszait, hogy továbbléphessen a következő részre."
 
 #: /opt/webwork/pg/macros/PG.pl:1390
 msgid "The answer has been graded."
-msgstr ""
+msgstr "A válasz értékelve lett."
 
 #: /opt/webwork/pg/macros/PG.pl:1408
 msgid "The answer is NOT correct."
-msgstr ""
+msgstr "A válasz NEM helyes."
 
 #: /opt/webwork/pg/macros/PG.pl:1379
 msgid "The answer is correct."
-msgstr ""
+msgstr "A válasz helyes."
 
 #: /opt/webwork/pg/macros/PG.pl:1389
 msgid "The answer will be graded later."
-msgstr ""
+msgstr "A válasz később kerül értékelésre."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1284
 msgid "The degrees of the vertices in this graph are not all even."
-msgstr ""
+msgstr "A gráf csúcsainak fokszámai nem mind párosak."
 
 #: /opt/webwork/pg/macros/PG.pl:1399
 msgid "The question has not been answered."
-msgstr ""
+msgstr "A kérdésre nem érkezett válasz."
 
 #: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1110
 #: /opt/webwork/pg/macros/core/PGanswermacros.pl:1671
 msgid "This answer was marked correct because the primary answer is correct."
-msgstr ""
+msgstr "Ez a válasz helyesnek lett jelölve, mert az elsődleges válasz helyes."
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:85
 msgid "This answer will be graded at a later time."
-msgstr ""
+msgstr "Ez a válasz később kerül értékelésre."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1307
 msgid ""
 "This graph does not have two vertices of odd degree and all other vertices "
 "of even degree."
 msgstr ""
+"Ennek a gráfnak nincs pontosan két páratlan fokszámú csúcsa és minden más "
+"páros fokszámú csúcsa."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1376
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1383
 msgid "This graph has a circuit."
-msgstr ""
+msgstr "Ennek a gráfnak van köre."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1281
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1294
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1377
 msgid "This graph is not connected."
-msgstr ""
+msgstr "Ez a gráf nem összefüggő."
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:409
 msgid "This is a new (re-randomized) version of the problem."
-msgstr ""
+msgstr "Ez a feladat egy új (újra véletlenszerűsített) verziója."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1331
 msgid "This path does not traverse all edges."
-msgstr ""
+msgstr "Ez az útvonal nem járja be az összes élt."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1343
 msgid "This path is not a circuit."
-msgstr ""
+msgstr "Ez az útvonal nem kör."
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3099
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3103
 msgid "This problem contains a video which must be viewed online."
-msgstr ""
+msgstr "Ez a feladat egy videót tartalmaz, amelyet online kell megtekinteni."
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:631
 msgid "This problem has more than one part."
-msgstr ""
+msgstr "Ennek a feladatnak több része van."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:560
 msgid "True"
@@ -336,47 +351,48 @@ msgstr "Igaz"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:62
 msgid "Ungraded"
-msgstr ""
+msgstr "Nincs értékelve"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:225
 msgid "Universal Set"
-msgstr ""
+msgstr "Alaphalmaz"
 
 #: /opt/webwork/pg/macros/PG.pl:1128
 msgid "Unknown"
-msgstr ""
+msgstr "Ismeretlen"
 
 #: /opt/webwork/pg/macros/PG.pl:1295
 msgid "You Entered"
-msgstr ""
+msgstr "Ön ezt írta be"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:383
 msgid "You can get a new version of this problem after the due date."
-msgstr ""
+msgstr "A feladat új verzióját a határidő után kaphatja meg."
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:646
 msgid "You may not change your answers when going on to the next part!"
-msgstr ""
+msgstr "A következő részre lépéskor nem módosíthatja a válaszait!"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3092
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3096
 msgid "Your browser does not support the video tag."
-msgstr ""
+msgstr "A böngészője nem támogatja a videó címkét."
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:634
 msgid "Your score for this attempt is for this part only;"
 msgstr ""
+"Az ehhez a próbálkozáshoz tartozó pontszáma csak erre a részre vonatkozik;"
 
 #. ($1)
 #. ($name)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:539
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:529
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:540
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:648
 msgid "answer %1 "
-msgstr ""
+msgstr "válasz %1 "
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2977
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2981
 msgid "end image description"
-msgstr ""
+msgstr "kép leírásának vége"
 
 # does not need to be translated
 #. ('j', 'k', '_0')
@@ -385,60 +401,60 @@ msgstr ""
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
 msgid "i"
-msgstr ""
+msgstr "i"
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:818
 msgid "if"
-msgstr ""
+msgstr "ha"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2893
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2975
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2897
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2979
 msgid "image description"
-msgstr ""
+msgstr "kép leírása"
 
 #. ($i + 1)
 #. (1)
 #. ($count)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:665
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:612
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:666
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:558
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:567
 msgid "option %1 "
-msgstr ""
+msgstr "opció %1 "
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:821
 msgid "otherwise"
-msgstr ""
+msgstr "egyébként"
 
 #. ($radioIndex)
 #. ($2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:652
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:546
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
 msgid "part %1 "
-msgstr ""
+msgstr "rész %1 "
 
 #. ($1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:645
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:535
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:643
 msgid "problem %1 "
-msgstr ""
+msgstr "feladat %1 "
 
 #. ($1 + 1, $2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:658
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:552
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:656
 msgid "row %1 column %2 "
-msgstr ""
+msgstr "sor %1 oszlop %2 "
 
 #. ($partIndex)
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:653
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:651
 msgid "subpart %1 "
-msgstr ""
+msgstr "alrész %1 "
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:485
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:500
 msgid "when you submit your answers"
-msgstr ""
+msgstr "amikor beküldi a válaszait"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:638
 msgid "your overall score is for all the parts combined."
-msgstr ""
+msgstr "az összesített pontszáma az összes rész együttes eredménye."

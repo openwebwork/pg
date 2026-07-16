@@ -25,27 +25,27 @@ msgstr ""
 #. ($edgeText[0], $edgeText[1])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:813
 msgid " There are edges between %1 and %2."
-msgstr ""
+msgstr " יש צלעות בין %1 ל-%2."
 
 #. (join($comma, @edgeText[ 0 .. $#edgeText - 1 ])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:817
 msgid " There are edges between %1%2and %3."
-msgstr ""
+msgstr " יש צלעות בין %1%2ו-%3."
 
 #. ($edgeText[0])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:811
 msgid " There is an edge between %1."
-msgstr ""
+msgstr " יש צלע בין %1."
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:806
 msgid "%1 and %2"
-msgstr ""
+msgstr "%1 ו-%2"
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:803
 msgid "%1 and %2 with weight %3"
-msgstr ""
+msgstr "%1 ו-%2 במשקל %3"
 
 #. ($numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1470
@@ -80,16 +80,16 @@ msgstr "%quant(%1, מהשאלות לא נענתה, מהשאלות לא נענו)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:793
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #. ($self->labelsString)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:791
 msgid "A graph with vertices %1."
-msgstr ""
+msgstr "גרף עם הקודקודים %1."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:221
 msgid "Add Bucket"
-msgstr ""
+msgstr "הוסף רשימה"
 
 #: /opt/webwork/pg/macros/PG.pl:1429
 msgid "All of the answers are correct."
@@ -101,7 +101,7 @@ msgstr "כל התשובות הניתנות לבדיקה אוטומטית הן נ
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1323
 msgid "An edge traversed by this path does not exist in the graph."
-msgstr ""
+msgstr "צלע שנמצאת במסלול זה אינה קיימת בגרף."
 
 #: /opt/webwork/pg/macros/PG.pl:1062
 msgid "Answer Preview"
@@ -113,11 +113,11 @@ msgstr "סגור"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:233
 msgid "Close Help"
-msgstr ""
+msgstr "סגור עזרה"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2908
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2912
 msgid "Close image description"
-msgstr ""
+msgstr "סגור את תיאור התמונה"
 
 #: /opt/webwork/pg/macros/PG.pl:1111
 msgid "Correct"
@@ -129,7 +129,7 @@ msgstr "תשובה נכונה"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:232
 msgid "Drag and Drop Help"
-msgstr ""
+msgstr "עזרה לגרירה ושחרור"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:241
 msgid ""
@@ -140,6 +140,11 @@ msgid ""
 "list can be removed by using the left or right arrow key until it returns to "
 "the universal set."
 msgstr ""
+"גרור פריטים מהקבוצה האוניברסלית כדי להעתיק אותם לרשימה. ניתן להשתמש ב-Tab "
+"ו-Shift+Tab כדי למקד פריטים בקבוצה האוניברסלית. ניתן להוסיף פריט ממוקד "
+"מהקבוצה האוניברסלית לרשימה הראשונה באמצעות מקש החץ הימני או התחתון, או "
+"לרשימה האחרונה באמצעות מקש החץ השמאלי או העליון. ניתן להסיר פריט ממוקד "
+"ברשימה באמצעות מקש החץ השמאלי או הימני, עד שהוא חוזר לקבוצה האוניברסלית."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:235
 msgid ""
@@ -148,6 +153,10 @@ msgid ""
 "keys move a focused list item to the list to the left or right. The up and "
 "down arrow keys move a focused list item up and down inside a list."
 msgstr ""
+"גרור כדי לארגן מחדש פריטים בתוך רשימות או להעביר פריטים לרשימה אחרת. ניתן "
+"להשתמש ב-Tab ו-Shift+Tab כדי למקד פריטי רשימה. מקשי החצים שמאלה וימינה "
+"מעבירים פריט רשימה ממוקד לרשימה שמשמאל או מימין. מקשי החצים למעלה ולמטה "
+"מעבירים פריט רשימה ממוקד למעלה או למטה בתוך הרשימה."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
 msgid "False"
@@ -176,11 +185,11 @@ msgstr "נבדק"
 msgid "Hardcopy will always print the original version of the problem."
 msgstr "בקבצי הדפסה תמיד יודפס הגרסה המקורית של השאלה."
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1306
 msgid "Hint"
 msgstr "רמז"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1304
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
 msgid "Hint:"
 msgstr "רמז:"
 
@@ -195,22 +204,22 @@ msgstr "לא נכון"
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:227
 msgid "Item %1 in the universal set added as item %2 to list %3."
-msgstr ""
+msgstr "פריט %1 מהקבוצה האוניברסלית נוסף כפריט %2 לרשימה %3."
 
 #. ('%1s', '%2s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:228
 msgid "Item %1 removed from list %2."
-msgstr ""
+msgstr "פריט %1 הוסר מהרשימה %2."
 
 #. ('%1s', '%2s', '%3s', '%4s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:231
 msgid "Moved item %1 in list %2 to item %3 in list %4."
-msgstr ""
+msgstr "פריט %1 ברשימה %2 הועבר לפריט %3 ברשימה %4."
 
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:229
 msgid "Moved item %1 in list %2 to item %3."
-msgstr ""
+msgstr "פריט %1 ברשימה %2 הועבר לפריט %3."
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:382
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:408
@@ -232,15 +241,15 @@ msgstr "הזנה מהירה"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:222
 msgid "Remove"
-msgstr ""
+msgstr "הסר"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:220
 msgid "Reset"
-msgstr ""
+msgstr "אפס"
 
 #: /opt/webwork/pg/macros/graph/AppletObjects.pl:115
 msgid "Return this question to its initial state"
-msgstr ""
+msgstr "החזר שאלה זו למצבה ההתחלתי"
 
 #: /opt/webwork/pg/macros/PG.pl:1343
 msgid "Reveal"
@@ -250,11 +259,11 @@ msgstr "הצג"
 msgid "Set random seed to:"
 msgstr "החלף את זרע ההגרלות אל:"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1298
 msgid "Solution"
 msgstr "פתרון"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1296
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
 msgid "Solution:"
 msgstr "פתרון:"
 
@@ -280,7 +289,7 @@ msgstr "התשובה תבדק בהמשך"
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1284
 msgid "The degrees of the vertices in this graph are not all even."
-msgstr ""
+msgstr "הדרגות של הקודקודים בגרף זה אינן כולן זוגיות."
 
 #: /opt/webwork/pg/macros/PG.pl:1399
 msgid "The question has not been answered."
@@ -289,7 +298,7 @@ msgstr " השאלה לא נענתה"
 #: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1110
 #: /opt/webwork/pg/macros/core/PGanswermacros.pl:1671
 msgid "This answer was marked correct because the primary answer is correct."
-msgstr ""
+msgstr "תשובה זו סומנה כנכונה מכיוון שהתשובה הראשית נכונה."
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:85
 msgid "This answer will be graded at a later time."
@@ -300,17 +309,18 @@ msgid ""
 "This graph does not have two vertices of odd degree and all other vertices "
 "of even degree."
 msgstr ""
+"לגרף זה אין בדיוק שני קודקודים מדרגה אי-זוגית וכל שאר הקודקודים מדרגה זוגית."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1376
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1383
 msgid "This graph has a circuit."
-msgstr ""
+msgstr "לגרף זה יש מעגל."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1281
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1294
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1377
 msgid "This graph is not connected."
-msgstr ""
+msgstr "גרף זה אינו קשיר."
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:409
 msgid "This is a new (re-randomized) version of the problem."
@@ -318,13 +328,13 @@ msgstr "הנה גרסה חדשה של השאלה.  (הוגרלו מספרים ח
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1331
 msgid "This path does not traverse all edges."
-msgstr ""
+msgstr "מסלול זה אינו עובר בכל הצלעות."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1343
 msgid "This path is not a circuit."
-msgstr ""
+msgstr "מסלול זה אינו מעגל."
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3099
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3103
 msgid "This problem contains a video which must be viewed online."
 msgstr "השאלה מכילה וידיאו שיש לראות באופן מקוון."
 
@@ -342,11 +352,11 @@ msgstr "טרם נבדק"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:225
 msgid "Universal Set"
-msgstr ""
+msgstr "קבוצה אוניברסלית"
 
 #: /opt/webwork/pg/macros/PG.pl:1128
 msgid "Unknown"
-msgstr ""
+msgstr "לא ידוע"
 
 #: /opt/webwork/pg/macros/PG.pl:1295
 msgid "You Entered"
@@ -360,7 +370,7 @@ msgstr "אתה יכול לבקש גרסה שונה של שאלה זו לאחר �
 msgid "You may not change your answers when going on to the next part!"
 msgstr "לא ניתן לשנות תשובות כאשר אתה מתקדם לחלק הבא!"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3092
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3096
 msgid "Your browser does not support the video tag."
 msgstr "הדפדפן שלך לא תומך ב-video tag."
 
@@ -370,15 +380,15 @@ msgstr "הציון שקבלת בהגשה זו הוא רק לחקל זה;"
 
 #. ($1)
 #. ($name)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:539
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:529
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:540
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:648
 msgid "answer %1 "
-msgstr ""
+msgstr "תשובה %1 "
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2977
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2981
 msgid "end image description"
-msgstr ""
+msgstr "סוף תיאור התמונה"
 
 # does not need to be translated
 #. ('j', 'k', '_0')
@@ -393,20 +403,20 @@ msgstr "i"
 msgid "if"
 msgstr "כאשר"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2893
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2975
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2897
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2979
 msgid "image description"
-msgstr ""
+msgstr "תיאור התמונה"
 
 #. ($i + 1)
 #. (1)
 #. ($count)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:665
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:612
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:666
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:558
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:567
 msgid "option %1 "
-msgstr ""
+msgstr "אפשרות %1 "
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:821
 msgid "otherwise"
@@ -414,27 +424,27 @@ msgstr "אחרת"
 
 #. ($radioIndex)
 #. ($2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:652
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:546
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
 msgid "part %1 "
-msgstr ""
+msgstr "חלק %1 "
 
 #. ($1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:645
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:535
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:643
 msgid "problem %1 "
-msgstr ""
+msgstr "שאלה %1 "
 
 #. ($1 + 1, $2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:658
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:552
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:656
 msgid "row %1 column %2 "
-msgstr ""
+msgstr "שורה %1 עמודה %2 "
 
 #. ($partIndex)
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:653
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:651
 msgid "subpart %1 "
-msgstr ""
+msgstr "תת-חלק %1 "
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:485
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:500

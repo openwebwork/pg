@@ -22,99 +22,100 @@ msgstr ""
 #. ($edgeText[0], $edgeText[1])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:813
 msgid " There are edges between %1 and %2."
-msgstr ""
+msgstr " %1와(과) %2 사이에 간선이 있습니다."
 
 #. (join($comma, @edgeText[ 0 .. $#edgeText - 1 ])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:817
 msgid " There are edges between %1%2and %3."
-msgstr ""
+msgstr " %1%2및 %3 사이에 간선이 있습니다."
 
 #. ($edgeText[0])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:811
 msgid " There is an edge between %1."
-msgstr ""
+msgstr " %1 사이에 간선이 있습니다."
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:806
 msgid "%1 and %2"
-msgstr ""
+msgstr "%1 및 %2"
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:803
 msgid "%1 and %2 with weight %3"
-msgstr ""
+msgstr "%1 및 %2 (가중치 %3)"
 
 #. ($numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1470
 msgid "%1 of the answers %plural(%1,has,have) been graded."
-msgstr ""
+msgstr "%1개의 답변이 채점되었습니다."
 
 #. (@answerNames - $numBlank - $numCorrect - $numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1442
 msgid "%1 of the answers %plural(%1,is,are) NOT correct."
-msgstr ""
+msgstr "%1개의 답이 틀렸습니다."
 
 #. ($numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1466
 msgid "%1 of the answers will be graded later."
-msgstr ""
+msgstr "%1개의 답변에 대한 채점은 나중에 이루어집니다."
 
 #. ($options{resultTitle})
 #: /opt/webwork/pg/macros/PG.pl:1239
 msgid "%1 with message"
-msgstr ""
+msgstr "메시지가 있는 %1"
 
 #. (round($answerScore * 100)
 #: /opt/webwork/pg/macros/PG.pl:1119
 msgid "%1% correct"
-msgstr ""
+msgstr "%1% 정답"
 
 #. ($numBlank)
 #: /opt/webwork/pg/macros/PG.pl:1455
 msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr ""
+"%quant(%1,개의 문제가 답변되지 않았습니다,개의 문제가 답변되지 않았습니다)."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:793
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #. ($self->labelsString)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:791
 msgid "A graph with vertices %1."
-msgstr ""
+msgstr "정점이 %1인 그래프입니다."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:221
 msgid "Add Bucket"
-msgstr ""
+msgstr "목록 추가"
 
 #: /opt/webwork/pg/macros/PG.pl:1429
 msgid "All of the answers are correct."
-msgstr ""
+msgstr "모든 답이 정답입니다."
 
 #: /opt/webwork/pg/macros/PG.pl:1420
 msgid "All of the computer gradable answers are correct."
-msgstr ""
+msgstr "컴퓨터로 채점 가능한 모든 답이 정답입니다."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1323
 msgid "An edge traversed by this path does not exist in the graph."
-msgstr ""
+msgstr "이 경로가 지나는 간선이 그래프에 존재하지 않습니다."
 
 #: /opt/webwork/pg/macros/PG.pl:1062
 msgid "Answer Preview"
-msgstr ""
+msgstr "답변 미리보기"
 
 #: /opt/webwork/pg/macros/PG.pl:1255 /opt/webwork/pg/macros/PG.pl:1331
 msgid "Close"
-msgstr ""
+msgstr "닫기"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:233
 msgid "Close Help"
-msgstr ""
+msgstr "도움말 닫기"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2908
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2912
 msgid "Close image description"
-msgstr ""
+msgstr "이미지 설명 닫기"
 
 #: /opt/webwork/pg/macros/PG.pl:1111
 msgid "Correct"
@@ -126,7 +127,7 @@ msgstr "정답"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:232
 msgid "Drag and Drop Help"
-msgstr ""
+msgstr "드래그 앤 드롭 도움말"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:241
 msgid ""
@@ -137,6 +138,12 @@ msgid ""
 "list can be removed by using the left or right arrow key until it returns to "
 "the universal set."
 msgstr ""
+"전체집합의 항목을 드래그하여 목록으로 복사할 수 있습니다. Tab 및 Shift+Tab 키"
+"를 사용하여 전체집합 항목에 초점을 맞출 수 있습니다. 초점이 맞춰진 전체집합 "
+"항목은 오른쪽 또는 아래쪽 화살표 키로 첫 번째 목록에 추가하거나, 왼쪽 또는 위"
+"쪽 화살표 키로 마지막 목록에 추가할 수 있습니다. 목록에서 초점이 맞춰진 항목"
+"은 왼쪽 또는 오른쪽 화살표 키를 사용하여 전체집합으로 돌아갈 때까지 이동시켜 "
+"제거할 수 있습니다."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:235
 msgid ""
@@ -145,45 +152,50 @@ msgid ""
 "keys move a focused list item to the list to the left or right. The up and "
 "down arrow keys move a focused list item up and down inside a list."
 msgstr ""
+"드래그하여 목록 내 항목을 재정렬하거나 다른 목록으로 이동할 수 있습니다. Tab "
+"및 Shift+Tab 키를 사용하여 목록 항목에 초점을 맞출 수 있습니다. 왼쪽 및 오른"
+"쪽 화살표 키는 초점이 맞춰진 목록 항목을 왼쪽 또는 오른쪽 목록으로 이동시킵니"
+"다. 위쪽 및 아래쪽 화살표 키는 초점이 맞춰진 목록 항목을 목록 내에서 위아래"
+"로 이동시킵니다."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
 msgid "False"
-msgstr ""
+msgstr "거짓"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:172
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:173
 msgid "Get a new version of this problem"
-msgstr ""
+msgstr "이 문제의 새 버전 받기"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:483
 msgid "Go back to Part 1"
-msgstr ""
+msgstr "1부로 돌아가기"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:293
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:498
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:512
 msgid "Go on to next part"
-msgstr ""
+msgstr "다음 부분으로 이동"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:64
 msgid "Graded"
-msgstr ""
+msgstr "채점됨"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:413
 msgid "Hardcopy will always print the original version of the problem."
-msgstr ""
+msgstr "인쇄본(하드카피)에는 항상 문제의 원본 버전이 인쇄됩니다."
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1306
+msgid "Hint"
+msgstr "힌트"
 
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
-msgid "Hint"
-msgstr ""
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1304
 msgid "Hint:"
-msgstr ""
+msgstr "힌트:"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:411
 msgid "If you come back to it later, it may revert to its original version."
-msgstr ""
+msgstr "나중에 다시 돌아오면 원래 버전으로 되돌아갈 수 있습니다."
 
 #: /opt/webwork/pg/macros/PG.pl:1115 /opt/webwork/pg/macros/PG.pl:1132
 msgid "Incorrect"
@@ -192,68 +204,68 @@ msgstr "오답"
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:227
 msgid "Item %1 in the universal set added as item %2 to list %3."
-msgstr ""
+msgstr "전체집합의 항목 %1이(가) 목록 %3에 항목 %2로 추가되었습니다."
 
 #. ('%1s', '%2s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:228
 msgid "Item %1 removed from list %2."
-msgstr ""
+msgstr "항목 %1이(가) 목록 %2에서 제거되었습니다."
 
 #. ('%1s', '%2s', '%3s', '%4s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:231
 msgid "Moved item %1 in list %2 to item %3 in list %4."
-msgstr ""
+msgstr "목록 %2의 항목 %1이(가) 목록 %4의 항목 %3(으)로 이동되었습니다."
 
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:229
 msgid "Moved item %1 in list %2 to item %3."
-msgstr ""
+msgstr "목록 %2의 항목 %1이(가) 항목 %3(으)로 이동되었습니다."
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:382
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:408
 msgid "Note:"
-msgstr ""
+msgstr "참고:"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:139
 msgid "Preview"
-msgstr ""
+msgstr "미리보기"
 
 #: /opt/webwork/pg/macros/PG.pl:1300
 msgid "Preview of Your Answer"
-msgstr ""
+msgstr "내 답변 미리보기"
 
 #: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:44
 #: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:85
 msgid "Quick Entry"
-msgstr ""
+msgstr "빠른 입력"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:222
 msgid "Remove"
-msgstr ""
+msgstr "제거"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:220
 msgid "Reset"
-msgstr ""
+msgstr "초기화"
 
 #: /opt/webwork/pg/macros/graph/AppletObjects.pl:115
 msgid "Return this question to its initial state"
-msgstr ""
+msgstr "이 문제를 초기 상태로 되돌리기"
 
 #: /opt/webwork/pg/macros/PG.pl:1343
 msgid "Reveal"
-msgstr ""
+msgstr "표시"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:174
 msgid "Set random seed to:"
-msgstr ""
+msgstr "무작위 시드를 다음으로 설정:"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1298
+msgid "Solution"
+msgstr "풀이"
 
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
-msgid "Solution"
-msgstr ""
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1296
 msgid "Solution:"
-msgstr ""
+msgstr "풀이:"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:525
 msgid "Submit your answers again to go on to the next part."
@@ -261,77 +273,79 @@ msgstr "다음 단계로 이동하려면 답변을 다시 제출하십시오."
 
 #: /opt/webwork/pg/macros/PG.pl:1390
 msgid "The answer has been graded."
-msgstr ""
+msgstr "답변이 채점되었습니다."
 
 #: /opt/webwork/pg/macros/PG.pl:1408
 msgid "The answer is NOT correct."
-msgstr ""
+msgstr "답변이 정답이 아닙니다."
 
 #: /opt/webwork/pg/macros/PG.pl:1379
 msgid "The answer is correct."
-msgstr ""
+msgstr "답변이 정답입니다."
 
 #: /opt/webwork/pg/macros/PG.pl:1389
 msgid "The answer will be graded later."
-msgstr ""
+msgstr "답변은 나중에 채점됩니다."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1284
 msgid "The degrees of the vertices in this graph are not all even."
-msgstr ""
+msgstr "이 그래프의 정점 차수가 모두 짝수는 아닙니다."
 
 #: /opt/webwork/pg/macros/PG.pl:1399
 msgid "The question has not been answered."
-msgstr ""
+msgstr "문제에 답하지 않았습니다."
 
 #: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1110
 #: /opt/webwork/pg/macros/core/PGanswermacros.pl:1671
 msgid "This answer was marked correct because the primary answer is correct."
-msgstr ""
+msgstr "기본 답이 정답이기 때문에 이 답도 정답으로 표시되었습니다."
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:85
 msgid "This answer will be graded at a later time."
-msgstr ""
+msgstr "이 답변은 나중에 채점됩니다."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1307
 msgid ""
 "This graph does not have two vertices of odd degree and all other vertices "
 "of even degree."
 msgstr ""
+"이 그래프는 홀수 차수의 정점이 정확히 두 개이고 나머지 모든 정점이 짝수 차수"
+"인 상태가 아닙니다."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1376
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1383
 msgid "This graph has a circuit."
-msgstr ""
+msgstr "이 그래프에는 회로가 있습니다."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1281
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1294
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1377
 msgid "This graph is not connected."
-msgstr ""
+msgstr "이 그래프는 연결되어 있지 않습니다."
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:409
 msgid "This is a new (re-randomized) version of the problem."
-msgstr ""
+msgstr "이것은 문제의 새로운 (재무작위화된) 버전입니다."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1331
 msgid "This path does not traverse all edges."
-msgstr ""
+msgstr "이 경로는 모든 간선을 지나지 않습니다."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1343
 msgid "This path is not a circuit."
-msgstr ""
+msgstr "이 경로는 회로가 아닙니다."
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3099
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3103
 msgid "This problem contains a video which must be viewed online."
-msgstr ""
+msgstr "이 문제에는 온라인으로 시청해야 하는 동영상이 포함되어 있습니다."
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:631
 msgid "This problem has more than one part."
-msgstr ""
+msgstr "이 문제는 여러 부분으로 구성되어 있습니다."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:560
 msgid "True"
-msgstr ""
+msgstr "참"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:62
 msgid "Ungraded"
@@ -339,15 +353,15 @@ msgstr "채점되지 않은"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:225
 msgid "Universal Set"
-msgstr ""
+msgstr "전체집합"
 
 #: /opt/webwork/pg/macros/PG.pl:1128
 msgid "Unknown"
-msgstr ""
+msgstr "알 수 없음"
 
 #: /opt/webwork/pg/macros/PG.pl:1295
 msgid "You Entered"
-msgstr ""
+msgstr "입력한 답"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:383
 msgid "You can get a new version of this problem after the due date."
@@ -355,27 +369,27 @@ msgstr "이 문제의 새 버전은 마감일 이후에 받을 수 있습니다.
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:646
 msgid "You may not change your answers when going on to the next part!"
-msgstr ""
+msgstr "다음 부분으로 이동하면 답변을 변경할 수 없습니다!"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3092
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3096
 msgid "Your browser does not support the video tag."
-msgstr ""
+msgstr "브라우저가 video 태그를 지원하지 않습니다."
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:634
 msgid "Your score for this attempt is for this part only;"
-msgstr ""
+msgstr "이번 시도의 점수는 이 부분에만 해당됩니다;"
 
 #. ($1)
 #. ($name)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:539
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:529
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:540
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:648
 msgid "answer %1 "
-msgstr ""
+msgstr "답 %1 "
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2977
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2981
 msgid "end image description"
-msgstr ""
+msgstr "이미지 설명 끝"
 
 # does not need to be translated
 #. ('j', 'k', '_0')
@@ -384,54 +398,54 @@ msgstr ""
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
 msgid "i"
-msgstr ""
+msgstr "i"
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:818
 msgid "if"
-msgstr ""
+msgstr "만약"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2893
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2975
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2897
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2979
 msgid "image description"
-msgstr ""
+msgstr "이미지 설명"
 
 #. ($i + 1)
 #. (1)
 #. ($count)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:665
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:612
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:666
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:558
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:567
 msgid "option %1 "
-msgstr ""
+msgstr "옵션 %1 "
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:821
 msgid "otherwise"
-msgstr ""
+msgstr "그 외"
 
 #. ($radioIndex)
 #. ($2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:652
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:546
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
 msgid "part %1 "
-msgstr ""
+msgstr "부분 %1 "
 
 #. ($1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:645
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:535
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:643
 msgid "problem %1 "
-msgstr ""
+msgstr "문제 %1 "
 
 #. ($1 + 1, $2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:658
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:552
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:656
 msgid "row %1 column %2 "
-msgstr ""
+msgstr "%1행 %2열 "
 
 #. ($partIndex)
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:653
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:651
 msgid "subpart %1 "
-msgstr ""
+msgstr "하위 부분 %1 "
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:485
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:500
