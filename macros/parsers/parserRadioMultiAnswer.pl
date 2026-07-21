@@ -237,8 +237,6 @@ undefined, which means that none of the radio buttons are initially checked.
 If this is set to 1 or "shift" then it is possible to uncheck a radio button by clicking it when it
 is checked.  If this is set to "shift", unchecking requires the shift key to be pressed.
 
-=back
-
 =item showInStatic (Default: showInStatic => 1)
 
 In static output, such as PDF or PTX, this controls whether or not the list of answer options is
