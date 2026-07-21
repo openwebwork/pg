@@ -18,7 +18,7 @@ and then set this context with
 
 or
 
-    Context('LimitedSignificantFigures');  # TO BE DONE
+    Context('LimitedSignificantFigures');
 
 where the latter context, you or the student are not allowed to perform any operations on
 any numbers.

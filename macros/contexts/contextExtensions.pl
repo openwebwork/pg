@@ -467,7 +467,7 @@ sub extensionContext {
 sub AUTOLOAD {
 	our $AUTOLOAD;
 	my $self = shift;
-	return unless $self;
+	return unless defined $self;
 	my $class  = $self->extensionContext;
 	my $method = (split(/::/, $AUTOLOAD))[-1];
 	return if $method eq 'DESTROY';
