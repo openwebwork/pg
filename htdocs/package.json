@@ -14,21 +14,21 @@
 	},
 	"dependencies": {
 		"@openwebwork/mathquill": "^0.11.5",
-		"jsxgraph": "^1.12.2",
+		"jsxgraph": "^1.13.0",
 		"jszip": "^3.10.1",
 		"jszip-utils": "^0.1.0",
-		"plotly.js-dist-min": "^3.5.1",
+		"plotly.js-dist-min": "^3.7.0",
 		"sortablejs": "^1.15.7"
 	},
 	"devDependencies": {
-		"autoprefixer": "^10.5.0",
+		"autoprefixer": "^10.5.4",
 		"chokidar": "^5.0.0",
-		"cssnano": "^8.0.1",
-		"postcss": "^8.5.15",
-		"prettier": "^3.8.3",
+		"cssnano": "^8.0.2",
+		"postcss": "^8.5.21",
+		"prettier": "^3.9.6",
 		"rtlcss": "^4.3.0",
-		"sass": "^1.100.0",
-		"terser": "^5.48.0",
+		"sass": "^1.101.3",
+		"terser": "^5.49.0",
 		"yargs": "^18.0.0"
 	},
 	"browserslist": [

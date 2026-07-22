@@ -29,18 +29,15 @@
 					}
 
 					onBoundary(point, _aVal, from) {
-						if (
-							!(
-								point[1] >
-									Math.min(this.definingPts[0].X(), this.definingPts[1].X()) - 0.5 / gt.board.unitX &&
-								point[1] <
-									Math.max(this.definingPts[0].X(), this.definingPts[1].X()) + 0.5 / gt.board.unitX &&
-								point[2] >
-									Math.min(this.definingPts[0].Y(), this.definingPts[1].Y()) - 0.5 / gt.board.unitY &&
-								point[2] <
-									Math.max(this.definingPts[0].Y(), this.definingPts[1].Y()) + 0.5 / gt.board.unitY
-							)
-						)
+						if (!(
+							point[1] >
+								Math.min(this.definingPts[0].X(), this.definingPts[1].X()) - 0.5 / gt.board.unitX &&
+							point[1] <
+								Math.max(this.definingPts[0].X(), this.definingPts[1].X()) + 0.5 / gt.board.unitX &&
+							point[2] >
+								Math.min(this.definingPts[0].Y(), this.definingPts[1].Y()) - 0.5 / gt.board.unitY &&
+							point[2] < Math.max(this.definingPts[0].Y(), this.definingPts[1].Y()) + 0.5 / gt.board.unitY
+						))
 							return 0;
 
 						const crossingStdForm = [
