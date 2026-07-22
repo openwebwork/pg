@@ -535,7 +535,7 @@ sub TableEnvironment {
 	my $booktabs = $tableOpts->{booktabs};
 
 	my $cols = Cols($tableArray, $tableOpts, $alignment);
-	my $rows = Rows($tableArray, $tableOpts, $alignment);
+	my $rows = Rows($tableArray, $tableOpts, $alignment, $cols);
 
 	if ($main::displayMode eq 'TeX') {
 		my $tabulartype  = $hasX ? 'tabularx'                        : 'tabular';
@@ -573,15 +573,8 @@ sub TableEnvironment {
 		} elsif (!$tableOpts->{center}) {
 			$ptxmargins = '0% 0%';
 		}
-		if ($tableOpts->{LaYoUt}) {
-			$rows = tag(
-				$rows,
-				'sbsgroup',
-				{
-					margins => $ptxmargins,
-					widths  => $cols
-				}
-			);
+		if ($tableOpts->{LaYoUt} && $#$tableArray && !$#{ $tableArray->[0] }) {
+			$rows = tag($rows, 'stack',);
 		} elsif (!$tableOpts->{LaYoUt}) {
 			$rows = prefix($rows, $cols);
 			$rows = tag(
@@ -763,7 +756,7 @@ sub Cols {
 }
 
 sub Rows {
-	my ($tableArray, $tableOpts, $alignment) = @_;
+	my ($tableArray, $tableOpts, $alignment, $cols) = @_;
 
 	my @rows;
 	my @htmlhead;
@@ -845,15 +838,16 @@ sub Rows {
 			$ptxleft = "none"
 				if (!$ptxleft && $rowArray->[0]{halign} && $alignment->[0]{left});
 
-			if ($tableOpts->{LaYoUt}) {
+			if ($tableOpts->{LaYoUt} && $#{ $tableArray->[0] }) {
 				$row = tag(
 					$row,
 					'sidebyside',
 					{
 						valign => ($valign) ? $valign : $tableOpts->{valign},
+						widths => $cols
 					}
 				);
-			} else {
+			} elsif (!$tableOpts->{LaYoUt}) {
 				$row = tag(
 					$row, 'row',
 					{
@@ -1002,8 +996,6 @@ sub Row {
 			}
 			if ($tableOpts->{LaYoUt}) {
 				$cell = tag($cell, 'p');
-				$cell = tag($cell, 'stack',);
-
 			} else {
 				$cell = tag(
 					$cell, 'cell',
