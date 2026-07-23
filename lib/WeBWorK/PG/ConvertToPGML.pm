@@ -106,13 +106,9 @@ sub convertToPGML {
 			my $num_macro_lines = 1; # store the number of lines in the loadMacro so the output is similar to the input.
 			while ($row !~ /\)\s*;/) {
 				# Remove comments within loadMacros block (should we keep them?)
-				$row =~ s/#.*$//;
-				$macros .= $row;
+				$macros .= $row =~ s/#.*$//r;
 				++$num_macro_lines;
 				$row = shift @rows;
-				my @mrow = split(/#/, $row);
-				# This only adds the row if there is something relevant to the left of a #
-				$macros .= $mrow[0] if $mrow[0] !~ /^\s*$/;
 			}
 			$macros .= $row;
 
