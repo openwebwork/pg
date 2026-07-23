@@ -471,10 +471,12 @@ sub AUTOLOAD {
 	my $class  = $self->extensionContext;
 	my $method = (split(/::/, $AUTOLOAD))[-1];
 	return if $method eq 'DESTROY';
+
 	if (substr($AUTOLOAD, 0, length($class) + 2) eq $class . '::') {
 		my $code = $self->super($method);
 		return &$code($self, @_) if $code;
 	}
+
 	die "Can't locate object method '$method' via package \"" . ref($self) . (getCaller() // '');
 }
 

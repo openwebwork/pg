@@ -40,7 +40,6 @@ subtest 'Test a number with length units and significant figures' => sub {
 	ok $a == Compute('4.035 ft'), 'Value in feet';
 	ok $a == Compute('4.034 ft'), 'Value in feet (a little off, but when converted to m is correct)';
 	ok $a == Compute('4.036 ft'), 'Value in feet (a little off, but when converted to m is correct)';
-
 };
 
 done_testing;

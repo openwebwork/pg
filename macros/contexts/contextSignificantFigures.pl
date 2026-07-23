@@ -1,12 +1,14 @@
 
 =head1 NAME
 
-contextSignificantFigures.pl - Implements a context to handle numbers where significant figures is important.
+contextSignificantFigures.pl - Implements a context to handle numbers where 
+significant figures is important.
 
 =head1 DESCRIPTION
 
-This file implements a MathObject SignificantFigures class that provides the ability to create
-numbers for given significant figures as well as the operations +, -, *, /, **
+This file implements a MathObject SignificantFigures class that provides the 
+ability to create numbers for given significant figures as well as the operations 
++, -, *, /, **
 
 To load this context, use
 
@@ -20,61 +22,66 @@ or
 
     Context('LimitedSignificantFigures');
 
-where the latter context, you or the student are not allowed to perform any operations on
-any numbers.
+where the latter context, operations between numbers are not allowed.
 
-This is primarily for decimal numbers and keep track of significant figures.   With the context loaded,
-a call to C<Real> will parse the number or string to keep track of significant figures. For example,
+This is primarily for decimal numbers and keep track of significant figures.
+With the context loaded, a call to C<Real> will parse the number or string to keep
+track of significant figures. For example,
 
-    $x = Real('10.45');
+    $x = Real('37.45');
     $y = Real('37.1834');
 
-and these numbers will have 6 and 4 significant figures respectively.  To query the number of significant
-figures, use the C<sigfigs> method.  For example, C<< $x->sigfigs >> will return 4.
+and these numbers will have 4 and 6 significant figures respectively.  To query
+the number of significant figures, use the C<sigfigs> method.  For example, 
+C<< $x->sigfigs >> will return 4.
 
-The standard arithmetic operations +, -, *, / are defined for these and the result will have the correct
-number of significant figures. For example
+The standard arithmetic operations +, -, *, / are defined for these and the result
+will have the correct number of significant figures. For example
 
     $x + $y;
 
-returns the value C<20.63>, where the first number is rounded to the hundredths place before adding.
+returns the value C<74.63>, where the first number is rounded to the hundredths 
+place before adding.
 
    $x * $y;
 
-returns C<106.4> (with only 4 significant figures, since one of them only has four).
+returns C<1392> or C<1.392E+02>. 
 
 Finally, we can also perform subtraction as in
 
    $x - $y;
 
-however, subtraction can lose significant figures.  The answer to this is C<0.23>, so only 2 significant
-figures.
+however, subtraction can lose significant figures.  The answer to this is C<0.27>, 
+resulting in only 2 significant figures.
 
 =head2 Significant Figure Rules
 
-A reminder about significant figures is that all non-zero digits are significant.  The rule about a
-zero's significance depends on where it is in a number.
+A reminder about significant figures is that all non-zero digits are significant.
+The rule about a zero's significance depends on where it is in a number.
 
 =over
 
-=item * Zeros between any significant digits are significant.  The zeros in 12.0034 are significant.
-There are 6 significant figures in this number.
+=item * Zeros between any significant digits are significant.  The zeros in 12.0034 
+are significant. There are 6 significant figures in this number.
 
-=item * Zeros to the left of a non-zero digit are not significant.  The zeros in 0.00123 are 
-not significant.  There are 3 significant figures in this number.
+=item * Zeros to the left of a non-zero digit are not significant.  The zeros in 
+0.00123 are not significant.  There are 3 significant figures in this number.
 
-=item * Zeros to right of the decimal point and to the right a non-zero digit are significant.
-The zeros in 12.3400 are significant. There are 6 significant figures in this number.
+=item * Zeros to right of the decimal point and to the right a non-zero digit are
+significant. The zeros in 12.3400 are significant. There are 6 significant figures 
+in this number.
 
-=item * Zeros to the left of the decimal point and to the right of a non zero digit are not
-significant.  The zeros in 12300 are not significant. There are 3 significant figures in this number.
-However, the presence of a significant zero changes the rule.  The zeros in 12300.0  are all
-significant because the rightmost 0 is significant and therefore the other zeros are significant.
+=item * Zeros to the left of the decimal point and to the right of a non-zero 
+digit are not significant.  The zeros in 12300 are not significant. There are 3 
+significant figures in this number.  However, the presence of a significant zero
+changes the rule.  The zeros in 12300.0  are all significant because the rightmost
+0 is significant and therefore the other zeros are significant.
 
 
 =back
 
-Note: If a number only consists of zeros has some different rules generally as a result of other operations.
+Note: If a number only consists of zeros has some different rules generally as a
+result of other operations.
 
 =over
 
@@ -88,70 +95,76 @@ Note: If a number only consists of zeros has some different rules generally as a
 
 =head3 Setting the number of significant figures.
 
-The number of significant figures can be set in two ways.  The first, in creation of the number if the 
-option C<sigfigs> is used.  For example
+The number of significant figures can be set in two ways.  The first, in creation
+of the number if the option C<sigfigs> is used.  For example
 
     Real('100', sigfigs => 2)
 
-will give the number C<1.0 * 10^2>.  Alternatively, if a number is already created, then the C<sigfigs>
-method can set the number of significant figures.  If
+will give the number C<1.0 * 10^2>.  Alternatively, if a number is already created,
+then the C<sigfigs> method can set the number of significant figures.  If
 
     $x = Real('1000');
 
-then C<$x> has 1 significant figure, but C<< $x->sigfigs(3) >> will update that to C<1.00 * 10^3>.
+then C<$x> has 1 significant figure, but C<< $x->sigfigs(3) >> will update that
+to C<1.00 * 10^3>.
 
-One can set a number with infinite significant figures with C<< sigfigs => 'inf' >>.   This is often done
-with known constants.  A simple example would be that in the perimeter of a square with side C<x>, or C<4x>,
-the 4 would have infinite significant figures, meaning that the result would have the same significant figures
-as the number x.  Example:
+One can set a number with infinite significant figures with C<< sigfigs => 'inf' >>.
+This is often done with known constants.  A simple example would be that in the
+perimeter of a square with side C<x>, or C<4x>, the 4 would have infinite significant
+figures, meaning that the result would have the same significant figures as the
+number x.  Example:
 
     $x = Real(17.05);
     $p = Real(4, sigfigs => 'inf') * $x;
 
-One can set the number of significant figures after a number has been created with the C<sigfigs> method.
-For example,
+One can set the number of significant figures after a number has been created
+with the C<sigfigs> method. For example,
 
     $x = Real(12.3456);
 
-which has 6 significant figures.  If C<< $x->sigfigs(4) >>, then the result is the number '12.35', where
-rounding has been performed.
+which has 6 significant figures.  If C<< $x->sigfigs(4) >>, then the result is
+the number '12.35', where rounding has been performed.
 
 =head2 Flags
 
-There are two flags that give authors some control over messaging for near correct answers.  Recall that
-a correct answer in this context is only given when a student has correct number of significant figures
-and the correct answer (to all digits).
+There are two flags that give authors some control over messaging for near-correct
+answers.  The default behavior is that a correct answer in this context is only
+given when a student has correct number of significant figures and the correct
+answer (to all digits).
 
 =over 
 
 =item Incorrect Significant Figures
 
-If an author wants show a message and possibly give partial credit for a correct answer (within tolerance)
-but the incorrect number of significant figures, then set the C<partial_incorrect_sf> flag to a value between 
-0 and 1. 
+If an author wants show a message and possibly give partial credit for a correct
+answer (within tolerance) but the incorrect number of significant figures, then
+set the C<partial_incorrect_sf> flag to a value between 0 and 1. 
 
-If a student has the correct answer to within tolerance (using any of the tolerances set by C<Value::Real>),
-but has the incorrect number of significant figures, then if the flag C<partial_incorrect_sf> exists, then a 
-message will be shown to the student and the student will receive partial credit with this value. 
+If the flag C<partial_incorrect_sf> is set, and a student has the correct answer
+to within tolerance (using any of the tolerances set by C<Value::Real>) as well
+as the the incorrect number of significant figures, then a message will be
+shown to the student and the student will receive partial credit with this value. 
 
 For example,
 
     Context('SignificantFigures')->flags->set(tolerance => 0.01, partial_incorrect_sf => 0.6);
 
-will set the tolerance to 0.01 (this is the same C<tolerance> flag for reals) and the amount of 
-partial credit to give for the correct answer with wrong number of significant figures. 
+will set the tolerance to 0.01 (this is the same C<tolerance> flag for reals)
+and the amount of partial credit to give for the correct answer with wrong number
+of significant figures. 
 
-Note that if the author would like to have the message shown, but no partial credit, use
-C<< partial_incorrect_sf => 0 >>. 
+Note that if the author would like to have the message shown, but no partial credit,
+use C<< partial_incorrect_sf => 0 >>. 
 
 =item Correct Significant Figures and Close to the Correct Answer
 
-If an author would like to show a message and possibly give partial credit for a correct answer (within tolerance)
-and correct number of significant figures, then the flag C<partial_sf_within_tolerance> can be used.  
+If an author would like to show a message and possibly give partial credit for a
+correct answer (within tolerance) and correct number of significant figures,
+then the flag C<partial_sf_within_tolerance> can be used.  
 
-If this flag exists and a student has the correct number of significant figures and the answer is within
-tolerance (using those set by C<Value::Real>) then a message will be shown and the student will
-receive this value on the answer. 
+If this flag exists and a student has the correct number of significant figures
+and the answer is within tolerance (using those set by C<Value::Real>) then a
+message will be shown and the student will receive this value on the answer. 
 
 For example,
 
@@ -164,8 +177,8 @@ C<< partial_sf_within_tolerance => 0 >>.
 
 =head2 SigFigNumber
 
-The function C<SigFigNumber> will also create a SigFigNumber with the second argument the number of
-significant figures.  For example,
+The function C<SigFigNumber> will also create a SigFigNumber with the second 
+argument the number of significant figures.  For example,
 
     $a = SigFigNumber(12.345);
     $b = SigFigNumber(10000,3);
@@ -216,12 +229,12 @@ sub new {
 		if ($value !~ m/[.Ee]/) {    # The number is an integer.
 			$digits =~ s/0+$//;      # Remove trailing 0s.
 		} else {
-			$digits =~ s/[Ee].*$//;    # remove exponent, if any
+			$digits =~ s/[Ee].*$//;    # Remove the exponent, if any
 			if ($value == 0) {
-				$digits =~ s/^0*\.?/0/;    # remove leading 0s, leaving only one
+				$digits =~ s/^0*\.?/0/;    # Remove any leading 0s, leaving only one.
 			} else {
-				$digits =~ s/\.//;         # remove non-digits
-				$digits =~ s/^0+//;        # remove leading zeros
+				$digits =~ s/\.//;         # Remove non-digits.
+				$digits =~ s/^0+//;        # Remove leading zeros.
 			}
 		}
 		$n = length($digits) || 'inf';     # what remains are the significant digits
@@ -366,8 +379,8 @@ sub neg {
 	return $self->new(-$self->value, sigfigs => $self->{sigfigs});
 }
 
-# This promotes non-Sig fig numbers that are used in expressions to a sig fig
-# with infinite precision.
+# This promotes non-significant figure numbers that are used in expressions to a
+# significant figure number with infinite precision.
 
 sub promote {
 	my $self    = shift;
@@ -377,8 +390,8 @@ sub promote {
 	return $self->new($context, $value, sigfigs => 'inf');
 }
 
-# The compare method determines that the values are equal with the same number of significant figures.
-# This also handles inequalities as in other Reals.
+# The compare method determines that the values are equal with the same number of
+# significant figures.  This also handles inequalities as in other Reals.
 
 sub compare {
 	my ($self, $l, $r) = Value::checkOpOrderWithPromote(@_);

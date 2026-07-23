@@ -463,6 +463,77 @@ subtest 'Significant Figures for partial credit' => sub {
 		'Answer processed showing message.';
 };
 
+subtest 'Significant Figures for partial credit' => sub {
+
+	# test an actual problem
+
+	my $source = <<~'END_SOURCE';
+		DOCUMENT();
+		loadMacros("PGstandard.pl","PGML.pl",'contextSignificantFigures.pl');
+		Context('SignificantFigures')->flags->set(tolerance => 0.001, 
+			partial_incorrect_sf=>0.6,
+			partial_sf_within_tolerance => 0.8,
+		);
+		$a=Real('123.0');
+		BEGIN_PGML
+		[_]{$a}
+		END_PGML
+		ENDDOCUMENT();
+	END_SOURCE
+
+	ok my $pg = WeBWorK::PG->new(
+		r_source       => \$source,
+		inputs_ref     => { AnSwEr0001 => '123.0' },
+		processAnswers => 1
+		),
+		'source string renders';
+
+	# print Dumper $pg->{result};
+
+	is $pg->{result}{score}, 1, 'correct answer is scored correctly';
+
+	my $pg2 = WeBWorK::PG->new(
+		r_source       => \$source,
+		processAnswers => 1,
+		inputs_ref     => { AnSwEr0001 => '123.00' },
+	);
+
+	is $pg2->{result}{score}, 0.6, 'reduced credit is scored correctly';
+	like $pg2->{answers}{AnSwEr0001}{ans_message}, qr/Incorrect number of significant figures/,
+		'Answer processed showing message.';
+
+	my $pg3 = WeBWorK::PG->new(
+		r_source       => \$source,
+		processAnswers => 1,
+		inputs_ref     => { AnSwEr0001 => '1.230 * 10^2' },
+	);
+
+	is $pg3->{result}{score}, 1, 'scientific notation is correct.';
+
+	my $pg4 = WeBWorK::PG->new(
+		r_source       => \$source,
+		processAnswers => 1,
+		inputs_ref     => { AnSwEr0001 => '1.23 * 10^2' },
+	);
+
+	is $pg4->{result}{score}, 0.6, 'scientific notation is scored with correct partial credit.';
+
+	like $pg4->{answers}{AnSwEr0001}{ans_message}, qr/Incorrect number of significant figures/,
+		'Answer processed showing message.';
+
+	my $pg5 = WeBWorK::PG->new(
+		r_source       => \$source,
+		processAnswers => 1,
+		inputs_ref     => { AnSwEr0001 => '123.1' },
+	);
+
+	is $pg5->{result}{score}, 0.8, 'Answer has correct sf but incorrect value.';
+
+	like $pg5->{answers}{AnSwEr0001}{ans_message},
+		qr/Correct number of significant figures, but the value is not correct/,
+		'Answer processed showing message.';
+};
+
 # The following is used the test if an expression (like an average) has a non sig fig
 # perl number to get promoted to a sig fig with infinite precision.
 
