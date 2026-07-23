@@ -2203,6 +2203,9 @@ sub PTX_cleanup {
 				s/(?s)(<tabular[^>]*>(?:\s|<col (?:(?!width=").)*?>)((?!<\/tabular>).)*?<cell[^>]*>((?!<\/tabular>).)*?)<p>(((?!<\/tabular>).)*?)<\/p>(((?!<\/tabular>).)*?<\/tabular>)/$1$4$6/g;
 		} until ($previous eq $string);
 
+		#certain elements should not be encased in <p>, but can end up that way owing to the ubiquity of <p>
+		$string =~ s/<p>(<(sidebyside|stack)\W)/$1/g;
+		$string =~ s/(<\/(sidebyside|stack)>)<\/p>/$1/g;
 	}
 	$string;
 }
