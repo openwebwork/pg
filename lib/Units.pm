@@ -221,7 +221,7 @@ our %known_units = (
 		factor => 0.001,
 		m      => 3
 	},
-	ml => {              # milliliter (cubic centimeter)
+	mL => {              # milliliter (cubic centimeter)
 		factor  => 1E-6,
 		m       => 3,
 		aliases => ['cc']
