@@ -115,7 +115,8 @@ our %UNITS = (
 	'%' => {
 		factor      => 0.01,
 		units       => {},
-		noSeparator => 1
+		noSeparator => 1,
+		aliases     => ['pct']
 	},
 	# ANGLES: fundamental unit rad (radian)
 	deg => {
