@@ -1004,7 +1004,7 @@ sub new {
 			if ($value->isConstant) {
 				$value = $value->eval;
 			} else {
-				$value = $value->getTypicalValue($value)->unit;
+				$value = $value->getTypicalValue($value);
 			}
 		}
 		return $value       if $value->type eq 'Unit';
@@ -1218,7 +1218,7 @@ sub mult {
 	my ($ltype, $rtype) = ($l->type, $r->type);
 	return $l->appendUnit($r) if $ltype eq 'Unit' && $rtype eq 'Unit';
 	$self->Error("A Unit can't be multiplied by %s", Value::showClass($r)) if $ltype eq 'Unit';
-	$self->Error("Can't multiply %s by a Unit", Value::showClass($l))
+	$self->Error("You can't multiply %s by a Unit", Value::showClass($l))
 		unless $ltype eq 'Number' || $ltype eq $context::Units::NUNIT;
 	return $self->Package($context::Units::NUNIT)->new($l->copy, $r->copy);
 }
@@ -1233,7 +1233,7 @@ sub div {
 	return $l->perUnit($r) if $ltype eq 'Unit' && $rtype eq 'Unit';
 	return $self->Package($context::Units::NUNIT)->new($l->copy, $r->raiseUnit(-1, 1)) if $ltype eq 'Number';
 	$self->Error("A Unit can't be divided by %s", Value::showClass($r))                if $ltype eq 'Unit';
-	$self->Error("Can't divide %s by a Unit", Value::showClass($l));
+	$self->Error("You can't divide %s by a Unit", Value::showClass($l));
 }
 
 #
@@ -1469,6 +1469,17 @@ sub new {
 	$self->Error('Can\'t append a Unit to %s',  Value::showClass($n))    unless $n->type eq 'Number';
 	$self->Error('Can\'t convert %s to a Unit', Value::showClass($unit)) unless $unit->classMatch('Unit');
 	return $n if $unit->string eq '';
+
+	if ($unit->fString eq '' && $unit->string ne '%') {
+		if ($unit->{dunits}{'%'}) {
+			$n /= 0.01**$unit->{dunits}{'%'};
+			return $n;
+		}
+		if ($unit->{nunits}{'%'}) {
+			$n *= 0.01**($unit->{nunits}{'%'} - 1);
+			$unit = $unit->new('%');
+		}
+	}
 	return bless { data => [ $n, $unit ], context => $context, isConstant => 1 }, $class;
 }
 
@@ -1617,10 +1628,11 @@ sub abs {
 #
 sub add {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
-	shift;
-	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
+	($l, $r) = ($self->makeValue($l), $self->makeValue($r));
+	my $f = $self->checkFormulas($l, $r, $_[2], sub { $_[0] + $_[1] });
+	return $f if defined $f;
 	$self->Error('You can\'t add %s to %s', $l->showClass, $r->showClass)
-		unless $other->classMatch('NumberWithUnit');
+		unless ($_[2] ? $l : $r)->classMatch('NumberWithUnit');
 	$self->Error('You can only add quantities with the same units') unless $l->fString eq $r->fString;
 	return $self->new($l->number + $r->quantity / $l->factor, $l->unit->copy);
 }
@@ -1630,10 +1642,11 @@ sub add {
 #
 sub sub {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
-	shift;
-	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
+	($l, $r) = ($self->makeValue($l), $self->makeValue($r));
+	my $f = $self->checkFormulas($l, $r, $_[2], sub { $_[0] - $_[1] });
+	return $f if defined $f;
 	$self->Error('You can\'t subtract %s from %s', $r->showClass, $l->showClass)
-		unless $other->classMatch('NumberWithUnit');
+		unless ($_[2] ? $l : $r)->classMatch('NumberWithUnit');
 	$self->Error('You can only subtract quantities with the same units') unless $l->fString eq $r->fString;
 	return $self->new($l->number - $r->quantity / $l->factor, $l->unit->copy);
 }
@@ -1644,14 +1657,16 @@ sub sub {
 sub mult {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
 	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
-	my ($lUnit, $rUnit)   = ($l->classMatch('Unit'), $r->classMatch('Unit'));
+	my $f = $self->checkFormulas($l, $r, $_[2], sub { $_[0] * $_[1] });
+	return $f if defined $f;
+	my ($lUnit,  $rUnit)  = ($l->classMatch('Unit'),           $r->classMatch('Unit'));
 	my ($lUnitN, $rUnitN) = ($l->classMatch('NumberWithUnit'), $r->classMatch('NumberWithUnit'));
 	return $self->new($l->number->copy,        $l->unit->appendUnit($r))       if $lUnitN && $rUnit;
 	return $self->new($l->number * $r->number, $l->unit->appendUnit($r->unit)) if $lUnitN && $rUnitN;
 	return $self->new($l * $r->number,         $r->unit->copy)                 if $l->type eq 'Number';
 	return $self->new($l->number * $r,         $l->unit->copy)                 if $r->type eq 'Number';
 	$self->Error("A Unit can't be multiplied by %s", Value::showClass($r)) if $lUnit;
-	$self->Error("Can't multiply %s by a Unit", Value::showClass($l));
+	$self->Error("You can't multiply %s by a Unit", Value::showClass($l));
 }
 
 #
@@ -1661,14 +1676,16 @@ sub mult {
 sub div {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
 	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
-	my ($lUnit, $rUnit)   = ($l->classMatch('Unit'), $r->classMatch('Unit'));
+	my $f = $self->checkFormulas($l, $r, $_[2], sub { $_[0] / $_[1] });
+	return $f if defined $f;
+	my ($lUnit,  $rUnit)  = ($l->classMatch('Unit'),           $r->classMatch('Unit'));
 	my ($lUnitN, $rUnitN) = ($l->classMatch('NumberWithUnit'), $r->classMatch('NumberWithUnit'));
 	return $self->new($l->number->copy,        $l->unit->perUnit($r))       if $lUnitN && $rUnit;
 	return $self->new($l->number / $r->number, $l->unit->perUnit($r->unit)) if $lUnitN && $rUnitN;
 	return $self->new($l / $r->number,         $r->unit->raiseUnit(-1, 1))  if $l->type eq 'Number';
 	return $self->new($l->number / $r,         $l->unit->copy)              if $r->type eq 'Number';
 	$self->Error("A Unit can't be divided by %s", Value::showClass($r)) if $lUnit;
-	$self->Error("Can't divide %s by a Unit", Value::showClass($l));
+	$self->Error("You can't divide %s by a Unit", Value::showClass($l));
 }
 
 #
@@ -1677,10 +1694,12 @@ sub div {
 sub power {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
 	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
-	$self->Error("A $context::Units::NUNIT can't be raised to %s", $r->showClass)
+	my $f = $self->checkFormulas($l, $r, $_[2], sub { $_[0]**$_[1] });
+	return $f if defined $f;
+	$self->Error("A %s can't be raised to %s", $context::Units::NUNIT, $r->showClass)
 		unless $l->classMatch('NumberWithUnit') && $r->type eq 'Number';
 	my $n = $r->value;
-	$self->Error("A $context::Units::NUNIT can only be raised to a non-zero integer value")
+	$self->Error("A %s can only be raised to a non-zero integer value", $context::Units::NUNIT)
 		if $n == 0 || CORE::int($n) != $n;
 	return $self->new($l->number**$n, $l->unit->raiseUnit($n));
 }
@@ -1690,7 +1709,8 @@ sub power {
 #
 sub compare {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
-	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
+	($l, $r) = ($self->makeValue($l), $self->makeValue($r));
+	return ($_[2] ? 1 : -1) if ($_[2] ? $l : $r)->isFormula;
 	return $l->type eq 'Unit' || $r->classMatch('NumberWithUnit') ? -1 : 1 unless $l->type eq $r->type;
 	my ($ls, $rs) = ($l->fString, $r->fString);
 	return $ls cmp $rs unless $ls eq $rs;
@@ -1703,6 +1723,30 @@ sub compare {
 sub D {
 	my $self = shift;
 	return $self->new($self->number->D(@_), $self->unit->D(@_));
+}
+
+#
+#  Convert to Value objects, taking percents into account
+#
+sub makeValue {
+	my $self = shift;
+	my $x    = Value::makeValue(shift);
+	return
+		$x->isReal
+		&& $self->fString eq ''
+		&& $self->unit->string eq '%'
+		&& !$self->getFlag('sameUnits') ? $self->new($x * 100, '%') : $x;
+}
+
+#
+#  Check if operands are formulas and if so, convert the other to a
+#  formula and perform the operation.
+#
+sub checkFormulas {
+	my ($self, $l, $r, $switch, $fn) = @_;
+	return unless ($switch ? $l : $r)->isFormula;
+	($switch ? $r : $l) = $self->Package('Formula')->new($self);
+	return &$fn($l, $r);
 }
 
 #############################################################
@@ -1823,23 +1867,35 @@ sub hasNumberUnitOperands {
 }
 
 #
+#  Check if one operand is a percentage and the other is a number
+#
+sub hasPercentNumberOperands {
+	my ($self, $l, $r, $ltype, $rtype) = @_;
+	my $NUNIT = $context::Units::NUNIT;
+	return ($ltype eq $NUNIT && $rtype eq 'Number' && $self->Package('Formula')->new($l)->unit->string eq '%')
+		|| ($rtype eq $NUNIT && $ltype eq 'Number' && $self->Package('Formula')->new($r)->unit->string eq '%');
+}
+
+#
 #  Call the _check from the original class unless one of the operands
 #  is a Number with Units, in which case, we check that operations are
 #  allowed, and set the type if they are.
 #
 sub checkNumberUnits {
 	my $self = shift;
-	my ($ltype, $rtype) = ($self->{lop}->type, $self->{rop}->type);
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	my ($ltype, $rtype) = ($l->type, $r->type);
 	return $self->mutate->_check unless $self->hasNumberUnitOperand($ltype, $rtype);
+	$self->{type} = $context::Units::NUMBER_WITH_UNIT;
+	return if $self->hasPercentNumberOperands($l, $r, $ltype, $rtype);
 	$self->Error("Both operands of '%s' must have units if one does", $self->{bop})
 		unless $self->hasNumberUnitOperands($ltype, $rtype);
-	my $lunit = $self->Package('Formula')->new($self->{lop})->unit;
-	my $runit = $self->Package('Formula')->new($self->{rop})->unit;
+	my $lunit = $self->Package('Formula')->new($l)->unit;
+	my $runit = $self->Package('Formula')->new($r)->unit;
 	$self->Error("Units '%s' and '%s' are not compatible", $lunit->string, $runit->string)
 		unless $lunit->fString eq $runit->fString;
-	$self->Error("Can't use '%s' with Numbers with Units in this context", $self->{bop})
+	$self->Error("You can't use '%s' with Numbers with Units in this context", $self->{bop})
 		if $self->context->flag('limitedOperators');
-	$self->{type} = $context::Units::NUMBER_WITH_UNIT;
 	$self->factorUnits if !$self->{isConstant} && $self->context->flag('factorUnits');
 }
 
@@ -1860,7 +1916,7 @@ sub checkMultDiv {
 		|| $self->bothUnitOperands($ltype, $rtype)
 		|| ($ltype eq 'Number' && $rtype eq 'Unit');
 	return $self->mutate->_check unless $self->hasUnitOperand($ltype, $rtype);
-	$self->Error("Can't $op1 two Numbers with Units in this context")
+	$self->Error("You can't %s two Numbers with Units in this context", $op1)
 		if $self->context->flag('limitedOperators') && $ltype eq $context::Units::NUNIT && $ltype eq $rtype;
 	$self->{def} = {
 		%{ $self->{def} },
@@ -1878,7 +1934,7 @@ sub checkMultDiv {
 	return
 		if ($ltype eq 'Number' && $rtype eq $context::Units::NUNIT)
 		|| ($rtype eq 'Number' && $ltype eq $context::Units::NUNIT && $mult);
-	$self->Error('A %s can only be $op2 by a Unit', $ltype) if $lHasUnit;
+	$self->Error('A %s can only be %s by a Unit', $ltype, $op2) if $lHasUnit;
 	$self->Error('A Unit can only $action another Unit') unless $ltype eq 'Number' || $mult;
 }
 
@@ -2041,11 +2097,11 @@ sub _check {
 	return $self->mutate->_check
 		unless ($ltype eq 'Unit' || $ltype eq $context::Units::NUNIT) && $rtype eq 'Number';
 	if ($self->context->flag('limitedOperators')) {
-		$self->Error("Can't raise a %s to a power in this context", $ltype) if $ltype ne 'Unit';
+		$self->Error("You can't raise a %s to a power in this context", $ltype) if $ltype ne 'Unit';
 		my $unit   = $self->{lop}->eval;
 		my @nunits = keys %{ $unit->{nunits} };
 		my @dunits = keys %{ $unit->{dunits} };
-		$self->Error("Can't raise a Compound Unit to a power in this context") unless @nunits == 1 && @dunits == 0;
+		$self->Error("You can't raise a Compound Unit to a power in this context") unless @nunits == 1 && @dunits == 0;
 	}
 	$self->{type} = $self->{lop}->{type};
 }
@@ -2223,7 +2279,7 @@ our @ISA = ('context::Units::Super', 'Value::Formula');
 
 sub checkNumberWithUnits {
 	my ($self, $method) = @_;
-	$self->Error("Can't use '->$method' with " . $self->showClass)
+	$self->Error([ "You can't use '->%s' with %s", $method, $self->showClass ])
 		unless $self->type eq $context::Units::NUNIT;
 }
 
@@ -2269,7 +2325,7 @@ our @ISA = qw(Parser::List);
 sub _check {
 	my $self = shift;
 	$self->{type}{list} = 0;
-	$self->Error("Lists of units are not allowed") if ($self->{type}{length} != 1);
+	$self->Error("Lists of units are not allowed") if $self->{type}{length} != 1;
 	my $arg = $self->{coords}[0];
 	$self->Error("Parentheses should only be used around units in this context")
 		unless $arg->type eq 'Unit' || $self->context->flag("allowBadOperands");
