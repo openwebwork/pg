@@ -83,7 +83,7 @@ sub convertFile ($filename) {
 	}
 
 	# Copy the original file to a backup and then write the file.
-	my $new_path    = $backup ? $path : Mojo::File->new($filename =~ s/\.pg/.$suffix/r);
+	my $new_path    = $backup ? $path : Mojo::File->new($filename =~ s/\.pg/.$suffix\.pg/r);
 	my $backup_file = $filename =~ s/\.pg$/.pg.bak/r;
 	$path->copy_to($backup_file) if $backup;
 	$new_path->spurt($result->{pgmlCode});

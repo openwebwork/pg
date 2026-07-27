@@ -185,8 +185,14 @@ sub parseLoadMacros {
 		@macros =
 			grep {
 				$_
-				&& $_ !~
-				/(PGstandard|PGML|PGauxiliaryFunctions|PGbasicmacros|PGanswermacros|MathObjects|PGcourse|AnswerFormatHelp).pl/x
+				&& $_ !~ /(PGstandard|
+					PGML|
+					PGauxiliaryFunctions|
+					PGbasicmacros|
+					PGanswermacros|
+					MathObjects|
+					PGcourse|
+					AnswerFormatHelp).pl/x
 			}
 			map {s/['"]//gr} @macros;
 
