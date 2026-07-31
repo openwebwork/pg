@@ -233,9 +233,21 @@ sub get_options {
 		$drawOptions{dash}        = $self->get_linestyle($data);
 		$drawOptions{strokeColor} = $self->get_color($data->style('color'));
 		$drawOptions{strokeWidth} = $data->style('width');
-		$drawOptions{firstArrow}  = { type => 2, size => $data->style('arrow_size') || 8 }
+
+		# Safari doesn't correctly inherit the stroke color, so explicitly set it for arrows.
+		$drawOptions{firstArrow} = {
+			type        => 2,
+			size        => $data->style('arrow_size') || 8,
+			strokeColor => $drawOptions{strokeColor},
+			fillColor   => $drawOptions{strokeColor}
+			}
 			if $data->style('start_mark') eq 'arrow';
-		$drawOptions{lastArrow} = { type => 2, size => $data->style('arrow_size') || 8 }
+		$drawOptions{lastArrow} = {
+			type        => 2,
+			size        => $data->style('arrow_size') || 8,
+			strokeColor => $drawOptions{strokeColor},
+			fillColor   => $drawOptions{strokeColor}
+			}
 			if $data->style('end_mark') eq 'arrow';
 	}
 
