@@ -16,72 +16,31 @@ our @EXPORT_OK = qw(evaluate_units);
 # Unfortunately there will be no automatic conversion between the different
 # temperature scales since we haven't allowed for affine conversions.
 
-our %FUNDAMENTAL_UNITS = (
-	s => {
-		factor   => 1,
-		units    => { s => 1 },
-		prefixes => [qw(n u m)],
-		aliases  => [ 'second', 'seconds', 'sec' ]
-	},
-	m => {
-		factor   => 1,
-		units    => { m => 1 },
-		prefixes => [qw(f p n u m c k)],
-		aliases  => [ 'meter', 'meters', 'metre', 'metres' ]
-	},
-	kg => {
-		factor => 1,
-		units  => { kg => 1 }
-	},
-	A => {
-		factor   => 1,
-		units    => { A => 1 },
-		prefixes => [qw(m)],
-		string   => 'A',
-		aliases  => ['amp']
-	},
-	K => {
-		factor  => 1,
-		units   => { K => 1 },
-		aliases => [ "\x{212A}", 'degK', "\x{00B0}K" ],
-		string  => "\x{212A}"
-	},
-	mol => {
-		factor   => 1,
-		units    => { mol => 1 },
-		prefixes => [qw(m)]
-	},
-	cd => {
-		factor => 1,
-		units  => { cd => 1 }
-	},
-	rad => {
-		factor  => 1,
-		units   => { rad => 1 },
-		aliases => [ 'radian', 'radians' ]
-	},
-	degC => {
-		factor  => 1,
-		units   => { degC => 1 },
-		string  => "\x{00B0}C",
-		aliases => [ "\x{00B0}C", "\x{2103}" ]
-	},
-	degF => {
-		factor  => 1,
-		units   => { degF => 1 },
-		string  => "\x{00B0}F",
-		aliases => [ "\x{00B0}F", "\x{2109}" ]
-	}
-
+our %fundamental_units = (
+	factor => 1,
+	s      => 0,
+	m      => 0,
+	kg     => 0,
+	A      => 0,
+	K      => 0,
+	mol    => 0,
+	cd     => 0,
+	rad    => 0,
+	degC   => 0,
+	degF   => 0,
 );
 
-# legacy hash
-our %fundamental_units = (factor => 1, map { $_ => 0 } keys %FUNDAMENTAL_UNITS);
-
-# This hash defines all of the units which can be accepted.  These must have:
+# This hash defines all of the units which can be accepted, organized into
+# categories (angles, time, length, and so on). Each category is a hash
+# reference with the keys:
+#  - default_fundamental_units: a hash reference giving the powers of the
+#    fundamental units shared by the units in this category
+#  - definitions: a hash reference of unit name to unit definition
+#
+# Each unit definition must have:
 #  - a numerical factor
-#  - a units hash reference, possibly empty, and the keys must be keys from %FUNDAMENTAL_UNITS
 #  Optionally:
+#  - a fundamental_units hash reference, overriding the category's
 #  - a string key with a string to use for text output. Characters used in this string may be
 #    unicode characters but it should be checked that fonts in various output forms (HTML, TeX)
 #    support those characters. If this is not provided, the actual name of the unit is used.
@@ -97,11 +56,25 @@ our %fundamental_units = (factor => 1, map { $_ => 0 } keys %FUNDAMENTAL_UNITS);
 #  - a prefix_aliases key pointing to a hash reference where keys are SI prefix abbreviations,
 #    and values are special unicode characters like "\x{338C}" which is a single chacter for
 #    microFarad
+#  - a no_legacy boolean key if this unit should be omitted (along with all of its aliases) from
+#    the legacy %known_units hash described below. New units added to %UNITS can have this key to
+#    preserve the legacy %known_units. Also this is necessary for a unit whose name (in one
+#    category) collides with a different unit name (in another category) to ensure which one ends
+#    up in %known_units.
 #
 # For all of these units, for all of their approved prefixes, prefixed units will be added
 # automatically. When the unit has aliases, then for each alias that is 3 characters or shorter,
 # aliases will be added to the prefixed variant that use the prefix and that alias. Hence we will
 # have unit `ns` with an alias `nsec` but not the alias `nsecond`.
+#
+# Each entry of an aliases array is normally just the alias name (a string). An entry may instead
+# be a hash reference with a single key, the alias name, whose value is a hash of options for that
+# alias. The only option currently supported is no_legacy, which excludes that one alias (but not
+# the unit itself or its other aliases) from the legacy %known_units hash. This is how "c" is
+# added below as an alias for "cup" without disturbing "c" as the legacy symbol for the speed of
+# light. Once %known_units has been built, all no_legacy keys (and the hash references used to
+# attach them to individual aliases) are stripped back out of %UNITS, so nothing that reads %UNITS
+# directly (e.g. contextUnits.pl) ever has to know about them.
 #
 # For legacy tools (e.g. parserNumberWithUnits.pl, parserFormulaWithUnits.pl), all of the aliases
 # will be added as units, all collected in the %known_units hash. The %unit_aliases hash will
@@ -111,540 +84,340 @@ our %fundamental_units = (factor => 1, map { $_ => 0 } keys %FUNDAMENTAL_UNITS);
 our $PI = 4 * atan2(1, 1);
 
 our %UNITS = (
-	%FUNDAMENTAL_UNITS,
-	'%' => {
-		factor      => 0.01,
-		units       => {},
-		noSeparator => 1,
-		aliases     => ['pct']
+	dimensionless => {
+		default_fundamental_units => {},
+		definitions               => {
+			'%' => {
+				factor      => 0.01,
+				noSeparator => 1,
+				aliases     => ['pct']
+			},
+		}
 	},
 	# ANGLES: fundamental unit rad (radian)
-	deg => {
-		factor      => $PI / 180,
-		units       => { rad => 1 },
-		string      => "\x{00B0}",
-		noSeparator => 1,
-		aliases     => [ "\x{00B0}", 'degree', 'degrees' ]
-	},
-	sr => {
-		factor => 1,
-		units  => { rad => 2 }
+	angles => {
+		default_fundamental_units => { rad => 1 },
+		definitions               => {
+			rad => { factor => 1, aliases => [ 'radian', 'radians' ] },
+			deg => {
+				factor      => $PI / 180,
+				string      => "\x{00B0}",
+				noSeparator => 1,
+				aliases     => [ "\x{00B0}", 'degree', 'degrees' ]
+			},
+			rev => { factor => 2 * $PI },
+			sr  => { factor => 1, fundamental_units => { rad => 2 } },
+		}
 	},
 	# TIME: fundamental unit s (second)
-	min => {
-		factor  => 60,
-		units   => { s => 1 },
-		aliases => [ 'minute', 'minutes' ]
-	},
-	h => {
-		factor  => 3600,
-		units   => { s => 1 },
-		aliases => [ 'hour', 'hours', 'hr', 'hrs' ]
-	},
-	d => {
-		factor  => 86400,
-		units   => { s => 1 },
-		aliases => [ 'day', 'days' ]
-	},
-	mo => {
-		factor  => 2592000,                # 30 day month
-		units   => { s => 1 },
-		aliases => [ 'month', 'months' ]
-	},
-	yr => {                                # 365 day year
-		factor  => 31557600,
-		units   => { s => 1 },
-		aliases => [ 'year', 'years' ]
-	},
-	fortnight => {
-		factor => 1209600,
-		units  => { s => 1 }
+	time => {
+		default_fundamental_units => { s => 1 },
+		definitions               => {
+			s => {
+				factor   => 1,
+				prefixes => [qw(n u m)],
+				aliases  => [ 'second', 'seconds', 'sec' ]
+			},
+			min => {
+				factor  => 60,
+				aliases => [ 'minute', 'minutes' ]
+			},
+			h => {
+				factor  => 3600,
+				aliases => [ 'hour', 'hours', 'hr', 'hrs' ]
+			},
+			d => {
+				factor  => 86400,
+				aliases => [ 'day', 'days' ]
+			},
+			mo => {
+				factor  => 2592000,                # 30 day month
+				aliases => [ 'month', 'months' ]
+			},
+			yr => {                                # 365 day year
+				factor  => 31557600,
+				aliases => [ 'year', 'years' ]
+			},
+			fortnight => { factor => 1209600 },
+		}
 	},
 	# LENGTHS: fundamental unit m (meter)
-	micron => {
-		factor => 1E-6,
-		units  => { m => 1 }
-	},
-	angstrom => {
-		factor  => 1E-10,
-		units   => { m => 1 },
-		string  => "\x{00C5}",
-		aliases => [ "\x{00C5}", 'angstroms', 'Angstrom', 'Angstroms' ]
-	},
-	in => {
-		factor  => 0.0254,
-		units   => { m => 1 },
-		aliases => [ 'inch', 'inches' ]
-	},
-	ft => {
-		factor  => 0.3048,
-		units   => { m => 1 },
-		aliases => [ 'foot', 'feet' ]
-	},
-	mi => {
-		factor  => 1609.344,
-		units   => { m => 1 },
-		aliases => [ 'mile', 'miles' ]
-	},
-	furlong => {
-		factor => 201.168,
-		units  => { m => 1 }
-	},
-	'light-year' => {
-		factor => 9460730472580800,
-		units  => { m => 1 }
-	},
-	AU => {
-		factor => 149597870700,
-		units  => { m => 1 }
-	},
-	pc => {
-		factor   => 648000 / $PI * 149597870700,
-		units    => { m => 1 },
-		prefixes => [qw(k M)],
-		aliases  => [ 'parsec', 'parsecs' ]
+	length => {
+		default_fundamental_units => { m => 1 },
+		definitions               => {
+			m => {
+				factor   => 1,
+				prefixes => [qw(f p n u m c k)],
+				aliases  => [ 'meter', 'meters', 'metre', 'metres' ]
+			},
+			micron   => { factor => 1E-6 },
+			angstrom => {
+				factor  => 1E-10,
+				string  => "\x{00C5}",
+				aliases => [ "\x{00C5}", 'angstroms', 'Angstrom', 'Angstroms' ]
+			},
+			in => {
+				factor  => 0.0254,
+				aliases => [ 'inch', 'inches' ]
+			},
+			ft => {
+				factor  => 0.3048,
+				aliases => [ 'foot', 'feet' ]
+			},
+			mi => {
+				factor  => 1609.344,
+				aliases => [ 'mile', 'miles' ]
+			},
+			furlong => { factor => 201.168 },
+		}
 	},
 	# VOLUME: fundamental unit m^3 (cubic meter)
-	L => {
-		factor   => 0.001,
-		units    => { m => 3 },
-		prefixes => [qw(m d)],
-		aliases  => [ 'litre', 'litres', 'liter', 'liters', 'l' ]
-	},
-	cc => {
-		factor => 1E-6,
-		units  => { m => 3 }
-	},
-	cup => {
-		factor  => 0.000236588,
-		units   => { m => 3 },
-		aliases => ['cups']
-	},
-	pt => {
-		factor  => 0.000473176473,
-		units   => { m => 3 },
-		aliases => [ 'pint', 'pints' ]
-	},
-	qt => {
-		factor  => 0.000946352946,
-		units   => { m => 3 },
-		aliases => [ 'quart', 'quarts' ]
-	},
-	gal => {
-		factor  => 0.00378541,
-		units   => { m => 3 },
-		aliases => [ 'gallon', 'gallons' ]
+	volume => {
+		default_fundamental_units => { m => 3 },
+		definitions               => {
+			L => {
+				factor   => 0.001,
+				prefixes => [qw(m d)],
+				aliases  => [ 'litre', 'litres', 'liter', 'liters', 'l' ]
+			},
+			cc  => { factor => 1E-6 },
+			cup => {
+				factor => 0.000236588,
+				# "c" collides with the velocity category's symbol for the speed of light, so it
+				# is marked no_legacy.
+				aliases => [ 'cups', { c => { no_legacy => 1 } } ]
+			},
+			pt => {
+				factor  => 0.000473176473,
+				aliases => [ 'pint', 'pints' ]
+			},
+			qt => {
+				factor  => 0.000946352946,
+				aliases => [ 'quart', 'quarts' ]
+			},
+			gal => {
+				factor  => 0.00378541,
+				aliases => [ 'gallon', 'gallons' ]
+			},
+		}
 	},
 	# VELOCITY: fundamental unit m/s (meters per second)
-	knots => {
-		factor => 0.5144444444,
-		units  => {
-			s => -1,
-			m => 1
-		}
-	},
-	c => {
-		factor => 299792458,
-		units  => {
-			s => -1,
-			m => 1
-		}
-	},
-	mph => {
-		factor => 0.44704,
-		units  => {
-			s => -1,
-			m => 1
+	velocity => {
+		default_fundamental_units => { s => -1, m => 1 },
+		definitions               => {
+			knots => { factor => 0.5144444444 },
+			c     => { factor => 299792458 },
+			mph   => { factor => 0.44704 },
 		}
 	},
 	# MASS: fundamental unit kg (kilogram)
-	g => {
-		factor   => 0.001,
-		units    => { kg => 1 },
-		prefixes => [qw(m)]
+	mass => {
+		default_fundamental_units => { kg => 1 },
+		definitions               => {
+			kg     => { factor => 1 },
+			g      => { factor => 0.001, prefixes => [qw(m)] },
+			tonne  => { factor => 1000 },
+			slug   => { factor => 14.6 },
+			firkin => { factor => 40.8233133 },
+		}
 	},
-	tonne => {
-		factor => 1000,
-		units  => { kg => 1 }
-	},
-	slug => {
-		factor => 14.6,
-		units  => { kg => 1 }
-	},
-	firkin => {
-		factor => 40.8233133,
-		units  => { kg => 1 }
+	# TEMPERATURE: fundamental units K, degC, degF (not convertible between
+	# each other here, since that would require affine, not scalar, conversion)
+	temperature => {
+		default_fundamental_units => { K => 1 },
+		definitions               => {
+			K => {
+				factor  => 1,
+				aliases => [ "\x{212A}", 'degK', "\x{00B0}K" ],
+				string  => "\x{212A}"
+			},
+			degC => {
+				factor            => 1,
+				fundamental_units => { degC => 1 },
+				string            => "\x{00B0}C",
+				aliases           => [ "\x{00B0}C", "\x{2103}" ]
+			},
+			degF => {
+				factor            => 1,
+				fundamental_units => { degF => 1 },
+				string            => "\x{00B0}F",
+				aliases           => [ "\x{00B0}F", "\x{2109}" ]
+			},
+		}
 	},
 	# FREQUENCY: fundamental unit rad/s (radians per second)
-	Hz => {
-		factor => 2 * $PI,
-		units  => {
-			s   => -1,
-			rad => 1
-		},
-		prefixes => [qw(k M)]
-	},
-	cycles => {
-		factor  => 2 * $PI,
-		units   => { rad => 1 },
-		aliases => ['rev']
+	frequency => {
+		default_fundamental_units => { s => -1, rad => 1 },
+		definitions               => {
+			Hz => {
+				factor   => 2 * $PI,
+				prefixes => [qw(k M)]
+			},
+			cycles => {
+				factor            => 2 * $PI,
+				fundamental_units => { rad => 1 },
+			},
+		}
 	},
 	# FORCE: fundamental unit m kg / s^2
-	N => {
-		factor => 1,
-		units  => {
-			s  => -2,
-			m  =>  1,
-			kg => 1
-		},
-		prefixes => [qw(u k)]
-	},
-	microN => {
-		factor => 1E-6,
-		units  => {
-			s  => -2,
-			m  =>  1,
-			kg => 1
+	force => {
+		default_fundamental_units => { s => -2, m => 1, kg => 1 },
+		definitions               => {
+			N      => { factor => 1, prefixes => [qw(u k)] },
+			microN => { factor => 1E-6 },
+			dyne   => { factor => 1E-5 },
+			lb     => {
+				factor  => 4.4482216152605,
+				aliases => [ 'pound', 'pounds', 'lbs' ]
+			},
+			ton => {
+				factor  => 8900,
+				aliases => ['tons']
+			},
 		}
-	},
-	dyne => {
-		factor => 1E-5,
-		units  => {
-			s  => -2,
-			m  =>  1,
-			kg => 1
-		}
-	},
-	lb => {
-		factor => 4.4482216152605,
-		units  => {
-			s  => -2,
-			m  =>  1,
-			kg => 1
-		},
-		aliases => [ 'pound', 'pounds', 'lbs' ]
-	},
-	ton => {
-		factor => 8900,
-		units  => {
-			s  => -2,
-			m  =>  1,
-			kg => 1
-		},
-		aliases => ['tons']
 	},
 	# ENERGY: fundamental unit m^2 kg / s^2
-	J => {
-		factor => 1,
-		units  => {
-			s  => -2,
-			m  =>  2,
-			kg => 1
-		},
-		prefixes => [qw(k)]
-	},
-	erg => {
-		factor => 1E-7,
-		units  => {
-			s  => -2,
-			m  =>  2,
-			kg => 1
+	energy => {
+		default_fundamental_units => { s => -2, m => 2, kg => 1 },
+		definitions               => {
+			J   => { factor => 1, prefixes => [qw(k)] },
+			kWh => { factor => 3.6E6 },       # kW and h are valid units, but this is a common enough energy unit
+			erg => { factor => 1E-7 },
+			lbf => { factor => 1.35582 },     # FIXME: this is foot pound but should be pound force
+			kt  => { factor => 4.184E12 },    # this is an energy unit (energy from so many tons of TNT)
+			Mt  => { factor => 4.184E15 },    # this is an energy unit (energy from so many tons of TNT)
+			cal => { factor => 4.19,       prefixes => [qw(k)] },
+			eV  => { factor => 1.6022E-19, prefixes => [qw(k M G T)] },
 		}
-	},
-	lbf => {    #FIXME: this is foot pound but should be pound force
-		factor => 1.35582,
-		units  => {
-			s  => -2,
-			m  =>  2,
-			kg => 1
-		}
-	},
-	kt => {     # this is an energy unit (energy from so many tons of TNT)
-		factor => 4.184E12,
-		units  => {
-			s  => -2,
-			m  =>  2,
-			kg => 1
-		}
-	},
-	Mt => {     # this is an energy unit (energy from so many tons of TNT)
-		factor => 4.184E15,
-		units  => {
-			s  => -2,
-			m  =>  2,
-			kg => 1
-		}
-	},
-	cal => {
-		factor => 4.19,
-		units  => {
-			s  => -2,
-			m  =>  2,
-			kg => 1
-		},
-		prefixes => [qw(k)]
-	},
-	eV => {
-		factor => 1.6022E-19,
-		units  => {
-			s  => -2,
-			m  =>  2,
-			kg => 1
-		},
-		prefixes => [qw(k M G T)]
 	},
 	# POWER: fundamental unit m kg / s^3
-	W => {
-		factor => 1,
-		units  => {
-			s  => -3,
-			m  =>  2,
-			kg => 1
-		},
-		prefixes => [qw(m k M)]
-	},
-	hp => {
-		factor => 746,
-		units  => {
-			s  => -3,
-			m  =>  2,
-			kg => 1
+	power => {
+		default_fundamental_units => { s => -3, m => 2, kg => 1 },
+		definitions               => {
+			W  => { factor => 1, prefixes => [qw(m k M)] },
+			hp => { factor => 746 },
 		}
 	},
 	# PRESSURE: fundamental unit kg / m / s^2
-	Pa => {
-		factor => 1,
-		units  => {
-			s  => -2,
-			m  => -1,
-			kg => 1
-		},
-		prefixes => [qw(k M G)]
-	},
-	atm => {
-		factor => 1.01E5,
-		units  => {
-			s  => -2,
-			m  => -1,
-			kg => 1
-		}
-	},
-	bar => {
-		factor => 100000,
-		units  => {
-			s  => -2,
-			m  => -1,
-			kg => 1
-		},
-		prefixes => [qw(m)]
-	},
-	Torr => {
-		factor => 133.322,
-		units  => {
-			s  => -2,
-			m  => -1,
-			kg => 1
-		}
-	},
-	mmHg => {
-		factor => 133.322,
-		units  => {
-			s  => -2,
-			m  => -1,
-			kg => 1
-		}
-	},
-	cmH2O => {
-		factor => 98.0638,
-		units  => {
-			s  => -2,
-			m  => -1,
-			kg => 1
-		}
-	},
-	psi => {
-		factor => 6895,
-		units  => {
-			s  => -2,
-			m  => -1,
-			kg => 1
+	pressure => {
+		default_fundamental_units => { s => -2, m => -1, kg => 1 },
+		definitions               => {
+			Pa    => { factor => 1, prefixes => [qw(k M G)] },
+			atm   => { factor => 1.01E5 },
+			bar   => { factor => 100000, prefixes => [qw(m)] },
+			Torr  => { factor => 133.322 },
+			mmHg  => { factor => 133.322 },
+			cmH2O => { factor => 98.0638 },
+			psi   => { factor => 6895 },
 		}
 	},
 	# ELECTRICAL UNITS
-	C => {
-		factor => 1,
-		units  => {
-			s => 1,
-			A => 1
-		},
-		prefixes => [qw(n u m)]
-	},
-	V => {
-		factor => 1,
-		units  => {
-			s  => -3,
-			m  =>  2,
-			kg =>  1,
-			A  => -1
-		},
-		prefixes => [qw(m k M)]
-	},
-	F => {
-		factor => 1,
-		units  => {
-			s  =>  4,
-			m  => -2,
-			kg => -1,
-			A  => 2
-		},
-		prefixes       => [qw(u m)],
-		prefix_aliases => { u => "\x{338C}" }
-	},
-	ohm => {
-		factor => 1,
-		units  => {
-			s  => -3,
-			m  =>  2,
-			kg =>  1,
-			A  => -2
-		},
-		prefixes       => [qw(k M)],
-		string         => "\x{2126}",
-		aliases        => ["\x{2126}"],
-		prefix_aliases => {
-			k => "\x{33C0}",
-			M => "\x{33C1}"
-		}
-	},
-	S => {
-		factor => 1,
-		units  => {
-			s  =>  3,
-			m  => -2,
-			kg => -1,
-			A  => 2
+	electricity => {
+		default_fundamental_units => { s => 1, A => 1 },
+		definitions               => {
+			A => {
+				factor            => 1,
+				fundamental_units => { A => 1 },
+				prefixes          => [qw(m)],
+				string            => 'A',
+				aliases           => ['amp']
+			},
+			C => { factor => 1, prefixes => [qw(n u m)] },
+			V => {
+				factor            => 1,
+				fundamental_units => { s => -3, m => 2, kg => 1, A => -1 },
+				prefixes          => [qw(m k M)]
+			},
+			F => {
+				factor            => 1,
+				fundamental_units => { s => 4, m => -2, kg => -1, A => 2 },
+				prefixes          => [qw(u m)],
+				prefix_aliases    => { u => "\x{338C}" }
+			},
+			ohm => {
+				factor            => 1,
+				fundamental_units => { s => -3, m => 2, kg => 1, A => -2 },
+				prefixes          => [qw(k M)],
+				string            => "\x{2126}",
+				aliases           => ["\x{2126}"],
+				prefix_aliases    => {
+					k => "\x{33C0}",
+					M => "\x{33C1}"
+				}
+			},
+			S => { factor => 1, fundamental_units => { s => 3, m => -2, kg => -1, A => 2 } },
 		}
 	},
 	# MAGNETIC UNITS
-	T => {
-		factor => 1,
-		units  => {
-			s  => -2,
-			kg =>  1,
-			A  => -1
-		},
-		prefixes => [qw(m)]
-	},
-	G => {
-		factor => 1E-4,
-		units  => {
-			s  => -2,
-			kg =>  1,
-			A  => -1
-		}
-	},
-	Wb => {
-		factor => 1,
-		units  => {
-			s  => -2,
-			m  =>  2,
-			kg =>  1,
-			A  => -1
-		}
-	},
-	H => {
-		factor => 1,
-		units  => {
-			s  => -2,
-			m  =>  2,
-			kg =>  1,
-			A  => -2
+	magnetism => {
+		default_fundamental_units => { s => -2, kg => 1, A => -1 },
+		definitions               => {
+			T  => { factor => 1, prefixes => [qw(m)] },
+			G  => { factor => 1E-4 },
+			Wb => { factor => 1, fundamental_units => { s => -2, m => 2, kg => 1, A => -1 } },
+			H  => { factor => 1, fundamental_units => { s => -2, m => 2, kg => 1, A => -2 } },
 		}
 	},
 	# LUMINOSITY
-	lm => {
-		factor => 1,
-		units  => {
-			cd  => 1,
-			rad => -2
-		}
-	},
-	lx => {
-		factor => 1,
-		units  => {
-			m   => -2,
-			cd  =>  1,
-			rad => -2
+	luminosity => {
+		default_fundamental_units => { cd => 1, rad => -2 },
+		definitions               => {
+			cd => { factor => 1, fundamental_units => { cd => 1 } },
+			lm => { factor => 1 },
+			lx => { factor => 1, fundamental_units => { m => -2, cd => 1, rad => -2 } },
 		}
 	},
 	# ATOMIC UNITS
-	amu => {
-		factor  => 1.660538921E-27,
-		units   => { kg => 1 },
-		aliases => ['dalton']
-	},
-	me => {
-		factor => 9.1093826E-31,
-		units  => { kg => 1 }
-	},
-	barn => {
-		factor => 1E-28,
-		units  => { m => 2 }
-	},
-	a0 => {
-		factor => 0.5291772108E-10,
-		units  => { m => 1 }
+	atomics => {
+		default_fundamental_units => { kg => 1 },
+		definitions               => {
+			amu => {
+				factor  => 1.660538921E-27,
+				aliases => ['dalton']
+			},
+			me   => { factor => 9.1093826E-31 },
+			barn => { factor => 1E-28,            fundamental_units => { m => 2 } },
+			a0   => { factor => 0.5291772108E-10, fundamental_units => { m => 1 } },
+		}
 	},
 	# RADIATION
-	Sv => {
-		factor => 1,
-		units  => {
-			s => -2,
-			m => 2
-		},
-		prefixes => [qw(u m)]
-	},
-	Bq => {
-		factor => 1,
-		units  => { s => -1 }
+	radiation => {
+		default_fundamental_units => { s => -2, m => 2 },
+		definitions               => {
+			Sv => { factor => 1, prefixes          => [qw(u m)] },
+			Bq => { factor => 1, fundamental_units => { s => -1 } },
+		}
 	},
 	# BIOLOGICAL & CHEMICAL UNITS
-	micromol => {
-		factor => 1E-6,
-		units  => { mol => 1 }
-	},
-	nanomol => {
-		factor => 1E-9,
-		units  => { mol => 1 }
-	},
-	kat => {
-		factor => 1,
-		units  => {
-			s   => -1,
-			mol => 1
+	biochem => {
+		default_fundamental_units => { mol => 1 },
+		definitions               => {
+			mol      => { factor => 1, prefixes => [qw(m)] },
+			micromol => { factor => 1E-6 },
+			nanomol  => { factor => 1E-9 },
+			kat      => { factor => 1, fundamental_units => { s => -1, mol => 1 } },
 		}
 	},
 	# ASTRONOMICAL UNITS
-	'solar-mass' => {
-		factor => 1.98892E30,
-		units  => { kg => 1 }
-	},
-	'solar-radii' => {
-		factor => 6.955E8,
-		units  => { m => 1 }
-	},
-	'solar-lum' => {
-		factor => 3.8939E26,
-		units  => {
-			s  => -3,
-			m  =>  2,
-			kg => 1
+	astronomy => {
+		default_fundamental_units => { m => 1 },
+		definitions               => {
+			'light-year' => { factor => 9460730472580800 },
+			AU           => { factor => 149597870700 },
+			pc           => {
+				factor   => 648000 / $PI * 149597870700,
+				prefixes => [qw(k M)],
+				aliases  => [ 'parsec', 'parsecs' ]
+			},
+			'solar-radii' => { factor => 6.955E8 },
+			'solar-mass'  => { factor => 1.98892E30, fundamental_units => { kg => 1 } },
+			'solar-lum'   => { factor => 3.8939E26,  fundamental_units => { s  => -3, m => 2, kg => 1 } },
 		}
 	},
 );
 
-# Expand to include prefixes
-my %prefixes = (
+# The SI prefixes and their multiplicative factors.
+our %PREFIXES = (
 	f => 1E-15,
 	p => 1E-12,
 	n => 1E-9,
@@ -658,42 +431,44 @@ my %prefixes = (
 	T => 1E12
 );
 
-for my $name (keys %UNITS) {
-	for my $prefix (@{ $UNITS{$name}{prefixes} }) {
-		if ($prefix ne 'u') {
-			$UNITS{"$prefix$name"} = {
-				factor => $prefixes{$prefix} * $UNITS{$name}{factor},
-				units  => { %{ $UNITS{$name}{units} } },
-				$UNITS{$name}{string} ? (string => "$prefix$UNITS{$name}{string}") : (),
-				$UNITS{$name}{TeX}    ? (TeX    => "$prefix$UNITS{$name}{TeX}")    : (),
-			};
-			# if $name had short aliases, apply prefixes to those short aliases
-			my @short_aliases = grep { length($_) <= 3 } @{ $UNITS{$name}{aliases} };
-			$UNITS{"$prefix$name"}{aliases} = [ map {"$prefix$_"} @short_aliases ] if @short_aliases;
-		} else {
-			$UNITS{"u$name"} = {
-				factor => $prefixes{u} * $UNITS{$name}{factor},
-				units  => { %{ $UNITS{$name}{units} } },
-				string => $UNITS{$name}{string} ? "\x{00B5}$UNITS{$name}{string}" : "\x{00B5}$name",
-				TeX    => $UNITS{$name}{TeX}    ? "\x{00B5}$UNITS{$name}{TeX}"    : "\x{00B5}$name",
-			};
-			my @short_aliases = grep { length($_) <= 3 } @{ $UNITS{$name}{aliases} };
-			$UNITS{"$prefix$name"}{aliases} = [ "\x{00B5}$name", map {"$prefix$_"} @short_aliases ];
-		}
-		push @{ $UNITS{"$prefix$name"}{aliases} }, $UNITS{$name}{prefix_aliases}{$prefix}
-			if $UNITS{$name}{prefix_aliases}{$prefix};
-	}
-	delete $UNITS{$name}{prefixes};
-	delete $UNITS{$name}{prefix_aliases};
-}
-
-# Legacy map of unit names to units-with-factors
+# Legacy units hash
 our %known_units;
 
-for my $name (keys %UNITS) {
-	my $unit = $UNITS{$name};
-	$known_units{$name} = { factor => $unit->{factor}, %{ $unit->{units} } };
-	$known_units{$name}{aliases} = $unit->{aliases} if $unit->{aliases};
+for my $category (values %UNITS) {
+	my $default_fundamental_units = $category->{default_fundamental_units};
+	for my $name (keys %{ $category->{definitions} }) {
+		my $definition = $category->{definitions}{$name};
+		next if $definition->{no_legacy};
+		my $units = $definition->{fundamental_units} // $default_fundamental_units;
+
+		# Exclude aliases with no_legacy => 1
+		my @aliases =
+			map { ref $_ eq 'HASH' ? ((values %$_)[0]{no_legacy} ? () : (keys %$_)[0]) : $_ }
+			@{ $definition->{aliases} || [] };
+
+		$known_units{$name} = { factor => $definition->{factor}, %$units };
+		$known_units{$name}{aliases} = \@aliases if @aliases;
+
+		for my $prefix (@{ $definition->{prefixes} || [] }) {
+			my @short_aliases = grep { length($_) <= 3 } @aliases;
+			my @prefixed_aliases =
+				$prefix eq 'u' ? ("\x{00B5}$name", map {"u$_"} @short_aliases) : (map {"$prefix$_"} @short_aliases);
+			push @prefixed_aliases, $definition->{prefix_aliases}{$prefix} if $definition->{prefix_aliases}{$prefix};
+
+			$known_units{"$prefix$name"} = { factor => $PREFIXES{$prefix} * $definition->{factor}, %$units };
+			$known_units{"$prefix$name"}{aliases} = \@prefixed_aliases if @prefixed_aliases;
+		}
+	}
+}
+
+# The no_legacy markers have now served their purpose (excluding certain units and aliases from
+# %known_units above), so strip them from %UNITS
+for my $category (values %UNITS) {
+	for my $definition (values %{ $category->{definitions} }) {
+		delete $definition->{no_legacy};
+		$definition->{aliases} = [ map { ref $_ eq 'HASH' ? (keys %$_)[0] : $_ } @{ $definition->{aliases} } ]
+			if $definition->{aliases};
+	}
 }
 
 # A map from unit name to its aliases

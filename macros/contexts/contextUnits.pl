@@ -31,31 +31,29 @@ You can include as many categories as you want, as in
 
     Context("Units")->withUnitsFor("length", "volume");
 
-The categories of units are the following:
+The categories of units are mostly defined in lib/Units.pm, with a few exceptions.
+The exceptions are defined by this context:
+    metric-length    (
+                         angstrom [aliases: Å, angstroms, Angstrom, Angstroms],
+                         m        [aliases: meter, meters, metre, metres],
+                         cm, fm, km, mm, nm, pm, um, µm
+                         micron
+                     )
+    imperial-length  (
+                         ft [aliases: foot, feet],
+                         furlong,
+                         in [aliases: inch, inches],
+                         mi [aliases: mile, miles]
+                     )
+    fundamental      (feet, foot, ft, furlong, in, inch, inches, mi, mile, miles)
 
-    angles           (fundamental units "rad")
-    time             (fundamental units "s")
-    length           (fundamental units "m", except for those in "atomics" and "astronomy" below)
-    metric-length    (same as length except no imperial lengths)
-    imperial-length  (in, ft, mi, furlong, and their aliases)
-    volume           (fundamental units "m^3")
-    velocity         (fundamental units "m/s")
-    mass             (fundamental units "kg", except for those in "astronomy" below)
-    temperature      (fundamental units "defC", "defF", "K")
-    frequency        (fundamental units "rad/s")
-    force            (fundamental units "(kg m)/(s^2)")
-    energy           (fundamental units "(kg m^2)/(s^2)")
-    power            (fundamental units "(kg m^2)/(s^3)" except for those in "astronomy" below)
-    pressure         (fundamental units "kg/(m s^2)")
-    electricity      (fundamental units "A", "A/s", "(kg m)/(A s^-3)", "(A s^-3)/(kg m)",
-                                        "(A^2 s^4)/(kg m^2)", "(kg m^2)/(A^2 s^3)", and "(A^2 s^3)/(kg m^2)")
-    magnetism        (fundamental units "kg/(A s^2)" and "(kg m)/(A s^2)")
-    luminosity       (fundamental units "cd/(rad^2)" and "cd/(rad m)^2")
-    atomics          (amu, me, barn, a0, dalton)
-    radiation        (fundamental units "(m^2)/(s^2)" and "s^-1")
-    biochem          (fundamental units "mol" or "mol/s")
-    astronomy        (kpc, Mpc, solar-mass, solar-radii, solar-lum, light-year, AU, parsec)
-    fundamental      (m, kg, s, rad, degC, degF, K, mol, A, cd)
+To view the full list of available categories, use
+
+    Context("Units")->listCategories();
+
+And to view all of the units within a category, use
+
+    Context("Units")->listUnitsFor('category');
 
 You can add specific named units via the C<addUnits()> method of the
 context, as in
@@ -652,6 +650,7 @@ sub extending {
 			sameUnits          => $options{sameUnits}          // 0,
 			partialCredit      => $options{partialCredit}      // .5,
 			factorUnits        => $options{factorUnits}        // 1,
+			unitCategories     => {},
 		},
 		context => 'Context'
 	);
@@ -682,55 +681,148 @@ package context::Units::Context;
 our @ISA = ('Parser::Context');
 
 #
-#  The units from the original Units package
+#  The aliases from the original Units package
 #
-our %UNITS = (%Units::UNITS);
 our %ALIAS = (%Units::unit_aliased_to);
 
 #
-#  The categories of units that can be selected.
+#  Named collections of units for the handful of categories that don't
+#  correspond directly to a single category in %Units::UNITS
 #
-#  These give the fundamental units of the unit names to be added to
-#  the context, or a list of such, or a list of names of known units.
-#  If a name begins with a dash, then REMOVE the category or named
-#  unit.  For example, the "length" category excludes the lengths that
-#  are part of the "atomics" and "astronomy" categories.  If a name
-#  ends in an asterisk, then add or remove all the aliases for that
-#  unit as well.
-#
-our %categories = (
-	angles            => { rad => 1 },
-	time              => { s   => 1 },
-	length            => [ { m => 1 }, '-atomics', '-astronomy' ],
-	"metric-length"   => [ { m => 1 }, '-atomics', '-astronomy', '-imperial-length' ],
-	"imperial-length" => [ 'in*', 'ft*', 'mi*', 'furlong*' ],
-	volume            => { m => 3 },
-	velocity          => { m => 1, s => -1 },
-	mass              => [ { kg => 1 }, '-astronomy' ],
-	temperature       => [ { degC => 1 }, { degF => 1 }, { K => 1 } ],
-	frequency         => { rad => 1, s => -1 },
-	force             => { m => 1, kg => 1, s => -2 },
-	energy            => { m => 2, kg => 1, s => -2 },
-	power             => [ { m => 2, kg => 1, s => -3 }, '-astronomy' ],
-	pressure          => { m => -1, kg => 1, s => -2 },
-	electricity       => [
-		{ A  => 1 },
-		{ A  =>  1, s => 1 },
-		{ kg =>  1, m =>  2, A  => -1, s => -3 },
-		{ kg => -1, m => -2, A  =>  1, s =>  3 },
-		{ A  =>  2, s =>  4, kg => -1, m => -2 },
-		{ kg =>  1, m =>  2, A  => -2, s => -3 },
-		{ kg => -1, m => -2, A  =>  2, s =>  3 },
-	],
-	magnetism     => [ { kg => 1, A => -1, s => -2 }, { kg => 1, m => 2, A => -1, s => -2 }, ],
-	luminosity    => [ { cd => 1, rad => -2 }, { cd => 1, rad => -2, m => -2 }, ],
-	atomics       => [ 'amu', 'me', 'barn', 'a0', 'dalton' ],
-	radiation     => [ { m => 2, s => -2 }, { s => -1 } ],
-	biochem       => [ { mol => 1 }, { mol => 1, s => -1 } ],
-	astronomy     => [ 'kpc', 'Mpc', 'solar-mass', 'solar-radii', 'solar-lum', 'light-year', 'AU', 'parsec' ],
-	dimensionless => ['%'],
-	fundamental   => [ keys %Units::FUNDAMENTAL_UNITS ],
+our %namedCategories = (
+	"imperial-length" => [qw(in ft mi furlong)],
+	"metric-length"   => [qw(m micron angstrom)],
 );
+
+#
+#  Look up a unit's definition within a single %Units::UNITS category.
+#  Returns undef if the category is unknown (e.g., metric-units).
+#
+sub unitFromCategory {
+	my ($self, $category, $name) = @_;
+	return undef unless $category;
+	my $definitions = $category->{definitions};
+
+	if (my $definition = $definitions->{$name}) {
+		return $self->resolvedUnit($category, $definition);
+	}
+	if (my ($definition) = $self->aliasedDefinition($definitions, $name)) {
+		# $name is one of $definition's own aliases (not its primary name),
+		# so its aliases (which belong to that primary name) must not be
+		# carried over -- otherwise $name would end up listed as one of
+		# its own aliases, which is both wrong and (since addUnitAliases()
+		# would then register $name as an alias of itself) an infinite loop
+		# waiting to happen.
+		return $self->resolvedUnit($category, $definition, 1);
+	}
+
+	for my $prefix (keys %Units::PREFIXES) {
+		next unless $name =~ /^\Q$prefix\E(.+)$/;
+		my $baseName       = $1;
+		my $baseDefinition = $definitions->{$baseName};
+		my $primaryName    = $baseName;
+		my $viaAlias       = 0;
+		unless ($baseDefinition) {
+			($baseDefinition, $primaryName) = $self->aliasedDefinition($definitions, $baseName, 3);
+			$viaAlias = 1;
+		}
+		next unless $baseDefinition && grep { $_ eq $prefix } @{ $baseDefinition->{prefixes} || [] };
+		return $self->prefixedUnit($prefix, $primaryName, $self->resolvedUnit($category, $baseDefinition, $viaAlias));
+	}
+
+	return undef;
+}
+
+#
+#  Resolve a unit definition's fundamental units against its category's
+#  default_fundamental_units (unless the definition overrides them).  If
+#  $viaAlias is set, the definition's own aliases are dropped, since they
+#  belong to its primary name, not to whatever alias was used to find it
+#  (see unitFromCategory()).
+#
+sub resolvedUnit {
+	my ($self, $category, $definition, $viaAlias) = @_;
+	my %unit = %$definition;
+	$unit{units} = delete($unit{fundamental_units}) // { %{ $category->{default_fundamental_units} } };
+	delete $unit{aliases} if $viaAlias;
+	return \%unit;
+}
+
+#
+#  Search a category's definitions for a unit whose own aliases include
+#  $name.  If $maxLength is given, only consider aliases at most that many
+#  characters long (matching which aliases get generated for prefixed
+#  units; see prefixedUnit()).  Returns the unit's definition and its
+#  primary (top-level) name, or an empty list if none is found.
+#
+sub aliasedDefinition {
+	my ($self, $definitions, $name, $maxLength) = @_;
+	return () if $maxLength && length($name) > $maxLength;
+	for my $primaryName (keys %$definitions) {
+		my $definition = $definitions->{$primaryName};
+		return ($definition, $primaryName) if grep { $_ eq $name } @{ $definition->{aliases} || [] };
+	}
+	return ();
+}
+
+#
+#  Look up a unit's definition directly from %Units::UNITS (resolving the
+#  static legacy aliases first -- see %ALIAS).  This is used for units
+#  that are looked up by name directly (e.g., in addUnits() or
+#  removeUnits()), as opposed to units added as part of a whole category
+#  (see addUnitsWithPrefixes, which resolves those directly against the
+#  known category instead of using this search).  Each category searched
+#  is checked via unitFromCategory(), so $name may be a top-level unit, one
+#  of its aliases, or a prefixed form of either.  If this context has any
+#  active unit categories (added via addUnitCategory), those are searched
+#  first, so that a name resolvable in more than one category (e.g., "c"
+#  as both velocity's speed of light and an alias for volume's "cup")
+#  resolves to the version from a category this context actually uses
+#  instead of an arbitrary one.  Falls back to a search of all of
+#  %Units::UNITS for names that aren't part of any active category (e.g.,
+#  units added directly via addUnits() before any category has been
+#  added).
+#
+#  Returns a hash reference with factor, units (a hash of the powers of the
+#  fundamental units), and whichever of aliases, string, TeX, noSeparator,
+#  prefixes, and prefix_aliases the unit defines, or undef if $name isn't a
+#  known unit.
+#
+sub findUnit {
+	my ($self, $name) = @_;
+	$name = $ALIAS{$name} if $ALIAS{$name};
+	for my $categoryName (keys %{ $self->flag('unitCategories') || {} }) {
+		my $unit = $self->unitFromCategory($Units::UNITS{$categoryName}, $name);
+		return $unit if $unit;
+	}
+	for my $category (values %Units::UNITS) {
+		my $unit = $self->unitFromCategory($category, $name);
+		return $unit if $unit;
+	}
+	return undef;
+}
+
+#
+#  Compute the definition for a prefixed version of a unit (e.g., "km" from
+#  prefix "k" and unit "m"), following the same rules used to build the
+#  prefixed units in Units.pm.
+#
+sub prefixedUnit {
+	my ($self, $prefix, $name, $unit) = @_;
+	my @short_aliases = grep { length($_) <= 3 } @{ $unit->{aliases} || [] };
+	my %prefixed      = (factor => $Units::PREFIXES{$prefix} * $unit->{factor}, units => $unit->{units});
+	if ($prefix eq 'u') {
+		$prefixed{string}  = $unit->{string} ? "\x{00B5}$unit->{string}" : "\x{00B5}$name";
+		$prefixed{TeX}     = $unit->{TeX}    ? "\x{00B5}$unit->{TeX}"    : "\x{00B5}$name";
+		$prefixed{aliases} = [ "\x{00B5}$name", map {"u$_"} @short_aliases ];
+	} else {
+		$prefixed{string}  = "$prefix$unit->{string}" if $unit->{string};
+		$prefixed{TeX}     = "$prefix$unit->{TeX}"    if $unit->{TeX};
+		$prefixed{aliases} = [ map {"$prefix$_"} @short_aliases ];
+	}
+	push(@{ $prefixed{aliases} }, $unit->{prefix_aliases}{$prefix}) if $unit->{prefix_aliases}{$prefix};
+	return \%prefixed;
+}
 
 #
 #  Add new units, either by name, as name => unit_def, or as unit_def
@@ -764,13 +856,37 @@ sub addUnitsNotAliases {
 }
 
 #
+#  Add named units along with all of their declared prefixed forms (e.g.,
+#  adding "m" also adds "km", "cm", "mm", etc.), each with its aliases.
+#  Used to populate a whole unit category.  If $category (a value from
+#  %Units::UNITS) is given, names are resolved directly against it instead
+#  of searching for them, so that populating one category is never
+#  affected by a same-named unit that happens to live in another one.  For
+#  example, "c" is both velocity's own symbol for the speed of light and
+#  an alias for volume's "cup" (see lib/Units.pm); loading only "velocity"
+#  or only "volume" each correctly give you their own "c", since each
+#  category's units (and their aliases) are resolved only against that
+#  category's own definitions.
+#
+sub addUnitsWithPrefixes {
+	my ($self, $names, $category) = @_;
+	for my $name (@$names) {
+		my $unit = $category ? $self->unitFromCategory($category, $name) : $self->findUnit($name);
+		Value->Error("Can't add unknown unit '%s'", $name) unless $unit;
+		$self->addUnit($name     => $unit);
+		$self->addUnit("$_$name" => $self->prefixedUnit($_, $name, $unit)) for @{ $unit->{prefixes} || [] };
+	}
+	return $self;
+}
+
+#
 #  Add a single unit by name or name => unit_def
 #
 sub addUnit {
 	my ($self, $name, $unit, %options) = @_;
 	my $constants = $self->constants;
 	$name = $ALIAS{$name} if $name && $ALIAS{$name};
-	$unit = $UNITS{$name} unless $unit;
+	$unit = $self->findUnit($name) unless $unit;
 	Value->Error("Can't add unknown unit '%s'", $name) unless $unit;
 	if (!$unit->{units}) {
 		$unit = { factor => ($unit->{factor} // 1), units => { %{$unit} } };
@@ -805,7 +921,7 @@ sub addUnit {
 #
 sub addUnitAliases {
 	my ($self, $name, $unit) = @_;
-	$unit = $UNITS{$name} unless $unit;
+	$unit = $self->findUnit($name) unless $unit;
 	return $self unless $unit;
 	my $aliases = $unit->{aliases};
 	if ($aliases) {
@@ -819,15 +935,24 @@ sub addUnitAliases {
 }
 
 #
-#  Adds all units with the same base units and powers
+#  Adds all units (including their prefixed forms) with the same
+#  fundamental units and powers.  Used when addUnits() is given a bare
+#  dimension hash instead of a unit name.
 #
 sub addMatchingUnits {
 	my ($self, $units) = @_;
 	my $def = $self->unitString($units);
-	for my $unit (keys %UNITS) {
-		$self->addUnit($unit => $UNITS{$unit})
-			if $self->unitString($UNITS{$unit}->{units}) eq $def;
+	for my $category (values %Units::UNITS) {
+		for my $name (keys %{ $category->{definitions} }) {
+			my $unit = $self->unitFromCategory($category, $name);
+			$self->addUnit($name => $unit) if $self->unitString($unit->{units}) eq $def;
+			for my $prefix (@{ $unit->{prefixes} || [] }) {
+				my $prefixed = $self->prefixedUnit($prefix, $name, $unit);
+				$self->addUnit("$prefix$name" => $prefixed) if $self->unitString($prefixed->{units}) eq $def;
+			}
+		}
 	}
+	return $self;
 }
 
 sub unitString {
@@ -845,66 +970,45 @@ sub addUnitsFor {
 }
 
 #
-#  Add the units for a single category
+#  Add the units for a single category.  Most category names correspond
+#  directly to a category of the same name in %Units::UNITS, and all of
+#  that category's units (and their prefixed forms) are added.  A few
+#  categories are special-cased: "fundamental" (just the base unit
+#  symbols, without their aliases) and the named lists in %namedCategories
+#
+#  The category name is recorded in the unitCategories flag regardless of
+#  which branch handles it, so that findUnit() can prefer units from
+#  categories this context has actually requested.
 #
 sub addUnitCategory {
 	my ($self, $name) = @_;
-	my $category = $categories{$name};
+	$self->flag('unitCategories')->{$name} = 1;
+	return $self->addUnitsNotAliases(grep { $_ ne 'factor' } keys %Units::fundamental_units)
+		if $name eq 'fundamental';
+	return $self->addUnitsWithPrefixes($namedCategories{$name}) if $namedCategories{$name};
+	my $category = $Units::UNITS{$name};
 	Value->Error("Unknown unit category '%s'", $name) unless $category;
-	$category = [$category]                           unless ref($category) eq 'ARRAY';
-	#
-	#  Collect the units to add and remove
-	#
-	my @units;
-	my @unitsNoAliases;
-	my @remove;
-	my @removeNoAliases;
-	for my $def (@$category) {
-		if (ref($def) eq 'HASH') {
-			#
-			#  Add a category by unit_def
-			#
-			push(@units, $def);
-		} elsif ($def =~ m/^-/) {
-			my $cat = $categories{ substr($def, 1) };
-			if (defined($cat)) {
-				#
-				#  Remove a named category (it must consist only of named units)
-				#
-				for my $u (@$cat) {
-					if ($u =~ m/\*$/) {
-						push(@remove, substr($u, 0, -1));
-					} else {
-						push(@removeNoAliases, $u);
-					}
-				}
-			} else {
-				#
-				#  Remove a named unit with or without aliases
-				#
-				if ($def =~ m/\*$/) {
-					push(@remove, substr($def, 1, -1));
-				} else {
-					push(@removeNoAliases, substr($def, 1));
-				}
-			}
-		} elsif ($def =~ m/\*$/) {
-			#
-			#  Add a named unit with aliases
-			#
-			push(@units, substr($def, 0, -1));
-		} else {
-			#
-			#  Add a single named unit
-			#
-			push(@unitsNoAliases, $def);
-		}
-	}
-	$self->addUnits(@units);
-	$self->removeUnits(@remove);
-	$self->removeUnitsNotAliases(@removeNoAliases);
-	$self->addUnitsNotAliases(@unitsNoAliases);
-	return $self;
+	return $self->addUnitsWithPrefixes([ keys %{ $category->{definitions} } ], $category);
+}
+
+#
+#  List the names of all the unit categories
+#
+sub listCategories {
+	my $self = shift;
+	return main::lex_sort(keys %Units::UNITS, keys %namedCategories, 'fundamental');
+}
+
+#
+#  List the names of all the units (including aliases and prefixed forms)
+#  that addUnitCategory($name) would add
+#
+sub listUnitsFor {
+	my ($self, $name) = @_;
+	my %before = map { $_ => 1 } $self->constants->names;
+	my $copy   = $self->copy;
+	$copy->addUnitCategory($name);
+	return main::lex_sort(grep { !$before{$_} } $copy->constants->names);
 }
 
 #
@@ -928,7 +1032,7 @@ sub removeUnits {
 sub removeUnitAndAliases {
 	my ($self, $name) = @_;
 	$name = $ALIAS{$name} if $ALIAS{$name};
-	my $unit = $UNITS{$name};
+	my $unit = $self->findUnit($name);
 	$self->constants->remove($name, @{ $unit->{aliases} }) if $unit;
 	return $self;
 }
@@ -987,7 +1091,7 @@ sub new {
 	#
 	#  Look up a known unit, if none given.
 	#
-	$unit = $context::Units::Context::UNITS{$name} unless defined($unit);
+	$unit = $context->findUnit($name) unless defined($unit);
 	#
 	#  If not given or not a known unit,
 	#    If the argument is not a Value object
