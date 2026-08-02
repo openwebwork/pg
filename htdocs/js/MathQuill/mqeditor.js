@@ -25,6 +25,8 @@
 
 		const answerQuill = document.createElement('span');
 		answerQuill.id = `mq-answer-${answerLabel}`;
+		answerQuill.setAttribute('aria-label', input.getAttribute('aria-label'));
+		answerQuill.role = 'textbox';
 		answerQuill.input = input;
 		input.classList.add('mq-edit');
 		answerQuill.latexInput = mq_input;
