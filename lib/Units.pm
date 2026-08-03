@@ -92,6 +92,14 @@ our %UNITS = (
 				noSeparator => 1,
 				aliases     => ['pct']
 			},
+			permille => {
+				factor      => 0.001,
+				string      => "\x{2030}",
+				noSeparator => 1,
+				aliases     => ["\x{2030}"],
+				no_legacy   => 1
+			},
+			ppm => { factor => 1E-6, no_legacy => 1 },
 		}
 	},
 	# ANGLES: fundamental unit rad (radian)
@@ -105,8 +113,9 @@ our %UNITS = (
 				noSeparator => 1,
 				aliases     => [ "\x{00B0}", 'degree', 'degrees' ]
 			},
-			rev => { factor => 2 * $PI },
-			sr  => { factor => 1, fundamental_units => { rad => 2 } },
+			grad => { factor => $PI / 200 },
+			rev  => { factor => 2 * $PI },
+			sr   => { factor => 1, fundamental_units => { rad => 2 } },
 		}
 	},
 	# TIME: fundamental unit s (second)
@@ -130,15 +139,20 @@ our %UNITS = (
 				factor  => 86400,
 				aliases => [ 'day', 'days' ]
 			},
-			mo => {
+			wk => {
+				factor    => 86400 * 7,
+				aliases   => [ 'week', 'weeks' ],
+				no_legacy => 1
+			},
+			fortnight => { factor => 1209600 },
+			mo        => {
 				factor  => 2592000,                # 30 day month
 				aliases => [ 'month', 'months' ]
 			},
 			yr => {                                # 365 day year
 				factor  => 31557600,
-				aliases => [ 'year', 'years' ]
+				aliases => [ 'year', 'years', { y => { no_legacy => 1 } } ]
 			},
-			fortnight => { factor => 1209600 },
 		}
 	},
 	# LENGTHS: fundamental unit m (meter)
@@ -164,6 +178,11 @@ our %UNITS = (
 				factor  => 0.3048,
 				aliases => [ 'foot', 'feet' ]
 			},
+			yd => {
+				factor    => 0.9144,
+				aliases   => [ 'yard', 'yards' ],
+				no_legacy => 1
+			},
 			mi => {
 				factor  => 1609.344,
 				aliases => [ 'mile', 'miles' ]
@@ -180,9 +199,12 @@ our %UNITS = (
 				prefixes => [qw(m d)],
 				aliases  => [ 'litre', 'litres', 'liter', 'liters', 'l' ]
 			},
-			cc  => { factor => 1E-6 },
-			cup => {
-				factor => 0.000236588,
+			cc      => { factor => 1E-6 },
+			tsp     => { factor => 4.92892159375E-6,  aliases => ['t'],          no_legacy => 1 },
+			Tbsp    => { factor => 1.478676478125E-5, aliases => [ 'T', 'tbs' ], no_legacy => 1 },
+			'fl oz' => { factor => 2.95735295625E-5,  aliases => ['floz'],       no_legacy => 1 },
+			cup     => {
+				factor => 0.0002365882365,
 				# "c" collides with the velocity category's symbol for the speed of light, so it
 				# is marked no_legacy.
 				aliases => [ 'cups', { c => { no_legacy => 1 } } ]
@@ -205,7 +227,7 @@ our %UNITS = (
 	velocity => {
 		default_fundamental_units => { s => -1, m => 1 },
 		definitions               => {
-			knots => { factor => 0.5144444444 },
+			knots => { factor => 0.5144444444, aliases => [ { kn => { no_legacy => 1 } } ] },
 			c     => { factor => 299792458 },
 			mph   => { factor => 0.44704 },
 		}
@@ -214,9 +236,24 @@ our %UNITS = (
 	mass => {
 		default_fundamental_units => { kg => 1 },
 		definitions               => {
-			kg     => { factor => 1 },
-			g      => { factor => 0.001, prefixes => [qw(m)] },
-			tonne  => { factor => 1000 },
+			kg    => { factor => 1 },
+			g     => { factor => 0.001, prefixes => [qw(m)] },
+			tonne => { factor => 1000,  aliases  => [ { t => { no_legacy => 1 } } ] },
+			oz    => {
+				factor    => 0.02834952,
+				aliases   => [ 'ounce', 'ounces' ],
+				no_legacy => 1
+			},
+			lb => {
+				factor    => 0.45359237,
+				aliases   => [ 'pound', 'pounds' ],
+				no_legacy => 1
+			},
+			tn => {
+				factor    => 907.18474,
+				aliases   => [ 'ton', 'tons' ],
+				no_legacy => 1
+			},
 			slug   => { factor => 14.6 },
 			firkin => { factor => 40.8233133 },
 		}
@@ -253,6 +290,10 @@ our %UNITS = (
 				factor   => 2 * $PI,
 				prefixes => [qw(k M)]
 			},
+			rpm => {
+				factor    => 2 * $PI / 60,
+				no_legacy => 1
+			},
 			cycles => {
 				factor            => 2 * $PI,
 				fundamental_units => { rad => 1 },
@@ -265,10 +306,14 @@ our %UNITS = (
 		definitions               => {
 			N      => { factor => 1, prefixes => [qw(u k)] },
 			microN => { factor => 1E-6 },
-			dyne   => { factor => 1E-5 },
+			dyne   => { factor => 1E-5, aliases => [ { dyn => { no_legacy => 1 } } ] },
 			lb     => {
 				factor  => 4.4482216152605,
 				aliases => [ 'pound', 'pounds', 'lbs' ]
+			},
+			lbf => {
+				factor    => 4.4482216152605,
+				no_legacy => 1
 			},
 			ton => {
 				factor  => 8900,
@@ -286,8 +331,9 @@ our %UNITS = (
 			lbf => { factor => 1.35582 },     # FIXME: this is foot pound but should be pound force
 			kt  => { factor => 4.184E12 },    # this is an energy unit (energy from so many tons of TNT)
 			Mt  => { factor => 4.184E15 },    # this is an energy unit (energy from so many tons of TNT)
-			cal => { factor => 4.19,       prefixes => [qw(k)] },
-			eV  => { factor => 1.6022E-19, prefixes => [qw(k M G T)] },
+			cal => { factor => 4.19,        prefixes  => [qw(k)] },
+			eV  => { factor => 1.6022E-19,  prefixes  => [qw(k M G T)] },
+			BTU => { factor => 1055.055853, no_legacy => 1 }
 		}
 	},
 	# POWER: fundamental unit m kg / s^3
@@ -373,7 +419,7 @@ our %UNITS = (
 		definitions               => {
 			amu => {
 				factor  => 1.660538921E-27,
-				aliases => ['dalton']
+				aliases => [ 'dalton', { u => { no_legacy => 1 } } ]
 			},
 			me   => { factor => 9.1093826E-31 },
 			barn => { factor => 1E-28,            fundamental_units => { m => 2 } },
@@ -384,8 +430,10 @@ our %UNITS = (
 	radiation => {
 		default_fundamental_units => { s => -2, m => 2 },
 		definitions               => {
-			Sv => { factor => 1, prefixes          => [qw(u m)] },
-			Bq => { factor => 1, fundamental_units => { s => -1 } },
+			Sv => { factor => 1,      prefixes          => [qw(u m)] },
+			Gy => { factor => 1,      no_legacy         => 1 },
+			Ci => { factor => 3.7E10, fundamental_units => { s => -1 } },
+			Bq => { factor => 1,      fundamental_units => { s => -1 } },
 		}
 	},
 	# BIOLOGICAL & CHEMICAL UNITS
@@ -402,7 +450,7 @@ our %UNITS = (
 	astronomy => {
 		default_fundamental_units => { m => 1 },
 		definitions               => {
-			'light-year' => { factor => 9460730472580800 },
+			'light-year' => { factor => 9460730472580800, aliases => [ { ly => { no_legacy => 1 } } ] },
 			AU           => { factor => 149597870700 },
 			pc           => {
 				factor   => 648000 / $PI * 149597870700,
@@ -411,7 +459,11 @@ our %UNITS = (
 			},
 			'solar-radii' => { factor => 6.955E8 },
 			'solar-mass'  => { factor => 1.98892E30, fundamental_units => { kg => 1 } },
-			'solar-lum'   => { factor => 3.8939E26,  fundamental_units => { s  => -3, m => 2, kg => 1 } },
+			'solar-lum'   => {
+				factor            => 3.8939E26,
+				fundamental_units => { s => -3, m => 2, kg => 1 },
+				aliases           => [ { L0 => { no_legacy => 1 } } ]
+			},
 		}
 	},
 );

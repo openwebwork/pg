@@ -33,19 +33,10 @@ You can include as many categories as you want, as in
 
 The categories of units are mostly defined in lib/Units.pm, with a few exceptions.
 The exceptions are defined by this context:
-    metric-length    (
-                         angstrom [aliases: Å, angstroms, Angstrom, Angstroms],
-                         m        [aliases: meter, meters, metre, metres],
-                         cm, fm, km, mm, nm, pm, um, µm
-                         micron
-                     )
-    imperial-length  (
-                         ft [aliases: foot, feet],
-                         furlong,
-                         in [aliases: inch, inches],
-                         mi [aliases: mile, miles]
-                     )
-    fundamental      (feet, foot, ft, furlong, in, inch, inches, mi, mile, miles)
+    metric-length   (angstrom, m, cm, fm, km, mm, nm, pm, um, micron, and aliases)
+    imperial-length (in, ft, yd, furlong, mi, and aliases)
+    cooking         (s, min, h; L, cc, tsp, Tbsp, fl oz, cup, pt, qt, gal; g kg oz lb; degC degF; and aliases)
+    fundamental     (s, m, kg, A, K, mol, cd, rad, degC, degF)
 
 To view the full list of available categories, use
 
@@ -70,6 +61,14 @@ to get a units context with units for volume as well as C<m> and C<cm>
 and any aliases for these units (e.g., C<meter>, C<meters>, etc.).
 Use C<addUnitsNotAliases()> in place of C<addUnits()> to add just the
 named units without adding any aliases for them.
+
+Some unit names exist in more than one category (e.g., C<lb> is both
+mass's pound and force's pound-force).  Normally C<addUnits()> resolves
+a bare name by searching whatever categories are already active in the
+context, which may not give the one you want.  To disambiguate, give
+the category name as the value instead of a unit definition:
+
+    Context("Units")->addUnits(lb => "force");
 
 You can remove individual units from the context using the
 C<removeUnits()> method of the context.  For example
@@ -687,11 +686,22 @@ our %ALIAS = (%Units::unit_aliased_to);
 
 #
 #  Named collections of units for the handful of categories that don't
-#  correspond directly to a single category in %Units::UNITS
+#  correspond directly to a single category in %Units::UNITS.  Each value is
+#  a hash reference from a real %Units::UNITS category name to the names to
+#  add from it.  Resolving each sub-list directly against its own category
+#  (the same way a whole category is populated) means a name that exists in
+#  more than one category (e.g. "lb" as both mass's pound and force's
+#  pound-force) is never looked up ambiguously.
 #
 our %namedCategories = (
-	"imperial-length" => [qw(in ft mi furlong)],
-	"metric-length"   => [qw(m micron angstrom)],
+	"imperial-length" => { length => [qw(in ft yd furlong mi)] },
+	"metric-length"   => { length => [qw(m micron angstrom)] },
+	cooking           => {
+		time        => [qw(s min h)],
+		volume      => [ 'L', 'cc', 'tsp', 'Tbsp', 'fl oz', 'cup', 'pt', 'qt', 'gal' ],
+		mass        => [qw(g kg oz lb)],
+		temperature => [qw(degC degF)],
+	},
 );
 
 #
@@ -825,15 +835,29 @@ sub prefixedUnit {
 }
 
 #
-#  Add new units, either by name, as name => unit_def, or as unit_def
-#  (where unit_def is like one of the known units).  Also add other
-#  units that are aliases for the given one in the known_units list.
+#  Add new units, in any of these forms:
+#    unit_def                 a bare dimension hash to match existing units against
+#    name => unit_def         a custom unit, defined by a dimension hash
+#    name                     looked up by name (searching active categories first)
+#    name => categoryName     looked up by name directly within one specific
+#                             %Units::UNITS category, to disambiguate a name
+#                             that exists in more than one category (e.g. "lb"
+#                             as both mass's pound and force's pound-force):
+#
+#                               Context("Units")->addUnits(lb => "force");
+#
+#  Also add aliases.
 #
 sub addUnits {
 	my $self = shift;
 	while (@_) {
 		if (ref($_[0]) eq 'HASH') {
 			$self->addUnit('' => shift);
+		} elsif (defined($_[1]) && !ref($_[1]) && $Units::UNITS{ $_[1] }) {
+			my ($name, $categoryName) = (shift, shift);
+			my $unit = $self->unitFromCategory($Units::UNITS{$categoryName}, $name);
+			Value->Error("Can't add unknown unit '%s' from category '%s'", $name, $categoryName) unless $unit;
+			$self->addUnit($name => $unit);
 		} else {
 			$self->addUnit((shift) => ref($_[0]) eq 'HASH' ? shift : undef);
 		}
@@ -985,7 +1009,10 @@ sub addUnitCategory {
 	$self->flag('unitCategories')->{$name} = 1;
 	return $self->addUnitsNotAliases(grep { $_ ne 'factor' } keys %Units::fundamental_units)
 		if $name eq 'fundamental';
-	return $self->addUnitsWithPrefixes($namedCategories{$name}) if $namedCategories{$name};
+	if (my $namedCategory = $namedCategories{$name}) {
+		$self->addUnitsWithPrefixes($namedCategory->{$_}, $Units::UNITS{$_}) for keys %$namedCategory;
+		return $self;
+	}
 	my $category = $Units::UNITS{$name};
 	Value->Error("Unknown unit category '%s'", $name) unless $category;
 	return $self->addUnitsWithPrefixes([ keys %{ $category->{definitions} } ], $category);
