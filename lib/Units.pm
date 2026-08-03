@@ -316,7 +316,7 @@ our %UNITS = (
 				no_legacy => 1
 			},
 			ton => {
-				factor  => 8900,
+				factor  => 8896.44323,
 				aliases => ['tons']
 			},
 		}

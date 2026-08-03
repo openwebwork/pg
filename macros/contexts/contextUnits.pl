@@ -70,6 +70,10 @@ the category name as the value instead of a unit definition:
 
     Context("Units")->addUnits(lb => "force");
 
+If a unit is already loaded, and you attempt to load a unit with the same
+name, there will be a warning. However the second unit will be loaded,
+replacing the first.
+
 You can remove individual units from the context using the
 C<removeUnits()> method of the context.  For example
 
@@ -151,7 +155,7 @@ C<fruit>.
 
 The C<Units> and C<LimitedUnits> contexts are based on the C<Numeric>
 and C<LimitedNumeric> contexts.  You can add units to other contexts
-using the C<context::Units::extends()> function.  For example,
+using the C<context::Units::extending()> function.  For example,
 
     loadMacros("contextUnits.pl", "contextFraction.pl");
     Context(context::Units::extending("Fraction")->withUnitsFor("length"));
@@ -486,10 +490,10 @@ C<3 m + 2 cm> and be marked correct.  Similarly, for the answer C<50
 mi/h> a student could enter C<(100 miles) / (2 hours)>.
 
 If you want to prevent students from performing such computations,
-then set the C<limitedOperations> flag in the context or in the
+then set the C<limitedOperators> flag in the context or in the
 C<cmp()> call.  So
 
-    $ans = Compute("50 mi/h")->cmp(limitedOperations => 1);
+    $ans = Compute("50 mi/h")->cmp(limitedOperators => 1);
     BEGIN_PGML
     If you travel 100 miles in 2 hours, then your
     average velocity is [_______]{$ans}
@@ -499,10 +503,10 @@ will prevent the student from dividing two numbers with units, though
 they can still enter C<(100/2) mi/h>.  To prevent any operations at
 all, use the C<LimitedUnits> context instead of the C<Units> context.
 
-Note that you can add the C<limitedOperations> and other flags to the
+Note that you can add the C<limitedOperators> and other flags to the
 MathObject itself, rather than the context or answer checker, as in
 
-    $av = Compute("50 mi/h")->with(limitedOperations => 1, sameUnits => 1);
+    $av = Compute("50 mi/h")->with(limitedOperators => 1, sameUnits => 1);
     BEGIN_PGML
     If you travel 100 miles in 2 hours, then your
     average velocity is [_______]{$av}
@@ -649,7 +653,7 @@ sub extending {
 			sameUnits          => $options{sameUnits}          // 0,
 			partialCredit      => $options{partialCredit}      // .5,
 			factorUnits        => $options{factorUnits}        // 1,
-			unitCategories     => {},
+			unitCategories     => [],
 		},
 		context => 'Context'
 	);
@@ -713,10 +717,12 @@ sub unitFromCategory {
 	return undef unless $category;
 	my $definitions = $category->{definitions};
 
-	if (my $definition = $definitions->{$name}) {
+	my $definition = $definitions->{$name};
+	if ($definition) {
 		return $self->resolvedUnit($category, $definition);
 	}
-	if (my ($definition) = $self->aliasedDefinition($definitions, $name)) {
+	($definition) = $self->aliasedDefinition($definitions, $name);
+	if ($definition) {
 		# $name is one of $definition's own aliases (not its primary name),
 		# so its aliases (which belong to that primary name) must not be
 		# carried over -- otherwise $name would end up listed as one of
@@ -801,7 +807,7 @@ sub aliasedDefinition {
 sub findUnit {
 	my ($self, $name) = @_;
 	$name = $ALIAS{$name} if $ALIAS{$name};
-	for my $categoryName (keys %{ $self->flag('unitCategories') || {} }) {
+	for my $categoryName (@{ $self->flag('unitCategories') }) {
 		my $unit = $self->unitFromCategory($Units::UNITS{$categoryName}, $name);
 		return $unit if $unit;
 	}
@@ -915,8 +921,8 @@ sub addUnit {
 	if (!$unit->{units}) {
 		$unit = { factor => ($unit->{factor} // 1), units => { %{$unit} } };
 		$unit->{aliases} = $unit->{units}{aliases} if $unit->{units}{aliases};
-		delete $units->{units}{aliases};
-		delete $units->{units}{factor};
+		delete $unit->{units}{aliases};
+		delete $unit->{units}{factor};
 	}
 	$constants->{namePattern} = qr/.+/;
 	if ($name) {
@@ -1006,7 +1012,7 @@ sub addUnitsFor {
 #
 sub addUnitCategory {
 	my ($self, $name) = @_;
-	$self->flag('unitCategories')->{$name} = 1;
+	push(@{ $self->flag('unitCategories') }, $name);
 	return $self->addUnitsNotAliases(grep { $_ ne 'factor' } keys %Units::fundamental_units)
 		if $name eq 'fundamental';
 	if (my $namedCategory = $namedCategories{$name}) {
@@ -1051,6 +1057,7 @@ sub removeUnits {
 	my $constants = $self->constants;
 	my @units     = grep { defined($constants->get($_)) } @_;
 	$self->removeUnitAndAliases($_) for (@units);
+	return $self;
 }
 
 #
@@ -2065,8 +2072,8 @@ sub checkMultDiv {
 	return
 		if ($ltype eq 'Number' && $rtype eq $context::Units::NUNIT)
 		|| ($rtype eq 'Number' && $ltype eq $context::Units::NUNIT && $mult);
-	$self->Error('A %s can only be %s by a Unit', $ltype, $op2) if $lHasUnit;
-	$self->Error('A Unit can only $action another Unit') unless $ltype eq 'Number' || $mult;
+	$self->Error('A %s can only be %s by a Unit', $ltype, $op2) if $ltype eq $context::Units::NUNIT;
+	$self->Error('A Unit can only %s another Unit', $action) unless $ltype eq 'Number' || $mult;
 }
 
 #
