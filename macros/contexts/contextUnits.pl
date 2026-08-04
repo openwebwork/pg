@@ -31,31 +31,20 @@ You can include as many categories as you want, as in
 
     Context("Units")->withUnitsFor("length", "volume");
 
-The categories of units are the following:
+The categories of units are mostly defined in lib/Units.pm, with a few exceptions.
+The exceptions are defined by this context:
+    metric-length   (angstrom, m, cm, fm, km, mm, nm, pm, um, micron, and aliases)
+    imperial-length (in, ft, yd, furlong, mi, and aliases)
+    cooking         (s, min, h; L, cc, tsp, Tbsp, fl oz, cup, pt, qt, gal; g kg oz lb; degC degF; and aliases)
+    fundamental     (s, m, kg, A, K, mol, cd, rad, degC, degF)
 
-    angles           (fundamental units "rad")
-    time             (fundamental units "s")
-    length           (fundamental units "m", except for those in "atomics" and "astronomy" below)
-    metric-length    (same as length except no imperial lengths)
-    imperial-length  (in, ft, mi, furlong, and their aliases)
-    volume           (fundamental units "m^3")
-    velocity         (fundamental units "m/s")
-    mass             (fundamental units "kg", except for those in "astronomy" below)
-    temperature      (fundamental units "defC", "defF", "K")
-    frequency        (fundamental units "rad/s")
-    force            (fundamental units "(kg m)/(s^2)")
-    energy           (fundamental units "(kg m^2)/(s^2)")
-    power            (fundamental units "(kg m^2)/(s^3)" except for those in "astronomy" below)
-    pressure         (fundamental units "kg/(m s^2)")
-    electricity      (fundamental units "amp", "amp/s", "(kg m)/(amp s^-3)", "(amp s^-3)/(kg m)",
-                                        "(amp^2 s^4)/(kg m^2)", "(kg m^2)/(amp^2 s^3)", and "(amp^2 s^3)/(kg m^2)")
-    magnetism        (fundamental units "kg/(amp s^2)" and "(kg m)/(amp s^2)")
-    luminosity       (fundamental units "cd/(rad^2)" and "cd/(rad m)^2")
-    atomics          (amu, me, barn, a0, dalton)
-    radiation        (fundamental units "(m^2)/(s^2)" and "s^-1")
-    biochem          (fundamental units "mol" or "mol/s")
-    astronomy        (kpc, Mpc, solar-mass, solar-radii, solar-lum, light-year, AU, parsec)
-    fundamental      (m, kg, s, rad, degC, degF, K, mol, amp, cd)
+To view the full list of available categories, use
+
+    Context("Units")->listCategories();
+
+And to view all of the units within a category, use
+
+    Context("Units")->listUnitsFor('category');
 
 You can add specific named units via the C<addUnits()> method of the
 context, as in
@@ -72,6 +61,18 @@ to get a units context with units for volume as well as C<m> and C<cm>
 and any aliases for these units (e.g., C<meter>, C<meters>, etc.).
 Use C<addUnitsNotAliases()> in place of C<addUnits()> to add just the
 named units without adding any aliases for them.
+
+Some unit names exist in more than one category (e.g., C<lb> is both
+mass's pound and force's pound-force).  Normally C<addUnits()> resolves
+a bare name by searching whatever categories are already active in the
+context, which may not give the one you want.  To disambiguate, give
+the category name as the value instead of a unit definition:
+
+    Context("Units")->addUnits(lb => "force");
+
+If a unit is already loaded, and you attempt to load a unit with the same
+name, there will be a warning. However the second unit will be loaded,
+replacing the first.
 
 You can remove individual units from the context using the
 C<removeUnits()> method of the context.  For example
@@ -154,7 +155,7 @@ C<fruit>.
 
 The C<Units> and C<LimitedUnits> contexts are based on the C<Numeric>
 and C<LimitedNumeric> contexts.  You can add units to other contexts
-using the C<context::Units::extends()> function.  For example,
+using the C<context::Units::extending()> function.  For example,
 
     loadMacros("contextUnits.pl", "contextFraction.pl");
     Context(context::Units::extending("Fraction")->withUnitsFor("length"));
@@ -489,10 +490,10 @@ C<3 m + 2 cm> and be marked correct.  Similarly, for the answer C<50
 mi/h> a student could enter C<(100 miles) / (2 hours)>.
 
 If you want to prevent students from performing such computations,
-then set the C<limitedOperations> flag in the context or in the
+then set the C<limitedOperators> flag in the context or in the
 C<cmp()> call.  So
 
-    $ans = Compute("50 mi/h")->cmp(limitedOperations => 1);
+    $ans = Compute("50 mi/h")->cmp(limitedOperators => 1);
     BEGIN_PGML
     If you travel 100 miles in 2 hours, then your
     average velocity is [_______]{$ans}
@@ -502,10 +503,10 @@ will prevent the student from dividing two numbers with units, though
 they can still enter C<(100/2) mi/h>.  To prevent any operations at
 all, use the C<LimitedUnits> context instead of the C<Units> context.
 
-Note that you can add the C<limitedOperations> and other flags to the
+Note that you can add the C<limitedOperators> and other flags to the
 MathObject itself, rather than the context or answer checker, as in
 
-    $av = Compute("50 mi/h")->with(limitedOperations => 1, sameUnits => 1);
+    $av = Compute("50 mi/h")->with(limitedOperators => 1, sameUnits => 1);
     BEGIN_PGML
     If you travel 100 miles in 2 hours, then your
     average velocity is [_______]{$av}
@@ -652,6 +653,7 @@ sub extending {
 			sameUnits          => $options{sameUnits}          // 0,
 			partialCredit      => $options{partialCredit}      // .5,
 			factorUnits        => $options{factorUnits}        // 1,
+			unitCategories     => [],
 		},
 		context => 'Context'
 	);
@@ -682,69 +684,186 @@ package context::Units::Context;
 our @ISA = ('Parser::Context');
 
 #
-#  The units from the original Units package
+#  The aliases from the original Units package
 #
-our %UNITS = (%Units::known_units);
 our %ALIAS = (%Units::unit_aliased_to);
-for ('litre', 'litres', 'liter', 'liters') {
-	$UNITS{$_} = $UNITS{L};
-	$ALIAS{$_} = 'L';
-}
 
 #
-#  The categories of units that can be selected.
+#  Named collections of units for the handful of categories that don't
+#  correspond directly to a single category in %Units::UNITS.  Each value is
+#  a hash reference from a real %Units::UNITS category name to the names to
+#  add from it.  Resolving each sub-list directly against its own category
+#  (the same way a whole category is populated) means a name that exists in
+#  more than one category (e.g. "lb" as both mass's pound and force's
+#  pound-force) is never looked up ambiguously.
 #
-#  These give the fundamental units of the unit names to be added to
-#  the context, or a list of such, or a list of names of known units.
-#  If a name begins with a dash, then REMOVE the category or named
-#  unit.  For example, the "length" category excludes the lengths that
-#  are part of the "atomics" and "astronomy" categories.  If a name
-#  ends in an asterisk, then add or remove all the aliases for that
-#  unit as well.
-#
-our %categories = (
-	angles            => { rad => 1 },
-	time              => { s   => 1 },
-	length            => [ { m => 1 }, '-atomics', '-astronomy' ],
-	"metric-length"   => [ { m => 1 }, '-atomics', '-astronomy', '-imperial-length' ],
-	"imperial-length" => [ 'in*', 'ft*', 'mi*', 'furlong*' ],
-	volume            => { m => 3 },
-	velocity          => { m => 1, s => -1 },
-	mass              => [ { kg => 1 }, '-astronomy' ],
-	temperature       => [ { degC => 1 }, { degF => 1 }, { K => 1 } ],
-	frequency         => { rad => 1, s => -1 },
-	force             => { m => 1, kg => 1, s => -2 },
-	energy            => { m => 2, kg => 1, s => -2 },
-	power             => [ { m => 2, kg => 1, s => -3 }, '-astronomy' ],
-	pressure          => { m => -1, kg => 1, s => -2 },
-	electricity       => [
-		{ amp => 1 },
-		{ amp =>  1, s => 1 },
-		{ kg  =>  1, m =>  2, amp => -1, s => -3 },
-		{ kg  => -1, m => -2, amp =>  1, s =>  3 },
-		{ amp =>  2, s =>  4, kg  => -1, m => -2 },
-		{ kg  =>  1, m =>  2, amp => -2, s => -3 },
-		{ kg  => -1, m => -2, amp =>  2, s =>  3 },
-	],
-	magnetism   => [ { kg => 1, amp => -1, s => -2 }, { kg => 1, m => 2, amp => -1, s => -2 }, ],
-	luminosity  => [ { cd => 1, rad => -2 }, { cd => 1, rad => -2, m => -2 }, ],
-	atomics     => [ 'amu', 'me', 'barn', 'a0', 'dalton' ],
-	radiation   => [ { m => 2, s => -2 }, { s => -1 } ],
-	biochem     => [ { mol => 1 }, { mol => 1, s => -1 } ],
-	astronomy   => [ 'kpc', 'Mpc', 'solar-mass', 'solar-radii', 'solar-lum', 'light-year', 'AU', 'parsec' ],
-	fundamental => [ keys %Units::fundamental_units ],
+our %namedCategories = (
+	"imperial-length" => { length => [qw(in ft yd furlong mi)] },
+	"metric-length"   => { length => [qw(m micron angstrom)] },
+	cooking           => {
+		time        => [qw(s min h)],
+		volume      => [ 'L', 'cc', 'tsp', 'Tbsp', 'fl oz', 'cup', 'pt', 'qt', 'gal' ],
+		mass        => [qw(g kg oz lb)],
+		temperature => [qw(degC degF)],
+	},
 );
 
 #
-#  Add new units, either by name, as name => unit_def, or as unit_def
-#  (where unit_def is like one of the known units).  Also add other
-#  units that are aliases for the given one in the known_units list.
+#  Look up a unit's definition within a single %Units::UNITS category.
+#  Returns undef if the category is unknown (e.g., metric-units).
+#
+sub unitFromCategory {
+	my ($self, $category, $name) = @_;
+	return undef unless $category;
+	my $definitions = $category->{definitions};
+
+	my $definition = $definitions->{$name};
+	if ($definition) {
+		return $self->resolvedUnit($category, $definition);
+	}
+	($definition) = $self->aliasedDefinition($definitions, $name);
+	if ($definition) {
+		# $name is one of $definition's own aliases (not its primary name),
+		# so its aliases (which belong to that primary name) must not be
+		# carried over -- otherwise $name would end up listed as one of
+		# its own aliases, which is both wrong and (since addUnitAliases()
+		# would then register $name as an alias of itself) an infinite loop
+		# waiting to happen.
+		return $self->resolvedUnit($category, $definition, 1);
+	}
+
+	for my $prefix (keys %Units::PREFIXES) {
+		next unless $name =~ /^\Q$prefix\E(.+)$/;
+		my $baseName       = $1;
+		my $baseDefinition = $definitions->{$baseName};
+		my $primaryName    = $baseName;
+		my $viaAlias       = 0;
+		unless ($baseDefinition) {
+			($baseDefinition, $primaryName) = $self->aliasedDefinition($definitions, $baseName, 3);
+			$viaAlias = 1;
+		}
+		next unless $baseDefinition && grep { $_ eq $prefix } @{ $baseDefinition->{prefixes} || [] };
+		return $self->prefixedUnit($prefix, $primaryName, $self->resolvedUnit($category, $baseDefinition, $viaAlias));
+	}
+
+	return undef;
+}
+
+#
+#  Resolve a unit definition's fundamental units against its category's
+#  default_fundamental_units (unless the definition overrides them).  If
+#  $viaAlias is set, the definition's own aliases are dropped, since they
+#  belong to its primary name, not to whatever alias was used to find it
+#  (see unitFromCategory()).
+#
+sub resolvedUnit {
+	my ($self, $category, $definition, $viaAlias) = @_;
+	my %unit = %$definition;
+	$unit{units} = delete($unit{fundamental_units}) // { %{ $category->{default_fundamental_units} } };
+	delete $unit{aliases} if $viaAlias;
+	return \%unit;
+}
+
+#
+#  Search a category's definitions for a unit whose own aliases include
+#  $name.  If $maxLength is given, only consider aliases at most that many
+#  characters long (matching which aliases get generated for prefixed
+#  units; see prefixedUnit()).  Returns the unit's definition and its
+#  primary (top-level) name, or an empty list if none is found.
+#
+sub aliasedDefinition {
+	my ($self, $definitions, $name, $maxLength) = @_;
+	return () if $maxLength && length($name) > $maxLength;
+	for my $primaryName (keys %$definitions) {
+		my $definition = $definitions->{$primaryName};
+		return ($definition, $primaryName) if grep { $_ eq $name } @{ $definition->{aliases} || [] };
+	}
+	return ();
+}
+
+#
+#  Look up a unit's definition directly from %Units::UNITS (resolving the
+#  static legacy aliases first -- see %ALIAS).  This is used for units
+#  that are looked up by name directly (e.g., in addUnits() or
+#  removeUnits()), as opposed to units added as part of a whole category
+#  (see addUnitsWithPrefixes, which resolves those directly against the
+#  known category instead of using this search).  Each category searched
+#  is checked via unitFromCategory(), so $name may be a top-level unit, one
+#  of its aliases, or a prefixed form of either.  If this context has any
+#  active unit categories (added via addUnitCategory), those are searched
+#  first, so that a name resolvable in more than one category (e.g., "c"
+#  as both velocity's speed of light and an alias for volume's "cup")
+#  resolves to the version from a category this context actually uses
+#  instead of an arbitrary one.  Falls back to a search of all of
+#  %Units::UNITS for names that aren't part of any active category (e.g.,
+#  units added directly via addUnits() before any category has been
+#  added).
+#
+#  Returns a hash reference with factor, units (a hash of the powers of the
+#  fundamental units), and whichever of aliases, string, TeX, noSeparator,
+#  prefixes, and prefix_aliases the unit defines, or undef if $name isn't a
+#  known unit.
+#
+sub findUnit {
+	my ($self, $name) = @_;
+	$name = $ALIAS{$name} if $ALIAS{$name};
+	for my $categoryName (@{ $self->flag('unitCategories') }) {
+		my $unit = $self->unitFromCategory($Units::UNITS{$categoryName}, $name);
+		return $unit if $unit;
+	}
+	for my $category (values %Units::UNITS) {
+		my $unit = $self->unitFromCategory($category, $name);
+		return $unit if $unit;
+	}
+	return undef;
+}
+
+#
+#  Compute the definition for a prefixed version of a unit (e.g., "km" from
+#  prefix "k" and unit "m"), following the same rules used to build the
+#  prefixed units in Units.pm.
+#
+sub prefixedUnit {
+	my ($self, $prefix, $name, $unit) = @_;
+	my @short_aliases = grep { length($_) <= 3 } @{ $unit->{aliases} || [] };
+	my %prefixed      = (factor => $Units::PREFIXES{$prefix} * $unit->{factor}, units => $unit->{units});
+	if ($prefix eq 'u') {
+		$prefixed{string}  = $unit->{string} ? "\x{00B5}$unit->{string}" : "\x{00B5}$name";
+		$prefixed{TeX}     = $unit->{TeX}    ? "\x{00B5}$unit->{TeX}"    : "\x{00B5}$name";
+		$prefixed{aliases} = [ "\x{00B5}$name", map {"u$_"} @short_aliases ];
+	} else {
+		$prefixed{string}  = "$prefix$unit->{string}" if $unit->{string};
+		$prefixed{TeX}     = "$prefix$unit->{TeX}"    if $unit->{TeX};
+		$prefixed{aliases} = [ map {"$prefix$_"} @short_aliases ];
+	}
+	push(@{ $prefixed{aliases} }, $unit->{prefix_aliases}{$prefix}) if $unit->{prefix_aliases}{$prefix};
+	return \%prefixed;
+}
+
+#
+#  Add new units, in any of these forms:
+#    unit_def                 a bare dimension hash to match existing units against
+#    name => unit_def         a custom unit, defined by a dimension hash
+#    name                     looked up by name (searching active categories first)
+#    name => categoryName     looked up by name directly within one specific
+#                             %Units::UNITS category, to disambiguate a name
+#                             that exists in more than one category (e.g. "lb"
+#                             as both mass's pound and force's pound-force):
+#
+#                               Context("Units")->addUnits(lb => "force");
+#
+#  Also add aliases.
 #
 sub addUnits {
 	my $self = shift;
 	while (@_) {
 		if (ref($_[0]) eq 'HASH') {
 			$self->addUnit('' => shift);
+		} elsif (defined($_[1]) && !ref($_[1]) && $Units::UNITS{ $_[1] }) {
+			my ($name, $categoryName) = (shift, shift);
+			my $unit = $self->unitFromCategory($Units::UNITS{$categoryName}, $name);
+			Value->Error("Can't add unknown unit '%s' from category '%s'", $name, $categoryName) unless $unit;
+			$self->addUnit($name => $unit);
 		} else {
 			$self->addUnit((shift) => ref($_[0]) eq 'HASH' ? shift : undef);
 		}
@@ -767,31 +886,63 @@ sub addUnitsNotAliases {
 }
 
 #
+#  Add named units along with all of their declared prefixed forms (e.g.,
+#  adding "m" also adds "km", "cm", "mm", etc.), each with its aliases.
+#  Used to populate a whole unit category.  If $category (a value from
+#  %Units::UNITS) is given, names are resolved directly against it instead
+#  of searching for them, so that populating one category is never
+#  affected by a same-named unit that happens to live in another one.  For
+#  example, "c" is both velocity's own symbol for the speed of light and
+#  an alias for volume's "cup" (see lib/Units.pm); loading only "velocity"
+#  or only "volume" each correctly give you their own "c", since each
+#  category's units (and their aliases) are resolved only against that
+#  category's own definitions.
+#
+sub addUnitsWithPrefixes {
+	my ($self, $names, $category) = @_;
+	for my $name (@$names) {
+		my $unit = $category ? $self->unitFromCategory($category, $name) : $self->findUnit($name);
+		Value->Error("Can't add unknown unit '%s'", $name) unless $unit;
+		$self->addUnit($name     => $unit);
+		$self->addUnit("$_$name" => $self->prefixedUnit($_, $name, $unit)) for @{ $unit->{prefixes} || [] };
+	}
+	return $self;
+}
+
+#
 #  Add a single unit by name or name => unit_def
 #
 sub addUnit {
 	my ($self, $name, $unit, %options) = @_;
 	my $constants = $self->constants;
-	$unit = $UNITS{$name} unless $unit;
+	$name = $ALIAS{$name} if $name && $ALIAS{$name};
+	$unit = $self->findUnit($name) unless $unit;
 	Value->Error("Can't add unknown unit '%s'", $name) unless $unit;
-	my $aliases = $unit->{aliases};
-	$unit = {%$unit}, delete $unit->{aliases} if $aliases;
+	if (!$unit->{units}) {
+		$unit = { factor => ($unit->{factor} // 1), units => { %{$unit} } };
+		$unit->{aliases} = $unit->{units}{aliases} if $unit->{units}{aliases};
+		delete $unit->{units}{aliases};
+		delete $unit->{units}{factor};
+	}
 	$constants->{namePattern} = qr/.+/;
 	if ($name) {
 		$constants->add(
 			$name => {
-				value      => context::Units::Unit->new($name => $unit),
-				TeX        => "\\text{$name}",
+				value => context::Units::Unit->new($name => $unit),
+				TeX => $unit->{TeX} ? "\\text{$unit->{TeX}}"
+				: $unit->{string} ? "\\text{$unit->{string}}"
+				: "\\text{$name}",
+				$unit->{string} ? (string => $unit->{string}) : (),
 				isUnit     => 1,
-				isConstant => 1
+				isConstant => 1,
+				noSep      => $unit->{noSeparator} // 0,
 			}
 		);
-		$constants->set($name => { ustring => $ALIAS{$name} })      if $ALIAS{$name};
-		$constants->add(map { $_ => { alias => $name } } @$aliases) if $aliases;
-		$self->addUnitAliases($name) unless $options{noaliases};
+		$constants->set($name => { ustring => $ALIAS{$name} }) if $ALIAS{$name};
 	} else {
-		$self->addUnitAliases($unit);
+		$self->addMatchingUnits($unit->{units});
 	}
+	$self->addUnitAliases($name => $unit) unless $name && $options{noaliases};
 	return $self;
 }
 
@@ -799,18 +950,44 @@ sub addUnit {
 #  Adds all the aliases for a given named unit or unit definition
 #
 sub addUnitAliases {
-	my ($self, $name) = @_;
-	my $unit = ref($name) eq 'HASH' ? $name : $UNITS{$name};
-	return unless $unit;
-	my $def = join(',', map {"$_=$unit->{$_}"} (main::lex_sort(keys %$unit)));
-	for my $alias (keys %UNITS) {
-		my $UNIT = { %{ $UNITS{$alias} } };
-		delete $UNIT->{factor} unless defined($unit->{factor});
-		if (join(',', map {"$_=$UNIT->{$_}"} (main::lex_sort(keys %$UNIT))) eq $def && $name ne $alias) {
-			$self->addUnit($alias => $UNITS{$alias}, noaliases => 1);
+	my ($self, $name, $unit) = @_;
+	$unit = $self->findUnit($name) unless $unit;
+	return $self unless $unit;
+	my $aliases = $unit->{aliases};
+	if ($aliases) {
+		if ($name) {
+			$self->constants->add(map { $_ => { alias => $name } } @$aliases);
+		} else {
+			$self->addUnit($_ => $unit, noaliases => 1) for @$aliases;
 		}
 	}
 	return $self;
+}
+
+#
+#  Adds all units (including their prefixed forms) with the same
+#  fundamental units and powers.  Used when addUnits() is given a bare
+#  dimension hash instead of a unit name.
+#
+sub addMatchingUnits {
+	my ($self, $units) = @_;
+	my $def = $self->unitString($units);
+	for my $category (values %Units::UNITS) {
+		for my $name (keys %{ $category->{definitions} }) {
+			my $unit = $self->unitFromCategory($category, $name);
+			$self->addUnit($name => $unit) if $self->unitString($unit->{units}) eq $def;
+			for my $prefix (@{ $unit->{prefixes} || [] }) {
+				my $prefixed = $self->prefixedUnit($prefix, $name, $unit);
+				$self->addUnit("$prefix$name" => $prefixed) if $self->unitString($prefixed->{units}) eq $def;
+			}
+		}
+	}
+	return $self;
+}
+
+sub unitString {
+	my ($self, $units) = @_;
+	return join('', map {"$_=$units->{$_}"} (main::lex_sort(keys %$units)));
 }
 
 #
@@ -823,66 +1000,48 @@ sub addUnitsFor {
 }
 
 #
-#  Add the units for a single category
+#  Add the units for a single category.  Most category names correspond
+#  directly to a category of the same name in %Units::UNITS, and all of
+#  that category's units (and their prefixed forms) are added.  A few
+#  categories are special-cased: "fundamental" (just the base unit
+#  symbols, without their aliases) and the named lists in %namedCategories
+#
+#  The category name is recorded in the unitCategories flag regardless of
+#  which branch handles it, so that findUnit() can prefer units from
+#  categories this context has actually requested.
 #
 sub addUnitCategory {
 	my ($self, $name) = @_;
-	my $category = $categories{$name};
-	Value->Error("Unknown unit category '%s'", $name) unless $category;
-	$category = [$category]                           unless ref($category) eq 'ARRAY';
-	#
-	#  Collect the units to add and remove
-	#
-	my @units;
-	my @unitsNoAliases;
-	my @remove;
-	my @removeNoAliases;
-	for my $def (@$category) {
-		if (ref($def) eq 'HASH') {
-			#
-			#  Add a category by unit_def
-			#
-			push(@units, $def);
-		} elsif ($def =~ m/^-/) {
-			my $cat = $categories{ substr($def, 1) };
-			if (defined($cat)) {
-				#
-				#  Remove a named category (it must consist only of named units)
-				#
-				for my $u (@$cat) {
-					if ($u =~ m/\*$/) {
-						push(@remove, substr($u, 0, -1));
-					} else {
-						push(@removeNoAliases, $u);
-					}
-				}
-			} else {
-				#
-				#  Remove a named unit with or without aliases
-				#
-				if ($def =~ m/\*$/) {
-					push(@remove, substr($def, 1, -1));
-				} else {
-					push(@removeNoAliases, substr($def, 1));
-				}
-			}
-		} elsif ($def =~ m/\*$/) {
-			#
-			#  Add a named unit with aliases
-			#
-			push(@units, substr($def, 0, -1));
-		} else {
-			#
-			#  Add a single named unit
-			#
-			push(@unitsNoAliases, $def);
-		}
+	push(@{ $self->flag('unitCategories') }, $name);
+	return $self->addUnitsNotAliases(grep { $_ ne 'factor' } keys %Units::fundamental_units)
+		if $name eq 'fundamental';
+	if (my $namedCategory = $namedCategories{$name}) {
+		$self->addUnitsWithPrefixes($namedCategory->{$_}, $Units::UNITS{$_}) for keys %$namedCategory;
+		return $self;
 	}
-	$self->addUnits(@units);
-	$self->removeUnits(@remove);
-	$self->removeUnitsNotAliases(@removeNoAliases);
-	$self->addUnitsNotAliases(@unitsNoAliases);
-	return $self;
+	my $category = $Units::UNITS{$name};
+	Value->Error("Unknown unit category '%s'", $name) unless $category;
+	return $self->addUnitsWithPrefixes([ keys %{ $category->{definitions} } ], $category);
+}
+
+#
+#  List the names of all the unit categories
+#
+sub listCategories {
+	my $self = shift;
+	return main::lex_sort(keys %Units::UNITS, keys %namedCategories, 'fundamental');
+}
+
+#
+#  List the names of all the units (including aliases and prefixed forms)
+#  that addUnitCategory($name) would add
+#
+sub listUnitsFor {
+	my ($self, $name) = @_;
+	my %before = map { $_ => 1 } $self->constants->names;
+	my $copy   = $self->copy;
+	$copy->addUnitCategory($name);
+	return main::lex_sort(grep { !$before{$_} } $copy->constants->names);
 }
 
 #
@@ -898,6 +1057,7 @@ sub removeUnits {
 	my $constants = $self->constants;
 	my @units     = grep { defined($constants->get($_)) } @_;
 	$self->removeUnitAndAliases($_) for (@units);
+	return $self;
 }
 
 #
@@ -905,17 +1065,9 @@ sub removeUnits {
 #
 sub removeUnitAndAliases {
 	my ($self, $name) = @_;
-	my $unit = $UNITS{$name};
-	return unless $unit;
-	my $def = join(',', map {"$_=$unit->{$_}"} (main::lex_sort(keys %$unit)));
-	my @units;
-	for my $alias (keys %UNITS) {
-		my $UNIT = $UNITS{$alias};
-		if (join(',', map {"$_=$UNIT->{$_}"} (main::lex_sort(keys %$UNIT))) eq $def) {
-			push(@units, $alias);
-		}
-	}
-	$self->constants->remove(@units);
+	$name = $ALIAS{$name} if $ALIAS{$name};
+	my $unit = $self->findUnit($name);
+	$self->constants->remove($name, @{ $unit->{aliases} }) if $unit;
 	return $self;
 }
 
@@ -973,7 +1125,7 @@ sub new {
 	#
 	#  Look up a known unit, if none given.
 	#
-	$unit = $context::Units::Context::UNITS{$name} unless defined($unit);
+	$unit = $context->findUnit($name) unless defined($unit);
 	#
 	#  If not given or not a known unit,
 	#    If the argument is not a Value object
@@ -990,7 +1142,7 @@ sub new {
 			if ($value->isConstant) {
 				$value = $value->eval;
 			} else {
-				$value = $value->getTypicalValue($value)->unit;
+				$value = $value->getTypicalValue($value);
 			}
 		}
 		return $value       if $value->type eq 'Unit';
@@ -1004,16 +1156,13 @@ sub new {
 	#
 	my $nfunds = {};
 	my $dfunds = {};
-	my $factor = 1;
-	for my $name (keys %$unit) {
-		if ($name eq 'factor') {
-			$factor = $unit->{$name};
+	my $factor = $unit->{factor} // 1;
+	my $units  = $unit->{units};
+	for my $name (keys %$units) {
+		if ($units->{$name} > 0) {
+			$nfunds->{$name} = $units->{$name};
 		} else {
-			if ($unit->{$name} > 0) {
-				$nfunds->{$name} = $unit->{$name};
-			} else {
-				$dfunds->{$name} = -$unit->{$name};
-			}
+			$dfunds->{$name} = -$units->{$name};
 		}
 	}
 	#
@@ -1207,7 +1356,7 @@ sub mult {
 	my ($ltype, $rtype) = ($l->type, $r->type);
 	return $l->appendUnit($r) if $ltype eq 'Unit' && $rtype eq 'Unit';
 	$self->Error("A Unit can't be multiplied by %s", Value::showClass($r)) if $ltype eq 'Unit';
-	$self->Error("Can't multiply %s by a Unit", Value::showClass($l))
+	$self->Error("You can't multiply %s by a Unit", Value::showClass($l))
 		unless $ltype eq 'Number' || $ltype eq $context::Units::NUNIT;
 	return $self->Package($context::Units::NUNIT)->new($l->copy, $r->copy);
 }
@@ -1222,7 +1371,7 @@ sub div {
 	return $l->perUnit($r) if $ltype eq 'Unit' && $rtype eq 'Unit';
 	return $self->Package($context::Units::NUNIT)->new($l->copy, $r->raiseUnit(-1, 1)) if $ltype eq 'Number';
 	$self->Error("A Unit can't be divided by %s", Value::showClass($r))                if $ltype eq 'Unit';
-	$self->Error("Can't divide %s by a Unit", Value::showClass($l));
+	$self->Error("You can't divide %s by a Unit", Value::showClass($l));
 }
 
 #
@@ -1458,6 +1607,17 @@ sub new {
 	$self->Error('Can\'t append a Unit to %s',  Value::showClass($n))    unless $n->type eq 'Number';
 	$self->Error('Can\'t convert %s to a Unit', Value::showClass($unit)) unless $unit->classMatch('Unit');
 	return $n if $unit->string eq '';
+
+	if ($unit->fString eq '' && $unit->string ne '%') {
+		if ($unit->{dunits}{'%'}) {
+			$n /= 0.01**$unit->{dunits}{'%'};
+			return $n;
+		}
+		if ($unit->{nunits}{'%'}) {
+			$n *= 0.01**($unit->{nunits}{'%'} - 1);
+			$unit = $unit->new('%');
+		}
+	}
 	return bless { data => [ $n, $unit ], context => $context, isConstant => 1 }, $class;
 }
 
@@ -1485,6 +1645,16 @@ sub quantity {
 #############################################################
 
 #
+#  Check if there should be a separtor before the units
+#
+sub noSep {
+	my $self = shift;
+	my $unit = $self->unit;
+	my $def  = $self->context->constants->get($unit->{order}[0]);
+	return $def->{noSep};
+}
+
+#
 #  Get the string version using the fundamental units
 #
 sub fString { (shift)->unit->fString }
@@ -1504,7 +1674,8 @@ sub string {
 	my $unit   = $self->unit;
 	my $u      = $unit->stringFor('nunits', 'dunits', $unit->{order}, 0, 1);
 	my $string = $self->number->string;
-	$string .= substr($u, 0, 1) eq '/' ? $u : " $u";
+	$string .= substr($u, 0, 1) eq '/' ? $u : $self->noSep
+		&& (%{ $unit->{nunits} } == 1 || !%{ $unit->{dunits} }) ? $u : " $u";
 	$string = '(' . $string . ')' if defined($precedence) && $precedence > 1;
 	return $string;
 }
@@ -1520,7 +1691,7 @@ sub TeX {
 	if (substr($u, 0, 1) eq '/') {
 		$tex = "\\frac{$tex}{" . $unit->raiseUnit(-1, 1)->with(negativePowers => {})->TeX . '}';
 	} else {
-		$tex .= '\\,' . $unit->TeX;
+		$tex .= ($self->noSep && !%{ $unit->{dunits} } ? '' : '\\,') . $unit->TeX;
 	}
 	$tex = '(' . $tex . ')' if defined($precedence) && $precedence > 1;
 	return $tex;
@@ -1595,10 +1766,11 @@ sub abs {
 #
 sub add {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
-	shift;
-	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
+	($l, $r) = ($self->makeValue($l), $self->makeValue($r));
+	my $f = $self->checkFormulas($l, $r, $_[2], sub { $_[0] + $_[1] });
+	return $f if defined $f;
 	$self->Error('You can\'t add %s to %s', $l->showClass, $r->showClass)
-		unless $other->classMatch('NumberWithUnit');
+		unless ($_[2] ? $l : $r)->classMatch('NumberWithUnit');
 	$self->Error('You can only add quantities with the same units') unless $l->fString eq $r->fString;
 	return $self->new($l->number + $r->quantity / $l->factor, $l->unit->copy);
 }
@@ -1608,10 +1780,11 @@ sub add {
 #
 sub sub {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
-	shift;
-	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
+	($l, $r) = ($self->makeValue($l), $self->makeValue($r));
+	my $f = $self->checkFormulas($l, $r, $_[2], sub { $_[0] - $_[1] });
+	return $f if defined $f;
 	$self->Error('You can\'t subtract %s from %s', $r->showClass, $l->showClass)
-		unless $other->classMatch('NumberWithUnit');
+		unless ($_[2] ? $l : $r)->classMatch('NumberWithUnit');
 	$self->Error('You can only subtract quantities with the same units') unless $l->fString eq $r->fString;
 	return $self->new($l->number - $r->quantity / $l->factor, $l->unit->copy);
 }
@@ -1622,14 +1795,16 @@ sub sub {
 sub mult {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
 	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
-	my ($lUnit, $rUnit)   = ($l->classMatch('Unit'), $r->classMatch('Unit'));
+	my $f = $self->checkFormulas($l, $r, $_[2], sub { $_[0] * $_[1] });
+	return $f if defined $f;
+	my ($lUnit,  $rUnit)  = ($l->classMatch('Unit'),           $r->classMatch('Unit'));
 	my ($lUnitN, $rUnitN) = ($l->classMatch('NumberWithUnit'), $r->classMatch('NumberWithUnit'));
 	return $self->new($l->number->copy,        $l->unit->appendUnit($r))       if $lUnitN && $rUnit;
 	return $self->new($l->number * $r->number, $l->unit->appendUnit($r->unit)) if $lUnitN && $rUnitN;
 	return $self->new($l * $r->number,         $r->unit->copy)                 if $l->type eq 'Number';
 	return $self->new($l->number * $r,         $l->unit->copy)                 if $r->type eq 'Number';
 	$self->Error("A Unit can't be multiplied by %s", Value::showClass($r)) if $lUnit;
-	$self->Error("Can't multiply %s by a Unit", Value::showClass($l));
+	$self->Error("You can't multiply %s by a Unit", Value::showClass($l));
 }
 
 #
@@ -1639,14 +1814,16 @@ sub mult {
 sub div {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
 	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
-	my ($lUnit, $rUnit)   = ($l->classMatch('Unit'), $r->classMatch('Unit'));
+	my $f = $self->checkFormulas($l, $r, $_[2], sub { $_[0] / $_[1] });
+	return $f if defined $f;
+	my ($lUnit,  $rUnit)  = ($l->classMatch('Unit'),           $r->classMatch('Unit'));
 	my ($lUnitN, $rUnitN) = ($l->classMatch('NumberWithUnit'), $r->classMatch('NumberWithUnit'));
 	return $self->new($l->number->copy,        $l->unit->perUnit($r))       if $lUnitN && $rUnit;
 	return $self->new($l->number / $r->number, $l->unit->perUnit($r->unit)) if $lUnitN && $rUnitN;
 	return $self->new($l / $r->number,         $r->unit->raiseUnit(-1, 1))  if $l->type eq 'Number';
 	return $self->new($l->number / $r,         $l->unit->copy)              if $r->type eq 'Number';
 	$self->Error("A Unit can't be divided by %s", Value::showClass($r)) if $lUnit;
-	$self->Error("Can't divide %s by a Unit", Value::showClass($l));
+	$self->Error("You can't divide %s by a Unit", Value::showClass($l));
 }
 
 #
@@ -1655,10 +1832,12 @@ sub div {
 sub power {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
 	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
-	$self->Error("A $context::Units::NUNIT can't be raised to %s", $r->showClass)
+	my $f = $self->checkFormulas($l, $r, $_[2], sub { $_[0]**$_[1] });
+	return $f if defined $f;
+	$self->Error("A %s can't be raised to %s", $context::Units::NUNIT, $r->showClass)
 		unless $l->classMatch('NumberWithUnit') && $r->type eq 'Number';
 	my $n = $r->value;
-	$self->Error("A $context::Units::NUNIT can only be raised to a non-zero integer value")
+	$self->Error("A %s can only be raised to a non-zero integer value", $context::Units::NUNIT)
 		if $n == 0 || CORE::int($n) != $n;
 	return $self->new($l->number**$n, $l->unit->raiseUnit($n));
 }
@@ -1668,7 +1847,8 @@ sub power {
 #
 sub compare {
 	my ($self, $l, $r, $other) = Value::checkOpOrder(@_);
-	($l, $r) = (Value::makeValue($l), Value::makeValue($r));
+	($l, $r) = ($self->makeValue($l), $self->makeValue($r));
+	return ($_[2] ? 1 : -1) if ($_[2] ? $l : $r)->isFormula;
 	return $l->type eq 'Unit' || $r->classMatch('NumberWithUnit') ? -1 : 1 unless $l->type eq $r->type;
 	my ($ls, $rs) = ($l->fString, $r->fString);
 	return $ls cmp $rs unless $ls eq $rs;
@@ -1681,6 +1861,30 @@ sub compare {
 sub D {
 	my $self = shift;
 	return $self->new($self->number->D(@_), $self->unit->D(@_));
+}
+
+#
+#  Convert to Value objects, taking percents into account
+#
+sub makeValue {
+	my $self = shift;
+	my $x    = Value::makeValue(shift);
+	return
+		$x->isReal
+		&& $self->fString eq ''
+		&& $self->unit->string eq '%'
+		&& !$self->getFlag('sameUnits') ? $self->new($x * 100, '%') : $x;
+}
+
+#
+#  Check if operands are formulas and if so, convert the other to a
+#  formula and perform the operation.
+#
+sub checkFormulas {
+	my ($self, $l, $r, $switch, $fn) = @_;
+	return unless ($switch ? $l : $r)->isFormula;
+	($switch ? $r : $l) = $self->Package('Formula')->new($self);
+	return &$fn($l, $r);
 }
 
 #############################################################
@@ -1801,23 +2005,35 @@ sub hasNumberUnitOperands {
 }
 
 #
+#  Check if one operand is a percentage and the other is a number
+#
+sub hasPercentNumberOperands {
+	my ($self, $l, $r, $ltype, $rtype) = @_;
+	my $NUNIT = $context::Units::NUNIT;
+	return ($ltype eq $NUNIT && $rtype eq 'Number' && $self->Package('Formula')->new($l)->unit->string eq '%')
+		|| ($rtype eq $NUNIT && $ltype eq 'Number' && $self->Package('Formula')->new($r)->unit->string eq '%');
+}
+
+#
 #  Call the _check from the original class unless one of the operands
 #  is a Number with Units, in which case, we check that operations are
 #  allowed, and set the type if they are.
 #
 sub checkNumberUnits {
 	my $self = shift;
-	my ($ltype, $rtype) = ($self->{lop}->type, $self->{rop}->type);
+	my ($l, $r) = ($self->{lop}, $self->{rop});
+	my ($ltype, $rtype) = ($l->type, $r->type);
 	return $self->mutate->_check unless $self->hasNumberUnitOperand($ltype, $rtype);
+	$self->{type} = $context::Units::NUMBER_WITH_UNIT;
+	return if $self->hasPercentNumberOperands($l, $r, $ltype, $rtype);
 	$self->Error("Both operands of '%s' must have units if one does", $self->{bop})
 		unless $self->hasNumberUnitOperands($ltype, $rtype);
-	my $lunit = $self->Package('Formula')->new($self->{lop})->unit;
-	my $runit = $self->Package('Formula')->new($self->{rop})->unit;
+	my $lunit = $self->Package('Formula')->new($l)->unit;
+	my $runit = $self->Package('Formula')->new($r)->unit;
 	$self->Error("Units '%s' and '%s' are not compatible", $lunit->string, $runit->string)
 		unless $lunit->fString eq $runit->fString;
-	$self->Error("Can't use '%s' with Numbers with Units in this context", $self->{bop})
+	$self->Error("You can't use '%s' with Numbers with Units in this context", $self->{bop})
 		if $self->context->flag('limitedOperators');
-	$self->{type} = $context::Units::NUMBER_WITH_UNIT;
 	$self->factorUnits if !$self->{isConstant} && $self->context->flag('factorUnits');
 }
 
@@ -1838,7 +2054,7 @@ sub checkMultDiv {
 		|| $self->bothUnitOperands($ltype, $rtype)
 		|| ($ltype eq 'Number' && $rtype eq 'Unit');
 	return $self->mutate->_check unless $self->hasUnitOperand($ltype, $rtype);
-	$self->Error("Can't $op1 two Numbers with Units in this context")
+	$self->Error("You can't %s two Numbers with Units in this context", $op1)
 		if $self->context->flag('limitedOperators') && $ltype eq $context::Units::NUNIT && $ltype eq $rtype;
 	$self->{def} = {
 		%{ $self->{def} },
@@ -1856,8 +2072,8 @@ sub checkMultDiv {
 	return
 		if ($ltype eq 'Number' && $rtype eq $context::Units::NUNIT)
 		|| ($rtype eq 'Number' && $ltype eq $context::Units::NUNIT && $mult);
-	$self->Error('A %s can only be $op2 by a Unit', $ltype) if $lHasUnit;
-	$self->Error('A Unit can only $action another Unit') unless $ltype eq 'Number' || $mult;
+	$self->Error('A %s can only be %s by a Unit', $ltype, $op2) if $ltype eq $context::Units::NUNIT;
+	$self->Error('A Unit can only %s another Unit', $action) unless $ltype eq 'Number' || $mult;
 }
 
 #
@@ -2019,11 +2235,11 @@ sub _check {
 	return $self->mutate->_check
 		unless ($ltype eq 'Unit' || $ltype eq $context::Units::NUNIT) && $rtype eq 'Number';
 	if ($self->context->flag('limitedOperators')) {
-		$self->Error("Can't raise a %s to a power in this context", $ltype) if $ltype ne 'Unit';
+		$self->Error("You can't raise a %s to a power in this context", $ltype) if $ltype ne 'Unit';
 		my $unit   = $self->{lop}->eval;
 		my @nunits = keys %{ $unit->{nunits} };
 		my @dunits = keys %{ $unit->{dunits} };
-		$self->Error("Can't raise a Compound Unit to a power in this context") unless @nunits == 1 && @dunits == 0;
+		$self->Error("You can't raise a Compound Unit to a power in this context") unless @nunits == 1 && @dunits == 0;
 	}
 	$self->{type} = $self->{lop}->{type};
 }
@@ -2201,7 +2417,7 @@ our @ISA = ('context::Units::Super', 'Value::Formula');
 
 sub checkNumberWithUnits {
 	my ($self, $method) = @_;
-	$self->Error("Can't use '->$method' with " . $self->showClass)
+	$self->Error([ "You can't use '->%s' with %s", $method, $self->showClass ])
 		unless $self->type eq $context::Units::NUNIT;
 }
 
@@ -2247,7 +2463,7 @@ our @ISA = qw(Parser::List);
 sub _check {
 	my $self = shift;
 	$self->{type}{list} = 0;
-	$self->Error("Lists of units are not allowed") if ($self->{type}{length} != 1);
+	$self->Error("Lists of units are not allowed") if $self->{type}{length} != 1;
 	my $arg = $self->{coords}[0];
 	$self->Error("Parentheses should only be used around units in this context")
 		unless $arg->type eq 'Unit' || $self->context->flag("allowBadOperands");
