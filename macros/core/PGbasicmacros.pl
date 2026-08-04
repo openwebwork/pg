@@ -301,6 +301,7 @@ sub NAMED_ANS_RULE {
 		HTML => tag(
 			'div',
 			class => 'text-nowrap d-inline',
+			dir   => 'ltr',
 			tag(
 				'input',
 				type           => 'text',

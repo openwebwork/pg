@@ -23,7 +23,7 @@ is(
 	qq{<div class="PGML">\n}
 		. qq{Enter a value for <script type="math/tex">\\pi</script>.}
 		. qq{<div style="margin-top:1em"></div>}
-		. qq{<div class="text-nowrap d-inline">}
+		. qq{<div class="text-nowrap d-inline" dir="ltr">}
 		. qq{<input aria-label="answer 1 " autocapitalize="off" autocomplete="off" class="codeshard" }
 		. qq{dir="auto" id="AnSwEr0001" name="AnSwEr0001" size="5" spellcheck="false" type="text" value="3.14159">}
 		. qq{<input id="MaThQuIlL_AnSwEr0001" name="MaThQuIlL_AnSwEr0001" type="hidden" value="">}
