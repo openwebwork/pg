@@ -48,6 +48,7 @@ sub new {
 		singleResult        => 0,
 		namedRules          => 0,
 		cmpOpts             => undef,
+		ansLabels           => [],
 		checkTypes          => 1,
 		allowBlankAnswers   => 0,
 		tex_separator       => $separator . '\,',
@@ -416,33 +417,38 @@ sub NEW_NAME {
 	main::RECORD_FORM_LABEL(shift);
 }
 
+sub generate_aria_label {
+	my ($self, $name, $part) = @_;
+	return main::generate_aria_label($self->{singleResult} ? $answerPrefix . $name . '_' . $part : $name,
+		$self->{ansLabels}[$part]);
+}
+
 #
 #  Produce an answer rule for the next item in the list,
 #    taking care to use names or extensions as needed
 #    by the settings of the MultiAnswer.
 #
 sub ans_rule {
-	my $self = shift;
-	my $size = shift || 20;
-	my $data = $self->{data}[ $self->{part} ];
-	my $name = $self->ANS_NAME($self->{part}++);
-	if ($self->{singleResult} && $self->{part} == 1) {
-		my $label = main::generate_aria_label($answerPrefix . $name . "_0");
-		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
-		return $data->named_ans_rule($name, $size, @_, aria_label => $label);
-	}
-	if ($self->{singleResult} && $self->{part} > 1) {
-		my $extension_ans_rule = $data->named_ans_rule_extension(
+	my $self  = shift;
+	my $size  = shift || 20;
+	my $part  = $self->{part};
+	my $data  = $self->{data}[$part];
+	my $name  = $self->ANS_NAME($self->{part}++);
+	my $label = $self->generate_aria_label($name, $part);
+	if ($self->{singleResult}) {
+		if ($part == 0) {
+			main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
+			return $data->named_ans_rule($name, $size, @_, aria_label => $label);
+		}
+		return $data->named_ans_rule_extension(
 			$name, $size,
 			answer_group_name => $self->{answerNames}{0},
-			@_
+			@_,
+			aria_label => $label
 		);
-		# warn "extension rule created: $extension_ans_rule for ", ref($data);
-		return $extension_ans_rule;
-	} else {
-		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
-		return $data->named_ans_rule($name, $size, @_);
 	}
+	main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
+	return $data->named_ans_rule($name, $size, @_, aria_label => $label);
 }
 
 #
@@ -454,29 +460,30 @@ sub ans_array {
 	my $self = shift;
 	my $size = shift || 5;
 	my $HTML;
-	my $data = $self->{data}[ $self->{part} ];
-	my $name = $self->ANS_NAME($self->{part}++);
-	if ($self->{singleResult} && $self->{part} == 1) {
-		my $label = main::generate_aria_label($answerPrefix . $name . "_0");
-		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
-		return $data->named_ans_array(
-			$name, $size,
-			answer_group_name => $self->{answerNames}{0},
-			@_, aria_label => $label
-		);
-	}
-	if ($self->{singleResult} && $self->{part} > 1) {
+	my $part  = $self->{part};
+	my $data  = $self->{data}[$part];
+	my $name  = $self->ANS_NAME($self->{part}++);
+	my $label = $self->generate_aria_label($name, $part);
+	if ($self->{singleResult}) {
+		if ($part == 0) {
+			main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
+			return $data->named_ans_array(
+				$name, $size,
+				answer_group_name => $self->{answerNames}{0},
+				@_, aria_label => $label
+			);
+		}
 		$HTML = $data->named_ans_array_extension(
 			$self->NEW_NAME($name), $size,
 			answer_group_name => $self->{answerNames}{0},
-			@_
+			@_,
+			aria_label => $label
 		);
-		# warn "array extension rule created: $HTML for ", ref($data);
 	} else {
 		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
-		$HTML = $data->named_ans_array($name, $size, @_);
+		$HTML = $data->named_ans_array($name, $size, @_, aria_label => $label);
 	}
-	$self->{cmp}[ $self->{part} - 1 ] = $data->cmp(@ans_defaults);
+	$self->{cmp}[$part] = $data->cmp(@ans_defaults);
 	return $HTML;
 }
 
@@ -565,6 +572,14 @@ is the same as C<< checkTypes => 'compatible' >>.
 
 Indicates whether to remove the blank-check prefilter from the answer checkers used for type checking
 the student's answers. Default: 0.
+
+=head2 ansLabels
+
+An array reference of labels to be added to the assoicated answer box. By default answer boxes are
+labeled (C<aria-label>) with "answer X" or "answer X part Y" if C<singleResult> is used. These labels
+are appeneded to the default label, e.g. "answer X part Y custom label", and can be used to improve
+the accessiblity. For example stating the side of the equation or part of an integral the answer
+box is used for.
 
 =head2 format
 

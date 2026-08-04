@@ -521,12 +521,13 @@ sub NAMED_ANS_RADIO_BUTTONS {
 ##############################################
 
 sub generate_aria_label {
-	my $name  = shift;
+	my ($name, $suffix) = @_;
 	my $label = '';
 
 	# if we dont have an AnSwEr type name then we do the best we can
 	if ($name !~ /AnSwEr\d+/) {
-		return maketext('answer [_1] ', $name);
+		$label = maketext('answer [_1] ', $name);
+		return $suffix ? "$label$suffix " : $label;
 	}
 
 	# check for quiz prefix
@@ -552,7 +553,7 @@ sub generate_aria_label {
 		$label .= maketext('row [_1] column [_2] ', $1 + 1, $2 + 1);
 	}
 
-	return $label;
+	return $suffix ? "$label$suffix " : $label;
 }
 
 ##############################################
