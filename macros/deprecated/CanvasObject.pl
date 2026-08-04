@@ -241,7 +241,7 @@ EOF
 #
 # 	my $base64_initialState     = '';  # encode_base64($self->initialState);
 # 	main::RECORD_FORM_LABEL($appletStateName);            #this insures that the state will be saved from one invocation to the next
-# 	                                                      # FIXME -- with PGcore the persistant data mechanism can be used instead
+# 	                                                      # FIXME -- with PGcore the persistent data mechanism can be used instead
 #     my $answer_value = '<xml></xml>';
 #
 # 	##########################

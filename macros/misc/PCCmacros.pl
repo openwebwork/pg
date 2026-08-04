@@ -755,7 +755,7 @@ sub radicalListCheck {
 		#
 		#  Check that the student's answer is an assignment (or whatever the right type)
 		#
-		my $assingmentMessageGiven = 0;
+		my $assignmentMessageGiven = 0;
 		my $nosolutionMessageGiven = 0;
 		if (defined($p)) {
 			if ($p eq "no real solutions") {
@@ -763,7 +763,7 @@ sub radicalListCheck {
 				$nosolutionMessageGiven = 1;
 			} elsif ($p->type ne "Assignment") {
 				push(@errors, "Your $ith entry should be written $var=_____");
-				$assingmentMessageGiven = 1;
+				$assignmentMessageGiven = 1;
 			}
 		}
 
@@ -819,9 +819,9 @@ sub radicalListCheck {
 				}
 			}
 			push(@errors, "Your $ith solution is not correct")
-				if (!$numericallyCorrect and ($n > 1) and !$assingmentMessageGiven);
+				if (!$numericallyCorrect and ($n > 1) and !$assignmentMessageGiven);
 			push(@errors, "Your solution is not correct")
-				if (!$numericallyCorrect and ($n == 1) and !$assingmentMessageGiven and !$nosolutionMessageGiven);
+				if (!$numericallyCorrect and ($n == 1) and !$assignmentMessageGiven and !$nosolutionMessageGiven);
 		}
 	}
 

@@ -3,7 +3,6 @@
 This directory now has a subdirectory structure for clarification.
 
 - **answers** answer and evaluator macros
-- **capa** any CAPA related macros
 - **contexts** context related macros
 - **core** macros related to core PG functionality
 - **deprecated** macros that have been labelled deprecated
@@ -178,7 +177,7 @@ This directory now has a subdirectory structure for clarification.
 ## Macros fixed
 
 - `math/algebraMacros.pl` (removed all code, already in `customizeLaTeX.pl`)
-- `parsers/parserUtils.pl` (removed loadMacros call due to errors.  )
+- `parsers/parserUtils.pl` (removed loadMacros call due to errors.)
 - `contexts/contextFiniteSolutionSets.pl` (fixed warnings)
 - `contexts/contextLimitedRadicalComplex.pl` (fixed warnings)
 - `contexts/contextRationalExponent.pl` (fixed warnings)

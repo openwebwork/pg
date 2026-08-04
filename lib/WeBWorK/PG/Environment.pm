@@ -17,7 +17,7 @@ The configuration is initially loaded from
 $ENV{PG_ROOT}/conf/pg_config.dist.yml.  If it is desired to change the default
 values, then copy the $ENV{PG_ROOT}/conf/pg_config.dist.yml to
 $ENV{PG_ROOT}/conf/pg_config.yml, and make changes in the copy.  The default
-values will be overriden with the changed values in the copy.  Note that invalid
+values will be overridden with the changed values in the copy.  Note that invalid
 values added to the copy will cause a warning to be issued.
 
 If the WeBWorK::CourseEnvironment module is found, then the configuration
@@ -65,7 +65,7 @@ sub new ($invocant, $courseName = '___') {
 
 	# Override pg settings and things needed by WeBWorK::PG::IO with settings from the course environment.  Pick and
 	# choose the important values from the webwork2 course environment.  Some values in the PG configuration are not
-	# overriden.  These are the values that are used in the WeBWorK::PG and WeBWorK::PG::IO.  Note that in WeBWorK::PG
+	# overridden.  These are the values that are used in the WeBWorK::PG and WeBWorK::PG::IO.  Note that in WeBWorK::PG
 	# most values for the translator environment are taken from the options passed in, and the values in the pg
 	# environment are used for the default values.
 	if (defined $ce) {

@@ -106,7 +106,7 @@ sub R {
 	$R_matrix;
 }
 
-sub PL {    # use this permuation on the left PL*L*R*PR =M
+sub PL {    # use this permutation on the left PL*L*R*PR =M
 	my $matrix    = shift;
 	my $rows      = $matrix->[1];
 	my $cols      = $rows;
@@ -117,7 +117,7 @@ sub PL {    # use this permuation on the left PL*L*R*PR =M
 	$PL_matrix;
 }
 
-sub PR {    # use this permuation on the right PL*L*R*PR =M
+sub PR {    # use this permutation on the right PL*L*R*PR =M
 	my $matrix    = shift;
 	my $cols      = $matrix->[2];
 	my $rows      = $cols;
@@ -384,7 +384,7 @@ sub copy {
 }
 ###################################################################
 
-# MEG added 6/25/03 to accomodate complex entries
+# MEG added 6/25/03 to accommodate complex entries
 
 =head2 conj
 
@@ -456,7 +456,7 @@ sub decompose_LR {
 	my ($swap);
 	my ($temp);
 	my $rh_options = $matrix->[$MatrixReal1::OPTION_ENTRY];
-	#    FIXEME Why won't this work on non-square matrices?
+	#    FIXME: Why won't this work on non-square matrices?
 	#    croak "MatrixReal1::decompose_LR(): matrix is not quadratic"
 	#      unless ($rows == $cols);
 	#    croak "MatrixReal1::decompose_LR(): matrix has more rows than columns"

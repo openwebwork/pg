@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-draggableProof.pl - Allows the contructions of problems with draggable statements for proofs.
+draggableProof.pl - Allows the constructions of problems with draggable statements for proofs.
 
 =head1 DESCRIPTION
 
@@ -66,19 +66,26 @@ Available Options:
     DamerauLevenshtein => 0 or 1
     InferenceMatrix    => <array reference>
     IrrelevancePenalty => <float>
-    ResetButtonText    => <string>
+    cmpOptions         => <hash reference>
 
-Their usage is explained in the example below.
+    resetButtonText     => <string>
+    reorderText         => <string that must contain %1s, %s2, and %3s>
+    moveText            => <string that must contain %1s, %2s, %3s, and %4s>
+    helpButtonText      => <string>
+    closeHelpButtonText => <string>
+    dragAndDropHelpText => <string>
+
+The last six options above are really options of a C<DragNDrop> object and are
+passed to that module on construction. See the L<DragNDrop options|DragNDrop/OPTIONS>
+for details on those options. Note that C<ResetButtonText> is a deprecated alias
+for the C<resetButtonText> option.
+
+The usage of all but the last six options are demonstrated in the example below.
 
 =head1 SYNOPSIS
 
     DOCUMENT();
-    loadMacros(
-        'PGstandard.pl',
-        'PGML.pl',
-        'MathObjects.pl',
-        'draggableProof.pl'
-    );
+    loadMacros('PGstandard.pl', 'PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
 
     $draggable = DraggableProof(
         # The proof given in the correct order.
@@ -138,11 +145,6 @@ Their usage is explained in the example below.
         # The default value if not given is 1.
         IrrelevancePenalty => 1
 
-        # This is the text label for the button shown that resets the drag and
-        # drop element to its default state.  The default value if not given is
-        # "Reset".
-        ResetButtonText => 'zurücksetzen'
-
         # These are options that will be passed to the $draggable->cmp method.
         cmpOptions => { checker => sub { ... } }
     );
@@ -160,8 +162,8 @@ Their usage is explained in the example below.
 
 Custom checkers can also be used by passing the C<checker> or C<list_checker>
 options to the C<cmp> method.  See
-L<https://webwork.maa.org/wiki/Custom_Answer_Checkers>, and
-L<https://webwork.maa.org/wiki/Custom_Answer_Checkers_for_Lists> for details on
+L<https://wiki.openwebwork.org/wiki/Custom_Answer_Checkers>, and
+L<https://wiki.openwebwork.org/wiki/Custom_Answer_Checkers_for_Lists> for details on
 how to use these.
 
 Note that if using a standard C<checker> the correct and student answers
@@ -203,7 +205,6 @@ sub new {
 		NumBuckets         => 2,
 		lines              => [ @$statements, @$extra_statements ],
 		numNeeded          => scalar(@$statements),
-		ResetButtonText    => 'Reset',
 		cmpOptions         => {},
 		Levenshtein        => 0,
 		DamerauLevenshtein => 0,
@@ -211,6 +212,9 @@ sub new {
 		IrrelevancePenalty => 1,
 		%options
 	};
+
+	# Backwards compatibility.
+	$base->{resetButtonText} = delete $base->{ResetButtonText} if defined $base->{ResetButtonText};
 
 	$base->{order} = do {
 		my @indices = 0 .. $#{ $base->{lines} };
@@ -270,6 +274,16 @@ sub Print { return shift->ans_rule; }
 sub ans_rule {
 	my $self = shift;
 
+	my %options;
+
+	for my $option (
+		'resetButtonText',     'reorderText', 'moveText', 'helpButtonText',
+		'closeHelpButtonText', 'dragAndDropHelpText'
+		)
+	{
+		$options{$option} = $self->{$option} if defined $self->{$option};
+	}
+
 	if ($self->{NumBuckets} == 2) {
 		$self->{dnd} = DragNDrop->new(
 			$self->ANS_NAME,
@@ -278,14 +292,13 @@ sub ans_rule {
 				{ indices => [ 0 .. $#{ $self->{lines} } ], label => $self->{SourceLabel} },
 				{ indices => [],                            label => $self->{TargetLabel} }
 			],
-			resetButtonText => $self->{ResetButtonText}
+			%options
 		);
 	} elsif ($self->{NumBuckets} == 1) {
 		$self->{dnd} = DragNDrop->new(
 			$self->ANS_NAME,
 			$self->{shuffledLines},
-			[ { indices => [ 0 .. $#{ $self->{lines} } ], label => $self->{TargetLabel} } ],
-			resetButtonText => $self->{ResetButtonText}
+			[ { indices => [ 0 .. $#{ $self->{lines} } ], label => $self->{TargetLabel} } ], %options
 		);
 	}
 

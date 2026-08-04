@@ -89,7 +89,7 @@ To allow the grading penalties to work, you must include the command
 
     Panic::GradeWithPenalty();
 
-in order to install the panic-button grader.  You should do this afer
+in order to install the panic-button grader.  You should do this after
 setting the grader that you want to use for the problem itself, as the
 panic grader will use the one that is installed at the time the
 Panic::GradWithPenalty command is issued.
@@ -99,14 +99,14 @@ Panic::GradWithPenalty command is issued.
 sub _problemPanic_init { Panic::Init() }
 
 #
-#  The packge to contain the routines and data for the Panic buttons
+#  The package to contain the routines and data for the Panic buttons
 #
 package Panic;
 
 my $isTeX       = 0;      # true in hardcopy mode
 my $allowReset  = 0;      # true if a professor is viewing the problem
 my $buttonCount = 0;      # number of panic buttons displayed so far
-my @penalty     = (0);    # accummulated penalty values
+my @penalty     = (0);    # accumulated penalty values
 my $grader;               # problem's original grader
 
 #

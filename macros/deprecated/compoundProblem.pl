@@ -146,7 +146,7 @@ sub _compoundProblem_init { };    # don't reload this file
 #
 #    $cp->part                   Returns the part the student is working on.
 #    $cp->part(n)                Sets the part to be part n, as long as the
-#                                student has finished the preceeding parts.
+#                                student has finished the preceding parts.
 #                                If not, the part is set to the highest
 #                                one the student hasn't completed, and he
 #                                can work up to the given part.  (The

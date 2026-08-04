@@ -28,8 +28,7 @@
 				dropdownBtn.textContent = option.dataset.content;
 				dropdownBtn.focus();
 
-				if (window.MathJax)
-					MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise([dropdownBtn]));
+				if (window.MathJax) MathJax.typesetPromise?.([dropdownBtn]);
 
 				// If any feedback popovers are open, then update their positions.
 				for (const popover of document.querySelectorAll('.ww-feedback-btn')) {

@@ -379,7 +379,7 @@ sub cmp_class {
 sub showClass { cmp_class(@_) }
 
 #
-#  Convert varaible names to those used in the correct answer, if the
+#  Convert variable names to those used in the correct answer, if the
 #  student answer uses different ones
 #
 sub compare {

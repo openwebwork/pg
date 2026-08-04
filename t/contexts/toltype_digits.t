@@ -16,7 +16,7 @@ loadMacros('PGstandard.pl', 'MathObjects.pl');
 my $ctx = Context('Numeric');
 my $pi  = Real('pi');
 
-subtest 'set tolTrunction to 1' => sub {
+subtest 'set tolTruncation to 1' => sub {
 	$ctx->flags->set(tolType => 'digits', tolerance => 3, tolTruncation => 1);
 
 	is check_score($pi, Compute('3.14')),  1, 'toltype digits: pi is 3.14';
@@ -26,7 +26,7 @@ subtest 'set tolTrunction to 1' => sub {
 	is check_score($pi, Compute('3.15')),  0, 'toltype digits: pi is not 3.15';
 };
 
-subtest 'set tolTrunction to 0' => sub {
+subtest 'set tolTruncation to 0' => sub {
 	$ctx->flags->set(tolType => 'digits', tolerance => 3, tolTruncation => 0);
 
 	is check_score($pi, Compute('3.14')),  1, 'toltype digits: pi is 3.14';

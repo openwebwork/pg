@@ -15,6 +15,13 @@
 				min-width: 1.25rem;
 				font-weight: bold;
 			}
+
+			// Force the accordion button to a dark color so that it has sufficient contrast even if the page is in dark
+			// mode. Bootstrap wants to use the dark mode color for this if the page is in dark mode.
+			&::after {
+				--bs-accordion-btn-icon: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23212529' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'%3E%3Cpath d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+				--bs-accordion-btn-active-icon: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%23001436' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 16 16'%3E%3Cpath d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+			}
 		}
 
 		&.cannotopen > button.accordion-button::after {

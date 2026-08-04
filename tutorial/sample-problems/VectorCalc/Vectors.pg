@@ -54,7 +54,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: example, to obtain the first component of `$v3` use `$v3->extract(1)`. Note
 #: that the index of `extract` starts at 1, not 0.
 #:
-#: See the [vector](https://webwork.maa.org/wiki/Vector_(MathObject_Class))
+#: See the [vector](https://wiki.openwebwork.org/wiki/Vector_(MathObject_Class))
 #: wiki page for more information about MathObject vectors.
 Context('Vector');
 # Uncomment to display vectors in ijk format.

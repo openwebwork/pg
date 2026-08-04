@@ -300,7 +300,7 @@ Put (1) or don't put (0) a border around image in TeX output.
 Add a JavaScript scene configuration dictionary to the plotly layout.
 This can be used to configure various aspects of the plot, such as
 the aspect ratio, and view range of the 3D axes. The scene is a string
-which contains a JavaScript dictonary to pass to plotly. Example:
+which contains a JavaScript dictionary to pass to plotly. Example:
 
   scene => 'aspectmode: "manual",'
          . 'aspectratio: {x: 1, y: 1, z: 1},'
@@ -374,7 +374,7 @@ sub TeX {
 	if ($self->{image}) {
 		$out .= &main::image($self->{image}, tex_size => 950);
 	} else {
-		$out .= '3D image not avaialble. You must view it online.';
+		$out .= '3D image not available. You must view it online.';
 	}
 	$out .= "\n\\end{minipage}}\n";
 
@@ -492,7 +492,7 @@ sub genPoints {
 	} elsif ($type eq 'perl') {
 		$self->buildArray;
 	} else {
-		Value::Error("Unkown plot type: $type\n");
+		Value::Error("Unknown plot type: $type\n");
 	}
 }
 

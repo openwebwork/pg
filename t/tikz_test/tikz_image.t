@@ -12,7 +12,7 @@ use LaTeXImage;
 loadMacros('PGtikz.pl');
 
 my $drawing = createTikZImage();
-$drawing->tex(<< 'END_TIKZ');
+$drawing->tex(<<'END_TIKZ');
 \draw (-4,0) -- (4,0);
 \draw (0,-2) -- (0,2);
 \draw (0,0) circle[radius=1.5];

@@ -7,7 +7,7 @@
 #  and one for fractions of integers.  Select them using
 #  one of the following commands:
 #
-#      Context("LimiteNumeric");
+#      Context("LimitedNumeric");
 #      Context("LimitedNumeric-Fraction");
 #
 #  There is also a third version, which is a strict fraction

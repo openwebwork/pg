@@ -204,7 +204,7 @@ sub sub {
 #
 #  Subtract an interval from another
 #    (returns the resulting interval(s), set
-#     or nothing for emtpy set)
+#     or nothing for empty set)
 #
 sub subIntervalInterval {
 	my ($l, $r) = @_;

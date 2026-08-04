@@ -223,7 +223,7 @@ sometimes extra flexibility is desiredin which case:
 When entering radio buttons using the "NAMED" format, you should use
 NAMED_ANS_RADIO button for the first button and then use
 NAMED_ANS_RADIO_EXTENSION for the remaining buttons. NAMED_ANS_RADIO requires a
-matching answer evalutor, while NAMED_ANS_RADIO_EXTENSION does not. The name
+matching answer evaluator, while NAMED_ANS_RADIO_EXTENSION does not. The name
 used for NAMED_ANS_RADIO_EXTENSION should match the name used for
 NAMED_ANS_RADIO (and the associated answer evaluator).
 
@@ -301,6 +301,7 @@ sub NAMED_ANS_RULE {
 		HTML => tag(
 			'div',
 			class => 'text-nowrap d-inline',
+			dir   => 'ltr',
 			tag(
 				'input',
 				type           => 'text',
@@ -790,7 +791,7 @@ Creates an array of answer blanks and passes it to display_matrix which returns
 text which represents the matrix in TeX format used in math display mode. Answers
 are then passed back to whatever answer evaluators you write at the end of the problem.
 (note, if you have an m x n matrix, you will need mn answer evaluators, and they will be
-returned to the evaluaters starting in the top left hand corner and proceed to the left
+returned to the evaluators starting in the top left hand corner and proceed to the left
 and then at the end moving down one row, just as you would read them.)
 
 The options are passed on to display_matrix.
@@ -961,7 +962,7 @@ sub SOLUTION {
 					. tag(
 						'div',
 						class => 'accordion-collapse collapse',
-						tag('div', class => 'accordion-body', $solution_body)
+						tag('div', class => 'accordion-body overflow-x-auto', $solution_body)
 					)
 			)
 		));
@@ -1003,7 +1004,7 @@ sub HINT {
 					. tag(
 						'div',
 						class => 'accordion-collapse collapse',
-						tag('div', class => 'accordion-body', $hint_body)
+						tag('div', class => 'accordion-body overflow-x-auto', $hint_body)
 					)
 			)
 		));
@@ -1043,7 +1044,7 @@ Takes the text to be lines of a comment to be shown only
 in the Library Browser below the rendered problem.
 
 The function COMMENT stores the needed html in the variable
-pgComment, which gets transfered to the flag 'comment' in PG_FLAGS.
+pgComment, which gets transferred to the flag 'comment' in PG_FLAGS.
 
 =cut
 
@@ -1260,11 +1261,11 @@ sub BM { MODES(TeX => '\\(',        HTML_MathJax => '\\(',    HTML => '', PTX =>
 sub EM { MODES(TeX => '\\)',        HTML_MathJax => '\\)',    HTML => '', PTX => '</m>'); };    # end math mode
 
 sub BDM {
-	MODES(TeX => '\\[', HTML_MathJax => '\\[', HTML => '<P ALIGN=CENTER>', PTX => '<me>');
+	MODES(TeX => '\\[', HTML_MathJax => '\\[', HTML => '<P ALIGN=CENTER>', PTX => '<md>');
 };                                                                                              #begin displayMath mode
 
 sub EDM {
-	MODES(TeX => '\\]', HTML_MathJax => '\\]', HTML => '</P>', PTX => '</me>');
+	MODES(TeX => '\\]', HTML_MathJax => '\\]', HTML => '</P>', PTX => '</md>');
 };                                                                                              #end displayMath mode
 
 sub LTS {
@@ -1319,8 +1320,8 @@ sub BBOLD   { MODES(TeX => '{\\bf ',       HTML => '<STRONG>',  PTX => '<alert>'
 sub EBOLD   { MODES(TeX => '}',            HTML => '</STRONG>', PTX => '</alert>'); }
 sub BLABEL  { MODES(TeX => '',             HTML => '<LABEL>',   PTX => ''); }
 sub ELABEL  { MODES(TeX => '',             HTML => '</LABEL>',  PTX => ''); }
-sub BITALIC { MODES(TeX => '{\\it ',       HTML => '<I>',       PTX => '<em>'); }
-sub EITALIC { MODES(TeX => '} ',           HTML => '</I>',      PTX => '</em>'); }
+sub BITALIC { MODES(TeX => '{\\it ',       HTML => '<em>',      PTX => '<em>'); }
+sub EITALIC { MODES(TeX => '} ',           HTML => '</em>',     PTX => '</em>'); }
 sub BUL     { MODES(TeX => '\\underline{', HTML => '<U>',       PTX => '<em>'); }
 sub EUL     { MODES(TeX => '}',            HTML => '</U>',      PTX => '</em>'); }
 
@@ -1387,7 +1388,7 @@ sub APOS    { MODES(TeX => "'",       HTML => "'",                     PTX => "\
 
 =head2 SPAN and DIV macros
 
-These are functions primarly meant to add
+These are functions primarily meant to add
 HTML block level DIV or inline SPAN
 tags and the relevant closing tags for HTML output.
 
@@ -1485,7 +1486,7 @@ sub processDivSpanOptions {
 
 		# A space is used to separate class names
 
-		# The offical W3C documentation allows class names to follow a far more general
+		# The official W3C documentation allows class names to follow a far more general
 		# grammar, but this is not being permitted here at present.
 		# See: https://www.w3.org/TR/css-syntax-3/#token-diagrams
 
@@ -1524,7 +1525,7 @@ sub processDivSpanOptions {
 
 		$StyleVal = $options{style};
 
-		# Mininal cleanup for safety
+		# Minimal cleanup for safety
 		$StyleVal =~ s/["']//g;    # Drop quotes
 		if ($StyleVal eq $options{style}) {
 			# no quotes, so now drop other characters we consider invalid
@@ -1656,7 +1657,7 @@ See C<EV3> below for details on the processing.
 
 =head3 EV3
 
-        TEXT(EV3("This is a formulat \( \int_0^5 x^2 \, dx \) ");
+        TEXT(EV3("This is a formula \( \int_0^5 x^2 \, dx \) ");
         TEXT(EV3(@text));
 
         TEXT(EV3(<<'END_TEXT'));
@@ -1670,7 +1671,7 @@ The single quotes around END_TEXT mean that no automatic interpolation of variab
 Using EV3 with strings which have been evaluated by double quotes may lead to unexpected results.
 
 The evaluation macro E3 first evaluates perl code inside the braces:  C<\{  code \}>.
-Any perl statment can be put inside the braces.  The
+Any perl statement can be put inside the braces.  The
 result of the evaluation (i.e. the last statement evaluated) replaces the C<\{ code \}> construction.
 
 Next interpolation of all variables (e.g. C<$var or @array> ) is performed.
@@ -1790,7 +1791,7 @@ Two additional legacy formatting constructions are also supported:
 
 C<!{$c:%0.3f} > will give a number with 3 decimal places and a negative
 sign if the number is negative, no sign if the number is positive.  Since this is
-identical to the behavior of C<{$c:%0.3f}> the use of this syntax is depricated.
+identical to the behavior of C<{$c:%0.3f}> the use of this syntax is deprecated.
 
 C<?{$c:%0.3f}> determines the sign and prints it
 whether the number is positive or negative.  You can use this
@@ -1864,7 +1865,7 @@ sub old_safe_ev {
 	my ($out, $PG_eval_errors, $PG_full_error_report) = PG_restricted_eval($in);
 	if ($PG_eval_errors) {
 		my @errorLines = split("\n", $PG_eval_errors);
-		warn "There is an error occuring inside evaluation brackets \\{ ...code... \\}\n"
+		warn "There is an error occurring inside evaluation brackets \\{ ...code... \\}\n"
 			. "somewhere in an EV2, EV3, or BEGIN_TEXT block.\n"
 			. "Code evaluated:\n$in\n"
 			. "Errors:\n"
@@ -1950,7 +1951,7 @@ sub general_math_ev3 {
 			$alignment = ($alignment eq 'align') ? '' : " alignment=\"$alignment\"";
 			$out       = "<md${alignment}>\n$rows\n</md>";
 		} elsif ($mode eq 'display') {
-			$out = "<me>$in</me>";
+			$out = "<md>$in</md>";
 		}
 	} elsif ($displayMode eq "HTML") {
 		$in_delim = HTML::Entities::encode_entities($in_delim);
@@ -1988,7 +1989,7 @@ sub EV3 {
 		$string =~ s/</&lt;/g;
 		$string =~ s/>/&gt;/g;
 		$evaluated_string =
-			"<PRE>$PAR % ERROR in $0:EV3, PGbasicmacros.pl: $PAR % There is an error occuring in the following code:$BR $string $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR % $BR % $BR </PRE> ";
+			"<PRE>$PAR % ERROR in $0:EV3, PGbasicmacros.pl: $PAR % There is an error occurring in the following code:$BR $string $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR % $BR % $BR </PRE> ";
 		$@ = "";
 	}
 	$string = $evaluated_string;
@@ -2008,7 +2009,7 @@ sub EV4 {
 			$string =~ s/>/&gt;/g;
 			$evaluated_string =
 				"<PRE>$PAR % ERROR in $0:EV3, PGbasicmacros.pl:"
-				. "$PAR % There is an error occuring in the following code:$BR "
+				. "$PAR % There is an error occurring in the following code:$BR "
 				. "$string $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR "
 				. "% $BR % $BR </PRE> ";
 		}
@@ -2187,7 +2188,7 @@ sub PTX_cleanup {
 		#move PTX warnings from the beginning of inside a p to just before the p.
 		$string =~ s/<p>(<!\-\- PTX:WARNING.*?-->)/$1\n<p>/g;
 
-		#remove doulbe p's we may have created
+		#remove double p's we may have created
 		$string =~ s/<p><p>/<p>/g;
 		$string =~ s/<\/p><\/p>/<\/p>/g;
 
@@ -2203,6 +2204,9 @@ sub PTX_cleanup {
 				s/(?s)(<tabular[^>]*>(?:\s|<col (?:(?!width=").)*?>)((?!<\/tabular>).)*?<cell[^>]*>((?!<\/tabular>).)*?)<p>(((?!<\/tabular>).)*?)<\/p>(((?!<\/tabular>).)*?<\/tabular>)/$1$4$6/g;
 		} until ($previous eq $string);
 
+		#certain elements should not be encased in <p>, but can end up that way owing to the ubiquity of <p>
+		$string =~ s/<p>(<(sidebyside|stack)\W)/$1/g;
+		$string =~ s/(<\/(sidebyside|stack)>)<\/p>/$1/g;
 	}
 	$string;
 }
@@ -2423,7 +2427,7 @@ only used by PreTeXt.
 
 Example usage:
 
-    knowlLink('Click Me', title => 'Fascinating Contents', value => 'Here are my facinating contents.');
+    knowlLink('Click Me', title => 'Fascinating Contents', value => 'Here are my fascinating contents.');
     knowlLink('Help Me', title => 'Help Contents', url => 'https://my.domain.edu/helpfile-contents');
 
 =cut
@@ -2623,7 +2627,7 @@ sub PGsort {
 
 Usage:
 
-    lex_sort(@list);   # outputs list in lexigraphic (alphabetical) order
+    lex_sort(@list);   # outputs list in lexicographic (alphabetical) order
     num_sort(@list);   # outputs list in numerical order
     uniq( @list);      # outputs a list with no duplicates.  Order is unspecified.
 
@@ -2634,13 +2638,9 @@ Usage:
 
 #  uniq gives unique elements of a list:
 sub uniq {
-	my @in   = @_;
-	my %temp = ();
-	while (@in) {
-		$temp{ shift(@in) }++;
-	}
-	my @out = keys %temp;    # sort is causing trouble with Safe.??
-	@out;
+	my @in = @_;
+	my %seen;
+	return grep { !$seen{$_}++ } @in;
 }
 
 sub lex_sort {
@@ -2661,7 +2661,7 @@ Usage:
     row(@dataelements)
     endtable()
 
-Example of useage:
+Example of usage:
 
     BEGIN_TEXT
         This problem tests calculating new functions from old ones:$BR
@@ -2927,14 +2927,14 @@ sub image {
 			);
 			next;
 		}
-		if (ref $image_item eq 'Plots::Plot') {
+		if (eval { $image_item->isa('Plots::Plot') }) {
 			# Update image attributes as needed.
 			$image_item->{width}    = $width    if $out_options{width};
 			$image_item->{height}   = $height   if $out_options{height};
 			$image_item->{tex_size} = $tex_size if $out_options{tex_size};
-			$image_item->axes->style(aria_description => shift @alt_list) if $out_options{alt};
 
 			if ($image_item->ext eq 'html') {
+				$image_item->axes->style(aria_description => shift @alt_list) if $out_options{alt};
 				$image_item->{description_details} = $description_details;
 				push(@output_list, $image_item->draw);
 				next;
@@ -2946,10 +2946,9 @@ sub image {
 			$width_ratio   = 0.001 * $image_item->{tex_size};
 		}
 		$image_item = insertGraph($image_item)
-			if (ref $image_item eq 'WWPlot'
-				|| ref $image_item eq 'Plots::Plot'
-				|| ref $image_item eq 'PGlateximage'
-				|| ref $image_item eq 'PGtikz');
+			if grep {
+				eval { $image_item->isa($_) }
+			} ('WWPlot', 'Plots::Plot', 'LaTeXImage');
 		my $imageURL = alias($image_item) // '';
 		$imageURL = ($envir{use_site_prefix}) ? $envir{use_site_prefix} . $imageURL : $imageURL;
 		my $id  = $main::PG->getUniqueName('img');
@@ -3232,7 +3231,7 @@ sub tag {
 		' ',
 		map {
 			($_ =~ s/_/-/gr) . (defined $attributes{$_} ? ('="' . encode_pg_and_html($attributes{$_})) . '"' : '')
-		}
+			}
 			keys %attributes
 	);
 

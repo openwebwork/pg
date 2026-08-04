@@ -62,7 +62,7 @@ different values.  For example.
     );
 
 would allow students to enter complex numbers in either format, but
-all numebrs would be displayed in standard form.
+all numbers would be displayed in standard form.
 
 
 =head2 SETTING THE ALTERNATE FORM AS THE DEFAULT

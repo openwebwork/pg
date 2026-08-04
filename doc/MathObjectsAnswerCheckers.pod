@@ -7,7 +7,7 @@ use a single object to produce numeric values, TeX output, and answer
 strings from a single formula entry.  This avoids having to type a
 function three different ways (which makes maintaining a problem much
 harder).  Since MathObjects also includes vector and complex
-arthimetic, it is easier to work with these types of values as well.
+arithmetic, it is easier to work with these types of values as well.
 
 Secondly using MathObjects improves the processing of student input.
 This is accomplished through special answer checkers that are part of
@@ -670,7 +670,7 @@ student and correct answers to determine if the student list matches
 the correct list (regardless of order).
 
 When the C<checker> is called from the list checker, it has two
-additional paramters:
+additional parameters:
 
     checker => sub {
       my ($correct,$student,$ansHash,$nth,$value) = @_;
@@ -725,7 +725,7 @@ Note that in a C<list_checker> for a List object, you will have to do
 type checking yourself to check if the types of the entries are
 correct, since a list can consist of any type of elements.
 
-The C<list_checker> should return an array consisting of the nuber of
+The C<list_checker> should return an array consisting of the number of
 student entries that are correct followed by any error messages that
 should be displayed (each on a separate line in the messages section).
 
@@ -827,7 +827,7 @@ C<$n>$ when the answer is correct.
 More error checking might be desired, here.  For example, since a
 Union can be of Intervals or Sets, we might want to check that all the
 student's entries in the Union are actually intervals (the current
-version allows Sets).  Note thta because the
+version allows Sets).  Note that because the
 C<studentsMustReduceUnions> parameter is 1 by default, we don't have
 to check for disjoint intervals.  On the other hand, that flag also
 requires intervals to be merged into one if they could be, e.g.,

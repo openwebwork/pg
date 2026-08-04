@@ -1535,7 +1535,7 @@ sub GRwheel_size {
 #Name: GRcompletebipartite_size_size
 #Input: Size for upper and size for lower bipartite graph
 #Output: A picture of a bipartite graph with size and
-#	 size labels on top and bottem (and no labels).
+#	 size labels on top and bottom (and no labels).
 ######################################
 sub GRcompletebipartite_size_size {
 	my ($m, $n) = @_;

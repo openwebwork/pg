@@ -115,7 +115,7 @@ sub new_helper ($invocant, %options) {
 				translator       => $translator,
 				head_text        => '',
 				post_header_text => '',
-				body_text        => "Unabled to read problem source file:\n$@\n",
+				body_text        => "Unable to read problem source file:\n$@\n",
 				answers          => {},
 				result           => {},
 				state            => {},
@@ -160,18 +160,11 @@ sub new_helper ($invocant, %options) {
 		);
 	}
 
-	# HTML_dpng uses an ImageGenerator. We have to render the queued equations.  This must be done before the post
-	# processing, since the image tags output by the image generator initially include markers which are invalid html.
-	# Mojo::DOM will change these markers into attributes with values and this will fail.
-	if ($image_generator) {
-		$image_generator->render(
-			refresh   => $options{refreshMath2img} // 0,
-			body_text => $translator->r_text,
-		);
-	}
-
 	$translator->post_process_content if ref($translator->{rh_pgcore}) eq 'PGcore';
 	$translator->stringify_answers;
+
+	$image_generator->render(body_text => $translator->r_text, refresh => $options{refreshMath2img} // 0)
+		if $image_generator;
 
 	# Add the result summary set in post processing into the result.
 	$result->{summary} = $translator->{rh_pgcore}{result_summary}
@@ -361,7 +354,7 @@ sourceFilePath
 =item sourceFilePath (string)
 
 Location of the pg problem file to render.  It must either be provided with an
-absoute path, or a path relative to the given templateDirectory.
+absolute path, or a path relative to the given templateDirectory.
 
 =item templateDirectory (string, default: '')
 
@@ -609,7 +602,7 @@ These options are still used in some places in PG (mostly by macros that will
 eventually be deprecated and removed), but eventually that will all be fixed and
 these will no longer be needed.  Note that webwork2 still needs to pass the
 courseName so the relevant course values (course html directories and urls) can
-be optained from the WeBWorK::CourseEnvironment.
+be obtained from the WeBWorK::CourseEnvironment.
 
 =back
 

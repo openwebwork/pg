@@ -73,7 +73,18 @@
 								strokeWidth: 2,
 								highlight: false,
 								strokeColor: color ? color : gt.color.underConstruction,
-								dash: solid ? 0 : 2
+								dash: solid ? 0 : 2,
+								tabindex: '',
+								aria: {
+									enabled: true,
+									label: (p) =>
+										(p.getAttribute('dash') == 0 ? 'solid' : 'dashed') +
+										` vertical parabola with vertex ${vertex.X()}, ${vertex.Y()} and ` +
+										`passing through the point ${point.X()}, ${point.Y()}`,
+									roledescription: 'vertical parabola',
+									live: 'assertive',
+									atomic: true
+								}
 							}
 						);
 					else
@@ -91,7 +102,18 @@
 								strokeWidth: 2,
 								highlight: false,
 								strokeColor: color ? color : gt.color.underConstruction,
-								dash: solid ? 0 : 2
+								dash: solid ? 0 : 2,
+								tabindex: '',
+								aria: {
+									enabled: true,
+									label: (p) =>
+										(p.getAttribute('dash') == 0 ? 'solid' : 'dashed') +
+										` horizontal parabola with vertex ${vertex.X()}, ${vertex.Y()} and ` +
+										`passing through the point ${point.X()}, ${point.Y()}`,
+									roledescription: 'horizontal parabola',
+									live: 'assertive',
+									atomic: true
+								}
 							}
 						);
 				}
@@ -161,7 +183,9 @@
 							snapSizeX: gt.snapSizeX,
 							snapSizeY: gt.snapSizeY,
 							highlight: false,
-							withLabel: false
+							withLabel: false,
+							tabindex: 0,
+							aria: gt.pointAria
 						});
 						this.hlObjs.hl_point.rendNode.focus();
 					}
@@ -197,7 +221,9 @@
 						highlight: false,
 						snapToGrid: true,
 						snapSizeX: gt.snapSizeX,
-						snapSizeY: gt.snapSizeY
+						snapSizeY: gt.snapSizeY,
+						tabindex: '',
+						aria: gt.pointAria
 					});
 					this.vertex.setAttribute({ fixed: true });
 
@@ -237,7 +263,7 @@
 					const vertex = this.vertex;
 					delete this.vertex;
 
-					vertex.setAttribute(gt.definingPointAttributes);
+					vertex.setAttribute(gt.definingPointAttributes());
 					vertex.on('down', () => gt.onPointDown(vertex));
 					vertex.on('up', () => gt.onPointUp(vertex));
 

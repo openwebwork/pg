@@ -64,7 +64,7 @@ subtest 'Check attributes' => sub {
 				m      =>  2,
 				s      => -2,
 				factor =>  1,
-				amp    =>  0,
+				A      =>  0,
 				cd     =>  0,
 				mol    =>  0,
 				rad    =>  0,
@@ -192,7 +192,7 @@ subtest 'Check possible answers compared to the formula 0.009 x^2 T' => sub {
 	is check_score($correct, '0 x^2 T*m/angstrom'),        0, '0 x^2 T*m/angstrom is incorrect';
 };
 
-subtest 'Check possible answers compared to the the number 1 amu' => sub {
+subtest 'Check possible answers compared to the number 1 amu' => sub {
 	my $correct = NumberWithUnits('1 amu');
 
 	is check_score($correct, '1 amu'),                 1, '1 amu is correct';

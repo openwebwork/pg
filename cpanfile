@@ -24,6 +24,12 @@ on runtime => sub {
 
 	# Needed for Rserve
 	recommends 'IO::Handle';
+
+	# Needed for WeBWorK::PG::Tidy
+	recommends 'Perl::Tidy';
+
+	# Needed for WeBWorK::PG::PGProblemCritic
+	recommends 'Perl::Critic';
 };
 
 on test => sub {

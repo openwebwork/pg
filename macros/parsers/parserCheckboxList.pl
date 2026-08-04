@@ -137,7 +137,8 @@ inserted before the choice text.  Default: 0.
 
 =item C<S<< separator => string >>>
 
-Specifies the text to put between the checkboxes.  Default: $BR
+Specifies the text to put between the checkboxes. Note that this is only used in
+HTML display modes, and is ignored for PTX and TeX display modes.  Default: $BR
 
 =item C<S<< checked => choice >>>
 
@@ -157,6 +158,7 @@ index into the choice array or not.  If set to 1, then the number is treated as
 the literal correct answer, not an index to it.  Default: 0
 
 =item C<S<< showInStatic => 0 or 1 >>>
+
 In static output, such as PDF or PTX, this controls whether or not
 the list of answer options is displayed.  (The text preceding the list
 of answer options might make printing the answer option list
@@ -253,7 +255,7 @@ sub new {
 	$self->getCheckedChoices($self->{checked});
 
 	$context->strings->add(map { ($self->{values}[$_] => {}) } (0 .. ($self->{n} - 1)));
-	$_ = Value::makeValue($_, context => $context) for @{ $self->data };
+	$_ = $context->Package('String')->make($context, $_) for @{ $self->data };
 
 	return $self;
 }
@@ -614,7 +616,10 @@ sub CHECKS {
 		$checks[-1] .= "</div>";
 	}
 
-	return wantarray ? @checks : join($main::displayMode eq 'PTX' ? '' : $self->{separator}, @checks);
+	return
+		wantarray
+		? @checks
+		: join($main::displayMode eq 'PTX' || $main::displayMode eq 'TeX' ? '' : $self->{separator}, @checks);
 }
 
 sub protect {

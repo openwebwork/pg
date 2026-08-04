@@ -12,11 +12,11 @@ This is the Math Object code for a Matrix.
 
 =over
 
-=item L<MathObject Matrix methods|http://webwork.maa.org/wiki/Matrix_(MathObject_Class)>
+=item L<MathObject Matrix methods|https://wiki.openwebwork.org/wiki/Matrix_(MathObject_Class)>
 
-=item L<MathObject Contexts|http://webwork.maa.org/wiki/Common_Contexts>
+=item L<MathObject Contexts|https://wiki.openwebwork.org/wiki/Common_Contexts>
 
-=item L<CPAN RealMatrix docs|http://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
+=item L<CPAN RealMatrix docs|https://search.cpan.org/~leto/Math-MatrixReal-2.09/lib/Math/MatrixReal.pm>
 
 =back
 
@@ -109,15 +109,19 @@ Examples:
 
     column(j) : MathObject Matrix or Real or Complex
         For a degree 1 Matrix, produces a Real or Complex
-        For a degree n Matrix with n > 1, produces a degree n Matrix where the 2nd dimesion is length 1
+        For a degree n Matrix with n > 1, produces a degree n Matrix where the 2nd dimension is length 1
 
     element : Real/Complex/Fraction value when passed the same number of arguments as the degree of the Matrix.
         If passed more than n arguments, null. If the degree of the Matrix is n and C<element> is passed
-	k arguments with k < n, then this produces the corresponding degree (n-k) tensor.
+        k arguments with k < n, then this produces the corresponding degree (n-k) tensor.
 
 =head3 Update values (these need to be added)
 
-    see C<change_matrix_entry()> in MatrixReduce and L<http://webwork.maa.org/moodle/mod/forum/discuss.php?d=2970>
+    replace(value, [ i, j, ... ])
+        For a degree n matrix, the array reference for the second entry should have n elements.
+        The entry at that location will be replaced with value.
+
+    see C<change_matrix_entry()> in MatrixReduce and L<https://wiki.openwebwork.org/moodle/mod/forum/discuss.php?d=2970>
 
 =head3 Advanced
 
@@ -174,7 +178,7 @@ One can use fractions in Matrices by including C<Context("Fraction")>.  For exam
 
 and operations will be done using rational arithmetic. Also helpful is the method
 C<apply_fraction_to_matrix_entries> in the L<MatrixReduce.pl> macro. Some additional information can be
-found at L<https://webwork.maa.org/moodle/mod/forum/discuss.php?d=2978>.
+found at L<https://forums.openwebwork.org/mod/forum/discuss.php?d=2978>.
 
 =head2 methods
 
@@ -366,7 +370,7 @@ sub isSquare {
 
 =head3 C<isRow>
 
-Return true if the matix is degree 1 (i.e., is a matrix row)
+Return true if the matrix is degree 1 (i.e., is a matrix row)
 
 Usage:
 
@@ -621,10 +625,147 @@ sub isRREF {
 		}
 	} else {
 		for my $row (@{ $self->{data} }) {
-			return 0 unless $row->isREF;
+			return 0 unless $row->isRREF;
 		}
 	}
 	return 1;
+}
+
+=head3 C<isREQ>
+
+Fuzzy, probabilistic check for if two matrices are row equivalent.
+
+Usage:
+
+   $A = Matrix([3, 1], [1, 0.3333]);
+   $B = Matrix([1, 1/3], [0, 0]);
+   $A->isREQ($B);   # true
+
+=cut
+
+sub isREQ {
+	my ($l, $r) = @_;
+	my @ldim = $l->dimensions;
+	my @rdim = $r->dimensions;
+	Value::Error('Cannot compare row equivalency of matrices of different degree') unless scalar @ldim == scalar @rdim;
+	for my $i (0 .. $#ldim) {
+		Value::Error('Cannot compare row equivalency because matrices differ in the '
+				. $l->NameForNumber($i + 1)
+				. ' dimension')
+			unless $ldim[$i] == $rdim[$i];
+	}
+	return 1 if $l->isZero && $r->isZero;
+	return 0 if $l->isZero && !$r->isZero || !$l->isZero && $r->isZero;
+
+	if (scalar @ldim == 1) {
+		# simply need to determine if rows are parallel
+		my ($lk, $rk);
+		for my $i (1 .. $ldim[0]) {
+			if ($l->element($i) != 0) {
+				$lk = $l->element($i);
+				$rk = $r->element($i);
+				last;
+			}
+		}
+		return $lk * $r == $rk * $l;
+	} elsif (scalar @ldim == 2) {
+		my @rgs = $r->NGS;
+		my @lgs = $l->NGS;
+
+		return 0 if scalar @lgs != scalar @rgs;
+
+		# project each row from $rrows onto @lgs;
+		# if the complement is nonzero, the row spaces disagree
+		my @rrows = map { $r->new($_) } $r->value;
+		for my $v (@rrows) {
+			my $proj = $r->new((0) x $ldim[1]);
+			for my $w (@lgs) {
+				$proj += ($v * $w) * $w;
+			}
+			return 0 unless $v == $proj;
+		}
+		# and vice versa
+		my @lrows = map { $l->new($_) } $l->value;
+		for my $v (@lrows) {
+			my $proj = $r->new((0) x $rdim[1]);
+			for my $w (@rgs) {
+				$proj += ($v * $w) * $w;
+			}
+			return 0 unless $v == $proj;
+		}
+
+		# if we got this far, the row spaces are (fuzzy) equal
+		# so the matrices are row equivalent
+		return 1;
+	} else {
+		for my $i (1 .. $ldim[0]) {
+			return 0 unless $l->new($l->{data}[ $i - 1 ])->isREQ($r->new($r->{data}[ $i - 1 ]));
+		}
+		return 1;
+	}
+}
+
+=head3 C<NGS>
+
+Normalized Gram Schmidt basis for a given list of vectors. This uses "fuzzy" equivalency to avoid machine rounding
+issues. If called as a method on a Matrix, the rows of that Matrix are used as the list of vectors. If called as a
+method with the option C<< cols => 1 >>, then the columns are used as the list of vectors.
+
+In array context, returns an array of 1D Matrix objects. In scalar context, returns a Matrix with those rows.
+
+If C<< cols => 1 >> was used, return the Matrix objects in column form.
+
+
+Usage:
+
+   $A = Matrix([1, 2, 2], [2, 2, 1]);
+
+   @X = $A->NGS                                   # @X is (Matrix(1, 2, 2)/3, Matrix(10, 2, -7)/sqrt(153))
+   @X = Value::Matrix->NGS([1, 2, 2], [2, 2, 1])  # @X is the same as above
+   $X = $A->NGS                                   # $X is Matrix([1/3, 2/3, 2/3], [10/sqrt(153), 2/sqrt(153), -7/sqrt(153)])
+   $X = Value::Matrix->NGS([1, 2, 2], [2, 2, 1])  # $X is the same as above
+
+   @X = $A->NGS(cols => 1)                        # @X is (Matrix([1/sqrt(5)], [2/sqrt(5)]), Matrix([2/sqrt(5)], [-1/sqrt(5)]))
+   $X = $A->NGS(cols => 1)                        # $X is Matrix([1/sqrt(5), 2/sqrt(5)], [2/sqrt(5), -1/sqrt(5)])
+
+=cut
+
+sub NGS {
+	my ($self, @args) = @_;
+	my %options;
+	my @rows;
+	if (ref($self) eq 'Value::Matrix') {
+		%options = @args;
+		@rows    = $options{cols} ? $self->transpose->value : $self->value;
+	} else {
+		@rows = @args;
+	}
+	Value::Error('You must provide vectors to apply Gram Schmidt to') if !@rows;
+	@rows = map  { Value::Matrix->new($_) } @rows;
+	@rows = grep { !$_->isZero } @rows;
+	Value::Error('You must provide at least one nonzero row for Gram Schmidt') unless @rows;
+	my $n = ($rows[0]->dimensions)[0];
+	for my $r (@rows) {
+		Value::Error('Rows provided for Gram Schmidt should not be nested arrays')     unless $r->degree == 1;
+		Value::Error('All rows provided for Gram Schmidt should have the same length') unless ($r->dimensions)[0] == $n;
+	}
+	@rows = map { $_ / ($_ * $_)**0.5 } @rows;
+	my @gs = ($rows[0]);
+	for my $i (1 .. $#rows) {
+		my $proj = Value::Matrix->new((0) x $n);
+		for my $v (@gs) {
+			$proj += ($rows[$i] * $v) * $v;
+		}
+		my $gs = $rows[$i] - $proj;
+		push @gs, $gs / ($gs * $gs)**0.5 unless $rows[$i] == $proj;
+	}
+	return
+		$options{cols}
+		? wantarray
+			? map { $_->transpose } @gs
+			: Value::Matrix->new(@gs)->transpose
+		: wantarray ? @gs
+		:             Value::Matrix->new(@gs);
 }
 
 sub _isNumber {
@@ -1052,7 +1193,8 @@ perform row operations.
 
 =item * Row Swap
 
-To perform a row swap between rows C<i> and C<j>, then C<E(n,[i, j])>.
+The method C<< Value::Matrix->E(n,[i, j]) >> returns the n by n elementary matrix that
+upon right multiplication performs the row swap between rows C<i> and C<j>.
 
 Usage:
 
@@ -1072,7 +1214,8 @@ where the size of the resulting matrix is the number of rows of C<$A>.
 
 =item * Multiply a row by a constant
 
-To create the matrix that will multiply a row C<i>, by constant C<k>, then C<E(n,[i],k)>
+The method C<< Value::Matrix->E(n, [i], k) >> returns the n by n elementary matrix that upon
+right multiplication will multiply a row C<i>, by constant C<k>.
 
 Usage:
 
@@ -1081,7 +1224,7 @@ Usage:
 generates the matrix
 
     [ [ 1, 0, 0, 0 ],
-      [ 0, 4, 0, 0 ],
+      [ 0, 3, 0, 0 ],
       [ 0, 0, 1, 0 ],
       [ 0, 0, 0, 1 ] ]
 
@@ -1093,7 +1236,8 @@ will generate the elementary matrix of size number of rows of C<$A>, which multi
 
 =item * Multiply a row by a constant and add to another row.
 
-To create the matrix that will multiply a row C<i>, by constant C<k> and add to row C<j> then C<E(n,[i, j],k)>
+The method C<< Value::Matrix->E(n, [ i, j ], k) >> returns the n by n elementary matrix that upon
+right multiplication will replace row C<j> with k times row C<i> added to row C<j>.
 
 Usage:
 
@@ -1102,15 +1246,16 @@ Usage:
 generates the matrix:
 
     [ [ 1, 0, 0, 0 ],
-      [ 0, 1, 0, 0 ],
-      [ 0, -3, 1, 0 ],
+      [ 0, 1, -3, 0 ],
+      [ 0, 0, 1, 0 ],
       [ 0, 0, 0, 1 ] ]
 
-or if the matrix C<$A> exists then
+or if the matrix C<$A> exists of size m by n then
 
     $A->E([3, 4], -5);
 
-will generate the elementary matrix of size number of rows of C<$A>, which multiplies row 3 by -5 and adds to row 4.
+will generate the m by m elementary matrix which replaces row 4 by -5 times row 3 added to row 4.
+If C<$A> does not have at least 4 rows, an error is raised.
 
 =back
 
@@ -1147,7 +1292,7 @@ sub E {
 		if (@ij == 1) {
 			$row[$i] = $k if ($i == $ij[0]);
 		} elsif (defined $k) {
-			$row[ $ij[1] ] = $k if ($i == $ij[0]);
+			$row[ $ij[0] ] = $k if ($i == $ij[1]);
 		} else {
 			($row[ $ij[0] ], $row[ $ij[1] ]) = ($row[ $ij[1] ], $row[ $ij[0] ]) if ($i == $ij[0] || $i == $ij[1]);
 		}
@@ -1336,6 +1481,197 @@ sub element {
 	my $self = (ref($_[0]) ? $_[0] : shift);
 	my $M    = $self->promote(shift);
 	return $M->extract(@_);
+}
+
+=head3 C<replace>
+
+Replace an entry with a new element and return the replaced element.
+
+Usage:
+
+    $A = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ]);
+    $A->replace(7, [ 2, 1 ]);
+    # Now $A is the matrix [ [ 1, 2, 3 ], [ 7, 5, 6 ] ]
+
+    # Also, the method returns the value that is replaced.
+    $x = $A->replace(8, [ 1, 3 ]);
+    # Now $A is [ [ 1, 2, 8 ], [ 7, 5, 6 ] ] and $x is 3.
+
+    # It is also OK to specify the indices as an array instead of an array reference
+    $A->replace(7, 2, 1);
+
+=cut
+
+sub replace {
+	my ($self, $value, @indices) = @_;
+	$value = Value::makeValue($value) unless Value::isValue($value);
+	$self->Error('Cannot replace a matrix entry with a Formula') if Value::isFormula($value);
+	my $dim = $self->degree;
+	@indices = @{ $indices[0] } if (ref $indices[0] eq 'ARRAY');
+	$self->Error("There should be $dim indices") unless $dim == @indices;
+	my $data = $self->{data};
+	my $i    = pop(@indices) - 1;
+
+	for (my $n = 0; @indices; $n++) {
+		my $j = shift(@indices) - 1;
+		$self->Error('The ' . $self->NameForNumber($n + 1) . ' index is outside of the array bounds')
+			if $j < 0 || $j >= scalar(@$data);
+		$data = $data->[$j]->{data};
+	}
+	$self->Error('The last index is outside of the array bounds')
+		if $i < 0 || $i >= scalar(@$data);
+	$self->Error('The new entry value should be ' . $data->[$i]->showType . ' not ' . $value->showType)
+		unless $value->type eq $data->[$i]->type;
+	my $old = $data->[$i];
+	$data->[$i] = $value;
+	return $old;
+}
+
+=head3 C<subMatrix>
+
+Return a submatrix of a Matrix.  If the indices are array referencess, the rows, columns,
+etc. that are indicated are kept and used to return a Matrix of the same degree. Other
+rows, columns, etc. are removed.
+
+Note this can be used to permute rows, columns, etc by specifying all rows, columns, etc.
+in a different order.
+
+Each input can be an integer instead of an array reference, and the complement of that
+integer is used for the rows to keep. In other words, using an integer for input indicates
+that you wish for that one row, column, etc. to be removed. Using 0 as an input indicates
+that all rows, columns, etc. for that dimension should be kept.
+
+You can mix and match using array references and integers.
+
+Usage:
+
+    $A = Matrix([ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ]);
+    $A->subMatrix([2 .. 3], [2 .. 4]);     # returns Matrix([ 6, 7, 8 ], [ 10, 11, 12 ])
+    $A->subMatrix(2, 3);                   # returns Matrix([ 1, 2, 4 ], [ 9, 10, 12 ]);
+    $A->subMatrix([1], 0);                 # returns Matrix([ [ 1, 2, 3, 4 ] ]);
+    $A->subMatrix([3, 1, 2], [1, 4, 2]);   # returns Matrix([ 9, 12, 10 ], [ 1, 4, 2 ] ,[ 5, 8, 6 ]);
+
+This can also be used on Matrix objects that are not degree 2.
+
+    $B = Matrix(2, 4, 6, 8);
+    $B->subMatrix([1, 3]);   # returns Matrix(2, 6);
+    $B->subMatrix(2);        # returns Matrix(2, 6, 8);
+
+    $C = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ], [ [ 7, 8, 9 ], [ 10, 11, 12 ] ]);
+    $C->subMatrix(0, 1, [1, 3]);              # returns Matrix([ [ 4, 6 ] ], [ [ 10, 12 ] ]);
+    $C->subMatrix(1, 2, 3);                   # returns Matrix([ [ [ 7, 8 ] ] ]);
+
+=cut
+
+sub subMatrix {
+	my ($self, @ind) = @_;
+	my @dim    = $self->dimensions;
+	my $degree = scalar @dim;
+
+	# indices to keep for submatrix
+	my @indices;
+
+	# check that the input is appropriate for the size of the matrix
+	Value::Error("There must be $degree arguments") unless $#dim == $#ind;
+
+	# convert any integer arguments to array references
+	for my $i (0 .. $#ind) {
+		if (ref $ind[$i] eq 'ARRAY') {
+			push @indices, $ind[$i];
+		} else {
+			# check that $ind[$i] is an integer in the appropriate range
+			Value::Error("The input $ind[$i] is not a valid index")
+				unless $ind[$i] =~ /^\d+$/ && $ind[$i] >= 0 && $ind[$i] <= $dim[$i];
+			push @indices, [ grep { $_ != $ind[$i] } (1 .. $dim[$i]) ];
+		}
+	}
+
+	# check that all indices are integers in the appropriate range and that all array references are nonempty
+	for my $i (0 .. $#indices) {
+		Value::Error("Cannot use empty array reference for indices to keep") unless (@{ $indices[$i] });
+		for my $j (@{ $indices[$i] }) {
+			Value::Error("The input $j is not a valid index") unless $j =~ /^\d+$/ && $j >= 1 && $j <= $dim[$i];
+		}
+	}
+
+	sub extractElements {
+		my ($self, $indices, $elements) = @_;
+
+		# these need to be copies of the array arguments
+		my @ind_copy      = @$indices;
+		my @elements_copy = @$elements;
+
+		my $ind = shift @elements_copy;
+		push(@ind_copy, [ 1 .. scalar(@$ind) ]);
+
+		my @M;
+		for my $i (@$ind) {
+			push(@M,
+				ref $self->element($i) eq 'Value::Matrix'
+				? $self->element($i)->extractElements(\@ind_copy, \@elements_copy)
+				: $self->element($i));
+		}
+
+		return $self->make($self->context, @M);
+	}
+
+	return $self->extractElements([], \@indices);
+}
+
+=head3 C<removeRow>
+
+Return a new Matrix, where a row has been removed from a Matrix. This is only valid for Matrix
+Math Objects with degree 2 or higher. Removing a ith "row" from a Matrix of degree 3 or higher
+means to remove all entries with first index i.
+
+Usage:
+
+    $A = Matrix([ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [13, 14, 15, 16]);
+    $A->removeRow(3);   # returns Matrix([ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [13, 14, 15, 16]);
+
+    $B = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ], [ [ 7, 8, 9 ], [ 10, 11, 12 ] ]);
+    $B->removeRow(2);   # returns Matrix([ [ [ 1, 2, 3 ], [ 4, 5, 6 ] ] ]);
+
+=cut
+
+sub removeRow {
+	my ($self, $r) = @_;
+	my @dim    = $self->dimensions;
+	my $degree = scalar @dim;
+	Value::Error("removeRow cannot be used on a Matrix of degree 1") if $degree == 1;
+	Value::Error("cannot remove a Matrix's only row")                if $dim[0] == 1;
+	my @indices = map { [ 1 .. $_ ] } @dim;
+	Value::Error("Can only remove rows 1 through $indices[0][-1]")
+		unless $r =~ /^\d+$/ && $r >= 1 && $r <= $indices[0][-1];
+	return $self->subMatrix([ grep { $_ != $r } @{ $indices[0] } ], @indices[ 1 .. $#indices ]);
+}
+
+=head3 C<removeColumn>
+
+Return a new Matrix, where a column has been removed from a Matrix. This is only valid for Matrix
+Math Objects with degree 2 or higher. Removing a jth "column" from a Matrix of degree 3 or higher
+means to remove all entries with second index j.
+
+Usage:
+
+    $A = Matrix([ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [13, 14, 15, 16]);
+    $A->removeColumn(3);   # returns Matrix([ 1, 2, 4 ], [ 5, 6, 8 ], [ 9, 10, 12 ], [13, 14, 16]);
+
+    $B = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ], [ [ 7, 8, 9 ], [ 10, 11, 12 ] ]);
+    $B->removeColumn(2);   # returns Matrix([ [ 1, 2, 3 ] ], [ [ 7, 8, 9 ] ]);
+
+=cut
+
+sub removeColumn {
+	my ($self, $r) = @_;
+	my @dim    = $self->dimensions;
+	my $degree = scalar @dim;
+	Value::Error("removeColumn cannot be used on a Matrix of degree 1") if $degree == 1;
+	Value::Error("cannot remove a Matrix's only column")                if $dim[1] == 1;
+	my @indices = map { [ 1 .. $_ ] } @dim;
+	Value::Error("Can only remove columns 1 through $indices[1][-1]")
+		unless $r =~ /^\d+$/ && $r >= 1 && $r <= $indices[1][-1];
+	return $self->subMatrix($indices[0], [ grep { $_ != $r } @{ $indices[1] } ], @indices[ 2 .. $#indices ]);
 }
 
 # @@@ assign @@@

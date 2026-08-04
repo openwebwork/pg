@@ -8,10 +8,10 @@ arithmetic.
 
 This context distinguishes between "forms" of an expression by using bizarro
 arithmetic.  For example, the answer could be "(x+1)(x+2)". Bizarro arithmetic always has
-commutative and associative addidition and multiplication, so it would be OK
+commutative and associative addition and multiplication, so it would be OK
 to answer with "(2+x)(x+1)".
 
-But this context initally only uses bizarro with multiplication and division.
+But this context initially only uses bizarro with multiplication and division.
 So "x^2+3x+2" will not evaluate to the same as "(x+1)(x+2)".
 
 The reverse works as well: the answer could be "x^2+3x+2" and "(x+1)(x+2)"

@@ -84,7 +84,7 @@ will be rejected, as will
 
 package bizarro;
 
-#This f just stretches complex numbers by a positve real that
+#This f just stretches complex numbers by a positive real that
 #depends in a nontrivial away on the magnitude of z
 sub f {
 	my $z = shift;

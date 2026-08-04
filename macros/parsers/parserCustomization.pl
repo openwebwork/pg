@@ -16,7 +16,7 @@ vectors) by using:
     $context{Vector}->parens->remove('<');
 
 To allow vectors to be entered with parens (and displayed with
-parens) rather than angle-brakets, use
+parens) rather than angle-brackets, use
 
     $context{Vector} = Parser::Context->getCopy("Vector");
     $context{Vector}->{cmpDefaults}{Vector} = {promotePoints => 1};

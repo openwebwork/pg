@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN=true
@@ -20,8 +20,8 @@ RUN apt-get update \
 		liblocale-maketext-lexicon-perl \
 		libmojolicious-perl \
 		libtest-mockobject-perl \
-		libtest2-suite-perl \
 		libtie-ixhash-perl \
+		libtypes-serialiser-perl \
 		libuuid-tiny-perl \
 		libyaml-libyaml-perl \
 		make \

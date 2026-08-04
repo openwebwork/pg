@@ -33,7 +33,7 @@ the student answer to match the correct one exactly (spacing and
 case are significant), then you don't have to use a custom checker.
 But if you want, for example, to collapse multiple white-space, or
 trim leading and trailing blanks, or treat upper- and lower-case
-letters as quivalent, then you will need to provide your own
+letters as equivalent, then you will need to provide your own
 checker that does that.
 
 This context handles multi-line answers properly.  If your answers

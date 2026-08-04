@@ -37,14 +37,14 @@ is three meters.  (See Units.pm for examples).
 
 Finally, the newUnit option can also be an array ref containing any number of
 new units to add.  A common reason for doing this would be to add the plural
-version of the unit as an equilvalent unit.  E.G.
+version of the unit as an equivalent unit.  E.G.
 
     $newUnits = ['apple',{name=>'apples',conversion=>{factor=>1,apple=>1}}];
     $a = NumberWithUnits("3 apples",{newUnit=>$newUnits});
 
 In this case both 3 apple and 3 apples would be considered correct.
 
-Note:  English pluralization is suprisingly hard, so WeBWorK will make no
+Note:  English pluralization is surprisingly hard, so WeBWorK will make no
 attempt to display a grammerically correct result.
 
 =head1 SEE ALSO

@@ -7,7 +7,7 @@ use Test2::V0;
 
 use WeBWorK::PG;
 
-my $source = << 'END_SOURCE';
+my $source = <<'END_SOURCE';
 DOCUMENT();
 
 loadMacros('PGstandard.pl', 'MathObjects.pl', 'PGML.pl', 'PGcourse.pl');

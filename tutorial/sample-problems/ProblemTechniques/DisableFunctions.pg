@@ -59,7 +59,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #:              `sgn`
 #: * `Vector`: disables `norm`, `unit`
 #: * `Complex`: disables `arg`, `mod`, `Re`, `Im`, `conj`
-#: * `All`: diables all predefined functions
+#: * `All`: disables all predefined functions
 #:
 #: Alternatively, the following syntax can be used.
 #:

@@ -14,8 +14,8 @@ Run perltidy on pg source files.
 
 =head1 OPTIONS
 
-For this script to work the the .perltidyrc file in the pg root directory
-must be readable.  Note that the pg root directory is automatically detected.
+For this script to work the .perltidyrc file in the pg root directory must be
+readable.  Note that the pg root directory is automatically detected.
 
 This script accepts all of the options that are accepted by perltidy.  See the
 perltidy documentation for details.
@@ -48,8 +48,8 @@ use Mojo::File qw(curfile);
 
 my $pg_root = curfile->dirname->dirname;
 
-die "Version 20240903 of perltidy is required for this script.\nThe installed version is $Perl::Tidy::VERSION.\n"
-	unless $Perl::Tidy::VERSION == 20240903;
+die "Version 20260204 of perltidy is required for this script.\nThe installed version is $Perl::Tidy::VERSION.\n"
+	unless $Perl::Tidy::VERSION == 20260204;
 die "The .perltidyrc file in the pg root directory is not readable.\n"
 	unless -r "$pg_root/.perltidyrc";
 
@@ -64,10 +64,10 @@ for (@ARGV) {
 # Validate options that were passed.
 my %options;
 my $err = Perl::Tidy::perltidy(argv => \@args, dump_options => \%options);
-exit $err                                               if $err;
-die "The -pro option is not suppored by this script.\n" if defined $options{profile};
+exit $err                                                if $err;
+die "The -pro option is not supported by this script.\n" if defined $options{profile};
 
-unshift(@args, '-bext=/') unless defined $options{'backup-file-extension'};
+unshift(@args, '-bext=/tidybak') unless defined $options{'backup-file-extension'};
 
 if (@files) {
 	for (@files) {

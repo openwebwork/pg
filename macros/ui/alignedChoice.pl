@@ -70,7 +70,7 @@ sub aligned_print_q {
 
 ######################################################################
 #
-#  Genarate a new AlignedList object
+#  Generate a new AlignedList object
 #
 #     $al = new_aligned_list(options)
 #

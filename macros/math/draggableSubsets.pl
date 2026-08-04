@@ -66,24 +66,38 @@ Available Options:
 
     DefaultSubsets    => <array reference>
     OrderedSubsets    => 0 or 1
-    AllowNewBuckets   => 0 or 1
-    BucketLabelFormat => <string>
-    ResetButtonText   => <string>
-    AddButtonText     => <string>
-    RemoveButtonText  => <string>
-    ShowUniversalSet  => 0 or 1
-    UniversalSetLabel => <string>
+    cmpOptions        => <hash reference>
 
-Their usage is demonstrated in the example below.
+    allowNewBuckets         => 0 or 1
+    bucketLabelFormat       => <string>
+    resetButtonText         => <string>
+    addButtonText           => <string>
+    removeButtonText        => <string>
+    showUniversalSet        => 0 or 1
+    universalSetLabel       => <string>
+    addFromUniversalText    => <string that must contain %1s, %2s, and %3s>
+    removeUniversalItemText => <string that must contain %1s and %2s>,
+    reorderText             => <string that must contain %1s, %s2, and %3s>
+    moveText                => <string that must contain %1s, %2s, %3s, and %4s>
+    helpButtonText          => <string>
+    closeHelpButtonText     => <string>
+    dragAndDropHelpText     => <string>
+
+All of the options above except for the first three are really options of a
+C<DragNDrop> object and are passed to that module on construction. See the
+L<DragNDrop options|DragNDrop/OPTIONS> for details on those options. Note that
+C<AllowNewBuckets>, C<BucketLabelFormat>, C<ResetButtonText>, C<AddButtonText>,
+C<RemoveButtonText>, C<ShowUniversalSet>, and C<UniversalSetLabel> are
+deprecated aliases for the corresponding option with the first letter lower
+case. Note that the default value of C<allowNewBuckets> is 1 for this macro (it
+is 0 for the C<DragNDrop> package).
+
+The usage of the first three options is demonstrated in the example below.
 
 =head1 SYNOPSIS
 
     DOCUMENT();
-    loadMacros(
-        'PGstandard.pl',
-        'PGML.pl',
-        'draggableSubsets.pl'
-    );
+    loadMacros('PGstandard.pl', 'PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
 
     $draggable = DraggableSubsets(
         # Full set.  Make sure to use "\(...\)" for math and not "`...`" for correct display.
@@ -129,42 +143,6 @@ Their usage is demonstrated in the example below.
         # The default value if not given is 0.
         OrderedSubsets => 0,
 
-        # 0 means no new buckets may be added by student. 1 means otherwise.
-        # The default value if not given is 1.
-        AllowNewBuckets => 1,
-
-        # If this option is defined then labels for buckets for which a specific
-        # label is not provided will be created by replacing %s with the bucket
-        # number to this prefix.  These labels will also be used for buckets
-        # added by the user if AllowNewBuckets is 1.  This string should contain
-        # exactly one instance of %s.  The default value if not given is
-        # undefined.
-        BucketLabelFormat => 'Subset %s'
-
-        # This is the text label for the button shown that resets the drag and
-        # drop element to its default state.  The default value if not given is
-        # "Reset".
-        ResetButtonText => 'zurücksetzen'
-
-        # This is the text label for the button shown that adds new buckets.
-        # The button is only shown if AllowNewBuckets is 1.
-        # The default value if not given is "Add Bucket".
-        AddButtonText => 'Add Subset'
-
-        # This is the text label for the remove button that is added to any
-        # removable buckets.  The default value if not given is "Remove".
-        RemoveButtonText => 'Delete'
-
-        # If this is true then a separate bucket containing the full set passed
-        # as the first argument above (the universal set) will be shown, and the
-        # elements of the set can be distributed to the other subsets (or
-        # buckets) that are shown.  The default value if not given is 0.
-        ShowUniversalSet => 1,
-
-        # Label for the bucket representing the universal set.
-        #  The default value if not given is "Universal Set".
-        UniversalSetLabel => 'Universal Set',
-
         # These are options that will be passed to the $draggable->cmp method.
         cmpOptions => { checker => sub { ... } }
     );
@@ -188,7 +166,7 @@ Their usage is demonstrated in the example below.
 =head1 CUSTOM CHECKERS
 
 A custom checkers can also be used by passing the C<list_checker> option to the
-C<cmp> method.  See L<https://webwork.maa.org/wiki/Custom_Answer_Checkers_for_Lists>
+C<cmp> method.  See L<https://wiki.openwebwork.org/wiki/Custom_Answer_Checkers_for_Lists>
 for details on how to use a custom list checker.  This follows the usual rules
 for the return value of the C<list_checker> method.
 
@@ -214,22 +192,25 @@ sub new {
 	my ($invocant, $set, $subsets, %options) = @_;
 
 	my $base = bless {
-		set               => $set,
-		DefaultSubsets    => [],
-		OrderedSubsets    => 0,
-		AllowNewBuckets   => 1,
-		cmpOptions        => {},
-		BucketLabelFormat => undef,
-		ResetButtonText   => 'Reset',
-		AddButtonText     => 'Add Bucket',
-		RemoveButtonText  => 'Remove',
-		ShowUniversalSet  => 0,
-		UniversalSetLabel => 'Universal Set',
+		set             => $set,
+		DefaultSubsets  => [],
+		OrderedSubsets  => 0,
+		allowNewBuckets => 1,
+		cmpOptions      => {},
 		%options
 		},
 		ref($invocant) || $invocant;
 
 	Value::Error('Answer subsets must be an array reference.') unless ref($subsets) eq 'ARRAY';
+
+	# Backwards compatibility.
+	for my $option (
+		'AllowNewBuckets', 'BucketLabelFormat', 'ShowUniversalSet', 'ResetButtonText',
+		'AddButtonText',   'RemoveButtonText',  'UniversalSetLabel'
+		)
+	{
+		$base->{ lcfirst($option) } = delete $base->{$option} if defined $base->{$option};
+	}
 
 	my %seenIndices;
 	for my $subset (@$subsets) {
@@ -238,8 +219,8 @@ sub new {
 		for (@$subset) {
 			Value::Error('An index in an answer subset is out of range.') unless $_ < @$set;
 			Value::Error('An index is repeated in multiple answer subsets. '
-					. 'This can only be the case if ShowUniversalSet is 1.')
-				if !$base->{ShowUniversalSet} && $seenIndices{$_};
+					. 'This can only be the case if showUniversalSet is 1.')
+				if !$base->{showUniversalSet} && $seenIndices{$_};
 			$seenIndices{$_} = 1;
 		}
 	}
@@ -255,8 +236,8 @@ sub new {
 		for (@{ $subset->{indices} }) {
 			Value::Error('An index in a default subset is out of range.') unless $_ < @$set;
 			Value::Error('An index is repeated in multiple default subsets.'
-					. 'This can only be the case if ShowUniversalSet is 1.')
-				if !$base->{ShowUniversalSet} && $seenIndices{$_};
+					. 'This can only be the case if showUniversalSet is 1.')
+				if !$base->{showUniversalSet} && $seenIndices{$_};
 			$seenIndices{$_} = 1;
 		}
 	}
@@ -327,16 +308,19 @@ sub ans_rule {
 		push(@buckets, { label => '', indices => [ 0 .. $#{ $self->{set} } ] });
 	}
 
-	$self->{dnd} = DragNDrop->new(
-		$self->ANS_NAME, $self->{shuffledSet}, \@buckets,
-		allowNewBuckets   => $self->{AllowNewBuckets},
-		bucketLabelFormat => $self->{BucketLabelFormat},
-		resetButtonText   => $self->{ResetButtonText},
-		addButtonText     => $self->{AddButtonText},
-		removeButtonText  => $self->{RemoveButtonText},
-		showUniversalSet  => $self->{ShowUniversalSet},
-		universalSetLabel => $self->{UniversalSetLabel},
-	);
+	my %options;
+
+	for my $option (
+		'allowNewBuckets',         'bucketLabelFormat', 'resetButtonText',   'addButtonText',
+		'removeButtonText',        'showUniversalSet',  'universalSetLabel', 'addFromUniversalText',
+		'removeUniversalItemText', 'reorderText',       'moveText',          'helpButtonText',
+		'closeHelpButtonText',     'dragAndDropHelpText'
+		)
+	{
+		$options{$option} = $self->{$option} if defined $self->{$option};
+	}
+
+	$self->{dnd} = DragNDrop->new($self->ANS_NAME, $self->{shuffledSet}, \@buckets, %options);
 
 	my $ans_rule = main::NAMED_HIDDEN_ANS_RULE($self->ANS_NAME);
 	if ($main::displayMode eq 'TeX') {

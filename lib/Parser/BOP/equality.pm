@@ -32,7 +32,7 @@ sub _eval {
 }
 
 #
-#  Remove redundent minuses
+#  Remove redundant minuses
 #
 sub _reduce {
 	my $self     = shift;

@@ -551,8 +551,8 @@ Statistics::Distributions - Perl module for calculating probabilities and critic
 
 =head1 DESCRIPTION
 
-This Perl module calulates percentage points (6 significant digits) of the u (standard normal) distribution, 
-the student's t distribution, the chi-square distribution and the F distribution. 
+This Perl module calculates percentage points (6 significant digits) of the u (standard normal) distribution,
+the student's t distribution, the chi-square distribution and the F distribution.
 
 It can also calculate the upper probability (6 significant digits) of the u (standard normal), 
 the chi-square, the t and the F distribution.
@@ -567,7 +567,7 @@ If you are interested in more precise algorithms you could look at:
 =head1 AUTHOR
 
 Michael Kospach, mike.perl@gmx.at
-Nice formating, simplification and bug repair by Matthias Trautner Kromann, mtk@id.cbs.dk 
+Nice formatting, simplification and bug repair by Matthias Trautner Kromann, mtk@id.cbs.dk
 
 =cut
 

@@ -3226,7 +3226,7 @@ The primary property of an eigenvalue I<l> and an eigenvector
 B<x> is of course that: B<M> * B<x> = I<l> * B<x>.
 
 The method uses a Householder reduction to tridiagonal form
-followed by a QL algoritm with implicit shifts on this
+followed by a QL algorithm with implicit shifts on this
 tridiagonal. (The tridiagonal matrix is kept internally
 in a compact form in this routine to save memory.)
 In fact, this routine wraps the householder() and
@@ -3246,7 +3246,7 @@ the I<n> by I<n> real I<symmetric> matrix B<M> contained
 in $matrix to tridiagonal form.
 On output, B<T> is a symmetric tridiagonal matrix (only
 diagonal and off-diagonal elements are non-zero) and B<Q>
-is an I<orthogonal> matrix performing the tranformation
+is an I<orthogonal> matrix performing the transformation
 between B<M> and B<T> (C<$M == $Q * $T * ~$Q>).
 
 =item *
@@ -3385,7 +3385,7 @@ Example:
 
 Boolean test
 
-Tests wether there is at least one non-zero element in the matrix.
+Tests whether there is at least one non-zero element in the matrix.
 
 Example:
 
@@ -3395,7 +3395,7 @@ Example:
 
 Negated boolean test
 
-Tests wether the matrix contains only zero's.
+Tests whether the matrix contains only zero's.
 
 Examples:
 

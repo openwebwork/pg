@@ -175,12 +175,29 @@ Example:
 
     Round(1.789,2) returns 1.79
 
+This macro assumes an input x having lots of consecutive 9s such as 1.4999999999999997 is already
+the result of machine rounding error, and was meant to be 1.5. And so will round up to 2, not down
+to 1. Do not use this macro if a problem might work with honest numbers like 1.4999999999999997
+and need to round it.
+
 =cut
 
-# Round contributed bt Mark Schmitt 3-6-03
 sub Round {
-	if    (@_ == 1) { $_[0] > 0 ? int $_[0] + 0.5                      : int $_[0] - 0.5 }
-	elsif (@_ == 2) { $_[0] > 0 ? Round($_[0] * 10**$_[1]) / 10**$_[1] : Round($_[0] * 10**$_[1]) / 10**$_[1] }
+	my ($x, $n) = @_;
+	$n = 0 unless $n;
+	my $e = (split(/E/, sprintf("%E", $x)))[1] + 0;     # exponent for $x
+	my $s = ($x < 0 ? -1 : 1);                          # the sign of $x
+	my $N = $e + $n;                                    # number of digits to retain
+	$x += $s * 10**($e - 15);                           # adjust for repeated 9s
+	return sprintf("%.${N}E", $x) + 0 unless $N < 0;    # round the adjusted value
+
+	# For zero original digits, we add a digit just above the first one
+	# in $x, round that, then remove the added digit, getting 0 if $x
+	# didn't round up, or 1 in the proper place if it did.  This means
+	# that 0.005 rounds to .01, for example, when 2 digits are requested.
+
+	my $d = $s * 10**($e + 1);
+	return sprintf("%.0E", $x + $d) - $d;
 }
 
 =head2 lcm

@@ -89,7 +89,7 @@ sub pretty_print_html {    # provides html output -- NOT a method
 	if (!$ref) {
 		return $r_input =~ s/</&lt;/gr;
 	} elsif (eval { %$r_input || 1 }) {
-		return '<div style="display:table;border:1px solid black;background-color:#fff;">'
+		return '<div style="display:table;border:1px solid black;background-color:#fff;color:#000;">'
 			. ($ref eq 'HASH'
 				? ''
 				: '<div style="'

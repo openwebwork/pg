@@ -55,7 +55,7 @@ sub new {
 }
 
 #
-#  Try to promote arbitary data to a vector
+#  Try to promote arbitrary data to a vector
 #
 sub promote {
 	my $self    = shift;

@@ -12,7 +12,7 @@
 
 				constructor(point1, point2, point3, solid) {
 					for (const point of [point1, point2, point3]) {
-						point.setAttribute(gt.definingPointAttributes);
+						point.setAttribute(gt.definingPointAttributes());
 						if (!gt.isStatic) {
 							point.on('down', () => gt.onPointDown(point));
 							point.on('up', () => gt.onPointUp(point));
@@ -82,7 +82,7 @@
 					return -1;
 				}
 
-				onBoundary(point, aVal, _from) {
+				onBoundary(point, aVal) {
 					if (this.fillCmp(point) != aVal) return true;
 
 					for (const border of this.baseObj.borders) {
@@ -122,7 +122,7 @@
 				}
 
 				static createPolygon(points, solid, color) {
-					return gt.board.create('polygon', points, {
+					const polygon = gt.board.create('polygon', points, {
 						highlight: false,
 						fillOpacity: 0,
 						fixed: true,
@@ -132,8 +132,31 @@
 							fixed: true,
 							strokeColor: color ? color : gt.color.underConstruction,
 							dash: solid ? 0 : 2
+						},
+						tabindex: '',
+						aria: {
+							enabled: true,
+							label: (t) =>
+								(t.borders[0].getAttribute('dash') == 0 ? 'solid ' : 'dashed ') +
+								(t.vertices.length === 4
+									? 'triangle'
+									: t.vertices.length == 5
+										? 'quadrilateral'
+										: 'polygon') +
+								' with vertices ' +
+								t.vertices
+									.slice(0, -1)
+									.map((p) => `${p.X()}, ${p.Y()}`)
+									.join(', and '),
+							roledescription: 'polygon',
+							live: 'assertive',
+							atomic: true
 						}
 					});
+					for (const border of polygon.borders) {
+						border.setAttribute({ tabindex: '', aria: { enabled: true, hidden: true, live: 'off' } });
+					}
+					return polygon;
 				}
 
 				// Prevent a point from being moved off the board by a drag. If one or two other points are
@@ -227,7 +250,9 @@
 							size: 2,
 							snapSizeX: gt.snapSizeX,
 							snapSizeY: gt.snapSizeY,
-							withLabel: false
+							withLabel: false,
+							tabindex: '',
+							aria: gt.pointAria
 						}
 					);
 					point.setAttribute({ snapToGrid: true });
@@ -284,7 +309,9 @@
 						highlight: false,
 						snapToGrid: true,
 						snapSizeX: gt.snapSizeX,
-						snapSizeY: gt.snapSizeY
+						snapSizeY: gt.snapSizeY,
+						tabindex: '',
+						aria: gt.pointAria
 					});
 					this.point1.setAttribute({ fixed: true });
 
@@ -414,7 +441,9 @@
 							highlight: false,
 							snapSizeX: gt.snapSizeX,
 							snapSizeY: gt.snapSizeY,
-							withLabel: false
+							withLabel: false,
+							tabindex: 0,
+							aria: gt.pointAria
 						});
 						this.hlObjs.hl_point.rendNode.focus();
 					}
@@ -446,7 +475,18 @@
 							highlight: false,
 							dash: gt.drawSolid ? 0 : 2,
 							straightFirst: false,
-							straightLast: false
+							straightLast: false,
+							tabindex: '',
+							aria: {
+								enabled: true,
+								label: (l) =>
+									(l.getAttribute('dash') == 0 ? 'solid' : 'dashed') +
+									` line segment between ${l.point1.X()}, ${l.point1.Y()} ` +
+									`and ${l.point2.X()}, ${l.point2.Y()}`,
+								roledescription: 'line',
+								live: 'assertive',
+								atomic: true
+							}
 						});
 					}
 

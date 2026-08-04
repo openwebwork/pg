@@ -244,7 +244,7 @@ sub Open {
 #
 #  We need to modify the test for formInterval to NOT check the number
 #  of entries so that better error messages are produced, and to handle
-#  multiple close delimiters.  These are both in teh "operand" branch,
+#  multiple close delimiters.  These are both in the "operand" branch,
 #  so do the original for all the choices, and copy that branch here,
 #  with our modifications.
 #

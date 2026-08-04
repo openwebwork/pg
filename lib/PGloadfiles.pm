@@ -39,7 +39,7 @@ modifying existing macros.
 I<Modifying macros is for users with some experience.>
 
 Modifying existing macros might break other standard macros or problems which
-depend on the unmodified behavior of these macors so do this with great caution.
+depend on the unmodified behavior of these macros so do this with great caution.
 In addition problems which use new macros defined in these files or which depend
 on the modified behavior of existing macros will not work in other courses
 unless the macros are also transferred to the new course.  It helps to document
@@ -135,7 +135,7 @@ sub loadMacros {
 		}
 		my $macro_file_name = $fileName;
 		$macro_file_name =~ s/\.pl//;                    # trim off the extension
-		$macro_file_name =~ s/\.pg//;                    # sometimes the extension is .pg (e.g. CAPA files)
+		$macro_file_name =~ s/\.pg//;                    # sometimes the extension is .pg
 		my $init_subroutine_name = "_${macro_file_name}_init";
 		$init_subroutine_name =~ s![^a-zA-Z0-9_]!_!g;    # remove dangerous chars
 

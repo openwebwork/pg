@@ -65,8 +65,8 @@ drag and drop bucket when clicked on.
 If the C<bucketLabelFormat> option is defined, then buckets for which an
 explicit label is not provided will be will be created with the label with the
 C<%s> in the string replaced with the bucket number in the pool.  This also
-applies to new buckets that are added by JavaScript.  An example value for this
-option is C<< 'Subset %s' >>.
+applies to new buckets that are added by the user via JavaScript if
+C<allowNewBuckets> is 1.  An example value for this option is C<'Subset %s'>.
 
 =item resetButtonText (Default: C<< 'Reset' >>)
 
@@ -97,6 +97,77 @@ buckets, but not into it.
 =item universalSetLabel (Default: C<< 'Universal Set' >>)
 
 Label shown for the universal set bucket if C<showUniversalSet> is 1.
+
+=item addFromUniversalText
+
+The aria announcement text format that is used when a universal set item is
+added to a bucket via keyboard controls. The default format for this text is
+C<'Item %1s in the universal set added as item %2s to list %3s.'>.  Note that if
+this is customized it must contain C<%1s>, C<%2s>, and C<%3s> as in the default
+value.
+
+=item removeUniversalItemText
+
+The aria announcement text format that is used when an item from the universal
+set that is in a bucket is removed via keyboard controls. The default format for
+this text is C<'Item %1s removed from list %2s.'>.  Note that if this is
+customized it must contain C<%1s> and C<%2s> as in the default value.
+
+=item reorderText
+
+The aria announcement text format that is used when an item is moved up or down
+in a bucket via keyboard controls. The default format for this text is
+C<'Moved item %1s in list %2s to item %3s.'>.  Note that if this is customized
+it must contain C<%1s>, C<%2s>, and C<%3s> as in the default value.
+
+=item moveText
+
+The aria announcement text format that is used when an item is moved from one
+bucket to another via keyboard controls. The default format for this text is
+C<'Moved item %1s in list %2s to item %3s in list %4s.'>.  Note that if this is
+customized it must contain C<%1s>, C<%2s>, C<%3s>, and C<%4s> as in the default
+value.
+
+=item helpButtonText (Default: C<'Drag and Drop Help'>)
+
+The text shown on the button that opens the drag and drop help.
+
+=item closeHelpButtonText (Default: C<'Close Help'>)
+
+The text shown on the button that closes the drag and drop help.
+
+=item dragAndDropHelpText
+
+The help that is shown when the drag and drop help button is pressed.
+
+The default text is
+
+=over 4
+
+Drag to reorganize items within lists or to move items to a different list. Tab
+and shift-tab can be used to focus list items.  The left and right arrow keys
+move a focused list item to the list to the left or right.  The up and down
+arrow keys move a focused list item up and down inside a list.
+
+=back
+
+=item universalSetHelpText
+
+If the option C<showUniversalSet> is set to 1, then this is shown before the
+C<dragAndDropHelpText> in the help.
+
+The default text for this is
+
+=over 4
+
+Drag items in the universal set to copy them to a list.  Tab and shift-tab can
+be used to focus universal set items.  A focused item in the universal set can
+be added to the first list with the right or down arrow keys, or added to the
+last list with the left or up arrow keys. A focused item in a list can be
+removed by using the left or right arrow key until it returns to the universal
+set.
+
+=back
 
 =back
 
@@ -138,18 +209,41 @@ use PGcore;
 sub new {
 	my ($self, $answerName, $itemList, $defaultBuckets, %options) = @_;
 
+	my $PG = eval('$main::PG');
+
 	return bless {
-		answerName        => $answerName,
-		itemList          => $itemList,
-		defaultBuckets    => $defaultBuckets,
-		allowNewBuckets   => 0,
-		bucketLabelFormat => undef,
-		resetButtonText   => 'Reset',
-		addButtonText     => 'Add Bucket',
-		removeButtonText  => 'Remove',
-		multicolsWidth    => '300pt',
-		showUniversalSet  => 0,
-		universalSetLabel => 'Universal Set',
+		answerName           => $answerName,
+		itemList             => $itemList,
+		defaultBuckets       => $defaultBuckets,
+		allowNewBuckets      => 0,
+		bucketLabelFormat    => undef,
+		resetButtonText      => $PG->maketext('Reset'),
+		addButtonText        => $PG->maketext('Add Bucket'),
+		removeButtonText     => $PG->maketext('Remove'),
+		multicolsWidth       => '300pt',
+		showUniversalSet     => 0,
+		universalSetLabel    => $PG->maketext('Universal Set'),
+		addFromUniversalText =>
+			$PG->maketext('Item [_1] in the universal set added as item [_2] to list [_3].', '%1s', '%2s', '%3s'),
+		removeUniversalItemText => $PG->maketext('Item [_1] removed from list [_2].', '%1s', '%2s'),
+		reorderText             => $PG->maketext('Moved item [_1] in list [_2] to item [_3].', '%1s', '%2s', '%3s'),
+		moveText                =>
+			$PG->maketext('Moved item [_1] in list [_2] to item [_3] in list [_4].', '%1s', '%2s', '%3s', '%4s'),
+		helpButtonText      => $PG->maketext('Drag and Drop Help'),
+		closeHelpButtonText => $PG->maketext('Close Help'),
+		dragAndDropHelpText => $PG->maketext(
+			'Drag to reorganize items within lists or to move items to a different list. '
+				. 'Tab and shift-tab can be used to focus list items. '
+				. 'The left and right arrow keys move a focused list item to the list to the left or right. '
+				. 'The up and down arrow keys move a focused list item up and down inside a list.'
+		),
+		universalSetHelpText => $PG->maketext(
+			'Drag items in the universal set to copy them to a list. '
+				. 'Tab and shift-tab can be used to focus universal set items. '
+				. 'A focused item in the universal set can be added to the first list with the right or down arrow '
+				. 'keys, or added to the last list with the left or up arrow keys. A focused item in a list can '
+				. 'be removed by using the left or right arrow key until it returns to the universal set.'
+		),
 		%options,
 		},
 		ref($self) || $self;
@@ -165,6 +259,10 @@ sub HTML {
 	$out .= qq{ data-label-format="$self->{bucketLabelFormat}"} if $self->{bucketLabelFormat};
 	$out .= " data-show-universal-set"                          if $self->{showUniversalSet};
 	$out .= ' data-universal-set-label="' . PGcore::encode_pg_and_html($self->{universalSetLabel}) . '"';
+	$out .= ' data-add-from-universal-text="' . PGcore::encode_pg_and_html($self->{addFromUniversalText}) . '"';
+	$out .= ' data-remove-universal-item-text="' . PGcore::encode_pg_and_html($self->{removeUniversalItemText}) . '"';
+	$out .= ' data-reorder-text="' . PGcore::encode_pg_and_html($self->{reorderText}) . '"';
+	$out .= ' data-move-text="' . PGcore::encode_pg_and_html($self->{moveText}) . '"';
 	$out .= '>';
 
 	$out .= '<div class="dd-buttons"';
@@ -172,7 +270,36 @@ sub HTML {
 	$out .= qq{<button type="button" class="btn btn-secondary dd-reset-buckets">$self->{resetButtonText}</button>};
 	$out .= qq{<button type="button" class="btn btn-secondary dd-add-bucket">$self->{addButtonText}</button>}
 		if ($self->{allowNewBuckets});
-	$out .= '</div></div>';
+	$out .= '</div>';
+
+	$out .=
+		'<div class="d-flex justify-content-center mt-3">'
+		. '<button type="button" class="btn btn-secondary" data-bs-toggle="modal" '
+		. qq{data-bs-target="#$self->{answerName}-help">$self->{helpButtonText}</button>}
+		. qq{<div class="modal fade" id="$self->{answerName}-help" tabindex="-1" role="dialog" }
+		. qq{aria-labelledby="$self->{answerName}-help-label" aria-hidden="true">}
+		. '<div class="modal-dialog modal-dialog-centered">'
+		. '<div class="modal-content">'
+		. '<div class="modal-header">'
+		. qq{<h1 class="modal-title fs-5" id="$self->{answerName}-help-label">$self->{helpButtonText}</h1>}
+		. qq{<button type="button" class="btn-close" data-bs-dismiss="modal" }
+		. qq{aria-label="$self->{closeHelpButtonText}"></button>}
+		. '</div>'
+		. '<div class="modal-body">'
+		. ($self->{showUniversalSet} ? qq{<p class="mt-0 mb-3">$self->{universalSetHelpText}</p>} : '')
+		. qq{<p class="m-0">$self->{dragAndDropHelpText}</p>}
+		. '</div>'
+		. '<div class="modal-footer">'
+		. '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">'
+		. $self->{closeHelpButtonText}
+		. '</button>'
+		. '</div>'
+		. '</div>'
+		. '</div>'
+		. '</div>'
+		. '</div>';
+
+	$out .= '</div>';
 
 	return $out;
 }

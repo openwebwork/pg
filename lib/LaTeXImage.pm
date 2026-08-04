@@ -206,8 +206,17 @@ sub draw {
 			system "cd $working_dir && "
 				. WeBWorK::PG::IO::externalCommand('latex')
 				. " --interaction=nonstopmode image-dvisvgm.tex > latex.stdout 2> /dev/null";
-			move("$working_dir/image-dvisvgm.dvi", "$working_dir/image.dvi");
-			chmod(oct(664), "$working_dir/image.dvi");
+
+			if (-r "$working_dir/image-dvisvgm.dvi") {
+				move("$working_dir/image-dvisvgm.dvi", "$working_dir/image.dvi");
+				chmod(oct(664), "$working_dir/image.dvi");
+			} else {
+				warn 'The dvi file was not created.';
+				if (open(my $err_fh, '<', "$working_dir/latex.stdout")) {
+					while (my $error = <$err_fh>) { warn $error; }
+					close($err_fh);
+				}
+			}
 		} else {
 			warn "Can't open $working_dir/image-dvisvgm.tex for writing.";
 			return '';
@@ -223,7 +232,16 @@ sub draw {
 			system "cd $working_dir && "
 				. WeBWorK::PG::IO::externalCommand('latex2pdf')
 				. " --interaction=nonstopmode image.tex > latex.stdout 2> /dev/null";
-			chmod(oct(664), "$working_dir/image.pdf");
+
+			if (-r "$working_dir/image.pdf") {
+				chmod(oct(664), "$working_dir/image.pdf");
+			} else {
+				warn 'The pdf file was not created.';
+				if (open(my $err_fh, '<', "$working_dir/latex.stdout")) {
+					while (my $error = <$err_fh>) { warn $error; }
+					close($err_fh);
+				}
+			}
 		} else {
 			warn "Can't open $working_dir/image.tex for writing.";
 			return '';
@@ -231,39 +249,19 @@ sub draw {
 	}
 
 	# Make derivatives of the dvi
-	if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod eq 'dvisvgm') {
-		if (-r "$working_dir/image.dvi") {
-			$self->use_svgMethod($working_dir);
-		} else {
-			warn "The dvi file was not created.";
-			if (open(my $err_fh, "<", "$working_dir/latex.stdout")) {
-				while (my $error = <$err_fh>) {
-					warn $error;
-				}
-				close($err_fh);
-			}
-		}
+	if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod eq 'dvisvgm' && -r "$working_dir/image.dvi") {
+		$self->use_svgMethod($working_dir);
 	}
 
 	# Make derivatives of the pdf
-	if (($svgMethod ne 'dvisvgm' || $ext ne 'svg') && $ext ne 'pdf') {
-		if (-r "$working_dir/image.pdf") {
-			if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod ne 'dvisvgm') {
-				$self->use_svgMethod($working_dir);
-			}
-			if ($ext eq 'tgz') {
-				$self->use_convert($working_dir, "png");
-			} elsif ($ext ne 'svg' && $ext ne 'pdf') {
-				$self->use_convert($working_dir, $ext);
-			}
-		} else {
-			warn "The pdf file was not created.";
-			if (open(my $err_fh, "<", "$working_dir/latex.stdout")) {
-				while (my $error = <$err_fh>) {
-					warn $error;
-				}
-				close($err_fh);
-			}
+	if (($svgMethod ne 'dvisvgm' || $ext ne 'svg') && $ext ne 'pdf' && -r "$working_dir/image.pdf") {
+		if (($ext eq 'svg' || $ext eq 'tgz') && $svgMethod ne 'dvisvgm') {
+			$self->use_svgMethod($working_dir);
+		}
+		if ($ext eq 'tgz') {
+			$self->use_convert($working_dir, 'png');
+		} elsif ($ext ne 'svg' && $ext ne 'pdf') {
+			$self->use_convert($working_dir, $ext);
 		}
 	}
 
@@ -300,7 +298,7 @@ sub use_svgMethod {
 	# Validate svgMethod against known SVG converters to prevent command injection.
 	my $method = $self->svgMethod;
 	if ($method eq 'dvisvgm') {
-		system WeBWorK::PG::IO::externalCommand('dvisvgm'), "$working_dir/image.dvi", '--no-fonts',
+		system WeBWorK::PG::IO::externalCommand('dvisvgm'), "$working_dir/image.dvi", '--no-fonts', '--verbosity=0',
 			"--output=$working_dir/image.svg";
 	} elsif ($method eq 'pdf2svg') {
 		system WeBWorK::PG::IO::externalCommand('pdf2svg'), "$working_dir/image.pdf", "$working_dir/image.svg";

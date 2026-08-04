@@ -30,7 +30,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 #:
 #: For more details on adding the Heaviside function to the context, see the
 #: forum discussion on the
-#: [Heaviside step function](https://webwork.maa.org/moodle/mod/forum/discuss.php?d=458).
+#: [Heaviside step function](https://wiki.openwebwork.org/moodle/mod/forum/discuss.php?d=458).
 #:
 #: For the second question, since answers are checked numerically by comparing
 #: the student answer to the correct answer at several random points in the

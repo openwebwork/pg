@@ -236,7 +236,7 @@ sub checkPolynomial {
 
 sub checkStrict {
 	my $self = shift;
-	$self->Error("You can only use '%s' between coefficents and variables in a simplified polynomial", $self->{bop});
+	$self->Error("You can only use '%s' between coefficients and variables in a simplified polynomial", $self->{bop});
 }
 
 ##############################################

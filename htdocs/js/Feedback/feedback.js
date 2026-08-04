@@ -11,16 +11,10 @@
 		});
 		feedbackPopovers.push(feedbackPopover);
 
-		// Render MathJax previews.
-		if (window.MathJax) {
-			feedbackBtn.addEventListener('show.bs.popover', () => {
-				MathJax.startup.promise = MathJax.startup.promise.then(() =>
-					MathJax.typesetPromise(['.popover-body']).then(() => feedbackPopover.update())
-				);
-			});
-		}
+		feedbackBtn.addEventListener('inserted.bs.popover', () => {
+			// Render MathJax previews.
+			if (window.MathJax) MathJax.typesetPromise?.([feedbackPopover.tip]).then(() => feedbackPopover.update());
 
-		feedbackBtn.addEventListener('shown.bs.popover', () => {
 			// Execute javascript in the answer preview.
 			feedbackPopover.tip?.querySelectorAll('script').forEach((origScript) => {
 				const newScript = document.createElement('script');
@@ -47,12 +41,17 @@
 			if (feedbackPopover.tip) feedbackPopover.tip.dataset.iframeHeight = '1';
 
 			const revealCorrectBtn = feedbackPopover.tip?.querySelector('.reveal-correct-btn');
-			if (revealCorrectBtn && feedbackPopover.correctRevealed) {
-				revealCorrectBtn.nextElementSibling?.classList.remove('d-none');
-				revealCorrectBtn.remove();
-			} else {
-				revealCorrectBtn?.addEventListener('click', () => {
-					feedbackPopover.correctRevealed = true;
+			if (revealCorrectBtn) {
+				const fragment = new DocumentFragment();
+				const container = document.createElement('div');
+				container.innerHTML = feedbackBtn.dataset.bsContent;
+				const button = container.querySelector('.reveal-correct-btn');
+				button?.nextElementSibling?.classList.remove('d-none');
+				button?.remove();
+				fragment.append(container);
+				const feedbackNoRevealBtn = fragment.firstElementChild.innerHTML;
+
+				revealCorrectBtn.addEventListener('click', () => {
 					revealCorrectBtn.classList.add('fade-out');
 					revealCorrectBtn.parentElement.classList.add('resize-transition');
 					revealCorrectBtn.parentElement.style.maxWidth = `${revealCorrectBtn.parentElement.offsetWidth}px`;
@@ -65,6 +64,12 @@
 						revealCorrectBtn.remove();
 						feedbackPopover.update();
 					});
+
+					feedbackBtn.addEventListener(
+						'hidden.bs.popover',
+						() => feedbackPopover.setContent({ '.popover-body': feedbackNoRevealBtn }),
+						{ once: true }
+					);
 				});
 			}
 		});

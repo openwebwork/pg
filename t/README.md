@@ -16,7 +16,7 @@ and a working test can be better than documentation because it shows how
 the code currently works in practice.
 
 Old references can be found on the WebWork wiki page
-[Unit Testing](https://webwork.maa.org/wiki/Unit_Testing)
+[Unit Testing](https://wiki.openwebwork.org/wiki/Unit_Testing)
 
 ## Unit Tests
 
@@ -31,8 +31,8 @@ Best practice is to create a directory for each module being tested and
 group similar tests together in separate files with a descriptive name,
 such as **t/units/** for testing the **Units.pm** module.
 
-Formal unit tests are located in the the `macros` and `contexts` directories
-that are designed to test the pg macros and contexts respectively.
+Formal unit tests are located in the `macros` and `contexts` directories that
+are designed to test the pg macros and contexts respectively.
 
 ## Running the tests
 

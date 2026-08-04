@@ -75,7 +75,7 @@ different values.  For example.
     );
 
 would allow students to enter decimals in either format, but all
-numebrs would be displayed in standard form.
+numbers would be displayed in standard form.
 
 
 =head2 LISTS IN ALTERNATE FORMAT
@@ -92,7 +92,7 @@ Note that the comma is still available for use as a separator, but
 this makes things like C<3,2,1> tricky, because it is not clear if
 this is 3.2 followed by 1, or 3.2 times .1, or the list of 3, 2, and
 1.  To help make this unambiguous, numbers that use a comma as decimal
-inidcator must have a digit on both sides of the comma.  So one tenth
+indicator must have a digit on both sides of the comma.  So one tenth
 would have to be entered as C<0,1> not just C<,1> (but you can still
 enter C<.1>.  Similarly, You must enter C<3,0> or just C<3> rather
 than C<3,>, even though C<3.> is acceptable.

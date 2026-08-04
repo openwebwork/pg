@@ -283,6 +283,7 @@ sub _contextFiniteSolutionSets_init {
 					. join(',', map { $_->TeX } (@correctanswers))
 					. "\\right\\}\\)");
 		}
+		$score = 0 if $score < 0;
 		return ($score, @errors);
 	};
 }

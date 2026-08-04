@@ -1,4 +1,4 @@
-/* global graphTool */
+/* global graphTool, JXG */
 
 'use strict';
 
@@ -29,18 +29,15 @@
 					}
 
 					onBoundary(point, _aVal, from) {
-						if (
-							!(
-								point[1] >
-									Math.min(this.definingPts[0].X(), this.definingPts[1].X()) - 0.5 / gt.board.unitX &&
-								point[1] <
-									Math.max(this.definingPts[0].X(), this.definingPts[1].X()) + 0.5 / gt.board.unitX &&
-								point[2] >
-									Math.min(this.definingPts[0].Y(), this.definingPts[1].Y()) - 0.5 / gt.board.unitY &&
-								point[2] <
-									Math.max(this.definingPts[0].Y(), this.definingPts[1].Y()) + 0.5 / gt.board.unitY
-							)
-						)
+						if (!(
+							point[1] >
+								Math.min(this.definingPts[0].X(), this.definingPts[1].X()) - 0.5 / gt.board.unitX &&
+							point[1] <
+								Math.max(this.definingPts[0].X(), this.definingPts[1].X()) + 0.5 / gt.board.unitX &&
+							point[2] >
+								Math.min(this.definingPts[0].Y(), this.definingPts[1].Y()) - 0.5 / gt.board.unitY &&
+							point[2] < Math.max(this.definingPts[0].Y(), this.definingPts[1].Y()) + 0.5 / gt.board.unitY
+						))
 							return 0;
 
 						const crossingStdForm = [
@@ -57,6 +54,13 @@
 							Math.abs(pointSide) /
 								Math.sqrt(this.baseObj.stdform[1] ** 2 + this.baseObj.stdform[2] ** 2) <
 								0.5 / Math.sqrt(gt.board.unitX * gt.board.unitY)
+						);
+					}
+
+					static ariaLabel(l) {
+						return (
+							(l.getAttribute('dash') == 0 ? 'solid' : 'dashed') +
+							` segment between ${l.point1.X()}, ${l.point1.Y()} and ${l.point2.X()}, ${l.point2.Y()}`
 						);
 					}
 				};
@@ -96,6 +100,14 @@
 					constructor(point1, point2, solid) {
 						super(point1, point2, solid);
 						this.baseObj.setArrow(false, { type: 1, size: 4 });
+					}
+
+					static ariaLabel(l) {
+						return (
+							(l.getAttribute('dash') == 0 ? 'solid' : 'dashed') +
+							` vector with initial point ${l.point1.X()}, ${l.point1.Y()} ` +
+							`and terminal point ${l.point2.X()}, ${l.point2.Y()}`
+						);
 					}
 				};
 			},

@@ -265,13 +265,13 @@ The applets initialization method is as follows:
 
 =head3 Submit sequence
 
-When the WW question submit button is pressed the form containing the WW question calles the
+When the WW question submit button is pressed the form containing the WW question calls the
 JavaScript "submitAction()" which then asks each of the applets on the page to perform its
 submit action which consists of
 
     -- If the applet is to be reinitialized (appletName_state contains
-       <xml>restart_applet</xml>) then the HTML elements appletName_state and
-       previous_appletName_state are set to <xml>restart_applet</xml> to be interpreted by the
+       <xml>restart_applet</xml>) then the HTML element appletName_state
+       is set to <xml>restart_applet</xml> to be interpreted by the
        next setState command.
     -- Otherwise getState() from the applet and save it to the HTML input element
        appletName_state.

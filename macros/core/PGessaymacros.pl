@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-PGessaymacros.pl - Macros for building answer evaluators.
+PGessaymacros.pl - Macros for manually graded text answers.
 
 =head2 SYNOPSIS
 
@@ -11,11 +11,18 @@ Answer Evaluators:
 
 Answer Boxes:
 
-    essay_box()
+    essay_box(rows, columns, html_options)
 
 To use essay answers call C<essay_box()> in your problem file wherever you want
 the input box to go, and then use C<essay_cmp()> for the corresponding checker.
-You will then need to grade the problem manually.
+You will then need to grade the problem manually.  You can explicitly set the
+size of the essay box by specifying the number of rows and columns. Any additional
+arguments will be passed as html attributes of the text area.  For example
+
+    essay_box(8, 60, maxlength => 250)
+
+will produce a text box with 8 rows and 60 columns that has a limit of 250
+characters.
 
     explanation_box()
 
@@ -60,7 +67,7 @@ sub essay_cmp {
 
 			$options->{resultClass}      = '';
 			$options->{insertMethod}     = 'append_content';
-			$options->{btnClass}         = 'btn-info';
+			$options->{btnClass}         = 'btn-preview';
 			$options->{btnAddClass}      = '';
 			$options->{wrapPreviewInTex} = 0;
 			$options->{showEntered}      = 0;                  # Suppress output of the feedback entered answer.
@@ -92,7 +99,7 @@ sub essay_cmp {
 }
 
 sub NAMED_ESSAY_BOX {
-	my ($name, $row, $col) = @_;
+	my ($name, $row, $col, %html_options) = @_;
 	$row //= 8;
 	$col //= 75;
 
@@ -109,6 +116,7 @@ sub NAMED_ESSAY_BOX {
 		TeX  => qq!\\vskip $height in \\hrulefill\\quad !,
 		HTML => tag(
 			'textarea',
+			%html_options,
 			name       => $name,
 			id         => $name,
 			aria_label => generate_aria_label($name),
@@ -137,12 +145,12 @@ sub NAMED_ESSAY_BOX {
 }
 
 sub essay_box {
-	my ($row, $col) = @_;
+	my ($row, $col, %html_options) = @_;
 	$row ||= 8;
 	$col ||= 75;
 	my $name = NEW_ANS_NAME();
 	main::RECORD_IMPLICIT_ANS_NAME($name);
-	NAMED_ESSAY_BOX($name, $row, $col);
+	NAMED_ESSAY_BOX($name, $row, $col, %html_options);
 
 }
 

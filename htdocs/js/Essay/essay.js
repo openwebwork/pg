@@ -49,11 +49,9 @@
 				);
 				if (window.MathJax) {
 					button.addEventListener(
-						'show.bs.popover',
+						'inserted.bs.popover',
 						() => {
-							MathJax.startup.promise = MathJax.startup.promise.then(() =>
-								MathJax.typesetPromise(['.popover-body'])
-							);
+							MathJax.typesetPromise?.([popover.tip]);
 						},
 						{ once: true }
 					);

@@ -69,34 +69,33 @@ sub copy {
 	my $self    = shift;
 	my $context = $self->new();
 	$context->{_initialized} = 0;
-	foreach my $data (@{ $context->{data}{objects} }) {
+	for my $data (@{ $self->{data}{objects} }) {
 		$context->{$data}->copy($self->{$data});
 	}
-	foreach my $data (@{ $context->{data}{hashes} }) {
+	for my $data (@{ $self->{data}{hashes} }) {
 		$context->{$data} = {};
-		foreach my $x (keys %{ $self->{$data} }) {
+		for my $x (keys %{ $self->{$data} }) {
 			$context->{$data}{$x} = { %{ $self->{$data}{$x} } };
 		}
 	}
-	foreach my $data (@{ $context->{data}{arrays} }) {
+	for my $data (@{ $self->{data}{arrays} }) {
 		$context->{$data} = {};
-		foreach my $x (keys %{ $self->{$data} }) {
+		for my $x (keys %{ $self->{$data} }) {
 			$context->{$data}{$x} = [ @{ $self->{$data}{$x} } ];
 		}
 	}
-	foreach my $data (@{ $context->{data}{values} }) {
+	for my $data (@{ $self->{data}{values} }) {
 		$context->{$data} = { %{ $self->{$data} } };
 	}
 	$context->{error}{msg}     = { %{ $self->{error}{msg} } };
-	$context->{error}{convert} = $self->{error}{convert}
-		if defined $self->{error}{convert};
-	$context->{name}         = $self->{name};
-	$context->{_initialized} = 1;
+	$context->{error}{convert} = $self->{error}{convert} if defined $self->{error}{convert};
+	$context->{name}           = $self->{name};
+	$context->{_initialized}   = 1;
 	return $context;
 }
 
 #
-#  Returns the package name for the specificied Value object class
+#  Returns the package name for the specified Value object class
 #  (as specified by the context's {value} hash, or "Value::name").
 #
 sub Package {

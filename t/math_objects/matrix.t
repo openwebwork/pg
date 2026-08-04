@@ -180,10 +180,92 @@ subtest 'Test if Matrix is in (R)REF' => sub {
 	ok !$B4->isRREF, "$B4 is not in RREF";
 };
 
+subtest 'Check if two matrices are (fuzzy) row equivalent' => sub {
+	my $A1 = Matrix(1, 2, 3);
+	my $A2 = Matrix([ 1, 2, 3 ], [ 4, 5, 6 ]);
+	my $A3 = Matrix([ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ]);
+	my $B1 = Matrix(2,        4,        6);
+	my $B2 = Matrix([ 1, 2 ], [ 3, 4 ], [ 5, 6 ]);
+	my $C1 = Matrix(0,        4,        6);
+	my $Z1 = Matrix([ 0, 0, 0 ], [ 0, 0, 0 ]);
+	my $Z2 = Matrix([ 0, 0, 0 ], [ 0, 0, 10**-14 ]);
+
+	my $M1 = Matrix([ 3, 1 ],      [ 1, 1 / 3 ]);
+	my $M2 = Matrix([ 3, 1 ],      [ 0, 0 ]);
+	my $M3 = Matrix([ 1, 0.3333 ], [ 0, 0 ]);
+	my $M4 = Matrix([ 1, 0.33 ],   [ 0, 0 ]);
+	my $M5 = Matrix([ 6, 2 ],      [ 9, 3 ]);
+	my $M6 = Matrix([ 3, 1 ],      [ 1, 3 ]);
+
+	my $N1 = Matrix([ [ 1, 2 ], [ 2, 4 ] ], [ [ 1, 2 ], [ 3, 4 ] ]);
+	my $N2 = Matrix([ [ 3, 6 ], [ 0, 0 ] ], [ [ 1, 0 ], [ 0, 1 ] ]);
+	my $N3 = Matrix([ [ 3, 6 ], [ 1, 0 ] ], [ [ 1, 0 ], [ 0, 1 ] ]);
+
+	ok $Z1->isREQ($Z2),  'Zero matrices are row equivalent';
+	ok !$Z1->isREQ($A2), 'A zero matrix is not row equivalent to a nonzero matrix';
+	ok $A1->isREQ($B1),  'Parallel degree 1 matrices are row equivalent';
+	ok !$C1->isREQ($B1), 'Non-parallel degree 1 matrices are not row equivalent';
+	ok $M2->isREQ($M5),  'Row equivalent matrices are row equivalent';
+	ok $M2->isREQ($M1),  'Row equivalent matrices are row equivalent, even with some machine rounding';
+	ok $M2->isREQ($M3),  'Row equivalent matrices are row equivalent, even with student rounding';
+	ok !$M2->isREQ($M4), 'Matrices are not row equivalent if rounding is too much';
+	ok !$M2->isREQ($M6), 'Non-row equivalent matrices are not row equivalent';
+	ok $N1->isREQ($N2),  'Row equivalent matrices are row equivalent, even at degree above 2';
+	ok !$N1->isREQ($N3), 'Non-row equivalent matrices are not row equivalent, even at degree above 2';
+
+	like dies {
+		$A2->isREQ($A3);
+	}, qr/Cannot compare row equivalency of matrices of different degree/,
+		'Test that error is thrown for comparing matrices of differing degrees';
+	like dies {
+		$A2->isREQ($B2);
+	}, qr/Cannot compare row equivalency because matrices differ in the first dimension/,
+		'Test that error is thrown for comparing matrices of differing dimensioon';
+
+};
+
+subtest 'Normalized Gram Schmidt' => sub {
+	my @A      = ([ 1, 2, 2 ], [ 2, 2, 1 ]);
+	my $A      = Matrix(@A);
+	my @NGSA   = $A->NGS;
+	my @NGSAc  = $A->NGS(cols => 1);
+	my @NGSVMA = Value::Matrix->NGS(@A);
+	my $NGSA   = $A->NGS;
+	my $NGSAc  = $A->NGS(cols => 1);
+	my $NGSVMA = Value::Matrix->NGS(@A);
+
+	is "@NGSA", "[0.333333,0.666667,0.666667] [0.808452,0.16169,-0.565916]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "@NGSAc", "[[0.447214],[0.894427]] [[0.894427],[-0.447214]]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "@NGSVMA", "[0.333333,0.666667,0.666667] [0.808452,0.16169,-0.565916]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "$NGSA", "[[0.333333,0.666667,0.666667],[0.808452,0.16169,-0.565916]]",
+		'Test that NGS finds a correct normalized GS basis';
+	is "$NGSAc", "[[0.447214,0.894427],[0.894427,-0.447214]]", 'Test that NGS finds a correct normalized GS basis';
+	is "$NGSVMA", "[[0.333333,0.666667,0.666667],[0.808452,0.16169,-0.565916]]",
+		'Test that NGS finds a correct normalized GS basis';
+
+	like dies {
+		Value::Matrix->NGS();
+	}, qr/You must provide vectors to apply Gram Schmidt to/, 'Test that you must pass something as an argument';
+	like dies {
+		Value::Matrix->NGS([ 0, 0 ], [ 0, 10**-16 ]);
+	}, qr/You must provide at least one nonzero row for Gram Schmidt/,
+		'Test that you must pass at least one nonzero row';
+	like dies {
+		Value::Matrix->NGS([ [ 1, 0 ], [ 1, 0 ] ]);
+	}, qr/Rows provided for Gram Schmidt should not be nested arrays/,
+		'Test that rows are rows, not nested matrices';
+	like dies {
+		Value::Matrix->NGS([ 1, 0 ], [ 1, 0, 0 ]);
+	}, qr/All rows provided for Gram Schmidt should have the same length/, 'Test that rows have same length';
+};
+
 subtest 'Transpose a Matrix' => sub {
 	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ]);
 	my $B = Matrix([ [ 1, 5, 9 ], [ 2, 6, 10 ], [ 3, 7, 11 ], [ 4, 8, 12 ] ]);
-	is $A->transpose->TeX, $B->TeX, 'Test the tranpose of a matrix';
+	is $A->transpose->TeX, $B->TeX, 'Test the transpose of a matrix';
 
 	my $row       = Matrix([ 1, 2, 3, 4 ]);
 	my $row_trans = Matrix([ [1], [2], [3], [4] ]);
@@ -191,7 +273,7 @@ subtest 'Transpose a Matrix' => sub {
 
 	my $C = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
 	my $D = Matrix([ [ [ 1, 3 ], [ 2, 4 ] ], [ [ 5, 7 ], [ 6, 8 ] ] ]);
-	is $C->transpose->TeX, $D->TeX, 'Test the tranpose of a degree 3 tensor';
+	is $C->transpose->TeX, $D->TeX, 'Test the transpose of a degree 3 tensor';
 };
 
 subtest 'Extract an element' => sub {
@@ -215,6 +297,165 @@ subtest 'Extract a column' => sub {
 	}, qr/Column must be a positive integer/, 'Test that an error is thrown for passing a non-positive integer';
 };
 
+subtest 'Replace a value' => sub {
+	my $A = Matrix([ 1, 2, 3 ]);
+	my $B = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ]);
+	my $C = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ]);
+	my $D = Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ]);
+
+	is $A->replace(9, [2]),      2, 'Replace an element from a degree 1 matrix, returning replaced element';
+	is $A->TeX,                  Matrix([ 1, 9, 3 ])->TeX, 'Replace an element from a degree 1 matrix';
+	is $B->replace(9, [ 2, 1 ]), 4, 'Replace an element from a degree 2 matrix, returning replaced element';
+	is $B->TeX,                  Matrix([ [ 1, 2, 3 ], [ 9, 5, 6 ] ])->TeX, 'Replace an element from a degree 2 matrix';
+	is $C->replace(9, 2, 1),     4, 'Replace an element from a degree 2 matrix, returning replaced element';
+	is $C->TeX,                  Matrix([ [ 1, 2, 3 ], [ 9, 5, 6 ] ])->TeX, 'Replace an element from a degree 2 matrix';
+	is $D->replace(9, [ 2, 1, 2 ]), 6, 'Replace an element from a degree 3 matrix, returning replaced element';
+	is $D->TeX, Matrix([ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 9 ], [ 7, 8 ] ] ])->TeX,
+		'Replace an element from a degree 3 matrix';
+
+	like dies {
+		$B->replace(10, [ 1, 2, 3 ]);
+	}, qr/There should be 2 indices/, 'Check correct number of indices passed';
+	like dies {
+		$B->replace(10, [ 3, 1 ]);
+	}, qr/The first index is outside of the array bounds/, 'Check index is within bounds';
+	like dies {
+		$B->replace(Point(1, 2), [ 2, 1 ]);
+	}, qr/The new entry value should be a Number not a Point/, 'Check replaced value has the same type';
+	like dies {
+		$B->replace(Formula('x'), [ 2, 1 ]);
+	}, qr/Cannot replace a matrix entry with a Formula/, 'Check replaced value is not a Formula';
+};
+
+subtest 'Submatrix' => sub {
+	my $A = Matrix([ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ]);
+	is $A->subMatrix([ 2 .. 3 ], [ 2 .. 4 ])->TeX, Matrix([ 6, 7, 8 ], [ 10, 11, 12 ])->TeX,
+		'Submatrix from specifying rows/cols to keep';
+	is $A->subMatrix(2, 3)->TeX, Matrix([ 1, 2, 4 ], [ 9, 10, 12 ])->TeX,
+		'Submatrix from specifying row/col to remove';
+	is $A->subMatrix([1], 0)->TeX, Matrix([ [ 1, 2, 3, 4 ] ])->TeX,
+		'Submatrix from specifying rows/cols with mixed syntax';
+	is $A->subMatrix([ 3, 1, 2 ], [ 1, 4, 2 ])->TeX, Matrix([ 9, 12, 10 ], [ 1, 4, 2 ], [ 5, 8, 6 ])->TeX,
+		'Submatrix from permuting rows and columns, droppping one column';
+
+	my $B = Matrix(2, 4, 6, 8);
+	is $B->subMatrix([ 1, 3 ])->TeX, Matrix(2, 6)->TeX,
+		'Submatrix of degree 1 matrix from specifying entries to keep';
+	is $B->subMatrix(2)->TeX, Matrix(2, 6, 8)->TeX, 'Submatrix of degree 1 matrix from specifying entry to remove';
+
+	my $C = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ], [ [ 7, 8, 9 ], [ 10, 11, 12 ] ]);
+	is $C->subMatrix(0, 1, [ 1, 3 ])->TeX, Matrix([ [ 4, 6 ] ], [ [ 10, 12 ] ])->TeX,
+		'Submatrix of degree 3 matrix from specifying indices to keep';
+	is $C->subMatrix(1, 2, 3)->TeX, Matrix([ [ [ 7, 8 ] ] ])->TeX,
+		'Submatrix of degree 3 matrix from specifying indices to remove';
+
+	like dies {
+		$A->subMatrix(1, 1, 1);
+	}, qr/There must be 2 arguments/, 'check that error is thrown for too many arguments.';
+	like dies {
+		$A->subMatrix(1);
+	}, qr/There must be 2 arguments/, 'check that error is thrown for too few arguments.';
+
+	like dies {
+		$A->subMatrix(-1, 2);
+	}, qr/The input -1 is not a valid index/, 'check that error is thrown for an invalid integer argument.';
+	like dies {
+		$A->subMatrix(1.5, 2);
+	}, qr/The input 1\.5 is not a valid index/, 'check that error is thrown for an invalid integer argument.';
+	like dies {
+		$A->subMatrix(1, 5);
+	}, qr/The input 5 is not a valid index/, 'check that error is thrown for an invalid integer argument.';
+	like dies {
+		$A->subMatrix(1, 'a');
+	}, qr/The input a is not a valid index/, 'check that error is thrown for an invalid integer argument.';
+	like dies {
+		$A->subMatrix(1, []);
+	}, qr/Cannot use empty array reference for indices to keep/,
+		'check that error is thrown for empty array reference argument.';
+	like dies {
+		$A->subMatrix([ 1, 1.1, 2 ], [ 2, 3 ]);
+	}, qr/The input 1\.1 is not a valid index/, 'check that error is thrown for an non integer row.';
+	like dies {
+		$A->subMatrix([ 1, 2 ], [ 2.5, 3 ]);
+	}, qr/The input 2\.5 is not a valid index/, 'check that error is thrown for an non integer column.';
+	like dies {
+		$A->subMatrix([ 0, 1 ], [ 2, 3 ]);
+	}, qr/The input 0 is not a valid index/, 'check that error is thrown for zero in an array ref.';
+	like dies {
+		$A->subMatrix([ -2, 1 ], [ 2, 3 ]);
+	}, qr/The input -2 is not a valid index/,
+		'check that error is thrown for integer in an array ref that is out of bounds.';
+	like dies {
+		$A->subMatrix([ 5, 1 ], [ 2, 3 ]);
+	}, qr/The input 5 is not a valid index/,
+		'check that error is thrown for integer in an array ref that is out of bounds.';
+};
+
+subtest 'Remove row' => sub {
+	my $A = Matrix([ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ]);
+	is $A->removeRow(3)->TeX, Matrix([ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 13, 14, 15, 16 ])->TeX,
+		'Remove a row from a degree 2 Matrix';
+
+	my $B = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ], [ [ 7, 8, 9 ], [ 10, 11, 12 ] ]);
+	is $B->removeRow(2)->TeX, Matrix([ [ [ 1, 2, 3 ], [ 4, 5, 6 ] ] ])->TeX, 'Remove a row from a degree 3 Matrix';
+
+	my $C = Matrix(1, 2, 3);
+	like dies {
+		$C->removeRow(1);
+	}, qr/cannot be used on a Matrix of degree 1/,
+		'check that error is thrown if removeRow used on degree 1 Matrix';
+	like dies {
+		$A->removeRow(0);
+	}, qr/Can only remove rows 1 through 4/, 'check that error is thrown for bad row specification';
+	like dies {
+		$A->removeRow(5);
+	}, qr/Can only remove rows 1 through 4/, 'check that error is thrown for bad row specification';
+	like dies {
+		$A->removeRow(1.5);
+	}, qr/Can only remove rows 1 through 4/, 'check that error is thrown for bad row specification';
+	like dies {
+		$A->removeRow('a');
+	}, qr/Can only remove rows 1 through 4/, 'check that error is thrown for bad row specification';
+
+	my $D = Matrix([ [ 1, 2, 3 ] ]);
+	like dies {
+		$D->removeRow(1);
+	}, qr/cannot remove a Matrix's only row/, 'check that error is thrown for trying to remove the only row';
+};
+
+subtest 'Remove column' => sub {
+	my $A = Matrix([ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ]);
+	is $A->removeColumn(3)->TeX, Matrix([ 1, 2, 4 ], [ 5, 6, 8 ], [ 9, 10, 12 ], [ 13, 14, 16 ])->TeX,
+		'Remove a column from a degree 2 Matrix';
+
+	my $B = Matrix([ [ 1, 2, 3 ], [ 4, 5, 6 ] ], [ [ 7, 8, 9 ], [ 10, 11, 12 ] ]);
+	is $B->removeColumn(2)->TeX, Matrix([ [ 1, 2, 3 ] ], [ [ 7, 8, 9 ] ])->TeX,
+		'Remove a column from a degree 3 Matrix';
+
+	my $C = Matrix(1, 2, 3);
+	like dies {
+		$C->removeColumn(1);
+	}, qr/cannot be used on a Matrix of degree 1/,
+		'check that error is thrown if removeColumn used on degree 1 Matrix';
+	like dies {
+		$A->removeColumn(0);
+	}, qr/Can only remove columns 1 through 4/, 'check that error is thrown for bad column specification';
+	like dies {
+		$A->removeColumn(5);
+	}, qr/Can only remove columns 1 through 4/, 'check that error is thrown for bad column specification';
+	like dies {
+		$A->removeColumn(1.5);
+	}, qr/Can only remove columns 1 through 4/, 'check that error is thrown for bad column specification';
+	like dies {
+		$A->removeColumn('a');
+	}, qr/Can only remove columns 1 through 4/, 'check that error is thrown for bad column specification';
+
+	my $D = Matrix([1], [2], [3]);
+	like dies {
+		$D->removeColumn(1);
+	}, qr/cannot remove a Matrix's only column/, 'check that error is thrown for trying to remove the only column';
+};
+
 subtest 'Construct an identity matrix' => sub {
 	my $I = Value::Matrix->I(3);
 	my $B = Matrix([ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ] ]);
@@ -226,7 +467,7 @@ subtest 'Construct an identity matrix' => sub {
 
 subtest 'Construct a permutation matrix' => sub {
 	my $P1 = Value::Matrix->P(3, [ 1, 2, 3 ]);
-	is $P1->TeX, Matrix([ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ])->TeX, 'Create permuation matrix on cycle (123)';
+	is $P1->TeX, Matrix([ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ])->TeX, 'Create permutation matrix on cycle (123)';
 
 	my $P2 = Value::Matrix->P(6, [ 1, 3 ], [ 2, 4, 6 ]);
 	is $P2->TeX,
@@ -327,8 +568,8 @@ subtest 'Multiply matrices' => sub {
 	my $prod1 = Matrix([ [ -8, 2, -6 ], [ -17, 8, -15 ], [ -26, 14, -24 ] ]);
 	my $C     = Matrix([ [ 1, -5, -2, -5 ],   [ 0, -5, 5, -4 ],     [ 4, 1, -1, 1 ] ]);
 	my $prod2 = Matrix([ [ 13, -12, 5, -10 ], [ 28, -39, 11, -34 ], [ 43, -66, 17, -58 ] ]);
-	ok $A*$B == $prod1, 'Checking the product of two 3 by 3 matrices';
-	ok $A*$C == $prod2, 'Checking the product of a 3 by 3 and 3 by 4 matrix';
+	ok $A * $B == $prod1, 'Checking the product of two 3 by 3 matrices';
+	ok $A * $C == $prod2, 'Checking the product of a 3 by 3 and 3 by 4 matrix';
 
 	like dies { $C * $A }, qr/Matrices of dimensions \d+x\d+ and \d+x\d+ can't be multiplied/,
 		'Test that multiplying row matrices of incompatible dimsensions throws an error';
@@ -337,15 +578,16 @@ subtest 'Multiply matrices' => sub {
 
 	my $row   = Matrix(1,  2,  3);
 	my $prod3 = Matrix(14, 32, 50);
-	ok $A*$row == $prod3, 'Multiply a 3 by 3 matrix and a row matrix of length 3 (the row is promoted to a matrix)';
+	ok $A * $row == $prod3,
+		'Multiply a 3 by 3 matrix and a row matrix of length 3 (the row is promoted to a matrix)';
 
 	my $col   = Matrix([ [1],  [2],  [3] ]);
 	my $prod4 = Matrix([ [14], [32], [50] ]);
-	ok $A*$col == $prod4, 'Multiply a 3 by 3 matrix and a column matrix of length 3';
+	ok $A * $col == $prod4, 'Multiply a 3 by 3 matrix and a column matrix of length 3';
 
 	my $v     = Vector(1,  2,  3);
 	my $prod5 = Vector(14, 32, 50);
-	ok $A*$v == $prod5, 'Multiply a 3 by 3 matrix and a vector of length 3';
+	ok $A * $v == $prod5, 'Multiply a 3 by 3 matrix and a vector of length 3';
 };
 
 subtest 'Construct an elementary matrix' => sub {
@@ -357,8 +599,21 @@ subtest 'Construct an elementary matrix' => sub {
 		'Elementary Matrix with row multiple';
 
 	my $E3 = Value::Matrix->E(4, [ 3, 2 ], -3);
-	is $E3->TeX, Matrix([ [ 1, 0, 0, 0 ], [ 0, 1, 0, 0 ], [ 0, -3, 1, 0 ], [ 0, 0, 0, 1 ] ])->TeX,
+	is $E3->TeX, Matrix([ [ 1, 0, 0, 0 ], [ 0, 1, -3, 0 ], [ 0, 0, 1, 0 ], [ 0, 0, 0, 1 ] ])->TeX,
 		'Elementary Matrix with row multiple and add';
+
+	my $A = Matrix([ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ], [ 13, 14, 15, 16 ] ]);
+	is $A->E([ 1, 4 ])->TeX,
+		Matrix([ [ 0, 0, 0, 1 ], [ 0, 1, 0, 0 ], [ 0, 0, 1, 0 ], [ 1, 0, 0, 0 ] ])->TeX,
+		'Elementary Matrix from syntax $A->E an existing matrix with a row swap';
+
+	is $A->E([2], 5)->TeX,
+		Matrix([ [ 1, 0, 0, 0 ], [ 0, 5, 0, 0 ], [ 0, 0, 1, 0 ], [ 0, 0, 0, 1 ] ])->TeX,
+		'Elementary Matrix from syntax $A->E an existing matrix with a row multiple';
+
+	is $A->E([ 2, 4 ], -4)->TeX,
+		Matrix([ [ 1, 0, 0, 0 ], [ 0, 1, 0, 0 ], [ 0, 0, 1, 0 ], [ 0, -4, 0, 1 ] ])->TeX,
+		'Elementary Matrix from syntax $A->E an existing matrix with a row multiple and add';
 };
 
 subtest 'Extract a slice from a Matrix' => sub {

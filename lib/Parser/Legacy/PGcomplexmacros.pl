@@ -67,7 +67,7 @@ my $number = '([+-]?)(?=\d|\.\d)\d*(\.\d*)?(E([+-]?\d+))?';
  #				functions. The default display method is cartesian, for all methods, but if
  #				the student answer is polar, even in part, then their answer will be displayed
  #				that way.
- #	'strict_polar'		This is still under developement. The idea is to check to make sure that there
+ #	'strict_polar'		This is still under development. The idea is to check to make sure that there
  #				only a single term in front of the e and after it... but the method does not
  #				check to make sure that the i is in the exponent, nor does it handle cases
  #				where the polar has e** coefficients.
@@ -286,7 +286,7 @@ sub original_cplx_cmp {
 	#  error checking, but that was removed in version 1.9 and it had been commented out
 	#  prior to that because it was always producing errors.  This is because $correct_num_answer
 	#  usually is somethine like "1+4i", which will produce a "missing operation before 'i'"
-	#  error, and "1-i" wil produce an "amiguous use of '-i' resolved as '-&i'" message.
+	#  error, and "1-i" will produce an "ambiguous use of '-i' resolved as '-&i'" message.
 	#  You probably need a call to check_syntax and the other filters that are used on
 	#  the student answer first. (Unless the item is already a reference to a Complex,
 	#  in which canse you should just accept it.)
@@ -414,12 +414,12 @@ sub compare_cplx {
  #
  #	Checks a comma separated string of  items against an array of evaluators.
  #	For example this is useful for checking all of the complex roots of an equation.
- #	Each student answer must be evaluated as correct by a DISTINCT answer evalutor.
+ #	Each student answer must be evaluated as correct by a DISTINCT answer evaluator.
  #
  #	This answer checker will only work reliably if each answer checker corresponds
  #	to a distinct correct answer.  For example if one answer checker requires
  #	any positive number, and the second requires the answer 1, then 1,2 might
- #	be judged incorrect since 1, satisifes the first answer checker, but 2 doesn't
+ #	be judged incorrect since 1, satisfies the first answer checker, but 2 doesn't
  #	satisfy the second.  2,1 would work however. Avoid this type of use!!
  #
  #	Including backtracking to fit the answers as best possible to each answer evaluator
@@ -517,7 +517,7 @@ sub cplx_constants {
 
 =cut
 
-# Output is text displaying the complex numver in "e to the i theta" form. The
+# Output is text displaying the complex number in "e to the i theta" form. The
 # formats for the argument theta is determined by the option C<theta_format> and the
 # format for the modulus is determined by the C<r_format> option.
 
@@ -650,8 +650,8 @@ sub is_a_numeric_polar {
 	}
 }
 
-#this subroutine mearly captures what is before and after the "e**" it does not verify that the "i" is there, or in the
-#exponent this must eventually be addresed
+#this subroutine merely captures what is before and after the "e**" it does not verify that the "i" is there, or in the
+#exponent this must eventually be addressed
 sub is_a_polar {
 	my ($num, %options) = @_;
 	my $process_ans_hash = (ref($num) eq 'AnswerHash') ? 1 : 0;
@@ -689,9 +689,9 @@ sub is_a_polar {
 
 =head4 single_term()
 
- #	This subroutine takes in a string, which is a mathematical expresion, and determines whether or not
+ #	This subroutine takes in a string, which is a mathematical expression, and determines whether or not
  #	it is a single term. This is accoplished using a stack. Open parenthesis pluses and minuses are all
- #	added onto the stack, and when a closed parenthesis is reached, the stack is popped untill the open
+ #	added onto the stack, and when a closed parenthesis is reached, the stack is popped until the open
  #	parenthesis is found. If the original was a single term, the stack should be empty after
  #	evaluation. If there is anything left ( + or - ) then false is returned.
  #	Of course, the unary operator "-" must be handled... if it is a unary operator, and not a regular -

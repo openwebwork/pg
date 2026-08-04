@@ -57,7 +57,7 @@ will have the same result as the example above.
 
 # perform a pivot operation
 # lp_pivot([[1,2,3],...,[4,5,6]], row, col, fractionmode)
-# row and col indecies start at 0
+# row and col indices start at 0
 # ^function lp_pivot
 sub lp_pivot {
 	my $a_ref = shift;

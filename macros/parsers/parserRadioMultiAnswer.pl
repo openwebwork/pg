@@ -16,7 +16,7 @@ the problem.  For example:
     $rma = RadioMultiAnswer([
                ['The unique solution is \(x=\) %s and \(y=\) %s.', 5, 6],
                ['There are an infinite number of solutions parameterized by '
-                    . '\(x=\) %s and \(y=\) %s.', '23-3t', 't']
+                    . '\(x=\) %s and \(y=\) %s.', '23-3x', 'x'],
                ['There are no solutions.']
            ], 0);
 
@@ -151,8 +151,14 @@ options to cmp when utilizing PGML.
 
 =item checkTypes (Default: checkTypes => 1)
 
-Whether the types of the student and correct answers must match exactly or just pass the usual
-type-match error checking (in which case, you should check the types before you use the data).
+Specifies whether the types of the student and instructor's answers must match and to what extent.
+if C<< checkTypes => 'compatible' >> then the student answers only need to be compatible with the
+instructor answers in the sense that they parse into objects that can be compared to the instructor
+answers. If C<< checkTypes => 1 >> then the types of the student answers must match the types of the
+instructor answers exactly. Otherwise no type checking is done other than the usual type-match error
+checking (in which case, you should check the types before you use the data). Default: 1.
+Note that if the default checker is used, i.e., if C<checker> is not set, then C<< checkTypes => 1 >>
+is the same as C<< checkTypes => 'compatible' >>.
 
 =item allowBlankAnswers (Default: allowBlankAnswers => 0)
 
@@ -231,6 +237,12 @@ undefined, which means that none of the radio buttons are initially checked.
 If this is set to 1 or "shift" then it is possible to uncheck a radio button by clicking it when it
 is checked.  If this is set to "shift", unchecking requires the shift key to be pressed.
 
+=item showInStatic (Default: showInStatic => 1)
+
+In static output, such as PDF or PTX, this controls whether or not the list of answer options is
+displayed.  (The text preceding the list of answer options might make printing the answer option
+list unnecessary in a static output format.)
+
 =back
 
 =cut
@@ -252,7 +264,6 @@ our @ISA = qw(Value Value::String);
 our $answerPrefix = 'RaDiOMuLtIaNsWeR_';    # answer rule prefix
 
 my @ans_defaults = (
-	checker             => sub {0},
 	showCoordinateHints => 0,
 	showEndpointHints   => 0,
 	showEndTypeHints    => 0
@@ -288,6 +299,7 @@ sub new {
 		size              => undef,
 		checked           => undef,
 		uncheckable       => 0,
+		showInStatic      => 1,
 		@inputs
 	);
 
@@ -341,16 +353,18 @@ sub cmp {
 	}
 
 	unless (ref($self->{checker}) eq 'CODE') {
+		die "Your checker must be a subroutine." if defined $self->{checker};
 		$self->{checker} = sub {
 			my ($correct, $student, $self, $ans) = @_;
 			return 0 if ($correct->[0] != $student->[0]);
 
 			for (0 .. $#{ $correct->[ $correct->[0] ] }) {
-				return 0 if $correct->[ $correct->[0] ][$_] != $student->[ $correct->[0] ][$_];
+				return 0 unless $self->{ans}[ $correct->[0] - 1 ][$_]{score};
 			}
 
 			return 1;
 		};
+		$self->{checkTypes} = 'compatible' if $self->{checkTypes} && $self->{checkTypes} ne 'exact';
 	}
 
 	if ($self->{allowBlankAnswers}) {
@@ -522,13 +536,18 @@ sub perform_check {
 	my ($self, $rh_ans) = @_;
 	my $context = $self->context;
 	$context->clearError;
-	my @correct;
-	my @student;
+
+	my $checkTypes = $self->{checkTypes};
+	$checkTypes = 'equal' if $checkTypes && $checkTypes ne 'compatible';
+
 	# The answers for all parts are sent to the grader.  The answers in the incorrect parts from
 	# the correct answer may be used in the grader.  The answers for each part are in a separate
 	# list.  The radio answer is sent as the numerical index of the choice.  The count starts at
 	# one, so that it is the location in the list sent to the grader of the answers for the
 	# selected part (the radio answer is in position 0).
+	my @correct;
+	my @student;
+
 	push(@correct, $self->{correct} + 1);
 	push(@student, $self->getIndexByValue($main::inputs_ref->{ $self->ANS_NAME(0) }) + 1);
 	my $part_index = 1;
@@ -542,9 +561,13 @@ sub perform_check {
 			next   if $student[0] != $part_index;
 			return if $ans->{ans_message} ne '' || !defined $ans->{student_value};
 			return
-				if ($self->{checkTypes}
-					&& $ans->{student_value}->type ne $ans->{correct_value}->type
-					&& !($self->{allowBlankAnswers} && $ans->{student_ans} !~ m/\S/));
+				if $checkTypes eq 'equal'
+				&& $ans->{student_value}->type ne $ans->{correct_value}->type
+				&& !($self->{allowBlankAnswers} && $ans->{student_ans} !~ m/\S/);
+			return
+				if $checkTypes eq 'compatible'
+				&& !$ans->{correct_value}->typeMatch($ans->{student_value}, $ans)
+				&& !($self->{allowBlankAnswers} && $ans->{student_ans} !~ m/\S/);
 		}
 		push(@correct, [@part_correct]);
 		push(@student, [@part_student]);
@@ -593,6 +616,7 @@ sub ANS_NAME {
 # Produce the label for a part of the radio answer.
 sub label {
 	my ($self, $i) = @_;
+	$self->{originalLabels} //= $self->{labels};
 	return $self->{labels}[$i] if ref($self->{labels}) eq 'ARRAY' && $#{ $self->{labels} } >= $i;
 
 	$self->{labels} = [ @main::ALPHABET[ 0 .. $#{ $self->{data} } ] ] if uc($self->{labels}) eq 'ABC';
@@ -638,6 +662,7 @@ sub generate_aria_label {
 # Produce the answer rule.
 sub ans_rule {
 	my ($self, $size, @options) = @_;
+
 	$size ||= 20;
 	my @data = @{ $self->{data} };
 	my @rules;
@@ -705,18 +730,44 @@ sub ans_rule {
 		push(@rules, $rule);
 	}
 
+	return '' if !$self->{showInStatic} && ($main::displayMode eq 'TeX' || $main::displayMode eq 'PTX');
+
+	my $ptx_list_type = 'ul';
+	my $ptx_sub_type  = ' form="buttons"';
+	if ($main::displayMode eq 'PTX') {
+		# Do we want an ol, ul, or dl?
+		if ($self->{displayLabels}) {
+			my $originalLabels = $self->{originalLabels};
+			if (ref $originalLabels eq 'ARRAY') {
+				$ptx_list_type = 'dl';
+				$ptx_sub_type  = ' width = "narrow"';
+			} elsif ($originalLabels =~ m/^(123|abc)$/i) {
+				my $marker = '';
+				$marker        = '1' if $originalLabels eq '123';
+				$marker        = 'a' if $originalLabels eq 'abc';
+				$marker        = 'A' if uc($originalLabels) eq 'ABC' && $originalLabels ne 'abc';
+				$ptx_list_type = 'ol';
+				$ptx_sub_type  = qq( marker="$marker");
+			}
+		}
+	}
+
 	return main::MODES(
 		TeX  => '\\begin{itemize}',
-		HTML => '<div class="radio-multianswer-container">'
+		HTML => '<div class="radio-multianswer-container">',
+		PTX  => qq(<${ptx_list_type}${ptx_sub_type} name="$radio_name">)
 		)
-		. join(main::MODES(TeX => '\vskip\baselineskip', HTML => main::tag('div', style => 'margin-top:1rem')), @rules)
-		. main::MODES(TeX => '\\end{itemize}', HTML => '</div>');
+		. join(
+			main::MODES(TeX => '\vskip\baselineskip', HTML => main::tag('div', style => 'margin-top:1rem'), PTX => ''),
+			@rules
+		) . main::MODES(TeX => '\\end{itemize}', HTML => '</div>', PTX => "</$ptx_list_type>");
 }
 
 # Format a label.
 sub label_format {
 	my ($self, $label) = @_;
 	return '' unless $self->{displayLabels} && defined $label && $label ne '';
+	return '<title>' . $self->quoteXML($label) . '</title>' if $main::displayMode eq 'PTX';
 	return sprintf($self->{labelFormat}, main::MODES(TeX => $self->quoteTeX($label), HTML => $self->quoteHTML($label)));
 }
 
@@ -733,6 +784,8 @@ sub begin_radio {
 
 	if ($extend) { main::EXTEND_RESPONSE($name, $name, $value, $checked) }
 	else         { $name = main::RECORD_ANS_NAME($name, { $value => $checked }) }
+
+	return '' if !$self->{showInStatic} && ($main::displayMode eq 'TeX' || $main::displayMode eq 'PTX');
 
 	my $idSuffix = $extend ? "_$value" : '';
 
@@ -754,7 +807,7 @@ sub begin_radio {
 				$checked ? (checked => undef) : ()
 			)
 			. main::tag('label', for => "$name$idSuffix", $tag),
-		PTX => "<li>$tag",
+		PTX => ref $self->{originalLabels} eq 'ARRAY' ? "<li>$tag" : '<li>',
 	);
 }
 

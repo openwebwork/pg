@@ -351,7 +351,7 @@ sub cmp {
 	return @answers;
 }
 
-#Match and Select return references to arrays while Multiple justs returns a string
+#Match and Select return references to arrays while Multiple just returns a string
 #so Match and Select use ra_correct_ans while Multiple uses correct_ans
 sub correct_ans {
 	warn "Match and/or Select do not use correct_ans.\nYou should use ra_correct_ans instead.";
@@ -419,7 +419,7 @@ sub getRandoms {
 	my @remaining = complement([ 0 .. $N - 1 ], [@fixed_choices]);
 
 	my @slice = @fixed_choices;
-	push(@slice, @remaining[ $self->NchooseK(scalar(@remaining), $K) ]);    #slice of remaing choices
+	push(@slice, @remaining[ $self->NchooseK(scalar(@remaining), $K) ]);    #slice of remaining choices
 	@slice = @slice[ $self->NchooseK(scalar(@slice), scalar(@slice)) ];     #randomize the slice (the questions)
 
 	#shuffle will be used to randomize the answers a second time (so they don't coincide with the questions)
@@ -454,8 +454,8 @@ sub makeLast {
 
 	push(@{ $self->{selected_a} }, @input);
 	$self->condense();    #make sure that the user has not accidentally forced a duplicate answer
-						  #note: condense was changed to eliminate the first occurence of a duplicate
-						  #instead of the last occurence so that it could be used in this case and
+						  #note: condense was changed to eliminate the first occurrence of a duplicate
+						  #instead of the last occurrence so that it could be used in this case and
 						  #would not negate the fact that one of the answers needs to be at the end
 }
 
@@ -529,7 +529,7 @@ sub condense {
 				}
 
 				#because we just changed the element that $outer points to
-				#we need to run throught the loop to make sure that the new value at $outer has
+				#we need to run through the loop to make sure that the new value at $outer has
 				#no duplicates as well
 				#This means that we don't want to increment either counter (and we need to reset $inner)
 				$repeat = 1;
@@ -575,7 +575,7 @@ sub condense {
 #     my $out = '';
 #     if ( not ref($r_input) ) {
 #     	$out = $r_input;    # not a reference
-#     } elsif ("$r_input" =~/hash/i ) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
+#     } elsif ("$r_input" =~/hash/i ) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_input).
 # 	    local($^W) = 0;
 # 		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";
 # 		foreach my $key (sort keys %$r_input ) {

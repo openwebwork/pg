@@ -164,7 +164,7 @@ sub cplx {
 	my ($re, $im) = @_;
 	return $package->make(defined $re ? $re : 0, defined $im ? $im : 0);
 }
-# cplx adn cplxe changed by MEG
+# cplx and cplxe changed by MEG
 #
 # cplxe
 #

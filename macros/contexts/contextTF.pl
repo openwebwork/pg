@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-contextTF.pl - Imlements contexts for true/false problems.
+contextTF.pl - Implements contexts for true/false problems.
 
 =head1 DESCRIPTION
 

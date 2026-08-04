@@ -130,7 +130,7 @@ sub checkFactors {
 
 sub checkStrict {
 	my $self = shift;
-	$self->Error("You can only use '%s' between coefficents and variables or between factors", $self->{bop});
+	$self->Error("You can only use '%s' between coefficients and variables or between factors", $self->{bop});
 }
 
 ##############################################
@@ -223,7 +223,7 @@ sub cmp_postprocess { }
 ##############################################
 
 package PolynomialFactors;
-our @ISA = ('LimitedPolynomal');
+our @ISA = ('LimitedPolynomial');
 
 sub markFactor {
 	my $self = shift;

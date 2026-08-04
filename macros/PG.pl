@@ -7,7 +7,7 @@ PG.pl - Provides core Program Generation Language functionality.
 
 In a PG problem:
 
-    DOCUMENT();             # should be the first statment in the problem
+    DOCUMENT();             # should be the first statement in the problem
 
     loadMacros(.....);      # (optional) load other macro files if needed.
 
@@ -20,7 +20,7 @@ In a PG problem:
                             # It is defined in PGbasicmacros.pl.
     );
 
-    ANS(answer_evalutors);  # see PGanswermacros.pl for examples of answer evaluatiors.
+    ANS(answer_evaluators); # see PGanswermacros.pl for examples of answer evaluatiors.
 
     ENDDOCUMENT()           # must be the last statement in the problem
 
@@ -111,14 +111,13 @@ initializes variables and defines the problem environment.
 
 sub DOCUMENT {
 	# get environment
-	$rh_envir = \%envir;      #KLUDGE FIXME
-							  # warn "rh_envir is ",ref($rh_envir);
-	$PG       = new PGcore(
-		$rh_envir,            # can add key/value options to modify
-	);
-	$PG->clear_internal_debug_messages;
-	# initialize main:: variables
+	$rh_envir = \%envir;    #KLUDGE FIXME
 
+	$PG = new PGcore(
+		$rh_envir,          # can add key/value options to modify
+	);
+
+	# initialize main:: variables
 	$ANSWER_PREFIX             = $PG->{ANSWER_PREFIX};
 	$QUIZ_PREFIX               = $PG->{QUIZ_PREFIX};
 	$showPartialCorrectAnswers = $PG->{flags}->{showPartialCorrectAnswers};
@@ -398,9 +397,7 @@ sub load_js() {
 }
 
 sub AskSage {
-	my $python  = shift;
-	my $options = shift;
-	WARN_MESSAGE("the second argument to AskSage should be a hash of options") unless $options =~ /HASH/;
+	my ($python, $options) = @_;
 	$PG->AskSage($python, $options);
 }
 
@@ -415,7 +412,7 @@ sub sageReturnedFail {
 
 =head2 NAMED_ANS
 
-Associates answer names with answer evaluators.  If the given anwer name has a
+Associates answer names with answer evaluators.  If the given answer name has a
 response group in the PG_ANSWERS_HASH, then the evaluator is added to that
 response group.  Otherwise the name and evaluator are added to the hash of
 explicitly named answer evaluators.  They will be paired with exlplicitly
@@ -554,7 +551,7 @@ sub persistent_data {
 }
 
 # The store_persistent_data, update_persistent_data, and get_persistent_data methods are deprecated and are only still
-# here for backward compatability. Use the persistent_data method instead which can do everything these three methods
+# here for backward compatibility. Use the persistent_data method instead which can do everything these three methods
 # can do. Note that if you use the persistent_data method, then you will need to join the values as strings if you want
 # that. Even better pass the persistent_data method an array reference containing the values so you can avoid the hassle
 # of splitting the values when they are retrieved.
@@ -620,7 +617,7 @@ sub NEW_ANS_ARRAY_NAME_EXTENSION {
 	}
 	my $ans_label         = $PG->new_ans_name();
 	my $element_ans_label = $PG->new_array_element_label($ans_label, $row_num, $col_num, vec_num => $vecnum);
-	my $response          = new PGresponsegroup($ans_label, $element_ans_label, undef);
+	my $response          = PGresponsegroup->new($ans_label, $element_ans_label, undef);
 	$PG->extend_ans_group($ans_label, $response);
 	return $element_ans_label;
 }
@@ -632,7 +629,7 @@ sub CLEAR_RESPONSES {
 		if (ref($responsegroup)) {
 			$responsegroup->clear;
 		} else {
-			$responsegroup = $PG->{PG_ANSWERS_HASH}{$ans_label}{response} = new PGresponsegroup($label);
+			$responsegroup = $PG->{PG_ANSWERS_HASH}{$ans_label}{response} = PGresponsegroup->new($ans_label);
 		}
 	}
 	return;
@@ -846,8 +843,12 @@ the type of submission.
 
 =item *
 
-C<btnClass>: This is the bootstrap button class added to the feedback button.
-By default it is "btn-info", "btn-success", "btn-danger", or "btn-warning"
+C<btnClass>: This is the button class added to the feedback button. These are
+based on bootstrap button styles, but are custom styles for the feedback
+buttons to allow clients to theme the bootstrap buttons without changing the
+feedback styles. By default it is "btn-preview" (copied from btn-info),
+"btn-correct" (copied from btn-success), "btn-incorrect" (copied from
+btn-danger), or "btn-partially-correct" (copied from btn-warning)
 depending on the status of the answer and the type of submission.
 
 =item *
@@ -994,7 +995,8 @@ sub ENDDOCUMENT {
 
 				if ($ansHash->{correct_value}) {
 					for (keys %{ $ansHash->{correct_value}->context->flag('mathQuillOpts') }) {
-						$mq_part_opts->{$_} = 0 unless defined $mq_part_opts->{$_};
+						$mq_part_opts->{$_} = $ansHash->{correct_value}->context->flag('mathQuillOpts')->{$_}
+							unless defined $mq_part_opts->{$_};
 					}
 				}
 
@@ -1059,7 +1061,7 @@ sub ENDDOCUMENT {
 				my %options = (
 					resultTitle      => maketext('Answer Preview'),
 					resultClass      => '',
-					btnClass         => 'btn-info',
+					btnClass         => 'btn-preview',
 					btnAddClass      => 'ms-2',
 					feedbackElements => Mojo::Collection->new,
 					insertElement    => undef,
@@ -1108,15 +1110,28 @@ sub ENDDOCUMENT {
 					} elsif ($answerScore >= 1) {
 						$options{resultTitle} = maketext('Correct');
 						$options{resultClass} = 'correct';
-						$options{btnClass}    = 'btn-success';
+						$options{btnClass}    = 'btn-correct';
 					} elsif ($answerScore == 0) {
 						$options{resultTitle} = maketext('Incorrect');
 						$options{resultClass} = 'incorrect';
-						$options{btnClass}    = 'btn-danger';
+						$options{btnClass}    = 'btn-incorrect';
 					} else {
 						$options{resultTitle} = maketext('[_1]% correct', round($answerScore * 100));
 						$options{resultClass} = 'partially-correct';
-						$options{btnClass}    = 'btn-warning';
+						$options{btnClass}    = 'btn-partially-correct';
+					}
+				} elsif ($rh_envir->{showAttemptResults} && !$PG->{flags}{showPartialCorrectAnswers}) {
+					# Partially correct feedback is not being shown, but this is not a preview, so make the
+					# feedback look different than a preview. If the problem score is zero, everything is
+					# incorrect, so mark the whole problem as incorrect. Otherwise mark it as unknown correctness.
+					if ($problemResult->{score}) {
+						$options{resultTitle} = maketext('Unknown');
+						$options{resultClass} = 'unknown';
+						$options{btnClass}    = 'btn-partially-correct';
+					} else {
+						$options{resultTitle} = maketext('Incorrect');
+						$options{resultClass} = 'incorrect';
+						$options{btnClass}    = 'btn-incorrect';
 					}
 				}
 
@@ -1490,7 +1505,7 @@ sub ENDDOCUMENT {
 					'',
 					map {
 						'<li>' . knowlLink($_, value => pretty_print($PG->{PG_alias}{resource_list}{$_})) . '</li>'
-					}
+						}
 						sort keys %{ $PG->{PG_alias}{resource_list} }
 					)
 					. '</ul>'
@@ -1781,7 +1796,7 @@ against misspelling an option and is generally what is desired for most filters.
 
 Occasionally one wants to write a filter which accepts a long list of options,
 not all of which are known in advance, but only uses a subset of the options
-provided. In this case, setting C<allow_unkown_options> to 1 prevents the error
+provided. In this case, setting C<allow_unknown_options> to 1 prevents the error
 from being signaled.
 
 =cut

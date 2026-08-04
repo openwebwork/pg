@@ -124,7 +124,7 @@ Usage:
 
     stats_mean(@data);
 
-Computes the artihmetic mean of a list of numbers, data. You may also pass the numbers individually.
+Computes the arithmetic mean of a list of numbers, data. You may also pass the numbers individually.
 
 =cut
 
@@ -284,7 +284,7 @@ Generates N exponentially distributed random numbers with the given parameter, l
 
 sub exprand {    # generate exponentially dist. numbers  Exp(x,lambda)
 				 # exprand(lambda,N,digits)
-				 # Generates N random numbers. The distribution is exponetially
+				 # Generates N random numbers. The distribution is exponentially
 				 # distributed with parameter lambda.  The value of 'digits' gives the
 				 # number of decimal places to return.
 	my ($lambda, $N, $digits) = @_;
@@ -501,7 +501,7 @@ Example:
 This routine will generate num random results. The distribution is in
 the given array.  Each element in the array is itself an array.  The
 first value in the array is the probability.  The second value in the
-array is the value assocated with the probability.
+array is the value associated with the probability.
 
 
 =cut
@@ -511,7 +511,7 @@ sub discreterand {    # generate random, values based on a given table
 					  # Generates num random results. The distribution is in the given array.
 					  # Each element in the array is itself an array.
 					  # The first value in the array is the probability.
-					  # The second value in the array is the value assocated with the probability.
+					  # The second value in the array is the value associated with the probability.
 
 	my $num   = shift;    # Number of values to generate
 	my @table = @_;       # Table of arrays with the probabilities and values.
@@ -1141,14 +1141,14 @@ Usage:
 
     %freq = frequencies(@theData)
 
-Finds the factors in the data set and calculates the frequency of occurance for each factor.
+Finds the factors in the data set and calculates the frequency of occurrence for each factor.
 Returns a hash whose keys are the factors and the associated values are the frequencies.
 
 =cut
 
 sub frequencies {
 	#   %freq = frequencies(@theData)
-	#   returns a hash whos keys are the factors and the associated values are the frequencies.
+	#   returns a hash whose keys are the factors and the associated values are the frequencies.
 
 	# Get the data that is passed to me and put it all in one array.
 	my (@data_list) = @_;

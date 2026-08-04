@@ -15,9 +15,12 @@
 #:% type = Sample
 #:% subject = [statistics, plot]
 #:% categories = [plots]
+#:% see_also = [ScatterPlotStatPlot.pg]
 
 #:% section = preamble
-#: Make sure that PODLINK('plots.pl') is loaded.
+#: This produces a scatter plot with PODLINK('plots.pl').  A version of this
+#: with PODLINK('StatisticalPlots.pl') is available in
+#: PROBLINK('ScatterPlotStatPlot.pg').
 DOCUMENT();
 
 loadMacros(
@@ -34,7 +37,7 @@ loadMacros(
 #: components.
 #:
 #: For the plot, first set up the `Plot` with a plotting window that will
-#: caputure the data. The `add_dataset` method adds the data to the plot
+#: capture the data. The `add_dataset` method adds the data to the plot
 #: with circles and color blue.
 #:
 #: The line is added to the dataset with the `add_function` method.  The 3rd
@@ -70,9 +73,10 @@ $plot->add_function(
 );
 
 #:% section = statement
-#: The data is formatted by putting the array data in a nice format using both
-#: join (which joins an array separated by ', ') and map (which creates a new
-#: array that formats as (x1, y1)).  The [@ @] is used to run perl.
+#: To format the points in the `@data` array in a human-readable manner, these
+#: are first put in "(x, y)" form using the `map` function.  The resulting array
+#: is then concatenated with the `join` command.  Since both map and join are
+#: perl commands, this compound command is placed within a `[@ @]`.
 #:
 #: The `[! !]{}{}` is a PGML format for inserting an image.
 BEGIN_PGML

@@ -217,7 +217,7 @@ checked for. If these strings are found in the argument list, it is assumed that
 
 A reference to an array of filter names, to be applied to both the correct
 answer and the student's answer before doing string comparison. Supported
-filters are listed above. filter is avaliable as a synonym for filters.
+filters are listed above. filter is available as a synonym for filters.
 
 =item debug
 

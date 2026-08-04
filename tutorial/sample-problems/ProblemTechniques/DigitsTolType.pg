@@ -23,7 +23,7 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Several context flags are set for this problem. The meaning of these flags
-#: are decribed in the following list.
+#: are described in the following list.
 #:
 #: * The flag `tolType => 'digits'` switches from the default `'relative'`
 #:   tolerance type to the `'digits'` tolerance type.

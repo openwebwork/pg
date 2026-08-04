@@ -1,4 +1,4 @@
-/* global JXG */
+/* global JXG, MathJax */
 
 'use strict';
 
@@ -14,6 +14,7 @@ window.graphTool = (containerId, options) => {
 		setTimeout(() => window.graphTool(containerId, options), 100);
 		return;
 	}
+	gt.graphContainer.role = 'application';
 
 	// Semantic color control
 	gt.color = {
@@ -39,7 +40,7 @@ window.graphTool = (containerId, options) => {
 		underConstructionFixed: JXG.palette.red // defined to be '#d55e00'
 	};
 
-	gt.definingPointAttributes = {
+	gt.definingPointAttributes = () => ({
 		size: 3,
 		fixed: false,
 		highlight: true,
@@ -49,8 +50,9 @@ window.graphTool = (containerId, options) => {
 		fillColor: gt.color.point,
 		highlightStrokeWidth: 1,
 		highlightStrokeColor: gt.color.focusCurve,
-		highlightFillColor: gt.color.pointHighlight
-	};
+		highlightFillColor: gt.color.pointHighlight,
+		tabindex: gt.isStatic ? -1 : 0
+	});
 
 	gt.options = options;
 	gt.snapSizeX = options.snapSizeX ? options.snapSizeX : 1;
@@ -69,7 +71,6 @@ window.graphTool = (containerId, options) => {
 	if ('htmlInputId' in options) gt.html_input = document.getElementById(options.htmlInputId);
 	const cfgOptions = {
 		title: 'WeBWorK Graph Tool',
-		description: options.ariaDescription ?? 'Interactively graph objects',
 		showCopyright: false,
 		pan: { enabled: false },
 		zoom: { enabled: false },
@@ -95,9 +96,11 @@ window.graphTool = (containerId, options) => {
 			lastArrow: { size: 7 },
 			straightFirst: false,
 			straightLast: false,
-			fixed: true
+			fixed: true,
+			tabindex: '',
+			aria: { enabled: true, hidden: true, live: 'off' }
 		},
-		grid: { majorStep: [gt.snapSizeX, gt.snapSizeY] },
+		grid: { majorStep: [gt.snapSizeX, gt.snapSizeY], aria: { enabled: true, hidden: true, live: 'off' } },
 		keyboard: {
 			enabled: true,
 			dx: gt.snapSizeX,
@@ -116,6 +119,14 @@ window.graphTool = (containerId, options) => {
 
 	const setupBoard = () => {
 		gt.board = JXG.JSXGraph.initBoard(`${containerId}_graph`, cfgOptions);
+
+		const descriptionSpan = document.createElement('span');
+		descriptionSpan.id = `${containerId}_description`;
+		descriptionSpan.classList.add('visually-hidden');
+		descriptionSpan.textContent = options.ariaDescription ?? 'Interactively graph objects';
+		gt.board.containerObj.after(descriptionSpan);
+		gt.board.containerObj.setAttribute('aria-describedby', descriptionSpan.id);
+
 		gt.board.suspendUpdate();
 
 		// Move the axes defining points to the end so that the arrows go to the board edges.
@@ -198,7 +209,7 @@ window.graphTool = (containerId, options) => {
 			}
 
 			if (this.visProp.useunicodeminus) labelText = labelText.replace(/-/g, '\u2212');
-			return addTeXDelims ?? this.visProp.label.usemathjax ? `\\(${labelText}\\)` : labelText;
+			return (addTeXDelims ?? this.visProp.label.usemathjax) ? `\\(${labelText}\\)` : labelText;
 		};
 
 		gt.board.defaultAxes.x.defaultTicks.generateLabelText = generateLabelText;
@@ -453,10 +464,10 @@ window.graphTool = (containerId, options) => {
 				} else if (e.key === 'Escape' && gt.activeTool !== gt.selectTool) {
 					// Escape deactivates any active tool except the select tool.
 					gt.selectTool.activate();
-				} else if (e.key === 'Delete' && e.ctrlKey) {
+				} else if ((e.key === 'Delete' || e.key === 'Backspace') && e.ctrlKey) {
 					// If the Ctrl-Delete is pressed, then ask to delete all objects.
 					gt.clearAll();
-				} else if (e.key === 'Delete' && gt.activeTool === gt.selectTool) {
+				} else if ((e.key === 'Delete' || e.key === 'Backspace') && gt.activeTool === gt.selectTool) {
 					// If the select tool is active and Delete is pressed, then ask to delete the selected object.
 					gt.deleteSelected();
 				}
@@ -584,11 +595,7 @@ window.graphTool = (containerId, options) => {
 						newContent.classList.add('gt-message-content');
 						setTimeout(() => newContent.classList.add('gt-message-content', 'gt-message-fade'));
 
-						if (window.MathJax) {
-							MathJax.startup.promise = MathJax.startup.promise.then(() =>
-								MathJax.typesetPromise([newContent])
-							);
-						}
+						if (window.MathJax) MathJax.typesetPromise?.([newContent]);
 					}
 
 					resolve();
@@ -596,15 +603,20 @@ window.graphTool = (containerId, options) => {
 			}, 100);
 		});
 
+	let currentContent = '';
+
 	gt.setMessageText = (content) => {
 		if (gt.confirmationActive || !gt.helpEnabled) return;
 
 		const newMessage = content instanceof Array ? content.join(' ') : content;
 		if (newMessage) {
+			if (currentContent === newMessage) return;
+			currentContent = newMessage;
 			const par = document.createElement('p');
 			par.textContent = newMessage;
 			gt.setMessageContent(par);
 		} else {
+			currentContent = '';
 			gt.setMessageContent();
 		}
 	};
@@ -661,6 +673,14 @@ window.graphTool = (containerId, options) => {
 	};
 
 	gt.pointRegexp = /\( *(-?[0-9]*(?:\.[0-9]*)?), *(-?[0-9]*(?:\.[0-9]*)?) *\)/g;
+
+	gt.pointAria = {
+		enabled: true,
+		label: (p) => `point at ${p.X()}, ${p.Y()}`,
+		roledescription: 'point',
+		live: 'assertive',
+		atomic: true
+	};
 
 	// This returns true if the points p1, p2, and p3 are colinear.
 	// Note that p1 must be an array of two numbers, and p2 and p3 must be JSXGraph points.
@@ -798,7 +818,8 @@ window.graphTool = (containerId, options) => {
 		const point = gt.board.create('point', [gt.snapRound(x, gt.snapSizeX), gt.snapRound(y, gt.snapSizeY)], {
 			snapSizeX: gt.snapSizeX,
 			snapSizeY: gt.snapSizeY,
-			...gt.definingPointAttributes
+			aria: gt.pointAria,
+			...gt.definingPointAttributes()
 		});
 		point.setAttribute({ snapToGrid: true });
 		if (!gt.isStatic) {
@@ -1399,12 +1420,8 @@ window.graphTool = (containerId, options) => {
 		helpText() {
 			return (gt.selectedObj && gt.selectedObj.supportsSolidDash) ||
 				(gt.activeTool && gt.activeTool.supportsSolidDash)
-				? 'Use the ' +
-						'\\(\\rule[3px]{34px}{2px}\\) or ' +
-						'\\(\\rule[3px]{3px}{2px}' +
-						'\\hspace{4px}\\rule[3px]{4px}{2px}'.repeat(3) +
-						'\\hspace{4px}\\rule[3px]{3px}{2px}\\)' +
-						' button or type s or d to make the selected object solid or dashed.'
+				? 'Use the solid line or dashed line buttons or type s or d to ' +
+						'make the selected object solid or dashed.'
 				: '';
 		}
 	}

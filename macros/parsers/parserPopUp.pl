@@ -17,11 +17,11 @@ To create a PopUp, DropDown, or DropDownTF  object, use
     $truefalse = DropDownTF(correct, options);
 
 where "choices" are the items in the drop-down list, "correct" is the
-the correct answer for the group (or its index, with 0 being the
-first one), and options are chosen from among those listed below.  If
-the correct answer is a number, it is interpreted as an index, even
-if the array of choices are also numbers.  (See the C<noindex> below
-for more details.)
+correct answer for the group (or its index, with 0 being the first
+one), and options are chosen from among those listed below.  If the
+correct answer is a number, it is interpreted as an index, even if the
+array of choices are also numbers.  (See the C<noindex> below for more
+details.)
 
 Note that drop-down menus cannot contain mathematical notation, only
 plain text. This is because the browser's native menus are used, and

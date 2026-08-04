@@ -49,10 +49,10 @@ pronouns and verb conjugation.  It can be used within a problem as
 
 Depending on the he/she/they pronoun, the methods C<they>, C<them>, C<their> and
 C<theirs> (with or without capitalization) will select the correct subject, object,
-possession, possesive forms of the pronoun.  Also, note that C<go> is one of a
+possession, possessive forms of the pronoun.  Also, note that C<go> is one of a
 few special verbs with irregular conjugation.
 
-If you would like multiple people to be randomly choosen with unique names, use
+If you would like multiple people to be randomly chosen with unique names, use
 
     @persons = randomPerson(n => 4);
 

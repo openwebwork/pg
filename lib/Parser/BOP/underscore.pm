@@ -48,7 +48,7 @@ sub _eval {
 
 #
 #  If the right-hand side is constant and the left is a list
-#    extact the given coordinate(s).  Return empty lists
+#    extract the given coordinate(s).  Return empty lists
 #    if we run past the end of the coordinates.  Return
 #    a simpler extraction if a portion of the extraction
 #    can be performed.

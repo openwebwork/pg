@@ -58,7 +58,7 @@ See F<PGbasicmacros> for definitions of C<image> and C<caption>
 #   $graph = init_statistics_graph(axes=>[0,0.0],ticks=>[10]);
 #   $bounds = add_boxplot($graph,{"outliers"=>1});
 #   # or #
-#   $bounds = add_histogram($graph,10,1);  # add a histogram with 10 bins and a multipler of 1.
+#   $bounds = add_histogram($graph,10,1);  # add a histogram with 10 bins and a multiplier of 1.
 #                                          # The multiplier is for the height of the frequencies.
 #                                          # ex: if the multiplier is 2 the graph is twice as tall
 #

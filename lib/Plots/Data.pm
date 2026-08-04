@@ -66,7 +66,7 @@ stored in the C<< $data->{function} >> hash, though other data is stored as a st
     );
 
 Note, the first argument must be $self->context when called from C<Plots::Plot>
-to use a single context for all C<Plost::Data> objects.
+to use a single context for all C<Plots::Data> objects.
 
 This is also used to set a two variable function (used for slope or vector fields):
 
@@ -116,7 +116,7 @@ Takes a MathObject C<$formula> and replaces the function with either
 a JavaScript or PGF function string. If the function contains any function
 tokens not supported, a warning and empty string is returned.
 
-    $formula   The mathobject formula object, either $self->{function}{Fx} or $self->{function}{Fy}.
+    $formula   The MathObject formula object, either $self->{function}{Fx} or $self->{function}{Fy}.
     $type      'js' or 'PGF' (falls back to js for any input except 'PGF').
     $xvar      The x-variable name, $self->{function}{xvar}.
     $yvar      The y-variable name, $self->{function}{yvar}, for vector fields.
@@ -217,13 +217,11 @@ sub set_function {
 	};
 	for my $key ('Fx', 'Fy', 'xvar', 'yvar', 'xmin', 'xmax', 'ymin', 'ymax', 'xsteps', 'ysteps') {
 		next unless defined $options{$key};
-		$f->{$key} = $options{$key};
-		delete $options{$key};
+		$f->{$key} = delete $options{$key};
 	}
 	for my $key ('var', 'min', 'max', 'steps') {
 		next unless defined $options{$key};
-		$f->{"x$key"} = $options{$key};
-		delete $options{$key};
+		$f->{"x$key"} = delete $options{$key};
 	}
 	return unless $f->{Fy} ne '';
 
@@ -257,13 +255,15 @@ sub function_string {
 
 	# Ensure -x^2 gets print as -(x^2), since JavaScript finds this ambiguous.
 	my $extraParens = $formula->context->flag('showExtraParens');
-	my $format      = $formula->context->{format}{number};
-	$formula->context->flags->set(showExtraParens => 2);
+	# Ensure that abs(x) is stringified as abs(x) instead of |x|.
+	my $stringifyAbsAsFunction = $formula->context->flag('stringifyAbsAsFunction');
+	my $format                 = $formula->context->{format}{number};
+	$formula->context->flags->set(showExtraParens => 2, stringifyAbsAsFunction => 1);
 	$formula->context->{format}{number} = "%f#";
 	# Get no bracket string for $formula
 	my $func = $formula . "";
 	$func =~ s/\s//g;
-	$formula->context->flags->set(showExtraParens => $extraParens);
+	$formula->context->flags->set(showExtraParens => $extraParens, stringifyAbsAsFunction => $stringifyAbsAsFunction);
 	$formula->context->{format}{number} = $format;
 
 	my %tokens;
@@ -318,8 +318,8 @@ sub function_string {
 			ceil    => 'Math.ceil',
 			sign    => 'Math.sign',
 			int     => 'Math.trunc',
-			log     => 'Math.ln',
-			ln      => 'Math.ln',
+			log     => 'Math.log',
+			ln      => 'Math.log',
 			cos     => 'Math.cos',
 			sin     => 'Math.sin',
 			tan     => 'Math.tan',
@@ -334,11 +334,11 @@ sub function_string {
 			sinh    => 'Math.sinh',
 			tanh    => 'Math.tanh',
 			acosh   => 'Math.acosh',
-			arccosh => 'Math.arccosh',
+			arccosh => 'Math.acosh',
 			asinh   => 'Math.asinh',
 			arcsinh => 'Math.asinh',
 			atanh   => 'Math.atanh',
-			arctanh => 'Math.arctanh',
+			arctanh => 'Math.atanh',
 			min     => 'Math.min',
 			max     => 'Math.max',
 			random  => 'Math.random',

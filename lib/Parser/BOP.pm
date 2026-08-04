@@ -60,7 +60,7 @@ sub _check { }
 ##################################################
 
 #
-#  Evaluate the left and right operands and peform the
+#  Evaluate the left and right operands and perform the
 #  required operation on the results.
 #
 sub eval {

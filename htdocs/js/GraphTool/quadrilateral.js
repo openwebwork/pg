@@ -12,7 +12,7 @@
 
 				constructor(point1, point2, point3, point4, solid) {
 					for (const point of [point1, point2, point3, point4]) {
-						point.setAttribute(gt.definingPointAttributes);
+						point.setAttribute(gt.definingPointAttributes());
 						if (!gt.isStatic) {
 							point.on('down', () => gt.onPointDown(point));
 							point.on('up', () => gt.onPointUp(point));
@@ -94,7 +94,7 @@
 					return -1;
 				}
 
-				onBoundary(point, aVal, _from) {
+				onBoundary(point, aVal) {
 					if (this.fillCmp(point) != aVal) return true;
 
 					for (const border of this.baseObj.borders) {
@@ -284,7 +284,9 @@
 							size: 2,
 							snapSizeX: gt.snapSizeX,
 							snapSizeY: gt.snapSizeY,
-							withLabel: false
+							withLabel: false,
+							tabindex: '',
+							aria: gt.pointAria
 						}
 					);
 					point.setAttribute({ snapToGrid: true });
@@ -344,7 +346,9 @@
 						highlight: false,
 						snapToGrid: true,
 						snapSizeX: gt.snapSizeX,
-						snapSizeY: gt.snapSizeY
+						snapSizeY: gt.snapSizeY,
+						tabindex: '',
+						aria: gt.pointAria
 					});
 					this.point1.setAttribute({ fixed: true });
 
@@ -439,7 +443,7 @@
 						if (count == 0) {
 							if (vDir != 0) ++times;
 							count = times;
-							[hDir, vDir] = [!!hDir ? 0 : -vDir, !!vDir ? 0 : hDir];
+							[hDir, vDir] = [hDir ? 0 : -vDir, vDir ? 0 : hDir];
 						}
 						newX += hDir * gt.snapSizeX;
 						newY += vDir * gt.snapSizeY;
@@ -544,7 +548,9 @@
 							highlight: false,
 							snapSizeX: gt.snapSizeX,
 							snapSizeY: gt.snapSizeY,
-							withLabel: false
+							withLabel: false,
+							tabindex: 0,
+							aria: gt.pointAria
 						});
 						this.hlObjs.hl_point.rendNode.focus();
 					}
@@ -584,7 +590,18 @@
 							highlight: false,
 							dash: gt.drawSolid ? 0 : 2,
 							straightFirst: false,
-							straightLast: false
+							straightLast: false,
+							tabindex: '',
+							aria: {
+								enabled: true,
+								label: (l) =>
+									(l.getAttribute('dash') == 0 ? 'solid' : 'dashed') +
+									` line segment between ${l.point1.X()}, ${l.point1.Y()} ` +
+									`and ${l.point2.X()}, ${l.point2.Y()}`,
+								roledescription: 'line',
+								live: 'assertive',
+								atomic: true
+							}
 						});
 					}
 

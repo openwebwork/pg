@@ -21,7 +21,7 @@ subtest 'Check fundamental units' => sub {
 			degF   => 0,
 			K      => 0,
 			mol    => 0,
-			amp    => 0,
+			A      => 0,
 			cd     => 0,
 		},
 		'Fundamental units correct'; # or bail_out('Evaluating units doomed to failure if fundamental_units is borked');
@@ -46,23 +46,21 @@ subtest 'Check fundamental units' => sub {
 subtest 'Check base units' => sub {
 	is { evaluate_units('kg') },  in_base_units(kg => 1, factor => 1), 'kilogram';
 	is { evaluate_units('N') },   in_base_units(kg => 1, m => 1, s => -2, factor => 1), 'Newton';
-	is { evaluate_units('C') },   in_base_units(amp => 1, s => 1, factor => 1), 'Coulomb';
-	is { evaluate_units('V') },   in_base_units(amp => -1, s => -3, kg => 1, m => 2, factor => 1), 'Volt';
+	is { evaluate_units('C') },   in_base_units(A => 1, s => 1, factor => 1), 'Coulomb';
+	is { evaluate_units('V') },   in_base_units(A => -1, s => -3, kg => 1, m => 2, factor => 1), 'Volt';
 	is { evaluate_units('J*s') }, in_base_units(kg => 1, m => 2, s => -1, factor => 1), 'Joule-seconds';
 
-	is { evaluate_units('V/m') },
-		in_base_units(kg => 1, m => 1, s => -3, amp => -1, factor => 1),
-		'Volts per metre';
+	is { evaluate_units('V/m') }, in_base_units(kg => 1, m => 1, s => -3, A => -1, factor => 1), 'Volts per metre';
 	is { evaluate_units('N/C') },
-		in_base_units(kg => 1, m => 1, s => -3, amp => -1, factor => 1),
+		in_base_units(kg => 1, m => 1, s => -3, A => -1, factor => 1),
 		'Newtons per Coulomb';
 };
 
 subtest 'Check equivalent electrical units' => sub {
-	is { evaluate_units('N/C') }, { evaluate_units('V/m') },       'N/C = V/m';
-	is { evaluate_units('C/N') }, { evaluate_units('m/V') },       'C/N = m/V';
-	is { evaluate_units('N/C') }, { evaluate_units('J/amp*m*s') }, 'N/C = J/amp*m*s';
-	is { evaluate_units('V/m') }, { evaluate_units('N/C') },       'V/m = N/C';
+	is { evaluate_units('N/C') }, { evaluate_units('V/m') },     'N/C = V/m';
+	is { evaluate_units('C/N') }, { evaluate_units('m/V') },     'C/N = m/V';
+	is { evaluate_units('N/C') }, { evaluate_units('J/A*m*s') }, 'N/C = J/A*m*s';
+	is { evaluate_units('V/m') }, { evaluate_units('N/C') },     'V/m = N/C';
 };
 
 subtest 'Check electrical units' => sub {

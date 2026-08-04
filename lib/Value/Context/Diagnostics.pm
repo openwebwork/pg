@@ -29,9 +29,8 @@ sub new {
 		graphs => {
 			divisions => 75,
 			limits    => undef,
-			size      => 250,
+			size      => 350,
 			grid      => [ 10, 10 ],
-			axes      => [ 0,  0 ],
 		},
 		@_,
 	);

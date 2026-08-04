@@ -6,7 +6,7 @@ no strict "refs";
 BEGIN {
 	#
 	#  Map class names to packages (added to Context, and
-	#  can be overriden to customize the parser)
+	#  can be overridden to customize the parser)
 	#
 	our $class = { Formula => 'Value::Formula' };
 
@@ -191,7 +191,7 @@ sub push { push(@{ (shift)->{stack} }, @_) }
 sub state { (shift)->top->{type} }
 
 #
-#  Report an error at a given possition (if possible)
+#  Report an error at a given position (if possible)
 #
 sub Error {
 	my $self    = shift;
@@ -274,7 +274,7 @@ sub pushBlankOperand {
 #          Apply it to the top operand
 #        Otherwise (binary operator)
 #          Convert the space operator to explicit multiplication
-#          Save the opertor on the stack
+#          Save the operator on the stack
 #      Otherwise, (top is not an operand)
 #        If the operator is an explicit one or the top is a function
 #          Call Op again to report the error, or to apply
@@ -713,7 +713,7 @@ sub eval {
 
 ##################################################
 #
-#  Removes redundent items (like x+-y, 0+x and 1*x, etc)
+#  Removes redundant items (like x+-y, 0+x and 1*x, etc)
 #  using the provided flags
 #
 sub reduce {

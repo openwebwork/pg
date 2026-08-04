@@ -30,7 +30,7 @@ use strict;
 sub saveAnswerToFile {
 	my $logFileID = shift;
 	my $string    = shift;
-	# We want to allow acces only to predetermined files
+	# We want to allow access only to predetermined files
 	# We accomplish this by translating legal IDs into a file name
 
 	my $rh_allowableFiles = {

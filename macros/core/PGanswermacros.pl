@@ -116,7 +116,7 @@ show a typeset view on the answer on the preview page. For a student answer of
 
 BEGIN { strict->import; }
 
-# Until we get the PG cacheing business sorted out, we need to use
+# Until we get the PG caching business sorted out, we need to use
 # PG_restricted_eval to get the correct values for some(?) PG environment
 # variables. We do this once here and place the values in lexicals for later
 # access.
@@ -222,7 +222,7 @@ sub get_var_array {
 }
 
 ## Internal routine that converts limits into the standard array of arrays format
-##	Some of the cases are probably unneccessary, but better safe than sorry
+##	Some of the cases are probably unnecessary, but better safe than sorry
 ##
 ## IN:	one of the following:
 ##			an undefined value (i.e., no limits were specified)
@@ -463,7 +463,7 @@ sub std_num_filter {
 
 Assumes the {student_ans} field is a numerical  array, and applies BOTH check_syntax and std_num_filter
 to each element of the array.  Does it's best to generate sensible error messages for syntax errors.
-A typical error message displayed in {studnet_ans} might be ( 56, error message, -4).
+A typical error message displayed in {student_ans} might be ( 56, error message, -4).
 
 =cut
 
@@ -615,7 +615,7 @@ sub is_zero_array {
 		'stdin'        => 'ra_differences',
 		'stdout'       => 'score',
 	);
-	#intialize
+	#initialize
 	$rh_ans->{_filter_name} = $options{_filter_name};
 
 	my $array = $rh_ans->{ $options{stdin} };    # default ra_differences
@@ -660,7 +660,7 @@ The parameters for the comparison function which best approximates the test_func
 in the field {ra_parameters}.
 
 
-The last $dim_of_parms_space variables are assumed to be parameters, and it is also
+The last $dim_of_params_space variables are assumed to be parameters, and it is also
 assumed that the function \&comparison_fun
 depends linearly on these variables.  This function finds the  values for these parameters which minimizes the
 Euclidean distance (L2 distance) between the test function and the comparison function and the test points specified
@@ -697,11 +697,11 @@ sub best_approx_parameters {
 	my %options = @_;
 	set_default_options(
 		\%options,
-		'_filter_name'          => 'best_approx_paramters',
+		'_filter_name'          => 'best_approx_parameters',
 		'allow_unknown_options' => 1,
 	);
 	my $errors = undef;
-	# This subroutine for the determining the coefficents of the parameters at a given point
+	# This subroutine for the determining the coefficients of the parameters at a given point
 	# is pretty specialized, so it is included here as a sub-subroutine.
 	my $determine_param_coeffs = sub {
 		my ($rf_fun, $ra_variables, $dim_of_params_space, %options) = @_;
@@ -1110,7 +1110,7 @@ sub phase_pi {
 	$rh_ans;
 }
 
-=head4 C<is_an_arithemetic_expression>
+=head4 C<is_an_arithmetic_expression>
 
 =cut
 
@@ -1297,7 +1297,7 @@ sub check_strings {
 
 # OVERVIEW of reminder of function:
 # if answer is correct, return correct.  (adjust score to 1)
-# if answer is incorect:
+# if answer is incorrect:
 #	1) determine if the answer is sensible.  if it is, return incorrect.
 #	2) if the answer is not sensible (and incorrect), then return an error message indicating so.
 # no matter what:  throw a 'STRING' error to skip numerical evaluations.  (error flag skips remainder of pre_filters and evaluators)
@@ -1638,8 +1638,6 @@ sub avg_problem_grader {
 
 	my %problem_result = (score => 0, errors => '', type => 'avg_problem_grader', msg => '');
 
-	$problem_result{msg} = maketext('You can earn partial credit on this problem.') if keys %$answers > 1;
-
 	# Return unless answers have been submitted.
 	return (\%problem_result, $problem_state) unless $form_options{answers_submitted} == 1;
 
@@ -1724,7 +1722,7 @@ This can be very useful for printing out messages about objects while debugging
 #     if ( not ref($r_input) ) {
 #     	$out = $r_input if defined $r_input;    # not a reference
 #     	$out =~ s/</&lt;/g  ;  # protect for HTML output
-#     } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_iput).
+#     } elsif ("$r_input" =~/hash/i) {  # this will pick up objects whose '$self' is hash and so works better than ref($r_input).
 # 	    local($^W) = 0;
 #
 # 		$out .= "$r_input " ."<TABLE border = \"2\" cellpadding = \"3\" BGCOLOR = \"#FFFFFF\">";

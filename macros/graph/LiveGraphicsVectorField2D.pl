@@ -83,7 +83,7 @@ Color of vectors shown in the slope field.
 
 =item C<< vectorscale => 0.2 >>
 
-Multiplier that determines the lentgh of vectors shown in the slope field.
+Multiplier that determines the length of vectors shown in the slope field.
 
 =item C<< vectorthickness => 0.001 >>
 

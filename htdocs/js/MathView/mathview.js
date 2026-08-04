@@ -212,7 +212,10 @@
 
 			this.button.addEventListener('show.bs.popover', () => {
 				this.regenPreview();
-				MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise(['.popover']));
+			});
+
+			this.button.addEventListener('inserted.bs.popover', () => {
+				MathJax.typesetPromise?.([this.popover.tip]);
 			});
 
 			// Refresh math in the popover when there is a keyup in the input.
@@ -283,7 +286,7 @@
 			if (this.renderingMode === 'LATEX') this.mviewer.textContent = `\\(${text}\\)`;
 			else this.mviewer.textContent = `\`${text}\``;
 
-			MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise([this.mviewer]));
+			MathJax.typesetPromise?.([this.mviewer]);
 		}
 
 		// Create a category from the locale js.  Each category is implemented using bootstraps tab feature.  The
@@ -410,7 +413,12 @@
 					if (node.dataset.mvInitialized === 'true') continue;
 
 					if (node.classList.contains('codeshard')) new MathViewer(node);
-					else node.querySelectorAll('.codeshard').forEach((input) => new MathViewer(input));
+					else {
+						for (const input of node.querySelectorAll('.codeshard')) {
+							if (input.dataset.mvInitialized === 'true') continue;
+							new MathViewer(input);
+						}
+					}
 					if (node.classList.contains('latexentryfield'))
 						new MathViewer(node, {
 							renderingMode: 'LATEX',
@@ -418,14 +426,14 @@
 							includeDelimiters: true
 						});
 					else
-						node.querySelectorAll('.latexentryfield').forEach(
-							(input) =>
-								new MathViewer(input, {
-									renderingMode: 'LATEX',
-									decoratedTextBoxAsInput: false,
-									includeDelimiters: true
-								})
-						);
+						for (const input of node.querySelectorAll('.latexentryfield')) {
+							if (input.dataset.mvInitialized === 'true') continue;
+							new MathViewer(input, {
+								renderingMode: 'LATEX',
+								decoratedTextBoxAsInput: false,
+								includeDelimiters: true
+							});
+						}
 				}
 			}
 		}

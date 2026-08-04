@@ -250,8 +250,8 @@ sub add ($self, $string, $mode = 'inline') {
 	# Determine what the image's "number" is.
 	if ($useCache) {
 		$imageNum            = $self->{equationCache}->lookup($realString);
-		$aligntag            = 'MaRkEr' . $imageNum if $self->{useMarkers};
-		$depths->{$imageNum} = 'none'               if $self->{store_depths};
+		$aligntag            = qq{data-imagegen-alignment-marker="$imageNum"} if $self->{useMarkers};
+		$depths->{$imageNum} = 'none'                                         if $self->{store_depths};
 		# Insert a slash after 2 characters.  This effectively divides the images into 16^2 = 256 subdirectories.
 		substr($imageNum, 2, 0) = '/';
 	} else {
@@ -461,11 +461,16 @@ sub fix_markers ($self) {
 
 	my %depths = %{ $self->{depths} };
 	for my $depthkey (keys %depths) {
+		# The data-imagegen-alignment-marker value may be quoted with double quotes or with &quot; if the image is
+		# inside another HTML element attribute (such as for images in the feedback button).  So both quote types need
+		# to be checked, and the replaced style attribute needs to use the same quoting that it comes in with.
 		if ($depths{$depthkey} eq 'none') {
-			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align:$self->{dvipng_align}"/g;
+			${ $self->{body_text} } =~
+				s/data-imagegen-alignment-marker=("|&quot;)$depthkey\1/style=$1vertical-align:$self->{dvipng_align}$1/g;
 		} else {
 			my $ndepth = 0 - $depths{$depthkey};
-			${ $self->{body_text} } =~ s/MaRkEr$depthkey/style="vertical-align:${ndepth}px"/g;
+			${ $self->{body_text} } =~
+				s/data-imagegen-alignment-marker=("|&quot;)$depthkey\1/style=$1vertical-align:${ndepth}px$1/g;
 		}
 	}
 	return;

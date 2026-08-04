@@ -48,7 +48,7 @@ recommended that you use the MathObjects cmp() methods directly if possible.
 
 BEGIN { strict->import; }
 
-# Until we get the PG cacheing business sorted out, we need to use
+# Until we get the PG caching business sorted out, we need to use
 # PG_restricted_eval to get the correct values for some(?) PG environment
 # variables. We do this once here and place the values in lexicals for later
 # access.
@@ -135,7 +135,7 @@ formatting syntax is the same as Perl uses for the sprintf() function. Format
 strings are of the form '%m.nx' or '%m.nx#', where m and n are described below,
 and x is a formatter.
 
-Esentially, m is the minimum length of the field (make this negative to
+Essentially, m is the minimum length of the field (make this negative to
 left-justify). Note that the decimal point counts as a character when
 determining the field width. If m begins with a zero, the number will be padded
 with zeros instead of spaces to fit the field.
@@ -189,7 +189,7 @@ correct when
 
     abs(studentAnswer - correctAnswer) <= abs(.01*relTol*correctAnswer)
 
-tol and relTol are mutually exclusive. reltol is also accpeted as a synonym for
+tol and relTol are mutually exclusive. reltol is also accepted as a synonym for
 relTol.
 
 =item zeroLevel, zeroLevelTol
@@ -257,7 +257,7 @@ sub num_cmp {
 	my %out_options;
 
 #########################################################################
-	# Retain this first check for backword compatibility.  Allows input of the form
+	# Retain this first check for backward compatibility.  Allows input of the form
 	# num_cmp($ans, 1, '%0.5f') but warns against it
 #########################################################################
 	my %known_options = (
@@ -419,7 +419,7 @@ sub num_cmp {
 	return (wantarray) ? @output_list : $output_list[0];
 }
 
-#legacy code for compatability purposes
+#legacy code for compatibility purposes
 sub num_rel_cmp {    # compare numbers
 	std_num_cmp(@_);
 }
@@ -427,7 +427,7 @@ sub num_rel_cmp {    # compare numbers
 =head1 "mode"_num_cmp() functions
 
 There are 16 functions that provide simplified interfaces to num_cmp(). They are
-organized into four groups, based on the number of answers accpeted (single or
+organized into four groups, based on the number of answers accepted (single or
 list) and whether relative or absolute tolerances are used. Each group contains
 four functions, one for each evaluation mode. See the mode option to num_cmp()
 above for details about each mode.
@@ -463,7 +463,7 @@ to num_cmp(), above.
     ANS(frac_num_cmp_list($relTol, $format, @answerList));
 
 This group of functions produces answer evaluators for a list of correct answers
-using relative tolerances. $relTol and $format are equivelent to the
+using relative tolerances. $relTol and $format are equivalent to the
 identically-named options to num_cmp() above. @answerList must contain one or
 more correct answers. A list of answer evaluators is returned, one for each
 answer provided in @answerList. All answer returned evaluators will use the
@@ -489,7 +489,7 @@ to num_cmp(), above.
     ANS(frac_num_cmp_abs_list($absTol, $format, @answerList));
 
 This group of functions produces answer evaluators for a list of correct answers
-using absolute tolerances. $absTol and $format are equivelent to the
+using absolute tolerances. $absTol and $format are equivalent to the
 identically-named options to num_cmp() above. @answerList must contain one or
 more correct answers. A list of answer evaluators is returned, one for each
 answer provided in @answerList. All answer returned evaluators will use the
@@ -929,7 +929,7 @@ This function is deprecated. Use num_cmp with the units option instead:
 ##			zeroLevel	--	if the correct answer is this close to zero, then zeroLevelTol applies
 ##			zeroLevelTol	--	absolute tolerance to allow when correct answer is close to zero
 
-# This mode is depricated.  send input through num_cmp -- it can handle units.
+# This mode is deprecated.  send input through num_cmp -- it can handle units.
 
 sub numerical_compare_with_units {
 	my $correct_answer = shift;    # the answer is a string which	includes both the numerical answer and the units.
@@ -994,7 +994,7 @@ sub NUM_CMP {    # low level numeric compare (now uses Parser)
 		if $correctAnswer =~ m/e/ && Value::isNumber($correctAnswer);
 
 	#
-	#  Get an apppropriate context based on the mode
+	#  Get an appropriate context based on the mode
 	#
 	my $context;
 	for ($mode) {
@@ -1232,7 +1232,7 @@ sub ORIGINAL_NUM_CMP {    # low level	numeric	compare
 
 ###############################################################################
 	# We'll leave these next lines out for now, so that the evaluated versions of the student's and professor's
-	# can be displayed in the answer message.  This may still cause a few anomolies when strings are used
+	# can be displayed in the answer message.  This may still cause a few anomalies when strings are used
 	#
 ###############################################################################
 

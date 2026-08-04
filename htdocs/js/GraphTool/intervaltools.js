@@ -43,7 +43,41 @@
 								0
 							]
 						],
-						{ fixed: true, highlight: false, strokeColor: gt.color.curve, strokeWidth: 4 }
+						{
+							fixed: true,
+							highlight: false,
+							strokeColor: gt.color.curve,
+							strokeWidth: 4,
+							tabindex: '',
+							aria: {
+								enabled: true,
+								label: () => {
+									const left = point1.X() < point2.X() ? point1 : point2;
+									const right = point1.X() < point2.X() ? point2 : point1;
+									const leftIsInf = gt.isNegInfX(left.X());
+									const rightIsInf = gt.isPosInfX(right.X());
+									return (
+										'interval that starts at ' +
+										(leftIsInf
+											? ''
+											: left.getAttribute('fillColor') === 'transparent'
+												? 'but does not include '
+												: 'and includes ') +
+										(leftIsInf ? 'negative infinity' : left.X()) +
+										' and ends at ' +
+										(rightIsInf
+											? ''
+											: right.getAttribute('fillColor') === 'transparent'
+												? 'but does not include '
+												: 'and includes ') +
+										(rightIsInf ? 'infinity' : right.X())
+									);
+								},
+								roledescription: 'interval',
+								live: 'assertive',
+								atomic: true
+							}
+						}
 					);
 
 					// Redefine the segment's hasPoint method to return true if either of the end points has the
@@ -310,7 +344,9 @@
 								strokeWidth: 4,
 								strokeColor: 'transparent',
 								highlight: false,
-								lastArrow: { type: 2, size: 4 }
+								lastArrow: { type: 2, size: 4 },
+								tabindex: '',
+								aria: { enabled: true, hidden: true, live: 'off' }
 							}
 						);
 						this.definingPts[index].arrow.rendNodeTriangleEnd.setAttribute('fill', gt.color.curve);
@@ -361,7 +397,20 @@
 						snapSizeX: gt.snapSizeX,
 						snapSizeY: gt.snapSizeY,
 						...this.definingPointAttributes(),
-						...this.maybeBracketAttributes()
+						...this.maybeBracketAttributes(),
+						aria: {
+							enabled: true,
+							label: (p) =>
+								gt.isNegInfX(p.X())
+									? 'end point negative infinity'
+									: gt.isPosInfX(p.X())
+										? 'end point infinity'
+										: (p.getAttribute('fillColor') === 'transparent' ? 'excluded' : 'included') +
+											` end point ${p.X()}`,
+							roledescription: 'end point',
+							live: 'assertive',
+							atomic: true
+						}
 					});
 					point.setAttribute({ snapToGrid: true });
 
@@ -407,7 +456,9 @@
 							display: 'internal',
 							fixed: true,
 							strokeColor: gt.color.focusCurve,
-							highlightStrokeColor: gt.color.pointHighlightDarker
+							highlightStrokeColor: gt.color.pointHighlightDarker,
+							tabindex: '',
+							aria: { enabled: true, hidden: true, live: 'off' }
 						}
 					);
 
@@ -454,7 +505,8 @@
 						highlightStrokeWidth: 3,
 						highlightStrokeColor: gt.color.pointHighlightDarker,
 						// highlightFillColor is gt.color.pointHighlight if not included.
-						highlightFillColor: gt.color.pointHighlightDarker
+						highlightFillColor: gt.color.pointHighlightDarker,
+						tabindex: gt.isStatic ? -1 : 0
 					};
 				}
 
@@ -506,9 +558,22 @@
 						snapSizeX: gt.snapSizeX,
 						snapSizeY: gt.snapSizeY,
 						withLabel: false,
-						...gt.graphObjectTypes.interval.maybeBracketAttributes()
+						...gt.graphObjectTypes.interval.maybeBracketAttributes(),
+						tabindex: '',
+						aria: {
+							enabled: true,
+							label: (p) =>
+								gt.isNegInfX(p.X())
+									? 'end point negative infinity'
+									: gt.isPosInfX(p.X())
+										? 'end point infinity'
+										: (p.getAttribute('fillColor') === 'transparent' ? 'excluded' : 'included') +
+											` end point ${p.X()}`,
+							roledescription: 'end point',
+							live: 'assertive',
+							atomic: true
+						}
 					});
-					this.point1.setAttribute({ fixed: true });
 
 					if (gt.options.useBracketEnds) {
 						const point = this.point1;
@@ -539,7 +604,9 @@
 								fixed: true,
 								highlight: false,
 								strokeColor: gt.color.underConstructionFixed,
-								cssStyle: 'cursor:none;font-weight:900'
+								cssStyle: 'cursor:none;font-weight:900',
+								tabindex: '',
+								aria: { enabled: true, hidden: true, live: 'off' }
 							}
 						);
 					}
@@ -653,7 +720,22 @@
 							fillColor: gt.toolTypes.IncludeExcludePointTool.include
 								? gt.color.underConstruction
 								: 'transparent',
-							...gt.graphObjectTypes.interval.maybeBracketAttributes()
+							...gt.graphObjectTypes.interval.maybeBracketAttributes(),
+							tabindex: 0,
+							aria: {
+								enabled: true,
+								label: (p) =>
+									gt.isNegInfX(p.X())
+										? 'end point negative infinity'
+										: gt.isPosInfX(p.X())
+											? 'end point infinity'
+											: (p.getAttribute('fillColor') === 'transparent'
+													? 'excluded'
+													: 'included') + ` end point ${p.X()}`,
+								roledescription: 'end point',
+								live: 'assertive',
+								atomic: true
+							}
 						});
 
 						if (gt.options.useBracketEnds) {
@@ -683,7 +765,9 @@
 									fixed: true,
 									highlight: false,
 									strokeColor: gt.color.underConstruction,
-									cssStyle: 'cursor:none;font-weight:900'
+									cssStyle: 'cursor:none;font-weight:900',
+									tabindex: '',
+									aria: { enabled: true, hidden: true, live: 'off' }
 								}
 							);
 						}
@@ -729,7 +813,42 @@
 								fixed: true,
 								strokeWidth: 5,
 								strokeColor: gt.color.underConstruction,
-								highlight: false
+								highlight: false,
+								tabindex: '',
+								aria: {
+									enabled: true,
+									label: () => {
+										const left =
+											this.point1 && this.point1.X() < this.hlObjs.hl_point.X()
+												? this.point1
+												: this.hlObjs.hl_point;
+										const right =
+											!this.point1 || this.point1.X() < this.hlObjs.hl_point.X()
+												? this.hlObjs.hl_point
+												: this.point1;
+										const leftIsInf = gt.isNegInfX(left.X());
+										const rightIsInf = gt.isPosInfX(right.X());
+										return (
+											'interval that starts at ' +
+											(leftIsInf
+												? ''
+												: left.getAttribute('fillColor') === 'transparent'
+													? 'but does not include '
+													: 'and includes ') +
+											(leftIsInf ? 'negative infinity' : left.X()) +
+											' and ends at ' +
+											(rightIsInf
+												? ''
+												: right.getAttribute('fillColor') === 'transparent'
+													? 'but does not include '
+													: 'and includes ') +
+											(rightIsInf ? 'infinity' : right.X())
+										);
+									},
+									roledescription: 'interval',
+									live: 'assertive',
+									atomic: true
+								}
 							}
 						);
 						// The default layer for lines (of which arrows are a part) is 7.
@@ -777,7 +896,9 @@
 										strokeWidth: 5,
 										strokeColor: 'transparent',
 										highlight: false,
-										lastArrow: { type: 2, size: 4 }
+										lastArrow: { type: 2, size: 4 },
+										tabindex: '',
+										aria: { enabled: true, hidden: true, live: 'off' }
 									}
 								);
 								this.hlObjs.hl_arrow.rendNodeTriangleEnd.setAttribute(

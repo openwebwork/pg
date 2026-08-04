@@ -14,7 +14,6 @@ our $answerPrefix = "MuLtIaNsWeR_";    # answer rule prefix
 our $separator    = ';';               # separator for singleResult previews
 
 my @ans_defaults = (
-	checker             => sub {0},
 	showCoordinateHints => 0,
 	showEndpointHints   => 0,
 	showEndTypeHints    => 0,
@@ -90,17 +89,13 @@ sub cmp {
 		die "Your checker must be a subroutine." if defined($self->{checker});
 		$self->{checker} = sub {
 			my ($correct, $student, $self, $ans) = @_;
-			my @scores;
-
-			for (0 .. $self->length - 1) {
-				push(@scores, $correct->[$_] == $student->[$_] ? 1 : 0);
-			}
-			return \@scores if $self->{partialCredit};
-			for (@scores) {
-				return 0 unless $_;
+			return $self->{scores} if $self->{partialCredit};
+			for (@{ $self->{scores} }) {
+				return 0 unless $_ == 1;
 			}
 			return 1;
-		}
+		};
+		$self->{checkTypes} = 'compatible' if $self->{checkTypes} && $self->{checkTypes} ne 'exact';
 	}
 
 	if ($self->{allowBlankAnswers}) {
@@ -281,7 +276,6 @@ sub entry_check {
 	my $ANS = $self->{cmp}[$i]->evaluate($ans->{student_ans});
 	$self->{ans}[$i] = $ANS;
 	$ANS->{type} = $ans->{type};
-	$ANS->score(0);
 
 	foreach my $id (keys %{$ans}) {
 		$ANS->{$id} = $ans->{$id} unless defined($ANS->{$id});
@@ -306,21 +300,48 @@ sub perform_check {
 	my $rh_ans  = shift;
 	my $context = $self->context;
 	$context->clearError;
+
+	#
+	# Get correct and student answers, and scores.
+	# Initially mark all answer blanks as wrong.
+	#
 	my @correct;
 	my @student;
-	foreach my $ans (@{ $self->{ans} }) {
-		push(@correct, $ans->{correct_value});
-		push(@student, $ans->{student_value});
-		return if $ans->{ans_message} || !defined($ans->{student_value});
+	$self->{scores} = [];
+	for my $ans (@{ $self->{ans} }) {
+		push(@correct,             $ans->{correct_value});
+		push(@student,             $ans->{student_value});
+		push(@{ $self->{scores} }, $ans->{score});
+		$ans->score(0);
+	}
+
+	#
+	# Check for error messages and correct answer types
+	#
+	my $checkTypes = $self->{checkTypes};
+	$checkTypes = 'equal' if $checkTypes && $checkTypes ne 'compatible';
+	for my $ans (@{ $self->{ans} }) {
+		return if ($checkTypes ne 'compatible' && $ans->{ans_message}) || !defined($ans->{student_value});
 		return
-			if $self->{checkTypes}
+			if $checkTypes eq 'equal'
 			&& $ans->{student_value}->type ne $ans->{correct_value}->type
 			&& !($self->{allowBlankAnswers} && $ans->{student_ans} !~ m/\S/);
+		return
+			if $checkTypes eq 'compatible'
+			&& !$ans->{correct_value}->typeMatch($ans->{student_value}, $ans)
+			&& !($self->{allowBlankAnswers} && $ans->{student_ans} !~ m/\S/);
 	}
+
+	#
+	# Set the isPreview flag.
+	#
 	my $inputs = $main::inputs_ref;
 	$rh_ans->{isPreview} = $inputs->{previewAnswers}
-		|| ($inputs_{action} && $inputs->{action} =~ m/^Preview/);
+		|| ($inputs->{action} && $inputs->{action} =~ m/^Preview/);
 
+	#
+	# Call the user's answer checker.
+	#
 	Parser::Context->current(undef, $context);                                    # change to multi-answer's context
 	my $flags = Value::contextSet($context, $self->cmp_contextFlags($rh_ans));    # save old context flags
 	$context->{answerHash} = $rh_ans;                                             # attach the answerHash
@@ -329,16 +350,20 @@ sub perform_check {
 	$context->{answerHash} = undef;                                               # remove answerHash
 	if (!@result && $context->{error}{flag}) { $self->cmp_error($self->{ans}[0]); return 1 }
 
+	#
+	# Mark the answers as correct or incorrect.
+	#
 	my $result = (scalar(@result) > 1 ? [@result] : $result[0] || 0);
 	if (ref($result) eq 'ARRAY') {
 		die "Checker subroutine returned the wrong number of results"
 			if (scalar(@{$result}) != $self->length);
-		foreach my $i (0 .. $self->length - 1) { $self->{ans}[$i]->score($result->[$i]) }
+		for my $i (0 .. $self->length - 1) { $self->{ans}[$i]->score($result->[$i]) }
 	} elsif (Value::matchNumber($result)) {
-		foreach my $ans (@{ $self->{ans} }) { $ans->score($result) }
+		for my $ans (@{ $self->{ans} }) { $ans->score($result) }
 	} else {
 		die "Checker subroutine should return a number or array of numbers ($result)";
 	}
+
 	return;
 }
 
@@ -490,15 +515,18 @@ reference to an array of scores (one for each answer).
 
     # this checker will give full credit for any answers
     sub always_right {
-		my ($correct,$student,$multi_ans,$ans_hash) = @_;  # get the parameters
-		return [ (1) x scalar(@$correct) ];                # return an array of scores
+		my ($correct, $student, $multi_ans, $ans_hash) = @_;  # get the parameters
+		return [ (1) x scalar(@$correct) ];                   # return an array of scores
 	}
-	$multianswer_obj = $multianswer_obj->with(checker=>~~&always_right);
+	$multianswer_obj = $multianswer_obj->with(checker => ~~&always_right);
 
 If a C<checker> is not provided, a default checker is used. The default checker checks if each
 answer is equal to its correct answer (using the overloaded C<==> operator). If C<< partialCredit => 1 >>,
 the checker returns an array of 0s and 1s listing which answers are correct giving partial credit.
 If C<< partialCredit => 0 >>, the checker only returns 1 if all answers are correct, otherwise returns 0.
+
+Note that C<< $multi_ans->{scores} >> will be set to a reference to an array containing the scores
+from evaluating the individual answers and can be used inside the C<checker> routine.
 
 =head2 partialCredit
 
@@ -524,9 +552,14 @@ options to cmp when utilizing PGML. Default: undef (no options are sent).
 
 =head2 checkTypes
 
-Specifies whether the types of the student and professor's answers must match exactly
-(C<< checkTypes => 1 >>) or just pass the usual type-match error checking (in which case, you should
-check the types before you use the data). Default: 1.
+Specifies whether the types of the student and instructor's answers must match and to what extent.
+if C<< checkTypes => 'compatible' >> then the student answers only need to be compatible with the
+instructor answers in the sense that they parse into objects that can be compared to the instructor
+answers. If C<< checkTypes => 1 >> then the types of the student answers must match the types of the
+instructor answers exactly. Otherwise no type checking is done other than the usual type-match error
+checking (in which case, you should check the types before you use the data). Default: 1.
+Note that if the default checker is used, i.e., if C<checker> is not set, then C<< checkTypes => 1 >>
+is the same as C<< checkTypes => 'compatible' >>.
 
 =head2 allowBlankAnswers
 

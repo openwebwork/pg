@@ -16,9 +16,19 @@
 							fixed: true,
 							highlight: false,
 							strokeColor: gt.color.curve,
-							dash: solid ? 0 : 2
+							dash: solid ? 0 : 2,
+							tabindex: ''
 						})
 					);
+					this.baseObj.setAttribute({
+						aria: {
+							enabled: true,
+							label: this.constructor.ariaLabel,
+							roledescription: this.constructor.strId,
+							live: 'assertive',
+							atomic: true
+						}
+					});
 					this.definingPts.push(point1, point2);
 					this.focusPoint = point1;
 				}
@@ -38,11 +48,18 @@
 					return gt.sign(JXG.Math.innerProduct(point, this.baseObj.stdform));
 				}
 
-				hasPoint(point) {
+				onBoundary(point) {
 					return (
 						Math.abs(JXG.Math.innerProduct(point, this.baseObj.stdform)) /
 							Math.sqrt(this.baseObj.stdform[1] ** 2 + this.baseObj.stdform[2] ** 2) <
 						0.5 / Math.sqrt(gt.board.unitX * gt.board.unitY)
+					);
+				}
+
+				static ariaLabel(l) {
+					return (
+						(l.getAttribute('dash') == 0 ? 'solid' : 'dashed') +
+						` line through ${l.point1.X()}, ${l.point1.Y()}, and ${l.point2.X()}, ${l.point2.Y()}`
 					);
 				}
 
@@ -115,7 +132,9 @@
 							highlight: false,
 							snapSizeX: gt.snapSizeX,
 							snapSizeY: gt.snapSizeY,
-							withLabel: false
+							withLabel: false,
+							tabindex: 0,
+							aria: gt.pointAria
 						});
 						this.hlObjs.hl_point.rendNode.focus();
 					}
@@ -128,7 +147,15 @@
 							fixed: true,
 							strokeColor: gt.color.underConstruction,
 							highlight: false,
-							dash: gt.drawSolid ? 0 : 2
+							dash: gt.drawSolid ? 0 : 2,
+							tabindex: '',
+							aria: {
+								enabled: true,
+								label: gt.graphObjectTypes[this.object].ariaLabel,
+								roledescription: this.object,
+								live: 'assertive',
+								atomic: true
+							}
 						});
 					}
 
@@ -151,7 +178,9 @@
 						highlight: false,
 						snapToGrid: true,
 						snapSizeX: gt.snapSizeX,
-						snapSizeY: gt.snapSizeY
+						snapSizeY: gt.snapSizeY,
+						tabindex: '',
+						aria: gt.pointAria
 					});
 					this.point1.setAttribute({ fixed: true });
 
@@ -188,7 +217,7 @@
 					const point1 = this.point1;
 					delete this.point1;
 
-					point1.setAttribute(gt.definingPointAttributes);
+					point1.setAttribute(gt.definingPointAttributes());
 					point1.on('down', () => gt.onPointDown(point1));
 					point1.on('up', () => gt.onPointUp(point1));
 

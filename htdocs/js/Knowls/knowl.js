@@ -24,6 +24,10 @@
 			knowl.knowlModal.setAttribute('aria-labelledby', `${knowl.knowlModal.id}-title`);
 			knowl.knowlModal.setAttribute('aria-hidden', 'true');
 
+			// Force the dialog into light mode. This is needed for a webwork2 page in dark mode since the dialog is
+			// outside of the problem content.  At least until PG and the help files are updated to honor dark mode.
+			knowl.knowlModal.dataset.bsTheme = 'light';
+
 			const knowlDialog = document.createElement('div');
 			knowlDialog.classList.add(
 				'knowl-dialog',
@@ -85,9 +89,7 @@
 				setInnerHTML(knowlBody, knowl.dataset.knowlContents);
 
 				// If we are using MathJax, then render math content.
-				if (window.MathJax) {
-					MathJax.startup.promise = MathJax.startup.promise.then(() => MathJax.typesetPromise([knowlBody]));
-				}
+				if (window.MathJax) MathJax.typesetPromise?.([knowlBody]);
 			} else if (knowl.dataset.knowlUrl) {
 				// Retrieve url content.
 				fetch(knowl.dataset.knowlUrl)
@@ -100,11 +102,7 @@
 							setInnerHTML(knowlBody, data);
 						}
 						// If we are using MathJax, then render math content.
-						if (window.MathJax) {
-							MathJax.startup.promise = MathJax.startup.promise.then(() =>
-								MathJax.typesetPromise([knowlBody])
-							);
-						}
+						if (window.MathJax) MathJax.typesetPromise?.([knowlBody]);
 					})
 					.catch((err) => {
 						knowlBody.textContent = `ERROR: ${err}`;

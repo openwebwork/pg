@@ -83,7 +83,7 @@ sub variable_cmp {
 
     addVariables(@vars)
 
-Adds each string in @vars as a varible to the current context.
+Adds each string in @vars as a variable to the current context.
 
 =cut
 

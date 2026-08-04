@@ -24,7 +24,7 @@ answer, the student's answer, and the answer hash, and returns
 displayed.  (See the examples below.)
 
 The right-hand side can be either the message string itself, or
-a referrence to an array where the first element is the message
+a reference to an array where the first element is the message
 string, and the remaining elements are name-value pairs that
 set options for the message.  These can include:
 
@@ -32,29 +32,32 @@ set options for the message.  These can include:
 
 =item C<S<< checkCorrect => 0 or 1 >>>
 
-1 means check for messages even
-if the answer is correct.
+In the list of incorrect answers to compare the student's answer with, 1 means
+for each CODE reference incorrect answer, check the student's answer against
+that CODE reference incorrect answer for messages even if the student answer is
+correct.
 Default: 0
 
 =item C<S<< replaceMessage => 0 or 1 >>>
 
-1 means it's OK to repalce any
+1 means it's OK to replace any
 message that is already in place
 in the answer hash.
 Default: 0
 
 =item C<S<< checkTypes => 0 or 1 >>>
 
-1 means only perform the test
-if the student answer is the
-same type as the correct one.
+In the list of incorrect answers to compare the student's answer with, 1 means
+for each CODE reference incorrect answer, check the student's answer against
+that CODE reference incorrect answer for messages only when the the student
+answer the same type as the correct answer.
 Default: 1
 
 =item C<S<< processPreview => 0 or 1 >>>
 
 1 means process student answers even
 during answer previews.  Usually, no
-hints are given durring previews, but
+hints are given during previews, but
 only when answers are checked or submitted.
 The default can be controlled on an individual
 message basis, or by adding
@@ -120,7 +123,6 @@ sub AnswerHints {
 			my $hash    = $context->{answerHash};
 			$context->{answerHash} = $ans;
 			my $processPreview = $correct->getFlag('answerHintsProcessPreview', 0);
-			$context->{answerHash} = $hash;
 
 			while (@_) {
 				my $wrongList = shift;
@@ -172,6 +174,7 @@ sub AnswerHints {
 					}
 				}
 			}
+			$context->{answerHash} = $hash;
 			return $ans;
 		},
 		@_
@@ -191,6 +194,9 @@ sub Compare {
 	$ans->{typeError}   = 0;
 	$ans->{ans_message} = $ans->{error_message} = "";
 	$ans->{score}       = 0;
+	my $context = $self->context;
+	my $hash    = $context->{answerHash};
+	$context->{answerHash} = $ans;
 
 	if ($self->address != $ans->{correct_value}->address) {
 		$ans->{correct_ans}     = $self->string;
@@ -205,6 +211,7 @@ sub Compare {
 	$self->cmp_preprocess($ans);
 	$self->cmp_equal($ans);
 	$self->cmp_postprocess($ans) if !$ans->{error_message} && !$ans->{typeError};
+	$context->{answerHash} = $hash;
 	return $ans->{score} >= 1;
 }
 

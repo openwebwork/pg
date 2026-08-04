@@ -16,9 +16,19 @@
 							fixed: true,
 							highlight: false,
 							strokeColor: gt.color.curve,
-							dash: solid ? 0 : 2
+							dash: solid ? 0 : 2,
+							tabindex: ''
 						})
 					);
+					this.baseObj.setAttribute({
+						aria: {
+							enabled: true,
+							label: this.constructor.ariaLabel,
+							roledescription: this.constructor.strId,
+							live: 'assertive',
+							atomic: true
+						}
+					});
 					this.definingPts.push(center, point);
 					this.focusPoint = center;
 
@@ -44,6 +54,14 @@
 					return gt.sign(
 						this.baseObj.stdform[3] * (point[1] * point[1] + point[2] * point[2]) +
 							JXG.Math.innerProduct(point, this.baseObj.stdform)
+					);
+				}
+
+				static ariaLabel(c) {
+					return (
+						(c.getAttribute('dash') == 0 ? 'solid' : 'dashed') +
+						` circle centered at ${c.center.X()}, ${c.center.Y()} and ` +
+						`passing through the point ${c.point2.X()}, ${c.point2.Y()}`
 					);
 				}
 
@@ -116,7 +134,9 @@
 							highlight: false,
 							snapSizeX: gt.snapSizeX,
 							snapSizeY: gt.snapSizeY,
-							withLabel: false
+							withLabel: false,
+							tabindex: 0,
+							aria: gt.pointAria
 						});
 						this.hlObjs.hl_point.rendNode.focus();
 					}
@@ -129,7 +149,15 @@
 							fixed: true,
 							strokeColor: gt.color.underConstruction,
 							highlight: false,
-							dash: gt.drawSolid ? 0 : 2
+							dash: gt.drawSolid ? 0 : 2,
+							tabindex: '',
+							aria: {
+								enabled: true,
+								label: gt.graphObjectTypes[this.object].ariaLabel,
+								roledescription: this.object,
+								live: 'assertive',
+								atomic: true
+							}
 						});
 					}
 
@@ -151,7 +179,9 @@
 						highlight: false,
 						snapToGrid: true,
 						snapSizeX: gt.snapSizeX,
-						snapSizeY: gt.snapSizeY
+						snapSizeY: gt.snapSizeY,
+						tabindex: '',
+						aria: gt.pointAria
 					});
 					this.center.setAttribute({ fixed: true });
 
@@ -188,7 +218,7 @@
 					const center = this.center;
 					delete this.center;
 
-					center.setAttribute(gt.definingPointAttributes);
+					center.setAttribute(gt.definingPointAttributes());
 					center.on('down', () => gt.onPointDown(center));
 					center.on('up', () => gt.onPointUp(center));
 

@@ -68,20 +68,20 @@ while
 
 	@functions = $graph->fn();
 
-will give a list of the current functions (similary for labels and stamps).
+will give a list of the current functions (similarly for labels and stamps).
 
 Either of the  commands
 
 	$graph->fn('reset');
 	$graph->fn('erase');
 
-will erase the array containing the functions and similary for the label and stamps arrays.
+will erase the array containing the functions and similarly for the label and stamps arrays.
 
 
 =item h_axis, v_axis
 
 	$h_axis_coordinate = $graph -> h_axis();
-	$new_axis    =       $grpah -> h_axis($new_axis);
+	$new_axis    =       $graph -> h_axis($new_axis);
 
 Respectively read and set the vertical coordinate value in real world coordinates where the
 horizontal axis intersects the vertical one.  The same construction reads and sets the coordinate
@@ -100,7 +100,7 @@ $tick1, etc are the real world coordinate values for each of the tick marks.
 	@h_grid = $graph -> h_grid();
 	@h_grid = $graph -> h_grid( $grid1, $grid2, $grid3, $grid4   );
 
-reads and sets the verical coordinates for the horizontal grid lines.  The values
+reads and sets the vertical coordinates for the horizontal grid lines.  The values
 $grid1, etc are the real world coordinate values where the horizontal grid meets the
 vertical axis.
 

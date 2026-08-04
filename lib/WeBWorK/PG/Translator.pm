@@ -13,7 +13,7 @@ WeBWorK::PG::Translator - Evaluate PG code and evaluate answers safely
 
     $pt->source_string($source);             # provide the source string for the problem
                                              # or
-    $pt->source_file($sourceFilePath);       # provide the proble file containing the source
+    $pt->source_file($sourceFilePath);       # provide the problem file containing the source
 
     # Load the unprotected macro files.
     # These files are evaluated with the Safe compartment wide open.
@@ -477,7 +477,7 @@ Specifically the following are allowed:
     time
         - Gives the current Unix time.
     atan, sin, cos, exp, log, sqrt
-        - Arithemetic commands.  More are defined in PGauxiliaryFunctions.pl
+        - Arithmetic commands.  More are defined in PGauxiliaryFunctions.pl
 
 The following are specifically not allowed:
 
@@ -1076,9 +1076,6 @@ sub avg_problem_grader {
 	my ($answers, $problem_state, %form_options) = @_;
 
 	my %problem_result = (score => 0, errors => '', type => 'avg_problem_grader', msg => '');
-
-	$problem_result{msg} = eval('main::maketext("You can earn partial credit on this problem.")')
-		if keys %$answers > 1;
 
 	# Return unless answers have been submitted.
 	return (\%problem_result, $problem_state) unless $form_options{answers_submitted} == 1;

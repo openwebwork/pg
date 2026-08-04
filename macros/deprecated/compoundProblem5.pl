@@ -153,7 +153,7 @@ C<SECTION_PGML_SOLUTION()> to create it.  E.g.,
     When you add 1 to 1 you get 2.
     END_SOLUTION
 
-Normally, a solution will be tied to the section that preceeded it,
+Normally, a solution will be tied to the section that preceded it,
 but if you want to put all your solutions at the end, for example, you
 can pass options the solution macros that tell it the section to
 attach to:

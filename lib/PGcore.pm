@@ -10,8 +10,6 @@ BEGIN {
 	$ENV{PG_VERSION} = $PGcore::PG_VERSION || 'unknown';
 }
 
-our $internal_debug_messages = [];
-
 use PGanswergroup;
 use PGresponsegroup;
 use PGrandom;
@@ -154,7 +152,7 @@ named answer is associated with its answer blank by name.
 =item *
 
 "Extra" answers: Names of answer blanks that do not have a 1-to-1
-correspondance to an answer evaluator. For example, in matrix problems, there
+correspondence to an answer evaluator. For example, in matrix problems, there
 will be several input fields that correspond to the same answer evaluator.
 
 =back
@@ -165,7 +163,7 @@ This file is automatically loaded into the namespace of every PG problem. The
 macros within can then be called to define the structure of the problem.
 
 DOCUMENT() should be the first executable statement in any problem. It
-initializes vriables and defines the problem environment.
+initializes variables and defines the problem environment.
 
 ENDDOCUMENT() must be the last executable statement in any problem. It packs
 up the results of problem processing for delivery back to WeBWorK.
@@ -418,7 +416,7 @@ sub new_ans_name {
 sub record_ans_name {
 	my ($self, $label, $value) = @_;
 
-	my $response_group = new PGresponsegroup($label, $label, $value);
+	my $response_group = PGresponsegroup->new($label, $label, $value);
 
 	if (ref($self->{PG_ANSWERS_HASH}{$label}) eq 'PGanswergroup') {
 		# This should really never happen.  Should this warn if it does?
@@ -524,7 +522,7 @@ sub encode_base64 ($;$) {
 }
 
 #####
-#  This macro encodes HTML, EV3, and PGML special caracters using html codes
+#  This macro encodes HTML, EV3, and PGML special characters using html codes
 #  This should be done for any variable which contains student input and is
 #  printed to a screen or interpreted by EV3.
 
@@ -705,9 +703,8 @@ sub directoryFromPath {
 }
 
 sub AskSage {
-	my $self    = shift;
-	my $python  = shift;
-	my $options = shift;
+	my ($self, $python, $options) = @_;
+	$options = {} unless ref $options eq 'HASH';
 	$options->{curlCommand} = WeBWorK::PG::IO::externalCommand('curl');
 	WeBWorK::PG::IO::AskSage($python, $options);
 }
@@ -732,15 +729,6 @@ To report the messages use:
 
 These are used in Problem.pm for example to report any errors.
 
-There is also
-
-	$PG->internal_debug_message()
-	$PG->get_internal_debug_message
-	$PG->clear_internal_debug_messages();
-
-There were times when things were buggy enough that only the internal_debug_message which are not saved
-inside the PGcore object would report.
-
 =cut
 
 sub debug_message {
@@ -761,21 +749,6 @@ sub warning_message {
 sub get_warning_messages {
 	my $self = shift;
 	$self->{WARNING_messages};
-}
-
-sub internal_debug_message {
-	my ($self, @str) = @_;
-	push @$internal_debug_messages, @str;
-}
-
-sub get_internal_debug_messages {
-	my $self = shift;
-	$internal_debug_messages;
-}
-
-sub clear_internal_debug_messages {
-	my $self = shift;
-	$internal_debug_messages = [];
 }
 
 sub DESTROY {

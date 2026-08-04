@@ -21,7 +21,15 @@
 						highlightStrokeOpacity: 0,
 						fillOpacity: 0,
 						highlightFillOpacity: 0,
-						fixed: gt.isStatic
+						fixed: gt.isStatic,
+						tabindex: 0,
+						aria: {
+							enabled: true,
+							label: (p) => `shade the region containing the point ${p.X()}, ${p.Y()}`,
+							roledescription: 'shading point',
+							live: 'assertive',
+							atomic: true
+						}
 					});
 					this.definingPts.push(point);
 					this.focusPoint = point;
@@ -41,7 +49,15 @@
 							[() => point.X() - 12 / gt.board.unitX, () => point.Y() - 12 / gt.board.unitY],
 							[() => 24 / gt.board.unitX, () => 24 / gt.board.unitY]
 						],
-						{ withLabel: false, highlight: false, layer: 8, name: 'FillIcon', fixed: true }
+						{
+							withLabel: false,
+							highlight: false,
+							layer: 8,
+							name: 'FillIcon',
+							fixed: true,
+							tabindex: '',
+							aria: { enabled: true, hidden: true, live: 'off' }
+						}
 					);
 
 					if (!gt.isStatic) {
@@ -226,7 +242,21 @@
 						this.fillObj = gt.board.create(
 							'image',
 							[dataURL, [bBox[0], bBox[3]], [bBox[2] - bBox[0], bBox[1] - bBox[3]]],
-							{ withLabel: false, highlight: false, fixed: true, layer: 0 }
+							{
+								withLabel: false,
+								highlight: false,
+								fixed: true,
+								layer: 0,
+								tabindex: '',
+								aria: {
+									enabled: true,
+									label: () =>
+										`shaded region containing the point ${this.baseObj.X()}, ${this.baseObj.Y()}`,
+									roledescription: 'shading',
+									live: 'assertive',
+									atomic: true
+								}
+							}
 						);
 					};
 
@@ -343,7 +373,15 @@
 							withLabel: false,
 							snapToGrid: true,
 							snapSizeX: gt.snapSizeX,
-							snapSizeY: gt.snapSizeY
+							snapSizeY: gt.snapSizeY,
+							tabindex: 0,
+							aria: {
+								enabled: true,
+								label: (p) => `shade the region containing the point ${p.X()}, ${p.Y()}`,
+								roledescription: 'shading point',
+								live: 'assertive',
+								atomic: true
+							}
 						});
 						this.hlObjs.hl_point.rendNode.classList.add('hidden-fill-point');
 
@@ -357,7 +395,14 @@
 								],
 								[() => 24 / gt.board.unitX, () => 24 / gt.board.unitY]
 							],
-							{ withLabel: false, highlight: false, fixed: true, layer: 8 }
+							{
+								withLabel: false,
+								highlight: false,
+								fixed: true,
+								layer: 8,
+								tabindex: '',
+								aria: { enabled: true, hidden: true, live: 'off' }
+							}
 						);
 
 						this.hlObjs.hl_point.rendNode.focus();

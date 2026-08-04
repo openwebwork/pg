@@ -12,7 +12,7 @@
 
 				constructor(shiftPoint, periodPoint, amplitudePoint, solid) {
 					for (const point of [shiftPoint, periodPoint, amplitudePoint]) {
-						point.setAttribute(gt.definingPointAttributes);
+						point.setAttribute(gt.definingPointAttributes());
 						if (!gt.isStatic) {
 							point.on('down', () => gt.onPointDown(point));
 							point.on('up', () => gt.onPointUp(point));
@@ -104,7 +104,25 @@
 							strokeWidth: 2,
 							highlight: false,
 							strokeColor: color ? color : gt.color.underConstruction,
-							dash: solid ? 0 : 2
+							dash: solid ? 0 : 2,
+							tabindex: '',
+							aria: {
+								enabled: true,
+								label: (s) =>
+									(s.getAttribute('dash') == 0 ? 'solid' : 'dashed') +
+									` sine wave shifted ${Math.abs(point.X())} units to the ${
+										point.X() < 0 ? 'left' : 'right'
+									}, shifted ${Math.abs(point.Y())} units ${
+										point.X() < 0 ? 'downward' : 'upward'
+									}, with period ${
+										(2 * Math.PI) / Math.abs(period())
+									}, with amplitude ${Math.abs(amplitude())}` +
+									(period() < 0 ? ', sine wave horizontally reflected' : '') +
+									(amplitude() < 0 ? ', sine wave vertically reflected' : ''),
+								roledescription: 'sine wave',
+								live: 'assertive',
+								atomic: true
+							}
 						}
 					);
 				}
@@ -199,7 +217,24 @@
 						size: 2,
 						snapSizeX: periodPoint ? 1e-10 : gt.snapSizeX,
 						snapSizeY: shiftPoint && !periodPoint ? 1e-10 : gt.snapSizeY,
-						withLabel: false
+						withLabel: false,
+						tabindex: '',
+						aria: {
+							enabled: true,
+							label: (p) =>
+								periodPoint
+									? `sine wave amplitude ${Math.abs(p.Y() - shiftPoint.Y())}` +
+										(p.Y() > shiftPoint.Y() ? '' : ', sine wave vertically reflected')
+									: shiftPoint
+										? `sine wave period ${Math.abs(p.X() - shiftPoint.X())}` +
+											(p.X() > shiftPoint.X() ? '' : ', sine wave horizontally reflected')
+										: `sine wave shifted ${Math.abs(p.X())} units to the ${
+												p.X() < 0 ? 'left' : 'right'
+											}, and shifted ${Math.abs(p.Y())} units ${p.Y() < 0 ? 'downward' : 'upward'}`,
+							roledescription: () => (periodPoint ? 'amplitude' : shiftPoint ? 'period' : 'shift'),
+							live: 'assertive',
+							atomic: true
+						}
 					});
 					point.setAttribute({ snapToGrid: true });
 
@@ -376,7 +411,29 @@
 							snapSizeX: gt.snapSizeX,
 							snapSizeY: gt.snapSizeY,
 							highlight: false,
-							withLabel: false
+							withLabel: false,
+							tabindex: 0,
+							aria: {
+								enabled: true,
+								label: (p) =>
+									this.periodPoint
+										? `sine wave amplitude ${Math.abs(p.Y() - this.shiftPoint.Y())}` +
+											(p.Y() > this.shiftPoint.Y() ? '' : ', sine wave vertically reflected')
+										: this.shiftPoint
+											? `sine wave period ${Math.abs(p.X() - this.shiftPoint.X())}` +
+												(p.X() > this.shiftPoint.X()
+													? ''
+													: ', sine wave horizontally reflected')
+											: `sine wave shifted ${Math.abs(p.X())} units to the ${
+													p.X() < 0 ? 'left' : 'right'
+												}, and shifted ${Math.abs(p.Y())} units ${
+													p.Y() < 0 ? 'downward' : 'upward'
+												}`,
+								roledescription: () =>
+									this.periodPoint ? 'amplitude' : this.shiftPoint ? 'period' : 'shift',
+								live: 'assertive',
+								atomic: true
+							}
 						});
 						this.hlObjs.hl_point.rendNode.focus();
 					}

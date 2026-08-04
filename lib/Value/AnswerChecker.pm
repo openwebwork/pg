@@ -194,9 +194,9 @@ sub cmp_collect {
 	return 1 unless $self->{ans_name};
 	$ans->{preview_latex_string} = $ans->{preview_text_string} = "";
 	my $OK = $self->ans_collect($ans);
-	$ans->{student_ans} = $self->format_matrix($ans->{student_formula}, @{ $self->{format_options} }, tth_delims => 1);
+	$ans->{student_ans} = $self->format_matrix($ans->{student_array}, @{ $self->{format_options} }, tth_delims => 1);
 	return 0 unless $OK;
-	my $array = $ans->{student_formula};
+	my $array = $ans->{student_array};
 
 	if ($self->{ColumnVector}) {
 		my @V = ();
@@ -295,7 +295,7 @@ sub cmp_list_compare { Value::List::cmp_list_compare(@_) }
 sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
-	return 1 unless ref($other);
+	return 1 unless Value::isValue($other);
 	$self->type eq $other->type && !$other->isFormula;
 }
 
@@ -555,57 +555,57 @@ sub format_matrix_HTML {
 	my ($rows, $cols) = (scalar(@{$array}), scalar(@{ $array->[0] }));
 	my $HTML  = "";
 	my $class = 'class="ans_array_cell"';
-	my $cell  = "display:table-cell;vertical-align:middle;";
+	my $cell  = "display:table-cell;vertical-align:middle;text-align:center;";
 	my $pad   = "padding:4px 0;";
-	if   ($sep) { $sep = '<span class="ans_array_sep" style="' . $cell . 'padding:0 2px">' . $sep . '</span>' }
-	else        { $sep = '<span class="ans_array_sep" style="' . $cell . 'width:8px"></span>' }
-	$sep = '</span>' . $sep . '<span ' . $class . ' style="' . $cell . $pad . '">';
+	if   ($sep) { $sep = '<div class="ans_array_sep" style="' . $cell . 'padding:0 2px">' . $sep . '</div>' }
+	else        { $sep = '<div class="ans_array_sep" style="' . $cell . 'width:8px"></div>' }
+	$sep = '</div>' . $sep . '<div ' . $class . ' style="' . $cell . $pad . '">';
 
 	if ($options{top_labels}) {
 		$HTML .=
-			'<span style="display:table-row"><span '
+			'<div style="display:table-row"><div '
 			. $class
 			. ' style="'
 			. $cell
 			. $pad . '">'
 			. join($sep, @{ $options{top_labels} })
-			. '</span></span>';
+			. '</div></div>';
 	}
 	foreach my $i (0 .. $rows - 1) {
 		$HTML .=
-			'<span style="display:table-row"><span '
+			'<div style="display:table-row"><div '
 			. $class
 			. ' style="'
 			. $cell
 			. $pad . '">'
 			. join($sep, EVALUATE(@{ $array->[$i] }))
-			. '</span></span>';
+			. '</div></div>';
 	}
-	$HTML  = '<span class="ans_array_table" style="display:inline-table; vertical-align:middle">' . $HTML . '</span>';
+	$HTML  = '<div class="ans_array_table" style="display:inline-table; vertical-align:middle">' . $HTML . '</div>';
 	$open  = $self->format_delimiter($open,  $rows, $options{tth_delims});
 	$close = $self->format_delimiter($close, $rows, $options{tth_delims});
 	if ($open ne '' || $close ne '') {
 		my $delim = "display:inline-block; vertical-align:middle;";
 		$HTML =
-			'<span class="ans_array_open" style="'
+			'<div class="ans_array_open" style="'
 			. $delim
 			. ' margin-right:4px">'
 			. $open
-			. '</span>'
+			. '</div>'
 			. $HTML
-			. '<span class="ans_array_close" style="'
+			. '<div class="ans_array_close" style="'
 			. $delim
 			. ' margin-left:4px">'
 			. $close
-			. '</span>';
+			. '</div>';
 	}
-	return '<span class="ans_array" style="display:inline-block;vertical-align:.5ex"'
+	return '<div class="ans_array" style="display:inline-block;vertical-align:.5ex"'
 		. ($options{ans_last_name}
 			? qq{ data-feedback-insert-element="$options{ans_last_name}" data-feedback-insert-method="append_content"}
 			: '')
 		. '>'
 		. $HTML
-		. '</span>';
+		. '</div>';
 }
 
 sub EVALUATE {
@@ -689,7 +689,7 @@ sub format_delimiter_tth {
 #  based on these, and keep track of error messages.
 #
 
-my @ans_cmp_defaults = (showCoodinateHints => 0, checker => sub {0});
+my @ans_cmp_defaults = (showCoordinateHints => 0, checker => sub {0});
 
 sub ans_collect {
 	my $self   = shift;
@@ -728,8 +728,9 @@ sub ans_collect {
 		}
 		push(@array, [@row]);
 	}
-	$ans->{student_formula} = [@array];
-	$ans->{ans_message}     = $ans->{error_message} = "";
+	delete $ans->{student_formula};
+	$ans->{student_array} = [@array];
+	$ans->{ans_message}   = $ans->{error_message} = '';
 	if (scalar(@{$errors})) {
 		$ans->{ans_message} = $ans->{error_message} =
 			'<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" CLASS="ArrayLayout">'
@@ -851,7 +852,7 @@ sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
 	my $ans   = shift;
-	return 1 unless ref($other);
+	return 1 unless Value::isValue($other);
 	return 0 if Value::isFormula($other);
 	return 1 if $other->type eq 'Infinity' && $ans->{ignoreInfinity};
 	$self->type eq $other->type;
@@ -867,7 +868,7 @@ sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
 	my $ans   = shift;
-	return 1 unless ref($other);
+	return 1 unless Value::isValue($other);
 	return 0 if Value::isFormula($other);
 	return 1 if $other->type eq 'Number';
 	$self->type eq $other->type;
@@ -948,7 +949,7 @@ sub cmp {
 }
 
 #
-#  Adjust student preview and anser strings so they display properly
+#  Adjust student preview and answer strings so they display properly
 #
 sub cmp_preprocess {
 	my $self = shift;
@@ -995,7 +996,7 @@ sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
 	my $ans   = shift;
-	return ref($other) && $other->type eq 'Point' && !$other->isFormula;
+	return Value::isValue($other) && $other->type eq 'Point' && !$other->isFormula;
 }
 
 #
@@ -1085,7 +1086,7 @@ sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
 	my $ans   = shift;
-	return 0 unless ref($other) && !$other->isFormula;
+	return 0 unless Value::isValue($other) && !$other->isFormula;
 	return $other->type eq 'Vector'
 		|| ($ans->{promotePoints} && $other->type eq 'Point');
 }
@@ -1213,7 +1214,7 @@ sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
 	my $ans   = shift;
-	return 0 unless ref($other) && !$other->isFormula;
+	return 0 unless Value::isValue($other) && !$other->isFormula;
 	return $other->type eq 'Matrix'
 		|| ($other->type =~ m/^(Point|List)$/
 			&& $other->{open} . $other->{close} eq $self->{open} . $self->{close});
@@ -1291,7 +1292,7 @@ Usage:
     $interval = Interval("(1,2]");
     $interval = Interval('(',1,2,']');
 
-    ANS($inteval->cmp);
+    ANS($interval->cmp);
 
 compareOptions and default values:
 
@@ -1333,7 +1334,7 @@ sub cmp_compare {
 }
 
 #
-#  Check for wrong enpoints and wrong type of endpoints
+#  Check for wrong endpoints and wrong type of endpoints
 #
 sub cmp_postprocess {
 	my $self = shift;
@@ -1439,7 +1440,7 @@ package Value::Union;
 sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
-	return 0 unless ref($other) && !$other->isFormula;
+	return 0 unless Value::isValue($other) && !$other->isFormula;
 	return
 		$other->length == 2
 		&& ($other->{open} eq '('  || $other->{open} eq '[')
@@ -1549,7 +1550,7 @@ sub cmp_defaults {
 #
 #  Match anything but formulas
 #
-sub typeMatch { return !ref($other) || !$other->isFormula }
+sub typeMatch { return !Value::isValue($other) || !$other->isFormula }
 
 #
 #  Handle removal of outermost parens in correct answer.
@@ -1574,7 +1575,7 @@ sub cmp_equal {
 	$ans->{showPartialCorrectAnswers} = $self->getPG('$showPartialCorrectAnswers');
 
 	#
-	#  get the paramaters
+	#  get the parameters
 	#
 	my $showHints         = getOption($ans, 'showHints');
 	my $showLengthHints   = getOption($ans, 'showLengthHints');
@@ -1901,7 +1902,7 @@ sub typeMatch {
 	my $self  = shift;
 	my $other = shift;
 	my $ans   = shift;
-	return 1 if $self->type eq $other->type;
+	return 1 if !Value::isValue($other) || $self->type eq $other->type;
 	my $typeMatch = $self->getTypicalValue($self);
 	$other = $self->getTypicalValue($other, 1) if Value::isFormula($other);
 	return 1 unless defined($other);    # can't really tell, so don't report type mismatch
@@ -2050,48 +2051,44 @@ sub cmp_postprocess {
 	$self->cmp_Error($ans, "The dimension of your result is incorrect");
 }
 
-#
-#  Diagnostics for Formulas
-#
+# Diagnostics for Formulas.
 sub cmp_diagnostics {
-	my $self        = shift;
-	my $ans         = shift;
-	my $isEvaluator = (ref($ans) =~ /Evaluator/) ? 1            : 0;
-	my $hash        = $isEvaluator               ? $ans->rh_ans : $ans;
-	my $diagnostics = $self->{context}->diagnostics->merge("formulas", $self, $hash);
+	my ($self, $ans) = @_;
+	my $isEvaluator = ref($ans) =~ /Evaluator/ ? 1            : 0;
+	my $hash        = $isEvaluator             ? $ans->rh_ans : $ans;
+	my $diagnostics = $self->{context}->diagnostics->merge('formulas', $self, $hash);
 	my $formulas    = $diagnostics->{formulas};
 	return unless $formulas->{show};
 
-	my $output = "";
+	my $output = '';
 	if ($isEvaluator) {
-		#
-		#  The tests to be performed when the answer checker is created
-		#
-		$self->getPG('loadMacros("PGgraphmacros.pl")');
-		my ($inputs) = $self->getPG('$inputs_ref');
-		my $process = $inputs->{checkAnswers} || $inputs->{previewAnswers} || $inputs->{submitAnswers};
-		if ($formulas->{checkNumericStability} && !$process) {
-			### still needs to be written
-		}
+		# The tests to be performed when the answer checker is created.
+		# Still needs to be written. Commenting it out for now.
+		#my ($inputs) = $self->getPG('$inputs_ref');
+		#my $process = $inputs->{checkAnswers} || $inputs->{previewAnswers} || $inputs->{submitAnswers};
+		#if ($formulas->{checkNumericStability} && !$process) {
+		### Still needs to be written.
+		#}
 	} else {
-		#
-		#  The checks to be performed when an answer is submitted
-		#
+		# The checks to be performed when an answer is submitted.
 		my $student = $ans->{student_formula};
-		#
-		#  Get the test points
-		#
-		my @names = $self->{context}->variables->names;
-		my $vx    = (keys(%{ $self->{variables} }))[0];
-		my $vi    = 0;
-		while ($names[$vi] ne $vx) { $vi++ }
-		my $points = [ map { $_->[$vi] } @{ $self->{test_points} } ];
-		my @params = $self->{context}->variables->parameters;
-		@names = $self->{context}->variables->variables;
 
-		#
-		#  The graphs of the functions and errors
-		#
+		# Get the test points. This requires first determining what variables are in use and ignore parameters.
+		my $points    = [];
+		my @params    = $self->{context}->variables->parameters;
+		my %pnames    = map { $_ => 1 } @params;
+		my @names     = $self->{context}->variables->variables;
+		my @variables = grep { !$pnames{$_} } keys %{ $self->{variables} };
+
+		# If a single variable is found, use its test points for the graph.
+		# Functions with more than one variable are not graphed so test points are not needed.
+		if (scalar(@variables) == 1) {
+			my $vi = 0;
+			while ($names[$vi] ne $variables[0]) { $vi++ }
+			$points = [ map { $_->[$vi] } @{ $self->{test_points} } ];
+		}
+
+		# The graphs of the functions and errors.
 		if ($formulas->{showGraphs}) {
 			my @G = ();
 			if ($formulas->{combineGraphs}) {
@@ -2099,7 +2096,7 @@ sub cmp_diagnostics {
 					@G,
 					$self->cmp_graph(
 						$diagnostics, [ $student, $self ],
-						title      => 'Student Answer (red)<BR>Correct Answer (green)<BR>',
+						title      => 'Student Answer (red)<br>Correct Answer (green)',
 						points     => $points,
 						showDomain => 1
 					)
@@ -2131,209 +2128,205 @@ sub cmp_diagnostics {
 					)
 				);
 			}
-			$output .=
-				'<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0">'
-				. '<TR VALIGN="TOP">'
-				. join('<TD WIDTH="20"></TD>', @G)
-				. '</TR></TABLE>';
+			$output .= join('', @G);
 		}
 
-		#
-		#  The adaptive parameters
-		#
+		# The adaptive parameters.
 		if ($formulas->{showParameters} && scalar(@params) > 0) {
-			$output .= '<HR><TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0"><TR><TD>Adaptive Parameters:<BR>';
-			$output .= join("<BR>", map { "&nbsp;&nbsp;$params[$_]: " . $self->{parameters}[$_] } (0 .. $#params));
-			$output .= '</TD></TR></TABLE>';
+			$output .=
+				'<div style="border:1px solid;padding:5px;margin-bottom:5px"><strong>Adaptive Parameters</strong><br>'
+				. join("<br>", map { "&nbsp;&nbsp;$params[$_]: " . $self->{parameters}[$_] } 0 .. $#params)
+				. '</div>';
 		}
 
-		#
-		#  The test points and values
-		#
-		my @rows   = ();
-		my $colsep = '</TD><TD WIDTH="20"></TD><TD ALIGN="RIGHT">';
+		# The test points and values.
+		my @rows = ();
 		my @P =
 			(map { (scalar(@{$_}) == 1) ? $_->[0] : $self->Package("Point")->make(@{$_}) } @{ $self->{test_points} });
-		my @i = sort { $P[$a] <=> $P[$b] } (0 .. $#P);
-		foreach $p (@P) {
-			if (Value::isValue($p) && $p->length > 2) { $p = $p->string; $p =~ s|,|,<br />|g }
-		}
-		my $zeroLevelTol = $self->{context}{flags}{zeroLevelTol};
-		$self->{context}{flags}{zeroLevelTol} = 0;    # always show full resolution in the tables below
-		my $names = join(',', @names);
-		$names = '(' . $names . ')' if scalar(@names) > 1;
-
-		$student->createPointValues($self->{test_points}, 0, 1, 1) unless $student->{test_values};
-
-		my $cv = $self->{test_values};
-		my $sv = $student->{test_values};
-		my $av = $self->{test_adapt} || $cv;
-
-		if ($formulas->{showTestPoints}) {
-			my @p = ("$names:", (map { $P[ $i[$_] ] } (0 .. $#P)));
-			push(@rows, '<TR><TD ALIGN="RIGHT">' . join($colsep, @p) . '</TD></TR>');
-			push(@rows, '<TR><TD ALIGN="RIGHT">' . join($colsep, ("<HR>") x scalar(@p)) . '</TD></TR>');
-			push(
-				@rows,
-				'<TR><TD ALIGN="RIGHT">'
-					. join($colsep,
-						($av == $cv) ? "Correct Answer:" : "Adapted Answer:",
-						map { Value::isNumber($av->[ $i[$_] ]) ? $av->[ $i[$_] ] : "undefined" } (0 .. $#P))
-					. '</TD></TR>'
-			);
-			push(
-				@rows,
-				'<TR><TD ALIGN="RIGHT">'
-					. join($colsep,
-						"Student Answer:",
-						map { Value::isNumber($sv->[ $i[$_] ]) ? $sv->[ $i[$_] ] : "undefined" } (0 .. $#P))
-					. '</TD></TR>'
-			);
-		}
-		#
-		#  The absolute errors (colored by whether they are ok or too big)
-		#
-		if ($formulas->{showAbsoluteErrors}) {
-			my @p         = ("Absolute Error:");
-			my $tolerance = $self->getFlag('tolerance');
-			my $tolType   = $self->getFlag('tolType');
-			my $error;
-			foreach my $j (0 .. $#P) {
-				if (Value::isNumber($sv->[ $i[$j] ])) {
-					$error = CORE::abs($av->[ $i[$j] ] - $sv->[ $i[$j] ]);
-					$error =
-						'<SPAN STYLE="color:#'
-						. ($error->value < $tolerance ? '00AA00' : 'AA0000') . '">'
-						. $error
-						. '</SPAN>'
-						if $tolType eq 'absolute';
-				} else {
-					$error = "---";
+		if (@P) {
+			my @i      = sort { $P[$a] <=> $P[$b] } 0 .. $#P;
+			my @points = ([] x scalar(@names));
+			for my $p (@P) {
+				my @pt = Value::isValue($p) ? $p->value : ($p);
+				for (0 .. $#pt) {
+					push(@{ $points[$_] }, $pt[$_]);
 				}
-				push(@p, $error);
 			}
-			push(@rows, '<TR><TD ALIGN="RIGHT">' . join($colsep, @p) . '</TD></TR>');
-		}
-		#
-		#  The relative errors (colored by whether they are OK or too big)
-		#
-		if ($formulas->{showRelativeErrors}) {
-			my @p         = ("Relative Error:");
-			my $tolerance = $self->getFlag('tolerance');
-			my $tol;
-			my $tolType = $self->getFlag('tolType');
-			my $error;
-			my $zeroLevel = $self->getFlag('zeroLevel');
-			foreach my $j (0 .. $#P) {
-				if (Value::isNumber($sv->[ $i[$j] ])) {
-					my $c = $av->[ $i[$j] ];
-					my $s = $sv->[ $i[$j] ];
-					if (CORE::abs($cv->[ $i[$j] ]->value) < $zeroLevel || CORE::abs($s->value) < $zeroLevel) {
-						$error = CORE::abs($c - $s);
-						$tol   = $zeroLevelTol;
+			my $zeroLevelTol = $self->{context}{flags}{zeroLevelTol};
+			$self->{context}{flags}{zeroLevelTol} = 0;    # Always show full resolution in the tables below.
+
+			$student->createPointValues($self->{test_points}, 0, 1, 1) unless $student->{test_values};
+
+			my $cv = $self->{test_values};
+			my $sv = $student->{test_values};
+			my $av = $self->{test_adapt} || $cv;
+
+			if ($formulas->{showTestPoints}) {
+				for my $k (0 .. $#names) {
+					# Only show variables that are used in either answer or student formula.
+					push(@rows, [ $names[$k], map { $points[$k][ $i[$_] ] } 0 .. $#P ])
+						if $self->{variables}{ $names[$k] } || $student->{variables}{ $names[$k] };
+				}
+				push(
+					@rows,
+					[
+						$av == $cv ? 'Correct Answer' : 'Adapted Answer',
+						map { Value::isNumber($av->[ $i[$_] ]) ? $av->[ $i[$_] ] : 'undefined' } 0 .. $#P
+					]
+				);
+				push(
+					@rows,
+					[
+						'Student Answer',
+						map { Value::isNumber($sv->[ $i[$_] ]) ? $sv->[ $i[$_] ] : 'undefined' } 0 .. $#P
+					]
+				);
+			}
+
+			# The absolute errors (colored by whether they are OK or too big).
+			if ($formulas->{showAbsoluteErrors}) {
+				my @p         = ();
+				my $tolerance = $self->getFlag('tolerance');
+				my $tolType   = $self->getFlag('tolType');
+				my $error;
+				for my $j (0 .. $#P) {
+					if (Value::isNumber($sv->[ $i[$j] ])) {
+						$error = CORE::abs($av->[ $i[$j] ] - $sv->[ $i[$j] ]);
+						$error =
+							'<span style="color:#'
+							. ($error->value < $tolerance ? '00AA00' : 'AA0000') . '">'
+							. $error
+							. '</span>'
+							if $tolType eq 'absolute';
 					} else {
-						$error = CORE::abs(($c - $s) / ($c || 1E-10));
-						$tol   = $tolerance;
+						$error = "---";
 					}
-					$error = '<SPAN STYLE="color:#' . ($error < $tol ? '00AA00' : 'AA0000') . '">' . $error . '</SPAN>'
-						if $tolType eq 'relative';
-				} else {
-					$error = "---";
+					push(@p, "$error");
 				}
-				push(@p, $error);
+				push(@rows, [ 'Absolute Error', @p ]);
 			}
-			push(@rows, '<TR><TD ALIGN="RIGHT">' . join($colsep, @p) . '</TD></TR>');
+
+			#  The relative errors (colored by whether they are OK or too big).
+			if ($formulas->{showRelativeErrors}) {
+				my @p         = ();
+				my $tolerance = $self->getFlag('tolerance');
+				my $tol;
+				my $tolType = $self->getFlag('tolType');
+				my $error;
+				my $zeroLevel = $self->getFlag('zeroLevel');
+				for my $j (0 .. $#P) {
+					if (Value::isNumber($sv->[ $i[$j] ])) {
+						my $c = $av->[ $i[$j] ];
+						my $s = $sv->[ $i[$j] ];
+						if (CORE::abs($cv->[ $i[$j] ]->value) < $zeroLevel || CORE::abs($s->value) < $zeroLevel) {
+							$error = CORE::abs($c - $s);
+							$tol   = $zeroLevelTol;
+						} else {
+							$error = CORE::abs(($c - $s) / ($c || 1E-10));
+							$tol   = $tolerance;
+						}
+						$error =
+							'<span style="color:#' . ($error < $tol ? '00AA00' : 'AA0000') . '">' . $error . '</span>'
+							if $tolType eq 'relative';
+					} else {
+						$error = "---";
+					}
+					push(@p, "$error");
+				}
+				push(@rows, [ 'Relative Error', @p ]);
+			}
+			$self->{context}{flags}{zeroLevelTol} = $zeroLevelTol;
 		}
-		$self->{context}{flags}{zeroLevelTol} = $zeroLevelTol;
-		#
-		#  Put the data into a table
-		#
+
+		# Put the data into a table.
 		if (scalar(@rows)) {
-			$output .=
-				'<p><HR><p><TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0">'
-				. join('<TR><TD HEIGHT="3"></TD>', @rows)
-				. '</TABLE>';
+			my $tdstyle = 'style="padding:5px"';
+			my $trstyle = 'style="border:1px solid black"';
+			$output .= '<div style="overflow-x: auto">'
+				. '<table style="border:1px solid black;border-collapse:collapse;width:100%"><tbody>';
+			for my $row (@rows) {
+				my $header = shift(@$row);
+				$output .=
+					"<tr $trstyle><th $tdstyle>$header</th><td $tdstyle>"
+					. join("</td><td $tdstyle>", @$row)
+					. '</td></tr>';
+			}
+			$output .= '</tbody></table></div>';
 		}
 	}
-	#
-	#  Put all the diagnostic output into a frame
-	#
+
+	# Put all the diagnostic output into a frame.
 	return unless $output;
 	$output =
-		'<TABLE BORDER="1" CELLSPACING="2" CELLPADDING="20" STYLE="background:#F0F0F0; color:black">'
-		. '<TR><TD ALIGN="LEFT"><B>Diagnostics for '
-		. $self->string . ':</B>'
-		. '<P><CENTER>'
+		'<div style="background:#F0F0F0;color:black;padding:1em;border:1px solid">'
+		. '<p><strong>Diagnostics for '
+		. $self->string
+		. '</strong></p>'
 		. $output
-		. '</CENTER></TD></TR></TABLE><P>';
+		. '</div>';
 	$self->getPG('$PG')->debug_message($output);
 }
 
-#
-#  Draw a graph from a given Formula object
-#
+# Draw a graph from a given Formula object.
 sub cmp_graph {
-	my $self        = shift;
-	my $diagnostics = shift;
-	my $F1          = shift;
+	my ($self, $diagnostics, $F1, @opts) = @_;
 	my $F2;
-	($F1, $F2) = @{$F1} if (ref($F1) eq 'ARRAY');
-	#
-	#  Get the various options
-	#
-	my %options = (title => '', points => [], @_);
+	($F1, $F2) = @{$F1} if ref($F1) eq 'ARRAY';
+
+	# Get the various options.
+	my %options = (title => '', points => [], @opts);
 	my $graphs  = $diagnostics->{graphs};
 	my $limits  = $graphs->{limits};
 	my $size    = $graphs->{size};
-	$size = [ $size, $size ] unless ref($size) eq 'ARRAY';
-	my $steps  = $graphs->{divisions};
-	my $points = $options{points};
-	my $clip   = $options{clip};
+	my $steps   = $graphs->{divisions};
+	my $points  = $options{points};
+	my $clip    = $options{clip};
 	my ($my, $My) = (0, 0);
 	my ($mx, $Mx);
-	my $dx;
-	my $f;
-	my $y;
 
 	my @pnames  = $self->{context}->variables->parameters;
 	my @pvalues = ($self->{parameters} ? @{ $self->{parameters} } : (0) x scalar(@pnames));
-	my $x       = "";
+	my $x       = '';
 
-	#
-	#  Find the max and min values of the function
-	#
-	foreach $f ($F1, $F2) {
+	# Find the max and min values of the function.
+	for my $f ($F1, $F2) {
 		next unless defined($f);
-		foreach my $v (keys(%{ $f->{variables} })) {
+		for my $v (keys(%{ $f->{variables} })) {
 			if ($v ne $x && !$f->{context}->variables->get($v)->{parameter}) {
 				if ($x) {
-					warn "Only formulas with one variable can be graphed" unless $self->{graphWarning};
+					my $warn = $self->{graphWarning};
 					$self->{graphWarning} = 1;
-					return "";
+					return $warn
+						? ''
+						: '<div style="border:1px solid;padding:5px;margin-bottom:5px">'
+						. 'Only formulas with one variable can be graphed.</div>';
 				}
 				$x = $v;
 			}
 		}
 		unless ($f->typeRef->{length} == 1) {
-			warn "Only real-valued functions can be graphed" unless $self->{graphWarning};
+			my $warn = $self->{graphWarning};
 			$self->{graphWarning} = 1;
-			return "";
+			return $warn
+				? ''
+				: '<div style="border:1px solid;padding:5px;margin-bottom:5px">'
+				. 'Only formulas with one variable can be graphed.</div>';
 		}
 
 		$x      = ($f->{context}->variables->names)[0] unless $x;
 		$limits = [ $self->getVariableLimits($x) ]     unless $limits;
 		$limits = $limits->[0] while ref($limits) eq 'ARRAY' && ref($limits->[0]) eq 'ARRAY';
 		($mx, $Mx) = @{$limits};
-		$dx = ($Mx - $mx) / $steps;
+		my $dx = ($Mx - $mx) / $steps;
 
 		if ($f->isConstant) {
-			$y  = $f->eval;
+			my $y = $f->eval;
 			$my = $y if $y < $my;
 			$My = $y if $y > $My;
 		} else {
 			my $F = $f->perlFunction(undef, [ $x, @pnames ]);
-			foreach my $i (0 .. $steps - 1) {
-				$y = eval { &{$F}($mx + $i * $dx, @pvalues) };
+			for my $i (0 .. $steps - 1) {
+				my $y = eval { &{$F}($mx + $i * $dx, @pvalues) };
 				next unless defined($y) && Value::isNumber($y);
 				$my = $y if $y < $my;
 				$My = $y if $y > $My;
@@ -2349,80 +2342,58 @@ sub cmp_graph {
 	}
 	$my = -$My / 10 if $my > -$My / 10;
 	$My = -$my / 10 if $My < -$my / 10;
-	my $a = $self->Package("Real")->new(($My - $my) / ($Mx - $mx));
+	my $a = $self->Package('Real')->new(($My - $my) / ($Mx - $mx));
 
-	#
-	#  Create the graph itself, with suitable title
-	#
-	my $grf = $self->getPG('$_grf_ = {n => 0}');
-	$grf->{Goptions} = [
-		$mx, $my, $Mx, $My,
-		axes => $graphs->{axes},
-		grid => $graphs->{grid},
-		size => $size,
-	];
-	$grf->{params} = {
-		names  => [ $x, @pnames ],
-		values => { map { $pnames[$_] => $pvalues[$_] } (0 .. scalar(@pnames) - 1) },
-	};
-	$grf->{G} = $self->getPG('init_graph(@{$_grf_->{Goptions}})');
-	$grf->{G}->imageName($grf->{G}->imageName . '-' . time());    # avoid browser cache
-	$self->cmp_graph_function($grf, $F2, "green", $steps, $points) if defined($F2);
-	$self->cmp_graph_function($grf, $F1, "red",   $steps, $points);
-	my $image = $self->getPG('alias(insertGraph($_grf_->{G}))');
-	$image =
-		'<IMG SRC="'
-		. $image
-		. '" WIDTH="'
-		. $size->[0]
-		. '" HEIGHT="'
-		. $size->[1]
-		. '" BORDER="0" STYLE="margin-bottom:5px">';
+	# Create the graph itself, with suitable title.
+	my $grf = $self->getPG('$_grf_ = {}');
+	$grf->{G} = Plots::Plot->new(
+		xmin               => $mx,
+		xmax               => $Mx,
+		xtick_delta        => ($Mx - $mx) / $graphs->{grid}->[0],
+		xminor             => 0,
+		xlabel             => "\\($x\\)",
+		ymin               => $my,
+		ymax               => $My,
+		ytick_delta        => ($My - $my) / $graphs->{grid}->[1],
+		yminor             => 0,
+		ytick_label_format => CORE::abs($My) < 0.01 ? 'scinot' : 'decimal',
+		ylabel             => '\(f\)'
+	);
+	$grf->{size}          = ref($size) eq 'ARRAY' ? { width => $size->[0], height => $size->[1] } : { width => $size };
+	$grf->{variable_name} = $x;
+	$grf->{params}        = { map { $pnames[$_] => $pvalues[$_] } 0 .. $#pnames };
+	$self->cmp_graph_function($grf, $F2, $mx, $Mx, 'green', $points) if defined($F2);
+	$self->cmp_graph_function($grf, $F1, $mx, $Mx, 'red',   $points);
+	my $image = '<div style="margin:5px">' . $self->getPG('image($_grf_->{G}, %{ $_grf_->{size} })') . '</div>';
 	my $title = $options{title};
-	$title .= '<DIV STYLE="margin-top:5px"></DIV>'   if $title;
-	$title .= "<SMALL>Domain: [$mx,$Mx]</SMALL><BR>" if $options{showDomain};
-	$title .= "<SMALL>Range: [$my,$My]<BR>Aspect ratio: $a:1</SMALL>";
-	return '<TD ALIGN="CENTER" VALIGN="TOP" NOWRAP>' . $image . '<BR>' . $title . '</TD>';
+	$title = "<div><strong>$title</strong></div>" if $title;
+	return
+		'<div style="text-align:center;border:1px solid;margin-bottom:5px">'
+		. $title
+		. ($options{showDomain} ? "<small>Domain: [$mx,$Mx]</small><br>" : '')
+		. "<small>Range: [$my,$My]<br>Aspect ratio: $a:1</small>"
+		. $image
+		. '</div>';
 }
 
-#
-#  Add a function to a graph object, and plot the points
-#  that are used to test the function
-#
+# Add a function to a Plots::Plot object, and plot the points
+# that are used to test the function.
 sub cmp_graph_function {
-	my $self   = shift;
-	my $grf    = shift;
-	my $F      = shift;
-	my $color  = shift;
-	my $steps  = shift;
-	my $points = shift;
-	$grf->{n}++;
-	my $Fn = "F" . $grf->{n};
-	$grf->{$Fn} = $F;
-	my $f;
+	my ($self, $grf, $F, $min, $max, $color, $points) = @_;
 
 	if ($F->isConstant) {
 		my $y = $F->eval;
-		$f = $self->getPG('new Fun(sub {' . $y . '},$_grf_->{G})');
+		$grf->{G}->add_dataset([ $min, $y ], [ $max, $y ], color => $color);
 	} else {
-		my $X = $grf->{params}{names}[0];
-		$f =
-			$self->getPG('new Fun(sub {Parser::Evaluate($_grf_->{'
-				. $Fn . '},'
-				. $X
-				. '=>shift,%{$_grf_->{params}{values}})},$_grf_->{G})');
-		foreach my $x (@{$points}) {
-			my $y = Parser::Evaluate($F, ($X) => $x, %{ $grf->{params}{values} });
+		my $X = $grf->{variable_name};
+		$F = $F->substitute(%{ $grf->{params} }) if %{ $grf->{params} };
+		$grf->{G}->add_function($F, $X, $min, $max, color => $color);
+		for my $x (@{$points}) {
+			my $y = Parser::Evaluate($F, ($X) => $x);
 			next unless defined($y) && Value::isNumber($y);
-			$grf->{x}   = $x;
-			$grf->{'y'} = $y;
-			my $C = $self->getPG('new Circle($_grf_->{x},$_grf_->{y},4,"' . $color . '","' . $color . '")');
-			$grf->{G}->stamps($C);
+			$grf->{G}->add_point($x, $y, color => $color);
 		}
 	}
-	$f->color($color);
-	$f->weight(2);
-	$f->steps($steps);
 }
 
 #

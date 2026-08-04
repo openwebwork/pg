@@ -82,6 +82,8 @@ $Parser::reduce->{'ln(e^x)'} = 1;
 #
 sub string {
 	my $self = shift;
+	return 'abs(' . $self->{params}[0]->string . ')'
+		if $self->{name} eq 'abs' && $self->context->flag('stringifyAbsAsFunction');
 	return '|' . $self->{params}[0]->string . '|' if $self->{name} eq 'abs';
 	return $self->SUPER::string(@_);
 }

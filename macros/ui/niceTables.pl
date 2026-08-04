@@ -535,7 +535,7 @@ sub TableEnvironment {
 	my $booktabs = $tableOpts->{booktabs};
 
 	my $cols = Cols($tableArray, $tableOpts, $alignment);
-	my $rows = Rows($tableArray, $tableOpts, $alignment);
+	my $rows = Rows($tableArray, $tableOpts, $alignment, $cols);
 
 	if ($main::displayMode eq 'TeX') {
 		my $tabulartype  = $hasX ? 'tabularx'                        : 'tabular';
@@ -573,15 +573,8 @@ sub TableEnvironment {
 		} elsif (!$tableOpts->{center}) {
 			$ptxmargins = '0% 0%';
 		}
-		if ($tableOpts->{LaYoUt}) {
-			$rows = tag(
-				$rows,
-				'sbsgroup',
-				{
-					margins => $ptxmargins,
-					widths  => $cols
-				}
-			);
+		if ($tableOpts->{LaYoUt} && $#$tableArray && !$#{ $tableArray->[0] }) {
+			$rows = tag($rows, 'stack',);
 		} elsif (!$tableOpts->{LaYoUt}) {
 			$rows = prefix($rows, $cols);
 			$rows = tag(
@@ -763,7 +756,7 @@ sub Cols {
 }
 
 sub Rows {
-	my ($tableArray, $tableOpts, $alignment) = @_;
+	my ($tableArray, $tableOpts, $alignment, $cols) = @_;
 
 	my @rows;
 	my @htmlhead;
@@ -778,7 +771,7 @@ sub Rows {
 		my $html     = $row;
 
 		# establish if this row has certain things
-		# when declared mulltiple times, last non-falsy values are used
+		# when declared multiple times, last non-falsy values are used
 		my $bottom    = 0;
 		my $top       = 0;
 		my $rowcolor  = '';
@@ -808,7 +801,7 @@ sub Rows {
 					&& ($bottom || $tableOpts->{horizontalrules}));
 
 			# do cells in this row have a top or bottom border?
-			# although a propery of cells, LaTeX makes us do this at the row level
+			# although a property of cells, LaTeX makes us do this at the row level
 			for my $x (@$rowArray) {
 				$row = prefix($row, hrule($booktabs, 'cmid', $x->{top}) . "{$x->{leftcol}-$x->{rightcol}}", ' ')
 					if ($i == 0 && $x->{top});
@@ -845,15 +838,16 @@ sub Rows {
 			$ptxleft = "none"
 				if (!$ptxleft && $rowArray->[0]{halign} && $alignment->[0]{left});
 
-			if ($tableOpts->{LaYoUt}) {
+			if ($tableOpts->{LaYoUt} && $#{ $tableArray->[0] }) {
 				$row = tag(
 					$row,
 					'sidebyside',
 					{
 						valign => ($valign) ? $valign : $tableOpts->{valign},
+						widths => $cols
 					}
 				);
-			} else {
+			} elsif (!$tableOpts->{LaYoUt}) {
 				$row = tag(
 					$row, 'row',
 					{
@@ -1002,8 +996,6 @@ sub Row {
 			}
 			if ($tableOpts->{LaYoUt}) {
 				$cell = tag($cell, 'p');
-				$cell = tag($cell, 'stack',);
-
 			} else {
 				$cell = tag(
 					$cell, 'cell',
@@ -1514,8 +1506,7 @@ sub tag {
 		$return .= $inner;
 		$return .= "$separator</$name>";
 	} else {
-		$return .= '>' unless ($main::displayMode eq 'PTX');
-		$return .= '/>' if ($main::displayMode eq 'PTX');
+		$return .= ($main::displayMode eq 'PTX') ? '/>' : $name =~ /^(br|col|hr|img|input)$/ ? '>' : "></$name>";
 	}
 	return $return;
 }
@@ -1588,7 +1579,7 @@ sub getWidthPercent {
 		$unit = $2;
 	}
 	my %convert_to_pt = (
-		# units with related absolute defintions
+		# units with related absolute definitions
 		# the following are as TeX defines them
 		pt => 1,
 		pc => 12,
@@ -1616,7 +1607,7 @@ sub getWidthPercent {
 sub hrule {
 	my ($booktabs, $type, $thickness) = @_;
 	if ($booktabs) {
-		my $thicknessArg = '';
+		my $thicknessArg = $type eq 'bottom' ? '' : '{}';
 		$thicknessArg = '[' . getLaTeXthickness($thickness) . ']'
 			if ($thickness);
 		return "\\" . $type . 'rule' . $thicknessArg;
