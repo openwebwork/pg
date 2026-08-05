@@ -31,8 +31,9 @@ use feature 'say';
 
 my $pg_root;
 
+use Mojo::File qw(curfile path);
+
 BEGIN {
-	use Mojo::File qw(curfile);
 	$pg_root = curfile->dirname->dirname;
 }
 
@@ -98,7 +99,7 @@ sub renderSampleProblem ($filename, %global) {
 	say "Processing file: $path" if $global{verbose};
 	my $parsed_file = parseSampleProblem($path, %global);
 
-	mkdir "$global{out_dir}/$relative_dir" unless -d "$global{out_dir}/$relative_dir";
+	path("$global{out_dir}/$relative_dir")->make_path unless -d "$global{out_dir}/$relative_dir";
 
 	say "Printing to '$global{out_dir}/$relative_dir/$filename.html'" if $global{verbose};
 	open(my $html_fh, '>:encoding(UTF-8)', "$global{out_dir}/$relative_dir/$filename.html")
