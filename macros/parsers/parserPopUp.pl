@@ -405,9 +405,9 @@ sub MENU {
 	my $menu    = "";
 	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 	my $answer_value = (defined($main::inputs_ref->{$name}) ? $main::inputs_ref->{$name} : '');
-	my $aria_label   = $options{aria_label} // main::generate_aria_label($name);
 
 	if ($main::displayMode =~ m/^HTML/) {
+		my $aria_label = main::generate_aria_label($name, $options{aria_label});
 		if ($self->{useHTMLSelect}) {
 			$menu = main::tag(
 				'div',
@@ -457,8 +457,8 @@ sub MENU {
 				data_feedback_insert_method  => 'append_content',
 				join(
 					'',
-					main::tag('input', type  => 'hidden',          name => $name, value => $answer_value),
-					main::tag('span',  class => 'visually-hidden', $aria_label),
+					main::tag('input', type  => 'hidden', name => $name, value => $answer_value),
+					main::tag('span',  class => 'visually-hidden', aria_label => $aria_label),
 					main::tag(
 						'button',
 						class          => 'btn dropdown-toggle text-nowrap ',

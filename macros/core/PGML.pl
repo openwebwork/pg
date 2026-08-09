@@ -404,7 +404,7 @@ sub Image {
 sub Answer {
 	my $self  = shift;
 	my $token = shift;
-	my $def   = { options => [ "answer", "width", "name", "cmp_options" ] };
+	my $def   = { options => [ 'answer', 'width', 'name', 'cmp_options', 'aria_label' ] };
 	$def->{hasStar} = 1 if $token =~ m/\*$/;
 	$self->Item("answer", $token, $def);
 }
@@ -1285,6 +1285,11 @@ sub string {
 	return join('', @strings);
 }
 
+sub aria_label {
+	my ($self, $label) = @_;
+	return $label ? (aria_label => "$label ") : ();
+}
+
 sub nl {
 	my $self = shift;
 	my $nl   = $self->{nl};
@@ -1373,10 +1378,10 @@ sub Answer {
 	if (defined($ans)) {
 		if (ref($ans) eq 'CODE' || (ref($ans) eq 'AnswerEvaluator' && !Value::isValue($ans->{rh_ans}{correct_value}))) {
 			if (defined($item->{name})) {
-				$rule = main::NAMED_ANS_RULE($item->{name}, $item->{width});
+				$rule = main::NAMED_ANS_RULE($item->{name}, $item->{width}, $self->aria_label($item->{aria_label}));
 				main::NAMED_ANS($item->{name} => $ans);
 			} else {
-				$rule = main::ans_rule($item->{width});
+				$rule = main::ans_rule($item->{width}, $self->aria_label($item->{aria_label}));
 				main::ANS($ans);
 			}
 		} else {
@@ -1398,7 +1403,7 @@ sub Answer {
 					$ans = main::String("");    ### use something else?
 				}
 			}
-			my @options = ($item->{width});
+			my @options = ($item->{width}, $self->aria_label($item->{aria_label}));
 			my $method  = ($item->{hasStar} ? "ans_array" : "ans_rule");
 			if ($item->{name}) {
 				unshift(@options, $item->{name});
@@ -1426,9 +1431,9 @@ sub Answer {
 		}
 	} else {
 		if (defined($item->{name})) {
-			$rule = main::NAMED_ANS_RULE($item->{name}, $item->{width});
+			$rule = main::NAMED_ANS_RULE($item->{name}, $item->{width}, $self->aria_label($item->{aria_label}));
 		} else {
-			$rule = main::ans_rule($item->{width});
+			$rule = main::ans_rule($item->{width}, $self->aria_label($item->{aria_label}));
 		}
 	}
 	return $rule;
