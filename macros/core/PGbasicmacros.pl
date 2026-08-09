@@ -309,7 +309,7 @@ sub NAMED_ANS_RULE {
 				size           => $col,
 				name           => $name,
 				id             => $name,
-				aria_label     => $options{aria_label} // generate_aria_label($name),
+				aria_label     => generate_aria_label($name, $options{aria_label}),
 				dir            => 'auto',
 				autocomplete   => 'off',
 				autocapitalize => 'off',
@@ -385,7 +385,7 @@ sub NAMED_ANS_RULE_EXTENSION {
 			size           => $col,
 			name           => $name,
 			id             => $name,
-			aria_label     => $options{aria_label} // generate_aria_label($name),
+			aria_label     => generate_aria_label($name, $options{aria_label}),
 			dir            => 'auto',
 			autocomplete   => 'off',
 			autocapitalize => 'off',
@@ -413,7 +413,6 @@ sub NAMED_ANS_BOX {
 	my $height       = .07 * $row;
 	my $answer_value = $inputs_ref->{$name} // '';
 	$name = RECORD_ANS_NAME($name, $answer_value);
-	my $label = $options{aria_label} // generate_aria_label($name);
 
 	return MODES(
 		TeX  => qq!\\vskip $height in \\hrulefill\\quad !,
@@ -426,7 +425,7 @@ sub NAMED_ANS_BOX {
 				id         => $name,
 				rows       => $row,
 				cols       => $col,
-				aria_label => $label,
+				aria_label => generate_aria_label($name, $options{aria_label}),
 				encode_pg_and_html($answer_value)
 			)
 			)
@@ -454,10 +453,11 @@ sub NAMED_ANS_RADIO {
 			'label',
 			tag(
 				'input',
-				type  => 'radio',
-				name  => $name,
-				id    => $name,
-				value => $value,
+				type       => 'radio',
+				name       => $name,
+				id         => $name,
+				value      => $value,
+				aria_label => generate_aria_label($name, $options{aria_label}),
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
 				)
@@ -485,10 +485,11 @@ sub NAMED_ANS_RADIO_EXTENSION {
 			'label',
 			tag(
 				'input',
-				type  => 'radio',
-				name  => $name,
-				id    => $options{id} // "${name}_$value",
-				value => $value,
+				type       => 'radio',
+				name       => $name,
+				id         => $options{id} // "${name}_$value",
+				value      => $value,
+				aria_label => generate_aria_label($name, $options{aria_label}),
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
 				)
@@ -502,57 +503,63 @@ sub NAMED_ANS_RADIO_BUTTONS {
 	my ($name, $value, $tag, @buttons) = @_;
 
 	my @out;
-	push(@out, NAMED_ANS_RADIO($name, $value, $tag));
 	my $label = generate_aria_label($name);
-	my $count = 2;
+	my $count = 1;
+	push(@out, NAMED_ANS_RADIO($name, $value, $tag, 0, aria_label => $label . maketext('option [_1] ', $count)));
+	++$count;
 	while (@buttons) {
 		$value = shift @buttons;
 		$tag   = shift @buttons;
-		push(@out, NAMED_ANS_RADIO_EXTENSION($name, $value, $tag, aria_label => $label . "option $count "));
-		$count++;
+		push(@out,
+			NAMED_ANS_RADIO_EXTENSION($name, $value, $tag, aria_label => $label . maketext('option [_1] ', $count))
+		);
+		++$count;
 	}
 	return wantarray ? @out : join(" ", @out);
 }
 
 ##############################################
-#   generate_aria_label( $name )
-#   takes the name of an ANS_RULE and generates an appropriate
-#   aria label for screen readers
+#   generate_aria_label($name, $inLabel)
+#   Takes the name of an ANS_RULE and generates an appropriate aria label for screen readers.
 ##############################################
 
 sub generate_aria_label {
-	my $name  = shift;
-	my $label = '';
+	my ($name, $inLabel) = @_;
+	my $outLabel = '';
 
-	# if we dont have an AnSwEr type name then we do the best we can
-	if ($name !~ /AnSwEr\d+/) {
-		return maketext('answer [_1] ', $name);
+	# Return the input label unless it contains '%s'.
+	if ($inLabel) {
+		if ($inLabel =~ /^\S$/) {
+			$inLabel = '';
+		} else {
+			$inLabel = "$inLabel " unless $inLabel =~ / $/;
+			return $inLabel unless $inLabel =~ /%s/;
+		}
 	}
 
-	# check for quiz prefix
+	# If we don't have an AnSwEr type name then we do the best we can.
+	if ($name !~ /AnSwEr\d+/) {
+		$outLabel = maketext('answer [_1] ', $name);
+		return $inLabel ? $inLabel =~ s/%s/$outLabel/r : $outLabel;
+	}
+
+	# Check for quiz prefix.
 	if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
 		$name =~ s/Q0*(\d+)_//;
-		$label .= maketext('problem [_1] ', $1);
+		$outLabel .= maketext('problem [_1] ', $1);
 	}
 
-	# get answer number
+	# Get answer number.
 	$name =~ /AnSwEr0*(\d+)/;
-	$label .= maketext('answer [_1] ', $1);
+	$outLabel .= maketext('answer [_1] ', $1);
 
-	# check for Multianswer
+	# Check for Multianswer.
 	if ($name =~ /MuLtIaNsWeR_/) {
-		$name =~ s/MuLtIaNsWeR_//;
 		$name =~ /AnSwEr(\d+)_(\d+)/;
-		$label .= maketext('part [_1] ', $2 + 1);
+		$outLabel .= maketext('part [_1] ', $2 + 1);
 	}
 
-	# check for Matrix
-	if ($name =~ /^MaTrIx_/) {
-		$name =~ /_(\d+)_(\d+)$/;
-		$label .= maketext('row [_1] column [_2] ', $1 + 1, $2 + 1);
-	}
-
-	return $label;
+	return $inLabel ? $inLabel =~ s/%s/$outLabel/r : $outLabel;
 }
 
 ##############################################
@@ -609,7 +616,7 @@ sub NAMED_ANS_CHECKBOX {
 				type       => 'checkbox',
 				name       => $name,
 				id         => $name,
-				aria_label => $options{aria_label} // (generate_aria_label($name) . maketext('option [_1] ', 1)),
+				aria_label => generate_aria_label($name, $options{aria_label}),
 				value      => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
@@ -640,8 +647,8 @@ sub NAMED_ANS_CHECKBOX_OPTION {
 				'input',
 				type       => 'checkbox',
 				name       => $name,
-				id         => $options{id}         // "${name}_$value",
-				aria_label => $options{aria_label} // generate_aria_label($name),
+				id         => $options{id} // "${name}_$value",
+				aria_label => generate_aria_label($name, $options{aria_label}),
 				value      => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
@@ -656,16 +663,17 @@ sub NAMED_ANS_CHECKBOX_BUTTONS {
 	my ($name, $value, $tag, @buttons) = @_;
 
 	my @out;
-	push(@out, NAMED_ANS_CHECKBOX($name, $value, $tag));
 	my $label = generate_aria_label($name);
-	my $count = 2;
+	my $count = 1;
+	push(@out, NAMED_ANS_CHECKBOX($name, $value, $tag, 0, aria_label => $label . maketext('option [_1] ', $count)));
+	++$count;
 	while (@buttons) {
 		$value = shift @buttons;
 		$tag   = shift @buttons;
 		push(@out,
 			NAMED_ANS_CHECKBOX_OPTION($name, $value, $tag, aria_label => $label . maketext('option [_1] ', $count))
 		);
-		$count++;
+		++$count;
 	}
 
 	return wantarray ? @out : join(" ", @out);
@@ -675,7 +683,7 @@ sub ans_rule {
 	my $len  = shift;
 	my $name = NEW_ANS_NAME();
 	RECORD_IMPLICIT_ANS_NAME($name);
-	return NAMED_ANS_RULE($name, $len || 20);
+	return NAMED_ANS_RULE($name, $len || 20, @_);
 }
 
 sub ans_radio_buttons {
@@ -755,10 +763,11 @@ sub NAMED_POP_UP_LIST {
 			class => 'text-nowrap d-inline',
 			tag(
 				'select',
-				class => 'pg-select',
-				name  => "$moodle_prefix$name",
-				id    => "$moodle_prefix$name",
-				size  => 1,
+				class      => 'pg-select',
+				name       => "$moodle_prefix$name",
+				id         => "$moodle_prefix$name",
+				size       => 1,
+				aria_label => generate_aria_label($name),
 				join(
 					'',
 					map { tag('option', value => $_, $_ eq $answer_value ? (selected => undef) : (), $options{$_}) }
@@ -831,8 +840,6 @@ sub NAMED_ANS_ARRAY_EXTENSION {
 		$answer_value = '' unless defined($answer_value);
 	}
 
-	my $label = $options{aria_label} // generate_aria_label($name);
-
 	# the name of the answer evaluator controlling this collection of responses.
 	my $answer_group_name;
 
@@ -868,7 +875,7 @@ sub NAMED_ANS_ARRAY_EXTENSION {
 			name           => $name,
 			id             => $name,
 			class          => 'codeshard',
-			aria_label     => $label,
+			aria_label     => generate_aria_label($name, $options{aria_label}),
 			autocomplete   => 'off',
 			autocapitalize => 'off',
 			spellcheck     => 'false',

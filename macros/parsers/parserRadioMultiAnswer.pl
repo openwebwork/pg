@@ -227,6 +227,15 @@ label followed by a period in bold.
 Specifies whether labels should be displayed after the radio button and before its text.  This
 makes the association between the choices and the label used as an answer more explicit.
 
+=item ariaLabels (Default: ariaLabels => [])
+
+An array reference which is a list of accessibility labels to add to the answer blanks. The
+labels match the order of the answers. If the corresponding label is undefined, the default
+accessibility label is of the form "answer X part Y subpart Z" (Y is the label if C<displayLabels>
+is 1, other wise the number of the radio button, and subpart Z is only shown if there are more
+than one subparts). A single C<%s> can be used to include the default accessibility label as part
+of the custom accessibility label, e.g. "%s custom label".
+
 =item checked (Default: checked => undef)
 
 The index (starting at zero) of the radio button to be checked initially.  By default this is
@@ -290,6 +299,7 @@ sub new {
 		values            => [],
 		namedRules        => 0,
 		cmpOpts           => undef,
+		ariaLabels        => [],
 		checkTypes        => 1,
 		allowBlankAnswers => 0,
 		tex_separator     => ';\,',
@@ -632,36 +642,41 @@ sub label {
 }
 
 sub generate_aria_label {
-	my ($name, $radioIndex, $partIndex) = @_;
-	my $label = '';
+	my ($self, $name, $radioIndex, $partIndex, $inLabel) = @_;
+	my $outLabel = '';
+
+	# Return the input label unless it contains '%s'.
+	if ($inLabel) {
+		if ($inLabel =~ /^\S$/) {
+			$inLabel = '';
+		} else {
+			$inLabel = "$inLabel " unless $inLabel =~ / $/;
+			return $inLabel unless $inLabel =~ /%s/;
+		}
+	}
 
 	$name =~ s/$answerPrefix//;
 
 	# Check for the quiz prefix.
 	if ($name =~ /^Q\d+/ || $name =~ /^MaTrIx_Q\d+/) {
 		$name =~ s/Q0*(\d+)_//;
-		$label .= main::maketext('problem [_1] ', $1);
+		$outLabel .= main::maketext('problem [_1] ', $1);
 	}
 
 	# Get the answer number.
+	my $partLabel = $self->{displayLabels} ? $self->label($radioIndex - 1) : $radioIndex;
 	$name =~ /AnSwEr0*(\d+)/;
-	$label .= main::maketext('answer [_1] ', $1);
+	$outLabel .=
+		$partIndex
+		? main::maketext('answer [_1] part [_2] subpart [_3] ', $1, $partLabel, $partIndex)
+		: main::maketext('answer [_1] part [_2] ', $1, $partLabel);
 
-	$label .= main::maketext('part [_1] ',    $radioIndex);
-	$label .= main::maketext('subpart [_1] ', $partIndex);
-
-	# Check for a Matrix answer.
-	if ($name =~ /^MaTrIx_/) {
-		$name =~ /_(\d+)_(\d+)$/;
-		$label .= main::maketext('row [_1] column [_2] ', $1 + 1, $2 + 1);
-	}
-
-	return $label;
+	return $inLabel ? $inLabel =~ s/%s/$outLabel/r : $outLabel;
 }
 
 # Produce the answer rule.
 sub ans_rule {
-	my ($self, $size, @options) = @_;
+	my ($self, $size, %options) = @_;
 
 	$size ||= 20;
 	my @data = @{ $self->{data} };
@@ -676,8 +691,14 @@ sub ans_rule {
 		my @part_rules;
 		my @part_names;
 		my @positions = $data[$i][0] =~ /(%s\*?)/g;
-		for (1 .. $#{ $data[$i] }) {
-			my $name = $self->ANS_NAME($part++);
+		my $subparts  = $#{ $data[$i] };
+		for (1 .. $subparts) {
+			my $name       = $self->ANS_NAME($part++);
+			my $aria_label = $self->generate_aria_label(
+				$name, $i + 1,
+				$subparts == 1 ? 0 : $_,
+				$self->{ariaLabels}[ $part - 2 ] || $options{aria_label}
+			);
 			if ($positions[ $_ - 1 ] eq '%s*') {
 				push(
 					@part_rules,
@@ -688,8 +709,8 @@ sub ans_rule {
 							? (defined $size->[$i][ $_ - 1 ] ? $size->[$i][ $_ - 1 ] : 20)
 							: $size,
 							answer_group_name => $radio_name,
-							aria_label        => generate_aria_label($name, $i + 1, $_),
-							@options
+							%options,
+							aria_label => $aria_label,
 						)
 					)
 				);
@@ -704,8 +725,8 @@ sub ans_rule {
 							? (defined $size->[$i][ $_ - 1 ] ? $size->[$i][ $_ - 1 ] : 20)
 							: $size,
 							answer_group_name => $radio_name,
-							aria_label        => generate_aria_label($name, $i + 1, $_),
-							@options
+							%options,
+							aria_label => $aria_label,
 						)
 					)
 				);
