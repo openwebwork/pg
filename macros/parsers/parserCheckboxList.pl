@@ -541,7 +541,7 @@ sub CHECKS {
 
 	my @checks;
 	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
-	my $label = (delete $options{aria_label}) // main::generate_aria_label($name);
+	my $label = main::generate_aria_label($name, delete $options{aria_label});
 
 	for my $i (0 .. $#{ $self->{orderedChoices} }) {
 		my $value = $self->{values}[$i];
