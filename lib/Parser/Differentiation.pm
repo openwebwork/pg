@@ -757,22 +757,16 @@ sub Value::List::D {
 }
 
 sub Value::Interval::D {
-	shift;
-	shift;
 	my $self = shift;
 	$self->Error("Can't differentiate intervals");
 }
 
 sub Value::Set::D {
-	shift;
-	shift;
 	my $self = shift;
 	$self->Error("Can't differentiate sets");
 }
 
 sub Value::Union::D {
-	shift;
-	shift;
 	my $self = shift;
 	$self->Error("Can't differentiate unions");
 }
