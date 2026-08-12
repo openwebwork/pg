@@ -747,7 +747,6 @@ sub NAMED_POP_UP_LIST {
 	$name = RECORD_ANS_NAME($name, $answer_value);
 
 	if ($displayMode eq 'HTML_MathJax'
-		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
 		|| $displayMode eq 'HTML_tth')
 	{
@@ -1119,7 +1118,6 @@ a hard copy output.
     MODES   ( TeX        => "Output this in TeX mode",
               HTML       => "output this in HTML mode",
               HTML_tth   => "output this in HTML_tth mode",
-              HTML_dpng  => "output this in HTML_dpng mode",
              )
 
     M3      (tex_version, latex2html_version, html_version) #obsolete
@@ -1129,7 +1127,7 @@ a hard copy output.
 
 sub M3 {
 	my ($tex, $l2h, $html) = @_;
-	MODES(TeX => $tex, HTML => $html, HTML_tth => $html, HTML_dpng => $html);
+	MODES(TeX => $tex, HTML => $html, HTML_tth => $html);
 }
 
 # MODES() is now table driven
@@ -1138,8 +1136,7 @@ our %DISPLAY_MODE_FAILOVER = (
 	HTML         => [],
 	PTX          => ["HTML"],
 	HTML_tth     => ["HTML"],
-	HTML_dpng    => [ "HTML_tth",  "HTML" ],
-	HTML_MathJax => [ "HTML_dpng", "HTML_tth", "HTML" ]
+	HTML_MathJax => [ "HTML_tth", "HTML" ]
 );
 
 # This replaces M3.  You can add new modes at will to this one.
@@ -1679,23 +1676,9 @@ Next interpolation of all variables (e.g. C<$var or @array> ) is performed.
 Then mathematical formulas in TeX are evaluated within the
 C<\(  tex math mode \)> and
 C<\[ tex display math mode \] >
-constructions, in that order:
-
-=head3 refreshEquations
-
-    refreshEquations(1);
-
-Prevents equations generated in "image mode" from being cached.  This can be useful for debugging.
-It has no effect in the other modes.
+constructions, in that order.
 
 =cut
-
-sub refreshEquations {
-	my $in = shift;
-	if ($displayMode eq "HTML_dpng") {
-		$envir->{imagegen}->refresh($in);
-	}
-}
 
 =head3 addToTeXPreamble
 
@@ -1728,9 +1711,7 @@ different TeXPreamble files for different courses
 
 sub addToTeXPreamble {
 	my $str = shift;
-	if ($displayMode eq "HTML_dpng") {
-		$envir->{imagegen}->addToTeXPreamble($str . "\n");
-	} elsif ($displayMode eq "TeX" and $envir->{probNum} == 0) {
+	if ($displayMode eq "TeX" and $envir->{probNum} == 0) {
 
 		# in TeX mode we are typically creating an entire homework set
 		# and typesetting that so w only want the TeXPreamble to
@@ -1922,11 +1903,6 @@ sub general_math_ev3 {
 	my $out;
 	if ($displayMode eq "HTML_MathJax") {
 		$out = '<script type="math/tex' . ($mode eq 'display' ? '; mode=display' : '') . '">' . $in . '</script>';
-	} elsif ($displayMode eq "HTML_dpng") {
-		# for jj's version of ImageGenerator
-		#$out = $envir->{'imagegen'}->add($in_delim);
-		# for my version of ImageGenerator
-		$out = $envir->{'imagegen'}->add($in, $mode);
 	} elsif ($displayMode eq "HTML_tth") {
 		$out = tth($in_delim);
 		## remove leading and trailing spaces as per Davide Cervone.
@@ -1999,26 +1975,7 @@ sub EV3 {
 }
 
 sub EV4 {
-	if ($displayMode eq "HTML_dpng") {
-		my $string = join(" ", @_);
-		my ($evaluated_string, $PG_eval_errors, $PG_full_errors) =
-			PG_restricted_eval("<<END_OF_EVALUATION_STRING\n$string\nEND_OF_EVALUATION_STRING\n");
-		if ($PG_eval_errors) {
-			my @errorLines = split("\n", $PG_eval_errors);
-			$string =~ s/</&lt;/g;
-			$string =~ s/>/&gt;/g;
-			$evaluated_string =
-				"<PRE>$PAR % ERROR in $0:EV3, PGbasicmacros.pl:"
-				. "$PAR % There is an error occurring in the following code:$BR "
-				. "$string $BR % $BR % $errorLines[0]\n % $errorLines[1]$BR "
-				. "% $BR % $BR </PRE> ";
-		}
-		$string = $evaluated_string;
-		$string = $envir{'imagegen'}->add($string);
-		$string;
-	} else {
-		EV3(@_);
-	}
+	EV3(@_);
 }
 
 =head3 EV3P
@@ -2341,10 +2298,9 @@ sub OL {
 	foreach $elem (@array) {
 		$letter = shift @alpha;
 		$out .= MODES(
-			TeX       => "\\item[$ALPHABET[$i].] $elem\n",
-			HTML      => "<br /> <b>$letter.</b> $elem\n",
-			HTML_dpng => "<br /> <b>$letter.</b> $elem \n",
-			PTX       => "<li><p>$elem</p></li>\n",
+			TeX  => "\\item[$ALPHABET[$i].] $elem\n",
+			HTML => "<br /> <b>$letter.</b> $elem\n",
+			PTX  => "<li><p>$elem</p></li>\n",
 		);
 		$i++;
 	}
@@ -2690,7 +2646,6 @@ sub begintable {
 	} elsif ($displayMode eq 'PTX') {
 		$out .= "\n" . '<tabular top="medium" bottom="medium" left="medium" right="medium">' . "\n";
 	} elsif ($displayMode eq 'HTML_MathJax'
-		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
 		|| $displayMode eq 'HTML_tth')
 	{
@@ -2708,7 +2663,6 @@ sub endtable {
 	} elsif ($displayMode eq 'PTX') {
 		$out .= "\n" . '</tabular>' . "\n";
 	} elsif ($displayMode eq 'HTML_MathJax'
-		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
 		|| $displayMode eq 'HTML_tth')
 	{
@@ -2736,7 +2690,6 @@ sub row {
 		}
 		$out .= '</row>' . "\n";
 	} elsif ($displayMode eq 'HTML_MathJax'
-		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
 		|| $displayMode eq 'HTML_tth')
 	{
@@ -2983,7 +2936,6 @@ sub image {
 				}
 			}
 		} elsif ($displayMode eq 'HTML_MathJax'
-			|| $displayMode eq 'HTML_dpng'
 			|| $displayMode eq 'HTML'
 			|| $displayMode eq 'HTML_tth')
 		{
@@ -3104,7 +3056,6 @@ sub video {
 				. "} \\end{center}";
 
 		} elsif ($displayMode eq 'HTML_MathJax'
-			|| $displayMode eq 'HTML_dpng'
 			|| $displayMode eq 'HTML'
 			|| $displayMode eq 'HTML_tth')
 		{
@@ -3139,7 +3090,6 @@ sub caption {
 	$out = " $out \n" if $displayMode eq 'TeX';
 	$out = " $out  "  if $displayMode eq 'HTML';
 	$out = " $out  "  if $displayMode eq 'HTML_tth';
-	$out = " $out  "  if $displayMode eq 'HTML_dpng';
 	$out;
 }
 
@@ -3181,7 +3131,6 @@ sub imageRow {
 		chop($out);
 		$out .= "\\\\ \\hline \n\\end {tabular}\\end{center}\\par\\smallskip\n";
 	} elsif ($displayMode eq 'HTML_MathJax'
-		|| $displayMode eq 'HTML_dpng'
 		|| $displayMode eq 'HTML'
 		|| $displayMode eq 'HTML_tth')
 	{

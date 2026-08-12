@@ -11,7 +11,6 @@ use warnings;
 use File::Copy qw(move);
 
 require WeBWorK::PG::IO;
-require WeBWorK::PG::ImageGenerator;
 
 # The constructor (it takes no parameters)
 sub new {
@@ -186,7 +185,7 @@ sub footer {
 sub draw {
 	my $self = shift;
 
-	my $working_dir = WeBWorK::PG::ImageGenerator::makeTempDirectory(WeBWorK::PG::IO::pg_tmp_dir(), "latex");
+	my $working_dir = WeBWorK::PG::IO::makeTempDirectory('latex');
 
 	my $ext       = $self->ext;
 	my $svgMethod = $self->svgMethod;

@@ -332,7 +332,6 @@ sub quest_first_pop_up_list_print_q {
 	my $out         = "";
 
 	if ($main::displayMode eq 'HTML_MathJax'
-		|| $main::displayMode eq 'HTML_dpng'
 		|| $main::displayMode eq 'HTML'
 		|| $main::displayMode eq 'HTML_tth')
 	{
@@ -388,7 +387,6 @@ sub ans_in_middle_pop_up_list_print_q {
 	my $out         = "";
 
 	if ($main::displayMode eq 'HTML_MathJax'
-		|| $main::displayMode eq 'HTML_dpng'
 		|| $main::displayMode eq 'HTML'
 		|| $main::displayMode eq 'HTML_tth')
 	{

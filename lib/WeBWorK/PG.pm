@@ -7,15 +7,16 @@ no warnings qw(experimental::signatures);
 
 use WeBWorK::PG::Environment;
 use WeBWorK::PG::Translator;
-use WeBWorK::PG::RestrictedClosureClass;
-use WeBWorK::PG::Constants;
 use WeBWorK::PG::Localize;
+
+# The maximum amount of time (in seconds) to work on a single problem.
+# At the end of this time a timeout message is sent to the browser.
+our $TIMEOUT = $TIMEOUT // 60;
 
 use constant DISPLAY_MODES => {
 	# display name   # mode name
 	tex       => 'TeX',
 	plainText => 'HTML',
-	images    => 'HTML_dpng',
 	MathJax   => 'HTML_MathJax',
 	PTX       => 'PTX',
 };
@@ -23,12 +24,12 @@ use constant DISPLAY_MODES => {
 sub new ($invocant, %options) {
 	local $SIG{ALRM} = sub ($) {
 		my $msg =
-			"Timeout after processing this problem for $WeBWorK::PG::TIMEOUT seconds. "
+			"Timeout after processing this problem for $TIMEOUT seconds. "
 			. "Check for infinite loops in problem source.\n";
 		warn $msg;
 		die $msg;
 	};
-	alarm $WeBWorK::PG::TIMEOUT;
+	alarm $TIMEOUT;
 	my $pg = eval { $invocant->new_helper(%options) };
 	alarm 0;
 	die $@ if $@;
@@ -68,23 +69,7 @@ sub new_helper ($invocant, %options) {
 		}
 	}
 
-	# Prepare an imagegenerator object if "images" mode was selected.
-	my $image_generator = ($options{displayMode} // '') eq 'images'
-		? WeBWorK::PG::ImageGenerator->new(
-			tempDir         => $pg_envir->{directories}{tmp},
-			latex           => $pg_envir->{externalPrograms}{latex},
-			dvipng          => $pg_envir->{externalPrograms}{dvipng},
-			useCache        => 1,
-			cacheDir        => $pg_envir->{directories}{equationCache},
-			cacheURL        => ($options{use_site_prefix} // '') . $pg_envir->{URLs}{equationCache},
-			cacheDB         => $pg_envir->{equationCacheDB},
-			useMarkers      => 1,
-			dvipng_align    => $pg_envir->{displayModeOptions}{images}{dvipng_align},
-			dvipng_depth_db => $pg_envir->{displayModeOptions}{images}{dvipng_depth_db},
-		)
-		: undef;
-
-	$translator->environment(defineProblemEnvironment($pg_envir, \%options, $image_generator));
+	$translator->environment(defineProblemEnvironment($pg_envir, \%options));
 
 	$translator->initialize;
 
@@ -163,9 +148,6 @@ sub new_helper ($invocant, %options) {
 	$translator->post_process_content if ref($translator->{rh_pgcore}) eq 'PGcore';
 	$translator->stringify_answers;
 
-	$image_generator->render(body_text => $translator->r_text, refresh => $options{refreshMath2img} // 0)
-		if $image_generator;
-
 	# Add the result summary set in post processing into the result.
 	$result->{summary} = $translator->{rh_pgcore}{result_summary}
 		if ref($translator->{rh_pgcore}) eq 'PGcore'
@@ -197,7 +179,7 @@ sub free ($pg) {
 	return;
 }
 
-sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef) {
+sub defineProblemEnvironment ($pg_envir, $options = {}) {
 	my $now = time;
 
 	# Take the values for the following from the pg environment, and override with any that are defined in the
@@ -272,10 +254,6 @@ sub defineProblemEnvironment ($pg_envir, $options = {}, $image_generator = undef
 
 		# Other things ...
 
-		imagegen => $image_generator
-		? WeBWorK::PG::RestrictedClosureClass->new($image_generator, 'add', 'addToTeXPreamble', 'refresh')
-		: undef,
-
 		use_site_prefix   => $options->{use_site_prefix}   // '',
 		use_opaque_prefix => $options->{use_opaque_prefix} // 0,
 
@@ -305,7 +283,7 @@ __END__
 =head1 SYNOPSIS
 
     $pg = WeBWorK::PG->new(
-        displayMode        => 'MathJax',            # (images|MathJax)
+        displayMode        => 'MathJax',
         showHints          => 1,
         showSolutions      => 0,
         processAnswers     => 1,
@@ -368,8 +346,7 @@ Seed to use for the problem.
 
 =item displayMode (string, default: 'MathJax')
 
-The PG display mode to use, e.g., 'tex', 'plainText', 'images', 'MathJax', or
-'PTX'.
+The PG display mode to use, e.g., 'tex', 'plainText', 'MathJax', or 'PTX'.
 
 =item showHints (boolean, default: 1)
 
@@ -414,10 +391,6 @@ identifiers used for resources.
 =item probNum (number, default: 1, deprecated)
 
 Problem number.  This will eventually be removed from pg.
-
-=item refreshMath2img (boolean, default: 0)
-
-If 1, force images created by math2img (in "images" mode) to be recreated.
 
 =item processAnswers (boolean, default: 0)
 
