@@ -1206,8 +1206,7 @@ sub ENDDOCUMENT {
 					} elsif ($main::displayMode eq 'HTML_dpng') {
 						return $rh_envir->{imagegen}->add($preview);
 					} elsif ($main::displayMode eq 'HTML_MathJax') {
-						return Mojo::DOM->new_tag('script', type => 'math/tex; mode=display', sub {$preview})
-							->to_string;
+						return "\\[$preview\\]";
 					}
 				};
 
