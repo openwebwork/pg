@@ -1204,8 +1204,7 @@ sub ENDDOCUMENT {
 					if ($main::displayMode eq 'HTML' || !$wrapPreviewInTex) {
 						return $preview;
 					} elsif ($main::displayMode eq 'HTML_MathJax') {
-						return Mojo::DOM->new_tag('script', type => 'math/tex; mode=display', sub {$preview})
-							->to_string;
+						return "\\[$preview\\]";
 					}
 				};
 
