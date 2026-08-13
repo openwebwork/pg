@@ -23,32 +23,32 @@ msgstr ""
 #. ($edgeText[0], $edgeText[1])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:813
 msgid " There are edges between %1 and %2."
-msgstr ""
+msgstr " Υπάρχουν ακμές μεταξύ %1 και %2."
 
 #. (join($comma, @edgeText[ 0 .. $#edgeText - 1 ])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:817
 msgid " There are edges between %1%2and %3."
-msgstr ""
+msgstr " Υπάρχουν ακμές μεταξύ %1%2και %3."
 
 #. ($edgeText[0])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:811
 msgid " There is an edge between %1."
-msgstr ""
+msgstr " Υπάρχει ακμή μεταξύ %1."
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:806
 msgid "%1 and %2"
-msgstr ""
+msgstr "%1 και %2"
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:803
 msgid "%1 and %2 with weight %3"
-msgstr ""
+msgstr "%1 και %2 με βάρος %3"
 
 #. ($numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1470
 msgid "%1 of the answers %plural(%1,has,have) been graded."
-msgstr ""
+msgstr "%1 από τις απαντήσεις %plural(%1,έχει,έχουν) βαθμολογηθεί."
 
 #. (@answerNames - $numBlank - $numCorrect - $numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1442
@@ -63,7 +63,7 @@ msgstr "%1 από τις απαντήσεις θα βαθμολογηθούν α
 #. ($options{resultTitle})
 #: /opt/webwork/pg/macros/PG.pl:1239
 msgid "%1 with message"
-msgstr ""
+msgstr "%1 με μήνυμα"
 
 #. (round($answerScore * 100)
 #: /opt/webwork/pg/macros/PG.pl:1119
@@ -79,16 +79,16 @@ msgstr ""
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:793
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #. ($self->labelsString)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:791
 msgid "A graph with vertices %1."
-msgstr ""
+msgstr "Ένα γράφημα με κορυφές %1."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:221
 msgid "Add Bucket"
-msgstr ""
+msgstr "Προσθήκη λίστας"
 
 #: /opt/webwork/pg/macros/PG.pl:1429
 msgid "All of the answers are correct."
@@ -96,27 +96,27 @@ msgstr "Όλες οι απαντήσεις είναι σωστές."
 
 #: /opt/webwork/pg/macros/PG.pl:1420
 msgid "All of the computer gradable answers are correct."
-msgstr ""
+msgstr "Όλες οι απαντήσεις που βαθμολογούνται αυτόματα είναι σωστές."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1323
 msgid "An edge traversed by this path does not exist in the graph."
-msgstr ""
+msgstr "Μια ακμή που διασχίζεται από αυτή τη διαδρομή δεν υπάρχει στο γράφημα."
 
 #: /opt/webwork/pg/macros/PG.pl:1062
 msgid "Answer Preview"
-msgstr ""
+msgstr "Προεπισκόπηση απάντησης"
 
 #: /opt/webwork/pg/macros/PG.pl:1255 /opt/webwork/pg/macros/PG.pl:1331
 msgid "Close"
-msgstr ""
+msgstr "Κλείσιμο"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:233
 msgid "Close Help"
-msgstr ""
+msgstr "Κλείσιμο βοήθειας"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2908
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2912
 msgid "Close image description"
-msgstr ""
+msgstr "Κλείσιμο περιγραφής εικόνας"
 
 #: /opt/webwork/pg/macros/PG.pl:1111
 msgid "Correct"
@@ -128,7 +128,7 @@ msgstr "Σωστή Απάντηση"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:232
 msgid "Drag and Drop Help"
-msgstr ""
+msgstr "Βοήθεια μεταφοράς και απόθεσης"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:241
 msgid ""
@@ -139,6 +139,13 @@ msgid ""
 "list can be removed by using the left or right arrow key until it returns to "
 "the universal set."
 msgstr ""
+"Σύρετε στοιχεία από το καθολικό σύνολο για να τα αντιγράψετε σε μια λίστα. "
+"Τα πλήκτρα Tab και Shift+Tab μπορούν να χρησιμοποιηθούν για εστίαση "
+"στοιχείων του καθολικού συνόλου. Ένα εστιασμένο στοιχείο του καθολικού "
+"συνόλου μπορεί να προστεθεί στην πρώτη λίστα με τα πλήκτρα δεξί ή κάτω "
+"βέλος, ή στην τελευταία λίστα με τα πλήκτρα αριστερό ή πάνω βέλος. Ένα "
+"εστιασμένο στοιχείο σε μια λίστα μπορεί να αφαιρεθεί χρησιμοποιώντας το "
+"αριστερό ή δεξί βέλος μέχρι να επιστρέψει στο καθολικό σύνολο."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:235
 msgid ""
@@ -147,6 +154,12 @@ msgid ""
 "keys move a focused list item to the list to the left or right. The up and "
 "down arrow keys move a focused list item up and down inside a list."
 msgstr ""
+"Σύρετε για να αναδιοργανώσετε στοιχεία μέσα σε λίστες ή για να μετακινήσετε "
+"στοιχεία σε άλλη λίστα. Τα πλήκτρα Tab και Shift+Tab μπορούν να "
+"χρησιμοποιηθούν για εστίαση στοιχείων λίστας. Τα πλήκτρα αριστερού και "
+"δεξιού βέλους μετακινούν ένα εστιασμένο στοιχείο λίστας στη λίστα αριστερά ή "
+"δεξιά. Τα πλήκτρα πάνω και κάτω βέλους μετακινούν ένα εστιασμένο στοιχείο "
+"λίστας πάνω ή κάτω μέσα στη λίστα."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
 msgid "False"
@@ -169,17 +182,17 @@ msgstr "Μετάβαση στο επόμενο"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:64
 msgid "Graded"
-msgstr ""
+msgstr "Βαθμολογήθηκε"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:413
 msgid "Hardcopy will always print the original version of the problem."
 msgstr "Στην έντυπη μορφή εμφανίζεται πάντα η αρχική μορφή του προβλήματος."
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1306
 msgid "Hint"
-msgstr ""
+msgstr "Υπόδειξη"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1304
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
 msgid "Hint:"
 msgstr "Υπόδειξη:"
 
@@ -195,21 +208,22 @@ msgstr "Λάθος"
 #: /opt/webwork/pg/lib/DragNDrop.pm:227
 msgid "Item %1 in the universal set added as item %2 to list %3."
 msgstr ""
+"Το στοιχείο %1 του καθολικού συνόλου προστέθηκε ως στοιχείο %2 στη λίστα %3."
 
 #. ('%1s', '%2s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:228
 msgid "Item %1 removed from list %2."
-msgstr ""
+msgstr "Το στοιχείο %1 αφαιρέθηκε από τη λίστα %2."
 
 #. ('%1s', '%2s', '%3s', '%4s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:231
 msgid "Moved item %1 in list %2 to item %3 in list %4."
-msgstr ""
+msgstr "Το στοιχείο %1 στη λίστα %2 μετακινήθηκε στο στοιχείο %3 στη λίστα %4."
 
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:229
 msgid "Moved item %1 in list %2 to item %3."
-msgstr ""
+msgstr "Το στοιχείο %1 στη λίστα %2 μετακινήθηκε στο στοιχείο %3."
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:382
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:408
@@ -227,33 +241,33 @@ msgstr "Προεπισκόπηση απάντησης"
 #: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:44
 #: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:85
 msgid "Quick Entry"
-msgstr ""
+msgstr "Γρήγορη εισαγωγή"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:222
 msgid "Remove"
-msgstr ""
+msgstr "Αφαίρεση"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:220
 msgid "Reset"
-msgstr ""
+msgstr "Επαναφορά"
 
 #: /opt/webwork/pg/macros/graph/AppletObjects.pl:115
 msgid "Return this question to its initial state"
-msgstr ""
+msgstr "Επαναφορά αυτής της ερώτησης στην αρχική της κατάσταση"
 
 #: /opt/webwork/pg/macros/PG.pl:1343
 msgid "Reveal"
-msgstr ""
+msgstr "Εμφάνιση"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:174
 msgid "Set random seed to:"
 msgstr "Ορισμός τυχαίου αριθμού:"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1298
 msgid "Solution"
-msgstr ""
+msgstr "Λύση"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1296
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
 msgid "Solution:"
 msgstr "Απάντηση:"
 
@@ -263,7 +277,7 @@ msgstr "Υποβάλετε τις απαντήσεις σας ξανά για ν
 
 #: /opt/webwork/pg/macros/PG.pl:1390
 msgid "The answer has been graded."
-msgstr ""
+msgstr "Η απάντηση βαθμολογήθηκε."
 
 #: /opt/webwork/pg/macros/PG.pl:1408
 msgid "The answer is NOT correct."
@@ -279,7 +293,7 @@ msgstr "Η απάντηση θα βαθμολογηθεί αργότερα."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1284
 msgid "The degrees of the vertices in this graph are not all even."
-msgstr ""
+msgstr "Οι βαθμοί των κορυφών σε αυτό το γράφημα δεν είναι όλοι άρτιοι."
 
 #: /opt/webwork/pg/macros/PG.pl:1399
 msgid "The question has not been answered."
@@ -289,6 +303,7 @@ msgstr "Η ερώτηση δεν έχει απαντηθεί."
 #: /opt/webwork/pg/macros/core/PGanswermacros.pl:1671
 msgid "This answer was marked correct because the primary answer is correct."
 msgstr ""
+"Αυτή η απάντηση σημειώθηκε ως σωστή επειδή η κύρια απάντηση είναι σωστή."
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:85
 msgid "This answer will be graded at a later time."
@@ -299,17 +314,19 @@ msgid ""
 "This graph does not have two vertices of odd degree and all other vertices "
 "of even degree."
 msgstr ""
+"Αυτό το γράφημα δεν έχει ακριβώς δύο κορυφές περιττού βαθμού και όλες τις "
+"υπόλοιπες κορυφές άρτιου βαθμού."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1376
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1383
 msgid "This graph has a circuit."
-msgstr ""
+msgstr "Αυτό το γράφημα έχει κύκλο."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1281
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1294
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1377
 msgid "This graph is not connected."
-msgstr ""
+msgstr "Αυτό το γράφημα δεν είναι συνεκτικό."
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:409
 msgid "This is a new (re-randomized) version of the problem."
@@ -317,13 +334,13 @@ msgstr "Αυτή είναι μια νέα (επανατυχαιοποιημέν�
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1331
 msgid "This path does not traverse all edges."
-msgstr ""
+msgstr "Αυτή η διαδρομή δεν διασχίζει όλες τις ακμές."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1343
 msgid "This path is not a circuit."
-msgstr ""
+msgstr "Αυτή η διαδρομή δεν είναι κύκλος."
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3099
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3103
 msgid "This problem contains a video which must be viewed online."
 msgstr ""
 "Αυτό το πρόβλημα περιέχει ένα βίντεο που πρέπει να προβληθεί στο διαδίκτυο."
@@ -342,11 +359,11 @@ msgstr "Χωρίς βαθμό"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:225
 msgid "Universal Set"
-msgstr ""
+msgstr "Καθολικό Σύνολο"
 
 #: /opt/webwork/pg/macros/PG.pl:1128
 msgid "Unknown"
-msgstr ""
+msgstr "Άγνωστο"
 
 #: /opt/webwork/pg/macros/PG.pl:1295
 msgid "You Entered"
@@ -361,7 +378,7 @@ msgstr ""
 msgid "You may not change your answers when going on to the next part!"
 msgstr "Μη δεκτές αλλαγές σε απαντήσεις αν συνεχίσετε στο επόμενο μέρος!"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3092
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3096
 msgid "Your browser does not support the video tag."
 msgstr "Ο περιηγητής σας δεν υποστηρίζει την ετικέτα βίντεο."
 
@@ -371,15 +388,15 @@ msgstr "Το σκορ σας σε αυτήν την προσπάθεια είν�
 
 #. ($1)
 #. ($name)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:539
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:529
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:540
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:648
 msgid "answer %1 "
-msgstr ""
+msgstr "απάντηση %1 "
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2977
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2981
 msgid "end image description"
-msgstr ""
+msgstr "τέλος περιγραφής εικόνας"
 
 # does not need to be translated
 #. ('j', 'k', '_0')
@@ -394,20 +411,20 @@ msgstr "i "
 msgid "if"
 msgstr "εάν"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2893
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2975
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2897
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2979
 msgid "image description"
-msgstr ""
+msgstr "περιγραφή εικόνας"
 
 #. ($i + 1)
 #. (1)
 #. ($count)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:665
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:612
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:666
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:558
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:567
 msgid "option %1 "
-msgstr ""
+msgstr "επιλογή %1 "
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:821
 msgid "otherwise"
@@ -415,27 +432,27 @@ msgstr "αλλιώς"
 
 #. ($radioIndex)
 #. ($2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:652
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:546
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
 msgid "part %1 "
-msgstr ""
+msgstr "μέρος %1 "
 
 #. ($1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:645
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:535
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:643
 msgid "problem %1 "
-msgstr ""
+msgstr "πρόβλημα %1 "
 
 #. ($1 + 1, $2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:658
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:552
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:656
 msgid "row %1 column %2 "
-msgstr ""
+msgstr "γραμμή %1 στήλη %2 "
 
 #. ($partIndex)
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:653
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:651
 msgid "subpart %1 "
-msgstr ""
+msgstr "υπομέρος %1 "
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:485
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:500

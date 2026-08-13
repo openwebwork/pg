@@ -25,99 +25,100 @@ msgstr ""
 #. ($edgeText[0], $edgeText[1])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:813
 msgid " There are edges between %1 and %2."
-msgstr ""
+msgstr " Между %1 и %2 есть рёбра."
 
 #. (join($comma, @edgeText[ 0 .. $#edgeText - 1 ])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:817
 msgid " There are edges between %1%2and %3."
-msgstr ""
+msgstr " Между %1%2и %3 есть рёбра."
 
 #. ($edgeText[0])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:811
 msgid " There is an edge between %1."
-msgstr ""
+msgstr " Между %1 есть ребро."
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:806
 msgid "%1 and %2"
-msgstr ""
+msgstr "%1 и %2"
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:803
 msgid "%1 and %2 with weight %3"
-msgstr ""
+msgstr "%1 и %2 с весом %3"
 
 #. ($numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1470
 msgid "%1 of the answers %plural(%1,has,have) been graded."
-msgstr ""
+msgstr "%1 из ответов %plural(%1,оценен,оценены)."
 
 #. (@answerNames - $numBlank - $numCorrect - $numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1442
 msgid "%1 of the answers %plural(%1,is,are) NOT correct."
 msgstr ""
+"%1 из ответов %plural(%1,не является правильным,не являются правильными)."
 
 #. ($numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1466
 msgid "%1 of the answers will be graded later."
-msgstr ""
+msgstr "Оценка %1 из ответов будет выполнена позже."
 
 #. ($options{resultTitle})
 #: /opt/webwork/pg/macros/PG.pl:1239
 msgid "%1 with message"
-msgstr ""
+msgstr "%1 с сообщением"
 
 #. (round($answerScore * 100)
 #: /opt/webwork/pg/macros/PG.pl:1119
 msgid "%1% correct"
-msgstr ""
+msgstr "%1% правильно"
 
 #. ($numBlank)
 #: /opt/webwork/pg/macros/PG.pl:1455
 msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
-msgstr ""
+msgstr "%1 %quant(%1,вопрос остался,вопросов осталось) без ответа."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:793
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #. ($self->labelsString)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:791
 msgid "A graph with vertices %1."
-msgstr ""
+msgstr "Граф с вершинами %1."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:221
 msgid "Add Bucket"
-msgstr ""
+msgstr "Добавить список"
 
 #: /opt/webwork/pg/macros/PG.pl:1429
 msgid "All of the answers are correct."
-msgstr ""
+msgstr "Все ответы правильные."
 
 #: /opt/webwork/pg/macros/PG.pl:1420
 msgid "All of the computer gradable answers are correct."
-msgstr ""
+msgstr "Все ответы, проверяемые компьютером, правильные."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1323
 msgid "An edge traversed by this path does not exist in the graph."
-msgstr ""
+msgstr "Ребро, пройденное этим путём, не существует в графе."
 
 #: /opt/webwork/pg/macros/PG.pl:1062
 msgid "Answer Preview"
-msgstr ""
+msgstr "Предпросмотр ответа"
 
 #: /opt/webwork/pg/macros/PG.pl:1255 /opt/webwork/pg/macros/PG.pl:1331
 msgid "Close"
-msgstr ""
+msgstr "Закрыть"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:233
 msgid "Close Help"
-msgstr ""
+msgstr "Закрыть справку"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2908
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2912
 msgid "Close image description"
-msgstr ""
+msgstr "Закрыть описание изображения"
 
 #: /opt/webwork/pg/macros/PG.pl:1111
 msgid "Correct"
@@ -129,7 +130,7 @@ msgstr "Правильные ответы"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:232
 msgid "Drag and Drop Help"
-msgstr ""
+msgstr "Справка по перетаскиванию"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:241
 msgid ""
@@ -140,6 +141,13 @@ msgid ""
 "list can be removed by using the left or right arrow key until it returns to "
 "the universal set."
 msgstr ""
+"Перетащите элементы из универсального множества, чтобы скопировать их в "
+"список. Клавиши Tab и Shift+Tab позволяют переключать фокус между элементами "
+"универсального множества. Элемент универсального множества, находящийся в "
+"фокусе, можно добавить в первый список клавишами «вправо» или «вниз», либо в "
+"последний список клавишами «влево» или «вверх». Элемент списка, находящийся "
+"в фокусе, можно удалить клавишами «влево» или «вправо», пока он не вернётся "
+"в универсальное множество."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:235
 msgid ""
@@ -148,237 +156,249 @@ msgid ""
 "keys move a focused list item to the list to the left or right. The up and "
 "down arrow keys move a focused list item up and down inside a list."
 msgstr ""
+"Перетаскивайте, чтобы изменить порядок элементов внутри списков или "
+"переместить элементы в другой список. Клавиши Tab и Shift+Tab позволяют "
+"переключать фокус между элементами списка. Клавиши «влево» и «вправо» "
+"перемещают элемент списка, находящийся в фокусе, в список слева или справа. "
+"Клавиши «вверх» и «вниз» перемещают элемент списка, находящийся в фокусе, "
+"вверх или вниз внутри списка."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
 msgid "False"
-msgstr ""
+msgstr "Ложь"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:172
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:173
 msgid "Get a new version of this problem"
-msgstr ""
+msgstr "Получить новую версию этой задачи"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:483
 msgid "Go back to Part 1"
-msgstr ""
+msgstr "Вернуться к части 1"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:293
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:498
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:512
 msgid "Go on to next part"
-msgstr ""
+msgstr "Перейти к следующей части"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:64
 msgid "Graded"
-msgstr ""
+msgstr "Оценено"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:413
 msgid "Hardcopy will always print the original version of the problem."
-msgstr ""
+msgstr "Печатная копия всегда будет содержать исходную версию задачи."
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1306
+msgid "Hint"
+msgstr "Подсказка"
 
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
-msgid "Hint"
-msgstr ""
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1304
 msgid "Hint:"
-msgstr ""
+msgstr "Подсказка:"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:411
 msgid "If you come back to it later, it may revert to its original version."
 msgstr ""
+"Если вы вернётесь к этому позже, задача может вернуться к исходной версии."
 
 #: /opt/webwork/pg/macros/PG.pl:1115 /opt/webwork/pg/macros/PG.pl:1132
 msgid "Incorrect"
-msgstr ""
+msgstr "Неверно"
 
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:227
 msgid "Item %1 in the universal set added as item %2 to list %3."
 msgstr ""
+"Элемент %1 из универсального множества добавлен как элемент %2 в список %3."
 
 #. ('%1s', '%2s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:228
 msgid "Item %1 removed from list %2."
-msgstr ""
+msgstr "Элемент %1 удалён из списка %2."
 
 #. ('%1s', '%2s', '%3s', '%4s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:231
 msgid "Moved item %1 in list %2 to item %3 in list %4."
-msgstr ""
+msgstr "Элемент %1 в списке %2 перемещён на позицию элемента %3 в списке %4."
 
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:229
 msgid "Moved item %1 in list %2 to item %3."
-msgstr ""
+msgstr "Элемент %1 в списке %2 перемещён на позицию элемента %3."
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:382
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:408
 msgid "Note:"
-msgstr ""
+msgstr "Примечание:"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:139
 msgid "Preview"
-msgstr ""
+msgstr "Предпросмотр"
 
 #: /opt/webwork/pg/macros/PG.pl:1300
 msgid "Preview of Your Answer"
-msgstr ""
+msgstr "Предпросмотр вашего ответа"
 
 #: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:44
 #: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:85
 msgid "Quick Entry"
-msgstr ""
+msgstr "Быстрый ввод"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:222
 msgid "Remove"
-msgstr ""
+msgstr "Удалить"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:220
 msgid "Reset"
-msgstr ""
+msgstr "Сбросить"
 
 #: /opt/webwork/pg/macros/graph/AppletObjects.pl:115
 msgid "Return this question to its initial state"
-msgstr ""
+msgstr "Вернуть этот вопрос в исходное состояние"
 
 #: /opt/webwork/pg/macros/PG.pl:1343
 msgid "Reveal"
-msgstr ""
+msgstr "Показать"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:174
 msgid "Set random seed to:"
-msgstr ""
+msgstr "Установить начальное значение генератора случайных чисел:"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1298
+msgid "Solution"
+msgstr "Решение"
 
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
-msgid "Solution"
-msgstr ""
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1296
 msgid "Solution:"
-msgstr ""
+msgstr "Решение:"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:525
 msgid "Submit your answers again to go on to the next part."
-msgstr ""
+msgstr "Отправьте ответы ещё раз, чтобы перейти к следующей части."
 
 #: /opt/webwork/pg/macros/PG.pl:1390
 msgid "The answer has been graded."
-msgstr ""
+msgstr "Ответ был оценён."
 
 #: /opt/webwork/pg/macros/PG.pl:1408
 msgid "The answer is NOT correct."
-msgstr ""
+msgstr "Ответ НЕ является правильным."
 
 #: /opt/webwork/pg/macros/PG.pl:1379
 msgid "The answer is correct."
-msgstr ""
+msgstr "Ответ правильный."
 
 #: /opt/webwork/pg/macros/PG.pl:1389
 msgid "The answer will be graded later."
-msgstr ""
+msgstr "Ответ будет оценён позже."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1284
 msgid "The degrees of the vertices in this graph are not all even."
-msgstr ""
+msgstr "Степени вершин этого графа не все чётные."
 
 #: /opt/webwork/pg/macros/PG.pl:1399
 msgid "The question has not been answered."
-msgstr ""
+msgstr "На вопрос не был дан ответ."
 
 #: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1110
 #: /opt/webwork/pg/macros/core/PGanswermacros.pl:1671
 msgid "This answer was marked correct because the primary answer is correct."
 msgstr ""
+"Этот ответ отмечен как правильный, потому что основной ответ правильный."
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:85
 msgid "This answer will be graded at a later time."
-msgstr ""
+msgstr "Этот ответ будет оценён позже."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1307
 msgid ""
 "This graph does not have two vertices of odd degree and all other vertices "
 "of even degree."
 msgstr ""
+"У этого графа нет ровно двух вершин нечётной степени и всех остальных вершин "
+"чётной степени."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1376
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1383
 msgid "This graph has a circuit."
-msgstr ""
+msgstr "Этот граф содержит цикл."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1281
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1294
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1377
 msgid "This graph is not connected."
-msgstr ""
+msgstr "Этот граф не является связным."
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:409
 msgid "This is a new (re-randomized) version of the problem."
-msgstr ""
+msgstr "Это новая (повторно рандомизированная) версия задачи."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1331
 msgid "This path does not traverse all edges."
-msgstr ""
+msgstr "Этот путь не проходит по всем рёбрам."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1343
 msgid "This path is not a circuit."
-msgstr ""
+msgstr "Этот путь не является циклом."
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3099
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3103
 msgid "This problem contains a video which must be viewed online."
-msgstr ""
+msgstr "Эта задача содержит видео, которое необходимо просматривать онлайн."
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:631
 msgid "This problem has more than one part."
-msgstr ""
+msgstr "Эта задача состоит из нескольких частей."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:560
 msgid "True"
-msgstr ""
+msgstr "Истина"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:62
 msgid "Ungraded"
-msgstr ""
+msgstr "Не оценено"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:225
 msgid "Universal Set"
-msgstr ""
+msgstr "Универсальное множество"
 
 #: /opt/webwork/pg/macros/PG.pl:1128
 msgid "Unknown"
-msgstr ""
+msgstr "Неизвестно"
 
 #: /opt/webwork/pg/macros/PG.pl:1295
 msgid "You Entered"
-msgstr ""
+msgstr "Вы ввели"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:383
 msgid "You can get a new version of this problem after the due date."
 msgstr ""
+"Вы можете получить новую версию этой задачи после установленного срока."
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:646
 msgid "You may not change your answers when going on to the next part!"
-msgstr ""
+msgstr "Вы не можете изменить свои ответы при переходе к следующей части!"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3092
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3096
 msgid "Your browser does not support the video tag."
-msgstr ""
+msgstr "Ваш браузер не поддерживает тег video."
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:634
 msgid "Your score for this attempt is for this part only;"
-msgstr ""
+msgstr "Ваш балл за эту попытку относится только к данной части;"
 
 #. ($1)
 #. ($name)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:539
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:529
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:540
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:648
 msgid "answer %1 "
-msgstr ""
+msgstr "ответ %1 "
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2977
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2981
 msgid "end image description"
-msgstr ""
+msgstr "конец описания изображения"
 
 # does not need to be translated
 #. ('j', 'k', '_0')
@@ -387,60 +407,60 @@ msgstr ""
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
 msgid "i"
-msgstr ""
+msgstr "i"
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:818
 msgid "if"
-msgstr ""
+msgstr "если"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2893
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2975
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2897
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2979
 msgid "image description"
-msgstr ""
+msgstr "описание изображения"
 
 #. ($i + 1)
 #. (1)
 #. ($count)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:665
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:612
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:666
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:558
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:567
 msgid "option %1 "
-msgstr ""
+msgstr "вариант %1 "
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:821
 msgid "otherwise"
-msgstr ""
+msgstr "иначе"
 
 #. ($radioIndex)
 #. ($2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:652
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:546
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
 msgid "part %1 "
-msgstr ""
+msgstr "часть %1 "
 
 #. ($1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:645
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:535
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:643
 msgid "problem %1 "
-msgstr ""
+msgstr "задача %1 "
 
 #. ($1 + 1, $2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:658
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:552
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:656
 msgid "row %1 column %2 "
-msgstr ""
+msgstr "строка %1 столбец %2 "
 
 #. ($partIndex)
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:653
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:651
 msgid "subpart %1 "
-msgstr ""
+msgstr "подчасть %1 "
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:485
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:500
 msgid "when you submit your answers"
-msgstr ""
+msgstr "когда вы отправите свои ответы"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:638
 msgid "your overall score is for all the parts combined."
-msgstr ""
+msgstr "ваш общий балл рассчитывается по всем частям вместе."

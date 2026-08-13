@@ -23,47 +23,47 @@ msgstr ""
 #. ($edgeText[0], $edgeText[1])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:813
 msgid " There are edges between %1 and %2."
-msgstr ""
+msgstr " %1 和 %2 之間有邊。"
 
 #. (join($comma, @edgeText[ 0 .. $#edgeText - 1 ])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:817
 msgid " There are edges between %1%2and %3."
-msgstr ""
+msgstr " %1%2和 %3 之間有邊。"
 
 #. ($edgeText[0])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:811
 msgid " There is an edge between %1."
-msgstr ""
+msgstr " %1 之間有一條邊。"
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:806
 msgid "%1 and %2"
-msgstr ""
+msgstr "%1 和 %2"
 
 #. ($self->vertexLabel($i)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:803
 msgid "%1 and %2 with weight %3"
-msgstr ""
+msgstr "%1 和 %2，權重為 %3"
 
 #. ($numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1470
 msgid "%1 of the answers %plural(%1,has,have) been graded."
-msgstr ""
+msgstr "%1 個答案已評分。"
 
 #. (@answerNames - $numBlank - $numCorrect - $numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1442
 msgid "%1 of the answers %plural(%1,is,are) NOT correct."
-msgstr ""
+msgstr "%1 個答案不正確。"
 
 #. ($numManuallyGraded)
 #: /opt/webwork/pg/macros/PG.pl:1466
 msgid "%1 of the answers will be graded later."
-msgstr ""
+msgstr "其中 %1 個答案將稍後評分。"
 
 #. ($options{resultTitle})
 #: /opt/webwork/pg/macros/PG.pl:1239
 msgid "%1 with message"
-msgstr ""
+msgstr "%1（附帶訊息）"
 
 #. (round($answerScore * 100)
 #: /opt/webwork/pg/macros/PG.pl:1119
@@ -73,49 +73,49 @@ msgstr "%1% 正确"
 #. ($numBlank)
 #: /opt/webwork/pg/macros/PG.pl:1455
 msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
-msgstr ""
+msgstr "%quant(%1,個問題,個問題) 未完成。"
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:793
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #. ($self->labelsString)
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:791
 msgid "A graph with vertices %1."
-msgstr ""
+msgstr "一個頂點為 %1 的圖。"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:221
 msgid "Add Bucket"
-msgstr ""
+msgstr "新增清單"
 
 #: /opt/webwork/pg/macros/PG.pl:1429
 msgid "All of the answers are correct."
-msgstr ""
+msgstr "所有答案均正確。"
 
 #: /opt/webwork/pg/macros/PG.pl:1420
 msgid "All of the computer gradable answers are correct."
-msgstr ""
+msgstr "所有可由電腦評分的答案均正確。"
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1323
 msgid "An edge traversed by this path does not exist in the graph."
-msgstr ""
+msgstr "此路徑經過的一條邊在圖中不存在。"
 
 #: /opt/webwork/pg/macros/PG.pl:1062
 msgid "Answer Preview"
-msgstr ""
+msgstr "答案預覽"
 
 #: /opt/webwork/pg/macros/PG.pl:1255 /opt/webwork/pg/macros/PG.pl:1331
 msgid "Close"
-msgstr ""
+msgstr "關閉"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:233
 msgid "Close Help"
-msgstr ""
+msgstr "關閉說明"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2908
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2912
 msgid "Close image description"
-msgstr ""
+msgstr "關閉圖片描述"
 
 #: /opt/webwork/pg/macros/PG.pl:1111
 msgid "Correct"
@@ -123,11 +123,11 @@ msgstr "正确"
 
 #: /opt/webwork/pg/macros/PG.pl:1337
 msgid "Correct Answer"
-msgstr ""
+msgstr "正確答案"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:232
 msgid "Drag and Drop Help"
-msgstr ""
+msgstr "拖放說明"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:241
 msgid ""
@@ -138,6 +138,10 @@ msgid ""
 "list can be removed by using the left or right arrow key until it returns to "
 "the universal set."
 msgstr ""
+"拖動全集中的項目可將其複製到清單中。可使用 Tab 和 Shift+Tab 鍵聚焦全集中的項"
+"目。聚焦的全集項目可透過右箭頭鍵或下箭頭鍵新增到第一個清單,或透過左箭頭鍵或上"
+"箭頭鍵新增到最後一個清單。清單中聚焦的項目可透過左右箭頭鍵移除,直至其返回全"
+"集。"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:235
 msgid ""
@@ -146,237 +150,240 @@ msgid ""
 "keys move a focused list item to the list to the left or right. The up and "
 "down arrow keys move a focused list item up and down inside a list."
 msgstr ""
+"拖動可在清單內重新排列項目,或將項目移動到其他清單。可使用 Tab 和 Shift+Tab 鍵"
+"聚焦清單項目。左右箭頭鍵可將聚焦的清單項目移到左側或右側的清單。上下箭頭鍵可"
+"在清單內上下移動聚焦的項目。"
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
 msgid "False"
-msgstr ""
+msgstr "假"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:172
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:173
 msgid "Get a new version of this problem"
-msgstr ""
+msgstr "獲取此題目的新版本"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:483
 msgid "Go back to Part 1"
-msgstr ""
+msgstr "返回第 1 部分"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:293
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:498
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:512
 msgid "Go on to next part"
-msgstr ""
+msgstr "繼續下一部分"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:64
 msgid "Graded"
-msgstr ""
+msgstr "已評分"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:413
 msgid "Hardcopy will always print the original version of the problem."
-msgstr ""
+msgstr "硬拷貝將始終列印題目的原始版本。"
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1306
+msgid "Hint"
+msgstr "提示"
 
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
-msgid "Hint"
-msgstr ""
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1304
 msgid "Hint:"
-msgstr ""
+msgstr "提示："
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:411
 msgid "If you come back to it later, it may revert to its original version."
-msgstr ""
+msgstr "如果您稍後返回,它可能會恢復為原始版本。"
 
 #: /opt/webwork/pg/macros/PG.pl:1115 /opt/webwork/pg/macros/PG.pl:1132
 msgid "Incorrect"
-msgstr ""
+msgstr "不正確"
 
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:227
 msgid "Item %1 in the universal set added as item %2 to list %3."
-msgstr ""
+msgstr "全集中的項目 %1 已作為項目 %2 新增到清單 %3。"
 
 #. ('%1s', '%2s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:228
 msgid "Item %1 removed from list %2."
-msgstr ""
+msgstr "項目 %1 已從清單 %2 中移除。"
 
 #. ('%1s', '%2s', '%3s', '%4s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:231
 msgid "Moved item %1 in list %2 to item %3 in list %4."
-msgstr ""
+msgstr "清單 %2 中的項目 %1 已移動到清單 %4 中的項目 %3。"
 
 #. ('%1s', '%2s', '%3s')
 #: /opt/webwork/pg/lib/DragNDrop.pm:229
 msgid "Moved item %1 in list %2 to item %3."
-msgstr ""
+msgstr "清單 %2 中的項目 %1 已移動到項目 %3。"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:382
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:408
 msgid "Note:"
-msgstr ""
+msgstr "注："
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:139
 msgid "Preview"
-msgstr ""
+msgstr "預覽"
 
 #: /opt/webwork/pg/macros/PG.pl:1300
 msgid "Preview of Your Answer"
-msgstr ""
+msgstr "您的答案預覽"
 
 #: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:44
 #: /opt/webwork/pg/macros/ui/quickMatrixEntry.pl:85
 msgid "Quick Entry"
-msgstr ""
+msgstr "快速輸入"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:222
 msgid "Remove"
-msgstr ""
+msgstr "移除"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:220
 msgid "Reset"
-msgstr ""
+msgstr "重設"
 
 #: /opt/webwork/pg/macros/graph/AppletObjects.pl:115
 msgid "Return this question to its initial state"
-msgstr ""
+msgstr "將此題目恢復到初始狀態"
 
 #: /opt/webwork/pg/macros/PG.pl:1343
 msgid "Reveal"
-msgstr ""
+msgstr "顯示"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:174
 msgid "Set random seed to:"
-msgstr ""
+msgstr "將隨機種子設定為："
+
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1298
+msgid "Solution"
+msgstr "解答"
 
 #: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
-msgid "Solution"
-msgstr ""
-
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1296
 msgid "Solution:"
-msgstr ""
+msgstr "解答："
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:525
 msgid "Submit your answers again to go on to the next part."
-msgstr ""
+msgstr "請再次提交您的答案以繼續下一部分。"
 
 #: /opt/webwork/pg/macros/PG.pl:1390
 msgid "The answer has been graded."
-msgstr ""
+msgstr "該答案已評分。"
 
 #: /opt/webwork/pg/macros/PG.pl:1408
 msgid "The answer is NOT correct."
-msgstr ""
+msgstr "該答案不正確。"
 
 #: /opt/webwork/pg/macros/PG.pl:1379
 msgid "The answer is correct."
-msgstr ""
+msgstr "該答案正確。"
 
 #: /opt/webwork/pg/macros/PG.pl:1389
 msgid "The answer will be graded later."
-msgstr ""
+msgstr "該答案將稍後評分。"
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1284
 msgid "The degrees of the vertices in this graph are not all even."
-msgstr ""
+msgstr "此圖中頂點的度數並非全部為偶數。"
 
 #: /opt/webwork/pg/macros/PG.pl:1399
 msgid "The question has not been answered."
-msgstr ""
+msgstr "該問題尚未作答。"
 
 #: /opt/webwork/pg/lib/WeBWorK/PG/Translator.pm:1110
 #: /opt/webwork/pg/macros/core/PGanswermacros.pl:1671
 msgid "This answer was marked correct because the primary answer is correct."
-msgstr ""
+msgstr "由於主要答案正確，此答案也被標記為正確。"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:85
 msgid "This answer will be graded at a later time."
-msgstr ""
+msgstr "此答案將稍後評分。"
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1307
 msgid ""
 "This graph does not have two vertices of odd degree and all other vertices "
 "of even degree."
-msgstr ""
+msgstr "此圖並非恰好有兩個奇數度頂點，其餘頂點均為偶數度。"
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1376
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1383
 msgid "This graph has a circuit."
-msgstr ""
+msgstr "此圖存在一條迴路。"
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1281
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1294
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1377
 msgid "This graph is not connected."
-msgstr ""
+msgstr "此圖不是連通的。"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:409
 msgid "This is a new (re-randomized) version of the problem."
-msgstr ""
+msgstr "這是該題目的一個新的（重新隨機化的）版本。"
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1331
 msgid "This path does not traverse all edges."
-msgstr ""
+msgstr "此路徑未經過所有的邊。"
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1343
 msgid "This path is not a circuit."
-msgstr ""
+msgstr "此路徑不是迴路。"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3099
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3103
 msgid "This problem contains a video which must be viewed online."
-msgstr ""
+msgstr "此題目包含一段必須在線觀看的影片。"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:631
 msgid "This problem has more than one part."
-msgstr ""
+msgstr "此題目包含多個部分。"
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:560
 msgid "True"
-msgstr ""
+msgstr "真"
 
 #: /opt/webwork/pg/macros/core/PGessaymacros.pl:62
 msgid "Ungraded"
-msgstr ""
+msgstr "未評分"
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:225
 msgid "Universal Set"
-msgstr ""
+msgstr "全集"
 
 #: /opt/webwork/pg/macros/PG.pl:1128
 msgid "Unknown"
-msgstr ""
+msgstr "未知"
 
 #: /opt/webwork/pg/macros/PG.pl:1295
 msgid "You Entered"
-msgstr ""
+msgstr "您輸入的內容"
 
 #: /opt/webwork/pg/macros/deprecated/problemRandomize.pl:383
 msgid "You can get a new version of this problem after the due date."
-msgstr ""
+msgstr "您可以在截止日期之後獲取此題目的新版本。"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:646
 msgid "You may not change your answers when going on to the next part!"
-msgstr ""
+msgstr "進入下一部分後將無法更改您的答案！"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3092
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3096
 msgid "Your browser does not support the video tag."
-msgstr ""
+msgstr "您的瀏覽器不支援影片標籤。"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:634
 msgid "Your score for this attempt is for this part only;"
-msgstr ""
+msgstr "您本次嘗試的得分僅計入此部分；"
 
 #. ($1)
 #. ($name)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:539
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:529
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:540
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:648
 msgid "answer %1 "
-msgstr ""
+msgstr "答案 %1 "
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2977
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2981
 msgid "end image description"
-msgstr ""
+msgstr "圖片描述結束"
 
 # does not need to be translated
 #. ('j', 'k', '_0')
@@ -385,60 +392,60 @@ msgstr ""
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
 msgid "i"
-msgstr ""
+msgstr "i"
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:818
 msgid "if"
-msgstr ""
+msgstr "如果"
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2893
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2975
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2897
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2979
 msgid "image description"
-msgstr ""
+msgstr "圖片描述"
 
 #. ($i + 1)
 #. (1)
 #. ($count)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:665
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:612
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:666
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:558
 #: /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:567
 msgid "option %1 "
-msgstr ""
+msgstr "選項 %1 "
 
 #: /opt/webwork/pg/macros/contexts/contextPiecewiseFunction.pl:821
 msgid "otherwise"
-msgstr ""
+msgstr "否則"
 
 #. ($radioIndex)
 #. ($2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:652
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:546
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
 msgid "part %1 "
-msgstr ""
+msgstr "部分 %1 "
 
 #. ($1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:645
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:535
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:643
 msgid "problem %1 "
-msgstr ""
+msgstr "題目 %1 "
 
 #. ($1 + 1, $2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:658
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:552
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:656
 msgid "row %1 column %2 "
-msgstr ""
+msgstr "第 %1 行第 %2 欄 "
 
 #. ($partIndex)
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:653
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:651
 msgid "subpart %1 "
-msgstr ""
+msgstr "子部分 %1 "
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:485
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:500
 msgid "when you submit your answers"
-msgstr ""
+msgstr "當您提交答案時"
 
 #: /opt/webwork/pg/macros/deprecated/compoundProblem.pl:638
 msgid "your overall score is for all the parts combined."
-msgstr ""
+msgstr "您的總分是所有部分的總和。"

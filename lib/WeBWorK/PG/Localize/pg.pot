@@ -106,7 +106,7 @@ msgstr ""
 msgid "Close Help"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2908
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2912
 msgid "Close image description"
 msgstr ""
 
@@ -154,11 +154,11 @@ msgstr ""
 msgid "Hardcopy will always print the original version of the problem."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1306
 msgid "Hint"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1304
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1305
 msgid "Hint:"
 msgstr ""
 
@@ -226,11 +226,11 @@ msgstr ""
 msgid "Set random seed to:"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1298
 msgid "Solution"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1296
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:1297
 msgid "Solution:"
 msgstr ""
 
@@ -294,7 +294,7 @@ msgstr ""
 msgid "This path is not a circuit."
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3099
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3103
 msgid "This problem contains a video which must be viewed online."
 msgstr ""
 
@@ -330,7 +330,7 @@ msgstr ""
 msgid "You may not change your answers when going on to the next part!"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3092
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:3096
 msgid "Your browser does not support the video tag."
 msgstr ""
 
@@ -340,11 +340,11 @@ msgstr ""
 
 #. ($1)
 #. ($name)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:528 /opt/webwork/pg/macros/core/PGbasicmacros.pl:539 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:529 /opt/webwork/pg/macros/core/PGbasicmacros.pl:540 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:648
 msgid "answer %1 "
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2977
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2981
 msgid "end image description"
 msgstr ""
 
@@ -359,14 +359,14 @@ msgstr ""
 msgid "if"
 msgstr ""
 
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2893 /opt/webwork/pg/macros/core/PGbasicmacros.pl:2975
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:2897 /opt/webwork/pg/macros/core/PGbasicmacros.pl:2979
 msgid "image description"
 msgstr ""
 
 #. ($i + 1)
 #. (1)
 #. ($count)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:611 /opt/webwork/pg/macros/core/PGbasicmacros.pl:665 /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:558 /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:567
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:612 /opt/webwork/pg/macros/core/PGbasicmacros.pl:666 /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:558 /opt/webwork/pg/macros/parsers/parserCheckboxList.pl:567
 msgid "option %1 "
 msgstr ""
 
@@ -376,22 +376,22 @@ msgstr ""
 
 #. ($radioIndex)
 #. ($2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:545 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:652
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:546 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:650
 msgid "part %1 "
 msgstr ""
 
 #. ($1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:534 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:645
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:535 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:643
 msgid "problem %1 "
 msgstr ""
 
 #. ($1 + 1, $2 + 1)
-#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:551 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:658
+#: /opt/webwork/pg/macros/core/PGbasicmacros.pl:552 /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:656
 msgid "row %1 column %2 "
 msgstr ""
 
 #. ($partIndex)
-#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:653
+#: /opt/webwork/pg/macros/parsers/parserRadioMultiAnswer.pl:651
 msgid "subpart %1 "
 msgstr ""
 
