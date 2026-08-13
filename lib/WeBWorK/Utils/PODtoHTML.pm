@@ -148,7 +148,7 @@ sub write_index {
 
 	my $fh = IO::File->new($out_path, '>:encoding(UTF-8)') or die "Failed to open index '$out_path' for writing: $!\n";
 	print $fh Mojo::Template->new(vars => 1)->render_file(
-		"$self->{template_dir}/category-index.mt",
+		"$self->{template_dir}/category-index.html.epl",
 		{
 			title              => 'POD for ' . ($self->{source_root} =~ s|^.*/||r),
 			dest_url           => $self->{dest_url},
@@ -197,7 +197,7 @@ sub do_pod2html {
 	my $podHTML = $podIndexUL ? $podIndexUL->remove : $html;
 
 	return Mojo::Template->new(vars => 1)->render_file(
-		"$self->{template_dir}/pod.mt",
+		"$self->{template_dir}/pod.html.epl",
 		{
 			title              => $o{pod_name},
 			dest_url           => $self->{dest_url},
