@@ -104,7 +104,7 @@ sub renderSampleProblem ($filename, %global) {
 	say "Printing to '$global{out_dir}/$relative_dir/$filename.html'" if $global{verbose};
 	open(my $html_fh, '>:encoding(UTF-8)', "$global{out_dir}/$relative_dir/$filename.html")
 		or die qq{Could not open output file "$global{out_dir}/$relative_dir/$filename.html": $!};
-	print $html_fh $global{mt}->render_file("$global{template_dir}/problem-template.mt",
+	print $html_fh $global{mt}->render_file("$global{template_dir}/problem-template.html.epl",
 		{ %$parsed_file, %global, filename => "$filename.pg" });
 	close $html_fh;
 
@@ -167,10 +167,10 @@ sub writeIndex ($params, %options) {
 	say "Creating $params->{label} index" if $options{verbose};
 	if (open my $FH, '>:encoding(UTF-8)', $params->{output}) {
 		print $FH $options{mt}->render_file(
-			"$options{template_dir}/general-layout.mt",
+			"$options{template_dir}/general-layout.html.epl",
 			{
-				sidebar      => $options{mt}->render_file("$options{template_dir}/general-sidebar.mt", $params),
-				main_content => $options{mt}->render_file("$options{template_dir}/general-main.mt",    $params),
+				sidebar      => $options{mt}->render_file("$options{template_dir}/general-sidebar.html.epl", $params),
+				main_content => $options{mt}->render_file("$options{template_dir}/general-main.html.epl",    $params),
 				active       => $params->{type}
 			}
 		);
