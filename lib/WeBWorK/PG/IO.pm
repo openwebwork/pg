@@ -154,6 +154,36 @@ sub directoryFromPath {
 	return $path;
 }
 
+=head2 makeTempDirectory
+
+Usage: C<makeTempDirectory($basename)>
+
+Create a temporary subdirectory of the temporary directory set in the
+WeBWorK::PG::Environment that does not conflict with an existing directory or
+file. The full path to the created directory is returned.
+
+=cut
+
+sub makeTempDirectory {
+	my ($basename) = @_;
+
+	my ($fullPath, $success);
+	do {
+		my $suffix = join '', map { ('A' .. 'Z', 'a' .. 'z', '0' .. '9')[ int rand 62 ] } 1 .. 8;
+		$fullPath = "$pg_envir->{directories}{tmp}/$basename.$suffix";
+		$success  = mkdir $fullPath;
+	} until ($success || !$!{EEXIST});
+
+	unless ($success) {
+		my $msg = '';
+		$msg .= "Server does not have write access to the directory $pg_envir->{directories}{tmp}"
+			unless -w $pg_envir->{directories}{tmp};
+		die "$msg\nFailed to create directory $fullPath:\n $!";
+	}
+
+	return $fullPath;
+}
+
 =head2 createFile
 
 Usage: C<createFile($fileName, $permission, $numgid)>

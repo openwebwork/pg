@@ -125,10 +125,9 @@ sub DMATH {
 	}
 
 	MODES(
-		TeX       => '\(\displaystyle ' . $math . '\)',
-		HTML      => $math,
-		HTML_tth  => $math,
-		HTML_dpng => $math,
+		TeX      => '\(\displaystyle ' . $math . '\)',
+		HTML     => $math,
+		HTML_tth => $math,
 	);
 }
 

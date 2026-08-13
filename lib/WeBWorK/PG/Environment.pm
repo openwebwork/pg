@@ -76,10 +76,7 @@ sub new ($invocant, $courseName = '___') {
 		$pg_envir->{directories}{tmp}                = $ce->{webworkDirs}{tmp};
 		$pg_envir->{directories}{html_temp}          = $ce->{courseDirs}{html_temp};
 		$pg_envir->{directories}{permitted_read_dir} = $ce->{courseDirs}{root};
-		$pg_envir->{directories}{equationCache}      = $ce->{webworkDirs}{equationCache};
 		$pg_envir->{externalPrograms}                = $ce->{externalPrograms};
-		$pg_envir->{URLs}{equationCache}             = $ce->{webworkURLs}{equationCache};
-		$pg_envir->{equationCacheDB}                 = $ce->{webworkFiles}{equationCacheDB};
 	}
 
 	# Note that placeholders used in $pg_envir->{URLs}{html}, $pg_envir->{directories}{OPL}, and

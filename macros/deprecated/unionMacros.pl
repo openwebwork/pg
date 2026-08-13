@@ -58,7 +58,7 @@ $EBOLD = HTML('</B>', '}');
 #
 #  tth doesn't seem to understand \colon
 #
-$COLON = MODES(TeX => '\colon ', HTML => ':', HTML_dpng => '\colon ');
+$COLON = MODES(TeX => '\colon ', HTML => ':');
 
 #
 #  Alternatives to the standard WW versions of these

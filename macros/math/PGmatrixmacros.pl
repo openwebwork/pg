@@ -215,7 +215,6 @@ sub dm_begin_matrix {
 		}
 		$out .= '\displaystyle\left' . $opts{'left'} . "\\begin{array}{$aligns} \n";
 	} elsif ($main::displayMode eq 'HTML_MathJax'
-		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
 		or $main::displayMode eq 'HTML')
 	{
@@ -248,7 +247,6 @@ sub dm_special_tops {
 						  #$out .= '\cr\noalign{\vskip -2.5ex}'."\n"; # want skip jump up 2.5ex
 		$out .= '\cr';    # mathjax compatibility
 	} elsif ($main::displayMode eq 'HTML_MathJax'
-		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
 		or $main::displayMode eq 'HTML')
 	{
@@ -280,7 +278,6 @@ sub dm_mat_left {
 	my ($brh, $erh) = ("", "");    # Start and end raw html
 
 	if ($main::displayMode eq 'HTML_MathJax'
-		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
 		or $main::displayMode eq 'HTML')
 	{
@@ -309,7 +306,6 @@ sub dm_mat_right {
 	}
 
 	if ($main::displayMode eq 'HTML_MathJax'
-		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
 		or $main::displayMode eq 'HTML')
 	{
@@ -337,7 +333,6 @@ sub dm_end_matrix {
 		}
 		$out .= $opts{'force_tex'} ? '' : "\\) ";
 	} elsif ($main::displayMode eq 'HTML_MathJax'
-		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
 		or $main::displayMode eq 'HTML')
 	{
@@ -452,7 +447,6 @@ sub dm_mat_row {
 		$out .= "\\cr  \n";
 		# carriage returns must be added manually for tex
 	} elsif ($main::displayMode eq 'HTML_MathJax'
-		or $main::displayMode eq 'HTML_dpng'
 		or $main::displayMode eq 'HTML_tth'
 		or $main::displayMode eq 'HTML')
 	{
