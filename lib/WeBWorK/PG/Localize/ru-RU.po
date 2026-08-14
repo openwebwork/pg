@@ -2,25 +2,22 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 # Translators:
-# Glenn Rice, 2023
-#
+# Glenn Rice, 2026
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2023-11-19 04:33+0000\n"
-"Last-Translator: Glenn Rice, 2023\n"
-"Language-Team: Russian (Russia) (https://app.transifex.com/webwork/teams/"
-"16644/ru_RU/)\n"
-"Language: ru_RU\n"
+"Last-Translator: Glenn Rice, 2026\n"
+"Language-Team: Russian (Russia) (https://app.transifex.com/webwork/teams/16644/ru_RU/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
-"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+"Language: ru_RU\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
 
 #. ($edgeText[0], $edgeText[1])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:813
@@ -75,7 +72,8 @@ msgstr "%1% правильно"
 
 #. ($numBlank)
 #: /opt/webwork/pg/macros/PG.pl:1455
-msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgid ""
+"%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr "%1 %quant(%1,вопрос остался,вопросов осталось) без ответа."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
@@ -138,16 +136,16 @@ msgid ""
 "can be used to focus universal set items. A focused item in the universal "
 "set can be added to the first list with the right or down arrow keys, or "
 "added to the last list with the left or up arrow keys. A focused item in a "
-"list can be removed by using the left or right arrow key until it returns to "
-"the universal set."
+"list can be removed by using the left or right arrow key until it returns to"
+" the universal set."
 msgstr ""
 "Перетащите элементы из универсального множества, чтобы скопировать их в "
-"список. Клавиши Tab и Shift+Tab позволяют переключать фокус между элементами "
-"универсального множества. Элемент универсального множества, находящийся в "
-"фокусе, можно добавить в первый список клавишами «вправо» или «вниз», либо в "
-"последний список клавишами «влево» или «вверх». Элемент списка, находящийся "
-"в фокусе, можно удалить клавишами «влево» или «вправо», пока он не вернётся "
-"в универсальное множество."
+"список. Клавиши Tab и Shift+Tab позволяют переключать фокус между элементами"
+" универсального множества. Элемент универсального множества, находящийся в "
+"фокусе, можно добавить в первый список клавишами «вправо» или «вниз», либо в"
+" последний список клавишами «влево» или «вверх». Элемент списка, находящийся"
+" в фокусе, можно удалить клавишами «влево» или «вправо», пока он не вернётся"
+" в универсальное множество."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:235
 msgid ""
@@ -317,8 +315,8 @@ msgid ""
 "This graph does not have two vertices of odd degree and all other vertices "
 "of even degree."
 msgstr ""
-"У этого графа нет ровно двух вершин нечётной степени и всех остальных вершин "
-"чётной степени."
+"У этого графа нет ровно двух вершин нечётной степени и всех остальных вершин"
+" чётной степени."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1376
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1383
@@ -400,9 +398,9 @@ msgstr "ответ %1 "
 msgid "end image description"
 msgstr "конец описания изображения"
 
-# does not need to be translated
 #. ('j', 'k', '_0')
 #. ('j', 'k')
+# does not need to be translated
 #: /opt/webwork/pg/lib/Parser/List/Vector.pm:41
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
