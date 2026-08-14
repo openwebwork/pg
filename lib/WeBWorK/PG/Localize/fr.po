@@ -2,23 +2,22 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 # Translators:
-# Glenn Rice, 2023
-#
+# Glenn Rice, 2026
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2023-11-19 04:33+0000\n"
-"Last-Translator: Glenn Rice, 2023\n"
+"Last-Translator: Glenn Rice, 2026\n"
 "Language-Team: French (https://app.transifex.com/webwork/teams/16644/fr/)\n"
-"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % "
-"1000000 == 0 ? 1 : 2;\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #. ($edgeText[0], $edgeText[1])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:813
@@ -72,7 +71,8 @@ msgstr "%1% correct"
 
 #. ($numBlank)
 #: /opt/webwork/pg/macros/PG.pl:1455
-msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgid ""
+"%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr "%quant(%1, des questions restent, des questions reste) sans réponse."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
@@ -135,16 +135,16 @@ msgid ""
 "can be used to focus universal set items. A focused item in the universal "
 "set can be added to the first list with the right or down arrow keys, or "
 "added to the last list with the left or up arrow keys. A focused item in a "
-"list can be removed by using the left or right arrow key until it returns to "
-"the universal set."
+"list can be removed by using the left or right arrow key until it returns to"
+" the universal set."
 msgstr ""
-"Faites glisser les éléments de l'ensemble universel pour les copier dans une "
-"liste. Les touches Tab et Maj+Tab permettent de donner le focus aux éléments "
-"de l'ensemble universel. Un élément de l'ensemble universel ayant le focus "
-"peut être ajouté à la première liste avec les touches flèche droite ou bas, "
-"ou à la dernière liste avec les touches flèche gauche ou haut. Un élément "
-"d'une liste ayant le focus peut être retiré en utilisant la touche flèche "
-"gauche ou droite jusqu'à ce qu'il revienne à l'ensemble universel."
+"Faites glisser les éléments de l'ensemble universel pour les copier dans une"
+" liste. Les touches Tab et Maj+Tab permettent de donner le focus aux "
+"éléments de l'ensemble universel. Un élément de l'ensemble universel ayant "
+"le focus peut être ajouté à la première liste avec les touches flèche droite"
+" ou bas, ou à la dernière liste avec les touches flèche gauche ou haut. Un "
+"élément d'une liste ayant le focus peut être retiré en utilisant la touche "
+"flèche gauche ou droite jusqu'à ce qu'il revienne à l'ensemble universel."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:235
 msgid ""
@@ -156,8 +156,8 @@ msgstr ""
 "Faites glisser pour réorganiser les éléments dans les listes ou pour "
 "déplacer des éléments vers une autre liste. Les touches Tab et Maj+Tab "
 "permettent de donner le focus aux éléments de la liste. Les touches flèche "
-"gauche et droite déplacent un élément ayant le focus vers la liste de gauche "
-"ou de droite. Les touches flèche haut et bas déplacent un élément ayant le "
+"gauche et droite déplacent un élément ayant le focus vers la liste de gauche"
+" ou de droite. Les touches flèche haut et bas déplacent un élément ayant le "
 "focus vers le haut ou le bas à l'intérieur d'une liste."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
@@ -318,8 +318,8 @@ msgid ""
 "This graph does not have two vertices of odd degree and all other vertices "
 "of even degree."
 msgstr ""
-"Ce graphe n'a pas exactement deux sommets de degré impair et tous les autres "
-"de degré pair."
+"Ce graphe n'a pas exactement deux sommets de degré impair et tous les autres"
+" de degré pair."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1376
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1383
@@ -403,9 +403,9 @@ msgstr "réponse %1 "
 msgid "end image description"
 msgstr "fin de la description de l'image"
 
-# does not need to be translated
 #. ('j', 'k', '_0')
 #. ('j', 'k')
+# does not need to be translated
 #: /opt/webwork/pg/lib/Parser/List/Vector.pm:41
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
