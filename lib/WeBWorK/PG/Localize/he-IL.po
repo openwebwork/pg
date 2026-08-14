@@ -2,25 +2,23 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 # Translators:
-# Glenn Rice, 2023
 # Nathan Wallach <taniwallach@gmail.com>, 2024
-#
+# Glenn Rice, 2026
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2023-11-19 04:33+0000\n"
-"Last-Translator: Nathan Wallach <taniwallach@gmail.com>, 2024\n"
-"Language-Team: Hebrew (Israel) (https://app.transifex.com/webwork/teams/"
-"16644/he_IL/)\n"
-"Language: he_IL\n"
+"Last-Translator: Glenn Rice, 2026\n"
+"Language-Team: Hebrew (Israel) (https://app.transifex.com/webwork/teams/16644/he_IL/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % "
-"1 == 0) ? 1: 2;\n"
+"Language: he_IL\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2;\n"
 
 #. ($edgeText[0], $edgeText[1])
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:813
@@ -74,7 +72,8 @@ msgstr "%1% נכון"
 
 #. ($numBlank)
 #: /opt/webwork/pg/macros/PG.pl:1455
-msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgid ""
+"%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr "%quant(%1, מהשאלות לא נענתה, מהשאלות לא נענו)."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
@@ -137,8 +136,8 @@ msgid ""
 "can be used to focus universal set items. A focused item in the universal "
 "set can be added to the first list with the right or down arrow keys, or "
 "added to the last list with the left or up arrow keys. A focused item in a "
-"list can be removed by using the left or right arrow key until it returns to "
-"the universal set."
+"list can be removed by using the left or right arrow key until it returns to"
+" the universal set."
 msgstr ""
 "גרור פריטים מהקבוצה האוניברסלית כדי להעתיק אותם לרשימה. ניתן להשתמש ב-Tab "
 "ו-Shift+Tab כדי למקד פריטים בקבוצה האוניברסלית. ניתן להוסיף פריט ממוקד "
@@ -390,9 +389,9 @@ msgstr "תשובה %1 "
 msgid "end image description"
 msgstr "סוף תיאור התמונה"
 
-# does not need to be translated
 #. ('j', 'k', '_0')
 #. ('j', 'k')
+# does not need to be translated
 #: /opt/webwork/pg/lib/Parser/List/Vector.pm:41
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
