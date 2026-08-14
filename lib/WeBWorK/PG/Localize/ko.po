@@ -2,21 +2,21 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 # Translators:
-# Glenn Rice, 2023
-#
+# Glenn Rice, 2026
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2023-11-19 04:33+0000\n"
-"Last-Translator: Glenn Rice, 2023\n"
+"Last-Translator: Glenn Rice, 2026\n"
 "Language-Team: Korean (https://app.transifex.com/webwork/teams/16644/ko/)\n"
-"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #. ($edgeText[0], $edgeText[1])
@@ -71,9 +71,9 @@ msgstr "%1% 정답"
 
 #. ($numBlank)
 #: /opt/webwork/pg/macros/PG.pl:1455
-msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
-msgstr ""
-"%quant(%1,개의 문제가 답변되지 않았습니다,개의 문제가 답변되지 않았습니다)."
+msgid ""
+"%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgstr "%quant(%1,개의 문제가 답변되지 않았습니다,개의 문제가 답변되지 않았습니다)."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:793
@@ -135,14 +135,12 @@ msgid ""
 "can be used to focus universal set items. A focused item in the universal "
 "set can be added to the first list with the right or down arrow keys, or "
 "added to the last list with the left or up arrow keys. A focused item in a "
-"list can be removed by using the left or right arrow key until it returns to "
-"the universal set."
+"list can be removed by using the left or right arrow key until it returns to"
+" the universal set."
 msgstr ""
-"전체집합의 항목을 드래그하여 목록으로 복사할 수 있습니다. Tab 및 Shift+Tab 키"
-"를 사용하여 전체집합 항목에 초점을 맞출 수 있습니다. 초점이 맞춰진 전체집합 "
-"항목은 오른쪽 또는 아래쪽 화살표 키로 첫 번째 목록에 추가하거나, 왼쪽 또는 위"
-"쪽 화살표 키로 마지막 목록에 추가할 수 있습니다. 목록에서 초점이 맞춰진 항목"
-"은 왼쪽 또는 오른쪽 화살표 키를 사용하여 전체집합으로 돌아갈 때까지 이동시켜 "
+"전체집합의 항목을 드래그하여 목록으로 복사할 수 있습니다. Tab 및 Shift+Tab 키를 사용하여 전체집합 항목에 초점을 맞출 수 "
+"있습니다. 초점이 맞춰진 전체집합 항목은 오른쪽 또는 아래쪽 화살표 키로 첫 번째 목록에 추가하거나, 왼쪽 또는 위쪽 화살표 키로 마지막"
+" 목록에 추가할 수 있습니다. 목록에서 초점이 맞춰진 항목은 왼쪽 또는 오른쪽 화살표 키를 사용하여 전체집합으로 돌아갈 때까지 이동시켜 "
 "제거할 수 있습니다."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:235
@@ -152,11 +150,9 @@ msgid ""
 "keys move a focused list item to the list to the left or right. The up and "
 "down arrow keys move a focused list item up and down inside a list."
 msgstr ""
-"드래그하여 목록 내 항목을 재정렬하거나 다른 목록으로 이동할 수 있습니다. Tab "
-"및 Shift+Tab 키를 사용하여 목록 항목에 초점을 맞출 수 있습니다. 왼쪽 및 오른"
-"쪽 화살표 키는 초점이 맞춰진 목록 항목을 왼쪽 또는 오른쪽 목록으로 이동시킵니"
-"다. 위쪽 및 아래쪽 화살표 키는 초점이 맞춰진 목록 항목을 목록 내에서 위아래"
-"로 이동시킵니다."
+"드래그하여 목록 내 항목을 재정렬하거나 다른 목록으로 이동할 수 있습니다. Tab 및 Shift+Tab 키를 사용하여 목록 항목에 초점을"
+" 맞출 수 있습니다. 왼쪽 및 오른쪽 화살표 키는 초점이 맞춰진 목록 항목을 왼쪽 또는 오른쪽 목록으로 이동시킵니다. 위쪽 및 아래쪽 "
+"화살표 키는 초점이 맞춰진 목록 항목을 목록 내에서 위아래로 이동시킵니다."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
 msgid "False"
@@ -308,9 +304,7 @@ msgstr "이 답변은 나중에 채점됩니다."
 msgid ""
 "This graph does not have two vertices of odd degree and all other vertices "
 "of even degree."
-msgstr ""
-"이 그래프는 홀수 차수의 정점이 정확히 두 개이고 나머지 모든 정점이 짝수 차수"
-"인 상태가 아닙니다."
+msgstr "이 그래프는 홀수 차수의 정점이 정확히 두 개이고 나머지 모든 정점이 짝수 차수인 상태가 아닙니다."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1376
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:1383
@@ -391,9 +385,9 @@ msgstr "답 %1 "
 msgid "end image description"
 msgstr "이미지 설명 끝"
 
-# does not need to be translated
 #. ('j', 'k', '_0')
 #. ('j', 'k')
+# does not need to be translated
 #: /opt/webwork/pg/lib/Parser/List/Vector.pm:41
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
