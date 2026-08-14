@@ -2,21 +2,21 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 # Translators:
-# Glenn Rice, 2023
-#
+# Glenn Rice, 2026
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2023-11-19 04:33+0000\n"
-"Last-Translator: Glenn Rice, 2023\n"
+"Last-Translator: Glenn Rice, 2026\n"
 "Language-Team: German (https://app.transifex.com/webwork/teams/16644/de/)\n"
-"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. ($edgeText[0], $edgeText[1])
@@ -71,7 +71,8 @@ msgstr "%1% richtig"
 
 #. ($numBlank)
 #: /opt/webwork/pg/macros/PG.pl:1455
-msgid "%quant(%1,of the questions remains,of the questions remain) unanswered."
+msgid ""
+"%quant(%1,of the questions remains,of the questions remain) unanswered."
 msgstr "%quant(%1,Frage wurde,Fragen wurden) nicht beantwortet."
 
 #: /opt/webwork/pg/macros/math/SimpleGraph.pl:596
@@ -135,16 +136,16 @@ msgid ""
 "can be used to focus universal set items. A focused item in the universal "
 "set can be added to the first list with the right or down arrow keys, or "
 "added to the last list with the left or up arrow keys. A focused item in a "
-"list can be removed by using the left or right arrow key until it returns to "
-"the universal set."
+"list can be removed by using the left or right arrow key until it returns to"
+" the universal set."
 msgstr ""
 "Ziehen Sie Elemente aus der Grundmenge, um sie in eine Liste zu kopieren. "
 "Mit Tab und Umschalt+Tab können Elemente der Grundmenge fokussiert werden. "
 "Ein fokussiertes Element der Grundmenge kann mit der rechten oder unteren "
 "Pfeiltaste zur ersten Liste hinzugefügt werden, oder mit der linken oder "
-"oberen Pfeiltaste zur letzten Liste. Ein fokussiertes Element in einer Liste "
-"kann entfernt werden, indem die linke oder rechte Pfeiltaste gedrückt wird, "
-"bis es wieder zur Grundmenge zurückkehrt."
+"oberen Pfeiltaste zur letzten Liste. Ein fokussiertes Element in einer Liste"
+" kann entfernt werden, indem die linke oder rechte Pfeiltaste gedrückt wird,"
+" bis es wieder zur Grundmenge zurückkehrt."
 
 #: /opt/webwork/pg/lib/DragNDrop.pm:235
 msgid ""
@@ -157,8 +158,8 @@ msgstr ""
 "andere Liste zu verschieben. Mit Tab und Umschalt+Tab können Listenelemente "
 "fokussiert werden. Die linke und rechte Pfeiltaste verschieben ein "
 "fokussiertes Listenelement in die Liste links oder rechts. Die obere und "
-"untere Pfeiltaste verschieben ein fokussiertes Listenelement innerhalb einer "
-"Liste nach oben oder unten."
+"untere Pfeiltaste verschieben ein fokussiertes Listenelement innerhalb einer"
+" Liste nach oben oder unten."
 
 #: /opt/webwork/pg/macros/parsers/parserPopUp.pl:561
 msgid "False"
@@ -400,9 +401,9 @@ msgstr "Antwort %1 "
 msgid "end image description"
 msgstr "Ende der Bildbeschreibung"
 
-# does not need to be translated
 #. ('j', 'k', '_0')
 #. ('j', 'k')
+# does not need to be translated
 #: /opt/webwork/pg/lib/Parser/List/Vector.pm:41
 #: /opt/webwork/pg/lib/Value/Vector.pm:303
 #: /opt/webwork/pg/macros/contexts/contextLimitedVector.pl:81
