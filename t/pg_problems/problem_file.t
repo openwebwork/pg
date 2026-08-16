@@ -21,7 +21,7 @@ is($pg->{post_header_text}, '', 'post_header_text is empty');
 is(
 	$pg->{body_text},
 	qq{<div class="PGML">\n}
-		. qq{Enter a value for <script type="math/tex">\\pi</script>.}
+		. qq{Enter a value for \\(\\pi\\).}
 		. qq{<div style="margin-top:1em"></div>}
 		. qq{<div class="text-nowrap d-inline" dir="ltr">}
 		. qq{<input aria-label="answer 1 " autocapitalize="off" autocomplete="off" class="codeshard" }

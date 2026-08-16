@@ -1886,35 +1886,28 @@ sub general_math_ev3 {
 	my $in   = shift;
 	my $mode = shift || "inline";
 
-	$in = FEQ($in);                          # Format EQuations
-	$in =~ s/((^|[^\\])(\\\\)*)%/$1\\%/g;    # avoid % becoming TeX comments (unless already escaped)
+	$in = FEQ($in);                          # Format equations
+	$in =~ s/((^|[^\\])(\\\\)*)%/$1\\%/g;    # Avoid % becoming TeX comments (unless already escaped).
 
-	## remove leading and trailing spaces so that HTML mode will
-	## not include unwanted spaces as per Davide Cervone.
-	$in =~ s/^\s+//;
-	$in =~ s/\s+$//;
-	## If it ends with a backslash, there should be another space
-	## at the end
-	if ($in =~ /(^|[^\\])(\\\\)*\\$/) { $in .= ' ' }
+	# Remove leading and trailing spaces so that HTML mode will not include unwanted spaces.
+	$in =~ s/^\s+|\s+$//g;
+	# If it ends with a backslash, there should be another space at the end.
+	$in .= ' ' if $in =~ /(^|[^\\])(\\\\)*\\$/;
 
-	# some modes want the delimiters, some don't
+	# Some modes want the delimiters, some don't.
 	my $in_delim = $mode eq "inline" ? "\\($in\\)" : "\\[$in\\]";
 
-	my $out;
 	if ($displayMode eq "HTML_MathJax") {
-		$out = '<script type="math/tex' . ($mode eq 'display' ? '; mode=display' : '') . '">' . $in . '</script>';
+		return HTML::Entities::encode_entities($in_delim, '<>&');
 	} elsif ($displayMode eq "HTML_tth") {
-		$out = tth($in_delim);
-		## remove leading and trailing spaces as per Davide Cervone.
-		$out =~ s/^\s+//;
-		$out =~ s/\s+$//;
+		return tth($in_delim) =~ s/^\s+|\s+$//gr;
 	} elsif ($displayMode eq "PTX") {
-		# protect XML control characters
+		# Protect XML control characters.
 		$in =~ s/\&(?!([\w#]+;))/\\amp /g;
 		$in =~ s/</\\lt /g;
-		# attempt to parse align|alignat|gather into complete md/mrow structure, otherwise use me
+		# Attempt to parse align|alignat|gather into complete md/mrow structure, otherwise use me.
 		if ($mode eq 'inline') {
-			$out = "<m>$in</m>";
+			return "<m>$in</m>";
 		} elsif ($mode eq 'display' && $in =~ /^\s*\\begin\{(align|alignat|gather)}((?!\\end\{\1}).)*\\end\{\1}\s*$/s) {
 			my $alignment = $1;
 			my $lines =
@@ -1925,17 +1918,16 @@ sub general_math_ev3 {
 			my @rows = map {"<mrow>$_</mrow>"} @lines;
 			my $rows = join("\n", @rows);
 			$alignment = ($alignment eq 'align') ? '' : " alignment=\"$alignment\"";
-			$out       = "<md${alignment}>\n$rows\n</md>";
+			return "<md${alignment}>\n$rows\n</md>";
 		} elsif ($mode eq 'display') {
-			$out = "<md>$in</md>";
+			return "<md>$in</md>";
 		}
 	} elsif ($displayMode eq "HTML") {
 		$in_delim = HTML::Entities::encode_entities($in_delim);
-		$out      = "<span class='tex2jax_ignore'>$in_delim</span>";
+		return "<span class='tex2jax_ignore'>$in_delim</span>";
 	} else {
-		$out = $in_delim;
+		return $in_delim;
 	}
-	return $out;
 }
 
 sub EV2 {
