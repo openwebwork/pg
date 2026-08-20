@@ -49,6 +49,17 @@ sub new {
 
 	$self->{_autoflush} //= 1;
 
+	# When no filehandle was already supplied (i.e. a new connection is about to be opened), the host to connect to is
+	# always taken from the trusted PG environment configuration, never from whatever server/port a caller passed to
+	# this constructor. A problem source file or macro file cannot override this, since $WeBWorK::PG::IO::pg_envir is
+	# not visible to safe compartment code.
+	if (!defined $self->{fh} && defined $WeBWorK::PG::IO::pg_envir) {
+		my $host = $WeBWorK::PG::IO::pg_envir->{specialPGEnvironmentVars}{Rserve}{host};
+		croak 'Rserve is not configured' unless $host;
+		$self->{server} = $host;
+		$self->{port}   = $WeBWorK::PG::IO::pg_envir->{specialPGEnvironmentVars}{Rserve}{port} // 6311;
+	}
+
 	$self->{server} //= 'localhost';
 	die q{Attribute 'server' must be scalar value}
 		if exists($self->{server}) && (!defined $self->server || ref($self->server));

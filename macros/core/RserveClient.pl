@@ -181,7 +181,7 @@ BEGIN { strict->import; }
 
 sub _RserveClient_init { }
 
-my $rserve;    # Statistics::R::IO::Rserve instance
+my $rserve;    # Rserve instance
 
 sub _rserve_warn_no_config {
 	my @trace      = split /\n/, Value::traceback();

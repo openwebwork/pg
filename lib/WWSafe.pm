@@ -265,6 +265,33 @@ sub share_from {
 	$obj->share_record($pkg, $vars) unless $no_record or !$vars;
 }
 
+# Creates an empty package stash named $name directly under the compartment's root. This is not connected to any real
+# package. This is for packages that must exist so Perl's method resolution can walk through them (e.g. a shared
+# module's @ISA lists a package that must be resolvable, even though none of its actual methods should be reachable from
+# the compartment) without sharing that package's real contents.
+sub share_empty_package {
+	my ($obj, $name) = @_;
+	my $root = $obj->root();
+	no strict 'refs';
+	*{"${root}::${name}::"} = {};
+	return;
+}
+
+# Aliases $name, as seen from inside the compartment, to a real package's symbol table, rather than to whatever real
+# package happens to be named $name outside the compartment. Unlike share_from, which shares specific symbols but leaves
+# bless and method resolution for a class needing a fresh bless from code running nested inside a live reval
+# unresolvable unless that exact class name is itself an alias to a real package's symbol table, this lets $source_pkg
+# (e.g. a small, narrow package built on purpose) stand in for $name so that such a bless resolves correctly, without
+# exposing $name's real, unrestricted contents.
+sub share_package_as {
+	my ($obj, $name, $source_pkg) = @_;
+	my $root = $obj->root();
+	no strict 'refs';
+	croak("Package \"$source_pkg\" does not exist") unless keys %{"$source_pkg\::"};
+	*{"${root}::${name}::"} = \%{"${source_pkg}::"};
+	return;
+}
+
 sub share_record {
 	my $obj    = shift;
 	my $pkg    = shift;
