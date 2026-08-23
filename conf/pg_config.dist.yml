@@ -214,7 +214,6 @@ displayModeOptions:
 modules:
   - [Encode]
   - ['Encode::Encoding']
-  - ['HTML::Parser']
   - ['HTML::Entities']
   - [Exporter]
   - [GD]
