@@ -57,6 +57,7 @@ use WWSafe;
 use PGUtil          qw(pretty_print);
 use WeBWorK::PG::IO qw(fileFromPath);
 use WeBWorK::PG::SafeIOHandle;
+use WeBWorK::PG::SafeGD;
 
 BEGIN {
 	# Setup the safe compartment for the standalone renderer.
@@ -97,6 +98,9 @@ BEGIN {
 		# rather than the real DynaLoader package, which would let any PG problem bootstrap and call into the raw XS
 		# functions of any installed shared library directly.
 		$safeCache->share_empty_package('DynaLoader');
+
+		# Restrict the GD::Image methods that take a file path argument (new, newFromPng, etc.).
+		WeBWorK::PG::SafeGD::restrict();
 
 		my $store_mask = $safeCache->mask();
 		$safeCache->mask(Opcode::empty_opset());
@@ -283,6 +287,9 @@ sub initialize {
 	unless (exists($ENV{MOJO_MODE})) {
 		$safe_cmpt->share_from('main', $self->{ra_included_modules});
 		$safe_cmpt->share_empty_package('DynaLoader');
+
+		# Restrict the GD::Image methods that take a file path argument (new, newFromPng, etc.).
+		WeBWorK::PG::SafeGD::restrict();
 	}
 
 	return;
