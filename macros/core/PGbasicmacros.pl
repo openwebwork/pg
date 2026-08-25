@@ -453,11 +453,10 @@ sub NAMED_ANS_RADIO {
 			'label',
 			tag(
 				'input',
-				type       => 'radio',
-				name       => $name,
-				id         => $name,
-				value      => $value,
-				aria_label => generate_aria_label($name, $options{aria_label}),
+				type  => 'radio',
+				name  => $name,
+				id    => $name,
+				value => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
 				)
@@ -485,11 +484,10 @@ sub NAMED_ANS_RADIO_EXTENSION {
 			'label',
 			tag(
 				'input',
-				type       => 'radio',
-				name       => $name,
-				id         => $options{id} // "${name}_$value",
-				value      => $value,
-				aria_label => generate_aria_label($name, $options{aria_label}),
+				type  => 'radio',
+				name  => $name,
+				id    => $options{id} // "${name}_$value",
+				value => $value,
 				$checked ? (checked => undef) : (),
 				%{ $options{attributes} }
 				)
@@ -502,18 +500,11 @@ sub NAMED_ANS_RADIO_EXTENSION {
 sub NAMED_ANS_RADIO_BUTTONS {
 	my ($name, $value, $tag, @buttons) = @_;
 
-	my @out;
-	my $label = generate_aria_label($name);
-	my $count = 1;
-	push(@out, NAMED_ANS_RADIO($name, $value, $tag, 0, aria_label => $label . maketext('option [_1] ', $count)));
-	++$count;
+	my @out = (NAMED_ANS_RADIO($name, $value, $tag));
 	while (@buttons) {
 		$value = shift @buttons;
 		$tag   = shift @buttons;
-		push(@out,
-			NAMED_ANS_RADIO_EXTENSION($name, $value, $tag, aria_label => $label . maketext('option [_1] ', $count))
-		);
-		++$count;
+		push(@out, NAMED_ANS_RADIO_EXTENSION($name, $value, $tag));
 	}
 	return wantarray ? @out : join(" ", @out);
 }
