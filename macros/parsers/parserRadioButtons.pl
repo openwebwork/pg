@@ -613,11 +613,9 @@ sub BUTTONS {
 	my @radio   = ();
 	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 
-	my $label = main::generate_aria_label($name, delete $options{aria_label});
 	for my $i (0 .. $#choices) {
-		my $value      = $self->{values}[$i];
-		my $tag        = $choices[$i];
-		my $aria_label = $label . main::maketext('option [_1] ', $i + 1);
+		my $value = $self->{values}[$i];
+		my $tag   = $choices[$i];
 		$value = "%" . $value                                   if $i == $self->{checkedI};
 		$tag   = $self->labelFormat($self->{labels}[$i]) . $tag if $self->{displayLabels};
 		if ($i > 0) {
@@ -625,8 +623,7 @@ sub BUTTONS {
 				@radio,
 				main::NAMED_ANS_RADIO_EXTENSION(
 					$name, $value, $tag,
-					id         => "${name}_$i",
-					aria_label => $aria_label,
+					id => "${name}_$i",
 					$self->{uncheckable}
 					? (
 						attributes => {
@@ -643,7 +640,6 @@ sub BUTTONS {
 				@radio,
 				main::NAMED_ANS_RADIO(
 					$name, $value, $tag, $extend,
-					aria_label => $aria_label,
 					$self->{uncheckable}
 					? (
 						attributes => {
