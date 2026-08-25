@@ -51,7 +51,7 @@ my $pre       = ':   ';
 my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?:#.*?(?:\n\s*)+)?(?!=>)(?=.)|\bq[qr]?(?!=>)(?=\W)';
 my $emphasis  = '\*+|_+';
 my $chars     = '\\\\.|[{}[\]()\'"]';
-my $ansrule   = '\[(?:_+|[ox^])\]\*?';
+my $ansrule   = '\[(?:_.*_|[_ox^])\]\*?';
 my $open      = '\[(?:[!<%@$#.]|::?:?|``?`?|\|+ ?)';
 my $close     = '(?:[!>%@$#.]|::?:?|``?`?| ?\|+)\]';
 my $noop      = '\[\]';
@@ -1371,10 +1371,24 @@ sub Math {
 
 sub Answer {
 	my ($self, $state) = @_;
-	my $item = $state->{item};
-	my $ans  = $item->{answer};
+	my $item  = $state->{item};
+	my $ans   = $item->{answer};
+	my $token = substr($item->{token}, 1, -1);
 	my $rule;
-	$item->{width} = length($item->{token}) - 2 if (!defined($item->{width}));
+
+	# Parse token to pull out any provided label.
+	if ($token =~ /^_+$/ || length($token) == 1) {
+		# This deals with [____], [x], [o], and [^] blanks.
+		$item->{width} = length($token) unless defined $item->{width};
+	} elsif ($token =~ /^_(.+)_$/) {
+		$item->{width}      = 1  unless defined $item->{width};
+		$item->{aria_label} = $1 unless defined $item->{aria_label};
+	} else {
+		# This should not happen.
+		warn "Invalid answer blank [$token].";
+		return '';
+	}
+
 	if (defined($ans)) {
 		if (ref($ans) eq 'CODE' || (ref($ans) eq 'AnswerEvaluator' && !Value::isValue($ans->{rh_ans}{correct_value}))) {
 			if (defined($item->{name})) {
