@@ -211,8 +211,14 @@ sub alias_for_tex {
 	} elsif ($file_path =~ m|^$self->{htmlDirectory}|) {
 		# File is in the course html directory.
 		$resource_object->path($aux_file_id);
-	} else {
+	} elsif (WeBWorK::PG::IO::path_is_subdir(
+		$file_path, $WeBWorK::PG::IO::pg_envir->{directories}{permitted_read_dir}, 1
+	))
+	{
 		$resource_object->path($file_path);
+	} else {
+		$self->warning_message(qq{Unable to use the file "$file_path" because it is an unsafe path.});
+		return '';
 	}
 
 	if ($ext eq 'gif' || $ext eq 'svg') {

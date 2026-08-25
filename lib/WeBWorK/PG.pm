@@ -192,6 +192,23 @@ sub defineProblemEnvironment ($pg_envir, $options = {}) {
 	$specialPGEnvironmentVars->{$_} = $options->{specialPGEnvironmentVars}{$_}
 		for keys %{ $options->{specialPGEnvironmentVars} };
 
+	# Save the macrosPath array and problem directory into WeBWorK::PG::IO. This is never exposed into the safe
+	# compartment. So PGloadfiles::compile_file can use it to ensure it is not asked to compile files elsewhere.
+
+	# The contents of the $macrosPath array must be copied. $macrosPath itself is shared to the safe compartment,
+	# and problem code can change its contents. So a reference is not sufficient.
+	my $macrosPath = $options->{macrosPath} // $pg_envir->{directories}{macrosPath};
+	$WeBWorK::PG::IO::macrosPath = [@$macrosPath];
+
+	# This is the same $pwd construction that PGloadfiles.pm uses.
+	my $probFileName      = $options->{sourceFilePath}    // '';
+	my $templateDirectory = $options->{templateDirectory} // '';
+	my $pwd               = $probFileName;
+	$pwd =~ s!/[^/]*$!!;
+	$pwd = $templateDirectory . $pwd unless substr($pwd, 0, 1) eq '/';
+	$pwd =~ s!/tmpEdit/!/!;
+	$WeBWorK::PG::IO::pwd = $pwd;
+
 	return {
 		# This copies everything from the provided options that are not explicitly dealt with below.
 		# With this the caller can add any desired key value pairs to the translator environment.
@@ -202,7 +219,7 @@ sub defineProblemEnvironment ($pg_envir, $options = {}) {
 		# value, or just hard coded defaults.
 
 		# Problem information
-		probFileName       => $options->{sourceFilePath}                                // '',
+		probFileName       => $probFileName,
 		displayMode        => DISPLAY_MODES()->{ $options->{displayMode} || 'MathJax' } // 'HTML_MathJax',
 		problemSeed        => $options->{problemSeed} || 1234,
 		psvn               => $options->{psvn}               // 1,
@@ -243,14 +260,14 @@ sub defineProblemEnvironment ($pg_envir, $options = {}) {
 
 		# Directories and URLs
 		pgMacrosDir       => "$pg_envir->{directories}{root}/macros",
-		macrosPath        => $options->{macrosPath}        // $pg_envir->{directories}{macrosPath},
-		htmlPath          => $options->{htmlPath}          // $pg_envir->{URLs}{htmlPath},
-		imagesPath        => $options->{imagesPath}        // $pg_envir->{URLs}{imagesPath},
-		htmlDirectory     => $options->{htmlDirectory}     // "$pg_envir->{directories}{html}/",
-		htmlURL           => $options->{htmlURL}           // "$pg_envir->{URLs}{html}/",
-		templateDirectory => $options->{templateDirectory} // '',
-		tempURL           => $options->{tempURL}           // "$pg_envir->{URLs}{tempURL}/",
-		localHelpURL      => $options->{localHelpURL}      // "$pg_envir->{URLs}{localHelpURL}/",
+		macrosPath        => $macrosPath,
+		htmlPath          => $options->{htmlPath}      // $pg_envir->{URLs}{htmlPath},
+		imagesPath        => $options->{imagesPath}    // $pg_envir->{URLs}{imagesPath},
+		htmlDirectory     => $options->{htmlDirectory} // "$pg_envir->{directories}{html}/",
+		htmlURL           => $options->{htmlURL}       // "$pg_envir->{URLs}{html}/",
+		templateDirectory => $templateDirectory,
+		tempURL           => $options->{tempURL}      // "$pg_envir->{URLs}{tempURL}/",
+		localHelpURL      => $options->{localHelpURL} // "$pg_envir->{URLs}{localHelpURL}/",
 
 		# Other things ...
 

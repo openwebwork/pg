@@ -594,7 +594,7 @@ sub evaluate {
 	}
 	$rh_ans = $self->dereference_array_ans($rh_ans);
 	# make sure that the student answer is not an array so that it is reported correctly in answer section.
-	eval(q!main::DEBUG_MESSAGE( `<h4>final result: </h4>`, pretty_print($rh_ans,'html'))!)
+	eval(q!main::DEBUG_MESSAGE('<h4>final result: </h4>', pretty_print($rh_ans,'html'))!)
 		if defined($self->{debug})
 		and $self->{debug} > 0;
 	# re-reference $rh_ans;
