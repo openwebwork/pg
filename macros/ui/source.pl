@@ -1,3 +1,5 @@
+sub _source_init { }
+
 if ($displayMode =~ m/HTML/ && !defined($_slides_loaded)) {
 	TEXT('<DIV ID="source_button" STYLE="float:right; margin-right:2em">'
 			. '<SCRIPT>function showSource () {'

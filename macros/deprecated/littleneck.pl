@@ -1,3 +1,5 @@
+sub _littleneck_init { }
+
 #*****************************
 #   Question mode variables
 #*****************************

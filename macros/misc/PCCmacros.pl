@@ -18,6 +18,8 @@ To use it, load the macro file:
 
 =cut
 
+sub _PCCmacros_init { }
+
 ###############################
 #Name: perlround
 #Input: a number to round, then a place to round to. e.g. 2=>hundredths, 0=>whole, -1=>tens

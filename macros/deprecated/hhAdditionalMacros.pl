@@ -43,6 +43,8 @@
 # easy to add
 #
 
+sub _hhAdditionalMacros_init { }
+
 sub reduced_frac {
 	my ($num, $den) = @_;
 

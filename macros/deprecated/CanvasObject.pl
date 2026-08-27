@@ -1,5 +1,7 @@
 #! /usr/bin/perl -w
 
+sub _CanvasObject_init { }
+
 $appletName = "drawCanvas";
 $canvasName = "cv";
 $answerBox //= 'answerBox';
@@ -32,23 +34,23 @@ var padding =3;
 //-------------------  Listeners ---------------------------
     //had to add the listeners with javascript
     //because it's not currently possible to reference processing methods from the html
-    
+
     //reset the graph to 0
     function my_reset() {
       for (var i = 0; i < points; i++) {
-    
+
         yValues[i] = 0.5;
         derivatives[i] = 0;
       }
       setPoints();
     }
-    
+
     //toggle grid
     function toggleGrid() {
       showGrid = !showGrid;
     }
-    
-    //smooth the current graph 
+
+    //smooth the current graph
     function smooth() {
       var newPoints = new Array(points);
       for (var i = 0; i < points; i++) {
@@ -87,7 +89,7 @@ var padding =3;
 //       }
 //       \$('#pointDisplay').val(temp);
 //     }
-//     
+//
 //     //load points from y-values
 //     function setPoints() {
 //       var tempString = \$('#points1').val();
@@ -111,7 +113,7 @@ var padding =3;
 //       }
 //     }
     //grab points from graph and print
- 
+
     function getPoints1() {
       var temp = "";
       var temp2 = "";
@@ -141,7 +143,7 @@ var padding =3;
       \$('#answerBox').val(temp2);
       return(temp);
     }
-    
+
     //load points from y-values
     function setPoints1() {
       var tempString = \$('#answerBox').val();
@@ -174,7 +176,7 @@ sub insertCanvas {
 	my $myHeight = shift() || 200;
 	$canvasObject = MODES(TeX => "canvasObject", PTX => " canvas object ", HTML => <<END_CANVAS);
 	<script> var canvasWidth = $myWidth; var canvasHeight = $myHeight;</script>
-	<canvas id="cv" data-src="${webworkHtmlURL}js/sketchgraphhtml5b/SketchGraph.pjs" width="$myWidth" height="$myHeight"></canvas>  
+	<canvas id="cv" data-src="${webworkHtmlURL}js/sketchgraphhtml5b/SketchGraph.pjs" width="$myWidth" height="$myHeight"></canvas>
 END_CANVAS
 	# keep END_CANVAS flush left!!
 	return $canvasObject;
@@ -183,7 +185,7 @@ END_CANVAS
 sub insertYvaluesInputBox {
 	$yValuesInput = MODES(TeX => "yValuesInput", PTX => " <m>y</m>-values input ", HTML => <<EOF);
 	<p>
-	Y-values: 
+	Y-values:
 	<input type="text" id="points1" size=50></input>
 	<button type="button" id="setPts" onClick="setPoints();">Set</button>
 	</p>
@@ -408,7 +410,7 @@ EOF
 sub insertPointsArea {
 	$pointsArea = MODES(TeX => "pointsArea", PTX => " points area ", HTML => <<EOF);
 	<button type="button" id="getPts" onClick="getPoints();">Get Points</button><br/>
-	<textarea id="pointDisplay" rows=10 cols=60></textarea>	
+	<textarea id="pointDisplay" rows=10 cols=60></textarea>
 EOF
 	return $pointsArea;
 }

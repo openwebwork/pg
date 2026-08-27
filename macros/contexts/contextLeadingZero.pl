@@ -9,6 +9,8 @@ Require numeric answers to have a 0 before the decimal point.
 
 =cut
 
+sub _contextLeadingZero_init { }
+
 loadMacros("contextLimitedNumeric.pl");
 
 $context{LeadingZero} = Parser::Context->getCopy("LimitedNumeric");

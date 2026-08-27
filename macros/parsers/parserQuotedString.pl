@@ -1,3 +1,5 @@
+sub _parserQuotedString_init { }
+
 package QuotedString;
 @ISA = qw(Parser::String);
 

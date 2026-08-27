@@ -17,6 +17,8 @@ L<Parser.pl>.
 
 =cut
 
+sub _MathObjects_init { }
+
 # ^uses loadMacros
 loadMacros("Parser.pl");
 

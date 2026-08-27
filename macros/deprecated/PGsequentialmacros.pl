@@ -59,6 +59,8 @@ Problem environment.  This is used for debugging.
 
 =cut
 
+sub _PGsequentialmacros_init { }
+
 sub listVariables {
 	listFormVariables(@_);
 }

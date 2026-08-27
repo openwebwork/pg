@@ -66,6 +66,8 @@ macros by R Cruz -- The College of Idaho
    To use: $a = SimplifyFraction(numerator expression,denominator expression);
 =cut
 
+sub _CofIdaho_macros_init { }
+
 ###################################################################
 # 1) Formats an expression without negative exponents
 #    Thanks to John Jones at ASU for this macro.

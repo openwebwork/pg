@@ -1,3 +1,5 @@
+sub _interpMacros_init { }
+
 sub interpVals {
 	$arrayLength  = ($#_) / 2;
 	@A_ARRAY      = @_[ 0 .. ($arrayLength - 1) ];

@@ -1,3 +1,4 @@
+sub _regrfnsPG_init { }
 
 # functions for simple linear regression in perl
 

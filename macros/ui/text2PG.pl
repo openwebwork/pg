@@ -1,3 +1,5 @@
+sub _text2PG_init { }
+
 ######################################################################
 #
 #  Sanitize a text string for use with TEXT and EV3, so that

@@ -1,3 +1,4 @@
+sub _PGgraders_init { }
 
 =head1 NAME
 

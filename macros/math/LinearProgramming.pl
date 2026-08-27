@@ -1,4 +1,6 @@
 
+sub _LinearProgramming_init { }
+
 =head1 NAME
 
 LinearProgramming.pl - Macros for the simplex tableau for linear programming

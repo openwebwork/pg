@@ -9,6 +9,8 @@ PGdiffeqmacros.pl - Macros for Prills 163 problems
 
 BEGIN { strict->import; }
 
+sub _PGdiffeqmacros_init { }
+
 #my @answer = oldivy(1,2,1,8,4);
 #print ("The old program says:\n");
 #print ($answer[0]);
