@@ -209,6 +209,11 @@ sub compile_file {
 	my $self     = shift;
 	my $filePath = shift;
 
+	# Only allow compilation of files that are in the macros path.
+	my @allowedDirs = map { $_ eq '.' ? $WeBWorK::PG::IO::pwd : $_ } @{ $WeBWorK::PG::IO::macrosPath // [] };
+	die "Refusing to compile $filePath as it is not located in an allowed location.\n"
+		unless grep { WeBWorK::PG::IO::path_is_subdir($filePath, $_) } @allowedDirs;
+
 	warn "loading $filePath" if $debugON;
 
 	local $/ = undef;    # allows us to treat the file as a single line

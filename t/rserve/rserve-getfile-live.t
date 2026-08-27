@@ -17,6 +17,10 @@ use Rserve;
 # Fake configuration if this is disabled (it is by default in pg_config.dist.yml).
 $main::Rserve = { host => 'localhost' } unless ref($main::Rserve) eq 'HASH' && $main::Rserve->{host};
 
+# The actual host used to connect is read from $WeBWorK::PG::IO::pg_envir
+# (a trusted server configuration), not from $main::Rserve.
+$WeBWorK::PG::IO::pg_envir->{specialPGEnvironmentVars}{Rserve} = $main::Rserve;
+
 my $s;
 eval {
 	socket($s, PF_INET, SOCK_STREAM, getprotobyname('tcp'))          or die "socket: $!";

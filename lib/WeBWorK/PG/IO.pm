@@ -270,6 +270,10 @@ sub remove_tree {
 sub path_is_subdir {
 	my ($path, $dir, $allow_relative) = @_;
 
+	# An empty or undefined $dir normalizes via canonpath to '/', which every absolute path matches,
+	# turning "restrict to this directory" into "allow anything". Reject up front instead.
+	return 0 unless defined $dir && $dir ne '';
+
 	unless ($path =~ /^\//) {
 		if ($allow_relative) {
 			$path = "$dir/$path";

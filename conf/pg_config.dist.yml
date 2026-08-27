@@ -214,9 +214,7 @@ displayModeOptions:
 modules:
   - [Encode]
   - ['Encode::Encoding']
-  - ['HTML::Parser']
   - ['HTML::Entities']
-  - [DynaLoader]
   - [Exporter]
   - [GD]
   - [utf8]
@@ -260,7 +258,6 @@ modules:
   - ['Locale::Maketext']
   - ['WeBWorK::PG::Localize']
   - ['Mojo::JSON']
-  - ['IO::Handle']
   - ['Rserve']
   - [DragNDrop]
   - ['Types::Serialiser']

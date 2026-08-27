@@ -56,6 +56,8 @@ use Mojo::DOM;
 use WWSafe;
 use PGUtil          qw(pretty_print);
 use WeBWorK::PG::IO qw(fileFromPath);
+use WeBWorK::PG::SafeIOHandle;
+use WeBWorK::PG::SafeGD;
 
 BEGIN {
 	# Setup the safe compartment for the standalone renderer.
@@ -90,6 +92,15 @@ BEGIN {
 		}
 
 		$safeCache->share_from('main', $ra_included_modules);
+
+		# GD's @ISA includes DynaLoader (a common pattern for older XS modules), and so Perl's method resolution needs a
+		# "DynaLoader" package to be resolvable for anything that inherits from GD (e.g. WWPlot).  Share an empty stash
+		# rather than the real DynaLoader package, which would let any PG problem bootstrap and call into the raw XS
+		# functions of any installed shared library directly.
+		$safeCache->share_empty_package('DynaLoader');
+
+		# Restrict the GD::Image methods that take a file path argument (new, newFromPng, etc.).
+		WeBWorK::PG::SafeGD::restrict();
 
 		my $store_mask = $safeCache->mask();
 		$safeCache->mask(Opcode::empty_opset());
@@ -233,6 +244,9 @@ The following translator methods are shared to the safe compartment:
 
 Also all methods that are exported by WeBWorK::PG::IO are shared.
 
+The compartment's view of IO::Handle is aliased to WeBWorK::PG::SafeIOHandle
+which is a restricted stand-in.
+
 In addition the environment hash C<%envir> is shared.  This variable is unpacked
 when PG.pl is run.
 
@@ -255,6 +269,13 @@ sub initialize {
 	$safe_cmpt->share_from('WeBWorK::PG::Translator', \@Translator_shared_subroutine_array);
 	$safe_cmpt->share_from('WeBWorK::PG::IO',         \@WeBWorK::PG::IO::EXPORT_OK);
 
+	# The Rserve package blesses its connection socket as an IO::Handle. So the WeBWorK::PG::SafeIOHandle package which
+	# aliases only print/flush/read/close from the IO::Handle package is shared as an alias to the IO::Handle package
+	# rather than sharing the IO::Handle package itself. Sharing the entire IO::Handle package would expose
+	# IO::Handle->new_from_fd(FD, MODE), and that would let a PG problem wrap and read or write to any file descriptor
+	# number the process happens to have open.
+	$safe_cmpt->share_package_as('IO::Handle', 'WeBWorK::PG::SafeIOHandle');
+
 	no strict;
 	local (%envir) = %{ $self->{envir} };
 	$safe_cmpt->share('%envir');
@@ -265,6 +286,10 @@ sub initialize {
 	# The standalone renderer does this when the module is compiled.
 	unless (exists($ENV{MOJO_MODE})) {
 		$safe_cmpt->share_from('main', $self->{ra_included_modules});
+		$safe_cmpt->share_empty_package('DynaLoader');
+
+		# Restrict the GD::Image methods that take a file path argument (new, newFromPng, etc.).
+		WeBWorK::PG::SafeGD::restrict();
 	}
 
 	return;
@@ -497,7 +522,7 @@ sub set_mask {
 	# Just to make sure, deny some things specifically.
 	$safe_cmpt->deny(qw(entereval));
 	$safe_cmpt->deny(qw(unlink symlink system exec));
-	$safe_cmpt->deny(qw(print require));
+	$safe_cmpt->deny(qw(print prtf require));
 	return;
 }
 
