@@ -13,7 +13,10 @@
 
 		feedbackBtn.addEventListener('inserted.bs.popover', () => {
 			// Render MathJax previews.
-			if (window.MathJax) MathJax.typesetPromise?.([feedbackPopover.tip]).then(() => feedbackPopover.update());
+			if (window.MathJax)
+				MathJax.startup.promise
+					.then(() => MathJax.typesetPromise([feedbackPopover.tip]))
+					.then(() => feedbackPopover.update());
 
 			// Execute javascript in the answer preview.
 			feedbackPopover.tip?.querySelectorAll('script').forEach((origScript) => {
