@@ -25,7 +25,7 @@ sub violates ($self, $element, $) {
 			$_->[0]
 		)
 		}
-		grep { $deprecatedMacros->{ $_->[0]->string } } parse_arg_list($element);
+		grep { $deprecatedMacros->{ $_ ? $_->[0]->string : '' } } parse_arg_list($element);
 }
 
 1;
