@@ -1,29 +1,162 @@
+package PGloadfiles;
+
+use strict;
+use warnings;
+use utf8;
+
+use Encode qw(decode);
+
+use WeBWorK::PG::Translator;
+
+our $debugON = 0;
+
+sub new {
+	my ($class, $envir) = @_;
+	die 'PGloadmacros must be called with an environment' unless ref($envir) eq 'HASH';
+
+	my $pwd = $envir->{probFileName} =~ s!/[^/]*$!!r;
+	$pwd = $envir->{templateDirectory} . $pwd unless substr($pwd, 0, 1) eq '/';
+
+	# FIXME: This shouldn't be here.  See the note in PGalias.pm in the initialize subroutine.
+	$pwd =~ s!/tmpEdit/!/!;
+
+	return bless {
+		envir         => $envir,
+		macroFileList => {},                     # List of compiled macros.
+		macrosPath    => $envir->{macrosPath},
+		pwd           => $pwd,                   # Directory containing the current problem.
+	}, $class;
+}
+
+sub loadMacros {
+	my ($self, @files) = @_;
+
+	my $macrosPath = $self->{envir}{macrosPath};
+
+	while (@files) {
+		my $fileName = shift @files;
+
+		next if $fileName =~ /^PG\.pl$/;         # The PG.pl macro package is already loaded.
+
+		# Only parse files with macro extensions.
+		unless ($fileName =~ /\.(pl|pg)$/) {
+			warn "Can't load file |$fileName|. Can't load a macro file unless it has a .pl or .pg extension";
+			next;
+		}
+
+		# Remove the extension. Sometimes the extension is .pg
+		my $macro_file_name = $fileName =~ s/\.p[lg]//r;
+
+		my $init_subroutine_name = "_${macro_file_name}_init";
+		$init_subroutine_name =~ s![^a-zA-Z0-9_]!_!g;    # Remove dangerous characters.
+
+		my $init_subroutine = eval { \&{ 'main::' . $init_subroutine_name } };
+
+		my $macro_file_loaded = defined $init_subroutine && defined &$init_subroutine;
+		warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"
+			if $debugON;
+
+		unless ($macro_file_loaded) {
+			warn "loadMacros: loading macro file $fileName" if $debugON;
+			my $filePath = $self->findMacroFile($fileName);
+			warn "loadMacros: look for $fileName at |$filePath|" if $debugON;
+
+			if ($filePath) {
+				$self->compile_file($filePath);
+				warn "loadMacros is compiling $filePath" if $debugON;
+			} else {
+				warn qq{Can't locate macro file "$fileName" via path: "}
+					. join(qq{",\n"},
+					map { $_ =~ s|^$self->{envir}{templateDirectory}|[TMPL]/|r }
+					map { $_ =~ s|^$self->{envir}{pgMacrosDir}|[PG]/macros|r } @$macrosPath) . qq{"\n};
+			}
+
+			$init_subroutine = eval { \&{ 'main::' . $init_subroutine_name } };
+
+			$macro_file_loaded = defined $init_subroutine && defined &$init_subroutine;
+			warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"
+				if $debugON;
+
+			if ($macro_file_loaded) {
+				warn "PGloadfiles:  $macro_file_name loaded, initializing $macro_file_name\n" if $debugON;
+				$init_subroutine->();
+			}
+		}
+	}
+
+	return;
+}
+
+sub findMacroFile {
+	my ($self, $macroFileName) = @_;
+	for my $dir (@{ $self->{envir}{macrosPath} }) {
+		my $macroFilePath = "$dir/$macroFileName" =~ s!^\.\.?/!$self->{pwd}/!r;
+		return $macroFilePath if -r $macroFilePath;
+	}
+	return 0;
+}
+
+sub compile_file {
+	my ($self, $filePath) = @_;
+
+	# Only allow compilation of files that are in the macros path.
+	my @allowedDirs = map { $_ eq '.' ? $WeBWorK::PG::IO::pwd : $_ } @{ $WeBWorK::PG::IO::macrosPath // [] };
+	die "Refusing to compile $filePath as it is not located in an allowed location.\n"
+		unless grep { WeBWorK::PG::IO::path_is_subdir($filePath, $_) } @allowedDirs;
+
+	warn "loading $filePath" if $debugON;
+
+	local $/ = undef;
+	open(my $MACROFILE, "<:raw", $filePath) or die "Cannot open file: $filePath";
+	my $contents = <$MACROFILE>;
+	close $MACROFILE;
+	$contents = decode('UTF-8', $contents);
+
+	my ($result, $error, $fullerror) = WeBWorK::PG::Translator::PG_macro_file_eval($contents, $filePath);
+
+	if ($error) {
+		# The $fullerror report has formatting and is never empty when there is an error.
+		# The die message is handled by PG_errorMessage in the PG translator.
+		die "Error detected while loading $filePath:\n$fullerror";
+	}
+
+	$self->{macroFileList}{$filePath} = 1;
+
+	return;
+}
+
+1;
 
 =head1 NAME
 
-loadMacros - load macros within a PG problem.
+PGloadfiles.pm - Load and compile macro files.
 
-=head1 DESCRIPTION
+=head2 new
 
-Usage:
+Usage: C<< PGloadfiles->new($envir) >>
 
-    loadMacros(@macroFiles)
+The C<PGloadfiles> constructor. The C<$envir> hash containing the problem
+environment is required.
 
-loadMacros takes a list of file names and evaluates the contents of each file.
-This is used to load macros which define and augment the PG language. The macro
-files are searched for in the directories specified by the array referenced by
-$macrosPath, which by default is the current course's macros directory followed
-by WeBWorK's pg/macros directory. The latter is where the default behaviour of
-the PG language is defined. The default path is set in the global.conf file.
+One C<PGloadfiles> object is created for each C<PGcore> object (which is unique
+for each problem).  This object is used to load macros for a problem.
 
-Macro files named PG.pl or IO.pl will be loaded with no opcode restrictions,
-hence any code in those files will be able to execute privileged operations.
-This is true no matter which macro directory the file is in. For example,
-if $macrosPath contains the path to a problem library macros directory which
-contains a PG.pl file, this file will be loaded and allowed to engage in
-privileged behavior.
+=head2 loadMacros
 
-=head2 Overloading macro files
+Usage: C<< $pgLoadfiles->loadMacros(@macroFiles) >>
+
+This method takes a list of file names C<@macroFiles> and evaluates the contents
+of each file.  This is used to load macros which define and augment the PG
+language. The macro files are searched for in the directories specified by the
+array referenced by C<< $envir->{macrosPath} >>, which by default includes the
+directory containing the current problem file, followed by the course's macros
+directory and all of WeBWorK's pg/macros directories.
+
+Note that a problem should call the C<loadMacros> method defined in L<PG.pl>
+which calls this method via the unique C<PGloadfiles> object of the unique
+C<PGcore> object for the problem.
+
+=head3 Overloading macro files
 
 An individual course can modify the PG language, for that course only, by
 duplicating one of the macro files in the system-wide macros directory and
@@ -34,7 +167,7 @@ system-wide macros directory.
 The new file in the course macros directory can by modified by adding macros or
 modifying existing macros.
 
-=head2 Modifying existing macros
+=head3 Modifying existing macros
 
 I<Modifying macros is for users with some experience.>
 
@@ -43,7 +176,7 @@ depend on the unmodified behavior of these macros so do this with great caution.
 In addition problems which use new macros defined in these files or which depend
 on the modified behavior of existing macros will not work in other courses
 unless the macros are also transferred to the new course.  It helps to document
-the  problems by indicating any special macros which the problems require.
+the problems by indicating any special macros which the problems require.
 
 There is no facility for modifying or overloading a single macro. The entire
 file containing the macro must be overloaded.
@@ -51,227 +184,19 @@ file containing the macro must be overloaded.
 Modifications to files in the course macros directory affect only that course,
 they will not interfere with the normal behavior of WeBWorK in other courses.
 
-=cut
+=head2 findMacroFile
 
-our $debugON = 0;
+Usage: C<< $pgLoadfiles->findMacroFile($fileName) >>
 
-package PGloadfiles;
-use strict;
-#use Encode(qw(encode decode));
-use Exporter;
-use PGcore;
-use WeBWorK::PG::Translator;
-use WeBWorK::PG::IO;
+Searches for the C<$fileName> in the directories listed in the array referenced
+by C<< $envir->{macrosPath} >>. It returns the full file path of the file in the
+first directory in that list that it is found in.
 
-our @ISA = qw ( PGcore  );    # look up features in PGcore -- in this case we want the environment.
+=head2 compile_file
 
-# new
-#   Create one loadfiles object per question (and per PGcore object)
-#   Process macro files
-#   Keep list of macro files processed.
-sub new {
-	my $class = shift;
-	my $envir = shift;    #pointer to environment hash
-	warn "PGloadmacros must be called with an environment" unless ref($envir) eq 'HASH';
-	my $self = {
-		envir         => $envir,
-		macroFileList => {},       # records macros used in compilation
-		macrosPath    => '',
-		pwd           => '',       # current directory -- defined in initialize
-	};
-	bless $self, $class;
-	$self->initialize;
-	#$self->check_parameters;
-	return $self;
-}
+Usage C<< $pgLoadfiles->compile_file($filePath) >>
 
-sub initialize {
-	my $self              = shift;
-	my $templateDirectory = $self->{envir}->{templateDirectory};
-	my $pwd               = $self->{envir}->{probFileName};
-	$pwd =~ s!/[^/]*$!!;
-	$pwd = $templateDirectory . $pwd unless substr($pwd, 0, 1) eq '/';
-
-	# FIXME: This shouldn't be here.  See the note in PGalias.pm in the initialize subroutine.
-	$pwd =~ s!/tmpEdit/!/!;
-
-	$self->{pwd}        = $pwd;
-	$self->{macrosPath} = $self->{envir}{macrosPath};
-
-}
-
-sub PG_restricted_eval {
-	my $self = shift;
-	WeBWorK::PG::Translator::PG_restricted_eval(@_);
-}
-
-sub PG_macro_file_eval {
-	my $self = shift;
-	WeBWorK::PG::Translator::PG_macro_file_eval(@_);
-}
-
-# ^function loadMacros
-# ^uses $debugON
-# ^uses $externalTTHPath
-# ^uses findMacroFile
-sub loadMacros {
-	my $self  = shift;
-	my @files = @_;
-	my $fileName;
-	my $macrosPath = $self->{envir}->{macrosPath};
-	###############################################################################
-	# At this point the directories have been defined from %envir and we can define
-	# the directories for this file
-	###############################################################################
-
-	while (@files) {
-		$fileName = shift @files;
-
-		next if ($fileName =~ /^PG\.pl$/);    # the PG.pl macro package is already loaded.
-
-		unless ($fileName =~ /\.(pl|pg)$/) {  # dont try to parse files without macro extensions
-			warn "Can't load file |$fileName|. Can't load a macro file unless it has a .pl or .pg extension";
-			next;
-		}
-		my $macro_file_name = $fileName;
-		$macro_file_name =~ s/\.pl//;                    # trim off the extension
-		$macro_file_name =~ s/\.pg//;                    # sometimes the extension is .pg
-		my $init_subroutine_name = "_${macro_file_name}_init";
-		$init_subroutine_name =~ s![^a-zA-Z0-9_]!_!g;    # remove dangerous chars
-
-		my $init_subroutine = eval { \&{ 'main::' . $init_subroutine_name } };
-
-		###############################################################################
-
-		# macros are searched for in the directories listed in the $macrosPath array reference.
-
-		my $macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
-		warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"
-			if $debugON;
-		unless ($macro_file_loaded) {
-			warn "loadMacros: loading macro file $fileName" if $debugON;
-			my $filePath = $self->findMacroFile($fileName);
-			#### (check for renamed files here?) ####
-			warn "loadMacros:  look for $fileName at |$filePath|" if $debugON;
-			if ($filePath) {
-				$self->compile_file($filePath);
-				warn "loadMacros is compiling $filePath" if $debugON;
-			} else {
-				my $pgDirectory       = $self->{envir}{pgMacrosDir};
-				my $templateDirectory = $self->{envir}{templateDirectory};
-				my @shortenedPaths    = @{$macrosPath};
-				@shortenedPaths = map { $_ =~ s|^$templateDirectory|[TMPL]/|; $_ } @shortenedPaths;
-				@shortenedPaths = map { $_ =~ s|^$pgDirectory|[PG]/macros/|;  $_ } @shortenedPaths;
-				warn "Can't locate macro file |$fileName| via path: |" . join("|,<br/> |", @shortenedPaths) . "|\n";
-			}
-
-			$init_subroutine = eval { \&{ 'main::' . $init_subroutine_name } };
-
-			$macro_file_loaded = defined($init_subroutine) && defined(&$init_subroutine);
-			warn "PGloadfiles: macro init $init_subroutine_name defined |$init_subroutine| |$macro_file_loaded|"
-				if $debugON;
-
-			if ($macro_file_loaded) {
-				warn "PGloadfiles:  $macro_file_name loaded, initializing $macro_file_name\n" if $debugON;
-				&$init_subroutine();
-			}
-		}
-	}
-}
-
-# ^function findMacroFile
-# ^uses $macrosPath
-# ^uses $pwd
-sub findMacroFile {
-	my $self          = shift;
-	my $macroFileName = shift;
-	my $macroFilePath;
-	my $pwd        = $self->{pwd};
-	my @macrosPath = @{ $self->{envir}->{macrosPath} };
-	warn "in findMacroFile" if $debugON;
-
-	#  foreach my $dir (@{$self->{macrosPath} } ) {   # why did this ever work?
-	foreach my $dir (@macrosPath) {
-
-		$macroFilePath = "$dir/$macroFileName";
-		$macroFilePath =~ s!^\.\.?/!$pwd/!;
-		return $macroFilePath if (-r $macroFilePath);
-	}
-	return 0;    # no file found
-}
-
-# errors in compiling macros is not always being reported.
-# ^function compile_file
-# ^uses @__eval__
-# ^uses PG_restricted_eval
-# ^uses $__files__
-sub compile_file {
-	my $self     = shift;
-	my $filePath = shift;
-
-	# Only allow compilation of files that are in the macros path.
-	my @allowedDirs = map { $_ eq '.' ? $WeBWorK::PG::IO::pwd : $_ } @{ $WeBWorK::PG::IO::macrosPath // [] };
-	die "Refusing to compile $filePath as it is not located in an allowed location.\n"
-		unless grep { WeBWorK::PG::IO::path_is_subdir($filePath, $_) } @allowedDirs;
-
-	warn "loading $filePath" if $debugON;
-
-	local $/ = undef;    # allows us to treat the file as a single line
-
-	open(my $MACROFILE, "<:raw", $filePath) || die "Cannot open file: $filePath";
-	my $string = <$MACROFILE>;
-	close $MACROFILE;
-	utf8::decode($string);    # can't yet use :encoding(UTF-8)
-
-	my ($result, $error, $fullerror) = $self->PG_macro_file_eval($string, $filePath);
-
-	if ($error) {
-		# The $fullerror report has formatting and is never empty when there is an error.
-		# The die message is handled by PG_errorMessage() in the PG translator.
-		die "Error detected while loading $filePath:\n$fullerror";
-	}
-
-	$self->{macroFileList}{$filePath} = 1;
-}
-
-=head2 sourceAlias
-
-	sourceAlias($path_to_PG_file);
-
-Returns a relative URL to the F<source.pl> script, which may be installed in a
-course's F<html> directory to allow formatted viewing of the problem source.
+Reads the file C<$filePath> and compiles it. Note that this is an internal
+method, and should never be called outside of this file.
 
 =cut
-
-# ^function sourceAlias
-# ^uses PG_restricted_eval
-# ^uses %envir
-# ^uses $envir{inputs_ref}
-# ^uses $envir{psvn}
-# ^uses $envir{probNum}
-# ^uses $envir{displayMode}
-# ^uses $envir{courseName}
-sub sourceAlias {
-	my $self         = shift;
-	my $path_to_file = shift;
-	my $envir        = PG_restricted_eval(q!\%main::envir!);
-	my $user         = $envir->{inputs_ref}->{user};
-	$user = " " unless defined($user);
-	my $out =
-		'source.pl?probSetKey='
-		. $envir->{psvn}
-		. '&amp;probNum='
-		. $envir->{probNum}
-		. '&amp;Mode='
-		. $envir->{displayMode}
-		. '&amp;course='
-		. $envir->{courseName}
-		. '&amp;user='
-		. $user
-		. '&amp;displayPath='
-		. $path_to_file;
-
-	$out;
-}
-
-1;
