@@ -441,21 +441,17 @@ sub ans_matrix {
 	my $named_ans_rule  = pgRef('NAMED_ANS_RULE');
 	my $HTML            = "";
 	pgCall('RECORD_IMPLICIT_ANS_NAME', $name = pgCall('NEW_ANS_NAME')) unless $name;
-	my $ename = "${answerPrefix}_${name}";
+	my $ename      = "${answerPrefix}_${name}";
+	my $base_label = pgCall('generate_aria_label', $ename, $options{aria_label});
 	$self->{ans_name} = $ename;
 	$self->{ans_rows} = $rows;
 	$self->{ans_cols} = $cols;
 	# warn "ans_matrix: ename=$ename answer_group_name=$options{answer_group_name}";
 	my @array = ();
-	foreach my $i (0 .. $rows - 1) {
+	for my $i (0 .. $rows - 1) {
 		my @row = ();
-		foreach my $j (0 .. $cols - 1) {
-			my $label;
-			if ($options{aria_label}) {
-				$label = $options{aria_label} . pgCall('maketext', 'row [_1] col [_2] ', $i + 1, $j + 1);
-			} else {
-				$label = pgCall('generate_aria_label', ANS_NAME($ename, $i, $j));
-			}
+		for my $j (0 .. $cols - 1) {
+			my $label             = $base_label . pgCall('maketext', 'row [_1] col [_2] ', $i + 1, $j + 1);
 			my $answer_group_name = $options{answer_group_name} // $name;
 			if ($i == 0 && $j == 0) {
 				if ($extend) {

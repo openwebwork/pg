@@ -51,7 +51,7 @@ my $pre       = ':   ';
 my $quoted    = '[$@%]q[qr]?|\bq[qr]?\s+(?:#.*?(?:\n\s*)+)?(?!=>)(?=.)|\bq[qr]?(?!=>)(?=\W)';
 my $emphasis  = '\*+|_+';
 my $chars     = '\\\\.|[{}[\]()\'"]';
-my $ansrule   = '\[(?:_+|[ox^])\]\*?';
+my $ansrule   = '\[(?:_.*_|[_ox^])\]\*?';
 my $open      = '\[(?:[!<%@$#.]|::?:?|``?`?|\|+ ?)';
 my $close     = '(?:[!>%@$#.]|::?:?|``?`?| ?\|+)\]';
 my $noop      = '\[\]';
@@ -404,7 +404,7 @@ sub Image {
 sub Answer {
 	my $self  = shift;
 	my $token = shift;
-	my $def   = { options => [ "answer", "width", "name", "cmp_options" ] };
+	my $def   = { options => [ 'answer', 'width', 'name', 'cmp_options', 'aria_label' ] };
 	$def->{hasStar} = 1 if $token =~ m/\*$/;
 	$self->Item("answer", $token, $def);
 }
@@ -1285,6 +1285,11 @@ sub string {
 	return join('', @strings);
 }
 
+sub aria_label {
+	my ($self, $label) = @_;
+	return $label ? (aria_label => "$label ") : ();
+}
+
 sub nl {
 	my $self = shift;
 	my $nl   = $self->{nl};
@@ -1366,17 +1371,31 @@ sub Math {
 
 sub Answer {
 	my ($self, $state) = @_;
-	my $item = $state->{item};
-	my $ans  = $item->{answer};
+	my $item  = $state->{item};
+	my $ans   = $item->{answer};
+	my $token = substr($item->{token}, 1, -1);
 	my $rule;
-	$item->{width} = length($item->{token}) - 2 if (!defined($item->{width}));
+
+	# Parse token to pull out any provided label.
+	if ($token =~ /^_+$/ || length($token) == 1) {
+		# This deals with [____], [x], [o], and [^] blanks.
+		$item->{width} = length($token) unless defined $item->{width};
+	} elsif ($token =~ /^_(.+)_$/) {
+		$item->{width}      = 1  unless defined $item->{width};
+		$item->{aria_label} = $1 unless defined $item->{aria_label};
+	} else {
+		# This should not happen.
+		warn "Invalid answer blank [$token].";
+		return '';
+	}
+
 	if (defined($ans)) {
 		if (ref($ans) eq 'CODE' || (ref($ans) eq 'AnswerEvaluator' && !Value::isValue($ans->{rh_ans}{correct_value}))) {
 			if (defined($item->{name})) {
-				$rule = main::NAMED_ANS_RULE($item->{name}, $item->{width});
+				$rule = main::NAMED_ANS_RULE($item->{name}, $item->{width}, $self->aria_label($item->{aria_label}));
 				main::NAMED_ANS($item->{name} => $ans);
 			} else {
-				$rule = main::ans_rule($item->{width});
+				$rule = main::ans_rule($item->{width}, $self->aria_label($item->{aria_label}));
 				main::ANS($ans);
 			}
 		} else {
@@ -1398,7 +1417,7 @@ sub Answer {
 					$ans = main::String("");    ### use something else?
 				}
 			}
-			my @options = ($item->{width});
+			my @options = ($item->{width}, $self->aria_label($item->{aria_label}));
 			my $method  = ($item->{hasStar} ? "ans_array" : "ans_rule");
 			if ($item->{name}) {
 				unshift(@options, $item->{name});
@@ -1426,9 +1445,9 @@ sub Answer {
 		}
 	} else {
 		if (defined($item->{name})) {
-			$rule = main::NAMED_ANS_RULE($item->{name}, $item->{width});
+			$rule = main::NAMED_ANS_RULE($item->{name}, $item->{width}, $self->aria_label($item->{aria_label}));
 		} else {
-			$rule = main::ans_rule($item->{width});
+			$rule = main::ans_rule($item->{width}, $self->aria_label($item->{aria_label}));
 		}
 	}
 	return $rule;
