@@ -31,12 +31,6 @@
 		modal.setAttribute('aria-label', 'image view dialog');
 		modal.tabIndex = -1;
 
-		// Force the dialog into light mode. This is needed for a webwork2 page in dark mode since the dialog is outside
-		// of the problem content.  At least until PG is updated to honor dark mode. Further discussion on this will
-		// also be needed at that time since many images have transparent backgrounds that will not work with a dark
-		// background.
-		modal.dataset.bsTheme = 'light';
-
 		const dialog = document.createElement('div');
 		dialog.classList.add('modal-dialog');
 
@@ -118,6 +112,7 @@
 
 		const body = document.createElement('div');
 		body.classList.add('modal-body');
+		body.dataset.bsTheme = 'light';
 
 		let graphDiv = null;
 		if (imgType == 'div') {
@@ -335,26 +330,44 @@
 		}
 	};
 
-	// Set up images that are already in the page.
-	document.querySelectorAll('.image-view-elt').forEach((elt) => {
-		elt.addEventListener('click', imageViewDialog);
-		elt.addEventListener('keydown', keyHandler);
-	});
-
-	const attachListeners = (node) => {
-		node.removeEventListener('click', imageViewDialog);
-		node.removeEventListener('keydown', keyHandler);
-		node.addEventListener('click', imageViewDialog);
-		node.addEventListener('keydown', keyHandler);
+	const handleBrokenImage = (img) => {
+		img.classList.add('broken');
+		img.removeAttribute('role');
 	};
+
+	const attachListeners = (img) => {
+		img.removeEventListener('click', imageViewDialog);
+		img.removeEventListener('keydown', keyHandler);
+		img.addEventListener('click', imageViewDialog);
+		img.addEventListener('keydown', keyHandler);
+	};
+
+	const initializeImgViewElt = (img) => {
+		if (img instanceof HTMLImageElement) {
+			if (img.complete) {
+				if (img.naturalWidth === 0) handleBrokenImage(img);
+				else attachListeners(img);
+			} else {
+				img.addEventListener('error', () => handleBrokenImage(img));
+				img.addEventListener('load', () => attachListeners(img));
+			}
+		} else {
+			attachListeners(img);
+		}
+	};
+
+	// Set up images that are already in the page.
+	for (const elt of document.querySelectorAll('.image-view-elt')) {
+		initializeImgViewElt(elt);
+	}
 
 	// Deal with images that are added to the page later.
 	const observer = new MutationObserver((mutationsList) => {
 		mutationsList.forEach((mutation) => {
 			mutation.addedNodes.forEach((node) => {
 				if (node instanceof Element) {
-					if (node.classList.contains('image-view-elt')) attachListeners(node);
-					else node.querySelectorAll('.image-view-elt').forEach(attachListeners);
+					if (node.classList.contains('image-view-elt')) initializeImgViewElt(node);
+					else node.querySelectorAll('.image-view-elt').forEach(initializeImgViewElt);
 				}
 			});
 		});

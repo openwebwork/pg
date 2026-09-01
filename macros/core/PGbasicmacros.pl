@@ -955,7 +955,7 @@ sub SOLUTION {
 				class => 'accordion-item',
 				tag(
 					'summary',
-					class => 'accordion-button collapsed text-primary fw-bold py-2',
+					class => 'accordion-button collapsed text-primary-emphasis fw-bold py-2',
 					tag('span', class => 'accordion-header user-select-none', SOLUTION_HEADING())
 					)
 					. tag(
@@ -997,7 +997,7 @@ sub HINT {
 				class => 'accordion-item',
 				tag(
 					'summary',
-					class => 'accordion-button collapsed text-primary fw-bold py-2',
+					class => 'accordion-button collapsed text-primary-emphasis fw-bold py-2',
 					tag('span', class => 'accordion-header user-select-none', HINT_HEADING())
 					)
 					. tag(
@@ -2845,7 +2845,7 @@ sub image {
 					. tag(
 						'div',
 						id    => 'LONG-DESCRIPTION-ID',
-						class => 'image-details-content bg-white py-2 px-3 my-2 border',
+						class => 'image-details-content bg-light-subtle py-2 px-3 my-2 border',
 						$description_details
 						. tag(
 							'div',
