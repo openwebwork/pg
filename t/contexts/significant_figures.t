@@ -2,7 +2,7 @@
 
 =head1 SignificantFigure context
 
-Test the SignifcantFigure context defined in contextSignificantFigure.pl.
+Test the SignificantFigure context defined in contextSignificantFigure.pl.
 
 =cut
 
@@ -165,7 +165,7 @@ subtest 'Create numbers with significant digits using Real' => sub {
 
 	my $a16 = Real('0.');
 	is $a16->format('E'), '0E+00', 'Check the format of 0.';
-	is $a16->sigfigs,     1,       '0. has 1 signficant figure';
+	is $a16->sigfigs,     1,       '0. has 1 significant figure';
 	is $a16->E,           0,       'The exponential of +00 is 0';
 	is $a16->string,      '0.',    'The string version is 0.';
 	is $a16->TeX,         '{0.}',  'The TeX version is {0.}';
@@ -258,7 +258,7 @@ subtest 'Set the number of significant digits' => sub {
 
 	my $a2 = Compute('-123.45');
 	is $a2->sigfigs,     5,               '-123.45 has 5 significant digits';
-	is $a2->sigfigs(7),  7,               'Change the number of signicant figures to 7';
+	is $a2->sigfigs(7),  7,               'Change the number of significant figures to 7';
 	is $a2->format('E'), '-1.234500E+02', "The internal format is '-1.2345E+02'";
 
 	my $a3 = Real(100, sigfigs => 3);
@@ -399,7 +399,7 @@ subtest 'Significant Figures for partial credit' => sub {
 	my $source = <<~'END_SOURCE';
 		DOCUMENT();
 		loadMacros("PGstandard.pl","PGML.pl",'contextSignificantFigures.pl');
-		Context('SignificantFigures')->flags->set(tolerance => 0.001, 
+		Context('SignificantFigures')->flags->set(tolerance => 0.001,
 			partial_incorrect_sf=>0.6,
 			partial_sf_within_tolerance => 0.8,
 		);
@@ -447,7 +447,7 @@ subtest 'Significant Figures for partial credit' => sub {
 		'The answer with incorrect number of sig. figs is given in sci. not. is scored with correct partial credit.';
 
 	like $pg4->{answers}{AnSwEr0001}{ans_message}, qr/Incorrect number of significant figures/,
-		'The answer in scientific notation and incorrect number of signficant figures is processed showing message.';
+		'The answer in scientific notation and incorrect number of significant figures is processed showing message.';
 
 	my $pg5 = WeBWorK::PG->new(
 		r_source       => \$source,
@@ -470,7 +470,7 @@ subtest 'Significant Figures for partial credit' => sub {
 	my $source = <<~'END_SOURCE';
 		DOCUMENT();
 		loadMacros("PGstandard.pl","PGML.pl",'contextSignificantFigures.pl');
-		Context('SignificantFigures')->flags->set(tolerance => 0.001, 
+		Context('SignificantFigures')->flags->set(tolerance => 0.001,
 			partial_incorrect_sf=>0.6,
 			partial_sf_within_tolerance => 0.8,
 		);
