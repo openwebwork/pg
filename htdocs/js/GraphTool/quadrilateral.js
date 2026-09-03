@@ -429,7 +429,7 @@
 
 					// Get new coordinates for a point that is on the board and not on any of the lines between the
 					// other vertices. This starts at a point one snap size to the right of the last vertex graphed,
-					// and then circles around the last vertex in a counter clockwise direction on the latice of
+					// and then circles around the last vertex in a counter clockwise direction on the lattice of
 					// points with coordinates that are multiples of the snap sizes until it finds one that works.
 					let count = 0;
 					let hDir = 0,

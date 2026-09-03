@@ -24,7 +24,7 @@ contextInequalities.pl - Provides contexts that allow intervals to be specified 
 =head1 DESCRIPTION
 
 Implements contexts that provides for inequalities that produce
-the cooresponding C<Interval>, C<Set> or C<Union> C<MathObjects>.  There are
+the corresponding C<Interval>, C<Set> or C<Union> C<MathObjects>.  There are
 two such contexts:  C<Context("Inequalities")>, in which both
 intervals and inequalities are defined, and C<Context("Inequalities-Only")>,
 which allows only inequalities as a means of producing intervals.

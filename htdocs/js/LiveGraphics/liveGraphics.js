@@ -15,12 +15,12 @@
 		screenReaderOnly.textContent = 'A manipulable 3d graph.';
 		container.append(screenReaderOnly);
 
-		// General options that can be overriden by settings in the input data.
+		// General options that can be overridden by settings in the input data.
 		let lighting = true;
 		let showAxes = false;
 		let axesLabels = ['x', 'y', 'z'];
 
-		// Inital view point and up vector.
+		// Initial view point and up vector.
 		const eye = { x: 1.25, y: 1.25, z: 1.25 };
 		const up = { x: 0, y: 0, z: 1 };
 
@@ -497,7 +497,7 @@
 		};
 
 		// This section of code is run whenever the object is created.  It obtains the data either from direct input, a
-		// zip file, or a data file.  Then it calls intialize with the data string.
+		// zip file, or a data file.  Then it calls initialize with the data string.
 
 		if (options.input) {
 			initialize(options.input);

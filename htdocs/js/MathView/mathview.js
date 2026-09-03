@@ -261,18 +261,18 @@
 		}
 
 		// Insert the appropriate string into the input box when a button in the viewer is pressed.
-		generateTex(strucValue) {
+		generateTex(structValue) {
 			let newpos = this.inputTextBox.selectionStart;
 
 			if (this.renderingMode === 'LATEX') {
-				this.insertAtCursor(this.inputTextBox, strucValue.latex);
-				const parmatch = strucValue.latex.match(/\(\)|\[,|\(,/);
+				this.insertAtCursor(this.inputTextBox, structValue.latex);
+				const parmatch = structValue.latex.match(/\(\)|\[,|\(,/);
 				if (parmatch) newpos += parmatch[0].index;
 				this.setCursorPosition(this.inputTextBox, newpos);
 				this.regenPreview();
 			} else {
-				this.insertAtCursor(this.inputTextBox, strucValue.PG);
-				const parmatch = strucValue.PG.match(/\(\)|\[,|\(,/);
+				this.insertAtCursor(this.inputTextBox, structValue.PG);
+				const parmatch = structValue.PG.match(/\(\)|\[,|\(,/);
 				if (parmatch) newpos += parmatch.index + 1;
 				this.setCursorPosition(this.inputTextBox, newpos);
 				this.regenPreview();

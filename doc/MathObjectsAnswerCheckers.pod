@@ -790,7 +790,7 @@ Here is an example of a list checker:
 
 As you can see, list checkers are more complicated than checkers for
 the other types of data.  But for certain situations like the one
-above, they can be indispensible.
+above, they can be indispensable.
 
 =head3 Set and Union Answer Checkers
 

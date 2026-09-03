@@ -155,7 +155,7 @@ window.graphTool = (containerId, options) => {
 		};
 
 		// Override the formatLabelText method for the axes ticks so that fractions can be either mixed numbers or
-		// improper fractions depending on our coorinateHintsType settings instead of using the JXG toFraction setting
+		// improper fractions depending on our coordinateHintsType settings instead of using the JXG toFraction setting
 		// that only allows mixed numbers.  This also honors the useMathJax setting even if the fraction setting is not
 		// used, and furthermore includes the scale symbol in the MathJax portion of the text. This looks better and
 		// allows the usage of '\\pi' instead of the unicode symbol for pi. Another change is that numbers with
@@ -1164,7 +1164,7 @@ window.graphTool = (containerId, options) => {
 			}
 		}
 
-		// If graphing is interupted by pressing escape or the graph tool losing focus,
+		// If graphing is interrupted by pressing escape or the graph tool losing focus,
 		// then clean up whatever has been done so far and deactivate the tool.
 		deactivate() {
 			if (this.useStandardDeactivation) {

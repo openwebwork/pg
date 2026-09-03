@@ -1645,7 +1645,7 @@ sub quantity {
 #############################################################
 
 #
-#  Check if there should be a separtor before the units
+#  Check if there should be a separator before the units
 #
 sub noSep {
 	my $self = shift;

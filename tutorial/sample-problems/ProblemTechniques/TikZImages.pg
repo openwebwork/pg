@@ -54,7 +54,7 @@ $graph_image = createTikZImage();
 $graph_image->tikzLibraries("arrows.meta");
 
 # Randomization
-$a = non_zero_random(-6, 6);    # horizonatal translation
+$a = non_zero_random(-6, 6);    # horizontal translation
 $b = random(-4, 4);             # vertical translation
 
 $graph_image->BEGIN_TIKZ
