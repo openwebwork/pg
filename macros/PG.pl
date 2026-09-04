@@ -201,20 +201,6 @@ sub HEADER_TEXT {
 	$PG->HEADER_TEXT(@_);
 }
 
-=head2 POST_HEADER_TEXT
-
-DEPRECATED
-
-Content added by this method is appended just after the page head. This method
-should no longer be used. There is no valid reason to add content after the
-page head, and not in the problem itself.
-
-=cut
-
-sub POST_HEADER_TEXT {
-	$PG->POST_HEADER_TEXT(@_);
-}
-
 =head2 SET_PROBLEM_LANGUAGE
 
 Valid HTML language codes are expected, but a region code or other settings may
@@ -1547,11 +1533,10 @@ sub ENDDOCUMENT {
 	$PG->{flags}{KEPT_EXTRA_ANSWERS} = \@KEPT_EXTRA_ANSWERS;
 	$PG->{flags}{ANSWER_ENTRY_ORDER} = \@PG_ANSWER_ENTRY_ORDER;
 
-	my $STRINGforOUTPUT          = join('', @{ $PG->{OUTPUT_ARRAY} });
-	my $STRINGforHEADER_TEXT     = join('', @{ $PG->{HEADER_ARRAY} });
-	my $STRINGforPOSTHEADER_TEXT = join('', @{ $PG->{POST_HEADER_ARRAY} });
+	my $STRINGforOUTPUT      = join('', @{ $PG->{OUTPUT_ARRAY} });
+	my $STRINGforHEADER_TEXT = join('', @{ $PG->{HEADER_ARRAY} });
 
-	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT, \$STRINGforPOSTHEADER_TEXT, \%PG_ANSWERS_HASH, $PG->{flags}, $PG);
+	(\$STRINGforOUTPUT, \$STRINGforHEADER_TEXT, \%PG_ANSWERS_HASH, $PG->{flags}, $PG);
 }
 
 sub alias {

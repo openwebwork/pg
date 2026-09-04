@@ -2179,11 +2179,10 @@ sub PTX_cleanup {
                     # with url specified in which case the revealed text is taken from the URL $url.
                     # The $display_text is always visible and is clicked to see the contents of the knowl.
     iframe($url, height=>'', width=>'', id=>'', name=>'' )
-                    # insert the web page referenced by $url in a space defined by height and width
-                    # if the webpage contains a form then this must be inserted between
-                    # BEGIN_POST_HEADER_TEXT/END_POST_HEADER_TEXT  to avoid having one
-                    # form(from the webpage) inside another (the defining form for the problem
-A wide variety of google widgets, youtube videos, and other online resources can be imbedded using this macro. In HTML mode it creates an iframe, in TeX mode it prints the url.
+                    Insert the web page referenced by $url in a space defined by height and width.
+                    A wide variety of google widgets, youtube videos, and other online resources
+                    can be embedded using this macro. In HTML mode it creates an iframe, in TeX
+                    mode it prints the url.
 
     helpLink($type)
                    Allows site specific help.

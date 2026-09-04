@@ -52,10 +52,9 @@ sub new {
 	#warn "creating a new PGcore object";
 	my %options = @_;
 	my $self    = {
-		OUTPUT_ARRAY      => [],    # holds output body text
-		HEADER_ARRAY      => [],    # holds output for the header text
-		POST_HEADER_ARRAY => [],
-		PG_ANSWERS_HASH   => {},    # holds label=>answer pairs
+		OUTPUT_ARRAY    => [],    # holds output body text
+		HEADER_ARRAY    => [],    # holds output for the header text
+		PG_ANSWERS_HASH => {},    # holds label=>answer pairs
 
 		# Holds other data, besides answers, which persists during a session and beyond.
 		PERSISTENCE_HASH            => $envir->{PERSISTENCE_HASH} // {},    # Main data, received from DB
@@ -195,31 +194,6 @@ sub HEADER_TEXT {
 	my $self = shift;
 	push @{ $self->{HEADER_ARRAY} }, map { (defined($_)) ? $_ : '' } @_;
 	$self->{HEADER_ARRAY};
-}
-
-=head2 POST_HEADER_TEXT
-
- POST_HEADER_TEXT("string1", "string2", "string3");
-
-POST_HEADER_TEXT() concatenates its arguments and appends them to the stored post_header
-text string. It can be used more than once in a file.
-
-The macro is used for material which is destined to be placed iimmediately after the HEAD of
-the page as the first item in the body, before the main problem form
-when in HTML mode, such as JavaScript code.
-
-Spaces are placed between the arguments during concatenation, but no spaces are
-introduced between the existing content of the header text string and the new
-content being appended.
-
-=cut
-
-# ^function POST_HEADER_TEXT
-# ^uses $STRINGforHEADER_TEXT
-sub POST_HEADER_TEXT {
-	my $self = shift;
-	push @{ $self->{POST_HEADER_ARRAY} }, map { (defined($_)) ? $_ : '' } @_;
-	$self->{POST_HEADER_ARRAY};
 }
 
 =head2 TEXT
