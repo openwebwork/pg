@@ -149,6 +149,8 @@ sub DOCUMENT {
 
 	load_css();
 	load_js();
+
+	loadMacros('PGbasicmacros.pl', 'PGauxiliaryFunctions.pl');
 }
 
 $main::displayMode = $PG->{displayMode};
