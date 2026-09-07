@@ -78,7 +78,7 @@ sub insert_responses {    # add a group of responses ( label/value pairs)
 sub insert_response_value {    # add a response value(with  label defined by answer group label)
 	my $self  = shift;
 	my $value = shift;
-	$self->{response}->append_reponse($self->{ans_label}, $value);
+	$self->{response}->append_response($self->{ans_label}, $value);
 }
 
 sub replace_response {    # add a response value(with  label defined by answer group label)

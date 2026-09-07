@@ -1,4 +1,4 @@
-// This file has the list of functions to be shown on the viewer, seperated into categories.
+// This file has the list of functions to be shown on the viewer, separated into categories.
 // The structure of an element is
 //   text: latex string to render text on button
 //   autocomp: whether the string should be included in the autocompletion feature

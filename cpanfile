@@ -1,4 +1,4 @@
-# Install required module dependancies listed here (runtime and test) with
+# Install required module dependencies listed here (runtime and test) with
 # cpanm --installdeps .
 
 on runtime => sub {
@@ -41,10 +41,10 @@ on test => sub {
 	recommends 'Test2::Tools::Explain'; # For debugging data structures
 };
 
-# Install development dependancies with
+# Install development dependencies with
 # cpanm --installdeps --with-develop --with-recommends .
 
 on develop => sub {
 	recommends 'Module::CPANfile';
-	recommends 'Test::CPANfile';   # Verifies this file has all the dependancies
+	recommends 'Test::CPANfile';   # Verifies this file has all the dependencies
 };

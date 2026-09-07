@@ -1,0 +1,83 @@
+[files]
+extend-exclude = [
+  "lib/WeBWorK/PG/Localize/*",
+  "assets/stop-words-en.txt",
+  # This macro is deprecated and broken, and is not worth spell-checking.
+  "macros/deprecated/answerDiscussion.pl"
+]
+
+[default]
+extend-ignore-re = [
+  # Complex multiple of z in lib/Complex1.pm
+  '(log|exp)\(iz',
+  # Zero value variable in macros/math/SystemsOfLinearEquationsProblemPCC.pl
+  '\$[Zz]erod\>',
+  # "category|categories" regex alternation in lib/WeBWorK/PG/SampleProblemParser.pm
+  'categor\(y\|ies\)'
+]
+
+[default.extend-words]
+# This is a correct spelling
+colinear = "colinear"
+
+# Each entry below is scoped to one exact identifier/token (case-sensitive,
+# whole-match only) rather than a global word, so it won't suppress a
+# genuine future typo that merely happens to contain the same fragment.
+[default.extend-identifiers]
+# "Does Not Exist" notation in many places.
+DNE = "DNE"
+# "Does Not Exist" message in macros/deprecated/unionMessages.pl.
+DNE_MESSAGE = "DNE_MESSAGE"
+# Historical spelling preserved verbatim in the Artistic License text.
+MERCHANTIBILITY = "MERCHANTIBILITY"
+# X body closure expression type in lib/Rserve/QapEncoding.pm
+XT_CLOS = "XT_CLOS"
+# Numerator/denominator naming convention in lib/PowerPolynomial.pm.
+numer = "numer"
+numerAbs = "numerAbs"
+# Element abbreviations used in macros/math/PGnauGraphtheory.pl.
+shft = "shft"
+# PreTeXt's <fillin> tag name, used consistently for fill-in-the-blank answer rules.
+fillin = "fillin"
+# STRINGforOUTPUT/STRINGforHEADER_TEXT/STRINGforPOSTHEADER_TEXT variables in macros/PG.pl.
+STRINGforOUTPUT = "STRINGforOUTPUT"
+STRINGforHEADER_TEXT = "STRINGforHEADER_TEXT"
+STRINGforPOSTHEADER_TEXT = "STRINGforPOSTHEADER_TEXT"
+# $Aswitch/$Amult/$Aadd naming convention in macros/math/MatrixReduce.pl.
+Aadd = "Aadd"
+# "Format EQuations" mnemonic explaining the FEQ macro name in macros/core/PGbasicmacros.pl.
+EQuations = "EQuations"
+# Return-status term (not a typo of "encodes") in macros/math/LinearProgramming.pl.
+endcode = "endcode"
+endcodes = "endcodes"
+# Gilbert Strang, textbook author referenced in macros/deprecated/Alfredmacros.pl.
+Strang = "Strang"
+strang = "strang"
+strang_index = "strang_index"
+strang_TOC = "strang_TOC"
+# Periodic table element symbols in macros/contexts/contextReaction.pl.
+Ba = "Ba"
+Nd = "Nd"
+# Matrix product notation (matrix B times matrix A) in tutorial/sample-problems.
+BA = "BA"
+# LaTeX \oint (contour integral), \Oint, and \hom operators in macros/contexts/contextTypeset.pl.
+oint = "oint"
+Oint = "Oint"
+hom = "hom"
+# Ordinal fragments in POD-documented parameter names in macros/math/PGdiffeqmacros.pl.
+"1stAddend" = "1stAddend"
+"1stIndicator" = "1stIndicator"
+"2ndAddend" = "2ndAddend"
+"2ndIndicator" = "2ndIndicator"
+# Ordinal fragment in a variable name in lib/Hermite.pm.
+rf_function_2nd_derivative = "rf_function_2nd_derivative"
+# Rserve wire-protocol command names in lib/Rserve.pm; must match the external protocol spec exactly.
+CMD_serEval = "CMD_serEval"
+CMD_serAssign = "CMD_serAssign"
+CMD_serEEval = "CMD_serEEval"
+serEval = "serEval"
+# Sentinel placeholder string (not the ordinal fragment) in the statistics graphing macros.
+nd = "nd"
+# "they're" contraction as a sub name (no apostrophe allowed) in macros/misc/randomPerson.pl.
+theyre = "theyre"
+Theyre = "Theyre"

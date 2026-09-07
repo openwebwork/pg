@@ -29,7 +29,7 @@ than that, then you must provide additional values, as in
 
 =item C<< $f->reduce >>
 
-Tries to remove redundent items from your formula.  For example,
+Tries to remove redundant items from your formula.  For example,
 C<Formula("1x+0")> returns "C<x>".  Reduce tries to factor out
 negatives and do some other adjustments as well.  (There still needs
 to be more work done on this.  What it does is correct, but not always
@@ -421,7 +421,7 @@ To remove a variable, use
 
     $context->variables->remove('t');
 
-To get the names of the defind variables, use
+To get the names of the defined variables, use
 
     @names = $context->variables->names;
 

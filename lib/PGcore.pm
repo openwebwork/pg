@@ -189,8 +189,6 @@ content being appended.
 
 =cut
 
-# ^function HEADER_TEXT
-# ^uses $STRINGforHEADER_TEXT
 sub HEADER_TEXT {
 	my $self = shift;
 	push @{ $self->{HEADER_ARRAY} }, map { (defined($_)) ? $_ : '' } @_;
@@ -214,8 +212,6 @@ content being appended.
 
 =cut
 
-# ^function POST_HEADER_TEXT
-# ^uses $STRINGforHEADER_TEXT
 sub POST_HEADER_TEXT {
 	my $self = shift;
 	push @{ $self->{POST_HEADER_ARRAY} }, map { (defined($_)) ? $_ : '' } @_;
@@ -244,9 +240,6 @@ introduced between the existing content of the header text string and the new
 content being appended.
 
 =cut
-
-# ^function TEXT
-# ^uses $STRINGforOUTPUT
 
 sub TEXT {
 	my $self = shift;    #FIXME  filter for undefined entries replace by "";
@@ -369,7 +362,6 @@ and answer evaluators until RESUME_RENDERING() is called.
 
 =cut
 
-# ^function STOP_RENDERING
 sub STOP_RENDERING {
 	my $self = shift;
 	$self->{PG_ACTIVE} = 0;
@@ -385,7 +377,6 @@ evaluators. Reverses the effect of STOP_RENDERING().
 
 =cut
 
-# ^function RESUME_RENDERING
 sub RESUME_RENDERING {
 	my $self = shift;
 	$self->{PG_ACTIVE} = 1;
@@ -614,9 +605,6 @@ course temp directory.
 =cut
 
 # A very useful macro for making sure that all of the directories to a file have been constructed.
-
-# ^function surePathToTmpFile
-# ^uses getCourseTempDirectory
 
 sub surePathToTmpFile {
 	# constructs intermediate directories if needed beginning at ${Global::htmlDirectory}tmp/

@@ -1,13 +1,13 @@
 
 =head1 NAME
 
-contextSignificantFigures.pl - Implements a context to handle numbers where 
+contextSignificantFigures.pl - Implements a context to handle numbers where
 significant figures is important.
 
 =head1 DESCRIPTION
 
-This file implements a MathObject SignificantFigures class that provides the 
-ability to create numbers for given significant figures as well as the operations 
+This file implements a MathObject SignificantFigures class that provides the
+ability to create numbers for given significant figures as well as the operations
 +, -, *, /, **
 
 To load this context, use
@@ -32,7 +32,7 @@ track of significant figures. For example,
     $y = Real('37.1834');
 
 and these numbers will have 4 and 6 significant figures respectively.  To query
-the number of significant figures, use the C<sigfigs> method.  For example, 
+the number of significant figures, use the C<sigfigs> method.  For example,
 C<< $x->sigfigs >> will return 4.
 
 The standard arithmetic operations +, -, *, / are defined for these and the result
@@ -40,18 +40,18 @@ will have the correct number of significant figures. For example
 
     $x + $y;
 
-returns the value C<74.63>, where the first number is rounded to the hundredths 
+returns the value C<74.63>, where the first number is rounded to the hundredths
 place before adding.
 
    $x * $y;
 
-returns C<1392> or C<1.392E+02>. 
+returns C<1392> or C<1.392E+02>.
 
 Finally, we can also perform subtraction as in
 
    $x - $y;
 
-however, subtraction can lose significant figures.  The answer to this is C<0.27>, 
+however, subtraction can lose significant figures.  The answer to this is C<0.27>,
 resulting in only 2 significant figures.
 
 =head2 Significant Figure Rules
@@ -61,18 +61,18 @@ The rule about a zero's significance depends on where it is in a number.
 
 =over
 
-=item * Zeros between any significant digits are significant.  The zeros in 12.0034 
+=item * Zeros between any significant digits are significant.  The zeros in 12.0034
 are significant. There are 6 significant figures in this number.
 
-=item * Zeros to the left of a non-zero digit are not significant.  The zeros in 
+=item * Zeros to the left of a non-zero digit are not significant.  The zeros in
 0.00123 are not significant.  There are 3 significant figures in this number.
 
 =item * Zeros to right of the decimal point and to the right a non-zero digit are
-significant. The zeros in 12.3400 are significant. There are 6 significant figures 
+significant. The zeros in 12.3400 are significant. There are 6 significant figures
 in this number.
 
-=item * Zeros to the left of the decimal point and to the right of a non-zero 
-digit are not significant.  The zeros in 12300 are not significant. There are 3 
+=item * Zeros to the left of the decimal point and to the right of a non-zero
+digit are not significant.  The zeros in 12300 are not significant. There are 3
 significant figures in this number.  However, the presence of a significant zero
 changes the rule.  The zeros in 12300.0  are all significant because the rightmost
 0 is significant and therefore the other zeros are significant.
@@ -132,18 +132,18 @@ answers.  The default behavior is that a correct answer in this context is only
 given when a student has correct number of significant figures and the correct
 answer (to all digits).
 
-=over 
+=over
 
 =item Incorrect Significant Figures
 
 If an author wants show a message and possibly give partial credit for a correct
 answer (within tolerance) but the incorrect number of significant figures, then
-set the C<partial_incorrect_sf> flag to a value between 0 and 1. 
+set the C<partial_incorrect_sf> flag to a value between 0 and 1.
 
 If the flag C<partial_incorrect_sf> is set, and a student has the correct answer
 to within tolerance (using any of the tolerances set by C<Value::Real>) as well
 as the the incorrect number of significant figures, then a message will be
-shown to the student and the student will receive partial credit with this value. 
+shown to the student and the student will receive partial credit with this value.
 
 For example,
 
@@ -151,33 +151,33 @@ For example,
 
 will set the tolerance to 0.01 (this is the same C<tolerance> flag for reals)
 and the amount of partial credit to give for the correct answer with wrong number
-of significant figures. 
+of significant figures.
 
 Note that if the author would like to have the message shown, but no partial credit,
-use C<< partial_incorrect_sf => 0 >>. 
+use C<< partial_incorrect_sf => 0 >>.
 
 =item Correct Significant Figures and Close to the Correct Answer
 
 If an author would like to show a message and possibly give partial credit for a
 correct answer (within tolerance) and correct number of significant figures,
-then the flag C<partial_sf_within_tolerance> can be used.  
+then the flag C<partial_sf_within_tolerance> can be used.
 
 If this flag exists and a student has the correct number of significant figures
 and the answer is within tolerance (using those set by C<Value::Real>) then a
-message will be shown and the student will receive this value on the answer. 
+message will be shown and the student will receive this value on the answer.
 
 For example,
 
     Context('SignificantFigures')->flags->set(partial_sf_within_tolerance => 0.8);
 
 Note that if the author would like to have the message shown, but no partial credit, use
-C<< partial_sf_within_tolerance => 0 >>. 
+C<< partial_sf_within_tolerance => 0 >>.
 
-=back 
+=back
 
 =head2 SigFigNumber
 
-The function C<SigFigNumber> will also create a SigFigNumber with the second 
+The function C<SigFigNumber> will also create a SigFigNumber with the second
 argument the number of significant figures.  For example,
 
     $a = SigFigNumber(12.345);
@@ -577,7 +577,7 @@ sub checkExponentialForm {
 		$self->{expForm}     = 1;
 		$self->{def}         = { %{ $self->{def} }, string => 'x', TeX => '\times' };
 	} else {
-		Value::Error("The '%s' operator can ony appear between a simple constant and an integer power of ten",
+		Value::Error("The '%s' operator can only appear between a simple constant and an integer power of ten",
 			$self->{bop})
 			if $self->context->flag('limitedSigFigs') || $self->{bop} eq 'x';
 	}
