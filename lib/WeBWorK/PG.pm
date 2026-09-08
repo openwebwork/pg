@@ -97,17 +97,16 @@ sub new_helper ($invocant, %options) {
 		if ($@) {
 			# The problem source file could not be read.
 			return bless {
-				translator       => $translator,
-				head_text        => '',
-				post_header_text => '',
-				body_text        => "Unable to read problem source file:\n$@\n",
-				answers          => {},
-				result           => {},
-				state            => {},
-				errors           => 'Failed to read the problem source file.',
-				warnings         => $warning_messages,
-				flags            => { error_flag => 1 },
-				pgcore           => $translator->{rh_pgcore},
+				translator => $translator,
+				head_text  => '',
+				body_text  => "Unable to read problem source file:\n$@\n",
+				answers    => {},
+				result     => {},
+				state      => {},
+				errors     => 'Failed to read the problem source file.',
+				warnings   => $warning_messages,
+				flags      => { error_flag => 1 },
+				pgcore     => $translator->{rh_pgcore},
 			}, $class;
 		}
 	}
@@ -155,17 +154,16 @@ sub new_helper ($invocant, %options) {
 		&& (!defined $result->{summary} || $result->{summary} !~ /\S/);
 
 	return bless {
-		translator       => $translator,
-		head_text        => ${ $translator->r_header },
-		post_header_text => ${ $translator->r_post_header },
-		body_text        => ${ $translator->r_text },
-		answers          => $translator->rh_evaluated_answers,
-		result           => $result,
-		state            => $state,
-		errors           => $translator->errors,
-		warnings         => $warning_messages,
-		flags            => $translator->rh_flags,
-		pgcore           => $translator->{rh_pgcore}
+		translator => $translator,
+		head_text  => ${ $translator->r_header },
+		body_text  => ${ $translator->r_text },
+		answers    => $translator->rh_evaluated_answers,
+		result     => $result,
+		state      => $state,
+		errors     => $translator->errors,
+		warnings   => $warning_messages,
+		flags      => $translator->rh_flags,
+		pgcore     => $translator->{rh_pgcore}
 	}, $class;
 }
 
@@ -317,7 +315,6 @@ __END__
     $translator       = $pg->{translator};          # WeBWorK::PG::Translator
     $body             = $pg->{body_text};           # text string
     $header           = $pg->{head_text};           # text string
-    $post_header_text = $pg->{post_header_text};    # text string
     $answerHash       = $pg->{answers};             # WeBWorK::PG::AnswerHash
     $result           = $pg->{result};              # hash reference
     $state            = $pg->{state};               # hash reference
@@ -611,11 +608,6 @@ The WeBWorK::PG::Translator object used to render the problem.
 =item head_text
 
 HTML code to be injected into the E<lt>headE<gt> tag of the web page containing
-the problem.
-
-=item post_header_text
-
-HTML code to be injected into the E<lt>bodyE<gt> tag before the form containing
 the problem.
 
 =item body_text
