@@ -27,6 +27,9 @@ parserMultipleChoice.pl loads the following macro files:
 
 sub _parserMultipleChoice_init { }
 
-loadMacros("parserPopUp.pl", "parserCheckboxList.pl", "parserRadioButtons.pl", "parserRadioMultiAnswer.pl");
+loadMacros(
+	'parserPopUp.pl', 'parserCheckboxList.pl', 'parserRadioButtons.pl', 'parserRadioMultiAnswer.pl',
+	'parserMatchList.pl'
+);
 
 1;
