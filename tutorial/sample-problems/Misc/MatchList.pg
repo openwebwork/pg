@@ -1,0 +1,68 @@
+## DESCRIPTION
+## Matching question template
+## ENDDESCRIPTION
+
+## DBsubject(WeBWorK)
+## DBchapter(WeBWorK tutorial)
+## DBsection(WeBWorK tutorial)
+## Date(09/16/2026)
+## Institution(Missouri Western State University)
+## Author(Glenn Rice)
+## KEYWORDS('matching', 'template')
+
+#:% name = Matching Problem (MatchList)
+#:% type = Sample
+#:% categories = [multiple choice, misc]
+
+#:% section = preamble
+#: The PODLINK('parserMatchList.pl') macro is used to build the matching list,
+#: including its drop down menu answers.
+DOCUMENT();
+
+loadMacros('PGstandard.pl', 'PGML.pl', 'parserMatchList.pl', 'PGcourse.pl');
+
+#:% section = setup
+#: Create a list of 6 questions and answers, 2 extra answers, and a
+#: 'None of the above' answer that will be forced to be last. See the
+#: PODLINK('parserMatchList.pl') macro for more details.
+
+$ml = MatchList(
+    [
+        [ 'Question a?', 'Answer a' ],
+        [ 'Question b?', 'Answer b' ],
+        [ 'Question c?', 'Answer c' ],
+        [ 'Question d?', 'Answer d' ],
+        [ 'Question e?', 'Answer e' ],
+        [ 'Question f?', 'Answer f' ],
+    ],
+    extra => [ 'Extra answer 1', 'Extra answer 2' ],
+    last  => ['None of the above'],
+);
+
+#:% section = statement
+#: A `MatchList` is inserted into PGML using the answer array syntax `[_]*{$ml}`.
+#: This inserts the questions on the left (each with its drop down menu answer
+#: blank) and the answer choices on the right. On narrow screens the answers
+#: will be below the questions. When a hard copy of the problem is generated two
+#: side by side columns are used instead.
+#:
+#: Adding `showHints => 0` to `cmp_options` disables the messages that state
+#: which answers are incorrect.  So partial credit is still awarded for the
+#: answers that are correct, but the student is not told specifically which
+#: answers those are. Note that you could instead set
+#: `$showPartialCorrectAnswers = 0` to disable both partial credit and hints
+#: that state which answers are incorrect.
+BEGIN_PGML
+Match each question with its answer.
+
+[_]*{$ml}{ cmp_options => { showHints => 0 } }
+END_PGML
+
+#:% section = solution
+#: Show the correct answers. This is not a proper solution, but demonstrates how
+#: the correct answers for a `MatchList` can be displayed in PGML.
+BEGIN_PGML_SOLUTION
+The correct answers are [$ml].
+END_PGML_SOLUTION
+
+ENDDOCUMENT();
