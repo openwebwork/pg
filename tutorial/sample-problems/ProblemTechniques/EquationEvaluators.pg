@@ -18,10 +18,7 @@
 #:% section = preamble
 #: Include the macro PODLINK('parserImplicitEquation.pl').
 DOCUMENT();
-loadMacros(
-    'PGstandard.pl',             'PGML.pl',
-    'parserImplicitEquation.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserImplicitEquation.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Select the `ImplicitEquation` context, and define the equation for the

@@ -20,7 +20,7 @@
 #: Load PODLINK('parserFunction.pl') for adding a named function to the context.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Add the step function to the context with the name `step`. The function

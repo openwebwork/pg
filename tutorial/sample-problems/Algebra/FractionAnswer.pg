@@ -20,7 +20,7 @@
 #: The macro `contextFraction.pl` must be loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The PODLINK('contextFraction.pl') macro provides four contexts:

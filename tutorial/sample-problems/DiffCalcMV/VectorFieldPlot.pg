@@ -20,7 +20,7 @@
 #: The macro PODLINK('plots.pl') is used to create the plot.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'plots.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: This problem generates the vector field <sin y, cos x>.  First, create a

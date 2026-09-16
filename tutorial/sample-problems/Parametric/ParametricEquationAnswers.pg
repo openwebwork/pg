@@ -22,7 +22,7 @@
 #: equations and end points together.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: A `MultiAnswer` is used to verify that the student answers satisfy the

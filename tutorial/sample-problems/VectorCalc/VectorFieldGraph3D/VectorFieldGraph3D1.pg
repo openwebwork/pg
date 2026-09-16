@@ -21,10 +21,7 @@
 #: PODLINK('LiveGraphics3D.pl') macro is loaded by that macro and provides the
 #: `Live3Ddata` method.
 DOCUMENT();
-loadMacros(
-    'PGstandard.pl',                'PGML.pl',
-    'LiveGraphicsVectorField3D.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'LiveGraphicsVectorField3D.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The `VectorField3D` method returns a string of plot data suitable for use

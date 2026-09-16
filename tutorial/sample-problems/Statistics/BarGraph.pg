@@ -20,11 +20,7 @@
 #: Percent context.
 DOCUMENT();
 
-loadMacros(
-    "PGstandard.pl", "PGML.pl",
-    'PGtikz.pl',     'contextPercent.pl',
-    "PGcourse.pl"
-);
+loadMacros('PGML.pl', 'PGtikz.pl', 'contextPercent.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The 'Percent' context allow students to enter percents.

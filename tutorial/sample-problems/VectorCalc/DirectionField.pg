@@ -20,7 +20,7 @@
 #:% section = preamble
 #: The macro PODLINK('PGtikz.pl') is used to produced the direction field graph.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: A direction field is a vector field where the length of the vectors are

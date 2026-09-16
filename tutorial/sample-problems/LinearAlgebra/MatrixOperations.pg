@@ -20,10 +20,7 @@
 #: This uses PODLINK('parserRadioMultiAnswer.pl'), so it needs to be loaded.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',             'PGML.pl',
-    'parserRadioMultiAnswer.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserRadioMultiAnswer.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: First, the two matrices are defined.

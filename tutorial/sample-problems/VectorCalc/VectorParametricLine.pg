@@ -25,9 +25,8 @@
 #: provides the `ParametricLine` function used for the answer.
 DOCUMENT();
 loadMacros(
-    'PGstandard.pl',        'PGML.pl',
-    'parserVectorUtils.pl', 'parserParametricLine.pl',
-    'PGcourse.pl'
+    'PGML.pl',                 'parserVectorUtils.pl',
+    'parserParametricLine.pl', 'PGcourse.pl'
 );
 
 #:% section = setup

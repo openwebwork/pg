@@ -18,7 +18,7 @@
 #:% section = preamble
 #: Include the macro PODLINK('answerComposition.pl').
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'answerComposition.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'answerComposition.pl', 'PGcourse.pl');
 
 #:% section = setup
 Context()->variables->are(x => 'Real', y => 'Real', u => 'Real');

@@ -20,7 +20,7 @@
 #: Load PODLINK('contextLimitedPoint.pl') to prevent operations between points.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedPoint.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'contextLimitedPoint.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: `Context('Point')` could be used instead, which would allow mathematical

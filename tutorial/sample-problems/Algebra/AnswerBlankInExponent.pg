@@ -19,7 +19,7 @@
 #:% section = preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Set the context to allow only the variables `a` and `b` and choose a random

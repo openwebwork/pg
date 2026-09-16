@@ -23,7 +23,7 @@
 #: automatically loaded by the `PGML.pl` macro.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Define MathObject formulas `$num` and `$den` which are the correct numerator

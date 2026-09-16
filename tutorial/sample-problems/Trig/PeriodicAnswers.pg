@@ -19,7 +19,7 @@
 #:% section = preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: This allows any answer of the form `pi / 2 + n pi` where `n` is a particular

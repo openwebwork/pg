@@ -20,7 +20,7 @@
 #: The PODLINK('contextInequalities.pl') macro must be loaded
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Require students to use inequalities by using `Context('Inequalities-Only')`.

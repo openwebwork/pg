@@ -22,7 +22,7 @@
 #: PODLINK('parserFormulaWithUnits.pl') macros.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: First select the "Units" context, allow units for  "length" and "time" in the

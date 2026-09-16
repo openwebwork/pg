@@ -17,7 +17,7 @@
 
 #:% section = preamble
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Since the domain of a logarithmic function is all positive real numbers, the
@@ -31,9 +31,9 @@ loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
 #: `100.25` (this is because the binary representation of `100.255` actually
 #: rounds to `100.254999999999995` accurate to 15 decimal places). So this
 #: example now uses `Round` from PODLINK('PGauxiliaryFunctions.pl') (which is
-#: loaded by PODLINK('PGstandard.pl')) for more reliable rounding. The format
-#: for calling `Round` is `Round(number, number of decimal places)`. Be aware
-#: that if further calculations are performed with a number that has been
+#: loaded internally in the `DOCUMENT` call) for more reliable rounding. The
+#: format for calling `Round` is `Round(number, number of decimal places)`. Be
+#: aware that if further calculations are performed with a number that has been
 #: rounded, numerical error may still be an issue.
 #:
 #: So in short, do not use `sprintf` for rounding in problems as was previously

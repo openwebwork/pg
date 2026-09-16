@@ -20,10 +20,7 @@
 #: macros.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',             'PGML.pl',
-    'parserRadioMultiAnswer.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserRadioMultiAnswer.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: A `RadioMultiAnswer` produces a set of radio buttons for each of the given

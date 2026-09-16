@@ -20,7 +20,7 @@
 #: The macro PODLINK('plotly3D.pl') is used to produce the graph.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: A `plotly3D` graph is created with the `Graph3D` function. There are many

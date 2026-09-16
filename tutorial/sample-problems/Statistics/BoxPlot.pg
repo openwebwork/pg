@@ -21,9 +21,8 @@
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',       'PGML.pl',
-    'StatisticalPlots.pl', 'PGstatisticsmacros.pl',
-    'PGcourse.pl'
+    'PGML.pl',               'StatisticalPlots.pl',
+    'PGstatisticsmacros.pl', 'PGcourse.pl'
 );
 
 #:% section = setup

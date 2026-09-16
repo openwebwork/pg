@@ -22,9 +22,9 @@
 #: PODLINK('contextLimitedPowers.pl') are needed for this example.
 DOCUMENT();
 loadMacros(
-    'PGstandard.pl',               'PGML.pl',
-    'contextLimitedPolynomial.pl', 'contextPolynomialFactors.pl',
-    'contextLimitedPowers.pl',     'PGcourse.pl'
+    'PGML.pl',                     'contextLimitedPolynomial.pl',
+    'contextPolynomialFactors.pl', 'contextLimitedPowers.pl',
+    'PGcourse.pl'
 );
 
 #:% section = setup

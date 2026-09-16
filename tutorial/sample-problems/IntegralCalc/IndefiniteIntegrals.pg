@@ -21,10 +21,7 @@
 #: formula with a general constant like the antiderivative.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',                'PGML.pl',
-    'parserFormulaUpToConstant.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserFormulaUpToConstant.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The specific antiderivative is an ordinary formula. When the `cmp` method is

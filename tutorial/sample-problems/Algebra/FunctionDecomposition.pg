@@ -24,7 +24,7 @@
 #: is allowed to be the identity function.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'answerComposition.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'answerComposition.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: This problem asks the students for functions `y = f(u)` and `u = g(x)` such

@@ -21,10 +21,7 @@
 #: PODLINK('PGgraders.pl') is used for incremental grading.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGgraders.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserPopUp.pl', 'PGgraders.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Withhold feedback when answers are submitted by setting

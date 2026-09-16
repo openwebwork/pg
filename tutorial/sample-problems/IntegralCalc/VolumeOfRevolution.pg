@@ -24,7 +24,7 @@
 #: bottom of the integral symbol.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'answerHints.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'answerHints.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: First, the variables `x`, `dx`, `y`, and `dy` are added to the context.

@@ -21,10 +21,7 @@
 #: Include the macro file PODLINK('parserDifferenceQuotient.pl').
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',               'PGML.pl',
-    'parserDifferenceQuotient.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserDifferenceQuotient.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The `DifferenceQuotient` method takes a simplified function for its first

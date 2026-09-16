@@ -19,7 +19,7 @@
 #: convenience methods for creating Statistical plots.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'StatisticalPlots.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'StatisticalPlots.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: To create a graph, start with a `StatPlot`.  The `min` and `max` options in
