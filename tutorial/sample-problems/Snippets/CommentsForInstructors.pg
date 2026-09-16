@@ -20,7 +20,7 @@
 #:% section = preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGcourse.pl');
 
 #:% section = statement
 #: Call `COMMENT` to add a comment that is visible when the PG file is viewed in

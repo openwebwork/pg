@@ -21,7 +21,7 @@
 #: PODLINK('parserMultiAnswer.pl') macro is used.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: There are two separate cases: integrating with respect to `dx dy` (case 0) or

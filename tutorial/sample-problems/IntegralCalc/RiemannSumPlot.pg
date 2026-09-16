@@ -20,7 +20,7 @@
 #: Make sure that PODLINK('plots.pl') is loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'plots.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: For this problem, we make a Riemann Sum plot by plotting the function $y=x^3+3$
@@ -60,7 +60,7 @@ $plot->add_function(
 );
 
 $dx = 0.5;
-for $i (0 .. 7) {
+for my $i (0 .. 7) {
     my $x0 = $i * $dx;
     my $x1 = $x0 + $dx;
     my $y  = $f->eval(x => $x0 + $dx / 2);
@@ -76,8 +76,6 @@ for $i (0 .. 7) {
     );
 }
 
-$image = image($plot);
-
 #:% section = statement
 #: The `[! !]{}{}` is a PGML format for inserting an image.
 BEGIN_PGML
@@ -85,7 +83,6 @@ The following is a graph of the function [`y=[$f]`] and the midpoint Riemann
 sum rectangles.
 
 >>[! Plot of y=x^2+3 and the Reimann sums !]{$plot}{500} <<
-
 END_PGML
 
 #:% section = solution

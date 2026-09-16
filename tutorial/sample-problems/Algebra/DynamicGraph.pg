@@ -20,7 +20,7 @@
 #: The dynamic graph is generated with `PGtikz.pl`, so this is needed.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The code between `$graph->BEGIN_TIKZ` and `END_TIKZ` are TikZ commands.

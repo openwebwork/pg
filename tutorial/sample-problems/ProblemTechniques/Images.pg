@@ -22,10 +22,9 @@
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',    'PGML.pl',
-    'PGgraphmacros.pl', 'PGtikz.pl',
-    'PGlateximage.pl',  'parserGraphTool.pl',
-    'PGcourse.pl'
+    'PGML.pl',            'PGgraphmacros.pl',
+    'PGtikz.pl',          'PGlateximage.pl',
+    'parserGraphTool.pl', 'PGcourse.pl'
 );
 
 #:% section = setup

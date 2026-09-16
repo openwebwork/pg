@@ -20,7 +20,7 @@
 #: Note that the PODLINK('niceTables.pl') macro is automatically loaded by
 #: `PGML.pl`, so it is not necessary to load it explicitly.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: A `DataTable` is meant to display data in a table. It is not meant to be used

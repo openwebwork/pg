@@ -23,7 +23,7 @@
 #: We load `contextUnits.pl` in order to use the Units context.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The Units context is from the PODLINK('contextUnits.pl') macro.

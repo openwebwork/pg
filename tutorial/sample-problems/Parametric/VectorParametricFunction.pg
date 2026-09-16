@@ -25,9 +25,8 @@
 #: upon each other.
 DOCUMENT();
 loadMacros(
-    'PGstandard.pl',        'PGML.pl',
-    'parserVectorUtils.pl', 'parserMultiAnswer.pl',
-    'PGcourse.pl'
+    'PGML.pl',              'parserVectorUtils.pl',
+    'parserMultiAnswer.pl', 'PGcourse.pl'
 );
 
 #:% section = setup

@@ -21,7 +21,7 @@
 #: The dynamic graph is generated with PODLINK('plotly3D.pl').
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: To add a plotly graph to a problem, first create a `Graph3D` object by

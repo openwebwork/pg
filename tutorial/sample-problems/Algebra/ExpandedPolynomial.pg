@@ -22,10 +22,7 @@
 #: Load the PODLINK('contextLimitedPolynomial.pl') macro.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',               'PGML.pl',
-    'contextLimitedPolynomial.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'contextLimitedPolynomial.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The PODLINK('contextLimitedPolynomial.pl') macro provides two contexts:

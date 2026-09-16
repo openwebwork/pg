@@ -20,7 +20,7 @@
 #: The PODLINK('plots.pl') macro is used to generate the graph.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'plots.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The plot is set up with the `Plot` object and the plotting window.

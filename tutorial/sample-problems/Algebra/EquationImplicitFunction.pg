@@ -20,10 +20,7 @@
 #: The macro PODLINK('parserImplicitEquation.pl') allows the entry of equations.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',             'PGML.pl',
-    'parserImplicitEquation.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserImplicitEquation.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Some error messages are prevented by redefining them to be a blank string ' '

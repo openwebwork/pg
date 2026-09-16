@@ -18,7 +18,7 @@
 #:% section = preamble
 
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Typically the variables for the answers in the problem are set at the

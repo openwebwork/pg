@@ -21,7 +21,7 @@
 #: the context.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The `parserFunction` method allows the addition of a named function to the

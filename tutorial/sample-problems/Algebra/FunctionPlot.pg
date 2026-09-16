@@ -19,7 +19,7 @@
 #:% section = preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'plots.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: For this problem, a plot of $y = ax^2$ for a random value of $a$ is

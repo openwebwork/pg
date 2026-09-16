@@ -20,7 +20,7 @@
 #: The macro PODLINK('unorderedAnswer.pl') must be loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'unorderedAnswer.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'unorderedAnswer.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The answers use the variables `x`, `y`, and `z`.  The variable `x` is already

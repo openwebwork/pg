@@ -22,7 +22,7 @@
 #: macro for this.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Two points are created at random.

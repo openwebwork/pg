@@ -23,11 +23,7 @@
 #: PROBLINK('ScatterPlotStatPlot.pg').
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl', 'PGML.pl',
-    'plots.pl',      'PGstatisticsmacros.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'plots.pl', 'PGstatisticsmacros.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: For this problem, we have a data set stored as an array of array

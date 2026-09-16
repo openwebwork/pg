@@ -21,7 +21,7 @@
 #: Load the PODLINK('parserGraphTool.pl') macro to be able to use the GraphTool.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The graph tool is created with the correct answer

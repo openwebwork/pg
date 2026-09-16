@@ -21,7 +21,7 @@
 #:% section = preamble
 #: Include the macro PODLINK('parserAssignment.pl').
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Set the variables in the context to be `x` and `y`, enable assignments in the

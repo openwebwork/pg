@@ -22,10 +22,7 @@
 #: implicit. So the macro PODLINK('parserImplicitEquation.pl') is used.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',             'PGML.pl',
-    'parserImplicitEquation.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserImplicitEquation.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Switch to the `ImplicitEquation` context and then include the variables `y`,

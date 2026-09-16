@@ -20,7 +20,7 @@
 #:% section = preamble
 #: Load the PODLINK('contextInequalities.pl') macro.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Select the `Inequalities-Only` context. In this context, an inequality such

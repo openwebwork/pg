@@ -20,10 +20,7 @@
 #: Load the PODLINK('parserLinearInequality.pl') macro so that a linear
 #: inequality answer can be used.
 DOCUMENT();
-loadMacros(
-    'PGstandard.pl',             'PGML.pl',
-    'parserLinearInequality.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserLinearInequality.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Generate random variables `$a`, `$b`, and `$c` to use for coefficients in the

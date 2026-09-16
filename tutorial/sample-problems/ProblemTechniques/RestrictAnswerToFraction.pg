@@ -22,7 +22,7 @@
 #: provides.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The `Fractions-NoDecimals` context is selected which requires that answers

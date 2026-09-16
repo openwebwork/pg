@@ -20,7 +20,7 @@
 #: Load the macro PODLINK('parserSolutionFor.pl') for the `SolutionFor` method.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserSolutionFor.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserSolutionFor.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: `SolutionFor(equation, point)` is used to define the MathObject answer. For

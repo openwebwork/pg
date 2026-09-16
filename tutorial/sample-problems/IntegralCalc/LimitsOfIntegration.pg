@@ -22,10 +22,7 @@
 #: macro is used to help guide students toward the correct answer.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'answerHints.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'niceTables.pl', 'answerHints.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The variables `x`, `t`, `dx`, and `dt` are added to the context. Note that

@@ -21,7 +21,7 @@
 #: This is a scaffolded problem, so load PODLINK('scaffold.pl').
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'scaffold.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'scaffold.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The sine function is cleverly redefined so that when the student enters

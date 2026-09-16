@@ -21,7 +21,7 @@
 #: The macro file PODLINK('parserAssignment.pl') needs to be included.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: To allow assignments in the current context call `parser::Assignment->Allow`.

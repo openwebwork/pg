@@ -18,7 +18,7 @@
 #:% section = preamble
 #: The PODLINK('contextPercent.pl') macro must be loaded.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextPercent.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'contextPercent.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Select the `Percent` context, generate a random percentage, and `Compute` the

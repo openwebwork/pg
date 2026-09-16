@@ -20,7 +20,7 @@
 #: Load the PODLINK('parserMultiAnswer.pl') which provides the `MultiAnswer`
 #: method.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: This problem is shown as an example of using PODLINK('parserMultiAnswer.pl').

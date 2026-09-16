@@ -20,7 +20,7 @@
 #: function to the context.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Define a function `f(x,y)`.  The actual function doesn't matter but shouldn't

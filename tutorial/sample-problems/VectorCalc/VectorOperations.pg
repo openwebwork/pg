@@ -20,7 +20,7 @@
 #: Load PODLINK('parserVectorUtils.pl') for the `non_zero_vector3D` method.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Use `non_zero_vector3D(low, high, increment)` to randomly generate two

@@ -21,7 +21,7 @@
 #: that the student can drag statements to and from.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The `DraggableProof` function takes a reference to an array of correct

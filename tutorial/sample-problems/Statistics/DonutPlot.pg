@@ -21,7 +21,7 @@
 #: A pie chart version of this is available at PROBLINK('PieChart.pg').
 DOCUMENT();
 
-loadMacros("PGstandard.pl", 'PGML.pl', 'StatisticalPlots.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'StatisticalPlots.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: In this example, the size of each wedge in the donut plot is given as an

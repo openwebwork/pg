@@ -21,7 +21,7 @@
 #: macro for this.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The variables `$h`, `$k` and `$r` randomly pick a center and radius of the

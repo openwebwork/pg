@@ -18,7 +18,7 @@
 #:% section = preamble
 #: The `draggableSubsets.pl` macro must be loaded.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The `DraggableSubsets` method creates a drag and drop object that when

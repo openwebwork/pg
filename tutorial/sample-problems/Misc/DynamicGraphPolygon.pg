@@ -21,7 +21,7 @@
 #: macro.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: See PROBLINK('DynamicGraph.pg') for the basics of using TikZ.

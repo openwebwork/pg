@@ -23,10 +23,7 @@
 #: is loaded by the `PGML.pl` macro.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'parserPopUp.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'PGtikz.pl', 'parserPopUp.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The array `@all_plots` contains the display form `f` of the function,

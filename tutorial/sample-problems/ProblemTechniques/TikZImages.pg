@@ -20,7 +20,7 @@
 #: PODLINK('PGtikz.pl') is used to generate the graph,
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The `createTikZImage` function creates an image to be built using TikZ.

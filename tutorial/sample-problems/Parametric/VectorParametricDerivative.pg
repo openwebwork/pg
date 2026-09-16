@@ -22,7 +22,7 @@
 #: useful for vector problems.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The context flag `ijk => 0` disables the display of correct answer vectors

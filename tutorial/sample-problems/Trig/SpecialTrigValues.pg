@@ -21,7 +21,7 @@
 #: `specialAngle` methods.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'specialTrigValues.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'specialTrigValues.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The `random_coprime` function selects two random numbers that are coprime

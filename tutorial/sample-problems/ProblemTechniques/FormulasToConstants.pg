@@ -28,10 +28,7 @@
 #: not needed.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',                'PGML.pl',
-    'parserFormulaUpToConstant.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserFormulaUpToConstant.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Define a particular antiderivative `$func` and all antiderivatives `$gfunc`.

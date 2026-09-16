@@ -21,10 +21,7 @@
 #: PODLINK('parserPopUp.pl') macro is used for a drop down menu answer.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGtikz.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserPopUp.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 $showPartialCorrectAnswers = 0;
 
@@ -72,7 +69,7 @@ Determine if the following statement is true or false.
 
 [_]{$popup} This could be a contour plot for [`f(x, y) = x^2 - y^2`].
 
->> [@ image($graph, width => 300, height => 300, tex_size => 450) @]* <<
+>>[!contour plot!]{$graph}{300}{300}{ { tex_size => 450 } }<<
 END_PGML
 
 #:% section = solution

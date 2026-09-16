@@ -19,7 +19,7 @@
 #: Include the macro PODLINK('parserSolutionFor.pl').
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserSolutionFor.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserSolutionFor.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The function `SolutionFor(equation, point, options)` takes an equation, a
