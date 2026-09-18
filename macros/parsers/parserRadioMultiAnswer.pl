@@ -359,12 +359,12 @@ sub cmp {
 			return 0 if ($correct->[0] != $student->[0]);
 
 			for (0 .. $#{ $correct->[ $correct->[0] ] }) {
-				return 0 unless $self->{ans}[ $correct->[0] - 1 ][$_]{score};
+				return 0 unless $self->{ans}[ $correct->[0] - 1 ][$_]{score} == 1;
 			}
 
 			return 1;
 		};
-		$self->{checkTypes} = 'compatible' if $self->{checkTypes} && $self->{checkTypes} ne 'exact';
+		$self->{checkTypes} = 'compatible' if $self->{checkTypes} && $self->{checkTypes} ne 'equal';
 	}
 
 	if ($self->{allowBlankAnswers}) {
@@ -559,7 +559,7 @@ sub perform_check {
 			push(@part_student, $ans->{student_value});
 			# Only check types for the student's selected part.
 			next   if $student[0] != $part_index;
-			return if $ans->{ans_message} ne '' || !defined $ans->{student_value};
+			return if ($checkTypes ne 'compatible' && $ans->{ans_message}) || !defined $ans->{student_value};
 			return
 				if $checkTypes eq 'equal'
 				&& $ans->{student_value}->type ne $ans->{correct_value}->type
