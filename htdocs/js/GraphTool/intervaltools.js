@@ -140,7 +140,7 @@
 						this.setFocusBlurPointAttributes(point);
 						point.text?.setAttribute({ fontSize: 19, highlight: false, strokeColor: gt.color.curve });
 						point.arrow?.setAttribute({ strokeWidth: 4 });
-						point.arrow?.rendNodeTriangleEnd.setAttribute('fill', gt.color.curve);
+						if (point.arrow) point.arrow.rendNodeTriangleEnd.style.fill = gt.color.curve;
 						point.off('over');
 						point.off('out');
 						point.text?.off('down');
@@ -170,15 +170,17 @@
 						// The default layer for lines (of which arrows are a part) is 7.
 						// Setting this moves the arrow to the front of arrows of other intervals.
 						point.arrow?.setAttribute({ strokeWidth: 5, layer: 7 });
-						point.arrow?.rendNodeTriangleEnd.setAttribute('fill', gt.color.point);
+						if (point.arrow) point.arrow.rendNodeTriangleEnd.style.fill = gt.color.point;
 
 						// This makes it so that if the pointer is over the point and it is a hidden point at
 						// infinity, then it looks like the pointer is over the arrow.  The end arrows don't
 						// actually receive hover events, so this has to be done this way.
-						point.on('over', () =>
-							point.arrow?.rendNodeTriangleEnd.setAttribute('fill', gt.color.pointHighlightDarker)
-						);
-						point.on('out', () => point.arrow?.rendNodeTriangleEnd.setAttribute('fill', gt.color.point));
+						point.on('over', () => {
+							if (point.arrow) point.arrow.rendNodeTriangleEnd.style.fill = gt.color.pointHighlightDarker;
+						});
+						point.on('out', () => {
+							if (point.arrow) point.arrow.rendNodeTriangleEnd.style.fill = gt.color.point;
+						});
 
 						point.text?.on('down', () => {
 							point.text.setAttribute({
@@ -349,11 +351,11 @@
 								aria: { enabled: true, hidden: true, live: 'off' }
 							}
 						);
-						this.definingPts[index].arrow.rendNodeTriangleEnd.setAttribute('fill', gt.color.curve);
+						this.definingPts[index].arrow.rendNodeTriangleEnd.style.fill = gt.color.curve;
 					}
 
 					if (this.focused && this.definingPts[index] === this.focusPoint) {
-						this.definingPts[index].arrow.rendNodeTriangleEnd.setAttribute('fill', gt.color.point);
+						this.definingPts[index].arrow.rendNodeTriangleEnd.style.fill = gt.color.point;
 						this.definingPts[index].arrow.setAttribute({ strokeWidth: 5 });
 					}
 				}
@@ -854,7 +856,8 @@
 						// The default layer for lines (of which arrows are a part) is 7.
 						// Setting this moves the arrow to the front of the segment created after it.
 						this.hlObjs.hl_arrow?.setAttribute({ layer: 7 });
-						this.hlObjs.hl_arrow?.rendNodeTriangleEnd.setAttribute('fill', gt.color.underConstructionFixed);
+						if (this.hlObjs.hl_arrow)
+							this.hlObjs.hl_arrow.rendNodeTriangleEnd.style.fill = gt.color.underConstructionFixed;
 					}
 
 					if (this.hlObjs.hl_segment) {
@@ -901,10 +904,7 @@
 										aria: { enabled: true, hidden: true, live: 'off' }
 									}
 								);
-								this.hlObjs.hl_arrow.rendNodeTriangleEnd.setAttribute(
-									'fill',
-									gt.color.underConstruction
-								);
+								this.hlObjs.hl_arrow.rendNodeTriangleEnd.style.fill = gt.color.underConstruction;
 
 								if (gt.options.useBracketEnds) this.hlObjs.hl_text.setAttribute({ strokeOpacity: 0 });
 								else this.hlObjs.hl_point.setAttribute({ strokeOpacity: 0, fillOpacity: 0 });
