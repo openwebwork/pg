@@ -374,7 +374,7 @@ sub round {
 	my $self   = shift;
 	my $format = "%." . $self->getFlag("decimalPlaces") . "f";
 	my $s      = ($self->value >= 0 ? "" : "-");
-	return $self->make((($s . main::prfmt(CORE::abs($self->value * 100), $format)) + 0) / 100);
+	return $self->make((($s . (sprintf($format, CORE::abs($self->value * 100) =~ s/e/E/gr))) + 0) / 100);
 }
 
 sub truncate {
@@ -393,7 +393,7 @@ sub format {
 	my $type   = shift;
 	my $format = "%." . $self->getFlag("decimalPlaces") . "f";
 	my $s      = ($self->value >= 0 ? "" : "-");
-	my $c      = main::prfmt(CORE::abs($self->value * 100), $format);
+	my $c      = sprintf($format, CORE::abs($self->value * 100)) =~ s/e/E/gr;
 	if ($self->getFlag('trimTrailingZeros')) { $c =~ s/(\.\d*?)0+$/$1/; $c =~ s/\.$// }
 	return $s . $c . ($type eq "TeX" ? "\\%" : "%");
 }
