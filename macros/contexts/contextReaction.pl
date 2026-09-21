@@ -333,9 +333,11 @@ sub Op {
 	my $name    = shift;
 	my $ref     = $self->{ref} = shift;
 	my $context = $self->{context};
+	$self->SimpleCharge if $self->state eq 'operator' && $self->top->{name} =~ m/^u/;
 	my $op;
 	($name, $op) = $context->operators->resolve($name);
 	($name, $op) = $context->operators->resolve($op->{space}) if $self->{space} && defined($op->{space});
+
 	if ($self->state eq 'operand') {
 		if ($op->{type} eq 'both'
 			&& $context->{operators}{"p$name"}
