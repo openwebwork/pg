@@ -95,7 +95,7 @@ sub cmp {
 			}
 			return 1;
 		};
-		$self->{checkTypes} = 'compatible' if $self->{checkTypes} && $self->{checkTypes} ne 'exact';
+		$self->{checkTypes} = 'compatible' if $self->{checkTypes} && $self->{checkTypes} ne 'equal';
 	}
 
 	if ($self->{allowBlankAnswers}) {
