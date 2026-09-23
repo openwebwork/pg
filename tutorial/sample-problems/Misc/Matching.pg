@@ -62,7 +62,7 @@ $ENV{grader_message} =
     . '60% partial credit for 4 - 5 correct answers.';
 
 # All or nothing grader
-# install_problem_grader(~~&std_problem_grader);
+# install_problem_grader('std_problem_grader');
 
 # Create a matching list and use pop ups
 $ml = new_match_list();
