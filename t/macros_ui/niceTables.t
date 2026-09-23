@@ -13,12 +13,7 @@ do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 
 use lib "$ENV{PG_ROOT}/lib";
 
-# This is needed for PGsort.
-# use WeBWorK::PG::Translator;
-
-loadMacros('niceTables.pl', 'PGstandard.pl');
-
-use Data::Dumper;
+loadMacros('niceTables.pl');
 
 my $tab           = DataTable([ [ 1, 2, 3 ], [ 4, 5, 6 ] ]);
 my $std_pad       = 'padding:0rem 0.425rem;';

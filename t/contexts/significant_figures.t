@@ -15,12 +15,6 @@ use lib "$ENV{PG_ROOT}/lib";
 
 loadMacros('contextSignificantFigures.pl');
 
-use Value;
-require Parser::Legacy;
-import Parser::Legacy;
-
-use Data::Dumper;
-
 Context('SignificantFigures');
 
 sub ROUND  {&context::SignificantFigures::Real::ROUND}
@@ -398,17 +392,18 @@ subtest 'Significant Figures for partial credit' => sub {
 	# test an actual problem
 	my $source = <<~'END_SOURCE';
 		DOCUMENT();
-		loadMacros("PGstandard.pl","PGML.pl",'contextSignificantFigures.pl');
-		Context('SignificantFigures')->flags->set(tolerance => 0.001,
-			partial_incorrect_sf=>0.6,
+		loadMacros('PGstandard.pl', 'PGML.pl', 'contextSignificantFigures.pl');
+		Context('SignificantFigures')->flags->set(
+			tolerance                   => 0.001,
+			partial_incorrect_sf        => 0.6,
 			partial_sf_within_tolerance => 0.8,
 		);
-		$a=Real('123.0');
+		$a = Real('123.0');
 		BEGIN_PGML
 		[_]{$a}
 		END_PGML
 		ENDDOCUMENT();
-	END_SOURCE
+		END_SOURCE
 
 	ok my $pg = WeBWorK::PG->new(
 		r_source       => \$source,
@@ -469,17 +464,18 @@ subtest 'Significant Figures for partial credit' => sub {
 
 	my $source = <<~'END_SOURCE';
 		DOCUMENT();
-		loadMacros("PGstandard.pl","PGML.pl",'contextSignificantFigures.pl');
-		Context('SignificantFigures')->flags->set(tolerance => 0.001,
-			partial_incorrect_sf=>0.6,
+		loadMacros('PGstandard.pl', 'PGML.pl', 'contextSignificantFigures.pl');
+		Context('SignificantFigures')->flags->set(
+		    tolerance                   => 0.001,
+			partial_incorrect_sf        => 0.6,
 			partial_sf_within_tolerance => 0.8,
 		);
-		$a=Real('123.0');
+		$a = Real('123.0');
 		BEGIN_PGML
 		[_]{$a}
 		END_PGML
 		ENDDOCUMENT();
-	END_SOURCE
+		END_SOURCE
 
 	ok my $pg = WeBWorK::PG->new(
 		r_source       => \$source,
@@ -487,8 +483,6 @@ subtest 'Significant Figures for partial credit' => sub {
 		processAnswers => 1
 		),
 		'source string renders';
-
-	# print Dumper $pg->{result};
 
 	is $pg->{result}{score}, 1, 'correct answer is scored correctly';
 
