@@ -14,7 +14,6 @@ do "$ENV{PG_ROOT}/t/build_PG_envir.pl";
 use lib "$ENV{PG_ROOT}/lib";
 
 loadMacros('PGstandard.pl', 'MathObjects.pl');
-use Data::Dumper;
 
 Context('Interval');
 
