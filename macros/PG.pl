@@ -706,34 +706,12 @@ C<comment>: contents of COMMENT commands if any.
 
 =item *
 
-C<PROBLEM_GRADER_TO_USE>: a reference to the chosen problem grader.
-C<ENDDOCUMENT> chooses the problem grader as follows:
-
-=over
-
-=item *
-
-If a problem grader has been chosen in the problem by calling
-C<install_problem_grader(\&grader)>, it is used.
-
-=item *
-
-Otherwise, if the C<PROBLEM_GRADER_TO_USE> PG environment variable contains a
-reference to a subroutine, it is used.
-
-=item *
-
-Otherwise, if the C<PROBLEM_GRADER_TO_USE> PG environment variable contains the
-string C<std_problem_grader> or the string C<avg_problem_grader>,
-C<&std_problem_grader> or C<&avg_problem_grader> are used. These graders are
-defined in L<PGanswermacros.pl>.
-
-=item *
-
-Otherwise, the C<PROBLEM_GRADER_TO_USE> flag will contain an empty value and the
-PG translator should select C<&std_problem_grader>.
-
-=back
+C<PROBLEM_GRADER_TO_USE>:  Either the string C<avg_problem_grader>, the string
+C<std_problem_grader>, or a reference to problem grader code. Note that the
+C<PROBLEM_GRADER_TO_USE> PG environment variable setting is transferred to this
+flag in C<ENDDOCUMENT> if this flag is not set prior to the C<ENDDOCUMENT> call.
+L<WeBWorK::PG> handles conversion of the string values into the appropriate
+L<WeBWorK::PG::Translator> methods as needed.
 
 =back
 
@@ -1460,24 +1438,10 @@ sub ENDDOCUMENT {
 		});
 	}
 
-	# Install problem grader.
-	# WeBWorK::PG::Translator will install its default problem grader if none of the conditions below are true.
-	if (defined($PG->{flags}{PROBLEM_GRADER_TO_USE})) {
-		# Problem grader defined within problem.  No further action needed.
-	} elsif (defined($rh_envir->{PROBLEM_GRADER_TO_USE})) {
-		if (ref($rh_envir->{PROBLEM_GRADER_TO_USE}) eq 'CODE') {
-			# User defined grader.
-			$PG->{flags}{PROBLEM_GRADER_TO_USE} = $rh_envir->{PROBLEM_GRADER_TO_USE};
-		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'std_problem_grader') {
-			$PG->{flags}{PROBLEM_GRADER_TO_USE} = \&std_problem_grader if (defined(&std_problem_grader));
-		} elsif ($rh_envir->{PROBLEM_GRADER_TO_USE} eq 'avg_problem_grader') {
-			$PG->{flags}{PROBLEM_GRADER_TO_USE} = \&avg_problem_grader if (defined(&avg_problem_grader));
-		} else {
-			warn "Error: $PG->{flags}{PROBLEM_GRADER_TO_USE} is not a known problem grader.";
-		}
-	} elsif (defined(&std_problem_grader)) {
-		$PG->{flags}{PROBLEM_GRADER_TO_USE} = \&std_problem_grader;
-	}
+	# Transfer the environment problem grader setting to the flag.  WeBWorK::PG will handle conversion of the
+	# avg_problem_grader or std_problem_grader string values into the appropriate WeBWorK::PG::Translator methods, leave
+	# this as a code reference if that is what it is, or die if it is anything else.
+	$PG->{flags}{PROBLEM_GRADER_TO_USE} //= $rh_envir->{PROBLEM_GRADER_TO_USE};
 
 	TEXT(MODES(%{ $rh_envir->{problemPostamble} }));
 
@@ -1569,23 +1533,16 @@ sub loadMacros {
 # problems that do so actually work even though this method does nothing.
 sub findAppletCodebase { return ''; }
 
-## Problem Grader Subroutines
+# Problem Grader Subroutines
 
-#####################################
-# This is a model for plug-in problem graders
-#####################################
-# ^function install_problem_grader
-# ^uses PG_restricted_eval
-# ^uses %PG_FLAGS{PROBLEM_GRADER_TO_USE}
 sub install_problem_grader {
-	my $rf_problem_grader = shift;
-	my $rh_flags          = $PG->{flags};
-	$rh_flags->{PROBLEM_GRADER_TO_USE} = $rf_problem_grader if not_null($rf_problem_grader);
-	$rh_flags->{PROBLEM_GRADER_TO_USE};
+	my $problem_grader = shift;
+	$PG->{flags}{PROBLEM_GRADER_TO_USE} = $problem_grader if not_null($problem_grader);
+	return $PG->{flags}{PROBLEM_GRADER_TO_USE};
 }
 
 sub current_problem_grader {
-	install_problem_grader(@_);
+	return install_problem_grader(@_);
 }
 
 #  FIXME? The following functions were taken from the former
