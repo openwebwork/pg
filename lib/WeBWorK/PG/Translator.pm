@@ -53,8 +53,9 @@ use Carp;
 use Mojo::DOM;
 
 use WWSafe;
-use PGUtil          qw(pretty_print);
-use WeBWorK::PG::IO qw(fileFromPath);
+use PGUtil                qw(pretty_print);
+use WeBWorK::PG::IO       qw(fileFromPath);
+use WeBWorK::PG::Metadata qw(parse_metadata);
 use WeBWorK::PG::SafeIOHandle;
 use WeBWorK::PG::SafeGD;
 
@@ -695,6 +696,12 @@ sub translate {
 	$self->{errors} .= qq{ERROR:  You must define the environment before translating.}
 		unless defined($self->{envir});
 
+	# This must be done before the die handler below is installed so that metadata errors are not
+	# reported with a traceback.  If the metadata is invalid, the problem is not evaluated.
+	my $metadata      = eval { parse_metadata($evalString) };
+	my $metadataError = $@;
+	$self->{errors} .= "ERRORS in the PG metadata:\n$metadataError" if $metadataError;
+
 	# Create a global reference to the __files__ hash in the envir so that
 	# it can be accessed in the $PG_errorMessage method.
 	$main::__files__ = $self->{envir}{__files__};
@@ -716,21 +723,34 @@ sub translate {
 			: die PG_errorMessage('traceback', $_[0]);
 	};
 
+	# Problems that have a metadata block and declare a pgAuthoringVersion have the DOCUMENT and ENDDOCUMENT calls
+	# added, and the macros declared in the metadata are loaded in the DOCUMENT call.  Everything is on the first line
+	# of the evaluated code so that line numbers in error messages are correct for the problem code.
+	my ($documentCall, $endDocumentCall) = ('', '');
+	if ($metadata) {
+		$documentCall =
+			"DOCUMENT(pgAuthoringVersion => $metadata->{pgAuthoringVersion}, macros => ["
+			. join(',', map {"'$_'"} @{ $metadata->{macros} }) . ']);';
+		$endDocumentCall = 'ENDDOCUMENT();';
+	}
+
 	# PG preprocessing code
 	$evalString =
 		'BEGIN { my $eval = __FILE__; $main::envir{__files__}{$eval} = "'
 		. $self->{envir}{probFileName} . '" };'
-		. &{ $self->{preprocess_code} }($evalString);
+		. $documentCall
+		. &{ $self->{preprocess_code} }($evalString)
+		. $endDocumentCall;
 
 	my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore) =
-		$safe_cmpt->reval($evalString);
+		$metadataError ? () : $safe_cmpt->reval($evalString);
 
 	# This section could use some more error messages.  In particular if a problem doesn't produce the right output,
 	# the user needs information about which problem was at fault.
 
 	# FIXME The various warning message tracks are still being sorted out
 	# WARNING and DEBUG tracks are being handled elsewhere (in Problem.pm?)
-	$self->{errors} .= "ERRORS from evaluating PG file:\n$@\n" if $@;
+	$self->{errors} .= "ERRORS from evaluating PG file:\n$@\n" if !$metadataError && $@;
 
 	my @PROBLEM_TEXT_OUTPUT;
 	push(@PROBLEM_TEXT_OUTPUT, split(/^/, $$PG_PROBLEM_TEXT_REF)) if ref($PG_PROBLEM_TEXT_REF) eq 'SCALAR';
