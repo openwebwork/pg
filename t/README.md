@@ -26,9 +26,9 @@ to create a directory for each module being tested and group similar tests
 together in separate files with a descriptive name, such as **t/units/** for
 testing the **Units.pm** module. Tests for macro files should be in the
 appropriate subdirectory with the same name as the macro file's subdirectory in
-the `macros` directory. For example, the tests of the
-`macros/core/PGauxiliaryFunctions.pl` macro are located in the
-`t/macros_core/PGauxiliaryFunctions.t` test file.
+the `macros` directory, and with the same base name as the macro file. For
+example, the tests of the `macros/core/PGauxiliaryFunctions.pl` macro are
+located in the `t/macros_core/PGauxiliaryFunctions.t` test file.
 
 ## Running the tests
 
@@ -101,8 +101,3 @@ cpanm --installdeps .
 which will install the runtime and test dependencies. To use the cpanfile for a
 minimal install skipping the test requirements, use the `--notest` option with
 cpanm.
-
-## Demo PG Problem
-
-There are some `.pg` problem files in the `t/test_problems` directories. These
-really should not exist and should be integrated into proper tests.
