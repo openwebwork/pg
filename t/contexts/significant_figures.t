@@ -391,8 +391,10 @@ subtest 'Significant Figures for integers' => sub {
 subtest 'Significant Figures for partial credit' => sub {
 	# test an actual problem
 	my $source = <<~'END_SOURCE';
-		DOCUMENT();
-		loadMacros('PGstandard.pl', 'PGML.pl', 'contextSignificantFigures.pl');
+		## ---
+		## pgAuthoringVersion: 1
+		## macros: [contextSignificantFigures.pl]
+		## ---
 		Context('SignificantFigures')->flags->set(
 			tolerance                   => 0.001,
 			partial_incorrect_sf        => 0.6,
@@ -402,7 +404,6 @@ subtest 'Significant Figures for partial credit' => sub {
 		BEGIN_PGML
 		[_]{$a}
 		END_PGML
-		ENDDOCUMENT();
 		END_SOURCE
 
 	ok my $pg = WeBWorK::PG->new(
@@ -463,8 +464,10 @@ subtest 'Significant Figures for partial credit' => sub {
 	# test an actual problem
 
 	my $source = <<~'END_SOURCE';
-		DOCUMENT();
-		loadMacros('PGstandard.pl', 'PGML.pl', 'contextSignificantFigures.pl');
+		## ---
+		## pgAuthoringVersion: 1
+		## macros: [contextSignificantFigures.pl]
+		## ---
 		Context('SignificantFigures')->flags->set(
 		    tolerance                   => 0.001,
 			partial_incorrect_sf        => 0.6,
@@ -474,7 +477,6 @@ subtest 'Significant Figures for partial credit' => sub {
 		BEGIN_PGML
 		[_]{$a}
 		END_PGML
-		ENDDOCUMENT();
 		END_SOURCE
 
 	ok my $pg = WeBWorK::PG->new(
