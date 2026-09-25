@@ -379,12 +379,12 @@ If a row contains only one cell with no content or attributes other than C<'rows
 and if C<'rows'> is an array reference where each element is itself an array
 reference that is appropriately formatted to be a niceTables row, then this row
 will be expanded to those rows. This allows a sequence of rows to be computed
-algorithmically for example C<< [{rows => [ map {[ $_, $_**2 ]} (1..4)]}] >> will
+algorithmically for example C<< [{rows => [ map {[ $_, $_**2 ]} (1 .. 4)]}] >> will
 expand to C<[1, 1], [2, 4], [3, 9], [4, 16]>.
 
 This can also be achieved if the cell is an array reference with (possibly empty)
 whitespace content followed by the rows attribute, for example:
-C<< [['', 'rows', [ map {[ $_, $_**2 ]} (1..4)]]] >>. This form is used by PGML. So
+C<[['', 'rows', [ map {[ $_, $_**2 ]} (1 .. 4)]]]>. This form is used by PGML. So
 for instance when using PGML, C<< [. .]*{rows => $rows} >>.
 
 This expansion is not recursive; any C<'rows'> attribute in the inner rows will
