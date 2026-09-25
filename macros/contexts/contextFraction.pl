@@ -370,6 +370,7 @@ sub Init {
 	);
 	$context->{cmpDefaults}{Fraction} = { studentsMustReduceFractions => 1 };
 	$context->parens->redefine('(');
+	Parser::Number::NoDecimals($context);
 
 	$context = $main::context{LimitedProperFraction} = $context->copy;
 	$context->flags->set(requireProperFractions => 1);
