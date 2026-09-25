@@ -159,7 +159,7 @@ sub header {
 			"\\usepackage"
 				. (ref $_ eq "ARRAY" && @$_ > 1 && $_->[1] ne "" ? "[$_->[1]]" : "") . "{"
 				. (ref $_ eq "ARRAY"                             ? $_->[0]     : $_) . "}\n"
-		} grep { (ref $_ eq "ARRAY" && $_->[0] ne 'xcolor') || $_ ne 'xcolor' } @{ $self->texPackages }
+		} grep { (ref $_ eq 'ARRAY' ? $_->[0] : $_) ne 'xcolor' } @{ $self->texPackages }
 	);
 	push(@output, "\\usetikzlibrary{" . $self->tikzLibraries . "}\n") if ($self->tikzLibraries ne "");
 	push(@output, $self->addToPreamble);
