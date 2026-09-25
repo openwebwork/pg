@@ -65,6 +65,11 @@ subtest 'round and Round functions' => sub {
 	is(Round(1.4999999999999991, 0), 2.0,   'Round another number with decimals close to 0.5');
 	is(Round(1.49999999999991,   0), 1.0,   'Round another number with decimals close to 0.5');
 	is(Round(0.01499999999991,   2), 0.01,  'Round a number close to 0.005 to 2 digits');
+
+	is(Round(0), 0, 'Round 0');
+	is(Round(0,     2), 0, 'Round 0 to 2 digits');
+	is(Round(0,    -2), 0, 'Round 0 to -2 digits');
+	is(Round(-0.0,  3), 0, 'Round -0 to 3 digits');
 };
 
 subtest 'lcm and gcd functions' => sub {
