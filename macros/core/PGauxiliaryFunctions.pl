@@ -185,6 +185,7 @@ and need to round it.
 sub Round {
 	my ($x, $n) = @_;
 	$n = 0 unless $n;
+	return 0 if $x == 0;
 	my $e = (split(/E/, sprintf("%E", $x)))[1] + 0;     # exponent for $x
 	my $s = ($x < 0 ? -1 : 1);                          # the sign of $x
 	my $N = $e + $n;                                    # number of digits to retain
