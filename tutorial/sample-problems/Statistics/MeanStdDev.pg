@@ -18,7 +18,7 @@
 #: `stats_sd`, and `stats_SX_SXX` methods.
 DOCUMENT();
 
-loadMacros("PGstandard.pl", "PGML.pl", 'PGstatisticsmacros.pl', "PGcourse.pl");
+loadMacros('PGML.pl', 'PGstatisticsmacros.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Generate random numbers and then calculate the mean and standard deviation

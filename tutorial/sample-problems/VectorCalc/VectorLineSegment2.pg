@@ -23,7 +23,7 @@
 #:  The PODLINK('parserVectorUtils.pl') macro is loaded for the
 #: `non_zero_point3D` and `non_zero_vector3D` methods.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: A random point is generated with the `non_zero_point3D` method, a random

@@ -21,10 +21,7 @@
 #: PODLINK('contextLimitedComplex.pl') macro, so it must be loaded.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',            'PGML.pl',
-    'contextLimitedComplex.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'contextLimitedComplex.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Often when students are asked to perform operations with complex numbers,

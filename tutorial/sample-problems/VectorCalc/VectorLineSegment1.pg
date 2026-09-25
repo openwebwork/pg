@@ -26,9 +26,8 @@
 #: interdependent.
 DOCUMENT();
 loadMacros(
-    'PGstandard.pl',           'PGML.pl',
-    'parserParametricLine.pl', 'parserMultiAnswer.pl',
-    'PGcourse.pl'
+    'PGML.pl',              'parserParametricLine.pl',
+    'parserMultiAnswer.pl', 'PGcourse.pl'
 );
 
 #:% section = setup

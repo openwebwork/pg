@@ -22,11 +22,8 @@
 #: answer has units of degrees.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',         'PGML.pl',
-    'contextTrigDegrees.pl', 'contextUnits.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'contextTrigDegrees.pl', 'contextUnits.pl',
+    'PGcourse.pl');
 
 #:% section = setup
 #: Select the `TrigDegrees` context to which evaluates trig functions in

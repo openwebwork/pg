@@ -22,9 +22,9 @@
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',     'PGML.pl',
+    'PGanswermacros.pl', 'PGML.pl',
     'PGchoicemacros.pl', 'PGgraders.pl',
-    'unionTables.pl',    'PGcourse.pl'
+    'PGcourse.pl'
 );
 
 #:% section = setup
@@ -104,12 +104,16 @@ $ml->choose_extra(2);
 $ml->makeLast('None of the above');
 
 #:% section = statement
-#: The `ColumnMatchTable` method is provided by the macro file
-#: PODLINK('unionTables.pl').
+#: Insert the questions and answers into the problem using a
+#: PODLINK('NiceTables.pl') layout table via its PGML syntax. See
+#: PROBLINK('LayoutTables.pg') for more details on how that works.
 BEGIN_PGML
 Match each question with its answer.
 
-[@ ColumnMatchTable($ml) @]***
+[#
+    [.[@ $ml->print_q @]*.]
+    [.[@ $ml->print_a @]*.]
+#]*{ align => 'll', padding => [ 0, 2 ], valign => 'middle' }
 END_PGML
 
 #:% section = answer

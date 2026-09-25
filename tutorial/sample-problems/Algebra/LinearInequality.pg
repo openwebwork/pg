@@ -21,8 +21,7 @@
 #: to use the LinearRelation object.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserLinearRelation.pl',
-    'PGcourse.pl');
+loadMacros('PGML.pl', 'parserLinearRelation.pl', 'PGcourse.pl');
 
 #:% section = setup
 Context("LinearRelation");

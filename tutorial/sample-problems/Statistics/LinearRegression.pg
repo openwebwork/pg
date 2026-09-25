@@ -18,7 +18,7 @@
 #: and `linear_regression` methods.
 DOCUMENT();
 
-loadMacros("PGstandard.pl", "PGML.pl", 'PGstatisticsmacros.pl', "PGcourse.pl");
+loadMacros('PGML.pl', 'PGstatisticsmacros.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Generate random numbers, and then use the `sample_correlation` and

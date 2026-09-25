@@ -21,11 +21,8 @@
 #: macro for this.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',      'PGML.pl',
-    'parserGraphTool.pl', 'contextFraction.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserGraphTool.pl', 'contextFraction.pl',
+    'PGcourse.pl');
 
 #:% section = setup
 #: A cubic is created with 3 random zeros and a random y-intercept.

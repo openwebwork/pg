@@ -25,9 +25,8 @@
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',          'PGML.pl',
-    'parserImplicitPlane.pl', 'parserVectorUtils.pl',
-    'PGcourse.pl'
+    'PGML.pl',              'parserImplicitPlane.pl',
+    'parserVectorUtils.pl', 'PGcourse.pl'
 );
 
 #:% section = setup

@@ -22,7 +22,7 @@
 #: done using PODLINK('parserFunction.pl').
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Define a new named function `f` as something the student is unlikely to

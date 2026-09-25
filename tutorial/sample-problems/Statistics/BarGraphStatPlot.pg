@@ -21,11 +21,8 @@
 #: PODLINK('contextPercent.pl') to provide the Percent context.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',       'PGML.pl',
-    'StatisticalPlots.pl', 'contextPercent.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'StatisticalPlots.pl', 'contextPercent.pl',
+    'PGcourse.pl');
 
 #:% section = setup
 #: The 'Percent' context allow students to enter percents.

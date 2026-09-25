@@ -20,7 +20,7 @@
 #: The PODLINK('contextInequalities.pl') macro is used for inequality answers.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: In addition to showing how to use the PODLINK('contextInequalities.pl')

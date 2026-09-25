@@ -21,7 +21,7 @@
 #: The macro PODLINK('parserPopUp.pl') is used for pop up (or drop down) menus.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserPopUp.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Call `PopUp` or `DropDown` to create a pop up answer object. The format is

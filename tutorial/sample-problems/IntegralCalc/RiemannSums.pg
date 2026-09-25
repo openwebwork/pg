@@ -21,10 +21,7 @@
 #: the PODLINK('PGtikz.pl') macro is used to produce the graphs.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGtikz.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserPopUp.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: First generate a random constant for the function and the interval endpoints.

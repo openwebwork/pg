@@ -17,7 +17,7 @@
 
 #:% section = preamble
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Add the constant `k` with value `0.023431412` to the context. Choose a value

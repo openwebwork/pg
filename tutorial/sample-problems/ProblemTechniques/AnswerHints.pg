@@ -18,7 +18,7 @@
 #: Make sure the `answerHints.pl` macro is loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'answerHints.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'answerHints.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: To generate specific, customized answer hints for particular answers, use

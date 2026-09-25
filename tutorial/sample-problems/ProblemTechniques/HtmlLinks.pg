@@ -19,10 +19,7 @@
 #: An example below uses units, so the PODLINK('parserNumberWithUnits.pl') is
 #: loaded.
 DOCUMENT();
-loadMacros(
-    'PGstandard.pl',            'PGML.pl',
-    'parserNumberWithUnits.pl', 'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserNumberWithUnits.pl', 'PGcourse.pl');
 
 #:% section = setup
 $ans = NumberWithUnits('4', 'ft');

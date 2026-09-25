@@ -21,7 +21,7 @@
 #: The dynamic graph is generated with PODLINK('plotly3D.pl').
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Generate the plot parametrically for the function `z = x^2 + y^2` with the

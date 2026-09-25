@@ -24,7 +24,7 @@
 #: The PODLINK('PGtikz.pl') macro is also used in this example to demonstrate
 #: inserting a dynamically generated image into a table.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: A `LayoutTable` is meant to be used for layout, i.e., to organize various

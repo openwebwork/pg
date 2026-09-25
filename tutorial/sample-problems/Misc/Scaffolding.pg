@@ -19,7 +19,7 @@
 #: Load the PODLINK('scaffold.pl') macro to use scaffolding.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'scaffold.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'scaffold.pl', 'PGcourse.pl');
 
 #:% section = statement
 #: Call `Scaffold::Begin()` to start scaffolding, and `Scaffold::End()` to end

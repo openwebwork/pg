@@ -20,11 +20,7 @@
 #: PODLINK('parserPopUp.pl') for multiple choice drop down menus.
 DOCUMENT();
 
-loadMacros(
-    'PGstandard.pl',  'PGML.pl',
-    'parserPopUp.pl', 'PGessaymacros.pl',
-    'PGcourse.pl'
-);
+loadMacros('PGML.pl', 'parserPopUp.pl', 'PGessaymacros.pl', 'PGcourse.pl');
 
 #:% section = setup
 $popup = PopUp(

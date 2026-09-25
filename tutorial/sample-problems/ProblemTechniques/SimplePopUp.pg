@@ -19,7 +19,7 @@
 #: Load PODLINK('parserPopUp.pl') for pop up (or drop down) menu answers.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserPopUp.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: This shows a number of ways to use either `PopUp` (the legacy version) or

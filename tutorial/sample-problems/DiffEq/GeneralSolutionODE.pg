@@ -22,7 +22,7 @@
 #: form `y = ...`.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Add the arbitrary constants `c1`, `c2`, and `c3` to the context as variables

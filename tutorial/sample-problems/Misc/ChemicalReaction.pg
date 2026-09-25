@@ -21,7 +21,7 @@
 #: equations in a `Compute` call.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextReaction.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'contextReaction.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Create two arrays, `@reactants` and `@products`, and fill them with examples

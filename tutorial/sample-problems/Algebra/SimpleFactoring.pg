@@ -21,7 +21,7 @@
 #:% section = preamble
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGcourse.pl');
 #:% section = setup
 #: First, create two random roots and then create the factors. Note that calling
 #: `->reduce` will simplify `x-(-3)` to `x+3`. In addition, create the expanded

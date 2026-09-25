@@ -21,7 +21,7 @@
 #: PODLINK('parserMultiAnswer.pl') macro must be loaded.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
 
 $showPartialCorrectAnswers = 0;
 

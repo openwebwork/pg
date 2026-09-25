@@ -20,7 +20,7 @@
 #: The PODLINK('parserCheckboxList.pl') is used for check box answers.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserCheckboxList.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserCheckboxList.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: First, call `CheckboxList` to create a check box list answer object. The

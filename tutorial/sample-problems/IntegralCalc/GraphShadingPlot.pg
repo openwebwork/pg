@@ -20,7 +20,7 @@
 #: The macro PODLINK('plots.pl') is used to create the plot.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'plots.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: A randomly transformed version of `sqrt(x)` is created as the function with a

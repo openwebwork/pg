@@ -18,7 +18,7 @@
 #: We need to load `randomPerson.pl` macro
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'randomPerson.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'randomPerson.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The macro PODLINK('randomPerson.pl') provides functionality to

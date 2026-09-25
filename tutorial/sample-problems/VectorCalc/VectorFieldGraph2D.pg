@@ -20,7 +20,7 @@
 #:% section = preamble
 #: The macro PODLINK('PGtikz.pl') is used to produced the vector field graph.
 DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: The graph of the vector field is created.  The vector field is

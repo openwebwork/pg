@@ -20,7 +20,7 @@
 #: The macro PODLINK('parserRadioButtons.pl') is used for radio button answers.
 DOCUMENT();
 
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserRadioButtons.pl', 'PGcourse.pl');
+loadMacros('PGML.pl', 'parserRadioButtons.pl', 'PGcourse.pl');
 
 #:% section = setup
 #: Call `RadioButtons` to create a radio button answer object. The format is

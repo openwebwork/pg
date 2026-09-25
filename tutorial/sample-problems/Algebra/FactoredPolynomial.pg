@@ -23,9 +23,8 @@
 DOCUMENT();
 
 loadMacros(
-    'PGstandard.pl',               'PGML.pl',
-    'contextPolynomialFactors.pl', 'contextLimitedPowers.pl',
-    'PGcourse.pl'
+    'PGML.pl',                 'contextPolynomialFactors.pl',
+    'contextLimitedPowers.pl', 'PGcourse.pl'
 );
 
 #:% section = setup
