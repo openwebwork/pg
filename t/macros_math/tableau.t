@@ -34,16 +34,14 @@ use lib "$ENV{PG_ROOT}/lib";
 use Class::Accessor;
 use Value;
 
-loadMacros('tableau.pl', 'Value.pl');    #gives us Real() etc.
+loadMacros('tableau.pl', 'Value.pl');
 
 my %context = ();
 
 sub Context { Parser::Context->current(\%context, @_) }
 unless (%context && $context{current}) {
-	# ^variable our %context
-	%context = ();    # Locally defined contexts, including 'current' context
-					  # ^uses Context
-	Context();        # Initialize context (for persistent mod_perl)
+	%context = ();
+	Context();
 }
 
 Context("Matrix");
@@ -417,9 +415,6 @@ subtest 'reset tableau to feasible point and try to minimize it for phase2' => s
 
 	is $tableau1->align,    'cccc|cc|c|c',               'check align';
 	is $tableau1->toplevel, [qw(x1 x2 x3 x4 x5 x6 z b)], 'check toplevel';
-
-	# diag($tableau1->align);
-	# diag(join(q{ } , @{$tableau1->toplevel}));
 };
 
 done_testing();
