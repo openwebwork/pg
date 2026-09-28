@@ -1319,8 +1319,14 @@ sub pathIsEulerTrail {
 	my $i = shift @path;
 	do {
 		my $j = shift @path;
-		return
-			wantarray ? (0, $main::PG->maketext('An edge traversed by this path does not exist in the graph.')) : 0
+		return wantarray
+			? (
+				0,
+				$self->hasEdge($i, $j)
+				? $main::PG->maketext('An edge in this path is traversed more than once.')
+				: $main::PG->maketext('An edge traversed by this path does not exist in the graph.')
+			)
+			: 0
 			unless $graph->hasEdge($i, $j);
 		$graph->removeEdge($i, $j);
 		$i = $j;
