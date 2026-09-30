@@ -19,8 +19,11 @@
 
 #:% section = preamble
 #: The macro PODLINK('PGtikz.pl') is used to produced the vector field graph.
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - PGtikz.pl
+## ---
 
 #:% section = setup
 #: The graph of the vector field is created.  The vector field is
@@ -76,6 +79,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
-

@@ -23,12 +23,12 @@
 #: The PODLINK('parserVectorUtils.pl') macro provides the `non_zero_point3D` and
 #: `non_zero_vector3D` methods. The macro PODLINK('parserParametricLine.pl')
 #: provides the `ParametricLine` function used for the answer.
-DOCUMENT();
-loadMacros(
-    'PGstandard.pl',        'PGML.pl',
-    'parserVectorUtils.pl', 'parserParametricLine.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserVectorUtils.pl
+##   - parserParametricLine.pl
+## ---
 
 #:% section = setup
 #: Generate a random three dimensional initial point `$P` using the
@@ -57,5 +57,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

@@ -18,9 +18,11 @@
 
 #:% section = preamble color:blue
 #: The macro PODLINK('parserRadioButtons.pl') is used for radio button answers.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserRadioButtons.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserRadioButtons.pl
+## ---
 
 #:% section = setup
 #: Call `RadioButtons` to create a radio button answer object. The format is
@@ -63,5 +65,3 @@ The correct answer to the first is [$radio1->correct_ans].
 
 The correct answer to the first is [$radio2->correct_ans].
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
