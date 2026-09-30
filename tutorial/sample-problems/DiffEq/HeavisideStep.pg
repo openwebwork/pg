@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: Load PODLINK('parserFunction.pl') for adding a named function to the context.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserFunction.pl
+## ---
 
 #:% section = setup
 #: Add the step function to the context with the name `step`. The function
@@ -123,5 +125,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

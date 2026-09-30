@@ -19,14 +19,14 @@
 #: The PODLINK('PGgraphmacros.pl'), PODLINK('PGtikz.pl'),
 #: PODLINK('PGlateximage.pl') and PODLINK('parserGraphTool.pl') macros are used
 #: to create the images.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',    'PGML.pl',
-    'PGgraphmacros.pl', 'PGtikz.pl',
-    'PGlateximage.pl',  'parserGraphTool.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - PGgraphmacros.pl
+##   - PGtikz.pl
+##   - PGlateximage.pl
+##   - parserGraphTool.pl
+## ---
 
 #:% section = setup
 #: A WWPlot using PODLINK('PGgraphmacros.pl'), a TikZ plot using
@@ -94,5 +94,3 @@ BEGIN_PGML
 
 * A graphtool plot [!A graphtool plot with a circle!]{$gt}{120}
 END_PGML
-
-ENDDOCUMENT();

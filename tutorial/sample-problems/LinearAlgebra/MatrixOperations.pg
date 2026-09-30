@@ -18,12 +18,11 @@
 
 #:% section = preamble
 #: This uses PODLINK('parserRadioMultiAnswer.pl'), so it needs to be loaded.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',             'PGML.pl',
-    'parserRadioMultiAnswer.pl', 'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserRadioMultiAnswer.pl
+## ---
 
 #:% section = setup
 #: First, the two matrices are defined.
@@ -99,5 +98,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

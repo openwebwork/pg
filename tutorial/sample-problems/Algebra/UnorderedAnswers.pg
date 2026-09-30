@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: The macro PODLINK('unorderedAnswer.pl') must be loaded.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'unorderedAnswer.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - unorderedAnswer.pl
+## ---
 
 #:% section = setup
 #: The answers use the variables `x`, `y`, and `z`.  The variable `x` is already
@@ -54,5 +56,3 @@ UNORDERED_ANS($answer1->cmp, $answer2->cmp, $answer3->cmp);
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

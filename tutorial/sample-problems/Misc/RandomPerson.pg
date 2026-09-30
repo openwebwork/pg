@@ -16,9 +16,11 @@
 
 #:% section = preamble
 #: We need to load `randomPerson.pl` macro
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'randomPerson.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - randomPerson.pl
+## ---
 
 #:% section = setup
 #: The macro PODLINK('randomPerson.pl') provides functionality to
@@ -73,5 +75,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

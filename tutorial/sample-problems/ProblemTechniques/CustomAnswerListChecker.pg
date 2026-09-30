@@ -16,8 +16,9 @@
 #:% categories = [answers, custom checker, list]
 
 #:% section = preamble
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: The answer to this problem will be a list of points, so select the 'Point'
@@ -129,5 +130,3 @@ BEGIN_PGML_SOLUTION
 Any three points who's coordinates sum to [`[$c]`] are valid.  For example,
 [`([$c], 0), (0, [$c]), (1, [$c - 1])`].
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

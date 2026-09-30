@@ -19,12 +19,11 @@
 #:% section = preamble
 #: The macro PODLINK('parserFormulaUpToConstant.pl') will allow the entry of
 #: formula with a general constant like the antiderivative.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',                'PGML.pl',
-    'parserFormulaUpToConstant.pl', 'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserFormulaUpToConstant.pl
+## ---
 
 #:% section = setup
 #: The specific antiderivative is an ordinary formula. When the `cmp` method is
@@ -61,5 +60,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

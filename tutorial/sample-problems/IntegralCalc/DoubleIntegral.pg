@@ -19,9 +19,11 @@
 #:% section = preamble
 #: Since there are multiple answer blanks that are dependent upon each other the
 #: PODLINK('parserMultiAnswer.pl') macro is used.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserMultiAnswer.pl
+## ---
 
 #:% section = setup
 #: There are two separate cases: integrating with respect to `dx dy` (case 0) or
@@ -187,5 +189,3 @@ Solution explanation goes here.
 END_PGML_SOLUTION
 
 COMMENT('Allows integration in either order.');
-
-ENDDOCUMENT();

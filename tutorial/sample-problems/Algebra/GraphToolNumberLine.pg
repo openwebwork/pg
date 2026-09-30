@@ -19,9 +19,11 @@
 #: This example shows how to get student input in the form of a graph
 #: by using interactive graphing tools. Load the PODLINK('parserGraphTool.pl')
 #: macro for this.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserGraphTool.pl
+## ---
 
 #:% section = setup
 #: Two intervals are created with random endpoints. The first
@@ -83,5 +85,3 @@ Graph the solution set for the linear inequality [`x < [$x2]`].
 
 [_]{$gt2}
 END_PGML
-
-ENDDOCUMENT();

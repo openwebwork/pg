@@ -19,9 +19,11 @@
 
 #:% section = preamble
 #: This is a scaffolded problem, so load PODLINK('scaffold.pl').
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'scaffold.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - scaffold.pl
+## ---
 
 #:% section = setup
 #: The sine function is cleverly redefined so that when the student enters
@@ -90,5 +92,3 @@ END_PGML
 Section::End();
 
 Scaffold::End();
-
-ENDDOCUMENT();
