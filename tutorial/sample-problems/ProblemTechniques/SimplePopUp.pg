@@ -17,9 +17,11 @@
 
 #:% section = preamble
 #: Load PODLINK('parserPopUp.pl') for pop up (or drop down) menu answers.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserPopUp.pl
+## ---
 
 #:% section = setup
 #: This shows a number of ways to use either `PopUp` (the legacy version) or
@@ -63,5 +65,3 @@ Solution explanation goes here.
 END_PGML_SOLUTION
 
 COMMENT('MathObject version. Uses PGML.');
-
-ENDDOCUMENT();

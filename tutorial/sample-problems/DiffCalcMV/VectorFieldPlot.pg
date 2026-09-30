@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: The macro PODLINK('plots.pl') is used to create the plot.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - plots.pl
+## ---
 
 #:% section = setup
 #: This problem generates the vector field <sin y, cos x>.  First, create a
@@ -69,5 +71,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

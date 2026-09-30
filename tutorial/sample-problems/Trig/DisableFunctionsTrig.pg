@@ -19,9 +19,11 @@
 #:% section = preamble
 #: The PODLINK('contextFraction.pl') is loaded for the `Fraction-NoDecimals`
 #: context.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextFraction.pl
+## ---
 
 #:% section = setup
 #: Select the `Fraction-NoDecimals` context which requires fractions as answers
@@ -61,5 +63,3 @@ END_PGML_HINT
 BEGIN_PGML_SOLUTION
 Provide a solution here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

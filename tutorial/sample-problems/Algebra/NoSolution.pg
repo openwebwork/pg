@@ -18,12 +18,11 @@
 #:% section = preamble
 #: Load the PODLINK('parserRadioMultiAnswer.pl') macro in addition to the usual
 #: macros.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',             'PGML.pl',
-    'parserRadioMultiAnswer.pl', 'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserRadioMultiAnswer.pl
+## ---
 
 #:% section = setup
 #: A `RadioMultiAnswer` produces a set of radio buttons for each of the given
@@ -64,5 +63,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
