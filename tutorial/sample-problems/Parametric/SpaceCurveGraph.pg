@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: The macro PODLINK('plotly3D.pl') is used to produce the graph.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - plotly3D.pl
+## ---
 
 #:% section = setup
 #: A `plotly3D` graph is created with the `Graph3D` function. There are many
@@ -48,5 +50,3 @@ $graph->addCurve([ 't * cos(t)', 't * sin(t)', 't' ], [ 0, 6 * pi, 150 ]);
 BEGIN_PGML
 [@ $graph->Print @]*
 END_PGML
-
-ENDDOCUMENT();

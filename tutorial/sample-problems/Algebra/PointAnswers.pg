@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: Load PODLINK('contextLimitedPoint.pl') to prevent operations between points.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextLimitedPoint.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextLimitedPoint.pl
+## ---
 
 #:% section = setup
 #: `Context('Point')` could be used instead, which would allow mathematical
@@ -53,5 +55,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

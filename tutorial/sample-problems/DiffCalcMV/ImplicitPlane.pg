@@ -22,13 +22,12 @@
 #: * The PODLINK('parserImplicitPlane.pl') macro includes the 'ImplicitPlane'
 #:   context and the `ImplicitPlane` function used to parse and create implicit
 #:   planes.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',          'PGML.pl',
-    'parserImplicitPlane.pl', 'parserVectorUtils.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserImplicitPlane.pl
+##   - parserVectorUtils.pl
+## ---
 
 #:% section = setup
 #: The first answer is a standard multivariable calculus question. There are
@@ -74,5 +73,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

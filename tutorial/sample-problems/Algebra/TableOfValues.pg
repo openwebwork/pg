@@ -19,9 +19,9 @@
 #:% section = preamble
 #: The PODLINK('niceTables.pl') macro is implicitly used in this problem, but is
 #: automatically loaded by the `PGML.pl` macro.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: Create the array `@answer` filled with values via a map.
@@ -57,5 +57,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: The macro PODLINK('PGtikz.pl') is used to create the plot.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - PGtikz.pl
+## ---
 
 #:% section = setup
 #: A randomly transformed version of `sqrt(x)` is created as the function with a
@@ -88,5 +90,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

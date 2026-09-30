@@ -20,9 +20,11 @@
 #: Although not necessary for the code demonstrated in this example, you might
 #: want to load PODLINK('parserVectorUtils.pl'). It provides methods that are
 #: useful for vector problems.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserVectorUtils.pl
+## ---
 
 #:% section = setup
 #: The context flag `ijk => 0` disables the display of correct answer vectors
@@ -80,5 +82,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

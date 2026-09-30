@@ -16,9 +16,11 @@
 #:% section = preamble
 #: The PODLINK('PGstatisticsmacros.pl') macro provides the `sample_correlation`
 #: and `linear_regression` methods.
-DOCUMENT();
-
-loadMacros("PGstandard.pl", "PGML.pl", 'PGstatisticsmacros.pl', "PGcourse.pl");
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - PGstatisticsmacros.pl
+## ---
 
 #:% section = setup
 #: Generate random numbers, and then use the `sample_correlation` and
@@ -63,5 +65,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Provide a solution here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

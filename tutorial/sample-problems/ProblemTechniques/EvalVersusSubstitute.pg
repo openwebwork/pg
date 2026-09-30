@@ -16,8 +16,9 @@
 #:% categories = [formula]
 
 #:% section = preamble
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: First, consider `$f = Compute('sqrt(3x + 1)')` defined in the default context
@@ -87,5 +88,3 @@ set to 0, then
 
 * [|$f->substitute(x => 3)|] returns [$f5]
 END_PGML
-
-ENDDOCUMENT();
