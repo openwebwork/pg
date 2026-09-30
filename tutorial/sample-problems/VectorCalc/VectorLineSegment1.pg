@@ -24,12 +24,12 @@
 #: function which us used to check the answer.  The
 #: PODLINK('parserMultiAnswer.pl') macro is needed since the answers are
 #: interdependent.
-DOCUMENT();
-loadMacros(
-    'PGstandard.pl',           'PGML.pl',
-    'parserParametricLine.pl', 'parserMultiAnswer.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserParametricLine.pl
+##   - parserMultiAnswer.pl
+## ---
 
 #:% section = setup
 #: Create a `MultiAnswer` object that is used to evaluate the student's vector
@@ -96,5 +96,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

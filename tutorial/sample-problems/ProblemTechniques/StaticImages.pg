@@ -16,8 +16,9 @@
 #:% categories = [images]
 
 #:% section = preamble
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = statement
 #: Use the `PGML` image syntax to include static images. For accessibility you
@@ -52,5 +53,3 @@ BEGIN_PGML
 	image_options => { tex_size => 600 }
 }
 END_PGML
-
-ENDDOCUMENT();

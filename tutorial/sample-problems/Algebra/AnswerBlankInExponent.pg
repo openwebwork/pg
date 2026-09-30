@@ -17,9 +17,9 @@
 #:% categories = [exponent]
 
 #:% section = preamble
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: Set the context to allow only the variables `a` and `b` and choose a random
@@ -72,5 +72,3 @@ ANS($exponent->cmp);
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

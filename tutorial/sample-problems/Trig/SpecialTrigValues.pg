@@ -19,9 +19,11 @@
 #:% section = preamble
 #: Load the PODLINK('specialTrigValues.pl') macro for the `specialRadical` and
 #: `specialAngle` methods.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'specialTrigValues.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - specialTrigValues.pl
+## ---
 
 #:% section = setup
 #: The `random_coprime` function selects two random numbers that are coprime
@@ -64,5 +66,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

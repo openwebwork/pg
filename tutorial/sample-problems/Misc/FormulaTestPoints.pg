@@ -16,9 +16,9 @@
 #:% see_also = [FormulaDomain.pg]
 
 #:% section = preamble
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: The first line sets the limits of evaluation for the variable `x` and for any
@@ -54,5 +54,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

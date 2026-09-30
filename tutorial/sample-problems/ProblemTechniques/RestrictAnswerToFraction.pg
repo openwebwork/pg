@@ -20,9 +20,11 @@
 #:% section = preamble
 #: Load the PODLINK('contextFraction.pl') for the fraction contexts that it
 #: provides.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextFraction.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextFraction.pl
+## ---
 
 #:% section = setup
 #: The `Fractions-NoDecimals` context is selected which requires that answers
@@ -80,5 +82,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

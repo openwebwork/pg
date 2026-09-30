@@ -16,9 +16,9 @@
 #:% subject = linear algebra
 #:% categories = [matrix, row operation]
 
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: Construct a matrix with three distinct rows. Create a string `$op` of Tex
@@ -58,5 +58,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

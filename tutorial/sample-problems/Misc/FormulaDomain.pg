@@ -18,9 +18,9 @@
 #:% see_also = [FormulaTestPoints.pg]
 
 #:% section = preamble
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: Restrict the domain of function evaluation using
@@ -64,5 +64,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

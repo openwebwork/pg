@@ -19,9 +19,11 @@
 
 #:% section = preamble
 #: The macro file PODLINK('parserAssignment.pl') needs to be included.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserAssignment.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserAssignment.pl
+## ---
 
 #:% section = setup
 #: To allow assignments in the current context call `parser::Assignment->Allow`.
@@ -46,5 +48,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

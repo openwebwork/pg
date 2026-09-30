@@ -21,13 +21,13 @@
 #: the PODLINK('niceTables.pl') macro (loaded automatically via `PGML.pl`) is
 #: used for layout, and the PODLINK('PGchoicemacros.pl') macro provides the
 #: `shuffle` and `invert` functions.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',     'PGML.pl',
-    'PGtikz.pl',         'parserPopUp.pl',
-    'PGchoicemacros.pl', 'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - PGtikz.pl
+##   - parserPopUp.pl
+##   - PGchoicemacros.pl
+## ---
 
 #:% section = setup
 #: First, `@eqn_plot`, `@eqn`, `@alt_text`, and `@graph` arrays are defined
@@ -137,5 +137,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

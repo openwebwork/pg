@@ -19,8 +19,9 @@
 #: This shows how to use the `DataTable` function in PODLINK('niceTables.pl').
 #: Note that the PODLINK('niceTables.pl') macro is automatically loaded by
 #: `PGML.pl`, so it is not necessary to load it explicitly.
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: A `DataTable` is meant to display data in a table. It is not meant to be used
@@ -113,5 +114,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

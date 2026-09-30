@@ -19,9 +19,11 @@
 #:% section = preamble
 #: Load PODLINK('contextReaction.pl') to be able to use chemical reaction
 #: equations in a `Compute` call.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextReaction.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextReaction.pl
+## ---
 
 #:% section = setup
 #: Create two arrays, `@reactants` and `@products`, and fill them with examples
@@ -68,5 +70,3 @@ BEGIN_PGML
 Enter a subscript using an underscore, such as [|H_2 O|]* for
 [`\mathrm{H_2 O}`].
 END_PGML
-
-ENDDOCUMENT();

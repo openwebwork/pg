@@ -19,12 +19,12 @@
 #:% section = preamble
 #: The PODLINK('PGtikz.pl') macro is used for constructing the graph. The
 #: PODLINK('parserPopUp.pl') macro is used for a drop down menu answer.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGtikz.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserPopUp.pl
+##   - PGtikz.pl
+## ---
 
 $showPartialCorrectAnswers = 0;
 
@@ -79,5 +79,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
