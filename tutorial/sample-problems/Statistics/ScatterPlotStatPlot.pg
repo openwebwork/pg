@@ -20,13 +20,12 @@
 #: Make sure that PODLINK('StatisticalPlots.pl') is loaded.  This is a version
 #: of the problem in PROBLINK('ScatterPlot.pg') that uses the scatter plot feature
 #: in StatisticalPlots.pl.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',       'PGML.pl',
-    'StatisticalPlots.pl', 'PGstatisticsmacros.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - StatisticalPlots.pl
+##   - PGstatisticsmacros.pl
+## ---
 
 #:% section = setup
 #: For this problem, we have a data set stored as an array of array
@@ -94,5 +93,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

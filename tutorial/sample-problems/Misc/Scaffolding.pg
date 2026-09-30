@@ -17,9 +17,11 @@
 
 #:% section = preamble
 #: Load the PODLINK('scaffold.pl') macro to use scaffolding.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'scaffold.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - scaffold.pl
+## ---
 
 #:% section = statement
 #: Call `Scaffold::Begin()` to start scaffolding, and `Scaffold::End()` to end
@@ -61,5 +63,3 @@ Scaffold::End();
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

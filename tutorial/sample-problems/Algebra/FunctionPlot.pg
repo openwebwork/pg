@@ -17,9 +17,11 @@
 #:% categories = [plots]
 
 #:% section = preamble
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - plots.pl
+## ---
 
 #:% section = setup
 #: For this problem, a plot of $y = ax^2$ for a random value of $a$ is
@@ -66,5 +68,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

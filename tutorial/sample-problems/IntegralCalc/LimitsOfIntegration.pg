@@ -20,12 +20,12 @@
 #: The PODLINK('niceTables.pl') macro is used to construct a table containing
 #: the answer rules in the limits of integration.  The PODLINK('answerHints.pl')
 #: macro is used to help guide students toward the correct answer.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'niceTables.pl', 'answerHints.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - niceTables.pl
+##   - answerHints.pl
+## ---
 
 #:% section = setup
 #: The variables `x`, `t`, `dx`, and `dt` are added to the context. Note that
@@ -89,5 +89,3 @@ ANS(Compute('2')->cmp());
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

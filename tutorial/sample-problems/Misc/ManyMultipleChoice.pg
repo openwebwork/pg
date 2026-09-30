@@ -19,12 +19,12 @@
 #: The PODLINK('PGchoicemacros.pl') macro is used to construct the list of
 #: multiple choice items, and the custom problem grader fluid from
 #: PODLINK('PGgraders.pl') is used for incremental grading.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGgraders.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserPopUp.pl
+##   - PGgraders.pl
+## ---
 
 #:% section = setup
 #: Withhold feedback when answers are submitted by setting
@@ -94,5 +94,3 @@ The answers are
    	'[$statements[' . $_ . '][1]]: [$statements[' . $_ . '][0]]'
 } 0 .. $#statements) @]**
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

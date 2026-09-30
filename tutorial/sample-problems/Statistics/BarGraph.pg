@@ -18,13 +18,12 @@
 #: The PODLINK('PGtikz.pl') macro provides the graphing methods we will use
 #: in this problem and PODLINK('contextPercent.pl') will be to provide the
 #: Percent context.
-DOCUMENT();
-
-loadMacros(
-    "PGstandard.pl", "PGML.pl",
-    'PGtikz.pl',     'contextPercent.pl',
-    "PGcourse.pl"
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - PGtikz.pl
+##   - contextPercent.pl
+## ---
 
 #:% section = setup
 #: The 'Percent' context allow students to enter percents.
@@ -99,5 +98,3 @@ BEGIN_PGML_SOLUTION
 The total number of students that took the quiz is [$total] so the percentage is
 the number of A students or [`[$grades[0]]/[$num_students] = [$perA] `]
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
