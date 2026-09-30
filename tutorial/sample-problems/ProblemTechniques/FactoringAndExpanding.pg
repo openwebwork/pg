@@ -20,12 +20,13 @@
 #: The macros PODLINK('contextLimitedPolynomial.pl'),
 #: PODLINK('contextPolynomialFactors.pl'), and
 #: PODLINK('contextLimitedPowers.pl') are needed for this example.
-DOCUMENT();
-loadMacros(
-    'PGstandard.pl',               'PGML.pl',
-    'contextLimitedPolynomial.pl', 'contextPolynomialFactors.pl',
-    'contextLimitedPowers.pl',     'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextLimitedPolynomial.pl
+##   - contextPolynomialFactors.pl
+##   - contextLimitedPowers.pl
+## ---
 
 #:% section = setup
 #: Randomly generate `$a` and `$b`. The quadratic in this problem will be
@@ -100,5 +101,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

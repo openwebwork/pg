@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: Load the macro PODLINK('parserSolutionFor.pl') for the `SolutionFor` method.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserSolutionFor.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserSolutionFor.pl
+## ---
 
 #:% section = setup
 #: `SolutionFor(equation, point)` is used to define the MathObject answer. For
@@ -41,5 +43,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

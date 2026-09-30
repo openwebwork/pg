@@ -18,14 +18,12 @@
 #:% categories = [comments]
 
 #:% section = preamble
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = statement
 #: Call `COMMENT` to add a comment that is visible when the PG file is viewed in
 #: the Library Browser or the PG problem editor. Students do not see these
 #: comments.
 COMMENT('This problem is not randomized.');
-
-ENDDOCUMENT();

@@ -18,12 +18,11 @@
 
 #:% section = preamble
 #: The macro PODLINK('parserImplicitEquation.pl') allows the entry of equations.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',             'PGML.pl',
-    'parserImplicitEquation.pl', 'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserImplicitEquation.pl
+## ---
 
 #:% section = setup
 #: Some error messages are prevented by redefining them to be a blank string ' '
@@ -75,5 +74,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

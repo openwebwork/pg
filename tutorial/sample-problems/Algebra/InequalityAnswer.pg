@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: The PODLINK('contextInequalities.pl') macro must be loaded
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextInequalities.pl
+## ---
 
 #:% section = setup
 #: Require students to use inequalities by using `Context('Inequalities-Only')`.
@@ -50,5 +52,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

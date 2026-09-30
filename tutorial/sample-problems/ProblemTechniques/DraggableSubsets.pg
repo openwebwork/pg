@@ -17,8 +17,11 @@
 
 #:% section = preamble
 #: The `draggableSubsets.pl` macro must be loaded.
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'draggableSubsets.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - draggableSubsets.pl
+## ---
 
 #:% section = setup
 #: The `DraggableSubsets` method creates a drag and drop object that when
@@ -77,5 +80,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
