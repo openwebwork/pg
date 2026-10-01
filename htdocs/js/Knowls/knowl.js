@@ -24,10 +24,6 @@
 			knowl.knowlModal.setAttribute('aria-labelledby', `${knowl.knowlModal.id}-title`);
 			knowl.knowlModal.setAttribute('aria-hidden', 'true');
 
-			// Force the dialog into light mode. This is needed at least until
-			// the knowl css and help files are updated to honor dark mode.
-			knowl.knowlModal.dataset.bsTheme = 'light';
-
 			const knowlDialog = document.createElement('div');
 			knowlDialog.classList.add(
 				'knowl-dialog',

@@ -5,16 +5,31 @@
 	border-radius: 3px;
 	cursor: pointer;
 
+	[data-bs-theme='dark'] & {
+		color: #eef;
+		background-color: #00a;
+		border-color: #88f;
+	}
+
 	&:hover {
 		color: #006;
 		background-color: #ccf;
 		border-color: #33f;
+
+		[data-bs-theme='dark'] & {
+			color: #ccf;
+			background-color: #006;
+		}
 	}
 
 	&:focus-visible {
 		border-color: #33f;
 		box-shadow: 0px 0px 0px 0.2rem #5555ff88;
 		outline: 0;
+
+		[data-bs-theme='dark'] & {
+			box-shadow: 0px 0px 0px 0.2rem #7777ffff;
+		}
 	}
 }
 
@@ -22,14 +37,41 @@ li > .knowl {
 	margin: 0.2rem 0;
 }
 
-.knowl-error {
-	color: darkred;
-}
+.knowl-dialog {
+	.knowl-error {
+		color: darkred;
 
-.knowl-footer {
-	font-size: x-small;
-	background: #eef;
-	color: #555;
+		[data-bs-theme='dark'] & {
+			color: #f99;
+		}
+	}
+
+	.knowl-footer {
+		font-size: x-small;
+		background-color: #eef;
+		color: #555;
+
+		[data-bs-theme='dark'] & {
+			background-color: #110;
+			color: #dbdbdb;
+		}
+	}
+
+	.knowl-code {
+		color: black;
+
+		[data-bs-theme='dark'] & {
+			color: white;
+		}
+	}
+
+	.knowl-alert-danger {
+		color: #b00;
+
+		[data-bs-theme='dark'] & {
+			color: #f99;
+		}
+	}
 }
 
 // MathJax sets the z-index to 200 which is far below a modal dialog at 1055. So raise that above the modal dialog.
