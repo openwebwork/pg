@@ -1,33 +1,33 @@
 <h2 style="text-align: center">Entering Partial Derivatives</h2>
 
-<table style="margin-left: auto; margin-right: auto; margin-bottom: 0.5rem">
+<table class="table table-bordered" style="margin-left: auto; margin-right: auto; margin-bottom: 0.5rem">
 	<tr>
-		<th style="border: 1px solid black; padding: 0.25rem">Partial Derivative</th>
-		<th style="border: 1px solid black; padding: 0.25rem">Enter into WeBWork</th>
+		<th style="padding: 0.25rem">Partial Derivative</th>
+		<th style="padding: 0.25rem">Enter into WeBWork</th>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">\(\frac{\partial u}{\partial x}\)</td>
-		<td style="border: 1px solid black; padding: 0.25rem">ux</td>
+		<td style="padding: 0.25rem">\(\frac{\partial u}{\partial x}\)</td>
+		<td style="padding: 0.25rem">ux</td>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">\(\frac{\partial u}{\partial t}\)</td>
-		<td style="border: 1px solid black; padding: 0.25rem">ut</td>
+		<td style="padding: 0.25rem">\(\frac{\partial u}{\partial t}\)</td>
+		<td style="padding: 0.25rem">ut</td>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">\(\frac{\partial u}{\partial y}\)</td>
-		<td style="border: 1px solid black; padding: 0.25rem">uy</td>
+		<td style="padding: 0.25rem">\(\frac{\partial u}{\partial y}\)</td>
+		<td style="padding: 0.25rem">uy</td>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">\(\frac{\partial^2 u}{\partial x^2}\)</td>
-		<td style="border: 1px solid black; padding: 0.25rem">uxx</td>
+		<td style="padding: 0.25rem">\(\frac{\partial^2 u}{\partial x^2}\)</td>
+		<td style="padding: 0.25rem">uxx</td>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">\(\frac{\partial^2 u}{\partial t^2}\)</td>
-		<td style="border: 1px solid black; padding: 0.25rem">utt</td>
+		<td style="padding: 0.25rem">\(\frac{\partial^2 u}{\partial t^2}\)</td>
+		<td style="padding: 0.25rem">utt</td>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">\(\frac{\partial^2 u}{\partial y^2}\)</td>
-		<td style="border: 1px solid black; padding: 0.25rem">uyy</td>
+		<td style="padding: 0.25rem">\(\frac{\partial^2 u}{\partial y^2}\)</td>
+		<td style="padding: 0.25rem">uyy</td>
 	</tr>
 </table>
 
@@ -38,52 +38,44 @@
 </p>
 
 <h3>Models</h3>
-<table>
+<table class="table table-bordered">
 	<tr>
-		<th style="border: 1px solid black; padding: 0.25rem">Model</th>
-		<th style="border: 1px solid black; padding: 0.25rem">PDE</th>
+		<th style="padding: 0.25rem">Model</th>
+		<th style="padding: 0.25rem">PDE</th>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">heat equation</td>
-		<td style="border: 1px solid black; padding: 0.25rem">
-			\(k \frac{\partial^2 u}{\partial x^2} = \frac{\partial u}{\partial t}\)
-		</td>
+		<td style="padding: 0.25rem">heat equation</td>
+		<td style="padding: 0.25rem">\(k \frac{\partial^2 u}{\partial x^2} = \frac{\partial u}{\partial t}\)</td>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">
+		<td style="padding: 0.25rem">
 			heat equation with lateral heat transfer - \(u_m\) is the temperature of the surrounding medium and will be
 			given, and h is the constant from Newton's $
 		</td>
-		<td style="border: 1px solid black; padding: 0.25rem">
+		<td style="padding: 0.25rem">
 			\(k \frac{\partial^2 u}{\partial x^2}-h (u-u_m) = \frac{\partial u}{\partial t}\)
 		</td>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">wave equation</td>
-		<td style="border: 1px solid black; padding: 0.25rem">
-			\(a^2 \frac{\partial^2 u}{\partial x^2} = \frac{\partial^2 u}{\partial t^2}\)
-		</td>
+		<td style="padding: 0.25rem">wave equation</td>
+		<td style="padding: 0.25rem">\(a^2 \frac{\partial^2 u}{\partial x^2} = \frac{\partial^2 u}{\partial t^2}\)</td>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">wave equation with damping</td>
-		<td style="border: 1px solid black; padding: 0.25rem">
+		<td style="padding: 0.25rem">wave equation with damping</td>
+		<td style="padding: 0.25rem">
 			\(a^2 \frac{\partial^2 u}{\partial x^2} = \frac{\partial^2 u}{\partial t^2}+c \frac{\partial u}{\partial
 			t}\)
 		</td>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">
-			wave equation with an external force (f(x,t) will specified in the problem
-		</td>
-		<td style="border: 1px solid black; padding: 0.25rem">
+		<td style="padding: 0.25rem">wave equation with an external force (f(x,t) will specified in the problem</td>
+		<td style="padding: 0.25rem">
 			\(a^2 \frac{\partial^2 u}{\partial x^2} + f(x,t) = \frac{\partial^2 u}{\partial t^2}\)
 		</td>
 	</tr>
 	<tr>
-		<td style="border: 1px solid black; padding: 0.25rem">Laplace's equation</td>
-		<td style="border: 1px solid black; padding: 0.25rem">
-			\(\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2} = 0\)
-		</td>
+		<td style="padding: 0.25rem">Laplace's equation</td>
+		<td style="padding: 0.25rem">\(\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2} = 0\)</td>
 	</tr>
 </table>
 
