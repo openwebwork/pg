@@ -22,8 +22,11 @@
 #:% section = preamble
 #:  The PODLINK('parserVectorUtils.pl') macro is loaded for the
 #: `non_zero_point3D` and `non_zero_vector3D` methods.
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserVectorUtils.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserVectorUtils.pl
+## ---
 
 #:% section = setup
 #: A random point is generated with the `non_zero_point3D` method, a random
@@ -58,5 +61,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

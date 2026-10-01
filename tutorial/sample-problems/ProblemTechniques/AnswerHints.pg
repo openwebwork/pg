@@ -16,9 +16,11 @@
 #:% categories = [answers, knowls]
 #:% section = preamble
 #: Make sure the `answerHints.pl` macro is loaded.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'answerHints.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - answerHints.pl
+## ---
 
 #:% section = setup
 #: To generate specific, customized answer hints for particular answers, use
@@ -83,5 +85,3 @@ END_PGML
 BEGIN_PGML_HINT
 Substitute [`3u`] wherever you see [`t`] in the formula for [`f(t) = [$f]`].
 END_PGML_HINT
-
-ENDDOCUMENT();

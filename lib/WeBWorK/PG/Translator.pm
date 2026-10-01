@@ -53,8 +53,9 @@ use Carp;
 use Mojo::DOM;
 
 use WWSafe;
-use PGUtil          qw(pretty_print);
-use WeBWorK::PG::IO qw(fileFromPath);
+use PGUtil                qw(pretty_print);
+use WeBWorK::PG::IO       qw(fileFromPath);
+use WeBWorK::PG::Metadata qw(parse_metadata);
 use WeBWorK::PG::SafeIOHandle;
 use WeBWorK::PG::SafeGD;
 
@@ -695,6 +696,12 @@ sub translate {
 	$self->{errors} .= qq{ERROR:  You must define the environment before translating.}
 		unless defined($self->{envir});
 
+	# This must be done before the die handler below is installed so that metadata errors are not
+	# reported with a traceback.  If the metadata is invalid, the problem is not evaluated.
+	my $metadata      = eval { parse_metadata($evalString) };
+	my $metadataError = $@;
+	$self->{errors} .= "ERRORS in the PG metadata:\n$metadataError" if $metadataError;
+
 	# Create a global reference to the __files__ hash in the envir so that
 	# it can be accessed in the $PG_errorMessage method.
 	$main::__files__ = $self->{envir}{__files__};
@@ -716,21 +723,34 @@ sub translate {
 			: die PG_errorMessage('traceback', $_[0]);
 	};
 
+	# Problems that have a metadata block and declare a pgAuthoringVersion have the DOCUMENT and ENDDOCUMENT calls
+	# added, and the macros declared in the metadata are loaded in the DOCUMENT call.  Everything is on the first line
+	# of the evaluated code so that line numbers in error messages are correct for the problem code.
+	my ($documentCall, $endDocumentCall) = ('', '');
+	if ($metadata) {
+		$documentCall =
+			"DOCUMENT(pgAuthoringVersion => $metadata->{pgAuthoringVersion}, macros => ["
+			. join(',', map {"'$_'"} @{ $metadata->{macros} }) . ']);';
+		$endDocumentCall = 'ENDDOCUMENT();';
+	}
+
 	# PG preprocessing code
 	$evalString =
 		'BEGIN { my $eval = __FILE__; $main::envir{__files__}{$eval} = "'
 		. $self->{envir}{probFileName} . '" };'
-		. &{ $self->{preprocess_code} }($evalString);
+		. $documentCall
+		. &{ $self->{preprocess_code} }($evalString)
+		. $endDocumentCall;
 
 	my ($PG_PROBLEM_TEXT_REF, $PG_HEADER_TEXT_REF, $PG_ANSWER_HASH_REF, $PG_FLAGS_REF, $PGcore) =
-		$safe_cmpt->reval($evalString);
+		$metadataError ? () : $safe_cmpt->reval($evalString);
 
 	# This section could use some more error messages.  In particular if a problem doesn't produce the right output,
 	# the user needs information about which problem was at fault.
 
 	# FIXME The various warning message tracks are still being sorted out
 	# WARNING and DEBUG tracks are being handled elsewhere (in Problem.pm?)
-	$self->{errors} .= "ERRORS from evaluating PG file:\n$@\n" if $@;
+	$self->{errors} .= "ERRORS from evaluating PG file:\n$@\n" if !$metadataError && $@;
 
 	my @PROBLEM_TEXT_OUTPUT;
 	push(@PROBLEM_TEXT_OUTPUT, split(/^/, $$PG_PROBLEM_TEXT_REF)) if ref($PG_PROBLEM_TEXT_REF) eq 'SCALAR';
@@ -1020,13 +1040,19 @@ sub rf_std_problem_grader {
 	return \&std_problem_grader;
 }
 
+=head2 std_problem_grader
+
+This is an all-or-nothing grader.  A student must get all parts of the problem
+right before receiving credit.  You should make sure to use this grader on
+multiple choice and true-false questions, otherwise students will be able to
+deduce how many answers are correct by the grade reported by webwork.
+
+    install_problem_grader('std_problem_grader');
+
+=cut
+
 sub std_problem_grader {
-	my ($rh_evaluated_answers, $rh_problem_state, %form_options) = @_;
-
-	my %evaluated_answers = %{$rh_evaluated_answers};
-
-	# By default the old problem state is simply passed back out again.
-	my %problem_state = %$rh_problem_state;
+	my ($answers, $problem_state, %form_options) = @_;
 
 	# Initial setup of the answer.
 	my %problem_result = (
@@ -1036,50 +1062,119 @@ sub std_problem_grader {
 		msg    => '',
 	);
 
-	my $ansCount = keys %evaluated_answers;
+	my $ansCount = keys %$answers;
 	unless ($ansCount > 0) {
-		$problem_result{msg} = 'This problem did not ask any questions.';
-		return (\%problem_result, \%problem_state);
+		$problem_result{msg} = eval('main::maketext("This problem did not ask any questions.")');
+		return (\%problem_result, $problem_state);
 	}
-
-	$problem_result{msg} = 'In order to get credit for this problem all answers must be correct.'
+	$problem_result{msg} =
+		eval('main::maketext("In order to get credit for this problem all answers must be correct.")')
 		if $ansCount > 1;
 
-	return (\%problem_result, \%problem_state)
-		unless defined $form_options{answers_submitted} && $form_options{answers_submitted} == 1;
+	# Return unless answers have been submitted.
+	return (\%problem_result, $problem_state) unless $form_options{answers_submitted} == 1;
 
 	my $allAnswersCorrectQ = 1;
-	for my $ans_name (keys %evaluated_answers) {
-		if (ref $evaluated_answers{$ans_name} eq 'HASH' or ref $evaluated_answers{$ans_name} eq 'AnswerHash') {
-			$allAnswersCorrectQ = 0 unless $evaluated_answers{$ans_name}->{score} == 1;
+	for my $ans_name (keys %$answers) {
+		if (ref $answers->{$ans_name} eq 'HASH' || ref $answers->{$ans_name} eq 'AnswerHash') {
+			$allAnswersCorrectQ = 0 unless $answers->{$ans_name}{score} == 1;
 		} else {
-			warn "Error: Answer $ans_name is not a hash";
-			warn "$evaluated_answers{$ans_name}";
-			warn 'This probably means that the answer evaluator for this answer is not working correctly.';
-			$problem_result{error} = "Error: Answer $ans_name is not a hash: $evaluated_answers{$ans_name}";
+			die "Error: Answer |$ans_name| is not a hash reference\n"
+				. $answers->{$ans_name}
+				. "\nThis probably means that the answer evaluator for this answer is not working correctly.";
 		}
 	}
 
 	# Report the results.
 	$problem_result{score} = $allAnswersCorrectQ;
-	$problem_state{recorded_score} //= 0;
 
-	if ($allAnswersCorrectQ == 1 || $problem_state{recorded_score} == 1) {
-		$problem_state{recorded_score} = 1;
-	} else {
-		$problem_state{recorded_score} = 0;
-	}
+	++$problem_state->{num_of_correct_ans}   if $allAnswersCorrectQ == 1;
+	++$problem_state->{num_of_incorrect_ans} if $allAnswersCorrectQ == 0;
+	$problem_state->{recorded_score} //= 0;
 
-	++$problem_state{num_of_correct_ans}   if $allAnswersCorrectQ == 1;
-	++$problem_state{num_of_incorrect_ans} if $allAnswersCorrectQ == 0;
+	# Increase recorded score if the current score is greater.
+	$problem_state->{recorded_score} = $problem_result{score}
+		if $problem_result{score} > $problem_state->{recorded_score};
 
-	return (\%problem_result, \%problem_state);
+	return (\%problem_result, $problem_state);
 }
 
 sub rf_avg_problem_grader {
 	my $self = shift;
 	return \&avg_problem_grader;
 }
+
+=head2 avg_problem_grader
+
+This grader gives a "weighted" average score to the problem and is the default
+grader.
+
+The grader can be selected by calling
+
+    install_problem_grader('avg_problem_grader');
+
+However, since this is the default grader, that is not necessary to use this
+grader.
+
+Each answer is assigned a weight (the default is 1). The score is then the sum
+of the product of the weights and scores for the correct answers divided by the
+total of the weights for all answers. (To assign weights as percentages, use
+integers that add up to 100. For example, use 40 and 60 for the weights for two
+answers.) Assign weights to answers using the C<cmp> option C<< weight => n >>.
+For example, in PGML create the answer rule with
+
+    [_]{$answer}{10}{ cmp_options => { weight => 40 } }
+
+With the classic C<ANS> method call
+
+    ANS($answer->cmp(weight => 40);
+
+This grader also allows for one "goal" answer that is answered correctly to
+automatically give credit for one or more other "optional" answers. This way, if
+there are several "optional" answers leading up to the "goal" answer, and the
+student produces the "goal" answer by some other means and does not answer the
+"optional" answers, the student can be given full credit for the problem anyway.
+To use this feature use the C<credit> option of the C<cmp> method for the "goal"
+answer. For example, C<< credit => $answer1Name >> or C<< credit => [
+$answer1Name, $answer2Name, ... ] >>, where C<$answer1Name>, C<$answer2Name>,
+etc., are the names of the "optional" answers that will be given credit if the
+"goal" answer is correct. Note that the other answers must be assigned names
+either by calling C<NAMED_ANS_RULE> and C<NAMED_ANS>, or by creating the answer
+rule in PGML with C<[_]{$answer1}{15}{$answer1Name}>, for example. The answer
+names should be generated by calling C<NEW_ANS_NAME> (for example,
+C<$answer1Name = NEW_ANS_NAME()>) rather than being made up.  Otherwise the
+problem will fail to work in many situations (for example, in tests). For
+example, to set this up in PGML use
+
+    BEGIN_PGML
+    Optional Answer 1: [_]{$answer1}{10}{$answer1Name = NEW_ANS_NAME()}
+
+    Optional Answer 2: [_]{$answer2}{10}{$answer2Name = NEW_ANS_NAME()}
+
+    Goal: [_]{$answer3}{10}{ cmp_options => { credit => [ $answer1Name, $answer2Name ] } }
+    END_PGML
+
+Note that the C<credit> and C<weight> options can be used together. For example:
+
+    BEING_PGML
+    Optional Answer: [_]{$optional}{10}{$optionalName = NEW_ANS_NAME()}{{ weight => 20 }}
+
+    Goal: [_]{$goalAnswer}{10}{ cmp_options => { credit => $optionalName, weight => 80 } }
+    END_PGML
+
+This way, if the "optional" answer is correct but the "goal" answer is not, the
+problem score will be 20%, but if the "goal" answer is correct, the problem
+score will be 100%.
+
+One caveat to keep in mind is that credit is given to an "optional" answer ONLY
+if the answer is left blank (or is actually correct). Credit will NOT be given
+if an "optional" answer is incorrect, even if the "goal" answer IS correct.
+
+When credit is given to an "optional" answer due to the "goal" answer being
+correct, a message will be added to the "optional" answer stating, "This answer
+was marked correct because the primary answer is correct."
+
+=cut
 
 sub avg_problem_grader {
 	my ($answers, $problem_state, %form_options) = @_;

@@ -19,12 +19,12 @@
 #:% section = preamble
 #: The PODLINK('parserPopUp.pl') macro is used to create drop down menus, and
 #: the PODLINK('PGtikz.pl') macro is used to produce the graphs.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGtikz.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserPopUp.pl
+##   - PGtikz.pl
+## ---
 
 #:% section = setup
 #: First generate a random constant for the function and the interval endpoints.
@@ -207,6 +207,3 @@ b. The right endpoint Riemann sum is
     = ([$y[1]] + [$y[2]] + \cdots + [$y[ $n ]]) \cdot 0.5  = [$sumRight].
 ```]
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
-

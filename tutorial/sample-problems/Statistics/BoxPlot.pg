@@ -18,13 +18,12 @@
 #: Use the PODLINK('StatisticalPlots.pl') macro, which provides some convenience methods
 #: for creating Statistical plots. This also uses the
 #: PODLINK('PGstatisticsmacros.pl') for access to random normally-distributed numbers.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',       'PGML.pl',
-    'StatisticalPlots.pl', 'PGstatisticsmacros.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - StatisticalPlots.pl
+##   - PGstatisticsmacros.pl
+## ---
 
 #:% section = setup
 #:
@@ -128,5 +127,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Add solution here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

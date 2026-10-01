@@ -20,12 +20,11 @@
 #: For this problem a differential equation is the answer, the variables in
 #: that equation will include `y'` and `y''`, and the resulting equation will be
 #: implicit. So the macro PODLINK('parserImplicitEquation.pl') is used.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',             'PGML.pl',
-    'parserImplicitEquation.pl', 'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserImplicitEquation.pl
+## ---
 
 #:% section = setup
 #: Switch to the `ImplicitEquation` context and then include the variables `y`,
@@ -60,5 +59,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

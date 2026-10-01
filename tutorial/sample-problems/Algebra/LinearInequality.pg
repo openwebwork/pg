@@ -19,10 +19,11 @@
 #:% section = preamble
 #: The macro file PODLINK('parserLinearRelation.pl') must be loaded to be able
 #: to use the LinearRelation object.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserLinearRelation.pl',
-    'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserLinearRelation.pl
+## ---
 
 #:% section = setup
 Context("LinearRelation");
@@ -49,5 +50,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 [`[$lr]`]
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

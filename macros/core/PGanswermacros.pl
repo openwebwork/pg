@@ -1417,7 +1417,7 @@ sub check_units {
 
 =head3 C<std_problem_grader>
 
-This is an all-or-nothing grader.  A student must get all parts of the problem write
+This is an all-or-nothing grader.  A student must get all parts of the problem right
 before receiving credit.  You should make sure to use this grader on multiple choice
 and true-false questions, otherwise students will be able to deduce how many
 answers are correct by the grade reported by webwork.
@@ -1427,14 +1427,9 @@ answers are correct by the grade reported by webwork.
 =cut
 
 sub std_problem_grader {
-	my ($rh_evaluated_answers, $rh_problem_state, %form_options) = @_;
+	my ($answers, $problem_state, %form_options) = @_;
 
-	my %evaluated_answers = %{$rh_evaluated_answers};
-
-	# By default the old problem state is simply passed back out again.
-	my %problem_state = %$rh_problem_state;
-
-	# Initial setup of the answer
+	# Initial setup of the answer.
 	my %problem_result = (
 		score  => 0,
 		errors => '',
@@ -1442,47 +1437,45 @@ sub std_problem_grader {
 		msg    => '',
 	);
 
-	my $ansCount = keys %evaluated_answers;
-
+	my $ansCount = keys %$answers;
 	unless ($ansCount > 0) {
-		$problem_result{msg} = 'This problem did not ask any questions.';
-		return (\%problem_result, \%problem_state);
+		$problem_result{msg} = maketext('This problem did not ask any questions.');
+		return (\%problem_result, $problem_state);
 	}
+	$problem_result{msg} = maketext('In order to get credit for this problem all answers must be correct.')
+		if $ansCount > 1;
 
-	$problem_result{msg} = 'In order to get credit for this problem all answers must be correct.' if ($ansCount > 1);
-
-	return (\%problem_result, \%problem_state) unless $form_options{answers_submitted} == 1;
+	# Return unless answers have been submitted.
+	return (\%problem_result, $problem_state) unless $form_options{answers_submitted} == 1;
 
 	my $allAnswersCorrectQ = 1;
-	for my $ans_name (keys %evaluated_answers) {
-		if (ref $evaluated_answers{$ans_name} eq 'HASH' || ref $evaluated_answers{$ans_name} eq 'AnswerHash') {
-			$allAnswersCorrectQ = 0 unless $evaluated_answers{$ans_name}{score} == 1;
+	for my $ans_name (keys %$answers) {
+		if (ref $answers->{$ans_name} eq 'HASH' || ref $answers->{$ans_name} eq 'AnswerHash') {
+			$allAnswersCorrectQ = 0 unless $answers->{$ans_name}{score} == 1;
 		} else {
-			die 'Error at file ', __FILE__, 'line ', __LINE__,
-				": Answer |$ans_name| is not a hash reference\n"
-				. $evaluated_answers{$ans_name}
-				. 'This probably means that the answer evaluator for this answer is not working correctly.';
-			$problem_result{error} = "Error: Answer $ans_name is not a hash: $evaluated_answers{$ans_name}";
+			die "Error: Answer |$ans_name| is not a hash reference\n"
+				. $answers->{$ans_name}
+				. "\nThis probably means that the answer evaluator for this answer is not working correctly.";
 		}
 	}
 
-	# Report the results
+	# Report the results.
 	$problem_result{score} = $allAnswersCorrectQ;
 
-	++$problem_state{num_of_correct_ans}   if $allAnswersCorrectQ == 1;
-	++$problem_state{num_of_incorrect_ans} if $allAnswersCorrectQ == 0;
-	$problem_state{recorded_score} //= 0;
+	++$problem_state->{num_of_correct_ans}   if $allAnswersCorrectQ == 1;
+	++$problem_state->{num_of_incorrect_ans} if $allAnswersCorrectQ == 0;
+	$problem_state->{recorded_score} //= 0;
 
 	# Increase recorded score if the current score is greater.
-	$problem_state{recorded_score} = $problem_result{score}
-		if $problem_result{score} > $problem_state{recorded_score};
+	$problem_state->{recorded_score} = $problem_result{score}
+		if $problem_result{score} > $problem_state->{recorded_score};
 
-	(\%problem_result, \%problem_state);
+	return (\%problem_result, $problem_state);
 }
 
 =head3 C<std_problem_grader2>
 
-This is an all-or-nothing grader.  A student must get all parts of the problem write
+This is an all-or-nothing grader.  A student must get all parts of the problem right
 before receiving credit.  You should make sure to use this grader on multiple choice
 and true-false questions, otherwise students will be able to deduce how many
 answers are correct by the grade reported by webwork.

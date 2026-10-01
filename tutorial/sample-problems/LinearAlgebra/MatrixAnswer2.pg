@@ -18,9 +18,9 @@
 #:% categories = [matrix, answers]
 
 #:% section = preamble
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: Switch to the `Matrix` context by calling `Context('Matrix')`.
@@ -86,5 +86,3 @@ each matrix entry into its own answer blank.
 Enter the matrix [``[$example4]``] with one matrix entry per answer box.
 [______]*{$example4}{4}
 END_PGML
-
-ENDDOCUMENT();

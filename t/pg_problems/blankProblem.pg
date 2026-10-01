@@ -1,6 +1,8 @@
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'MathObjects.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - MathObjects.pl
+## ---
 
 $pi = Real('pi');
 
@@ -9,5 +11,3 @@ Enter a value for [`\pi`].
 
 [_____]{$pi}
 END_PGML
-
-ENDDOCUMENT();
