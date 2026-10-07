@@ -19,9 +19,11 @@
 #: This example shows how to get student input in the form of a graph (a circle)
 #: by using interactive graphing tools. Load the PODLINK('parserGraphTool.pl')
 #: macro for this.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserGraphTool.pl
+## ---
 
 #:% section = setup
 #: The variables `$h`, `$k` and `$r` randomly pick a center and radius of the
@@ -100,5 +102,3 @@ or down from the center.
 The solution is
 [! the graph of a circle centered at ([$h], [$k]) of radius [$r] !]{$gt}
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

@@ -22,9 +22,11 @@
 #: loaded via the `PGML.pl` macro, and is used to construct a table that will
 #: make the answer rules for the limits of integration appear at the top and
 #: bottom of the integral symbol.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'answerHints.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - answerHints.pl
+## ---
 
 #:% section = setup
 #: First, the variables `x`, `dx`, `y`, and `dy` are added to the context.
@@ -120,5 +122,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

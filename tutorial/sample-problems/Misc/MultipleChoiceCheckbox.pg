@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: The PODLINK('parserCheckboxList.pl') is used for check box answers.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserCheckboxList.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserCheckboxList.pl
+## ---
 
 #:% section = setup
 #: First, call `CheckboxList` to create a check box list answer object. The
@@ -100,5 +102,3 @@ The correct answer to the second is [$checks2->correct_ans].
 
 The correct answer to the third is [$checks3->correct_ans].
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

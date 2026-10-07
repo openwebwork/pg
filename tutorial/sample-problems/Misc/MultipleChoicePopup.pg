@@ -19,9 +19,11 @@
 
 #:% section = preamble
 #: The macro PODLINK('parserPopUp.pl') is used for pop up (or drop down) menus.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserPopUp.pl
+## ---
 
 #:% section = setup
 #: Call `PopUp` or `DropDown` to create a pop up answer object. The format is
@@ -68,5 +70,3 @@ BEGIN_PGML_SOLUTION
 * The second correct answer is [$dropdown1->correct_ans].
 * The third correct answer is [$dropdown2->correct_ans].
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
