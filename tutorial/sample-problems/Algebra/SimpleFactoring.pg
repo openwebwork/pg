@@ -19,9 +19,9 @@
 #:% see_also = [FactoredPolynomial.pg, ExpandedPolynomial.pg, FactoringAndExpanding.pg]
 
 #:% section = preamble
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 #:% section = setup
 #: First, create two random roots and then create the factors. Note that calling
 #: `->reduce` will simplify `x-(-3)` to `x+3`. In addition, create the expanded
@@ -72,5 +72,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

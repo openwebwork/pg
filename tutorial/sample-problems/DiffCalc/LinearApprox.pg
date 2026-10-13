@@ -21,13 +21,12 @@
 #: as an equation of the form `y = ...`. Load PODLINK('answerHints.pl') to
 #: provide customized answer hints, particularly for students who enter the
 #: slope of the line instead of the equation of the line.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',  'PGML.pl',
-    'answerHints.pl', 'parserAssignment.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - answerHints.pl
+##   - parserAssignment.pl
+## ---
 
 #:% section = setup
 #: Allow assignments in the context by calling `parser::Assignment->Allow`.
@@ -66,6 +65,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
-

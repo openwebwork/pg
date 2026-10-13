@@ -18,14 +18,17 @@
 #:% section = preamble
 #: The PODLINK('PGchoicemacros.pl') macro is used to construct the list of
 #: multiple choice items, and the custom problem grader fluid from
-#: PODLINK('PGgraders.pl') is used for incremental grading.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',     'PGML.pl',
-    'PGchoicemacros.pl', 'PGgraders.pl',
-    'unionTables.pl',    'PGcourse.pl'
-);
+#: PODLINK('PGgraders.pl') is used for incremental grading. The
+#: PODLINK('PGanswermacros.pl') macro is needed for the `str_cmp` answer
+#: checker.
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - PGanswermacros.pl
+##   - PGchoicemacros.pl
+##   - PGgraders.pl
+##   - unionTables.pl
+## ---
 
 #:% section = setup
 #: Withhold feedback when answers are submitted by setting
@@ -62,7 +65,7 @@ $ENV{grader_message} =
     . '60% partial credit for 4 - 5 correct answers.';
 
 # All or nothing grader
-# install_problem_grader(~~&std_problem_grader);
+#install_problem_grader('std_problem_grader');
 
 # Create a matching list and use pop ups
 $ml = new_match_list();
@@ -120,5 +123,3 @@ ANS(str_cmp($ml->ra_correct_ans));
 BEGIN_PGML_SOLUTION
 The correct answers are [@ join(', ', @{ $ml->ra_correct_ans() }) @].
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

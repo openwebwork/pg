@@ -20,10 +20,12 @@
 #: Load the PODLINK('parserMultiAnswer.pl') macro to be able to consider two
 #: answer rules together (the numerator and denominator) in the answer checker.
 #: Note that the PODLINK('niceTables.pl') macro is implicitly used, and is
-#: automatically loaded by the `PGML.pl` macro.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+#: automatically loaded by the `PGML.pl` macro which is always loaded.
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserMultiAnswer.pl
+## ---
 
 #:% section = setup
 #: Define MathObject formulas `$num` and `$den` which are the correct numerator
@@ -130,5 +132,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

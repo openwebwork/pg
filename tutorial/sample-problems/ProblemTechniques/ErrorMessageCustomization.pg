@@ -17,8 +17,9 @@
 #:% categories = [custom error]
 
 #:% section = preamble
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: To change an error message the string in the `Context()->{error}{msg}` hash
@@ -40,5 +41,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

@@ -19,12 +19,11 @@
 #:% section = preamble
 #: This problems shows the capabilities of the
 #: PODLINK('contextLimitedComplex.pl') macro, so it must be loaded.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',            'PGML.pl',
-    'contextLimitedComplex.pl', 'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextLimitedComplex.pl
+## ---
 
 #:% section = setup
 #: Often when students are asked to perform operations with complex numbers,
@@ -81,5 +80,3 @@ The first answer in Cartesian form is [`[$ans1]`].
 The second answer in polar form is
 [`[@ Round($abs0 * $abs1, 4) @] e^{[@ Round($arg0 + $arg1, 4) @]i}`].
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

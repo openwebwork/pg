@@ -18,12 +18,12 @@
 #: The PODLINK('parserPopUp.pl') macro is used to create drop down menus for
 #: answers, and the custom problem grader fluid from PODLINK('PGgraders.pl') is
 #: used for incremental grading.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'parserPopUp.pl', 'PGgraders.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserPopUp.pl
+##   - PGgraders.pl
+## ---
 
 #:% section = setup
 #: Withhold feedback when answers are submitted by setting
@@ -61,7 +61,7 @@ $ENV{grader_message} =
     . '60% partial credit for 4 - 5 correct answers.';
 
 # All or nothing grader
-# install_problem_grader(~~&std_problem_grader);
+#install_problem_grader('std_problem_grader');
 
 # Create a list of questions and answers.
 @q_and_a = (
@@ -155,5 +155,3 @@ BEGIN_PGML_SOLUTION
 The correct answers are
 [@ join(', ', map { $ALPHABET[($inversion[($_)])] } 0 .. $#q_and_a) @]*.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
