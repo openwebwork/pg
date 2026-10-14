@@ -1,0 +1,35 @@
+.match-list-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2rem;
+	align-items: center;
+	justify-content: space-evenly;
+
+	.match-list-questions,
+	.match-list-choices {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.match-list-question,
+	.match-list-choice {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	&.match-list-align-top,
+	.match-list-align-top {
+		align-items: flex-start;
+	}
+
+	&.match-list-align-middle,
+	.match-list-align-middle {
+		align-items: center;
+	}
+
+	&.match-list-align-bottom,
+	.match-list-align-bottom {
+		align-items: flex-end;
+	}
+}
