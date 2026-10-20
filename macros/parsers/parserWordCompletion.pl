@@ -86,7 +86,7 @@ sub menu {
 				name           => $name,
 				id             => $name,
 				list           => "$name-list",
-				aria_label     => $options{aria_label} // main::generate_aria_label($name),
+				aria_label     => main::generate_aria_label($name, $options{aria_label}),
 				dir            => 'auto',
 				autocomplete   => 'off',
 				autocapitalize => 'off',
