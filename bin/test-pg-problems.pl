@@ -22,12 +22,10 @@ test-pg-problems.pl [options] file(s)
     -l|--library-root.     The root of the library for which the problems are defined. 
                            If not defined, this will be set to the standard location of the 
                            webwork-open-problem-library.
-    -c|--pg-critic         Run the pg-critic on the file(s).  (Default: false) 
     -n|--num-seeds         If the specific seeds are not given, this is the number of seeds to 
                            randomly select for testing.  (Default: 5)
     -s|--seed              Set the seed to be run.  If separated by commas, this will run
                            the test for each given seed. This will override the -n flag.
-    -m|--metadata          Check the subject/chapter/section categories. 
 
 =head1 DESCRIPTION
 
@@ -94,12 +92,10 @@ GetOptions(
 	'r|recursive'     => \my $recursive,
 	'f|format=s'      => \my $format,
 	'o|output-file=s' => \my $output_file,
-	'c|pg-critic'     => \my $pg_critic,
 	'l|library-root'  => \my $library_root,
 	'p|pg-root'       => \$pg_root,
 	's|seed=s'        => \my $seeds,
 	'n|num-seeds=i'   => \my $num_seeds,
-	'm|metadata'      => \my $metadata,
 	'v|verbose'       => \my $verbose,
 	'h|help'          => \my $show_help
 );
@@ -156,28 +152,7 @@ for my $filename (@pg_problems) {
 
 	my $test_result = { path => "$filename" };
 
-	# PG Critic results:
-	if ($pg_critic) {
-		my @violations           = critiquePGFile($filename, 0);
-		my @pgCriticViolations   = grep { $_->policy =~ /^Perl::Critic::Policy::PG::/ } @violations;
-		my @perlCriticViolations = grep { $_->policy !~ /^Perl::Critic::Policy::PG::/ } @violations;
-		$test_result->{pg_critic_violations} =
-			[ map { { description => $_->description, explanation => $_->explanation, policy => $_->policy } }
-				@pgCriticViolations ]
-			if @pgCriticViolations;
-		$test_result->{perl_critic_violations} =
-			[ map { { description => $_->description, explanation => $_->explanation, policy => $_->policy } }
-				@perlCriticViolations ]
-			if @perlCriticViolations;
-	}
-
-	# Check if the subject/chapter/section metadata exists in the taxonomy.
-	if ($metadata) {
-		my $errors = $pg_problem->checkDBmetadata;
-		$test_result->{metadata_errors} = $errors if (values %$errors);
-	}
-
-	my @test_runs;
+	my @test_runs = ();
 	# If testing is placed in the file, then test against each entry:
 	if ($pg_problem->{metadata}{testing}) {
 		say "Using testing data defined within the problem." if $verbose;
