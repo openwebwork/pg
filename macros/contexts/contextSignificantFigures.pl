@@ -548,6 +548,11 @@ sub checkSigFigs {
 }
 
 # Some common function for the Parser object overrides
+#
+# These methods must be called with their fully qualified names (e.g., $self->context::SignificantFigures::common::COPY)
+# instead of as $self->COPY.  When another context extends this one via contextExtensions.pl, the methods of the classes
+# below are called with $self blessed into the extension context's classes, and those classes do not inherit from this
+# package.
 
 package context::SignificantFigures::common;
 
@@ -571,7 +576,7 @@ sub checkLimitedUOP {
 sub checkExponentialForm {
 	my $self = shift;
 	my ($l, $r) = ($self->{lop}, $self->{rop});
-	if ($r->{tenPower} && !$r->{hadParens} && $self->isPure($l)) {
+	if ($r->{tenPower} && !$r->{hadParens} && $self->context::SignificantFigures::common::isPure($l)) {
 		$r                   = $r->{lop} if $r->class eq 'BOP';
 		$r->{value}{sigfigs} = 'inf';
 		$self->{expForm}     = 1;
@@ -630,7 +635,7 @@ sub new {
 	$self = bless $self->SUPER::new($equation, $x, $ref), $class;
 	$self->{value} = Value::isValue($x)
 		&& $x->{sigfigs} ? $x->copy->inContext($context) : $self->Package('Real')->new($context, $self->{value_string});
-	return $self->COPY($self->{value}, $self);
+	return $self->context::SignificantFigures::common::COPY($self->{value}, $self);
 }
 
 sub class {'Number'}
@@ -639,7 +644,7 @@ sub value { shift->{value}->value }
 
 sub eval {
 	my $self = shift;
-	return $self->COPY($self, $self->SUPER::eval(@_));
+	return $self->context::SignificantFigures::common::COPY($self, $self->SUPER::eval(@_));
 }
 
 sub perl {
@@ -693,13 +698,14 @@ sub _check {
 	my $self = shift;
 	$self->SUPER::_check(@_);
 	my $op = $self->{op};
-	$self->{pure} = 1 if $op->class eq 'Number' && $self->isPure($op) && !$op->{hadPlus};
-	$self->checkLimitedUOP('-');
+	$self->{pure} = 1
+		if $op->class eq 'Number' && $self->context::SignificantFigures::common::isPure($op) && !$op->{hadPlus};
+	$self->context::SignificantFigures::common::checkLimitedUOP('-');
 }
 
 sub _eval {
 	my $self = shift;
-	return $self->COPY($self, $self->SUPER::_eval(@_));
+	return $self->context::SignificantFigures::common::COPY($self, $self->SUPER::_eval(@_));
 }
 
 # Override the Parser::UOP::plus to allow it to be used on a constant, but
@@ -712,14 +718,15 @@ sub _check {
 	my $self = shift;
 	$self->SUPER::_check(@_);
 	my $op = $self->{op};
-	$self->{pure}    = 1 if $op->class eq 'Number' && $self->isPure($op) && !$op->{hadPlus};
+	$self->{pure} = 1
+		if $op->class eq 'Number' && $self->context::SignificantFigures::common::isPure($op) && !$op->{hadPlus};
 	$self->{hadPlus} = 1;
-	$self->checkLimitedUOP('+');
+	$self->context::SignificantFigures::common::checkLimitedUOP('+');
 }
 
 sub _eval {
 	my $self = shift;
-	return $self->COPY($self, $self->SUPER::_eval(@_)->with(hadPlus => 1));
+	return $self->context::SignificantFigures::common::COPY($self, $self->SUPER::_eval(@_)->with(hadPlus => 1));
 }
 
 # Override Parser::BOP::multiply to handle the formation of an exponential form
@@ -735,17 +742,17 @@ sub _check {
 
 sub _eval {
 	my $self = shift;
-	return $self->COPY($self, $self->SUPER::_eval(@_));
+	return $self->context::SignificantFigures::common::COPY($self, $self->SUPER::_eval(@_));
 }
 
 sub string {
 	my $self = shift;
-	return $self->STRING(sub { $self->SUPER::string }, @_);
+	return $self->context::SignificantFigures::common::STRING(sub { $self->SUPER::string }, @_);
 }
 
 sub TeX {
 	my $self = shift;
-	return $self->TEX(sub { $self->SUPER::TeX }, @_);
+	return $self->context::SignificantFigures::common::TEX(sub { $self->SUPER::TeX }, @_);
 }
 
 # Override implicit multiplication to form exponential form when we have
@@ -761,7 +768,7 @@ sub _check {
 	my ($l, $r) = ($self->{lop}, $self->{rop});
 	return unless $r->{tenPower} && !$r->{hadParens} && $l->class eq 'BOP' && $l->{bop} eq '  ';
 	my ($L, $R) = ($l->{lop}, $l->{rop});
-	if ($R->class eq 'Variable' && $R->{name} eq 'x' && $self->isPure($L)) {
+	if ($R->class eq 'Variable' && $R->{name} eq 'x' && $self->context::SignificantFigures::common::isPure($L)) {
 		#
 		# Mark the 10 as infinite precision and remove the 'x' and its multiplication,
 		# leaving only the number and the power of ten being multiplied.
@@ -786,17 +793,17 @@ sub _check {
 
 sub eval {
 	my $self = shift;
-	return $self->COPY($self, $self->SUPER::eval(@_));
+	return $self->context::SignificantFigures::common::COPY($self, $self->SUPER::eval(@_));
 }
 
 sub string {
 	my $self = shift;
-	return $self->STRING(sub { $self->SUPER::string }, @_);
+	return $self->context::SignificantFigures::common::STRING(sub { $self->SUPER::string }, @_);
 }
 
 sub TeX {
 	my $self = shift;
-	return $self->TEX(sub { $self->SUPER::TeX }, @_);
+	return $self->context::SignificantFigures::common::TEX(sub { $self->SUPER::TeX }, @_);
 }
 
 # Override Parser::BOP::power to mark occurrences of ten-to-a-power so we can
@@ -810,9 +817,10 @@ sub _check {
 	$self->SUPER::_check(@_);
 	my ($l, $r) = ($self->{lop}, $self->{rop});
 	delete $r->{hadParens} if $self->isPureParen($r);
-	if ($l->class eq 'Number' && $self->isPure($r)) {
+	if ($l->class eq 'Number' && $self->context::SignificantFigures::common::isPure($r)) {
 		my ($L, $R) = ($l->value, $r->eval->value);
-		$self->{tenPower} = 1 if $L == 10 && $self->isPure($l) && CORE::int($R) == $R;
+		$self->{tenPower} = 1
+			if $L == 10 && $self->context::SignificantFigures::common::isPure($l) && CORE::int($R) == $R;
 	}
 	$self->checkLimited();
 }
