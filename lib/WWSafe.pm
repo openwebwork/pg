@@ -6,6 +6,13 @@ use Scalar::Util qw(reftype refaddr blessed);
 
 $Safe::VERSION = "2.47";
 
+# This is based on upstream Safe 2.47, but deliberately omits that version's _clean_stash method.  That method deletes
+# the DESTROY, AUTOLOAD, and overload methods defined by compartment code after execution, to keep that code from
+# running outside the compartment (for example at object destruction).  It is omitted because it breaks macros that
+# legitimately define such methods.  Problems rendered in a Mojo::IOLoop::Subprocess (as is done by webwork2 or the
+# renderer) have the child process terminated by POSIX::_exit, which skips Perl's global destruction entirely. Care
+# should be taken in any other context where that is not done to ensure that untrusted problem code is not executed.
+
 # *** Don't declare any lexicals above this point ***
 #
 # This function should return a closure which contains an eval that can't
@@ -33,19 +40,6 @@ BEGIN {
 	eval q{
     use Carp::Heavy;
 };
-}
-
-use B ();
-
-BEGIN {
-	no strict 'refs';
-	if (defined &B::sub_generation) {
-		*sub_generation = \&B::sub_generation;
-	} else {
-		# fake sub generation changing for perls < 5.8.9
-		my $sg;
-		*sub_generation = sub { ++$sg };
-	}
 }
 
 use Opcode 1.01, qw(
@@ -393,30 +387,6 @@ sub varglob {
 	return *{ $obj->root() . "::$var" };
 }
 
-sub _clean_stash {
-	my ($root, $saved_refs, $orig_root) = @_;
-	$saved_refs ||= [];
-	$orig_root = $root unless defined $orig_root;
-	no strict 'refs';
-
-	# share_from can alias a whole external package's stash into the compartment. Stripping its
-	# DESTROY/AUTOLOAD/overload hooks here would corrupt the shared package. So leave stashes like this alone.
-	if ($root ne $orig_root) {
-		(my $local_name = $root) =~ s/^\Q$orig_root\E//;
-		return if \%{$root} eq \%{$local_name};
-	}
-
-	foreach my $hook (qw(DESTROY AUTOLOAD), grep /^\(/, keys %$root) {
-		push @$saved_refs, \*{ $root . $hook };
-		delete ${$root}{$hook};
-	}
-
-	for (grep /::$/, keys %$root) {
-		next if \%{ $root . $_ } eq \%$root;
-		_clean_stash($root . $_, $saved_refs, $orig_root);
-	}
-}
-
 # Tracks, per compartment root, whether a reval/rdo/wrap_code_ref call for that root is currently executing further
 # down the call stack. See the comment in reval() for why this matters.
 my %IN_PROGRESS;
@@ -429,7 +399,6 @@ sub reval {
 
 	my $evalsub = lexless_anon_sub($root, $strict, $expr);
 	# propagate context
-	my $sg = sub_generation();
 	my @subret;
 	if ($IN_PROGRESS{$root}) {
 		# This is already executing inside this safe compartment (this reval was called, directly or indirectly, from
@@ -448,7 +417,6 @@ sub reval {
 			Opcode::_safe_call_sv($root, $obj->{Mask}, $evalsub);
 		}
 	}
-	_clean_stash($root . '::') if $sg != sub_generation();
 	$obj->wrap_code_refs_within(@subret);
 	return (wantarray) ? @subret : $subret[0];
 }
@@ -510,13 +478,11 @@ sub wrap_code_ref {
 		do {
 			local $@;    # needed due to perl_call_sv(sv, G_EVAL|G_KEEPERR)
 			local $IN_PROGRESS{$root} = 1;
-			my $sg = sub_generation();
 			@subret =
 				(wantarray)
 				? Opcode::_safe_call_sv($root, $obj->{Mask}, $sub_with_args)
 				: scalar Opcode::_safe_call_sv($root, $obj->{Mask}, $sub_with_args);
 			$error = $@;
-			_clean_stash($root . '::') if $sg != sub_generation();
 		};
 		if ($error) {    # rethrow exception
 			$error =~ s/\t\(in cleanup\) //;    # prefix added by G_KEEPERR
@@ -539,7 +505,6 @@ sub rdo {
 
 	my $root = $obj->{Root};
 
-	my $sg      = sub_generation();
 	my $evalsub = eval sprintf('package %s; sub { @_ = (); do $file }', $root);
 	my @subret;
 	if ($IN_PROGRESS{$root}) {    # see the comment in reval()
@@ -551,7 +516,6 @@ sub rdo {
 			? Opcode::_safe_call_sv($root, $obj->{Mask}, $evalsub)
 			: scalar Opcode::_safe_call_sv($root, $obj->{Mask}, $evalsub);
 	}
-	_clean_stash($root . '::') if $sg != sub_generation();
 	$obj->wrap_code_refs_within(@subret);
 	return (wantarray) ? @subret : $subret[0];
 }
