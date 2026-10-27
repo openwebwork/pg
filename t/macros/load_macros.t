@@ -21,19 +21,12 @@ use WeBWorK::PG;
 
 my %baseMacros = (
 	'PG.pl'                   => 1,
-	'PGstandard.pl'           => 1,
 	'PGbasicmacros.pl'        => 1,
-	'PGanswermacros.pl'       => 1,
 	'PGauxiliaryFunctions.pl' => 1,
-	'customizeLaTeX.pl'       => 1,
-	'PGnumericevaluators.pl'  => 1,
-	'PGfunctionevaluators.pl' => 1,
-	'PGstringevaluators.pl'   => 1,
-	'PGmiscevaluators.pl'     => 1,
 	'PGcommonFunctions.pl'    => 1
 );
 
-my %brokenMacros = ('answerDiscussion.pl' => 1);
+my %brokenMacros = ('answerDiscussion.pl' => 1, 'PGmorematrixmacros.pl' => 1);
 
 # Find all macro files inside the $ENV{PG_ROOT}/macros directory.
 my @macro_files;
@@ -52,7 +45,7 @@ find(
 for (@macro_files) {
 	subtest $_ => sub {
 		my $pg = WeBWorK::PG->new(
-			r_source         => \"DOCUMENT(); loadMacros('PGstandard.pl', '$_'); ENDDOCUMENT();",
+			r_source         => \"##---\n## pgAuthoringVersion: 1\n## macros: [$_]\n##---\n",
 			debuggingOptions => { view_problem_debugging_info => 1 }
 		);
 

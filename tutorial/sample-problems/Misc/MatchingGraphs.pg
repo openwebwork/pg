@@ -21,12 +21,12 @@
 #: loaded. Matching is done with pop ups, so PODLINK('parserPopUp.pl') is
 #: loaded. Finally, a `LayoutTable` is used from PODLINK('niceTables.pl') which
 #: is loaded by the `PGML.pl` macro.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'parserPopUp.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - PGtikz.pl
+##   - parserPopUp.pl
+## ---
 
 #:% section = setup
 #: The array `@all_plots` contains the display form `f` of the function,
@@ -164,5 +164,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

@@ -20,9 +20,11 @@
 #:% section = preamble
 #: A new named function will be defined and added to the context. This can be
 #: done using PODLINK('parserFunction.pl').
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserFunction.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserFunction.pl
+## ---
 
 #:% section = setup
 #: Define a new named function `f` as something the student is unlikely to
@@ -53,5 +55,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

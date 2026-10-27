@@ -20,9 +20,11 @@
 #: This example shows how to get student input in the form of points
 #: by using interactive graphing tools. Load the PODLINK('parserGraphTool.pl')
 #: macro for this.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserGraphTool.pl
+## ---
 
 #:% section = setup
 #: Two points are created at random.
@@ -70,5 +72,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

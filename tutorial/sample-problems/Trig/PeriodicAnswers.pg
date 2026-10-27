@@ -17,9 +17,9 @@
 #:% categories = [answers, trigonometry]
 
 #:% section = preamble
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: This allows any answer of the form `pi / 2 + n pi` where `n` is a particular
@@ -44,5 +44,3 @@ END_PGML_HINT
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
