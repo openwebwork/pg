@@ -56,7 +56,7 @@ sub new_helper ($invocant, %options) {
 
 	my $translator = WeBWorK::PG::Translator->new;
 
-	# Modules have already been loaded at compile time for the standalone renderer.
+	# Modules have already been loaded at compile time if rendering in a Mojolicious app.
 	if (!exists $ENV{MOJO_MODE}) {
 		for (@{ $pg_envir->{modules} }) {
 			my ($module, @extra_packages) = @$_;
@@ -73,7 +73,7 @@ sub new_helper ($invocant, %options) {
 
 	$translator->initialize;
 
-	# PG.pl has already been loaded at compile time for the standalone renderer.
+	# PG.pl has already been loaded at compile time if rendering in a Mojolicious app.
 	if (!exists $ENV{MOJO_MODE}) {
 		my $err = $translator->unrestricted_load($pg_envir->{directories}{root} . '/macros/PG.pl');
 		warn "Error while loading macros/PG.pl: $err" if $err;

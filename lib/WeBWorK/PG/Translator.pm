@@ -59,13 +59,13 @@ use WeBWorK::PG::SafeIOHandle;
 use WeBWorK::PG::SafeGD;
 
 BEGIN {
-	# Setup the safe compartment for the standalone renderer.
+	# Setup the safe compartment for rendering in a Mojolicious app.
 	if (exists $ENV{MOJO_MODE}) {
 		my $pg_envir = WeBWorK::PG::Environment->new;
 
-		# Each instance of the translator is run in a new process in the standalone renderer.  So the safe compartment
-		# can be cached and reused for each instance without the possibility of memory leaks from one instance to the
-		# next.
+		# Each instance of the translator is run in a new process for rendering in a Mojolicious app.  So the safe
+		# compartment can be cached and reused for each instance without the possibility of memory leaks from one
+		# instance to the next.
 		my $safeCache = WWSafe->new;
 
 		# Load the modules into the safe cache. This saves approximately 200ms per render.
@@ -125,6 +125,10 @@ BEGIN {
 		}
 		$errors .= "\nUnknown error.  Unable to load $filePath\n" if ($errors eq '' and not $macro_file_loaded);
 		die "Translator.pm [BEGIN errors]: $errors\n"             if $errors;
+
+		# Record the hooks of shared packages now that the compartment is set up, so that the safe compartment
+		# can strip or restore hooks that problem code adds to or overwrites in those packages.
+		$safeCache->snapshot_hooks;
 
 		# Stash the safe cache in a package variable.
 		$WeBWorK::Translator::safeCache = $safeCache;
@@ -201,7 +205,7 @@ Creates the translator object.
 sub new {
 	my $class = shift;
 
-	# Use the cached safe for the standalone renderer.
+	# Use the cached safe for rendering in a Mojolicious app.
 	my $safe_cmpt = exists($ENV{MOJO_MODE}) ? $WeBWorK::Translator::safeCache : WWSafe->new;
 
 	my $self = {
@@ -281,7 +285,7 @@ sub initialize {
 	$safe_cmpt->share('$PREPROCESS_CODE');    # Used by WeBWorK::PG::IO::includePGtext
 	use strict;
 
-	# The standalone renderer does this when the module is compiled.
+	# This is done when the module is compiled if rendering in a Mojolicious app.
 	unless (exists($ENV{MOJO_MODE})) {
 		$safe_cmpt->share_from('main', $self->{ra_included_modules});
 		$safe_cmpt->share_empty_package('DynaLoader');
@@ -411,6 +415,12 @@ sub unrestricted_load {
 	}
 
 	$local_errors .= "\nUnknown error.  Unable to load $filePath\n" if $local_errors eq '' && !$macro_file_loaded;
+
+	# PG.pl is the only unrestricted load, and it is the final piece of compartment setup before problem code runs.
+	# Record the hooks of shared packages now so that the safe compartment can strip or restore hooks that problem code
+	# adds to or overwrites in those packages. This is done at compile time if rendering in a Mojolicious app.
+	$safe_cmpt->snapshot_hooks;
+
 	return $local_errors;
 }
 
