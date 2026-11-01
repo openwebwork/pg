@@ -1171,15 +1171,15 @@ sub organizeList() {
 	my $self     = shift;
 	my $required = $self->context->flags->get('studentsMustUseStates');
 	my $list     = {};
-	for my $item (@{ $self->{coords} }) {
-		my ($count, $state) = (1, '');
-		($count, $item) = ($item->{lop}{value}, $item->{rop}) if $item->{hasNumber};
+	for my $coord (@{ $self->{coords} }) {
+		my ($item, $count, $state) = ($coord, 1, '');
 		($state, $item) = ($item->{rop}->string, $item->{lop}) if $item->{hasState};
+		($count, $item) = ($item->{lop}{value}, $item->{rop}) if $item->{hasNumber};
 		my $name = $item->string . ($required && $state ? $state : '');
 		$list->{$name} = { count => 0, states => {} } unless defined $list->{$name};
 		if (!$required && $state) {
 			my $states = $list->{$name}{states};
-			$states->{$state} = 0 unless defined $ststes->{$state};
+			$states->{$state} = 0 unless defined $states->{$state};
 			$states->{$state} += $count;
 		} else {
 			$list->{$name}{count} += $count;
