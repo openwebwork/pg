@@ -279,7 +279,10 @@ sub add_curve {
 		if $curve_name && $self->{names}{$curve_name};
 	$self->{names}{$curve_name} = 1 if $curve_name;
 
-	my ($plotOptions, $fillOptions) = $self->get_options($data, $data->style('polar') ? (curveType => 'polar') : ());
+	# JSXGraph enables RDP smoothing for function graphs by default (since version 1.13.0).  That thins out the
+	# curve points that the fill code below filters on, which leaves a visible gap at the fill_min/fill_max edges.
+	my ($plotOptions, $fillOptions) =
+		$self->get_options($data, $data->style('polar') ? (curveType => 'polar') : (RDPsmoothing => 0));
 
 	my $type = 'curve';
 	my $data_points;
