@@ -87,6 +87,7 @@ sub _contextLimitedRadicalComplex_init {
 	$context->functions->set(sqrt => { class => 'my::Function::numeric' });    # override sqrt()
 	main::PG_restricted_eval('sub root {Parser::Function->call("root",@_)}');
 	$context->functions->add(root => { class => 'my::Function::numeric2' },);
+	$context->flags->set(mathQuillOpts => { rootsAreExponents => 0 });
 	$context->flags->set(limits => [ 0, 5 ]);                                  # no negatives in the radicals
 	$context->flags->set(
 		reduceConstantFunctions => 0,
