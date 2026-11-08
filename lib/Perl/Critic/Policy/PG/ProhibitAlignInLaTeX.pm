@@ -5,8 +5,9 @@ use Perl::Critic::Utils qw(:severities);
 
 use constant DESCRIPTION => 'There is a \begin{align*}, \begin{align}, \end{align*} '
 	. 'or \end{align} in the LaTeX code';
-use constant EXPLANATION => 'Remove this content. Hardcopy formatting should be done with '
-	. 'C<\begin{aligned}> and C<\end{aligned}> instead of the align or align* version.';
+use constant EXPLANATION => 'In order for mathematical content to render correctly, '
+	. 'this should be done with \begin{aligned} \end{aligned} instead of the align or '
+	. 'align* version.';
 use constant SCORE => 10;
 sub supported_parameters ($) {return}
 sub default_severity ($)     { return $SEVERITY_HIGHEST }
