@@ -9,6 +9,7 @@ use constant EXPLANATION => 'In order for mathematical content to render correct
 	. 'this should be done with \begin{aligned} \end{aligned} instead of the align or '
 	. 'align* version.';
 use constant SCORE => 10;
+
 sub supported_parameters ($) {return}
 sub default_severity ($)     { return $SEVERITY_HIGHEST }
 sub default_themes ($)       { return qw(pg) }
@@ -36,7 +37,7 @@ or align* environments inside of LaTeX blocks.
 
 Using the C<align> or C<align*> environment inside of a LaTeX block generally 
 renders correctly in a browser with MathJax, however there will be 
-errors in hardcopy output.  These should be replace with 
+errors in hardcopy output.  These should be replaced with 
 C<\begin{aligned}> and C<\end{aligned}>.
 
 An example: 
