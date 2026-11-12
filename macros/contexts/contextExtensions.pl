@@ -386,13 +386,27 @@ sub makeSubclass {
 #  case you need to access any class variables from that.
 #
 package context::Extensions::Super;
+our @ISA = ();
 
 #
 #  Get a method from the original class from the extended context
 #
 sub super {
 	my ($self, $method, $context) = @_;
-	return $self->superClass($context)->can($method);
+	my $selfclass = ref($self);
+	my $class     = $self->superClass($context);
+	my $code      = $class->can($method);
+	die qq{Can't locate object method "$method" via package "}
+		. ($selfclass || $self) . '"'
+		. (Value::getCaller() // '')
+		unless $code;
+	return !$selfclass ? $code : sub {
+		unshift(@ISA, $class);
+		my @result = wantarray ? Parser::Eval($code, @_) : (Parser::Eval($code, @_));
+		shift(@ISA);
+		die $@ if $@;
+		return wantarray ? @result : $result[0];
+	};
 }
 
 #
@@ -426,15 +440,6 @@ sub mutate {
 }
 
 #
-#  Use the super-class new() method
-#
-sub new {
-	my $self    = shift;
-	my $context = Value::isContext($_[0]) ? $_[0] : $self->context;
-	return &{ $self->super("new", $context) }($self, @_);
-}
-
-#
 #  Get the object's class from its class name
 #
 sub class {
@@ -458,26 +463,6 @@ sub extensionContext {
 	my $self  = shift;
 	my $class = join('::', (split(/::/, ref($self) || $self))[ 0, 1 ]);
 	return $class;
-}
-
-#
-# Trap any calls to super-class methods that aren't in the overridden
-# class and pass them on to the original class.
-#
-sub AUTOLOAD {
-	our $AUTOLOAD;
-	my $self = shift;
-	return unless defined $self;
-	my $class  = $self->extensionContext;
-	my $method = (split(/::/, $AUTOLOAD))[-1];
-	return if $method eq 'DESTROY';
-
-	if (substr($AUTOLOAD, 0, length($class) + 2) eq $class . '::') {
-		my $code = $self->super($method);
-		return &$code($self, @_) if $code;
-	}
-
-	die "Can't locate object method '$method' via package \"" . ref($self) . (getCaller() // '');
 }
 
 #################################################################################################
