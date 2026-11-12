@@ -608,15 +608,12 @@ sub Index {
 #  Create the radio-buttons text
 #
 sub BUTTONS {
-	my $self    = shift;
-	my $extend  = shift;
-	my $name    = shift;
-	my $size    = shift;
+	my ($self, $extend, $name, $size, %options) = @_;
 	my @choices = @{ $self->{orderedChoices} };
 	my @radio   = ();
 	main::RECORD_IMPLICIT_ANS_NAME($name = main::NEW_ANS_NAME()) unless $name;
 
-	foreach my $i (0 .. $#choices) {
+	for my $i (0 .. $#choices) {
 		my $value = $self->{values}[$i];
 		my $tag   = $choices[$i];
 		$value = "%" . $value                                   if $i == $self->{checkedI};
@@ -635,7 +632,7 @@ sub BUTTONS {
 						}
 						)
 					: (),
-					@_
+					%options
 				)
 			);
 		} else {
@@ -651,7 +648,7 @@ sub BUTTONS {
 						}
 						)
 					: (),
-					@_
+					%options
 				)
 			);
 		}
