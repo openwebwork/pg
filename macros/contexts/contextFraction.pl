@@ -301,7 +301,7 @@ sub extending {
 	#
 	#  Extend the context with the needed classes and properties
 	#
-	return context::Extensions::extend(
+	$context = context::Extensions::extend(
 		$context,
 		opClasses => {
 			'/'  => 'BOP::divide',
@@ -331,7 +331,7 @@ sub extending {
 			'/ ' => { precedence => $operators->get('/ ')->{precedence} + .1 },
 			' /' => { precedence => $operators->get(' /')->{precedence} + .1 },
 		},
-		value  => ['Real'],
+		value  => [ 'Real',  'Complex' ],
 		parser => [ 'Value', 'Number' ],
 		flags  => {
 			reduceFractions        => $options{reduceFractions} // 1,
@@ -346,6 +346,13 @@ sub extending {
 		reductions => { 'a/b' => 1, 'a b/c' => 1, '0 a/b' => 1 },
 		context    => "Context"
 	);
+	my $constants = $context->constants;
+	my $complex   = $context->{value}{Complex};
+	for my $name ($constants->names) {
+		my $c = $constants->get($name);
+		bless $c->{value}, $complex if Value::isComplex($c->{value});
+	}
+	return $context;
 }
 
 #
@@ -791,8 +798,67 @@ our @ISA = ('context::Fraction::Class', 'Parser::Number');
 sub new {
 	my $self = shift;
 	my $num  = &{ $self->super('new', $_[0]->context) }($self, @_);
+	return $num                        if $num->isComplex;
 	$num->setExtensionClass('INTEGER') if $num->{value_string} =~ m/^[-+]?[0-9]+$/;
 	return $num->mutate;
+}
+
+#################################################################################################
+#################################################################################################
+
+package context::Fraction::Value::Complex;
+our @ISA = ('context::Fraction::Super', 'Value::Complex');
+
+#
+# Produce fractions during division of complexes, when coefficients are integers
+#
+sub div {
+	my ($self, $l, $r, $other) = Value::checkOpOrderWithPromote(@_);
+	my ($a, $b)                = $l->value;
+	my ($c, $d)                = $r->value;
+	my ($R, $I)                = ($a * $c + $b * $d, $b * $c - $a * $d);
+	my $x = $c * $c + $d * $d;
+	Value::Error("Division by zero") if $x->value == 0;
+	my $context = $self->context;
+	return $self->inherit($other)->mutate($context)->make($R / $x, $I / $x)
+		unless isInteger($R) && isInteger($I) && isInteger($x);
+	my $FRAC = $context->{value}{Fraction};
+	$R = $FRAC->make($context, $R, $x);
+	$I = $FRAC->make($context, $I, $x);
+	return $self->inherit($other)->make($R, $I);
+}
+
+#
+#  Check if a value is an integer
+#
+sub isInteger {
+	my $n = shift;
+	$n = $n->value if Value::isReal($n);
+	return $n =~ m/^-?\d+$/;
+}
+
+#
+#  Try to make a pretty version of the number
+#
+sub string {
+	my ($self, $equation) = @_;
+	my ($a,    $b)        = $self->value;
+	$a           = Value::Real->make($a) unless ref($a);
+	$b           = Value::Real->make($b) unless ref($b);
+	$a->{format} = $b->{format} = $self->{format} if $self->{format};
+	return $a->string($equation) if $b == 0;
+	my $bi = 'i';
+	if (CORE::abs($b) !~ m/^1(\.0*)?$/) {
+		$bi = CORE::abs($b)->with(format => $self->{format})->string($equation, 1);
+		$bi = "($bi)" if $bi =~ /[\/E]/i;
+		$bi .= 'i';
+	}
+	$bi = '-' . $bi if $b < 0;
+	return $bi      if $a == 0;
+	$bi = '+' . $bi if $b > 0;
+	$a  = $a->string($equation);
+	$a  = "($a)" if $a =~ m/E/i;
+	return $a . $bi;
 }
 
 #################################################################################################
