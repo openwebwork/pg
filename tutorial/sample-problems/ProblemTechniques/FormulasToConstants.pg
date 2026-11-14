@@ -26,12 +26,11 @@
 #: is used. To check a particular antiderivative of a function, that is, a
 #: formula that is unique up to a specific additive constant, this macro is
 #: not needed.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',                'PGML.pl',
-    'parserFormulaUpToConstant.pl', 'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserFormulaUpToConstant.pl
+## ---
 
 #:% section = setup
 #: Define a particular antiderivative `$func` and all antiderivatives `$gfunc`.
@@ -56,5 +55,3 @@ An antiderivative of [`\cos(x)`] is [_]{$func->cmp(upToConstant => 1)}
 
 The most general antiderivative is [_]{$gfunc}
 END_PGML
-
-ENDDOCUMENT();

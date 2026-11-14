@@ -19,13 +19,12 @@
 #: provides some convenience methods for creating Statistical plots. This also uses
 #: PODLINK('PGstatisticsmacros.pl') to generate random values from the Normal
 #: distribution.
-DOCUMENT();
-
-loadMacros(
-    "PGstandard.pl",       "PGML.pl",
-    'StatisticalPlots.pl', 'PGstatisticsmacros.pl',
-    "PGcourse.pl"
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - StatisticalPlots.pl
+##   - PGstatisticsmacros.pl
+## ---
 
 #:% section = setup
 #:
@@ -96,5 +95,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 If a question was asked, provide a solution.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

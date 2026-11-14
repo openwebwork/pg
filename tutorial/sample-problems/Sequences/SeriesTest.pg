@@ -30,14 +30,14 @@
 #:
 #: The PODLINK('PGgraders.pl') macro is used to give incremental partial credit
 #: (although that is a poor choice for this problem).
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',        'PGML.pl',
-    'parserPopUp.pl',       'PGgraders.pl',
-    'parserMultiAnswer.pl', 'parserRadioMultiAnswer.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserPopUp.pl
+##   - PGgraders.pl
+##   - parserMultiAnswer.pl
+##   - parserRadioMultiAnswer.pl
+## ---
 
 #:% section = setup
 #: Create `$multians` as a `MultiAnswer` with the two answers `$num1` and
@@ -167,5 +167,3 @@ $ENV{grader_message} =
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

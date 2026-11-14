@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: The PODLINK('contextInequalities.pl') macro is used for inequality answers.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextInequalities.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextInequalities.pl
+## ---
 
 #:% section = setup
 #: In addition to showing how to use the PODLINK('contextInequalities.pl')
@@ -91,5 +93,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

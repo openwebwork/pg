@@ -17,8 +17,9 @@
 #:% categories = [knowls]
 
 #:% section = preamble
-DOCUMENT();
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = statement
 #: Knowls can be added to a text section of the problem file.
@@ -52,5 +53,3 @@ Here is another knowl
 	url => '/webwork2_files/helpFiles/Entering-Angles.html'
 ) @]*
 END_PGML
-
-ENDDOCUMENT();

@@ -19,9 +19,11 @@
 
 #:% section = preamble
 #: The dynamic graph is generated with PODLINK('plotly3D.pl').
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - plotly3D.pl
+## ---
 
 #:% section = setup
 #: Generate the plot parametrically for the function `z = x^2 + y^2` with the
@@ -55,5 +57,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

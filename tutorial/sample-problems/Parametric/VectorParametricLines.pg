@@ -21,13 +21,12 @@
 #: `non_zero_point3D`, `non_zero_vector3D`, and `Line` methods. The
 #: PODLINK('parserParametricLine.pl') macro is also used which provides the
 #: `ParametricLine` method that gives a MathObject form of a parametric line.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',        'PGML.pl',
-    'parserVectorUtils.pl', 'parserParametricLine.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserVectorUtils.pl
+##   - parserParametricLine.pl
+## ---
 
 #:% section = setup
 #: The `non_zero_point3D` method returns a nonzero `Point` in the third
@@ -68,5 +67,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

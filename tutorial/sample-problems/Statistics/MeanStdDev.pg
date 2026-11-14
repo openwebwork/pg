@@ -16,9 +16,11 @@
 #:% section = preamble
 #: The PODLINK('PGstatisticsmacros.pl') macro provides the `stats_mean`,
 #: `stats_sd`, and `stats_SX_SXX` methods.
-DOCUMENT();
-
-loadMacros("PGstandard.pl", "PGML.pl", 'PGstatisticsmacros.pl', "PGcourse.pl");
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - PGstatisticsmacros.pl
+## ---
 
 #:% section = setup
 #: Generate random numbers and then calculate the mean and standard deviation
@@ -70,5 +72,3 @@ For the standard deviation, first, find the variance.
 
 Taking the square root gives [`s \approx [$sd]`]
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

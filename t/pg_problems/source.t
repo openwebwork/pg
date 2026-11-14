@@ -8,9 +8,11 @@ use Test2::V0;
 use WeBWorK::PG;
 
 my $source = <<'END_SOURCE';
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'MathObjects.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - MathObjects.pl
+## ---
 
 $pi = Real('pi');
 
@@ -19,8 +21,6 @@ Enter a value for [`\pi`].
 
 [_____]{$pi}
 END_PGML
-
-ENDDOCUMENT();
 END_SOURCE
 
 ok my $pg = WeBWorK::PG->new(r_source => \$source, problemSeed => 1234, processAnswers => 1), 'source string renders';

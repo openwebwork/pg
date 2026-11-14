@@ -20,9 +20,11 @@
 #:% section = preamble
 #: Load the PODLINK('parserNumberWithUnits.pl') and
 #: PODLINK('parserFormulaWithUnits.pl') macros.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'contextUnits.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextUnits.pl
+## ---
 
 #:% section = setup
 #: First select the "Units" context, allow units for  "length" and "time" in the
@@ -71,5 +73,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

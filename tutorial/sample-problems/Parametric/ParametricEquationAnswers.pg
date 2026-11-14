@@ -20,9 +20,11 @@
 #:% section = preamble
 #: The PODLINK('parserMultiAnswer.pl') macro is used to check parameterization
 #: equations and end points together.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserMultiAnswer.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserMultiAnswer.pl
+## ---
 
 #:% section = setup
 #: A `MultiAnswer` is used to verify that the student answers satisfy the
@@ -106,5 +108,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

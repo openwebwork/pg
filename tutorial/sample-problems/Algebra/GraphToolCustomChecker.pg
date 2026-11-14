@@ -19,9 +19,11 @@
 #: This example shows how to get student input in the form of a graph (a circle)
 #: by using interactive graphing tools, and demonstrates the usage of a custom
 #: checker.  Load the PODLINK('parserGraphTool.pl') macro for this.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserGraphTool.pl
+## ---
 
 #:% section = setup
 #: The variables `$h`, `$k` and `$r` randomly pick a center and radius of the
@@ -154,5 +156,3 @@ circle tool, then click on the center at [`([$h],[$k])`] and then click on a
 second point that is [$r] units from the center.  This is easiest going left,
 right, up or down from the center.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

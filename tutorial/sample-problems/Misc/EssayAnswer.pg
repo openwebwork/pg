@@ -18,13 +18,12 @@
 #:% section = preamble
 #: This uses PODLINK('PGessaymacros.pl') for essay answers and
 #: PODLINK('parserPopUp.pl') for multiple choice drop down menus.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',  'PGML.pl',
-    'parserPopUp.pl', 'PGessaymacros.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserPopUp.pl
+##   - PGessaymacros.pl
+## ---
 
 #:% section = setup
 $popup = PopUp(
@@ -66,6 +65,3 @@ answer.  Your explanation will be graded manually at a later time.
 Please explain your reasoning in the answer box below.
 [@ ANS(essay_cmp()); essay_box(8, 60) @]*
 END_PGML
-
-ENDDOCUMENT();
-

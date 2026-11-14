@@ -20,12 +20,11 @@
 
 #:% section = preamble
 #: Load the PODLINK('contextLimitedPolynomial.pl') macro.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',               'PGML.pl',
-    'contextLimitedPolynomial.pl', 'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextLimitedPolynomial.pl
+## ---
 
 #:% section = setup
 #: The PODLINK('contextLimitedPolynomial.pl') macro provides two contexts:
@@ -72,5 +71,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

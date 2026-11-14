@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: The PODLINK('plots.pl') macro is used to generate the graph.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'plots.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - plots.pl
+## ---
 
 #:% section = setup
 #: This problem asks the student to find the equation of a tangent line to a
@@ -72,5 +74,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

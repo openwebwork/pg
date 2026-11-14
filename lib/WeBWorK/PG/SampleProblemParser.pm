@@ -19,6 +19,8 @@ use Pandoc;
 use Pod::Simple::Search;
 use Pod::Simple::SimpleTree;
 
+use WeBWorK::PG::Metadata qw(parse_metadata);
+
 our @EXPORT_OK = qw(parseSampleProblem generateMetadata getSampleProblemCode getSearchData);
 
 =head1 NAME
@@ -190,7 +192,10 @@ sub parseMetadata ($path, $problem_dir) {
 
 	my @problem_types = qw(sample technique snippet);
 
-	my $metadata = { dir => (dirname($path) =~ s/$problem_dir\/?//r) =~ s/\/*$//r };
+	my $metadata = {
+		dir    => (dirname($path) =~ s/$problem_dir\/?//r) =~ s/\/*$//r,
+		macros => problemMetadata(join('', @file_contents), $path)->{macros} // []
+	};
 
 	while (my $row = shift @file_contents) {
 		if ($row =~ /^#:%\s*(categor(y|ies)|types?|subjects?|see_also|name)\s*=\s*(.*)\s*$/) {
@@ -233,6 +238,13 @@ sub parseMetadata ($path, $problem_dir) {
 	return $metadata;
 }
 
+# Sample problems are expected to have valid metadata, so an invalid metadata block is only warned about here.
+sub problemMetadata ($contents, $path) {
+	my $metadata = eval { parse_metadata($contents) };
+	warn qq{Invalid metadata in "$path": $@} if $@;
+	return $metadata // {};
+}
+
 =head2 getSampleProblemCode
 
 Parse a PG file with extra documentation comments and strip that all out
@@ -252,7 +264,10 @@ sub getSampleProblemCode ($file) {
 	my @file_contents = <$FH>;
 	close $FH;
 
-	my (@code_rows, $inCode);
+	# Problems that have a metadata block have no DOCUMENT or ENDDOCUMENT calls, and the comments at the beginning of
+	# the file (including the metadata block) are part of the problem code.
+	my $inCode = defined problemMetadata(join('', @file_contents), $file)->{pgAuthoringVersion};
+	my @code_rows;
 
 	while (my $row = shift @file_contents) {
 		chomp($row);
@@ -263,11 +278,14 @@ sub getSampleProblemCode ($file) {
 			$inCode = $1 ? 0 : 1;
 			push(@code_rows, $row);
 		} elsif ($inCode) {
-			push(@code_rows, $row);
+			# Removing documentation can leave consecutive blank lines, so only keep the first.
+			push(@code_rows, $row) unless $row =~ /^\s*$/ && @code_rows && $code_rows[-1] =~ /^\s*$/;
 		}
 	}
 
-	return join("\n", @code_rows);
+	pop(@code_rows) while @code_rows && $code_rows[-1] =~ /^\s*$/;
+
+	return join("\n", @code_rows) . "\n";
 }
 
 =head2 getSearchData
@@ -377,7 +395,8 @@ sub getSearchData ($searchDataFileName) {
 				}
 				$files{$_}{lastModified} = $lastModified;
 
-				my (%words, @kw, @macros, @subjects, $description);
+				my (%words, @kw, @subjects, $description);
+				my @macros = @{ problemMetadata(join("\n", @fileContents), $File::Find::name)->{macros} // [] };
 
 				while (@fileContents) {
 					my $line = shift @fileContents;
