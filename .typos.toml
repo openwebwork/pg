@@ -13,7 +13,9 @@ extend-ignore-re = [
   # Zero value variable in macros/math/SystemsOfLinearEquationsProblemPCC.pl
   '\$[Zz]erod\>',
   # "category|categories" regex alternation in lib/WeBWorK/PG/SampleProblemParser.pm
-  'categor\(y\|ies\)'
+  'categor\(y\|ies\)',
+  # "use editor" setting of IMathAS as a hash key in lib/WeBWorK/PG/IMathAS.pm
+  '\buseed\s+=>'
 ]
 
 [default.extend-words]

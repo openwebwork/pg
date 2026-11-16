@@ -20,6 +20,7 @@ require WeBWorK::PG::IO;
 use Tie::IxHash;
 use MIME::Base64();
 use PGUtil();
+use WeBWorK::PG::IMathAS;
 use Encode qw(encode_utf8 decode_utf8);
 use utf8;
 binmode(STDOUT, ":utf8");
@@ -671,6 +672,16 @@ sub AskSage {
 	$options = {} unless ref $options eq 'HASH';
 	$options->{curlCommand} = WeBWorK::PG::IO::externalCommand('curl');
 	WeBWorK::PG::IO::AskSage($python, $options);
+}
+
+sub imathasQuestion {
+	my ($self, $params) = @_;
+	return WeBWorK::PG::IMathAS::question($params);
+}
+
+sub imathasStaticQuestion {
+	my ($self, $params) = @_;
+	return WeBWorK::PG::IMathAS::static_question($params);
 }
 
 sub tempDirectory {

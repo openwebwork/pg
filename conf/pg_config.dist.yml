@@ -79,6 +79,50 @@ URLs:
 
   #sagecellService: http://localhost:3500/service
 
+# Settings for the IMathAS.pl macro, which renders and scores IMathAS questions
+# with the help of an IMathAS server.
+#
+# No setup is needed to use questions from MyOpenMath with MyOpenMath(1234),
+# since that server is listed below. That only needs this server to be able to
+# make requests to www.myopenmath.com, and browsers to be able to load scripts
+# from there.
+#
+# Most sites do not have an IMathAS server of their own. If you do, then add it
+# to the servers below (there is an example named "local" that is commented
+# out), and it can then be used with IMathAS(1234). That is what is needed to
+# use questions of your own that are not on a public server.
+imathas:
+  # Seconds to wait for an IMathAS server to respond.
+  timeout: 10
+
+  # The name of the server that is used when the server option is not given,
+  # as in IMathAS(1234). There is no server with this name unless you add one
+  # below, and until then IMathAS(1234) gives a message that says so. You could
+  # also set this to myopenmath, so that IMathAS(1234) uses MyOpenMath.
+  defaultServer: local
+
+  # The IMathAS servers that can be used. A server other than the default is
+  # used by giving its name, as in IMathAS(1234, server => 'myopenmath'). Only
+  # use a server that you do not run with the permission of those that do.
+  #
+  # Each server has the following settings.
+  #
+  # url: The address that this server uses to reach the IMathAS server.
+  # publicURL: The address that a browser uses to load the IMathAS JavaScript
+  #   and images. This can be different from url. For example, an IMathAS
+  #   server on the same machine can be reached at a localhost address by
+  #   this server, but not by a browser.
+  servers:
+    # An example of an IMathAS server that is run on the same machine as
+    # WeBWorK. Uncomment this and change the settings to add such a server.
+    #local:
+    #  url: http://localhost:8088
+    #  publicURL: /imathas
+
+    myopenmath:
+      url: https://www.myopenmath.com
+      publicURL: https://www.myopenmath.com
+
 externalPrograms:
   curl: /usr/bin/curl
   tar: /bin/tar
