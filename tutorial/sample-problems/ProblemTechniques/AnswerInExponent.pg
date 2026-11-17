@@ -18,9 +18,9 @@
 #:% categories = [answers, exponent]
 
 #:% section = preamble
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## ---
 
 #:% section = setup
 #: The `Context()->variables->are` sets the variables for the context.
@@ -56,5 +56,3 @@ ANS(Real($n)->cmp);
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

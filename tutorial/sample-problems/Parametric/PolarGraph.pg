@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: The PODLINK('PGtikz.pl') macro is used to generate the graph.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'PGtikz.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - PGtikz.pl
+## ---
 
 #:% section = setup
 #: The polar curve is plotted parametrically.
@@ -66,5 +68,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

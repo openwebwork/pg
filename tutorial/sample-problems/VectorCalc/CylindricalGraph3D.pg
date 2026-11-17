@@ -19,9 +19,11 @@
 
 #:% section = preamble
 #: The dynamic graph is generated with PODLINK('plotly3D.pl').
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'plotly3D.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - plotly3D.pl
+## ---
 
 #:% section = setup
 #: To add a plotly graph to a problem, first create a `Graph3D` object by
@@ -89,5 +91,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

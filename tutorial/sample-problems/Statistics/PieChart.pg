@@ -18,9 +18,11 @@
 #:% section = preamble
 #: This uses the `add_piechart` method in the PODLINK('StatisticalPlots.pl')
 #: macro.  A donut plot version of this is available at PROBLINK('DonutPlot.pg').
-DOCUMENT();
-
-loadMacros("PGstandard.pl", 'PGML.pl', 'StatisticalPlots.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - StatisticalPlots.pl
+## ---
 
 #:% section = setup
 #: In this example, the size of each wedge in the pie chart is given as an
@@ -75,5 +77,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Place a detailed solution here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

@@ -19,9 +19,11 @@
 #:% section = preamble
 #: This problem uses the PODLINK('draggableProof.pl`) macro to display "buckets"
 #: that the student can drag statements to and from.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'draggableProof.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - draggableProof.pl
+## ---
 
 #:% section = setup
 #: The `DraggableProof` function takes a reference to an array of correct
@@ -59,5 +61,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

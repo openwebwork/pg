@@ -20,13 +20,12 @@
 #:% section = preamble
 #: Additional contexts provided by the PODLINK('contextPolynomialFactors.pl')
 #: and PODLINK('contextLimitedPowers.pl') macros are needed.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',               'PGML.pl',
-    'contextPolynomialFactors.pl', 'contextLimitedPowers.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextPolynomialFactors.pl
+##   - contextLimitedPowers.pl
+## ---
 
 #:% section = setup
 #: Before computing the answer which will be the factored form of the
@@ -68,5 +67,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

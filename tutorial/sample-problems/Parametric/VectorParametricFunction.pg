@@ -23,12 +23,12 @@
 #:
 #: The PODLINK('parserMultiAnswer.pl') macro is used since the answers depend
 #: upon each other.
-DOCUMENT();
-loadMacros(
-    'PGstandard.pl',        'PGML.pl',
-    'parserVectorUtils.pl', 'parserMultiAnswer.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserVectorUtils.pl
+##   - parserMultiAnswer.pl
+## ---
 
 #:% section = setup
 #: In the checker the vector-valued function that the student enters is stored
@@ -99,5 +99,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
