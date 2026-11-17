@@ -99,7 +99,10 @@
 
 					constructor(point1, point2, solid) {
 						super(point1, point2, solid);
-						this.baseObj.setArrow(false, { type: 1, size: 4 });
+						this.baseObj.setArrow(false, {
+							type: 1,
+							size: gt.graphObjectTypes.vector.arrowSize(this.baseObj, 4)
+						});
 					}
 
 					static ariaLabel(l) {
@@ -107,6 +110,17 @@
 							(l.getAttribute('dash') == 0 ? 'solid' : 'dashed') +
 							` vector with initial point ${l.point1.X()}, ${l.point1.Y()} ` +
 							`and terminal point ${l.point2.X()}, ${l.point2.Y()}`
+						);
+					}
+
+					// JSXGraph does not draw an arrow head if the vector is shorter in screen pixels than the arrow
+					// head, so shrink the arrow head to fit in that case.  Some of the line is left so that it does not
+					// have zero length since the arrow head is oriented using the line.
+					static arrowSize(l, maxSize) {
+						return Math.min(
+							maxSize,
+							(0.9 * l.point1.coords.distance(JXG.COORDS_BY_SCREEN, l.point2.coords)) /
+								l.evalVisProp('strokewidth')
 						);
 					}
 				};
@@ -126,7 +140,7 @@
 						this.hlObjs.hl_line?.setAttribute({
 							straightFirst: false,
 							straightLast: false,
-							lastArrow: { type: 1, size: 6 }
+							lastArrow: { type: 1, size: gt.graphObjectTypes.vector.arrowSize(this.hlObjs.hl_line, 6) }
 						});
 						return handled;
 					}
