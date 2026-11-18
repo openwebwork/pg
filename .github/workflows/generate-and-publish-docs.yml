@@ -11,7 +11,7 @@ on:
 
 jobs:
   generate-documentation:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     steps:
       - name: Install dependencies
@@ -24,7 +24,7 @@ jobs:
             libpod-parser-perl
 
       - name: Checkout pg code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: pg
 
@@ -53,7 +53,7 @@ jobs:
             /home/runner/work/pg/pg/documentation/
 
       - name: Upload documentation html
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: documentation
 
@@ -67,10 +67,10 @@ jobs:
       pages: write
       id-token: write
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: generate-documentation
 
     steps:
       - name: Publish to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
