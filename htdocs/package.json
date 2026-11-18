@@ -14,22 +14,22 @@
 	},
 	"dependencies": {
 		"@openwebwork/mathquill": "^0.11.6",
-		"jsxgraph": "^1.13.0",
-		"jszip": "^3.10.1",
+		"jsxgraph": "^1.14.3",
+		"jszip": "^3.10.2",
 		"jszip-utils": "^0.1.0",
-		"plotly.js-dist-min": "^3.7.0",
+		"plotly.js-dist-min": "^4.3.0",
 		"sortablejs": "^1.15.7"
 	},
 	"devDependencies": {
-		"autoprefixer": "^10.5.4",
-		"chokidar": "^5.0.0",
-		"cssnano": "^8.0.2",
-		"postcss": "^8.5.25",
-		"prettier": "^3.9.6",
+		"autoprefixer": "^10.7.0",
+		"chokidar": "^6.0.0",
+		"cssnano": "^9.9.0",
+		"postcss": "^8.5.33",
+		"prettier": "^3.10.1",
 		"rtlcss": "^4.3.0",
-		"sass": "^1.102.0",
-		"terser": "^5.49.0",
-		"yargs": "^18.1.0"
+		"sass": "^1.108.2",
+		"terser": "^5.51.4",
+		"yargs": "^18.2.0"
 	},
 	"browserslist": [
 		"last 10 Chrome versions",
