@@ -19,8 +19,8 @@ use Rserve::REXP::Integer;
 
 use lib "$ENV{PG_ROOT}/t/rserve/lib";
 
-use ShortDoubleVector;
-use TestCases qw(TEST_CASES);
+use ShortDoubleVector qw(rexp_cmp);
+use TestCases         qw(TEST_CASES);
 
 # Fake configuration if this is disabled (it is by default in pg_config.dist.yml).
 $main::Rserve = { host => 'localhost' } unless ref($main::Rserve) eq 'HASH' && $main::Rserve->{host};
@@ -49,15 +49,13 @@ sub check_rserve_eval {
 	my @expected_value = (ref($expected) eq 'ARRAY' ? @{$expected} : $expected);
 
 	subtest 'rserve eval ' . $message => sub {
-		# Note: The order of comparisons is switched to ensure ShortDoubleVector's 'eq' overload is used.
-
 		# test the one-time query
 		my @result = rserve_query($rexp);
-		is(\@expected_value, \@result, $message);
+		is(\@result, rexp_cmp(\@expected_value), $message);
 
 		# test the persistent connection
 		@result = rserve_eval($rexp);
-		is(\@expected_value, \@result, $message);
+		is(\@result, rexp_cmp(\@expected_value), $message);
 	};
 	return;
 }

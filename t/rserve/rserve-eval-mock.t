@@ -14,8 +14,8 @@ use Rserve;
 
 use lib "$ENV{PG_ROOT}/t/rserve/lib";
 
-use ShortDoubleVector;
-use TestCases qw(TEST_CASES);
+use ShortDoubleVector qw(rexp_cmp);
+use TestCases         qw(TEST_CASES);
 
 sub mock_rserve_response {
 	my $filename = shift;
@@ -54,8 +54,7 @@ sub parse_rserve_eval {
 		my $mock   = mock_rserve_response($filename);
 		my $rserve = Rserve->new(fh => $mock, _autoflush => 0);
 
-		# Note: The order of comparisons is switched to ensure ShortDoubleVector's 'eq' overload is used.
-		is($expected, $rserve->eval('testing, please ignore'), $message);
+		is($rserve->eval('testing, please ignore'), rexp_cmp($expected), $message);
 
 		is($mock->next_call, 'peerhost', 'get server name');
 		is($mock->next_call, 'peerport', 'get server port');
