@@ -422,26 +422,26 @@ sub NEW_NAME {
 #    by the settings of the MultiAnswer.
 #
 sub ans_rule {
-	my $self = shift;
-	my $size = shift || 20;
+	my ($self, $size, %options) = @_;
+	$size ||= 20;
 	my $data = $self->{data}[ $self->{part} ];
 	my $name = $self->ANS_NAME($self->{part}++);
 	if ($self->{singleResult} && $self->{part} == 1) {
-		my $label = main::generate_aria_label($answerPrefix . $name . "_0");
 		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
-		return $data->named_ans_rule($name, $size, @_, aria_label => $label);
+		return $data->named_ans_rule($name, $size, %options,
+			aria_label => main::generate_aria_label($answerPrefix . $name . '_0', $options{aria_label}));
 	}
 	if ($self->{singleResult} && $self->{part} > 1) {
 		my $extension_ans_rule = $data->named_ans_rule_extension(
 			$name, $size,
 			answer_group_name => $self->{answerNames}{0},
-			@_
+			%options
 		);
 		# warn "extension rule created: $extension_ans_rule for ", ref($data);
 		return $extension_ans_rule;
 	} else {
 		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
-		return $data->named_ans_rule($name, $size, @_);
+		return $data->named_ans_rule($name, $size, %options);
 	}
 }
 
@@ -451,30 +451,29 @@ sub ans_rule {
 #    Reset the correct_ans once the array is made
 #
 sub ans_array {
-	my $self = shift;
-	my $size = shift || 5;
+	my ($self, $size, %options) = @_;
+	$size ||= 5;
 	my $HTML;
 	my $data = $self->{data}[ $self->{part} ];
 	my $name = $self->ANS_NAME($self->{part}++);
 	if ($self->{singleResult} && $self->{part} == 1) {
-		my $label = main::generate_aria_label($answerPrefix . $name . "_0");
 		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
 		return $data->named_ans_array(
 			$name, $size,
 			answer_group_name => $self->{answerNames}{0},
-			@_, aria_label => $label
+			%options, aria_label => main::generate_aria_label($answerPrefix . $name . '_0', $options{aria_label})
 		);
 	}
 	if ($self->{singleResult} && $self->{part} > 1) {
 		$HTML = $data->named_ans_array_extension(
 			$self->NEW_NAME($name), $size,
 			answer_group_name => $self->{answerNames}{0},
-			@_
+			%options
 		);
 		# warn "array extension rule created: $HTML for ", ref($data);
 	} else {
 		main::RECORD_IMPLICIT_ANS_NAME($name) unless $self->{namedRules};
-		$HTML = $data->named_ans_array($name, $size, @_);
+		$HTML = $data->named_ans_array($name, $size, %options);
 	}
 	$self->{cmp}[ $self->{part} - 1 ] = $data->cmp(@ans_defaults);
 	return $HTML;
