@@ -31,6 +31,7 @@ LaTeX directly.
 
 sub Overline {
 	warn "The function Overline in parserVectorUtils.pl has been deprecated";
+	return shift;
 }
 
 =head2 BoldMath (deprecated)
@@ -50,9 +51,10 @@ LaTeX directly.
 
 sub BoldMath {
 	warn "The function BoldMath in parserVectorUtils.pl has been deprecated";
+	return shift;
 }
 
-=head2 $GRAD (removed)
+=head2 $GRAD (deprecated)
 
     TEXT($GRAD)
 
@@ -66,6 +68,8 @@ Note: this has been remove from the parserVectorUtils.pl package.  Authors
 should use the \nabla symbol directly in the LaTeX. 
 
 =cut
+
+$GRAD = '\nabla ';
 
 =head2 non_zero_point
 
@@ -113,7 +117,10 @@ sub non_zero_vector   { Vector(non_zero_point(@_)) }
 sub non_zero_vector2D { non_zero_vector(2, @_) }
 sub non_zero_vector3D { non_zero_vector(3, @_) }
 
-=head2 Line
+=head2 Line (deprecated)
+
+Use the ParametricLine class from parserParametricLine.pl instead of this function.
+
 
     $P = Point(@coords1);
     $V = Vector(@coords2);
@@ -130,8 +137,6 @@ For example:
     Line([1,-3],[2,1]);            # produces Vector("1+2t","-3+t").
     Line(Point(1,-3),Vector(2,1)); # produces Vector("1+2t","-3+t").
 
-(It may be better to use the ParametricLine class from
-parserParametricLine.pl).
 
 =cut
 
@@ -147,7 +152,9 @@ sub Line {
 	return Vector(@coords);
 }
 
-=head2 Plane
+=head2 Plane (deprecated)
+
+Use the ParametricPlane class from parserParametricPlane.pl instead of this function.
 
     Plane($point,$NormalVector)
 
