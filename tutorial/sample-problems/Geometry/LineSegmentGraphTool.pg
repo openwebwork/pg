@@ -19,9 +19,11 @@
 
 #:% section = preamble
 #: Load the PODLINK('parserGraphTool.pl') macro to be able to use the GraphTool.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserGraphTool.pl
+## ---
 
 #:% section = setup
 #: The graph tool is created with the correct answer
@@ -58,5 +60,3 @@ The correct answer is
 
 [!A graph of the line segment from  ([$sx1], [$sy1]) to ([$sx2],[$sy2])!]{$gt}
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

@@ -17,9 +17,11 @@
 #:% section = preamble
 #: The PODLINK('parserMatchList.pl') macro is used to build the matching list,
 #: including its drop down menu answers.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserMatchList.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserMatchList.pl
+## ---
 
 #:% section = setup
 #: Create a list of 6 questions and answers, 2 extra answers, and a
@@ -64,5 +66,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 The correct answers are [$ml].
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

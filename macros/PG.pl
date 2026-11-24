@@ -107,9 +107,18 @@ sub WARN_MESSAGE {
 C<DOCUMENT()> should be the first executable statement in any problem. It
 initializes variables and defines the problem environment.
 
+Problems that have a metadata block must not call this method. For those
+problems the translator calls this method with the options C<pgAuthoringVersion>
+and C<macros> set from the problem metadata. See L<WeBWorK::PG::Metadata>.
+
 =cut
 
 sub DOCUMENT {
+	my %options = @_;
+
+	die "DOCUMENT must not be called in a problem that has a metadata block.\n"
+		if $PG && $PG->{pgAuthoringVersion} && (caller)[1] eq $PG->{problemEvalFile};
+
 	# get environment
 	$rh_envir = \%envir;    #KLUDGE FIXME
 
@@ -149,6 +158,15 @@ sub DOCUMENT {
 
 	load_css();
 	load_js();
+
+	if (defined $options{pgAuthoringVersion}) {
+		$PG->{pgAuthoringVersion} = $options{pgAuthoringVersion};
+		# This is the file name that perl assigns to the evaluated problem code.  It is used to detect calls to
+		# loadMacros from the problem code as opposed to calls from within macros.
+		$PG->{problemEvalFile} = (caller)[1];
+		loadMacros('PGbasicmacros.pl', 'PGauxiliaryFunctions.pl', 'PGML.pl', @{ $options{macros} // [] },
+			'PGcourse.pl');
+	}
 }
 
 $main::displayMode = $PG->{displayMode};
@@ -914,6 +932,9 @@ the answer has changed.
 =cut
 
 sub ENDDOCUMENT {
+	die "ENDDOCUMENT must not be called in a problem that has a metadata block.\n"
+		if $PG->{pgAuthoringVersion} && $PG->{documentEnded}++;
+
 	# Insert MathQuill responses if MathQuill is enabled.  Add responses to each answer's response group that store the
 	# latex form of the students' answers and add corresponding hidden input boxes to the page.
 	if ($envir{useMathQuill} && $main::displayMode =~ /HTML/i) {
@@ -1526,6 +1547,9 @@ sub findMacroFile {
 }
 
 sub loadMacros {
+	die "loadMacros must not be called in a problem that has a metadata block.  "
+		. "Declare the macros in the problem metadata instead.\n"
+		if $PG->{pgAuthoringVersion} && (caller)[1] eq $PG->{problemEvalFile};
 	$PG->{PG_loadMacros}->loadMacros(@_);
 }
 

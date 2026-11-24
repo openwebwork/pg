@@ -20,13 +20,12 @@
 #: Load the PODLINK('contextTrigDegrees.pl') macro for the `TrigDegrees`
 #: context. Also load the PODLINK('contextUnits.pl') which will require that the
 #: answer has units of degrees.
-DOCUMENT();
-
-loadMacros(
-    'PGstandard.pl',         'PGML.pl',
-    'contextTrigDegrees.pl', 'contextUnits.pl',
-    'PGcourse.pl'
-);
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - contextTrigDegrees.pl
+##   - contextUnits.pl
+## ---
 
 #:% section = setup
 #: Select the `TrigDegrees` context to which evaluates trig functions in
@@ -56,5 +55,3 @@ END_PGML
 BEGIN_PGML_SOLUTION
 Solution explanation goes here.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();

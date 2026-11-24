@@ -18,9 +18,11 @@
 
 #:% section = preamble
 #: Load the PODLINK('parserGraphTool.pl') macro to be able to use the GraphTool.
-DOCUMENT();
-
-loadMacros('PGstandard.pl', 'PGML.pl', 'parserGraphTool.pl', 'PGcourse.pl');
+## ---
+## pgAuthoringVersion: 1
+## macros:
+##   - parserGraphTool.pl
+## ---
 
 #:% section = setup
 #: This problem asks the student to graph the random vector <$vx1, $vy1>.  Set
@@ -55,5 +57,3 @@ A correct answer is
 
 But any vector with the same length and in the same direction would be correct as well.
 END_PGML_SOLUTION
-
-ENDDOCUMENT();
