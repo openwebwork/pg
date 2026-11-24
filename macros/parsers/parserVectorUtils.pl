@@ -13,7 +13,7 @@ sub _parserVectorUtils_init { };    # don't reload this file
 
 =head1 FUNCTIONS
 
-=head2 Overline
+=head2 Overline (deprecated)
 
     Overline($vectorName)
 
@@ -24,19 +24,17 @@ will be overlined in TeX modes.  (Bold italic could also work in
 TeX modes, but the low resolution on screen made it less easy
 to distinguish the difference between bold and regular letters.)
 
+Note: this is deprecated.  Authors should include the \overline{} in the 
+LaTeX directly.
+
 =cut
 
 sub Overline {
-	my $v    = shift;
-	my $HTML = '<B><I>' . $v . '</B></I>';
-	MODES(
-		TeX      => "\\overline{$v}",
-		HTML     => $HTML,
-		HTML_tth => '\begin{rawhtml}' . $HTML . '\end{rawhtml}',
-	);
+	warn "The function Overline in parserVectorUtils.pl has been deprecated";
+	return shift;
 }
 
-=head2 BoldMath
+=head2 BoldMath (deprecated)
 
     BoldMath($vectorName)
 
@@ -45,20 +43,18 @@ Although \boldsymbol{} works fine on screen, the PDF file produces non-bold
 letters.  I haven't been able to track this down, so used \mathbf{} in TeX mode,
 which produces roman bold, not math-italic bold.
 
+
+Note: this is deprecated.  Authors should include the \boldsymbol{} in the 
+LaTeX directly.
+
 =cut
 
 sub BoldMath {
-	my $v    = shift;
-	my $HTML = '<B><I>' . $v . '</B></I>';
-	MODES(
-		TeX      => "\\boldsymbol{$v}",    #  doesn't seem to work in TeX mode
-										   #    TeX => "\\mathbf{$v}",      #  gives non-italic bold in TeX mode
-		HTML     => $HTML,
-		HTML_tth => '\begin{rawhtml}' . $HTML . '\end{rawhtml}',
-	);
+	warn "The function BoldMath in parserVectorUtils.pl has been deprecated";
+	return shift;
 }
 
-=head2 $GRAD
+=head2 $GRAD (deprecated)
 
     TEXT($GRAD)
 
@@ -67,6 +63,9 @@ sub BoldMath {
     END_TEXT
 
 Grad symbol.
+
+Note: this has been remove from the parserVectorUtils.pl package.  Authors
+should use the \nabla symbol directly in the LaTeX. 
 
 =cut
 
@@ -118,7 +117,10 @@ sub non_zero_vector   { Vector(non_zero_point(@_)) }
 sub non_zero_vector2D { non_zero_vector(2, @_) }
 sub non_zero_vector3D { non_zero_vector(3, @_) }
 
-=head2 Line
+=head2 Line (deprecated)
+
+Use the ParametricLine class from parserParametricLine.pl instead of this function.
+
 
     $P = Point(@coords1);
     $V = Vector(@coords2);
@@ -135,8 +137,6 @@ For example:
     Line([1,-3],[2,1]);            # produces Vector("1+2t","-3+t").
     Line(Point(1,-3),Vector(2,1)); # produces Vector("1+2t","-3+t").
 
-(It may be better to use the ParametricLine class from
-parserParametricLine.pl).
 
 =cut
 
@@ -152,7 +152,9 @@ sub Line {
 	return Vector(@coords);
 }
 
-=head2 Plane
+=head2 Plane (deprecated)
+
+Use the ParametricPlane class from parserParametricPlane.pl instead of this function.
 
     Plane($point,$NormalVector)
 
