@@ -13,12 +13,12 @@ on:
 jobs:
   perltidy:
     name: Check Perl file formatting with perltidy
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     container:
-      image: perl:5.38
+      image: perl:5.40
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install dependencies
         run: cpanm -n Perl::Tidy@20260204
       - name: Run perltidy
@@ -30,12 +30,12 @@ jobs:
 
   prettier:
     name: Check JavaScript, style, and HTML file formatting with prettier
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
       - name: Install Dependencies

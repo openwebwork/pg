@@ -14,8 +14,8 @@ use Rserve::QapEncoding qw(:all);
 
 use lib "$ENV{PG_ROOT}/t/rserve/lib";
 
-use ShortDoubleVector;
-use TestCases qw(TEST_CASES);
+use ShortDoubleVector qw(rexp_cmp);
+use TestCases         qw(TEST_CASES);
 
 sub check_qap {
 	my ($file, $expected, $message) = @_;
@@ -30,8 +30,7 @@ sub check_qap {
 
 	subtest 'qap - ' . $message => sub {
 		my ($actual, $state) = @{ decode($data) };
-		# Note: The order of comparisons is switched to ensure ShortDoubleVector's 'eq' overload is used.
-		is($expected, $actual, $message) or diag explain $actual;
+		is($actual, rexp_cmp($expected), $message) or diag explain $actual;
 		ok($state->eof, $message . ' - parse complete');
 	};
 	return;
