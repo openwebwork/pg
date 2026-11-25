@@ -18,8 +18,8 @@ Activate the context with:
 Use C<LinearRelation(formula)>, C<Formula(formula)>, or C<Compute(formula)> to
 to create a LinearRelation object using a string formula. Alternatively, use
 C<LinearRelation(vector,point,sign> where C<vector> is the normal vector and
-C<point> is a point on the plane. Either can be an array reference or a Math
-Object Vector or Point. And C<sign> is one of the (in)equality symbols. Or use
+C<point> is a point on the plane. Either can be an array reference or a
+Vector or Point. And C<sign> is one of the (in)equality symbols. Or use
 C<LinearRelation(vector,real,sign)> where C<real> is the dot product of any
 point in the plane with the normal vector.
 
@@ -42,9 +42,9 @@ the variables if your situation should use something different. For example with
 
     Context()->variables->are(m => 'Real', n =>'Real');
 
-Note that things like C<LinearRelation("1 = 1")> and C<<LinearRelation("1 < 5")>>
-are allowed. These two examples are equivalent, but not equiivalent to
-C<<LinearRelation("1 < 1")>> and C<<LinearRelation("1 > 5")>> which are equivalent
+Note that things like C<LinearRelation("1 = 1")> and C<< LinearRelation("1 < 5") >>
+are allowed. These two examples are equivalent, but not equivalent to
+C<< LinearRelation("1 < 1") >> and C<< LinearRelation("1 > 5") >> which are equivalent
 to each other.
 
 There is one special context flag.
@@ -53,8 +53,8 @@ There is one special context flag.
 
 =item S<C<< standardForm >>>
 
-This determines whether something like C<<LinearRelation("x+2 < y+z")>> will be
-displayed as C<<x+2 < y+z>> or converted to standard form: C<<x-y-z < -2>>.
+This determines whether something like C<< LinearRelation("x+2 < y+z") >> will be
+displayed as C<< x+2 < y+z >> or converted to standard form: C<< x-y-z < -2 >>.
 It is 0 by default.
 
 =back
@@ -66,7 +66,7 @@ There is one special method for LinearRelation objects.
 =item S<C<< $LR->check_at(point) >>>
 
 This returns true or false depending on if the point satisfies the relation.
-C<point> must be a Math Object Point, Vector, or ColumnVector; or simply be an
+C<point> must be a Point, Vector, or ColumnVector; or simply be an
 array reference. The number of entries in C<point> must match the number of
 variables in the context.
 
