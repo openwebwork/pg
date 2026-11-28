@@ -119,7 +119,7 @@ sub NAMED_ESSAY_BOX {
 			%html_options,
 			name       => $name,
 			id         => $name,
-			aria_label => generate_aria_label($name),
+			aria_label => generate_aria_label($name, $html_options{aria_label}),
 			rows       => $row,
 			cols       => $col,
 			class      => 'latexentryfield',
